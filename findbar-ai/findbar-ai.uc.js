@@ -77,6 +77,7 @@ const findbar = {
     return this._isExpanded;
   },
   set expanded(value) {
+    const isChanged = value !== this._isExpanded;
     this._isExpanded = value;
     if (!this.findbar) return;
 
@@ -91,7 +92,7 @@ const findbar = {
       }
       this.show();
       this.showAIInterface();
-      this.focusPrompt();
+      if (isChanged) this.focusPrompt();
       const messagesContainer =
         this?.chatContainer?.querySelector("#chat-messages");
       if (messagesContainer) {
@@ -100,7 +101,7 @@ const findbar = {
     } else {
       this.findbar.classList.remove("ai-expanded");
       this.removeAIInterface();
-      this.focusInput();
+      if (isChanged) this.focusInput();
     }
   },
   toggleExpanded() {
@@ -714,10 +715,11 @@ const findbar = {
     this.expanded = true;
     if (PREFS.contextMenuAutoSend) {
       this.sendMessage(finalMessage);
+      this.focusPrompt();
     } else {
       this.setPromptText(finalMessage);
       this.show();
-      this.focusInput();
+      this.focusPrompt();
     }
   },
 
