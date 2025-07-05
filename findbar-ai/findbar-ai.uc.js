@@ -71,6 +71,7 @@ const findbar = {
   _updateContextMenuText: null,
   _handleMinimalPrefChange: null,
   contextMenuItem: null,
+  isOpen: false,
 
   get expanded() {
     return this._isExpanded;
@@ -149,11 +150,19 @@ const findbar = {
     gBrowser.getFindBar().then((findbar) => {
       this.findbar = findbar;
       this.addExpandButton();
-      setTimeout(() => {
-        if (PREFS.persistChat) {
+      if (PREFS.persistChat) {
+        setTimeout(() => {
           this.expanded = this.expanded; // just to make sure in new tab UI willl also be visible
-        }
-      }, 200);
+        }, 200);
+        if (this.isOpen) this.show();
+      } else {
+        this.hide();
+        this.expanded = false;
+      }
+      if (!this.isOpen) {
+        this.hide();
+        this.expanded = false;
+      }
       setTimeout(() => this.updateFoundMatchesDisplay(), 0); // Wait for DOM update
       this.findbar._findField.removeEventListener(
         "keypress",
@@ -171,25 +180,34 @@ const findbar = {
         "input",
         this._handleFindFieldInput,
       );
-      // Ensure found-matches is moved and label is updated
-      this.updateFoundMatchesDisplay();
 
       const originalOnFindbarOpen = this.findbar.browser.finder.onFindbarOpen;
+      const originalOnFindbarClose = this.findbar.browser.finder.onFindbarClose;
 
       //makeing sure this only runs one time
       if (!findbar?.openOverWritten) {
         //update placeholder when findbar is opened
         findbar.browser.finder.onFindbarOpen = (...args) => {
-          if (!this.enabled) {
+          originalOnFindbarOpen.apply(findbar.browser.finder, args); //making sure orignal function is called
+          this.isOpen = true;
+          if (this.enabled) {
             debugLog("Findbar is being opened");
             setTimeout(
               () =>
               (this.findbar._findField.placeholder =
                 "Press Alt + Enter to ask AI"),
-              10,
+              100,
             );
+
+            if (this.minimal) this.showAIInterface();
           }
-          originalOnFindbarOpen.apply(findbar.browser.finder, args); //making sure orignal function is called
+        };
+        findbar.browser.finder.onFindbarClose = (...args) => {
+          originalOnFindbarClose.apply(findbar.browser.finder, args);
+          this.isOpen = false;
+          if (this.enabled) {
+            debugLog("Findbar is being closed");
+          }
         };
         findbar.openOverWritten = true;
       }
@@ -198,14 +216,14 @@ const findbar = {
 
   show() {
     if (!this.findbar) return false;
-    this.findbar.hidden = false;
+    this.findbar.open();
     this.focusInput();
     return true;
   },
   hide() {
     if (!this.findbar) return false;
-    this.findbar.hidden = true;
     this.findbar.close();
+    this.findbar.toggleHighlight(false);
     return true;
   },
   toggleVisibility() {
@@ -745,7 +763,7 @@ const findbar = {
         e.stopPropagation();
         this.expanded = false;
         this.focusInput();
-      }
+      } else if (this.isOpen) this.hide();
     }
   },
 
