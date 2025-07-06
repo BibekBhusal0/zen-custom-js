@@ -105,7 +105,7 @@ const findbar = {
       // Remove AI mode attribute
       this.findbar.removeAttribute("ai-mode");
       this.removeAIInterface();
-      if (isChanged) this.focusInput();
+      if (isChanged && !this.minimal) this.focusInput();
     }
   },
   toggleExpanded() {
@@ -132,6 +132,7 @@ const findbar = {
   set minimal(value) {
     if (typeof value === "boolean") {
       PREFS.minimal = value;
+      if (value) this.expanded = false
       // Remove both buttons and add the correct one for the new mode
       if (this.findbar) {
         this.removeExpandButton();
@@ -762,19 +763,17 @@ const findbar = {
       e.preventDefault();
       e.stopPropagation();
       this.expanded = true;
+      this.show();
       this.focusPrompt();
       this.setPromptTextFromSelection();
     }
     if (e.key?.toLowerCase() === "escape") {
-      if (this.minimal) {
-        e.preventDefault();
-        e.stopPropagation();
-        this.hide();
-      } else if (this.expanded) {
+      if (this.expanded) {
         e.preventDefault();
         e.stopPropagation();
         this.expanded = false;
-        this.focusInput();
+        if (this.minimal) this.hide();
+        else this.focusInput();
       } else if (this.isOpen) this.hide();
     }
   },
