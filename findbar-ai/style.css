@@ -102,17 +102,18 @@ browser {
     input {
       flex-grow: 1 !important;
       border-radius: var(--button-border-radius) !important;
-      border: 2px solid var(--findbar-ai-input-border) !important;
-      background: var(--findbar-ai-input-bg) !important;
+      border: 2px solid var(--zen-primary-color) !important;
+      /* background: var(--zen-primary-color) !important; */
       padding: 10px 12px !important;
       font-size: 14px !important;
-      color: var(--findbar-ai-text) !important;
       transition: all 0.2s ease !important;
+      border: 2px solid var(--zen-workspace-color-stroke) !important;
 
       &:focus {
         outline: none !important;
-        border-color: var(--findbar-ai-accent) !important;
-        box-shadow: 0 0 0 3px var(--findbar-ai-accent-muted) !important;
+        border: 2px solid var(--zen-primary-color) !important;
+        /* border-color: var(--findbar-ai-accent) !important; */
+        /* box-shadow: 0 0 0 3px var(--findbar-ai-accent-muted) !important; */
       }
 
       &::placeholder {
@@ -379,16 +380,10 @@ browser {
         text-align: center;
 
         h3 {
-          margin: 0 0 8px 0 !important;
+          margin: 9px 0 8px 0 !important;
           font-size: 22px !important;
           font-weight: 700 !important;
           color: var(--findbar-ai-text) !important;
-          background: linear-gradient(45deg,
-              var(--findbar-ai-accent),
-              color-mix(in srgb, var(--findbar-ai-accent) 70%, white 30%)) !important;
-          -webkit-background-clip: text !important;
-          -webkit-text-fill-color: transparent !important;
-          background-clip: text !important;
         }
 
         p {
@@ -400,7 +395,22 @@ browser {
       }
 
       .provider-selection-group {
-        padding: 10px 0px !important;
+        padding: 16px 0px !important;
+        display: flex !important;
+        align-content: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+
+        >label {
+          font-size: 15px !important;
+          padding-top: 14px !important;
+        }
+
+        #provider-selector {
+          max-height: 40px !important;
+          flex-basis: 0 !important;
+          display: flex !important;
+        }
       }
 
       .api-key-input-group {
@@ -417,12 +427,15 @@ browser {
           transition: all 0.2s ease;
           position: relative;
           overflow: hidden;
+          background-color: var(--zen-primary-color) !important;
+          border: none !important;
+          min-width: 60px !important;
+          font-size: 17px !important;
+
+          outline: none !important;
 
           &:hover {
-            background: var(--findbar-ai-button-hover);
-            border-color: var(--findbar-ai-border-hover);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px var(--findbar-ai-accent-muted);
           }
 
           &:active {

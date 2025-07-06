@@ -4,7 +4,7 @@ const gemini = {
   name: "gemini",
   label: "Google Gemini",
   faviconUrl:
-    "https://www.google.com/s2/favicons?sz=64&domain_url=https%3A%2F%2Fgemini.google.com",
+    "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fgemini.google.com",
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
   AVAILABLE_MODELS: [
     "gemini-2.5-flash",
