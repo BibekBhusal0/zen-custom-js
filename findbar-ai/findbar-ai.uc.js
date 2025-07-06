@@ -132,7 +132,7 @@ const findbar = {
   set minimal(value) {
     if (typeof value === "boolean") {
       PREFS.minimal = value;
-      if (value) this.expanded = false
+      if (value) this.expanded = false;
       // Remove both buttons and add the correct one for the new mode
       if (this.findbar) {
         this.removeExpandButton();
@@ -146,7 +146,7 @@ const findbar = {
       }
     }
   },
-  handleMinimalPrefChange: function(pref) {
+  handleMinimalPrefChange: function (pref) {
     this.minimal = pref.value;
     this.updateFindbar();
   },
@@ -163,10 +163,10 @@ const findbar = {
       this.findbar = findbar;
       this.addExpandButton();
       if (PREFS.persistChat) {
+        if (this.isOpen) this.show();
         setTimeout(() => {
           this.expanded = this.expanded; // just to make sure in new tab UI willl also be visible
         }, 200);
-        if (this.isOpen) this.show();
       } else {
         this.hide();
         this.expanded = false;
@@ -200,14 +200,14 @@ const findbar = {
       if (!findbar?.openOverWritten) {
         //update placeholder when findbar is opened
         findbar.browser.finder.onFindbarOpen = (...args) => {
-          originalOnFindbarOpen.apply(findbar.browser.finder, args); //making sure orignal function is called
+          originalOnFindbarOpen.apply(findbar.browser.finder, args); //making sure original function is called
           this.isOpen = true;
           if (this.enabled) {
             debugLog("Findbar is being opened");
             setTimeout(
               () =>
-              (this.findbar._findField.placeholder =
-                "Press Alt + Enter to ask AI"),
+                (this.findbar._findField.placeholder =
+                  "Press Alt + Enter to ask AI"),
               100,
             );
 
@@ -230,6 +230,7 @@ const findbar = {
     if (!this.findbar) return false;
     this.findbar.open();
     this.focusInput();
+    if (this.minimal) this.showAIInterface();
     return true;
   },
   hide() {
@@ -371,8 +372,9 @@ const findbar = {
     const modelOptions = llm.currentProvider.AVAILABLE_MODELS.map((model) => {
       const displayName =
         model.charAt(0).toUpperCase() + model.slice(1).replace(/-/g, " ");
-      return `<option value="${model}" ${model === llm.currentProvider.model ? "selected" : ""
-        }>${displayName}</option>`;
+      return `<option value="${model}" ${
+        model === llm.currentProvider.model ? "selected" : ""
+      }>${displayName}</option>`;
     }).join("");
 
     const chatInputGroup = this.minimal
@@ -443,7 +445,7 @@ const findbar = {
         e.preventDefault();
         try {
           openTrustedLinkIn(e.target.href, "tab");
-        } catch (e) { }
+        } catch (e) {}
       }
     });
 
@@ -631,7 +633,7 @@ const findbar = {
     return true;
   },
 
-  handleInputKeyPress: function(e) {
+  handleInputKeyPress: function (e) {
     if (e?.key === "Enter" && e?.altKey) {
       e.preventDefault();
       const inpText = this.findbar._findField.value.trim();
@@ -700,14 +702,14 @@ const findbar = {
     contextMenu.addEventListener("popupshowing", this._updateContextMenuText);
   },
 
-  removeContextMenuItem: function() {
+  removeContextMenuItem: function () {
     this?.contextMenuItem?.remove();
     this.contextMenuItem = null;
     document
       ?.getElementById("contentAreaContextMenu")
       ?.removeEventListener("popupshowing", this._updateContextMenuText);
   },
-  handleContextMenuClick: async function() {
+  handleContextMenuClick: async function () {
     const selection = await windowManagerAPI.getSelectedText();
     let finalMessage = "";
     if (!selection.hasSelection) {
@@ -734,7 +736,7 @@ const findbar = {
     }
   },
 
-  handleContextMenuPrefChange: function(pref) {
+  handleContextMenuPrefChange: function (pref) {
     if (pref.value) this.addContextMenuItem();
     else this.removeContextMenuItem();
   },
@@ -746,13 +748,13 @@ const findbar = {
   },
 
   //TODO: add drag and drop
-  doResize: function() { },
-  stopResize: function() { },
-  doDrag: function() { },
-  stopDrag: function() { },
-  stopDrag: function() { },
+  doResize: function () {},
+  stopResize: function () {},
+  doDrag: function () {},
+  stopDrag: function () {},
+  stopDrag: function () {},
 
-  addKeymaps: function(e) {
+  addKeymaps: function (e) {
     if (
       e.key &&
       e.key.toLowerCase() === "f" &&
