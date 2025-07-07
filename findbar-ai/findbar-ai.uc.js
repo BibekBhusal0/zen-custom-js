@@ -56,11 +56,6 @@ function parseMD(markdown) {
   return htmlContent;
 }
 
-const UNIMPLEMENTED_PREF_KEYS = [
-  PREFS.COPY_BTN_ENABLED, PREFS.MARKDOWN_ENABLED,
-  PREFS.CONFORMATION, PREFS.SHOW_TOOL_CALL, PREFS.DND_ENABLED, PREFS.POSITION
-];
-
 const SettingsModal = {
   _modalElement: null,
   _currentPrefValues: {}, // Store values from the form before saving
@@ -71,6 +66,7 @@ const SettingsModal = {
     this._modalElement = container;
 
     this._attachEventListeners();
+    this._updateWarningMessage(); // Initial check for warning
     return container;
   },
 
@@ -78,18 +74,22 @@ const SettingsModal = {
     if (!this._modalElement) return;
 
     // Close button
-    this._modalElement.querySelector("#close-settings").addEventListener("click", () => {
-      this.hide();
-    });
+    this._modalElement
+      .querySelector("#close-settings")
+      .addEventListener("click", () => {
+        this.hide();
+      });
 
     // Save button
-    this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
-      this.saveSettings();
-      this.hide();
-      // Notify findbar to update UI based on new settings
-      findbar.updateFindbar();
-      findbar.showAIInterface();
-    });
+    this._modalElement
+      .querySelector("#save-settings")
+      .addEventListener("click", () => {
+        this.saveSettings();
+        this.hide();
+        // Notify findbar to update UI based on new settings
+        findbar.updateFindbar();
+        findbar.showAIInterface();
+      });
 
     // Initialize and listen to changes on controls (store in _currentPrefValues)
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
@@ -106,11 +106,21 @@ const SettingsModal = {
 
       // Store changes in _currentPrefValues
       control.addEventListener("change", (e) => {
-        this._currentPrefValues[prefName] = control.type === "checkbox" ? e.target.checked : e.target.value;
-        debugLog(`Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`);
+        this._currentPrefValues[prefName] =
+          control.type === "checkbox" ? e.target.checked : e.target.value;
+        debugLog(
+          `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
+        );
         // Special handling for LLM_PROVIDER change to update UI live in modal
         if (prefKey === PREFS.LLM_PROVIDER) {
-          this._updateProviderSpecificSettings(this._modalElement, this._currentPrefValues[prefName]);
+          this._updateProviderSpecificSettings(
+            this._modalElement,
+            this._currentPrefValues[prefName],
+          );
+        }
+        // Update warning message if relevant preferences change
+        if (prefKey === PREFS.CITATIONS_ENABLED || prefKey === PREFS.GOD_MODE) {
+          this._updateWarningMessage();
         }
       });
     });
@@ -122,7 +132,9 @@ const SettingsModal = {
   saveSettings() {
     // Iterate _currentPrefValues and set PREFS
     for (const prefName in this._currentPrefValues) {
-      if (Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefName)) {
+      if (
+        Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefName)
+      ) {
         PREFS[prefName] = this._currentPrefValues[prefName];
         debugLog(`Saving pref ${prefName} to: ${PREFS[prefName]}`);
       }
@@ -149,6 +161,7 @@ const SettingsModal = {
       this._currentPrefValues[prefName] = PREFS[prefName]; // Sync internal state
     });
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider); // Update model dropdowns based on current PREFS
+    this._updateWarningMessage(); // Update warning message when showing the modal
 
     document.documentElement.appendChild(this._modalElement); // Append to documentElement for full-screen overlay
   },
@@ -175,132 +188,133 @@ const SettingsModal = {
     // Update model dropdowns based on the currently selected provider's stored model (from _currentPrefValues or PREFS)
     const mistralModelSelect = container.querySelector(`#pref-mistral-model`);
     if (mistralModelSelect) {
-      mistralModelSelect.value = this._currentPrefValues.mistralModel || PREFS.mistralModel;
+      mistralModelSelect.value =
+        this._currentPrefValues.mistralModel || PREFS.mistralModel;
     }
     const geminiModelSelect = container.querySelector(`#pref-gemini-model`);
     if (geminiModelSelect) {
-      geminiModelSelect.value = this._currentPrefValues.geminiModel || PREFS.geminiModel;
+      geminiModelSelect.value =
+        this._currentPrefValues.geminiModel || PREFS.geminiModel;
+    }
+  },
+
+  // Helper to display warning if both citations and god mode are enabled
+  _updateWarningMessage() {
+    if (!this._modalElement) return;
+
+    const citationsEnabled =
+      this._currentPrefValues[PREFS.getPrefSetterName(PREFS.CITATIONS_ENABLED)];
+    const godModeEnabled =
+      this._currentPrefValues[PREFS.getPrefSetterName(PREFS.GOD_MODE)];
+    const warningDiv = this._modalElement.querySelector(
+      "#citations-god-mode-warning",
+    );
+
+    if (citationsEnabled && godModeEnabled) {
+      if (warningDiv) warningDiv.style.display = "block";
+    } else {
+      if (warningDiv) warningDiv.style.display = "none";
     }
   },
 
   _generateSettingsHtml() {
-    // Helper to check if a pref key is implemented (not in UNIMPLEMENTED_PREF_KEYS)
-    const isPrefImplemented = (prefKey) => !UNIMPLEMENTED_PREF_KEYS.includes(prefKey);
+    let generalSectionHtml = `
+      <section class="settings-section">
+        <h4>General</h4>
+        <div class="setting-item">
+          <label for="pref-enabled">Enable AI Findbar</label>
+          <input type="checkbox" id="pref-enabled" data-pref="${PREFS.ENABLED}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-minimal">Minimal Mode</label>
+          <input type="checkbox" id="pref-minimal" data-pref="${PREFS.MINIMAL}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-persist-chat">Persist Chat</label>
+          <input type="checkbox" id="pref-persist-chat" data-pref="${PREFS.PERSIST}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-debug-mode">Debug Mode</label>
+          <input type="checkbox" id="pref-debug-mode" data-pref="${PREFS.DEBUG_MODE}" />
+        </div>
+      </section>`;
 
-    let generalSectionHtml = '';
-    // Check if any general prefs are implemented before rendering the section
-    if (isPrefImplemented(PREFS.ENABLED) || isPrefImplemented(PREFS.MINIMAL) ||
-        isPrefImplemented(PREFS.PERSIST) || isPrefImplemented(PREFS.DEBUG_MODE)) {
-      generalSectionHtml = `
-        <section class="settings-section">
-          <h4>General</h4>
-          ${isPrefImplemented(PREFS.ENABLED) ? `<div class="setting-item">
-            <label for="pref-enabled">Enable AI Findbar</label>
-            <input type="checkbox" id="pref-enabled" data-pref="${PREFS.ENABLED}" />
-          </div>` : ''}
-          ${isPrefImplemented(PREFS.MINIMAL) ? `<div class="setting-item">
-            <label for="pref-minimal">Minimal Mode</label>
-            <input type="checkbox" id="pref-minimal" data-pref="${PREFS.MINIMAL}" />
-          </div>` : ''}
-          ${isPrefImplemented(PREFS.PERSIST) ? `<div class="setting-item">
-            <label for="pref-persist-chat">Persist Chat</label>
-            <input type="checkbox" id="pref-persist-chat" data-pref="${PREFS.PERSIST}" />
-          </div>` : ''}
-          ${isPrefImplemented(PREFS.DEBUG_MODE) ? `<div class="setting-item">
-            <label for="pref-debug-mode">Debug Mode</label>
-            <input type="checkbox" id="pref-debug-mode" data-pref="${PREFS.DEBUG_MODE}" />
-          </div>` : ''}
-        </section>`;
-    }
+    let aiBehaviorSectionHtml = `
+      <section class="settings-section">
+        <h4>AI Behavior</h4>
+        <div id="citations-god-mode-warning" class="warning-message" style="display: none; color: red; margin-bottom: 10px;">
+          Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
+        </div>
+        <div class="setting-item">
+          <label for="pref-citations-enabled">Enable Citations</label>
+          <input type="checkbox" id="pref-citations-enabled" data-pref="${PREFS.CITATIONS_ENABLED}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-god-mode">God Mode (Use Local Files)</label>
+          <input type="checkbox" id="pref-god-mode" data-pref="${PREFS.GOD_MODE}" />
+        </div>
+      </section>`;
 
-    let aiBehaviorSectionHtml = '';
-    // Check if any AI behavior prefs are implemented before rendering the section
-    if (isPrefImplemented(PREFS.CITATIONS_ENABLED) || isPrefImplemented(PREFS.GOD_MODE)) {
-      aiBehaviorSectionHtml = `
-        <section class="settings-section">
-          <h4>AI Behavior</h4>
-          ${isPrefImplemented(PREFS.CITATIONS_ENABLED) ? `<div class="setting-item">
-            <label for="pref-citations-enabled">Enable Citations</label>
-            <input type="checkbox" id="pref-citations-enabled" data-pref="${PREFS.CITATIONS_ENABLED}" />
-          </div>` : ''}
-          ${isPrefImplemented(PREFS.GOD_MODE) ? `<div class="setting-item">
-            <label for="pref-god-mode">God Mode (Use Local Files)</label>
-            <input type="checkbox" id="pref-god-mode" data-pref="${PREFS.GOD_MODE}" />
-          </div>` : ''}
-        </section>`;
-    }
+    let contextMenuSectionHtml = `
+      <section class="settings-section">
+        <h4>Context Menu</h4>
+        <div class="setting-item">
+          <label for="pref-context-menu-enabled">Enable Context Menu</label>
+          <input type="checkbox" id="pref-context-menu-enabled" data-pref="${PREFS.CONTEXT_MENU_ENABLED}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-context-menu-autosend">Auto Send from Context Menu</label>
+          <input type="checkbox" id="pref-context-menu-autosend" data-pref="${PREFS.CONTEXT_MENU_AUTOSEND}" />
+        </div>
+      </section>`;
 
-    let contextMenuSectionHtml = '';
-    // Check if any context menu prefs are implemented before rendering the section
-    if (isPrefImplemented(PREFS.CONTEXT_MENU_ENABLED) || isPrefImplemented(PREFS.CONTEXT_MENU_AUTOSEND)) {
-      contextMenuSectionHtml = `
-        <section class="settings-section">
-          <h4>Context Menu</h4>
-          ${isPrefImplemented(PREFS.CONTEXT_MENU_ENABLED) ? `<div class="setting-item">
-            <label for="pref-context-menu-enabled">Enable Context Menu</label>
-            <input type="checkbox" id="pref-context-menu-enabled" data-pref="${PREFS.CONTEXT_MENU_ENABLED}" />
-          </div>` : ''}
-          ${isPrefImplemented(PREFS.CONTEXT_MENU_AUTOSEND) ? `<div class="setting-item">
-            <label for="pref-context-menu-autosend">Auto Send from Context Menu</label>
-            <input type="checkbox" id="pref-context-menu-autosend" data-pref="${PREFS.CONTEXT_MENU_AUTOSEND}" />
-          </div>` : ''}
-        </section>`;
-    }
+    let llmProvidersSectionHtml = `
+      <section class="settings-section">
+        <h4>LLM Providers</h4>
+        <div class="setting-item">
+          <label for="pref-llm-provider">Select Provider</label>
+          <select id="pref-llm-provider" data-pref="${PREFS.LLM_PROVIDER}">
+            ${Object.entries(llm.AVAILABLE_PROVIDERS)
+        .map(
+          ([name, provider]) =>
+            `<option value="${name}">${provider.label}</option>`,
+        )
+        .join("")}
+          </select>
+        </div>
 
-    let llmProvidersSectionHtml = '';
-    // Check if any LLM provider prefs are implemented before rendering the section
-    if (isPrefImplemented(PREFS.LLM_PROVIDER) || isPrefImplemented(PREFS.MISTRAL_API_KEY) ||
-        isPrefImplemented(PREFS.MISTRAL_MODEL) || isPrefImplemented(PREFS.GEMINI_API_KEY) ||
-        isPrefImplemented(PREFS.GEMINI_MODEL)) {
-      llmProvidersSectionHtml = `
-        <section class="settings-section">
-          <h4>LLM Providers</h4>
-          ${isPrefImplemented(PREFS.LLM_PROVIDER) ? `<div class="setting-item">
-            <label for="pref-llm-provider">Select Provider</label>
-            <select id="pref-llm-provider" data-pref="${PREFS.LLM_PROVIDER}">
-              ${Object.entries(llm.AVAILABLE_PROVIDERS)
-                .map(
-                  ([name, provider]) =>
-                    `<option value="${name}">${provider.label}</option>`,
-                )
-                .join("")}
+        <div id="mistral-settings-group" class="provider-settings-group">
+          <h5>Mistral AI</h5>
+          <div class="setting-item">
+            <label for="pref-mistral-api-key">API Key</label>
+            <input type="password" id="pref-mistral-api-key" data-pref="${PREFS.MISTRAL_API_KEY}" placeholder="Enter Mistral API Key" />
+          </div>
+          <div class="setting-item">
+            <label for="pref-mistral-model">Model</label>
+            <select id="pref-mistral-model" data-pref="${PREFS.MISTRAL_MODEL}">
+              ${llm.AVAILABLE_PROVIDERS.mistral.AVAILABLE_MODELS.map(
+          (model) => `<option value="${model}">${model}</option>`,
+        ).join("")}
             </select>
-          </div>` : ''}
+          </div>
+        </div>
 
-          ${(isPrefImplemented(PREFS.MISTRAL_API_KEY) || isPrefImplemented(PREFS.MISTRAL_MODEL)) ? `<div id="mistral-settings-group" class="provider-settings-group">
-            <h5>Mistral AI</h5>
-            ${isPrefImplemented(PREFS.MISTRAL_API_KEY) ? `<div class="setting-item">
-              <label for="pref-mistral-api-key">API Key</label>
-              <input type="password" id="pref-mistral-api-key" data-pref="${PREFS.MISTRAL_API_KEY}" placeholder="Enter Mistral API Key" />
-            </div>` : ''}
-            ${isPrefImplemented(PREFS.MISTRAL_MODEL) ? `<div class="setting-item">
-              <label for="pref-mistral-model">Model</label>
-              <select id="pref-mistral-model" data-pref="${PREFS.MISTRAL_MODEL}">
-                ${llm.AVAILABLE_PROVIDERS.mistral.AVAILABLE_MODELS.map(
-                  (model) => `<option value="${model}">${model}</option>`,
-                ).join("")}
-              </select>
-            </div>` : ''}
-          </div>` : ''}
-
-          ${(isPrefImplemented(PREFS.GEMINI_API_KEY) || isPrefImplemented(PREFS.GEMINI_MODEL)) ? `<div id="gemini-settings-group" class="provider-settings-group">
-            <h5>Gemini AI</h5>
-            ${isPrefImplemented(PREFS.GEMINI_API_KEY) ? `<div class="setting-item">
-              <label for="pref-gemini-api-key">API Key</label>
-              <input type="password" id="pref-gemini-api-key" data-pref="${PREFS.GEMINI_API_KEY}" placeholder="Enter Gemini API Key" />
-            </div>` : ''}
-            ${isPrefImplemented(PREFS.GEMINI_MODEL) ? `<div class="setting-item">
-              <label for="pref-gemini-model">Model</label>
-              <select id="pref-gemini-model" data-pref="${PREFS.GEMINI_MODEL}">
-                ${llm.AVAILABLE_PROVIDERS.gemini.AVAILABLE_MODELS.map(
-                  (model) => `<option value="${model}">${model}</option>`,
-                ).join("")}
-              </select>
-            </div>` : ''}
-          </div>` : ''}
-        </section>`;
-    }
-
+        <div id="gemini-settings-group" class="provider-settings-group">
+          <h5>Gemini AI</h5>
+          <div class="setting-item">
+            <label for="pref-gemini-api-key">API Key</label>
+            <input type="password" id="pref-gemini-api-key" data-pref="${PREFS.GEMINI_API_KEY}" placeholder="Enter Gemini API Key" />
+          </div>
+          <div class="setting-item">
+            <label for="pref-gemini-model">Model</label>
+            <select id="pref-gemini-model" data-pref="${PREFS.GEMINI_MODEL}">
+              ${llm.AVAILABLE_PROVIDERS.gemini.AVAILABLE_MODELS.map(
+          (model) => `<option value="${model}">${model}</option>`,
+        ).join("")}
+            </select>
+          </div>
+        </div>
+      </section>`;
 
     return `
       <div id="ai-settings-modal-overlay">
@@ -323,7 +337,6 @@ const SettingsModal = {
     `;
   },
 };
-
 
 const findbar = {
   findbar: null,
@@ -779,10 +792,7 @@ const findbar = {
 
     if (!llm.currentProvider.apiKey) {
       this.apiKeyContainer = this.createAPIKeyInterface();
-      this.findbar.insertBefore(
-        this.apiKeyContainer,
-        this.findbar.firstChild,
-      );
+      this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     } else {
       this.chatContainer = this.createChatInterface();
       const history = llm.getHistory();
@@ -1058,7 +1068,10 @@ const findbar = {
       this.setPromptTextFromSelection();
     }
     if (e.key?.toLowerCase() === "escape") {
-      if (SettingsModal._modalElement && SettingsModal._modalElement.parentNode) {
+      if (
+        SettingsModal._modalElement &&
+        SettingsModal._modalElement.parentNode
+      ) {
         // If settings modal is open, close it
         e.preventDefault();
         e.stopPropagation();
@@ -1196,4 +1209,3 @@ UC_API.Prefs.addListener(
   findbar.handleEnabledChange.bind(findbar),
 );
 window.findbar = findbar;
-
