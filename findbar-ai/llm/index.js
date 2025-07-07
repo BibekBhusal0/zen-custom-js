@@ -194,10 +194,41 @@ Here is the initial info about the current page:
       : null;
     return this;
   },
-  async sendMessage(prompt, pageContext) {
-    if (!this.systemInstruction) {
-      await this.updateSystemPrompt();
+
+  parseModelResponseText(responseText) {
+    let answer = responseText;
+    let citations = [];
+
+    if (PREFS.citationsEnabled) {
+      try {
+        const parsedContent = JSON.parse(responseText);
+        if (typeof parsedContent.answer === "string") {
+          answer = parsedContent.answer;
+          if (Array.isArray(parsedContent.citations)) {
+            citations = parsedContent.citations;
+          }
+        } else {
+          // Parsed JSON but 'answer' field is missing or not a string.
+          debugLog(
+            "AI response JSON missing 'answer' field or not a string:",
+            parsedContent,
+          );
+        }
+      } catch (e) {
+        // JSON parsing failed, keep rawText as answer.
+        debugError(
+          "Failed to parse AI message content as JSON:",
+          e,
+          "Raw Text:",
+          responseText,
+        );
+      }
     }
+    return { answer, citations };
+  },
+
+  async sendMessage(prompt, pageContext) {
+    await this.updateSystemPrompt();
 
     const fullPrompt = `[Current Page Context: ${JSON.stringify(pageContext || {})}] ${prompt}`;
     this.history.push({ role: "user", parts: [{ text: fullPrompt }] });
@@ -262,41 +293,22 @@ Here is the initial info about the current page:
     }
 
     if (PREFS.citationsEnabled) {
-      try {
-        const responseText =
-          modelResponse.parts?.find((part) => part.text)?.text || "{}";
-        let parsedResponse;
-        try {
-          parsedResponse = JSON.parse(responseText);
-        } catch (e) {
-          // Try to extract JSON object from the response using regex
-          const match = responseText.match(/\{[\s\S]*\}/);
-          if (match) {
-            parsedResponse = JSON.parse(match[0]);
-          } else {
-            // If parsing fails, just return the raw text as the answer, no error log
-            return {
-              answer: responseText,
-              citations: [],
-            };
-          }
-        }
-        debugLog("Parsed AI Response:", parsedResponse);
+      const responseText =
+        modelResponse.parts.find((part) => part.text)?.text || "";
+      const parsedResponse = this.parseModelResponseText(responseText);
 
-        if (!parsedResponse.answer) {
-          if (functionCalls.length > 0)
-            return { answer: "I used my tools to complete your request." };
-          this.history.pop();
+      debugLog("Parsed AI Response:", parsedResponse);
+
+      if (!parsedResponse.answer) {
+        if (functionCalls.length > 0) {
+          return { answer: "I used my tools to complete your request." };
         }
-        return parsedResponse;
-      } catch (e) {
-        // If something else fails, fallback to raw text, no error log
-        const rawText = modelResponse.parts[0]?.text || "[Empty Response]";
+        this.history.pop();
         return {
-          answer: rawText,
-          citations: [],
+          answer: "Sorry, I received an invalid response from the server.",
         };
       }
+      return parsedResponse;
     } else {
       const responseText =
         modelResponse.parts?.find((part) => part.text)?.text || "";
@@ -323,3 +335,4 @@ Here is the initial info about the current page:
 };
 
 export { llm };
+
