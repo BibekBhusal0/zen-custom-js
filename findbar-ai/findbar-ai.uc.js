@@ -60,6 +60,10 @@ const SettingsModal = {
   _modalElement: null,
   _currentPrefValues: {}, // Store values from the form before saving
 
+  _getSafeIdForProvider(providerName) {
+    return providerName.replace(/\./g, '-');
+  },
+
   createModalElement() {
     const settingsHtml = this._generateSettingsHtml();
     const container = parseElement(settingsHtml);
@@ -91,6 +95,38 @@ const SettingsModal = {
     );
     if (placeholder) {
       placeholder.replaceWith(providerSelectorXulElement);
+    }
+
+    // Manually create and insert XUL menulists for LLM Models
+    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
+      const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
+      if (modelPrefKey) {
+        const modelPrefName = PREFS.getPrefSetterName(modelPrefKey);
+
+        const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
+          (model) =>
+            `<menuitem
+              value="${model}"
+              label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
+              ${model === PREFS[modelPrefName] ? 'selected="true"' : ""}
+            />`,
+        ).join("");
+
+        const modelMenulistXul = `
+          <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${PREFS[modelPrefName]}">
+            <menupopup>
+              ${modelOptionsXUL}
+            </menupopup>
+          </menulist>`;
+
+        const modelPlaceholder = this._modalElement.querySelector(
+          `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`,
+        );
+        if (modelPlaceholder) {
+          const modelSelectorXulElement = parseElement(modelMenulistXul, "xul");
+          modelPlaceholder.replaceWith(modelSelectorXulElement);
+        }
+      }
     }
 
     this._attachEventListeners();
@@ -145,10 +181,12 @@ const SettingsModal = {
           debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
           );
-          this._updateProviderSpecificSettings(
-            this._modalElement,
-            this._currentPrefValues[prefName],
-          );
+          if (prefKey === PREFS.LLM_PROVIDER) {
+            this._updateProviderSpecificSettings(
+              this._modalElement,
+              this._currentPrefValues[prefName],
+            );
+          }
         });
       } else {
         control.addEventListener("change", (e) => {
@@ -226,8 +264,9 @@ const SettingsModal = {
       group.style.display = "none";
     });
 
+    // Use the safe ID for the selector
     const activeGroup = container.querySelector(
-      `#${selectedProviderName}-settings-group`,
+      `#${this._getSafeIdForProvider(selectedProviderName)}-settings-group`,
     );
     if (activeGroup) {
       activeGroup.style.display = "block";
@@ -236,8 +275,9 @@ const SettingsModal = {
       const modelPrefKey = PREFS[`${selectedProviderName.toUpperCase()}_MODEL`];
       if (modelPrefKey) {
         const modelPrefName = PREFS.getPrefSetterName(modelPrefKey);
+        // Use the safe ID for the model selector as well
         const modelSelect = activeGroup.querySelector(
-          `#pref-${selectedProviderName}-model`,
+          `#pref-${this._getSafeIdForProvider(selectedProviderName)}-model`,
         );
         if (modelSelect) {
           modelSelect.value =
@@ -325,30 +365,27 @@ const SettingsModal = {
       const apiInputHtml = apiPrefKey
         ? `
         <div class="setting-item">
-          <label for="pref-${name}-api-key">API Key</label>
-          <input type="password" id="pref-${name}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
+          <label for="pref-${this._getSafeIdForProvider(name)}-api-key">API Key</label>
+          <input type="password" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
         </div>
       `
         : "";
 
-      const modelSelectHtml = modelPrefKey
+      // Placeholder for the XUL menulist, which will be inserted dynamically in createModalElement
+      const modelSelectPlaceholderHtml = modelPrefKey
         ? `
         <div class="setting-item">
-          <label for="pref-${name}-model">Model</label>
-          <select id="pref-${name}-model" data-pref="${modelPrefKey}">
-            ${provider.AVAILABLE_MODELS.map(
-          (model) => `<option value="${model}">${model}</option>`,
-        ).join("")}
-          </select>
+          <label for="pref-${this._getSafeIdForProvider(name)}-model">Model</label>
+          <div id="llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}"></div>
         </div>
       `
         : "";
 
       llmProviderSettingsHtml += `
-        <div id="${name}-settings-group" class="provider-settings-group">
+        <div id="${this._getSafeIdForProvider(name)}-settings-group" class="provider-settings-group">
           <h5>${provider.label}</h5>
           ${apiInputHtml}
-          ${modelSelectHtml}
+          ${modelSelectPlaceholderHtml}
         </div>
       `;
     }

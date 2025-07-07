@@ -77,6 +77,15 @@ const mistral = {
     "mistral-large-latest",
     "pixtral-large-latest",
   ],
+  AVAILABLE_MODELS_LABELS: {
+    "mistral-small": "Mistral Small",
+    "mistral-medium-latest": "Mistral Medium (Latest)",
+    "mistral-large-latest": "Mistral Large (Latest)",
+    "pixtral-large-latest": "Pixtral Large (Latest)",
+  },
+  modelPref: PREFS.MISTRAL_MODEL,
+  apiPref: PREFS.MISTRAL_API_KEY,
+
 
   get apiKey() {
     return PREFS.mistralApiKey;
