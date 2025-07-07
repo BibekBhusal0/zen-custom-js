@@ -216,7 +216,7 @@ browser {
         top: 3px !important;
         right: 40px !important;
         min-width: 24px !important;
-        transition: background-color 0.2s ease !important;
+        transition: none !important;
         text-indent: -9999px;
 
         &::before {
@@ -634,14 +634,15 @@ browser {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 1.7em !important;
+      min-width: 1.7em !important;
       height: 1.7em !important;
       font-size: 0.75em !important;
       font-weight: 700 !important;
       cursor: pointer;
-      margin: 0 3px;
+      margin: 1px 3px;
       vertical-align: middle;
-      padding: 0 !important;
+      padding: 0.3px !important;
+      background: color-mix(in srgb, var(--zen-primary-color) 40%, transparent 60%) !important;
     }
 
     #findbar-expand {
