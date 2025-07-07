@@ -12,8 +12,9 @@
 }
 
 browser {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  will-change: transform;
 }
+
 
 @keyframes initial-animation {
   from {
@@ -112,7 +113,7 @@ browser {
       outline: none !important;
 
       &:hover {
-        transform: translateY(-1px);
+        background-color: color-mix(in srgb, var(--zen-primary-color) 80%, black 20%) !important;
       }
 
       &:active {
@@ -132,16 +133,17 @@ browser {
   }
 
   findbar {
-    padding-inline: 5px !important;
-    padding-top: 2px !important;
+    padding-inline-start: 0px !important;
+    padding-inline-end: 5px !important;
+    padding-top: 1px !important;
     padding-bottom: 2px !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     box-sizing: border-box;
     position: fixed;
-    top: 1% !important;
-    right: 1% !important;
+    top: 35px;
+    right: 15px !important;
     width: min-content !important;
     min-width: 400px !important;
     border-radius: var(--acrylic-radius) !important;
@@ -236,7 +238,6 @@ browser {
       display: flex !important;
       flex-direction: row !important;
       justify-content: center !important;
-      margin-right: 27px !important;
       margin-bottom: 5px !important;
       flex-wrap: wrap;
       height: auto !important;
@@ -667,7 +668,6 @@ browser {
       min-height: 36px !important;
       align-items: center !important;
       flex-direction: column !important;
-      top: 3% !important;
       overflow: visible !important;
 
       .findbar-container {
@@ -684,6 +684,7 @@ browser {
 
       .findbar-container {
         margin-bottom: 0 !important;
+        margin-inline-start: 0 !important;
         height: 32px !important;
         width: 100% !important;
 
@@ -806,7 +807,7 @@ browser {
         }
 
         .findbar-container {
-          padding: 0 25px 0 10px !important;
+          padding: 0 35px 0 10px !important;
         }
       }
 
@@ -862,22 +863,10 @@ browser {
         font-size: 18px !important;
         font-weight: 700 !important;
       }
-
-      .settings-close-btn,
-      .settings-save-btn {
-        background: var(--zen-primary-color) !important;
-        color: var(--tab-selected-textcolor) !important;
-        border: none !important;
-        padding: 5px 15px !important;
-        border-radius: 4px !important;
-        cursor: pointer !important;
-        font-weight: 600 !important;
-        transition: all 0.2s ease !important;
-        margin-left: 10px;
-
-        &:hover {
-          opacity: 0.8;
-        }
+      
+      div {
+        display: flex;
+        gap: 10px;
       }
     }
 
