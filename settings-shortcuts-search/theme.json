@@ -4,7 +4,6 @@
   "description": "Lightweight script to add search and filter options in keyboard shortcuts in settings",
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js/tree/main/settings-shortcuts-search",
   "js": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/settings-shortcuts-search/settings-shortcuts-search.uc.js",
-  "preferences": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/settings-shortcuts-search/preferences.json",
   "style": {
     "content": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/settings-shortcuts-search/style.css"
   },
