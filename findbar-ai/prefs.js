@@ -135,6 +135,31 @@ export const PREFS = {
   set copyBtnEnabled(value) {
     UC_API.Prefs.set(this.COPY_BTN_ENABLED, value);
   },
+  // Helper method to map PREFS constants to their setter property names
+  getPrefSetterName(prefKey) {
+    const keyMap = {
+      [PREFS.ENABLED]: "enabled",
+      [PREFS.MINIMAL]: "minimal",
+      [PREFS.PERSIST]: "persistChat",
+      [PREFS.GOD_MODE]: "godMode",
+      [PREFS.CITATIONS_ENABLED]: "citationsEnabled",
+      [PREFS.CONTEXT_MENU_ENABLED]: "contextMenuEnabled",
+      [PREFS.CONTEXT_MENU_AUTOSEND]: "contextMenuAutoSend",
+      [PREFS.DEBUG_MODE]: "debugMode",
+      [PREFS.LLM_PROVIDER]: "llmProvider",
+      [PREFS.MISTRAL_API_KEY]: "mistralApiKey",
+      [PREFS.MISTRAL_MODEL]: "mistralModel",
+      [PREFS.GEMINI_API_KEY]: "geminiApiKey",
+      [PREFS.GEMINI_MODEL]: "geminiModel",
+      [PREFS.COPY_BTN_ENABLED]: "copyBtnEnabled",
+      [PREFS.MARKDOWN_ENABLED]: "markdownEnabled",
+      [PREFS.CONFORMATION]: "conformation",
+      [PREFS.SHOW_TOOL_CALL]: "showToolCall",
+      [PREFS.DND_ENABLED]: "dndEnabled",
+      [PREFS.POSITION]: "position",
+    };
+    return keyMap[prefKey];
+  },
 };
 
 export const debugLog = (...args) => {

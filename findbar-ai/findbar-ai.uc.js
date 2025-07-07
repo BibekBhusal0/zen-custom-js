@@ -56,6 +56,373 @@ function parseMD(markdown) {
   return htmlContent;
 }
 
+const SettingsModal = {
+  _modalElement: null,
+  _currentPrefValues: {}, // Store values from the form before saving
+
+  _getSafeIdForProvider(providerName) {
+    return providerName.replace(/\./g, "-");
+  },
+
+  createModalElement() {
+    const settingsHtml = this._generateSettingsHtml();
+    const container = parseElement(settingsHtml);
+    this._modalElement = container;
+
+    // Manually create and insert the XUL menulist for LLM Provider selection
+    const providerOptionsXUL = Object.entries(llm.AVAILABLE_PROVIDERS)
+      .map(
+        ([name, provider]) =>
+          `<menuitem
+            value="${name}"
+            label="${escapeXmlAttribute(provider.label)}"
+            ${name === PREFS.llmProvider ? 'selected="true"' : ""}
+            ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
+          />`,
+      )
+      .join("");
+
+    const menulistXul = `
+      <menulist id="pref-llm-provider" data-pref="${PREFS.LLM_PROVIDER}" value="${PREFS.llmProvider}">
+        <menupopup>
+          ${providerOptionsXUL}
+        </menupopup>
+      </menulist>`;
+
+    const providerSelectorXulElement = parseElement(menulistXul, "xul");
+    const placeholder = this._modalElement.querySelector(
+      "#llm-provider-selector-placeholder",
+    );
+    if (placeholder) {
+      placeholder.replaceWith(providerSelectorXulElement);
+    }
+
+    // Manually create and insert XUL menulists for LLM Models
+    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
+      const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
+      if (modelPrefKey) {
+        const modelPrefName = PREFS.getPrefSetterName(modelPrefKey);
+
+        const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
+          (model) =>
+            `<menuitem
+              value="${model}"
+              label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
+              ${model === PREFS[modelPrefName] ? 'selected="true"' : ""}
+            />`,
+        ).join("");
+
+        const modelMenulistXul = `
+          <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${PREFS[modelPrefName]}">
+            <menupopup>
+              ${modelOptionsXUL}
+            </menupopup>
+          </menulist>`;
+
+        const modelPlaceholder = this._modalElement.querySelector(
+          `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`,
+        );
+        if (modelPlaceholder) {
+          const modelSelectorXulElement = parseElement(modelMenulistXul, "xul");
+          modelPlaceholder.replaceWith(modelSelectorXulElement);
+        }
+      }
+    }
+
+    this._attachEventListeners();
+    this._updateWarningMessage(); // Initial check for warning
+    return container;
+  },
+
+  _attachEventListeners() {
+    if (!this._modalElement) return;
+
+    // Close button
+    this._modalElement
+      .querySelector("#close-settings")
+      .addEventListener("click", () => {
+        this.hide();
+      });
+
+    // Save button
+    this._modalElement
+      .querySelector("#save-settings")
+      .addEventListener("click", () => {
+        this.saveSettings();
+        this.hide();
+        // Notify findbar to update UI based on new settings
+        findbar.updateFindbar();
+        findbar.showAIInterface();
+      });
+
+    // Initialize and listen to changes on controls (store in _currentPrefValues)
+    this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
+      const prefKey = control.dataset.pref;
+      const prefName = PREFS.getPrefSetterName(prefKey); // Use helper from PREFS object
+
+      // Initialize control value from PREFS
+      if (control.type === "checkbox") {
+        control.checked = PREFS[prefName];
+      } else {
+        // For XUL menulist, ensure its value is set correctly on attach
+        if (control.tagName.toLowerCase() === "menulist") {
+          control.value = PREFS[prefName];
+        } else {
+          control.value = PREFS[prefName];
+        }
+      }
+      this._currentPrefValues[prefName] = PREFS[prefName]; // Sync internal state
+
+      // Store changes in _currentPrefValues
+      if (control.tagName.toLowerCase() === "menulist") {
+        // Special handling for XUL menulist using 'command' event
+        control.addEventListener("command", (e) => {
+          this._currentPrefValues[prefName] = e.target.value;
+          debugLog(
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
+          );
+          if (prefKey === PREFS.LLM_PROVIDER) {
+            this._updateProviderSpecificSettings(
+              this._modalElement,
+              this._currentPrefValues[prefName],
+            );
+          }
+        });
+      } else {
+        control.addEventListener("change", (e) => {
+          this._currentPrefValues[prefName] =
+            control.type === "checkbox" ? e.target.checked : e.target.value;
+          debugLog(
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
+          );
+          // Update warning message if relevant preferences change
+          if (
+            prefKey === PREFS.CITATIONS_ENABLED ||
+            prefKey === PREFS.GOD_MODE
+          ) {
+            this._updateWarningMessage();
+          }
+        });
+      }
+    });
+
+    // Initial update for provider-specific settings display
+    this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
+  },
+
+  saveSettings() {
+    // Iterate _currentPrefValues and set PREFS
+    for (const prefName in this._currentPrefValues) {
+      if (
+        Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefName)
+      ) {
+        PREFS[prefName] = this._currentPrefValues[prefName];
+        debugLog(`Saving pref ${prefName} to: ${PREFS[prefName]}`);
+      }
+    }
+    // Special case: If API key is empty after saving, ensure findbar is collapsed
+    if (!llm.currentProvider.apiKey) {
+      findbar.expanded = false;
+    }
+  },
+
+  show() {
+    if (!this._modalElement) {
+      this.createModalElement();
+    }
+    // Always re-initialize control values from actual PREFS before showing
+    this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
+      const prefKey = control.dataset.pref;
+      const prefName = PREFS.getPrefSetterName(prefKey);
+      if (control.type === "checkbox") {
+        control.checked = PREFS[prefName];
+      } else {
+        // For XUL menulist, ensure its value is set correctly on show
+        if (control.tagName.toLowerCase() === "menulist") {
+          control.value = PREFS[prefName];
+        } else {
+          control.value = PREFS[prefName];
+        }
+      }
+      this._currentPrefValues[prefName] = PREFS[prefName]; // Sync internal state
+    });
+    this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider); // Update model dropdowns based on current PREFS
+    this._updateWarningMessage(); // Update warning message when showing the modal
+
+    document.documentElement.appendChild(this._modalElement); // Append to documentElement for full-screen overlay
+  },
+
+  hide() {
+    if (this._modalElement && this._modalElement.parentNode) {
+      this._modalElement.remove();
+    }
+  },
+
+  // Helper to show/hide provider-specific settings sections and update model dropdowns
+  _updateProviderSpecificSettings(container, selectedProviderName) {
+    container.querySelectorAll(".provider-settings-group").forEach((group) => {
+      group.style.display = "none";
+    });
+
+    // Use the safe ID for the selector
+    const activeGroup = container.querySelector(
+      `#${this._getSafeIdForProvider(selectedProviderName)}-settings-group`,
+    );
+    if (activeGroup) {
+      activeGroup.style.display = "block";
+
+      // Dynamically update the model dropdown for the active provider
+      const modelPrefKey = PREFS[`${selectedProviderName.toUpperCase()}_MODEL`];
+      if (modelPrefKey) {
+        const modelPrefName = PREFS.getPrefSetterName(modelPrefKey);
+        // Use the safe ID for the model selector as well
+        const modelSelect = activeGroup.querySelector(
+          `#pref-${this._getSafeIdForProvider(selectedProviderName)}-model`,
+        );
+        if (modelSelect) {
+          modelSelect.value =
+            this._currentPrefValues[modelPrefName] || PREFS[modelPrefName];
+        }
+      }
+    }
+  },
+
+  // Helper to display warning if both citations and god mode are enabled
+  _updateWarningMessage() {
+    if (!this._modalElement) return;
+
+    const citationsEnabled =
+      this._currentPrefValues[PREFS.getPrefSetterName(PREFS.CITATIONS_ENABLED)];
+    const godModeEnabled =
+      this._currentPrefValues[PREFS.getPrefSetterName(PREFS.GOD_MODE)];
+    const warningDiv = this._modalElement.querySelector(
+      "#citations-god-mode-warning",
+    );
+
+    if (citationsEnabled && godModeEnabled) {
+      if (warningDiv) warningDiv.style.display = "block";
+    } else {
+      if (warningDiv) warningDiv.style.display = "none";
+    }
+  },
+
+  _generateSettingsHtml() {
+    let generalSectionHtml = `
+      <section class="settings-section">
+        <h4>General</h4>
+        <div class="setting-item">
+          <label for="pref-enabled">Enable AI Findbar</label>
+          <input type="checkbox" id="pref-enabled" data-pref="${PREFS.ENABLED}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-minimal">Minimal Mode</label>
+          <input type="checkbox" id="pref-minimal" data-pref="${PREFS.MINIMAL}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-persist-chat">Persist Chat</label>
+          <input type="checkbox" id="pref-persist-chat" data-pref="${PREFS.PERSIST}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-debug-mode">Debug Mode</label>
+          <input type="checkbox" id="pref-debug-mode" data-pref="${PREFS.DEBUG_MODE}" />
+        </div>
+      </section>`;
+
+    let aiBehaviorSectionHtml = `
+      <section class="settings-section">
+        <h4>AI Behavior</h4>
+        <div id="citations-god-mode-warning" class="warning-message" style="display: none; color: red; margin-bottom: 10px;">
+          Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
+        </div>
+        <div class="setting-item">
+          <label for="pref-citations-enabled">Enable Citations</label>
+          <input type="checkbox" id="pref-citations-enabled" data-pref="${PREFS.CITATIONS_ENABLED}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-god-mode">God Mode (AI can use tool calls)</label>
+          <input type="checkbox" id="pref-god-mode" data-pref="${PREFS.GOD_MODE}" />
+        </div>
+      </section>`;
+
+    let contextMenuSectionHtml = `
+      <section class="settings-section">
+        <h4>Context Menu</h4>
+        <div class="setting-item">
+          <label for="pref-context-menu-enabled">Enable Context Menu</label>
+          <input type="checkbox" id="pref-context-menu-enabled" data-pref="${PREFS.CONTEXT_MENU_ENABLED}" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-context-menu-autosend">Auto Send from Context Menu</label>
+          <input type="checkbox" id="pref-context-menu-autosend" data-pref="${PREFS.CONTEXT_MENU_AUTOSEND}" />
+        </div>
+      </section>`;
+
+    let llmProviderSettingsHtml = "";
+    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
+      const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
+      const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
+
+      const apiInputHtml = apiPrefKey
+        ? `
+        <div class="setting-item">
+          <label for="pref-${this._getSafeIdForProvider(name)}-api-key">API Key</label>
+          <input type="password" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
+        </div>
+      `
+        : "";
+
+      // Placeholder for the XUL menulist, which will be inserted dynamically in createModalElement
+      const modelSelectPlaceholderHtml = modelPrefKey
+        ? `
+        <div class="setting-item">
+          <label for="pref-${this._getSafeIdForProvider(name)}-model">Model</label>
+          <div id="llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}"></div>
+        </div>
+      `
+        : "";
+
+      llmProviderSettingsHtml += `
+        <div id="${this._getSafeIdForProvider(name)}-settings-group" class="provider-settings-group">
+          <h5>${provider.label}</h5>
+          ${apiInputHtml}
+          ${modelSelectPlaceholderHtml}
+        </div>
+      `;
+    }
+
+    // Placeholder for the XUL menulist, which will be inserted dynamically
+    const llmProvidersSectionHtml = `
+      <section class="settings-section">
+        <h4>LLM Providers</h4>
+        <div class="setting-item">
+          <label for="pref-llm-provider">Select Provider</label>
+          <div id="llm-provider-selector-placeholder"></div>
+        </div>
+        ${llmProviderSettingsHtml}
+      </section>`;
+
+    return `
+      <div id="ai-settings-modal-overlay">
+        <div class="findbar-ai-settings-modal">
+          <div class="ai-settings-header">
+            <h3>Settings</h3>
+            <div>
+              <button id="close-settings" class="settings-close-btn">Close</button>
+              <button id="save-settings" class="settings-save-btn">Save</button>
+            </div>
+          </div>
+          <div class="ai-settings-content">
+            ${generalSectionHtml}
+            ${aiBehaviorSectionHtml}
+            ${contextMenuSectionHtml}
+            ${llmProvidersSectionHtml}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+};
+
 const findbar = {
   findbar: null,
   expandButton: null,
@@ -146,7 +513,7 @@ const findbar = {
       }
     }
   },
-  handleMinimalPrefChange: function (pref) {
+  handleMinimalPrefChange: function(pref) {
     this.minimal = pref.value;
     this.updateFindbar();
   },
@@ -206,8 +573,8 @@ const findbar = {
             debugLog("Findbar is being opened");
             setTimeout(
               () =>
-                (this.findbar._findField.placeholder =
-                  "Press Alt + Enter to ask AI"),
+              (this.findbar._findField.placeholder =
+                "Press Alt + Enter to ask AI"),
               100,
             );
 
@@ -309,7 +676,7 @@ const findbar = {
     // Use 'command' event for XUL menulist
     providerSelector.addEventListener("command", (e) => {
       const selectedProviderName = e.target.value;
-      llm.setProvider(selectedProviderName);
+      llm.setProvider(selectedProviderName); // This also updates PREFS.llmProvider internally
       input.value = llm.currentProvider.apiKey || "";
       getApiKeyLink.disabled = !llm.currentProvider.apiKeyUrl;
       getApiKeyLink.title = llm.currentProvider.apiKeyUrl
@@ -324,8 +691,8 @@ const findbar = {
     saveBtn.addEventListener("click", () => {
       const key = input.value.trim();
       if (key) {
-        llm.currentProvider.apiKey = key;
-        this.showAIInterface();
+        llm.currentProvider.apiKey = key; // This also updates PREFS.mistralApiKey/geminiApiKey internally
+        this.showAIInterface(); // Refresh UI after saving key
       }
     });
     input.addEventListener("keypress", (e) => {
@@ -369,39 +736,52 @@ const findbar = {
   },
 
   createChatInterface() {
-    const modelOptions = llm.currentProvider.AVAILABLE_MODELS.map((model) => {
-      const displayName =
-        model.charAt(0).toUpperCase() + model.slice(1).replace(/-/g, " ");
-      return `<option value="${model}" ${
-        model === llm.currentProvider.model ? "selected" : ""
-      }>${displayName}</option>`;
-    }).join("");
-
     const chatInputGroup = this.minimal
       ? ""
       : `<div class="ai-chat-input-group">
           <textarea id="ai-prompt" placeholder="Ask AI anything..." rows="2"></textarea>
-          <button id="send-prompt" class="send-btn">Send</button>
+          <button id="send-prompt" class="send-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M17.991 6.01L5.399 10.563l4.195 2.428l3.699-3.7a1 1 0 0 1 1.414 1.415l-3.7 3.7l2.43 4.194L17.99 6.01Zm.323-2.244c1.195-.433 2.353.725 1.92 1.92l-5.282 14.605c-.434 1.198-2.07 1.344-2.709.241l-3.217-5.558l-5.558-3.217c-1.103-.639-.957-2.275.241-2.709z" />
+            </svg>
+          </button>
         </div>`;
 
-    const html = `
-      <div class="findbar-ai-chat">
-        <div class="ai-chat-header">
-          <button id="clear-chat" class="clear-chat-btn">Clear</button>
-          <select id="model-selector" class="model-selector">${modelOptions}</select>
-        </div>
-        <div class="ai-chat-messages" id="chat-messages"></div>
-        ${chatInputGroup}
-      </div>`;
-    const container = parseElement(html);
+    const container = parseElement(`
+        <div class="findbar-ai-chat">
+          <div class="ai-chat-header"></div>
+          <div class="ai-chat-messages" id="chat-messages"></div>
+          ${chatInputGroup}
+        </div>`);
 
-    const modelSelector = container.querySelector("#model-selector");
+    const chatHeader = container.querySelector(".ai-chat-header");
+
+    const clearBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="clear-chat" 
+          class="clear-chat-btn" 
+          image="chrome://global/skin/icons/delete.svg" 
+          tooltiptext="Clear Chat"
+        />`,
+      "xul",
+    );
+
+    const settingsBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="open-settings-btn" 
+          class="settings-btn" 
+          image="chrome://global/skin/icons/settings.svg" 
+          tooltiptext="Settings"
+        />`,
+      "xul",
+    );
+
+    chatHeader.appendChild(clearBtn);
+    chatHeader.appendChild(settingsBtn);
+
     const chatMessages = container.querySelector("#chat-messages");
-    const clearBtn = container.querySelector("#clear-chat");
-
-    modelSelector.addEventListener("change", (e) => {
-      llm.currentProvider.model = e.target.value;
-    });
 
     if (!this.minimal) {
       const promptInput = container.querySelector("#ai-prompt");
@@ -420,6 +800,10 @@ const findbar = {
       container.querySelector("#chat-messages").innerHTML = "";
       llm.clearData();
       this.expanded = false;
+    });
+
+    settingsBtn.addEventListener("click", () => {
+      SettingsModal.show(); // Open the settings modal
     });
 
     chatMessages.addEventListener("click", async (e) => {
@@ -445,7 +829,7 @@ const findbar = {
         e.preventDefault();
         try {
           openTrustedLinkIn(e.target.href, "tab");
-        } catch (e) {}
+        } catch (e) { }
       }
     });
 
@@ -491,7 +875,10 @@ const findbar = {
 
   showAIInterface() {
     if (!this.findbar) return;
-    this.removeAIInterface();
+    this.removeAIInterface(); // Removes API key, chat, and settings interfaces
+
+    // Remove settings modal class from findbar as it's now a separate modal
+    this.findbar.classList.remove("ai-settings-active");
 
     if (!llm.currentProvider.apiKey) {
       this.apiKeyContainer = this.createAPIKeyInterface();
@@ -581,10 +968,13 @@ const findbar = {
   destroy() {
     this.findbar = null;
     this.expanded = false;
-    this.removeListeners();
+    try {
+      this.removeListeners();
+    } catch { }
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
+    SettingsModal.hide();
   },
 
   addExpandButton() {
@@ -633,7 +1023,7 @@ const findbar = {
     return true;
   },
 
-  handleInputKeyPress: function (e) {
+  handleInputKeyPress: function(e) {
     if (e?.key === "Enter" && e?.altKey) {
       e.preventDefault();
       const inpText = this.findbar._findField.value.trim();
@@ -702,14 +1092,14 @@ const findbar = {
     contextMenu.addEventListener("popupshowing", this._updateContextMenuText);
   },
 
-  removeContextMenuItem: function () {
+  removeContextMenuItem: function() {
     this?.contextMenuItem?.remove();
     this.contextMenuItem = null;
     document
       ?.getElementById("contentAreaContextMenu")
       ?.removeEventListener("popupshowing", this._updateContextMenuText);
   },
-  handleContextMenuClick: async function () {
+  handleContextMenuClick: async function() {
     const selection = await windowManagerAPI.getSelectedText();
     let finalMessage = "";
     if (!selection.hasSelection) {
@@ -736,7 +1126,7 @@ const findbar = {
     }
   },
 
-  handleContextMenuPrefChange: function (pref) {
+  handleContextMenuPrefChange: function(pref) {
     if (pref.value) this.addContextMenuItem();
     else this.removeContextMenuItem();
   },
@@ -748,13 +1138,13 @@ const findbar = {
   },
 
   //TODO: add drag and drop
-  doResize: function () {},
-  stopResize: function () {},
-  doDrag: function () {},
-  stopDrag: function () {},
-  stopDrag: function () {},
+  doResize: function() { },
+  stopResize: function() { },
+  doDrag: function() { },
+  stopDrag: function() { },
+  stopDrag: function() { },
 
-  addKeymaps: function (e) {
+  addKeymaps: function(e) {
     if (
       e.key &&
       e.key.toLowerCase() === "f" &&
@@ -770,7 +1160,15 @@ const findbar = {
       this.setPromptTextFromSelection();
     }
     if (e.key?.toLowerCase() === "escape") {
-      if (this.expanded) {
+      if (
+        SettingsModal._modalElement &&
+        SettingsModal._modalElement.parentNode
+      ) {
+        // If settings modal is open, close it
+        e.preventDefault();
+        e.stopPropagation();
+        SettingsModal.hide();
+      } else if (this.expanded) {
         e.preventDefault();
         e.stopPropagation();
         this.expanded = false;
