@@ -926,11 +926,13 @@ const findbar = {
   destroy() {
     this.findbar = null;
     this.expanded = false;
-    this.removeListeners();
+    try {
+      this.removeListeners();
+    } catch { }
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
-    SettingsModal.hide(); // Ensure settings modal is closed on destroy
+    SettingsModal.hide();
   },
 
   addExpandButton() {
