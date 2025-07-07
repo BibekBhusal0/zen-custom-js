@@ -299,7 +299,7 @@ const SettingsModal = {
           <input type="checkbox" id="pref-citations-enabled" data-pref="${PREFS.CITATIONS_ENABLED}" />
         </div>
         <div class="setting-item">
-          <label for="pref-god-mode">God Mode (Use Local Files)</label>
+          <label for="pref-god-mode">God Mode (AI can use tool calls)</label>
           <input type="checkbox" id="pref-god-mode" data-pref="${PREFS.GOD_MODE}" />
         </div>
       </section>`;
