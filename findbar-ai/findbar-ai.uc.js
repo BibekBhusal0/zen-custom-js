@@ -699,13 +699,6 @@ const findbar = {
   },
 
   createChatInterface() {
-    const modelOptions = llm.currentProvider.AVAILABLE_MODELS.map((model) => {
-      const displayName =
-        model.charAt(0).toUpperCase() + model.slice(1).replace(/-/g, " ");
-      return `<option value="${model}" ${model === llm.currentProvider.model ? "selected" : ""
-        }>${displayName}</option>`;
-    }).join("");
-
     const chatInputGroup = this.minimal
       ? ""
       : `<div class="ai-chat-input-group">
@@ -713,33 +706,41 @@ const findbar = {
           <button id="send-prompt" class="send-btn">Send</button>
         </div>`;
 
-    const html = `
-      <div class="findbar-ai-chat">
-        <div class="ai-chat-header">
-          <button id="clear-chat" class="clear-chat-btn">Clear</button>
-          <select id="model-selector" class="model-selector">${modelOptions}</select>
-          <button id="open-settings-btn" class="settings-btn">Settings</button>
-        </div>
-        <div class="ai-chat-messages" id="chat-messages"></div>
-        ${chatInputGroup}
-      </div>`;
-    const container = parseElement(html);
+    const container = parseElement(`
+        <div class="findbar-ai-chat">
+          <div class="ai-chat-header"></div>
+          <div class="ai-chat-messages" id="chat-messages"></div>
+          ${chatInputGroup}
+        </div>`);
 
-    const modelSelector = container.querySelector("#model-selector");
+    const chatHeader = container.querySelector(".ai-chat-header");
+
+    const clearBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="clear-chat" 
+          class="clear-chat-btn" 
+          image="chrome://global/skin/icons/delete.svg" 
+          tooltiptext="Clear Chat"
+        />`,
+      "xul",
+    );
+
+    const settingsBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="open-settings-btn" 
+          class="settings-btn" 
+          image="chrome://global/skin/icons/settings.svg" 
+          tooltiptext="Settings"
+        />`,
+      "xul",
+    );
+
+    chatHeader.appendChild(clearBtn);
+    chatHeader.appendChild(settingsBtn);
+
     const chatMessages = container.querySelector("#chat-messages");
-    const clearBtn = container.querySelector("#clear-chat");
-    const settingsBtn = container.querySelector("#open-settings-btn");
-
-    modelSelector.addEventListener("change", (e) => {
-      const selectedModel = e.target.value;
-      llm.currentProvider.model = selectedModel;
-      // Also update the persistent preference for the current provider's model
-      if (llm.currentProvider.name === "mistral") {
-        PREFS.mistralModel = selectedModel;
-      } else if (llm.currentProvider.name === "gemini") {
-        PREFS.geminiModel = selectedModel;
-      }
-    });
 
     if (!this.minimal) {
       const promptInput = container.querySelector("#ai-prompt");

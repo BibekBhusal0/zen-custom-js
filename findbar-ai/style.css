@@ -162,19 +162,30 @@ browser {
       transform: translateY(-10px);
     }
 
-    .findbar-closebutton {
+    .findbar-closebutton,
+    .clear-chat-btn,
+    .settings-btn {
       width: 28px !important;
       height: 28px !important;
+      appearance: none !important;
       outline: none !important;
-      position: absolute !important;
-      top: 7px !important;
-      right: 0 !important;
+      border: none !important;
       border-radius: 5px !important;
-      font-weight: 600 !important;
       transition: all 0.2s ease !important;
+      display: inline-flex !important;
+      justify-content: center !important;
+      align-content: center !important;
+      background-color: transparent !important;
+      -moz-context-properties: fill !important;
+      fill: light-dark(black, white) !important;
+
+      label {
+        display: none !important;
+      }
 
       &:hover {
         background: var(--tab-hover-background-color) !important;
+        border: none !important;
       }
 
       &:active {
@@ -182,8 +193,20 @@ browser {
       }
     }
 
-    &.ai-expanded .findbar-closebutton {
-      display: none !important;
+    .findbar-closebutton {
+      position: absolute !important;
+      top: 7px !important;
+      right: 0 !important;
+    }
+
+    &.ai-expanded {
+      .findbar-closebutton {
+        top: 1px !important;
+      }
+
+      .findbar-container {
+        display: none !important;
+      }
     }
 
     .findbar-container {
@@ -303,15 +326,11 @@ browser {
       }
 
       #findbar-ask {
-        background-color: var(--zen-primary-color) !important;
-        border: none !important;
         margin-right: 5px !important;
+        min-width: 20px !important;
+        font-size: 12px !important;
         overflow: visible !important;
       }
-    }
-
-    &.ai-expanded .findbar-container {
-      display: none !important;
     }
 
     .findbar-ai-setup,
@@ -338,37 +357,6 @@ browser {
         padding-inline: 0 !important;
         margin: 0 !important;
         font-weight: 400 !important;
-      }
-
-      .clear-chat-btn {
-        height: 20px !important;
-        border: none;
-        background: transparent;
-        color: var(--tab-selected-textcolor);
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background: var(--tab-hover-background-color) !important;
-        }
-      }
-
-      .settings-btn {
-        background: transparent !important;
-        color: var(--tab-selected-textcolor) !important;
-        border: none !important;
-        padding: 0px 5px !important;
-        border-radius: 4px !important;
-        cursor: pointer !important;
-        font-weight: 600 !important;
-        transition: all 0.2s ease !important;
-        margin-left: auto !important;
-        /* Push to the right */
-
-        &:hover {
-          background: var(--tab-hover-background-color) !important;
-        }
       }
 
       &::before {
@@ -648,10 +636,6 @@ browser {
       }
     }
 
-    &.ai-expanded #findbar-expand::before {
-      background-image: url("chrome://browser/skin/fullscreen-exit.svg") !important;
-    }
-
     @media -moz-pref("extension.findbar-ai.minimal") {
       max-width: 420px !important;
       min-height: 36px !important;
@@ -715,10 +699,6 @@ browser {
         top: -30px !important;
         position: absolute !important;
         transition: all 0.2s ease !important;
-        /* display: flex !important; */
-        /* justify-content: space-between !important; */
-        /* align-items: center !important; */
-        /* padding-inline: 10px !important; */
 
         &::after {
           content: "";
@@ -726,11 +706,12 @@ browser {
           border-radius: var(--acrylic-radius) !important;
           background: var(--acrylic-glass-bg) !important;
           backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+
           border-bottom-right-radius: 0 !important;
           border-bottom-left-radius: 0 !important;
           opacity: 0 !important;
           top: 0px !important;
-          width: 90px !important;
+          width: 107px !important;
           height: 100% !important;
           position: absolute !important;
           right: 10px !important;
@@ -741,32 +722,22 @@ browser {
           display: none !important;
         }
 
-        .clear-chat-btn {
-          position: static !important;
-          /* Make it part of flex layout */
-          opacity: 1 !important;
-          /* Always visible */
-        }
-
-        /* Hiding this temporarely this will be in settings */
-        #model-selector {
-          opacity: 1 !important;
-          /* Always visible */
-          scale: 1 !important;
-          margin-right: auto !important;
-          /* Push settings/clear to the right */
+        .clear-chat-btn,
+        .settings-btn {
+          position: absolute !important;
+          right: 50px !important;
+          z-index: 2 !important;
+          opacity: 0 !important;
         }
 
         .settings-btn {
-          /* New settings button */
-          position: static !important;
-          /* Make it part of flex layout */
-          opacity: 1 !important;
-          /* Always visible */
+          right: 86px !important;
         }
 
         &:hover {
-          .clear-chat-btn {
+
+          .clear-chat-btn,
+          .settings-btn {
             opacity: 1 !important;
           }
 
@@ -784,7 +755,9 @@ browser {
 
       &:has(.findbar-closebutton:hover) {
         .ai-chat-header {
-          .clear-chat-btn {
+
+          .clear-chat-btn,
+          .settings-btn {
             opacity: 1 !important;
           }
 
