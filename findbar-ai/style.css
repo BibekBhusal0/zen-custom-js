@@ -79,6 +79,58 @@ browser {
     }
   }
 
+  findbar,
+  .findbar-ai-settings-modal {
+
+    input[type="text"],
+    input[type="password"],
+    menulist,
+    select {
+      flex-grow: 1 !important;
+      padding: 10px 12px !important;
+      font-size: 14px !important;
+      transition: all 0.2s ease !important;
+      border: 2px solid var(--zen-workspace-color-stroke) !important;
+
+      &:focus {
+        outline: none !important;
+        border: 2px solid var(--zen-primary-color) !important;
+      }
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      background-color: var(--zen-primary-color) !important;
+      border: none !important;
+      min-width: 60px !important;
+      font-size: 14px !important;
+
+      outline: none !important;
+
+      &:hover {
+        transform: translateY(-1px);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+    }
+
+    menulist {
+      padding: 4px !important;
+    }
+  }
+
   findbar {
     padding-inline: 5px !important;
     padding-top: 2px !important;
@@ -99,50 +151,6 @@ browser {
     z-index: 9999;
     opacity: 1;
 
-    input {
-      flex-grow: 1 !important;
-      border-radius: var(--button-border-radius) !important;
-      border: 2px solid var(--zen-primary-color) !important;
-      /* background: var(--zen-primary-color) !important; */
-      padding: 10px 12px !important;
-      font-size: 14px !important;
-      transition: all 0.2s ease !important;
-      border: 2px solid var(--zen-workspace-color-stroke) !important;
-
-      &:focus {
-        outline: none !important;
-        border: 2px solid var(--zen-primary-color) !important;
-        /* border-color: var(--findbar-ai-accent) !important; */
-        /* box-shadow: 0 0 0 3px var(--findbar-ai-accent-muted) !important; */
-      }
-
-      &::placeholder {
-        color: var(--findbar-ai-text-secondary);
-      }
-    }
-
-    select {
-      max-width: 220px;
-      border-radius: var(--button-border-radius) !important;
-      padding: 8px 12px;
-      border: 2px solid var(--findbar-ai-input-border) !important;
-      background: var(--findbar-ai-input-bg) !important;
-      color: var(--findbar-ai-text) !important;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-
-      &:focus {
-        outline: none;
-        border-color: var(--findbar-ai-accent);
-        box-shadow: 0 0 0 3px var(--findbar-ai-accent-muted);
-      }
-
-      &:hover {
-        border-color: var(--findbar-ai-border-hover);
-      }
-    }
-
     &:is([hidden="true"]) {
       visibility: inherit !important;
       pointer-events: none !important;
@@ -161,10 +169,7 @@ browser {
       position: absolute !important;
       top: 7px !important;
       right: 0 !important;
-      padding: var(--findbar-ai-button-padding) !important;
       border-radius: 5px !important;
-      background: var(--findbar-ai-button-bg) !important;
-      color: var(--findbar-ai-button-text) !important;
       font-weight: 600 !important;
       transition: all 0.2s ease !important;
 
@@ -195,7 +200,6 @@ browser {
         width: calc(100% - 10px) !important;
         margin-top: 8px !important;
         padding-bottom: 10px !important;
-        border-bottom: 1px solid var(--findbar-ai-border) !important;
         position: relative;
 
         &::before {
@@ -217,12 +221,6 @@ browser {
           box-shadow: none !important;
           width: 100% !important;
           border: none !important;
-          color: var(--findbar-ai-text) !important;
-          caret-color: var(--findbar-ai-accent);
-
-          &::placeholder {
-            color: var(--findbar-ai-text-secondary);
-          }
 
           &:focus {
             outline: none !important;
@@ -235,10 +233,7 @@ browser {
           justify-content: center !important;
           align-content: center !important;
           margin-left: 6px !important;
-          border-radius: var(--findbar-ai-button-border-radius) !important;
-          background: var(--findbar-ai-button-bg) !important;
           border-radius: 4px !important;
-          color: var(--findbar-ai-button-text) !important;
           font-weight: 600 !important;
           transition: scale 0.2s ease !important;
           opacity: 1 !important;
@@ -266,7 +261,6 @@ browser {
       description {
         margin-left: 8px !important;
         margin-right: 8px !important;
-        color: var(--findbar-ai-text) !important;
       }
 
       .findbar-label {
@@ -292,9 +286,6 @@ browser {
         margin-top: 12px !important;
         flex-basis: 0 !important;
         margin: auto !important;
-        border: 1px solid var(--findbar-ai-border);
-        color: var(--findbar-ai-text) !important;
-        background: var(--findbar-ai-accent-muted);
         padding-right: 12px !important;
 
         &[hidden="true"] {
@@ -350,8 +341,6 @@ browser {
       }
 
       .clear-chat-btn {
-        /* Not present in minimal mode */
-        border-radius: var(--findbar-ai-button-border-radius);
         height: 20px !important;
         border: none;
         background: transparent;
@@ -400,13 +389,11 @@ browser {
           margin: 9px 0 8px 0 !important;
           font-size: 22px !important;
           font-weight: 700 !important;
-          color: var(--findbar-ai-text) !important;
         }
 
         p {
           margin: 0 0 12px 0 !important;
           font-size: 15px !important;
-          color: var(--findbar-ai-text-secondary) !important;
           line-height: 1.4 !important;
         }
       }
@@ -480,14 +467,12 @@ browser {
           border: none;
           text-decoration: underline;
           cursor: pointer;
-          color: var(--findbar-ai-accent);
           padding: 4px 8px;
           font-size: 12px;
           border-radius: 4px;
           transition: all 0.2s ease;
 
           &:hover {
-            background: var(--findbar-ai-accent-muted);
             text-decoration: none;
           }
         }
@@ -636,9 +621,6 @@ browser {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: var(--findbar-ai-accent-muted);
-      color: var(--findbar-ai-accent);
-      border: 1px solid var(--findbar-ai-border);
       width: 1.7em !important;
       height: 1.7em !important;
       font-size: 0.75em !important;
@@ -830,9 +812,7 @@ browser {
       }
     }
   }
-}
 
-@media -moz-pref("extension.findbar-ai.enabled") {
   #ai-settings-modal-overlay {
     position: fixed;
     top: 0;
@@ -856,8 +836,8 @@ browser {
     height: auto;
     max-height: 80vh;
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    border-radius: var(--acrylic-radius) !important;
+    box-shadow: var(--acrylic-shadow) !important;
     background: var(--acrylic-glass-bg) !important;
     backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
     display: flex;
@@ -877,7 +857,6 @@ browser {
         margin: 0 !important;
         font-size: 18px !important;
         font-weight: 700 !important;
-        color: var(--findbar-ai-text) !important;
       }
 
       .settings-close-btn,
@@ -931,7 +910,6 @@ browser {
       }
 
       label {
-        color: var(--findbar-ai-text) !important;
         font-size: 14px !important;
         flex-grow: 1;
         margin-right: 10px;
@@ -940,25 +918,6 @@ browser {
       input[type="checkbox"] {
         transform: scale(1.2);
         margin-right: 5px;
-      }
-
-      input[type="text"],
-      input[type="password"],
-      select {
-        flex-shrink: 0;
-        min-width: 150px;
-        padding: 6px 10px;
-        border-radius: 4px;
-        border: 1px solid var(--findbar-ai-input-border) !important;
-        background: var(--findbar-ai-input-bg) !important;
-        color: var(--findbar-ai-text) !important;
-        font-size: 13px !important;
-        outline: none;
-        transition: border-color 0.2s ease;
-
-        &:focus {
-          border-color: var(--findbar-ai-accent) !important;
-        }
       }
     }
 
