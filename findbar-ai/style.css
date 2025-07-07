@@ -587,13 +587,15 @@ browser {
         }
 
         .send-btn {
-          font-size: 12px !important;
           margin-left: auto !important;
           border: none !important;
           background-color: var(--zen-primary-color) !important;
-          padding-inline-start: 5px !important;
-          padding-inline-end: 5px !important;
+          padding: 3px !important;
+          display: inline-flex !important;
           color: color-mix(in srgb, var(--zen-primary-color) 30%, white 70%);
+          align-self: end !important;
+          min-width: 30px !important;
+          min-height: 30px !important;
 
           &:active:not(:disabled) {
             transform: translateY(0);

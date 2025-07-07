@@ -61,7 +61,7 @@ const SettingsModal = {
   _currentPrefValues: {}, // Store values from the form before saving
 
   _getSafeIdForProvider(providerName) {
-    return providerName.replace(/\./g, '-');
+    return providerName.replace(/\./g, "-");
   },
 
   createModalElement() {
@@ -740,7 +740,11 @@ const findbar = {
       ? ""
       : `<div class="ai-chat-input-group">
           <textarea id="ai-prompt" placeholder="Ask AI anything..." rows="2"></textarea>
-          <button id="send-prompt" class="send-btn">Send</button>
+          <button id="send-prompt" class="send-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M17.991 6.01L5.399 10.563l4.195 2.428l3.699-3.7a1 1 0 0 1 1.414 1.415l-3.7 3.7l2.43 4.194L17.99 6.01Zm.323-2.244c1.195-.433 2.353.725 1.92 1.92l-5.282 14.605c-.434 1.198-2.07 1.344-2.709.241l-3.217-5.558l-5.558-3.217c-1.103-.639-.957-2.275.241-2.709z" />
+            </svg>
+          </button>
         </div>`;
 
     const container = parseElement(`
