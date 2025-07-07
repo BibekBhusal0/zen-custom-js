@@ -65,6 +65,34 @@ const SettingsModal = {
     const container = parseElement(settingsHtml);
     this._modalElement = container;
 
+    // Manually create and insert the XUL menulist for LLM Provider selection
+    const providerOptionsXUL = Object.entries(llm.AVAILABLE_PROVIDERS)
+      .map(
+        ([name, provider]) =>
+          `<menuitem
+            value="${name}"
+            label="${escapeXmlAttribute(provider.label)}"
+            ${name === PREFS.llmProvider ? 'selected="true"' : ""}
+            ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
+          />`,
+      )
+      .join("");
+
+    const menulistXul = `
+      <menulist id="pref-llm-provider" data-pref="${PREFS.LLM_PROVIDER}" value="${PREFS.llmProvider}">
+        <menupopup>
+          ${providerOptionsXUL}
+        </menupopup>
+      </menulist>`;
+
+    const providerSelectorXulElement = parseElement(menulistXul, "xul");
+    const placeholder = this._modalElement.querySelector(
+      "#llm-provider-selector-placeholder",
+    );
+    if (placeholder) {
+      placeholder.replaceWith(providerSelectorXulElement);
+    }
+
     this._attachEventListeners();
     this._updateWarningMessage(); // Initial check for warning
     return container;
@@ -100,29 +128,44 @@ const SettingsModal = {
       if (control.type === "checkbox") {
         control.checked = PREFS[prefName];
       } else {
-        control.value = PREFS[prefName];
+        // For XUL menulist, ensure its value is set correctly on attach
+        if (control.tagName.toLowerCase() === "menulist") {
+          control.value = PREFS[prefName];
+        } else {
+          control.value = PREFS[prefName];
+        }
       }
       this._currentPrefValues[prefName] = PREFS[prefName]; // Sync internal state
 
       // Store changes in _currentPrefValues
-      control.addEventListener("change", (e) => {
-        this._currentPrefValues[prefName] =
-          control.type === "checkbox" ? e.target.checked : e.target.value;
-        debugLog(
-          `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
-        );
-        // Special handling for LLM_PROVIDER change to update UI live in modal
-        if (prefKey === PREFS.LLM_PROVIDER) {
+      if (control.tagName.toLowerCase() === "menulist") {
+        // Special handling for XUL menulist using 'command' event
+        control.addEventListener("command", (e) => {
+          this._currentPrefValues[prefName] = e.target.value;
+          debugLog(
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
+          );
           this._updateProviderSpecificSettings(
             this._modalElement,
             this._currentPrefValues[prefName],
           );
-        }
-        // Update warning message if relevant preferences change
-        if (prefKey === PREFS.CITATIONS_ENABLED || prefKey === PREFS.GOD_MODE) {
-          this._updateWarningMessage();
-        }
-      });
+        });
+      } else {
+        control.addEventListener("change", (e) => {
+          this._currentPrefValues[prefName] =
+            control.type === "checkbox" ? e.target.checked : e.target.value;
+          debugLog(
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
+          );
+          // Update warning message if relevant preferences change
+          if (
+            prefKey === PREFS.CITATIONS_ENABLED ||
+            prefKey === PREFS.GOD_MODE
+          ) {
+            this._updateWarningMessage();
+          }
+        });
+      }
     });
 
     // Initial update for provider-specific settings display
@@ -156,7 +199,12 @@ const SettingsModal = {
       if (control.type === "checkbox") {
         control.checked = PREFS[prefName];
       } else {
-        control.value = PREFS[prefName];
+        // For XUL menulist, ensure its value is set correctly on show
+        if (control.tagName.toLowerCase() === "menulist") {
+          control.value = PREFS[prefName];
+        } else {
+          control.value = PREFS[prefName];
+        }
       }
       this._currentPrefValues[prefName] = PREFS[prefName]; // Sync internal state
     });
@@ -183,18 +231,19 @@ const SettingsModal = {
     );
     if (activeGroup) {
       activeGroup.style.display = "block";
-    }
 
-    // Update model dropdowns based on the currently selected provider's stored model (from _currentPrefValues or PREFS)
-    const mistralModelSelect = container.querySelector(`#pref-mistral-model`);
-    if (mistralModelSelect) {
-      mistralModelSelect.value =
-        this._currentPrefValues.mistralModel || PREFS.mistralModel;
-    }
-    const geminiModelSelect = container.querySelector(`#pref-gemini-model`);
-    if (geminiModelSelect) {
-      geminiModelSelect.value =
-        this._currentPrefValues.geminiModel || PREFS.geminiModel;
+      // Dynamically update the model dropdown for the active provider
+      const modelPrefKey = PREFS[`${selectedProviderName.toUpperCase()}_MODEL`];
+      if (modelPrefKey) {
+        const modelPrefName = PREFS.getPrefSetterName(modelPrefKey);
+        const modelSelect = activeGroup.querySelector(
+          `#pref-${selectedProviderName}-model`,
+        );
+        if (modelSelect) {
+          modelSelect.value =
+            this._currentPrefValues[modelPrefName] || PREFS[modelPrefName];
+        }
+      }
     }
   },
 
@@ -268,52 +317,51 @@ const SettingsModal = {
         </div>
       </section>`;
 
-    let llmProvidersSectionHtml = `
+    let llmProviderSettingsHtml = "";
+    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
+      const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
+      const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
+
+      const apiInputHtml = apiPrefKey
+        ? `
+        <div class="setting-item">
+          <label for="pref-${name}-api-key">API Key</label>
+          <input type="password" id="pref-${name}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
+        </div>
+      `
+        : "";
+
+      const modelSelectHtml = modelPrefKey
+        ? `
+        <div class="setting-item">
+          <label for="pref-${name}-model">Model</label>
+          <select id="pref-${name}-model" data-pref="${modelPrefKey}">
+            ${provider.AVAILABLE_MODELS.map(
+          (model) => `<option value="${model}">${model}</option>`,
+        ).join("")}
+          </select>
+        </div>
+      `
+        : "";
+
+      llmProviderSettingsHtml += `
+        <div id="${name}-settings-group" class="provider-settings-group">
+          <h5>${provider.label}</h5>
+          ${apiInputHtml}
+          ${modelSelectHtml}
+        </div>
+      `;
+    }
+
+    // Placeholder for the XUL menulist, which will be inserted dynamically
+    const llmProvidersSectionHtml = `
       <section class="settings-section">
         <h4>LLM Providers</h4>
         <div class="setting-item">
           <label for="pref-llm-provider">Select Provider</label>
-          <select id="pref-llm-provider" data-pref="${PREFS.LLM_PROVIDER}">
-            ${Object.entries(llm.AVAILABLE_PROVIDERS)
-        .map(
-          ([name, provider]) =>
-            `<option value="${name}">${provider.label}</option>`,
-        )
-        .join("")}
-          </select>
+          <div id="llm-provider-selector-placeholder"></div>
         </div>
-
-        <div id="mistral-settings-group" class="provider-settings-group">
-          <h5>Mistral AI</h5>
-          <div class="setting-item">
-            <label for="pref-mistral-api-key">API Key</label>
-            <input type="password" id="pref-mistral-api-key" data-pref="${PREFS.MISTRAL_API_KEY}" placeholder="Enter Mistral API Key" />
-          </div>
-          <div class="setting-item">
-            <label for="pref-mistral-model">Model</label>
-            <select id="pref-mistral-model" data-pref="${PREFS.MISTRAL_MODEL}">
-              ${llm.AVAILABLE_PROVIDERS.mistral.AVAILABLE_MODELS.map(
-          (model) => `<option value="${model}">${model}</option>`,
-        ).join("")}
-            </select>
-          </div>
-        </div>
-
-        <div id="gemini-settings-group" class="provider-settings-group">
-          <h5>Gemini AI</h5>
-          <div class="setting-item">
-            <label for="pref-gemini-api-key">API Key</label>
-            <input type="password" id="pref-gemini-api-key" data-pref="${PREFS.GEMINI_API_KEY}" placeholder="Enter Gemini API Key" />
-          </div>
-          <div class="setting-item">
-            <label for="pref-gemini-model">Model</label>
-            <select id="pref-gemini-model" data-pref="${PREFS.GEMINI_MODEL}">
-              ${llm.AVAILABLE_PROVIDERS.gemini.AVAILABLE_MODELS.map(
-          (model) => `<option value="${model}">${model}</option>`,
-        ).join("")}
-            </select>
-          </div>
-        </div>
+        ${llmProviderSettingsHtml}
       </section>`;
 
     return `
