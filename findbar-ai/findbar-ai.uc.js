@@ -206,6 +206,18 @@ const SettingsModal = {
       }
     });
 
+    // Attach event listeners for API key links
+    this._modalElement.querySelectorAll(".get-api-key-link").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        const url = e.target.dataset.url;
+        if (url) {
+          openTrustedLinkIn(url, "tab");
+          this.hide(); // Close settings modal after opening link
+        }
+      });
+    });
+
     // Initial update for provider-specific settings display
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
   },
@@ -282,6 +294,18 @@ const SettingsModal = {
         if (modelSelect) {
           modelSelect.value =
             this._currentPrefValues[modelPrefName] || PREFS[modelPrefName];
+        }
+      }
+      // Update the "Get API Key" link's state for the active provider
+      const provider = llm.AVAILABLE_PROVIDERS[selectedProviderName];
+      const getApiKeyLink = activeGroup.querySelector(".get-api-key-link");
+      if (getApiKeyLink) {
+        if (provider.apiKeyUrl) {
+          getApiKeyLink.style.display = "inline-block";
+          getApiKeyLink.dataset.url = provider.apiKeyUrl;
+        } else {
+          getApiKeyLink.style.display = "none";
+          delete getApiKeyLink.dataset.url;
         }
       }
     }
@@ -383,7 +407,10 @@ const SettingsModal = {
 
       llmProviderSettingsHtml += `
         <div id="${this._getSafeIdForProvider(name)}-settings-group" class="provider-settings-group">
-          <h5>${provider.label}</h5>
+          <div class="provider-header-group">
+            <h5>${provider.label}</h5>
+            <button class="get-api-key-link" data-url="${escapeXmlAttribute(provider.apiKeyUrl || "")}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
+          </div>
           ${apiInputHtml}
           ${modelSelectPlaceholderHtml}
         </div>

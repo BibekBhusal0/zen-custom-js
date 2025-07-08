@@ -906,10 +906,17 @@ browser {
       padding-top: 10px;
       border-top: 1px solid rgba(255, 255, 255, 0.1);
 
-      h5 {
-        margin: 0 0 10px 0 !important;
-        font-size: 15px !important;
-        color: var(--tab-selected-textcolor) !important;
+      .provider-header-group {
+        display: flex !important;
+        gap: 10px !important;
+        justify-content: space-between !important;
+        padding-bottom: 6px !important;
+
+        h5 {
+          margin: 0 0 10px 0 !important;
+          font-size: 15px !important;
+          color: var(--tab-selected-textcolor) !important;
+        }
       }
     }
   }
