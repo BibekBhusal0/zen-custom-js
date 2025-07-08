@@ -695,7 +695,7 @@ browser {
         &> :first-child {
           border-bottom: 0 !important;
           width: calc(100% - 33px) !important;
-           padding-right: 3px !important;
+          padding-right: 3px !important;
 
           &::before {
             margin-top: 5px !important;
@@ -830,7 +830,7 @@ browser {
     min-width: 500px;
     max-width: 90vw;
     height: auto;
-    max-height: 80vh;
+    height: 80vh;
     padding: 20px;
     border-radius: var(--acrylic-radius) !important;
     box-shadow: var(--acrylic-shadow) !important;
@@ -879,29 +879,59 @@ browser {
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           padding-bottom: 8px;
         }
+
+        .setting-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 0;
+          border-bottom: 1px dotted rgba(255, 255, 255, 0.05);
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          label {
+            font-size: 14px !important;
+            flex-grow: 1;
+            margin-right: 10px;
+          }
+
+          input[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 5px;
+          }
+        }
       }
-    }
 
-    .setting-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px dotted rgba(255, 255, 255, 0.05);
+      .settings-accordion {
+        padding-top: 0 !important;
+        transition: max-height 0.3s ease !important;
+        max-height: 500px !important;
+        overflow: hidden !important;
 
-      &:last-child {
-        border-bottom: none;
-      }
+        .accordion-header {
+          cursor: pointer;
+          padding-top: 8px !important;
+          position: relative;
 
-      label {
-        font-size: 14px !important;
-        flex-grow: 1;
-        margin-right: 10px;
-      }
+          &::after {
+            content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>');
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+            transition: transform 0.2s ease-in-out;
+          }
+        }
 
-      input[type="checkbox"] {
-        transform: scale(1.2);
-        margin-right: 5px;
+        &[data-expanded="false"] {
+          max-height: 22px !important;
+
+          .accordion-header::after {
+            transform: translateY(-50%);
+          }
+        }
       }
     }
 

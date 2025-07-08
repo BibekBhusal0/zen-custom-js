@@ -156,6 +156,16 @@ const SettingsModal = {
       }
     });
 
+    this._modalElement
+      .querySelectorAll(".accordion-header")
+      .forEach((header) => {
+        header.addEventListener("click", () => {
+          const section = header.closest(".settings-accordion");
+          const isExpanded = section.dataset.expanded === "true";
+          section.dataset.expanded = isExpanded ? "false" : "true";
+        });
+      });
+
     // Initialize and listen to changes on controls (store in _currentPrefValues)
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
       const prefKey = control.dataset.pref;
@@ -333,17 +343,25 @@ const SettingsModal = {
     `;
   },
 
-  _createCheckboxSectionHtml(title, settingsArray, additionalContentHtml = "") {
+  _createCheckboxSectionHtml(
+    title,
+    settingsArray,
+    additionalContentHtml = "",
+    expanded = true,
+  ) {
     const settingsHtml = settingsArray
       .map((s) => this._generateCheckboxSettingHtml(s.label, s.pref))
       .join("");
+    // const sectionId = `settings-section-${title.toLowerCase().replace(/ /g, "-")}`;
     return `
-      <section class="settings-section">
-        <h4>${title}</h4>
+    <section class="settings-section settings-accordion" data-expanded="${expanded}" >
+      <h4 class="accordion-header">${title}</h4>
+      <div class="accordion-content">
         ${additionalContentHtml}
         ${settingsHtml}
-      </section>
-    `;
+      </div>
+    </section>
+  `;
   },
 
   _generateSettingsHtml() {
@@ -414,7 +432,7 @@ const SettingsModal = {
         <div id="${this._getSafeIdForProvider(name)}-settings-group" class="provider-settings-group">
           <div class="provider-header-group">
             <h5>${provider.label}</h5>
-            <button class="get-api-key-link" data-url="${escapeXmlAttribute(provider.apiKeyUrl || "")}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
+            <button class="get-api-key-link" data-url="${provider.apiKeyUrl || ""}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
           </div>
           ${apiInputHtml}
           ${modelSelectPlaceholderHtml}
@@ -423,9 +441,9 @@ const SettingsModal = {
     }
 
     const llmProvidersSectionHtml = `
-      <section class="settings-section">
-        <h4>LLM Providers</h4>
-        <div class="setting-item">
+      <section class="settings-section settings-accordion" data-expanded="false">
+        <h4 class="accordion-header">LLM Providers</h4>
+        <div class="setting-item accordion-content" class="">
           <label for="pref-llm-provider">Select Provider</label>
           <div id="llm-provider-selector-placeholder"></div>
         </div>
