@@ -127,24 +127,23 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [x] Highlight text in page that corresponds to AI's answer
 - [ ] AI interacting with page content (filling forms, clicking buttons)
 - [ ] Conformation before calling tools
-- [x] Tool calls (opening links, changing workspaces)
-- [ ] Browser management tools
-- [-] Add support for other AI models (Claude, OpenAI)
+- [x] Tool calls (opening links, search)
+- [ ] Add support for other AI models (Claude, OpenAI) [WIP]
 - [ ] Drag-and-drop to resize and move the findbar (optional)
 - [ ] Pin/unpin the findbar (optional)
 - [x] Context Menu integration
 - [ ] Different themes (glass, light, dark, etc.)
 - [ ] Smooth animations for all interactions
 - [ ] Custom system prompts
-- [ ] Add Settings.
-- [ ] Persisting Chats
+- [x] Add Settings.
 - [ ] Copy Button
 - [ ] Markdown Formatting toggle
+- [ ] Slash Command and variables
+- [ ] Adding more tools (tab groups, workspaces, background search, clicking, filling forms)
+- [ ] Giving AI YouTube transcript instead of page content
 
 ## 🐛 Bugs and potential issues (I am working on fixing them)
 
-- Findbar UI being meshy when changing tabs (temporary fix: hide it, it rerenders while keyboard shortcut is triggered)
-- Mistral AI tool calls (not tested, may contain bugs)
 - AI can't make multiple tool calls one after another (just 1 tool call is allowed for now, to keep it simple)
 
 ## Credits
