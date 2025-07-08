@@ -439,6 +439,7 @@ const findbar = {
   _handleMinimalPrefChange: null,
   contextMenuItem: null,
   isOpen: false,
+  _matchesObserver: null,
 
   get expanded() {
     return this._isExpanded;
@@ -563,7 +564,7 @@ const findbar = {
       const originalOnFindbarOpen = this.findbar.browser.finder.onFindbarOpen;
       const originalOnFindbarClose = this.findbar.browser.finder.onFindbarClose;
 
-      //makeing sure this only runs one time
+      //making sure this only runs one time
       if (!findbar?.openOverWritten) {
         //update placeholder when findbar is opened
         findbar.browser.finder.onFindbarOpen = (...args) => {
@@ -1219,6 +1220,12 @@ const findbar = {
       this._handleContextMenuPrefChange,
     );
 
+    // Disconnect the MutationObserver when listeners are removed
+    if (this._matchesObserver) {
+      this._matchesObserver.disconnect();
+      this._matchesObserver = null;
+    }
+
     this._handleInputKeyPress = null;
     this._handleFindFieldInput = null;
     this._updateFindbar = null;
@@ -1272,7 +1279,10 @@ const findbar = {
           matches.setAttribute("value", newLabel);
         if (matches.textContent !== newLabel) matches.textContent = newLabel;
       }
-      if (matches._observer) matches._observer.disconnect();
+
+      // Disconnect existing observer before creating a new one
+      if (this._matchesObserver) this._matchesObserver.disconnect();
+
       const observer = new MutationObserver(() =>
         this.updateFoundMatchesDisplay(),
       );
@@ -1290,7 +1300,7 @@ const findbar = {
           attributes: true,
           attributeFilter: ["status", "value"],
         });
-      matches._observer = observer;
+      this._matchesObserver = observer;
     }
   },
 };
