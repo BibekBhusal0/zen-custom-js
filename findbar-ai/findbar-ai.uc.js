@@ -506,8 +506,6 @@ const findbar = {
       if (!this.minimal) {
         this.findbar.classList.add("ai-expanded");
       }
-      // Set AI mode attribute
-      this.findbar.setAttribute("ai-mode", "true");
       this.show();
       this.showAIInterface();
       if (isChanged) this.focusPrompt();
@@ -518,8 +516,6 @@ const findbar = {
       }
     } else {
       this.findbar.classList.remove("ai-expanded");
-      // Remove AI mode attribute
-      this.findbar.removeAttribute("ai-mode");
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
     }
@@ -553,12 +549,6 @@ const findbar = {
       if (this.findbar) {
         this.removeExpandButton();
         this.addExpandButton();
-        // Set or remove AI mode attribute for minimal mode
-        if (PREFS.minimal) {
-          this.findbar.setAttribute("ai-mode", "true");
-        } else {
-          this.findbar.removeAttribute("ai-mode");
-        }
       }
     }
   },
