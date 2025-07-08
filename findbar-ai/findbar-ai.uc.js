@@ -470,7 +470,6 @@ const findbar = {
   _contextMenuEnabledListener: null,
   _minimalListener: null,
   contextMenuItem: null,
-  isOpen: false,
   _matchesObserver: null,
 
   get expanded() {
@@ -480,6 +479,7 @@ const findbar = {
     const isChanged = value !== this._isExpanded;
     this._isExpanded = value;
     if (!this.findbar) return;
+    this.findbar.expanded = value;
 
     // Handle the button text for the non-minimal "Expand" button
     if (this.expandButton) {
@@ -550,20 +550,21 @@ const findbar = {
       this.hide();
       this.expanded = false;
       llm.clearData();
+      if (this.findbar) this.findbar.history = null;
     }
     gBrowser.getFindBar().then((findbar) => {
       this.findbar = findbar;
       this.addExpandButton();
       if (PREFS.persistChat) {
-        if (this.isOpen) this.show();
-        setTimeout(() => {
-          this.expanded = this.expanded; // just to make sure in new tab UI willl also be visible
-        }, 200);
+        if (this?.findbar?.history) llm.history = this.findbar.history;
+        else llm.history = [];
+        if (this?.findbar?.expanded) {
+          setTimeout(() => (this.expanded = true), 200);
+        } else {
+          this.hide();
+          this.expanded = false;
+        }
       } else {
-        this.hide();
-        this.expanded = false;
-      }
-      if (!this.isOpen) {
         this.hide();
         this.expanded = false;
       }
@@ -593,7 +594,6 @@ const findbar = {
         //update placeholder when findbar is opened
         findbar.browser.finder.onFindbarOpen = (...args) => {
           originalOnFindbarOpen.apply(findbar.browser.finder, args); //making sure original function is called
-          this.isOpen = true;
           if (this.enabled) {
             debugLog("Findbar is being opened");
             setTimeout(
@@ -608,7 +608,6 @@ const findbar = {
         };
         findbar.browser.finder.onFindbarClose = (...args) => {
           originalOnFindbarClose.apply(findbar.browser.finder, args);
-          this.isOpen = false;
           if (this.enabled) {
             debugLog("Findbar is being closed");
           }
@@ -757,6 +756,7 @@ const findbar = {
     } finally {
       loadingIndicator.remove();
       this.focusInput();
+      if (PREFS.persistChat) this.findbar.history = llm.getHistory();
     }
   },
 
@@ -824,6 +824,7 @@ const findbar = {
     clearBtn.addEventListener("click", () => {
       container.querySelector("#chat-messages").innerHTML = "";
       llm.clearData();
+      this.findbar.history = null;
       this.expanded = false;
     });
 
@@ -1199,7 +1200,7 @@ const findbar = {
         this.expanded = false;
         if (this.minimal) this.hide();
         else this.focusInput();
-      } else if (this.isOpen) this.hide();
+      }
     }
   },
 
