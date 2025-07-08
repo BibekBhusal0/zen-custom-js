@@ -58,7 +58,7 @@ function parseMD(markdown) {
 
 const SettingsModal = {
   _modalElement: null,
-  _currentPrefValues: {}, // Store values from the form before saving
+  _currentPrefValues: {},
 
   _getSafeIdForProvider(providerName) {
     return providerName.replace(/\./g, "-");
@@ -69,7 +69,6 @@ const SettingsModal = {
     const container = parseElement(settingsHtml);
     this._modalElement = container;
 
-    // Manually create and insert the XUL menulist for LLM Provider selection
     const providerOptionsXUL = Object.entries(llm.AVAILABLE_PROVIDERS)
       .map(
         ([name, provider]) =>
@@ -97,7 +96,6 @@ const SettingsModal = {
       placeholder.replaceWith(providerSelectorXulElement);
     }
 
-    // Manually create and insert XUL menulists for LLM Models
     for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = PREFS[provider.modelPref];
       const currentModel = provider.model;
@@ -128,7 +126,7 @@ const SettingsModal = {
     }
 
     this._attachEventListeners();
-    this._updateWarningMessage(); // Initial check for warning
+    this._updateWarningMessage(); 
     return container;
   },
 
@@ -148,7 +146,6 @@ const SettingsModal = {
       .addEventListener("click", () => {
         this.saveSettings();
         this.hide();
-        // Notify findbar to update UI based on new settings
         findbar.updateFindbar();
         findbar.showAIInterface();
       });
@@ -162,24 +159,22 @@ const SettingsModal = {
     // Initialize and listen to changes on controls (store in _currentPrefValues)
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
       const prefKey = control.dataset.pref;
-      const prefName = PREFS.getPrefSetterName(prefKey); // Use helper from PREFS object
+      const prefName = PREFS.getPrefSetterName(prefKey); 
 
       // Initialize control value from PREFS
       if (control.type === "checkbox") {
         control.checked = PREFS[prefName];
       } else {
-        // For XUL menulist, ensure its value is set correctly on attach
         if (control.tagName.toLowerCase() === "menulist") {
           control.value = PREFS[prefName];
         } else {
           control.value = PREFS[prefName];
         }
       }
-      this._currentPrefValues[prefName] = PREFS[prefName]; // Sync internal state
+      this._currentPrefValues[prefName] = PREFS[prefName]; 
 
       // Store changes in _currentPrefValues
       if (control.tagName.toLowerCase() === "menulist") {
-        // Special handling for XUL menulist using 'command' event
         control.addEventListener("command", (e) => {
           this._currentPrefValues[prefName] = e.target.value;
           debugLog(
@@ -199,7 +194,6 @@ const SettingsModal = {
           debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
           );
-          // Update warning message if relevant preferences change
           if (
             prefKey === PREFS.CITATIONS_ENABLED ||
             prefKey === PREFS.GOD_MODE
@@ -217,7 +211,7 @@ const SettingsModal = {
         const url = e.target.dataset.url;
         if (url) {
           openTrustedLinkIn(url, "tab");
-          this.hide(); // Close settings modal after opening link
+          this.hide(); 
         }
       });
     });
@@ -227,7 +221,6 @@ const SettingsModal = {
   },
 
   saveSettings() {
-    // Iterate _currentPrefValues and set PREFS
     for (const prefName in this._currentPrefValues) {
       if (
         Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefName)
@@ -257,12 +250,12 @@ const SettingsModal = {
           control.value = PREFS[prefName];
         }
       }
-      this._currentPrefValues[prefName] = PREFS[prefName]; // Sync internal state
+      this._currentPrefValues[prefName] = PREFS[prefName]; 
     });
-    this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider); // Update model dropdowns based on current PREFS
-    this._updateWarningMessage(); // Update warning message when showing the modal
+    this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider); 
+    this._updateWarningMessage(); 
 
-    document.documentElement.appendChild(this._modalElement); // Append to documentElement for full-screen overlay
+    document.documentElement.appendChild(this._modalElement); 
   },
 
   hide() {
@@ -312,7 +305,6 @@ const SettingsModal = {
     }
   },
 
-  // Helper to display warning if both citations and god mode are enabled
   _updateWarningMessage() {
     if (!this._modalElement) return;
 
@@ -355,7 +347,6 @@ const SettingsModal = {
   },
 
   _generateSettingsHtml() {
-    // General Settings
     const generalSettings = [
       { label: "Enable AI Findbar", pref: PREFS.ENABLED },
       { label: "Minimal Mode", pref: PREFS.MINIMAL },
@@ -367,7 +358,6 @@ const SettingsModal = {
       generalSettings,
     );
 
-    // AI Behavior Settings
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "God Mode (AI can use tool calls)", pref: PREFS.GOD_MODE },
@@ -432,7 +422,6 @@ const SettingsModal = {
       `;
     }
 
-    // Placeholder for the XUL menulist, which will be inserted dynamically
     const llmProvidersSectionHtml = `
       <section class="settings-section">
         <h4>LLM Providers</h4>
