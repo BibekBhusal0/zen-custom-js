@@ -398,6 +398,8 @@ browser {
     .findbar-ai-setup {
       .ai-setup-content {
         text-align: center;
+        padding: 15px !important;
+        padding-top: 30px !important;
 
         h3 {
           margin: 9px 0 8px 0 !important;
