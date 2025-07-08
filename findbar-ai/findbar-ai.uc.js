@@ -126,7 +126,7 @@ const SettingsModal = {
     }
 
     this._attachEventListeners();
-    this._updateWarningMessage(); 
+    this._updateWarningMessage();
     return container;
   },
 
@@ -159,7 +159,7 @@ const SettingsModal = {
     // Initialize and listen to changes on controls (store in _currentPrefValues)
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
       const prefKey = control.dataset.pref;
-      const prefName = PREFS.getPrefSetterName(prefKey); 
+      const prefName = PREFS.getPrefSetterName(prefKey);
 
       // Initialize control value from PREFS
       if (control.type === "checkbox") {
@@ -171,7 +171,7 @@ const SettingsModal = {
           control.value = PREFS[prefName];
         }
       }
-      this._currentPrefValues[prefName] = PREFS[prefName]; 
+      this._currentPrefValues[prefName] = PREFS[prefName];
 
       // Store changes in _currentPrefValues
       if (control.tagName.toLowerCase() === "menulist") {
@@ -211,7 +211,7 @@ const SettingsModal = {
         const url = e.target.dataset.url;
         if (url) {
           openTrustedLinkIn(url, "tab");
-          this.hide(); 
+          this.hide();
         }
       });
     });
@@ -250,12 +250,12 @@ const SettingsModal = {
           control.value = PREFS[prefName];
         }
       }
-      this._currentPrefValues[prefName] = PREFS[prefName]; 
+      this._currentPrefValues[prefName] = PREFS[prefName];
     });
-    this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider); 
-    this._updateWarningMessage(); 
+    this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
+    this._updateWarningMessage();
 
-    document.documentElement.appendChild(this._modalElement); 
+    document.documentElement.appendChild(this._modalElement);
   },
 
   hide() {
@@ -543,6 +543,7 @@ const findbar = {
   },
 
   updateFindbar() {
+    SettingsModal.hide();
     this.removeExpandButton();
     this.removeAIInterface();
     if (!PREFS.persistChat) {

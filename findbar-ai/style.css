@@ -245,10 +245,11 @@ browser {
       row-gap: 10px;
 
       &> :first-child {
-        width: calc(100% - 10px) !important;
+        width: 100% !important;
         margin-top: 8px !important;
         padding-bottom: 10px !important;
         position: relative;
+        padding-right: 30px !important;
 
         &::before {
           content: "";
@@ -694,6 +695,7 @@ browser {
         &> :first-child {
           border-bottom: 0 !important;
           width: calc(100% - 33px) !important;
+           padding-right: 3px !important;
 
           &::before {
             margin-top: 5px !important;
