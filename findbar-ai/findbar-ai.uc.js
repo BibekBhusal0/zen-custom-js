@@ -97,7 +97,7 @@ const SettingsModal = {
     }
 
     for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
-      const modelPrefKey = PREFS[provider.modelPref];
+      const modelPrefKey = provider.modelPref;
       const currentModel = provider.model;
 
       const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
