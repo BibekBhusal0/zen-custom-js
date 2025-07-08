@@ -479,11 +479,12 @@ const findbar = {
   _addKeymaps: null,
   _handleInputKeyPress: null,
   _handleFindFieldInput: null,
-  _clearLLMData: null,
   _isExpanded: false,
-  _handleContextMenuPrefChange: null,
   _updateContextMenuText: null,
-  _handleMinimalPrefChange: null,
+  _godModeListener: null,
+  _citationsListener: null,
+  _contextMenuEnabledListener: null,
+  _minimalListener: null,
   contextMenuItem: null,
   isOpen: false,
   _matchesObserver: null,
@@ -561,6 +562,7 @@ const findbar = {
       }
     }
   },
+
   handleMinimalPrefChange: function(pref) {
     this.minimal = pref.value;
     this.updateFindbar();
@@ -1231,21 +1233,31 @@ const findbar = {
     this._addKeymaps = this.addKeymaps.bind(this);
     this._handleInputKeyPress = this.handleInputKeyPress.bind(this);
     this._handleFindFieldInput = this.updateFoundMatchesDisplay.bind(this);
-    this._clearLLMData = llm.clearData.bind(llm);
-    this._handleContextMenuPrefChange =
+    const _clearLLMData = llm.clearData.bind(llm);
+    const _handleContextMenuPrefChange =
       this.handleContextMenuPrefChange.bind(this);
-    this._handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
+    const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._updateFindbar);
     document.addEventListener("keydown", this._addKeymaps);
-    UC_API.Prefs.addListener(PREFS.GOD_MODE, this._clearLLMData);
-    UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, this._clearLLMData);
-    UC_API.Prefs.addListener(PREFS.MINIMAL, this._handleMinimalPrefChange);
-    UC_API.Prefs.addListener(
+    this._godModeListener = UC_API.Prefs.addListener(
+      PREFS.GOD_MODE,
+      _clearLLMData,
+    );
+    this._citationsListener = UC_API.Prefs.addListener(
+      PREFS.CITATIONS_ENABLED,
+      _clearLLMData,
+    );
+    this._minimalListener = UC_API.Prefs.addListener(
+      PREFS.MINIMAL,
+      _handleMinimalPrefChange,
+    );
+    this._contextMenuEnabledListener = UC_API.Prefs.addListener(
       PREFS.CONTEXT_MENU_ENABLED,
-      this._handleContextMenuPrefChange,
+      _handleContextMenuPrefChange,
     );
   },
+
   removeListeners() {
     if (this.findbar) {
       this.findbar._findField.removeEventListener(
@@ -1259,13 +1271,10 @@ const findbar = {
     }
     gBrowser.tabContainer.removeEventListener("TabSelect", this._updateFindbar);
     document.removeEventListener("keydown", this._addKeymaps);
-    UC_API.Prefs.removeListener(PREFS.GOD_MODE, this._clearLLMData);
-    UC_API.Prefs.removeListener(PREFS.CITATIONS_ENABLED, this._clearLLMData);
-    UC_API.Prefs.removeListener(PREFS.MINIMAL, this._handleMinimalPrefChange);
-    UC_API.Prefs.removeListener(
-      PREFS.CONTEXT_MENU_ENABLED,
-      this._handleContextMenuPrefChange,
-    );
+    UC_API.Prefs.removeListener(this._godModeListener);
+    UC_API.Prefs.removeListener(this._citationsListener);
+    UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
+    UC_API.Prefs.removeListener(this._minimalListener);
 
     // Disconnect the MutationObserver when listeners are removed
     if (this._matchesObserver) {
@@ -1277,9 +1286,10 @@ const findbar = {
     this._handleFindFieldInput = null;
     this._updateFindbar = null;
     this._addKeymaps = null;
-    this._handleContextMenuPrefChange = null;
-    this._handleMinimalPrefChange = null;
-    this._clearLLMData = null;
+    this._godModeListener = null;
+    this._citationsListener = null;
+    this._contextMenuEnabledListener = null;
+    this._minimalListener = null;
   },
 
   updateFoundMatchesDisplay(retry = 0) {
