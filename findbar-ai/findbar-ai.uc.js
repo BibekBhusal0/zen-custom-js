@@ -99,33 +99,31 @@ const SettingsModal = {
 
     // Manually create and insert XUL menulists for LLM Models
     for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
-      const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
-      if (modelPrefKey) {
-        const modelPrefName = PREFS.getPrefSetterName(modelPrefKey);
+      const modelPrefKey = PREFS[provider.modelPref];
+      const currentModel = provider.model;
 
-        const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
-          (model) =>
-            `<menuitem
+      const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
+        (model) =>
+          `<menuitem
               value="${model}"
               label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
-              ${model === PREFS[modelPrefName] ? 'selected="true"' : ""}
+              ${model === currentModel ? 'selected="true"' : ""}
             />`,
-        ).join("");
+      ).join("");
 
-        const modelMenulistXul = `
-          <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${PREFS[modelPrefName]}">
+      const modelMenulistXul = `
+          <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${currentModel}">
             <menupopup>
               ${modelOptionsXUL}
             </menupopup>
           </menulist>`;
 
-        const modelPlaceholder = this._modalElement.querySelector(
-          `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`,
-        );
-        if (modelPlaceholder) {
-          const modelSelectorXulElement = parseElement(modelMenulistXul, "xul");
-          modelPlaceholder.replaceWith(modelSelectorXulElement);
-        }
+      const modelPlaceholder = this._modalElement.querySelector(
+        `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`,
+      );
+      if (modelPlaceholder) {
+        const modelSelectorXulElement = parseElement(modelMenulistXul, "xul");
+        modelPlaceholder.replaceWith(modelSelectorXulElement);
       }
     }
 
@@ -245,10 +243,7 @@ const SettingsModal = {
   },
 
   show() {
-    if (!this._modalElement) {
-      this.createModalElement();
-    }
-    // Always re-initialize control values from actual PREFS before showing
+    this.createModalElement();
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
       const prefKey = control.dataset.pref;
       const prefName = PREFS.getPrefSetterName(prefKey);
