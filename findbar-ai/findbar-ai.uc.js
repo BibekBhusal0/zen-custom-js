@@ -155,6 +155,12 @@ const SettingsModal = {
         findbar.showAIInterface();
       });
 
+    this._modalElement.addEventListener("click", (e) => {
+      if (e.target === this._modalElement) {
+        this.hide();
+      }
+    });
+
     // Initialize and listen to changes on controls (store in _currentPrefValues)
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
       const prefKey = control.dataset.pref;
