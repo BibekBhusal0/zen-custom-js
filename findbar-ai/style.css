@@ -90,7 +90,7 @@ browser {
       padding: 10px 12px !important;
       font-size: 14px !important;
       transition: all 0.2s ease !important;
-      border: 2px solid var(--zen-workspace-color-stroke) !important;
+      border: 2px solid transparent !important;
 
       &:focus {
         outline: none !important;
@@ -829,17 +829,14 @@ browser {
     width: 500px;
     min-width: 500px;
     max-width: 90vw;
-    height: auto;
     height: 80vh;
-    padding: 20px;
+    padding: 20px 0px 0px 20px;
     border-radius: var(--acrylic-radius) !important;
     box-shadow: var(--acrylic-shadow) !important;
     background: var(--acrylic-glass-bg) !important;
     backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
-    display: flex;
     flex-direction: column;
     gap: 14px;
-    overflow-y: auto;
 
     .ai-settings-header {
       display: flex;
@@ -847,7 +844,8 @@ browser {
       align-items: center;
       padding-bottom: 10px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-      margin-bottom: 10px;
+      margin-right: 18px !important;
+      margin-bottom: 5px;
 
       h3 {
         margin: 0 !important;
@@ -862,15 +860,18 @@ browser {
     }
 
     .ai-settings-content {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+      overflow-y: auto !important;
+      scrollbar-width: thin;
+      scrollbar-color: inherit transparent;
+      height: calc(100% - 40px) !important;
+      padding-right: 18px !important;
 
       .settings-section {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 8px;
         padding: 15px;
         border: 1px solid rgba(255, 255, 255, 0.1);
+        margin: 10px 0px !important;
 
         h4 {
           margin: 0 0 10px 0 !important;
