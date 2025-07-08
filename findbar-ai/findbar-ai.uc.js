@@ -330,56 +330,70 @@ const SettingsModal = {
     }
   },
 
+  _generateCheckboxSettingHtml(label, prefConstant) {
+    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
+    return `
+      <div class="setting-item">
+        <label for="${prefId}">${label}</label>
+        <input type="checkbox" id="${prefId}" data-pref="${prefConstant}" />
+      </div>
+    `;
+  },
+
+  _createCheckboxSectionHtml(title, settingsArray, additionalContentHtml = "") {
+    const settingsHtml = settingsArray
+      .map((s) => this._generateCheckboxSettingHtml(s.label, s.pref))
+      .join("");
+    return `
+      <section class="settings-section">
+        <h4>${title}</h4>
+        ${additionalContentHtml}
+        ${settingsHtml}
+      </section>
+    `;
+  },
+
   _generateSettingsHtml() {
-    let generalSectionHtml = `
-      <section class="settings-section">
-        <h4>General</h4>
-        <div class="setting-item">
-          <label for="pref-enabled">Enable AI Findbar</label>
-          <input type="checkbox" id="pref-enabled" data-pref="${PREFS.ENABLED}" />
-        </div>
-        <div class="setting-item">
-          <label for="pref-minimal">Minimal Mode</label>
-          <input type="checkbox" id="pref-minimal" data-pref="${PREFS.MINIMAL}" />
-        </div>
-        <div class="setting-item">
-          <label for="pref-persist-chat">Persist Chat</label>
-          <input type="checkbox" id="pref-persist-chat" data-pref="${PREFS.PERSIST}" />
-        </div>
-        <div class="setting-item">
-          <label for="pref-debug-mode">Debug Mode</label>
-          <input type="checkbox" id="pref-debug-mode" data-pref="${PREFS.DEBUG_MODE}" />
-        </div>
-      </section>`;
+    // General Settings
+    const generalSettings = [
+      { label: "Enable AI Findbar", pref: PREFS.ENABLED },
+      { label: "Minimal Mode", pref: PREFS.MINIMAL },
+      { label: "Persist Chat", pref: PREFS.PERSIST },
+      { label: "Debug Mode", pref: PREFS.DEBUG_MODE },
+    ];
+    const generalSectionHtml = this._createCheckboxSectionHtml(
+      "General",
+      generalSettings,
+    );
 
-    let aiBehaviorSectionHtml = `
-      <section class="settings-section">
-        <h4>AI Behavior</h4>
-        <div id="citations-god-mode-warning" class="warning-message" style="display: none; color: red; margin-bottom: 10px;">
-          Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
-        </div>
-        <div class="setting-item">
-          <label for="pref-citations-enabled">Enable Citations</label>
-          <input type="checkbox" id="pref-citations-enabled" data-pref="${PREFS.CITATIONS_ENABLED}" />
-        </div>
-        <div class="setting-item">
-          <label for="pref-god-mode">God Mode (AI can use tool calls)</label>
-          <input type="checkbox" id="pref-god-mode" data-pref="${PREFS.GOD_MODE}" />
-        </div>
-      </section>`;
+    // AI Behavior Settings
+    const aiBehaviorSettings = [
+      { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
+      { label: "God Mode (AI can use tool calls)", pref: PREFS.GOD_MODE },
+    ];
+    const aiBehaviorWarningHtml = `
+      <div id="citations-god-mode-warning" class="warning-message" style="display: none; color: red; margin-bottom: 10px;">
+        Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
+      </div>
+    `;
+    const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
+      "AI Behavior",
+      aiBehaviorSettings,
+      aiBehaviorWarningHtml,
+    );
 
-    let contextMenuSectionHtml = `
-      <section class="settings-section">
-        <h4>Context Menu</h4>
-        <div class="setting-item">
-          <label for="pref-context-menu-enabled">Enable Context Menu</label>
-          <input type="checkbox" id="pref-context-menu-enabled" data-pref="${PREFS.CONTEXT_MENU_ENABLED}" />
-        </div>
-        <div class="setting-item">
-          <label for="pref-context-menu-autosend">Auto Send from Context Menu</label>
-          <input type="checkbox" id="pref-context-menu-autosend" data-pref="${PREFS.CONTEXT_MENU_AUTOSEND}" />
-        </div>
-      </section>`;
+    // Context Menu Settings
+    const contextMenuSettings = [
+      { label: "Enable Context Menu", pref: PREFS.CONTEXT_MENU_ENABLED },
+      {
+        label: "Auto Send from Context Menu",
+        pref: PREFS.CONTEXT_MENU_AUTOSEND,
+      },
+    ];
+    const contextMenuSectionHtml = this._createCheckboxSectionHtml(
+      "Context Menu",
+      contextMenuSettings,
+    );
 
     let llmProviderSettingsHtml = "";
     for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
