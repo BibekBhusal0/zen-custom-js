@@ -915,12 +915,12 @@ const findbar = {
       for (const message of history) {
         if (
           message.role === "tool" ||
-          (message.parts && message.parts.some((p) => p.functionCall))
+          (message?.parts && message?.parts.some((p) => p.functionCall))
         )
           continue;
 
         const isModel = message.role === "model";
-        const textContent = message.parts[0]?.text;
+        const textContent = message?.parts[0]?.text;
         if (!textContent) continue;
 
         let responsePayload = { answer: "" };
@@ -1209,7 +1209,10 @@ const findbar = {
     this._addKeymaps = this.addKeymaps.bind(this);
     this._handleInputKeyPress = this.handleInputKeyPress.bind(this);
     this._handleFindFieldInput = this.updateFoundMatchesDisplay.bind(this);
-    const _clearLLMData = llm.clearData.bind(llm);
+    const _clearLLMData = () => {
+      llm.clearData();
+      this.findbar.history = null;
+    };
     const _handleContextMenuPrefChange =
       this.handleContextMenuPrefChange.bind(this);
     const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);

@@ -250,11 +250,11 @@ Here is the initial info about the current page:
     }
     this.history.push(modelResponse);
 
-    const functionCalls = modelResponse.parts?.filter(
+    const functionCalls = modelResponse?.parts?.filter(
       (part) => part.functionCall,
     );
 
-    if (PREFS.godMode && functionCalls.length > 0) {
+    if (PREFS.godMode && functionCalls && functionCalls.length > 0) {
       debugLog("Function call(s) requested by model:", functionCalls);
 
       const functionResponses = [];
@@ -294,7 +294,7 @@ Here is the initial info about the current page:
 
     if (PREFS.citationsEnabled) {
       const responseText =
-        modelResponse.parts.find((part) => part.text)?.text || "";
+        modelResponse?.parts?.find((part) => part.text)?.text || "";
       const parsedResponse = this.parseModelResponseText(responseText);
 
       debugLog("Parsed AI Response:", parsedResponse);
@@ -311,7 +311,7 @@ Here is the initial info about the current page:
       return parsedResponse;
     } else {
       const responseText =
-        modelResponse.parts?.find((part) => part.text)?.text || "";
+        modelResponse?.parts?.find((part) => part.text)?.text || "";
       if (!responseText && functionCalls.length === 0) {
         this.history.pop();
       }
