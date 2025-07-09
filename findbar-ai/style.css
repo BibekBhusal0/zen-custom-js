@@ -933,7 +933,7 @@ browser {
           max-height: 22px !important;
 
           .accordion-header::after {
-            transform: translateY(-50%);
+            transform: translateY(-50%) rotate(270deg);
           }
         }
       }
