@@ -39,6 +39,10 @@ export const PREFS = {
     }
   },
 
+  setPref(prefKey, value) {
+    UC_API.Prefs.set(prefKey, value);
+  },
+
   setInitialPrefs() {
     for (const [key, value] of Object.entries(PREFS.defaultValues)) {
       UC_API.Prefs.setIfUnset(key, value);
@@ -49,18 +53,18 @@ export const PREFS = {
     return this.getPref(this.ENABLED);
   },
   set enabled(value) {
-    UC_API.Prefs.set(this.ENABLED, value);
+    this.setPref(this.ENABLED, value);
   },
 
   get minimal() {
     return this.getPref(this.MINIMAL);
   },
   set minimal(value) {
-    UC_API.Prefs.set(this.MINIMAL, value);
+    this.setPref(this.MINIMAL, value);
   },
 
   set godMode(value) {
-    UC_API.Prefs.set(this.GOD_MODE, value);
+    this.setPref(this.GOD_MODE, value);
   },
   get godMode() {
     return this.getPref(this.GOD_MODE);
@@ -70,95 +74,100 @@ export const PREFS = {
     return this.getPref(this.CITATIONS_ENABLED);
   },
   set citationsEnabled(value) {
-    UC_API.Prefs.set(this.CITATIONS_ENABLED, value);
+    this.setPref(this.CITATIONS_ENABLED, value);
   },
 
   get contextMenuEnabled() {
     return this.getPref(this.CONTEXT_MENU_ENABLED);
   },
   set contextMenuEnabled(value) {
-    UC_API.Prefs.set(this.CONTEXT_MENU_ENABLED, value);
+    this.setPref(this.CONTEXT_MENU_ENABLED, value);
   },
 
   get contextMenuAutoSend() {
     return this.getPref(this.CONTEXT_MENU_AUTOSEND);
   },
   set contextMenuAutoSend(value) {
-    UC_API.Prefs.set(this.CONTEXT_MENU_AUTOSEND, value);
+    this.setPref(this.CONTEXT_MENU_AUTOSEND, value);
   },
 
   get llmProvider() {
     return this.getPref(this.LLM_PROVIDER);
   },
   set llmProvider(value) {
-    UC_API.Prefs.set(this.LLM_PROVIDER, value);
+    this.setPref(this.LLM_PROVIDER, value);
   },
 
   get mistralApiKey() {
     return this.getPref(this.MISTRAL_API_KEY);
   },
   set mistralApiKey(value) {
-    UC_API.Prefs.set(this.MISTRAL_API_KEY, value);
+    this.setPref(this.MISTRAL_API_KEY, value);
   },
 
   get mistralModel() {
     return this.getPref(this.MISTRAL_MODEL);
   },
   set mistralModel(value) {
-    UC_API.Prefs.set(this.MISTRAL_MODEL, value);
+    this.setPref(this.MISTRAL_MODEL, value);
   },
 
   get geminiApiKey() {
     return this.getPref(this.GEMINI_API_KEY);
   },
   set geminiApiKey(value) {
-    UC_API.Prefs.set(this.GEMINI_API_KEY, value);
+    this.setPref(this.GEMINI_API_KEY, value);
   },
 
   get geminiModel() {
     return this.getPref(this.GEMINI_MODEL);
   },
   set geminiModel(value) {
-    UC_API.Prefs.set(this.GEMINI_MODEL, value);
+    this.setPref(this.GEMINI_MODEL, value);
   },
 
   get persistChat() {
     return this.getPref(this.PERSIST);
   },
   set persistChat(value) {
-    UC_API.Prefs.set(this.PERSIST, value);
+    this.setPref(this.PERSIST, value);
   },
 
   get copyBtnEnabled() {
     return this.getPref(this.COPY_BTN_ENABLED);
   },
   set copyBtnEnabled(value) {
-    UC_API.Prefs.set(this.COPY_BTN_ENABLED, value);
+    this.setPref(this.COPY_BTN_ENABLED, value);
   },
-  // Helper method to map PREFS constants to their setter property names
-  getPrefSetterName(prefKey) {
-    const keyMap = {
-      [PREFS.ENABLED]: "enabled",
-      [PREFS.MINIMAL]: "minimal",
-      [PREFS.PERSIST]: "persistChat",
-      [PREFS.GOD_MODE]: "godMode",
-      [PREFS.CITATIONS_ENABLED]: "citationsEnabled",
-      [PREFS.CONTEXT_MENU_ENABLED]: "contextMenuEnabled",
-      [PREFS.CONTEXT_MENU_AUTOSEND]: "contextMenuAutoSend",
-      [PREFS.DEBUG_MODE]: "debugMode",
-      [PREFS.LLM_PROVIDER]: "llmProvider",
-      [PREFS.MISTRAL_API_KEY]: "mistralApiKey",
-      [PREFS.MISTRAL_MODEL]: "mistralModel",
-      [PREFS.GEMINI_API_KEY]: "geminiApiKey",
-      [PREFS.GEMINI_MODEL]: "geminiModel",
-      [PREFS.COPY_BTN_ENABLED]: "copyBtnEnabled",
-      [PREFS.MARKDOWN_ENABLED]: "markdownEnabled",
-      [PREFS.CONFORMATION]: "conformation",
-      [PREFS.SHOW_TOOL_CALL]: "showToolCall",
-      [PREFS.DND_ENABLED]: "dndEnabled",
-      [PREFS.POSITION]: "position",
-    };
-    return keyMap[prefKey];
+  get markdownEnabled() {
+    return this.getPref(this.MARKDOWN_ENABLED);
+  },
+  set markdownEnabled(value) {
+    this.setPref(this.MARKDOWN_ENABLED, value);
+  },
+  get conformation() {
+    return this.getPref(this.CONFORMATION);
+  },
+  set conformation(value) {
+    this.setPref(this.CONFORMATION, value);
+  },
+  get showToolCall() {
+    return this.getPref(this.SHOW_TOOL_CALL);
+  },
+  set showToolCall(value) {
+    this.setPref(this.SHOW_TOOL_CALL, value);
+  },
+  get dndEnabled() {
+    return this.getPref(this.DND_ENABLED);
+  },
+  set dndEnabled(value) {
+    this.setPref(this.DND_ENABLED, value);
+  },
+  get position() {
+    return this.getPref(this.POSITION);
+  },
+  set position(value) {
+    this.setPref(this.POSITION, value);
   },
 };
 

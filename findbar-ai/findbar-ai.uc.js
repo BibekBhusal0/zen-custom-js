@@ -169,40 +169,39 @@ const SettingsModal = {
     // Initialize and listen to changes on controls (store in _currentPrefValues)
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
       const prefKey = control.dataset.pref;
-      const prefName = PREFS.getPrefSetterName(prefKey);
 
       // Initialize control value from PREFS
       if (control.type === "checkbox") {
-        control.checked = PREFS[prefName];
+        control.checked = PREFS.getPref(prefKey);
       } else {
         if (control.tagName.toLowerCase() === "menulist") {
-          control.value = PREFS[prefName];
+          control.value = PREFS.getPref(prefKey);
         } else {
-          control.value = PREFS[prefName];
+          control.value = PREFS.getPref(prefKey);
         }
       }
-      this._currentPrefValues[prefName] = PREFS[prefName];
+      this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
 
       // Store changes in _currentPrefValues
       if (control.tagName.toLowerCase() === "menulist") {
         control.addEventListener("command", (e) => {
-          this._currentPrefValues[prefName] = e.target.value;
+          this._currentPrefValues[prefKey] = e.target.value;
           debugLog(
-            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`,
           );
           if (prefKey === PREFS.LLM_PROVIDER) {
             this._updateProviderSpecificSettings(
               this._modalElement,
-              this._currentPrefValues[prefName],
+              this._currentPrefValues[prefKey],
             );
           }
         });
       } else {
         control.addEventListener("change", (e) => {
-          this._currentPrefValues[prefName] =
+          this._currentPrefValues[prefKey] =
             control.type === "checkbox" ? e.target.checked : e.target.value;
           debugLog(
-            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefName]}`,
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`,
           );
           if (
             prefKey === PREFS.CITATIONS_ENABLED ||
@@ -231,12 +230,12 @@ const SettingsModal = {
   },
 
   saveSettings() {
-    for (const prefName in this._currentPrefValues) {
+    for (const prefKey in this._currentPrefValues) {
       if (
-        Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefName)
+        Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)
       ) {
-        PREFS[prefName] = this._currentPrefValues[prefName];
-        debugLog(`Saving pref ${prefName} to: ${PREFS[prefName]}`);
+        PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
+        debugLog(`Saving pref ${prefKey} to: ${PREFS.getPref(prefKey)}`);
       }
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
@@ -249,18 +248,17 @@ const SettingsModal = {
     this.createModalElement();
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
       const prefKey = control.dataset.pref;
-      const prefName = PREFS.getPrefSetterName(prefKey);
       if (control.type === "checkbox") {
-        control.checked = PREFS[prefName];
+        control.checked = PREFS.getPref(prefKey);
       } else {
         // For XUL menulist, ensure its value is set correctly on show
         if (control.tagName.toLowerCase() === "menulist") {
-          control.value = PREFS[prefName];
+          control.value = PREFS.getPref(prefKey);
         } else {
-          control.value = PREFS[prefName];
+          control.value = PREFS.getPref(prefKey);
         }
       }
-      this._currentPrefValues[prefName] = PREFS[prefName];
+      this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
     });
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
     this._updateWarningMessage();
@@ -290,14 +288,13 @@ const SettingsModal = {
       // Dynamically update the model dropdown for the active provider
       const modelPrefKey = PREFS[`${selectedProviderName.toUpperCase()}_MODEL`];
       if (modelPrefKey) {
-        const modelPrefName = PREFS.getPrefSetterName(modelPrefKey);
         // Use the safe ID for the model selector as well
         const modelSelect = activeGroup.querySelector(
           `#pref-${this._getSafeIdForProvider(selectedProviderName)}-model`,
         );
         if (modelSelect) {
           modelSelect.value =
-            this._currentPrefValues[modelPrefName] || PREFS[modelPrefName];
+            this._currentPrefValues[modelPrefKey] || PREFS.getPref(modelPrefKey);
         }
       }
       // Update the "Get API Key" link's state for the active provider
@@ -318,10 +315,8 @@ const SettingsModal = {
   _updateWarningMessage() {
     if (!this._modalElement) return;
 
-    const citationsEnabled =
-      this._currentPrefValues[PREFS.getPrefSetterName(PREFS.CITATIONS_ENABLED)];
-    const godModeEnabled =
-      this._currentPrefValues[PREFS.getPrefSetterName(PREFS.GOD_MODE)];
+    const citationsEnabled = this._currentPrefValues[PREFS.CITATIONS_ENABLED];
+    const godModeEnabled = this._currentPrefValues[PREFS.GOD_MODE];
     const warningDiv = this._modalElement.querySelector(
       "#citations-god-mode-warning",
     );
@@ -352,7 +347,6 @@ const SettingsModal = {
     const settingsHtml = settingsArray
       .map((s) => this._generateCheckboxSettingHtml(s.label, s.pref))
       .join("");
-    // const sectionId = `settings-section-${title.toLowerCase().replace(/ /g, "-")}`;
     return `
     <section class="settings-section settings-accordion" data-expanded="${expanded}" >
       <h4 class="accordion-header">${title}</h4>
