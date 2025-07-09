@@ -481,6 +481,7 @@ const findbar = {
   _godModeListener: null,
   _citationsListener: null,
   _contextMenuEnabledListener: null,
+  _persistListener: null,
   _minimalListener: null,
   contextMenuItem: null,
   _matchesObserver: null,
@@ -1233,6 +1234,11 @@ const findbar = {
       PREFS.CONTEXT_MENU_ENABLED,
       _handleContextMenuPrefChange,
     );
+    this._persistListener = UC_API.Prefs.addListener(PREFS.PERSIST, (pref) => {
+      if (!this.findbar) return;
+      if (pref.value) this.findbar.history = llm.history;
+      else this.findbar.history = null;
+    });
   },
 
   removeListeners() {
@@ -1252,6 +1258,7 @@ const findbar = {
     UC_API.Prefs.removeListener(this._citationsListener);
     UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
     UC_API.Prefs.removeListener(this._minimalListener);
+    UC_API.Prefs.removeListener(this._persistListener);
 
     // Disconnect the MutationObserver when listeners are removed
     if (this._matchesObserver) {
@@ -1345,4 +1352,3 @@ UC_API.Prefs.addListener(
   findbar.handleEnabledChange.bind(findbar),
 );
 window.findbar = findbar;
-
