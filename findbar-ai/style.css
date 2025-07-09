@@ -924,9 +924,11 @@ browser {
           position: relative;
 
           &::after {
-            content: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-up-icon lucide-chevron-up"><path d="m18 15-6-6-6 6"/></svg>');
+            content: url("chrome://global/skin/icons/arrow-up.svg") !important;
+            -moz-context-properties: fill !important;
+            fill: light-dark(black, white) !important;
             position: absolute;
-            right: 10px;
+            right: 0px;
             top: 50%;
             transform: translateY(-50%) rotate(180deg);
             transition: transform 0.1s ease-in-out;
