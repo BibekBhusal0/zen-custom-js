@@ -197,12 +197,12 @@ PREFS.defaultValues = {
   [PREFS.MISTRAL_MODEL]: "mistral-medium-latest",
   [PREFS.GEMINI_API_KEY]: "",
   [PREFS.GEMINI_MODEL]: "gemini-2.0-flash",
-  [PREFS.COPY_BTN_ENABLED]: true,
-  [PREFS.MARKDOWN_ENABLED]: true,
-  [PREFS.CONFORMATION]: true,
-  [PREFS.SHOW_TOOL_CALL]: false,
-  [PREFS.DND_ENABLED]: true,
-  [PREFS.POSITION]: "top-right",
+  // [PREFS.COPY_BTN_ENABLED]: true,
+  // [PREFS.MARKDOWN_ENABLED]: true,
+  // [PREFS.CONFORMATION]: true,
+  // [PREFS.SHOW_TOOL_CALL]: false,
+  // [PREFS.DND_ENABLED]: true,
+  // [PREFS.POSITION]: "top-right",
 };
 
 export default PREFS;
