@@ -752,15 +752,13 @@ const findbar = {
       this.addChatMessage({ answer: `Error: ${e.message}` }, "error");
     } finally {
       loadingIndicator.remove();
-      this.focusInput();
+      this.focusPrompt();
       if (PREFS.persistChat) this.findbar.history = llm.getHistory();
     }
   },
 
   createChatInterface() {
-    const chatInputGroup = this.minimal
-      ? ""
-      : `<div class="ai-chat-input-group">
+    const chatInputGroup = `<div class="ai-chat-input-group">
           <textarea id="ai-prompt" placeholder="Ask AI anything..." rows="2"></textarea>
           <button id="send-prompt" class="send-btn">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -817,18 +815,16 @@ const findbar = {
 
     const chatMessages = container.querySelector("#chat-messages");
 
-    if (!this.minimal) {
-      const promptInput = container.querySelector("#ai-prompt");
-      const sendBtn = container.querySelector("#send-prompt");
-      const handleSend = () => this.sendMessage(promptInput.value.trim());
-      sendBtn.addEventListener("click", handleSend);
-      promptInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          handleSend();
-        }
-      });
-    }
+    const promptInput = container.querySelector("#ai-prompt");
+    const sendBtn = container.querySelector("#send-prompt");
+    const handleSend = () => this.sendMessage(promptInput.value.trim());
+    sendBtn.addEventListener("click", handleSend);
+    promptInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    });
 
     clearBtn.addEventListener("click", () => {
       container.querySelector("#chat-messages").innerHTML = "";
@@ -959,20 +955,10 @@ const findbar = {
     if (this.findbar) setTimeout(() => this.findbar._findField.focus(), 10);
   },
   focusPrompt() {
-    if (this.minimal) {
-      this.focusInput();
-      return;
-    }
     const promptInput = this.chatContainer?.querySelector("#ai-prompt");
     if (promptInput) setTimeout(() => promptInput.focus(), 10);
   },
   setPromptText(text) {
-    if (this.minimal) {
-      if (this.findbar?._findField) {
-        this.findbar._findField.value = text;
-      }
-      return;
-    }
     const promptInput = this?.chatContainer?.querySelector("#ai-prompt");
     if (promptInput && text) promptInput.value = text;
   },
@@ -1359,3 +1345,4 @@ UC_API.Prefs.addListener(
   findbar.handleEnabledChange.bind(findbar),
 );
 window.findbar = findbar;
+
