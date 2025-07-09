@@ -494,15 +494,8 @@ const findbar = {
     if (!this.findbar) return;
     this.findbar.expanded = value;
 
-    // Handle the button text for the non-minimal "Expand" button
-    if (this.expandButton) {
-      this.expandButton.textContent = value ? "Collapse" : "Expand";
-    }
-
     if (value) {
-      if (!this.minimal) {
-        this.findbar.classList.add("ai-expanded");
-      }
+      this.findbar.classList.add("ai-expanded");
       this.show();
       this.showAIInterface();
       if (isChanged) this.focusPrompt();
@@ -539,20 +532,14 @@ const findbar = {
     return PREFS.minimal;
   },
   set minimal(value) {
-    if (typeof value === "boolean") {
-      PREFS.minimal = value;
-      if (value) this.expanded = false;
-      // Remove both buttons and add the correct one for the new mode
-      if (this.findbar) {
-        this.removeExpandButton();
-        this.addExpandButton();
-      }
-    }
+    if (typeof value === "boolean") PREFS.minimal = value;
   },
 
-  handleMinimalPrefChange: function(pref) {
-    this.minimal = pref.value;
-    this.updateFindbar();
+  handleMinimalPrefChange: function() {
+    this.removeExpandButton();
+    this.addExpandButton();
+    this.removeAIInterface();
+    this.showAIInterface();
   },
 
   updateFindbar() {
@@ -615,8 +602,6 @@ const findbar = {
                 "Press Alt + Enter to ask AI"),
               100,
             );
-
-            if (this.minimal) this.showAIInterface();
           }
         };
         findbar.browser.finder.onFindbarClose = (...args) => {
@@ -634,7 +619,6 @@ const findbar = {
     if (!this.findbar) return false;
     this.findbar.open();
     this.focusInput();
-    if (this.minimal) this.showAIInterface();
     return true;
   },
   hide() {
@@ -1043,7 +1027,7 @@ const findbar = {
         `<button id="${button_id}" anonid="${button_id}">Expand</button>`,
       );
       button.addEventListener("click", () => this.toggleExpanded());
-      button.textContent = this.expanded ? "Collapse" : "Expand";
+      button.textContent = "Expand";
       this.findbar.appendChild(button);
       this.expandButton = button;
     }
@@ -1211,8 +1195,7 @@ const findbar = {
         e.preventDefault();
         e.stopPropagation();
         this.expanded = false;
-        if (this.minimal) this.hide();
-        else this.focusInput();
+        this.focusInput();
       }
     }
   },
