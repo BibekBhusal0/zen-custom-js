@@ -53,11 +53,12 @@ const llm = {
 - **When to Cite**: For any statement of fact that is directly supported by the provided page content, you **SHOULD** provide a citation. It is not mandatory for every sentence.
 - **How to Cite**: In your \`"answer"\`, append a marker like \`[1]\`, \`[2]\`. Each marker must correspond to a citation object in the array.
 - **CRITICAL RULES FOR CITATIONS**:
-    1.  **source_quote**: This MUST be the **exact, verbatim, and short** text from the page content (typically a single sentence or less).
+    1.  **source_quote**: This MUST be the **exact, verbatim, and short** text from the page content.
     2.  **Accuracy**: The \`"source_quote"\` field must be identical to the text on the page, including punctuation and casing.
     3.  **Multiple Citations**: If multiple sources support one sentence, format them like \`[1][2]\`, not \`[1,2]\`.
     4.  **Unique IDs**: Each citation object **must** have a unique \`"id"\` that matches its marker in the answer text.
-- **Do Not Cite**: Do not cite your own abilities, general greetings, or information not from the provided text.
+    5.  **Short**: The source quote must be short no longer than one sentence and should not contain line brakes.
+- **Do Not Cite**: Do not cite your own abilities, general greetings, or information not from the provided text. Make sure the text is from page text content not from page title or URL.
 - **Tool Calls**: If you call a tool, you **must not** provide citations in the same turn.
 
 ### Citation Examples
@@ -182,7 +183,9 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 
 Here is the initial info about the current page:
 `;
-      const pageContext = await windowManagerAPI.getPageTextContent();
+      const pageContext = await windowManagerAPI.getPageTextContent(
+        !PREFS.citationsEnabled,
+      );
       systemPrompt += JSON.stringify(pageContext);
     }
 
@@ -335,4 +338,3 @@ Here is the initial info about the current page:
 };
 
 export { llm };
-

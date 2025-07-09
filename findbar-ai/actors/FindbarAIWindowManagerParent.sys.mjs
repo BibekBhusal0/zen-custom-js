@@ -52,9 +52,11 @@ export class FindbarAIWindowManagerParent extends JSWindowActorParent {
     }
   }
 
-  async getPageTextContent() {
+  async getPageTextContent(trimWhiteSpace) {
     try {
-      const result = await this.sendQuery("FindbarAI:GetPageTextContent");
+      const result = await this.sendQuery("FindbarAI:GetPageTextContent", {
+        trimWhiteSpace,
+      });
       return result;
     } catch (e) {
       debugError("Failed to get page text content:", e);

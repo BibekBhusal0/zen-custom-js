@@ -83,11 +83,11 @@ export const windowManagerAPI = {
     }
   },
 
-  async getPageTextContent() {
+  async getPageTextContent(trimWhiteSpace) {
     const wm = this.getWindowManager();
     if (!wm) return getUrlAndTitle();
     try {
-      return await wm.getPageTextContent();
+      return await wm.getPageTextContent(trimWhiteSpace);
     } catch (error) {
       debugError("Failed to get page text content:", error);
       return getUrlAndTitle();

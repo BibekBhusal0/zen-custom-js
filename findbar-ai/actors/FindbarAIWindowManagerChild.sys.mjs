@@ -48,7 +48,7 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
 
       case "FindbarAI:GetPageTextContent":
         return {
-          textContent: this.extractTextContent(),
+          textContent: this.extractTextContent(message?.data?.trimWhiteSpace),
           url: this.document.location.href,
           title: this.document.title,
         };
@@ -61,17 +61,38 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
     }
   }
 
-  extractTextContent() {
+  extractTextContent(trimWhiteSpace = true) {
     this.debugLog("extractTextContent called");
     const clonedDocument = this.document.cloneNode(true);
     const elementsToRemove = clonedDocument.querySelectorAll(
       "script, style, noscript, iframe, svg, canvas, input, textarea, select",
     );
     elementsToRemove.forEach((el) => el.remove());
-    const textContent = clonedDocument.body.innerText
-      .replace(/\s+/g, " ")
+
+    // Replace <br> elements with a newline character.
+    clonedDocument.querySelectorAll("br").forEach((br) => {
+      br.replaceWith("\n");
+    });
+
+    // Append a newline to block-level elements to ensure separation.
+    const blockSelector =
+      "p, div, li, h1, h2, h3, h4, h5, h6, tr, article, section, header, footer, aside, main, blockquote, pre";
+    clonedDocument.querySelectorAll(blockSelector).forEach((el) => {
+      el.append("\n");
+    });
+
+    const textContent = clonedDocument.body.textContent;
+
+    if (trimWhiteSpace) {
+      return textContent.replace(/\s+/g, " ").trim();
+    }
+
+    // Preserve newlines, but clean up other whitespace.
+    return textContent
+      .replace(/[ \t\r\f\v]+/g, " ")
+      .replace(/ ?\n ?/g, "\n")
+      .replace(/\n+/g, "\n")
       .trim();
-    return textContent;
   }
 
   injectHighlightStyle() {
