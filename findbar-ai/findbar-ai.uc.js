@@ -146,8 +146,8 @@ const SettingsModal = {
       .addEventListener("click", () => {
         this.saveSettings();
         this.hide();
-        findbar.updateFindbar();
-        findbar.showAIInterface();
+        if (findbar.enabled) findbar.show();
+        else findbar.destroy();
       });
 
     this._modalElement.addEventListener("click", (e) => {
@@ -294,7 +294,8 @@ const SettingsModal = {
         );
         if (modelSelect) {
           modelSelect.value =
-            this._currentPrefValues[modelPrefKey] || PREFS.getPref(modelPrefKey);
+            this._currentPrefValues[modelPrefKey] ||
+            PREFS.getPref(modelPrefKey);
         }
       }
       // Update the "Get API Key" link's state for the active provider
@@ -841,7 +842,7 @@ const findbar = {
     });
 
     settingsBtn.addEventListener("click", () => {
-      SettingsModal.show(); // Open the settings modal
+      SettingsModal.show();
     });
 
     chatMessages.addEventListener("click", async (e) => {
