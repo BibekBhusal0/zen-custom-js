@@ -21,7 +21,7 @@ export const PREFS = {
   COPY_BTN_ENABLED: "extension.findbar-ai.copy-btn-enabled",
   MARKDOWN_ENABLED: "extension.findbar-ai.markdown-enabled",
 
-  CONFORMATION: "extension.findbar-ai.confirmation-before-tool-call",
+  CONFORMATION: "extension.findbar-ai.conform-before-tool-call",
   SHOW_TOOL_CALL: "extension.findbar-ai.show-tool-call",
   DND_ENABLED: "extension.findbar-ai.dnd-enabled",
   POSITION: "extension.findbar-ai.position",
