@@ -800,8 +800,20 @@ const findbar = {
       "xul",
     );
 
+    const collapseBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="findbar-collapse-btn" 
+          class="findbar-collapse-btn" 
+          image="chrome://browser/skin/zen-icons/unpin.svg" 
+          tooltiptext="Collapse"
+        />`,
+      "xul",
+    );
+
     chatHeader.appendChild(clearBtn);
     chatHeader.appendChild(settingsBtn);
+    chatHeader.appendChild(collapseBtn);
 
     const chatMessages = container.querySelector("#chat-messages");
 
@@ -827,6 +839,10 @@ const findbar = {
 
     settingsBtn.addEventListener("click", () => {
       SettingsModal.show();
+    });
+
+    collapseBtn.addEventListener("click", () => {
+      this.expanded = false;
     });
 
     chatMessages.addEventListener("click", async (e) => {
