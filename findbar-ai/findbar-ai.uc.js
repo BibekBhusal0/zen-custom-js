@@ -556,8 +556,17 @@ const findbar = {
       this.findbar = findbar;
       this.addExpandButton();
       if (PREFS.persistChat) {
-        if (this?.findbar?.history) llm.history = this.findbar.history;
-        else llm.history = [];
+        if (this?.findbar?.history) {
+          llm.history = this.findbar.history;
+          if (
+            this?.findbar?.aiStatus &&
+            JSON.stringify(this.aiStatus) !==
+            JSON.stringify(this.findbar.aiStatus)
+          ) {
+            llm.history = [];
+            this.findbar.history = [];
+          }
+        } else llm.history = [];
         if (this?.findbar?.expanded) {
           setTimeout(() => (this.expanded = true), 200);
         } else {
@@ -568,6 +577,7 @@ const findbar = {
         this.hide();
         this.expanded = false;
       }
+      this.updateFindbarStatus();
       setTimeout(() => this.updateFoundMatchesDisplay(), 0); // Wait for DOM update
       this.findbar._findField.removeEventListener(
         "keypress",
@@ -637,10 +647,21 @@ const findbar = {
     llm.clearData();
     if (this.findbar) {
       this.findbar.history = null;
-      this.findbar.shouldClear = false
     }
     const messages = this?.chatContainer?.querySelector("#chat-messages");
     if (messages) messages.innerHTML = "";
+  },
+
+  aiStatus: {
+    citationsEnabled: PREFS.citationsEnabled,
+    godMode: PREFS.godMode,
+  },
+  updateFindbarStatus() {
+    this.aiStatus = {
+      godMode: PREFS.godMode,
+      citationsEnabled: PREFS.citationsEnabled,
+    };
+    if (this.findbar) this.findbar.aiStatus = this.aiStatus;
   },
 
   createAPIKeyInterface() {
@@ -1215,7 +1236,10 @@ const findbar = {
     this._addKeymaps = this.addKeymaps.bind(this);
     this._handleInputKeyPress = this.handleInputKeyPress.bind(this);
     this._handleFindFieldInput = this.updateFoundMatchesDisplay.bind(this);
-    const _clearLLMData = () => this.clear();
+    const _clearLLMData = () => {
+      this.updateFindbarStatus();
+      this.clear();
+    };
     const _handleContextMenuPrefChange =
       this.handleContextMenuPrefChange.bind(this);
     const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
