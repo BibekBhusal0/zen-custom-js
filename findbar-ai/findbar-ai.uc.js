@@ -550,8 +550,7 @@ const findbar = {
     if (!PREFS.persistChat) {
       this.hide();
       this.expanded = false;
-      llm.clearData();
-      if (this.findbar) this.findbar.history = null;
+      this.clear();
     }
     gBrowser.getFindBar().then((findbar) => {
       this.findbar = findbar;
@@ -632,6 +631,16 @@ const findbar = {
     if (!this.findbar) return;
     if (this.findbar.hidden) this.show();
     else this.hide();
+  },
+
+  clear() {
+    llm.clearData();
+    if (this.findbar) {
+      this.findbar.history = null;
+      this.findbar.shouldClear = false
+    }
+    const messages = this?.chatContainer?.querySelector("#chat-messages");
+    if (messages) messages.innerHTML = "";
   },
 
   createAPIKeyInterface() {
@@ -828,9 +837,7 @@ const findbar = {
     });
 
     clearBtn.addEventListener("click", () => {
-      container.querySelector("#chat-messages").innerHTML = "";
-      llm.clearData();
-      this.findbar.history = null;
+      this.clear();
       this.expanded = false;
     });
 
@@ -1208,10 +1215,7 @@ const findbar = {
     this._addKeymaps = this.addKeymaps.bind(this);
     this._handleInputKeyPress = this.handleInputKeyPress.bind(this);
     this._handleFindFieldInput = this.updateFoundMatchesDisplay.bind(this);
-    const _clearLLMData = () => {
-      llm.clearData();
-      this.findbar.history = null;
-    };
+    const _clearLLMData = () => this.clear();
     const _handleContextMenuPrefChange =
       this.handleContextMenuPrefChange.bind(this);
     const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
