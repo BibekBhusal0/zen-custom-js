@@ -73,6 +73,7 @@ const findbar = {
   _contextMenuEnabledListener: null,
   _persistListener: null,
   _minimalListener: null,
+  _dndListener : null,
   contextMenuItem: null,
   _matchesObserver: null,
   _isDragging: false,
@@ -822,7 +823,7 @@ const findbar = {
     const rect = this.findbar.getBoundingClientRect();
     const maxCoors = {
       x: window.innerWidth - rect.width - 33,
-      y: window.innerHeight - rect.height -33,
+      y: window.innerHeight - rect.height - 33,
     };
     const newCoors = {
       x: this._initialContainerCoor.x + (e.clientX - this._initialMouseCoor.x),
@@ -981,6 +982,10 @@ const findbar = {
       if (pref.value) this.findbar.history = llm.history;
       else this.findbar.history = null;
     });
+    this._dndListener = UC_API.Prefs.addListener(PREFS.DND_ENABLED, (pref) => {
+      if (pref.value) this.enableDND()
+      else this.disableDND()
+    })
   },
 
   removeListeners() {
@@ -1001,6 +1006,7 @@ const findbar = {
     UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
     UC_API.Prefs.removeListener(this._minimalListener);
     UC_API.Prefs.removeListener(this._persistListener);
+    UC_API.Prefs.removeListener(this._dndListener);
     this.disableDND();
 
     // Disconnect the MutationObserver when listeners are removed
@@ -1017,6 +1023,7 @@ const findbar = {
     this._citationsListener = null;
     this._contextMenuEnabledListener = null;
     this._minimalListener = null;
+    this._dndListener = ull
   },
 
   updateFoundMatchesDisplay(retry = 0) {
