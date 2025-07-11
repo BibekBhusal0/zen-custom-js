@@ -62,6 +62,38 @@ export const SettingsModal = {
       placeholder.replaceWith(providerSelectorXulElement);
     }
 
+    const positionOptions = {
+      "top-left": "Top Left",
+      "top-right": "Top Right",
+      "bottom-left": "Bottom Left",
+      "bottom-right": "Bottom Right",
+    };
+    const positionOptionsXUL = Object.entries(positionOptions)
+      .map(
+        ([value, label]) =>
+          `<menuitem
+            value="${value}"
+            label="${escapeXmlAttribute(label)}"
+            ${value === PREFS.position ? 'selected="true"' : ""}
+          />`,
+      )
+      .join("");
+
+    const positionMenulistXul = `
+      <menulist id="pref-position" data-pref="${PREFS.POSITION}" value="${PREFS.position}">
+        <menupopup>
+          ${positionOptionsXUL}
+        </menupopup>
+      </menulist>`;
+    const positionSelectorXulElement = parseElement(positionMenulistXul, "xul");
+    const positionPlaceholder = this._modalElement.querySelector(
+      "#position-selector-placeholder",
+    );
+
+    if (positionPlaceholder) {
+      positionPlaceholder.replaceWith(positionSelectorXulElement);
+    }
+
     for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = provider.modelPref;
       const currentModel = provider.model;
@@ -308,8 +340,9 @@ export const SettingsModal = {
   _createCheckboxSectionHtml(
     title,
     settingsArray,
-    additionalContentHtml = "",
     expanded = true,
+    contentBefore = "",
+    contentAfter = "",
   ) {
     const settingsHtml = settingsArray
       .map((s) => this._generateCheckboxSettingHtml(s.label, s.pref))
@@ -318,8 +351,9 @@ export const SettingsModal = {
     <section class="settings-section settings-accordion" data-expanded="${expanded}" >
       <h4 class="accordion-header">${title}</h4>
       <div class="accordion-content">
-        ${additionalContentHtml}
+        ${contentBefore}
         ${settingsHtml}
+        ${contentAfter}
       </div>
     </section>
   `;
@@ -331,10 +365,18 @@ export const SettingsModal = {
       { label: "Minimal Mode", pref: PREFS.MINIMAL },
       { label: "Persist Chat", pref: PREFS.PERSIST },
       { label: "Debug Mode", pref: PREFS.DEBUG_MODE },
+      { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
     ];
+    const positionSelectorPlaceholderHtml = `
+      <div class="setting-item">
+        <label for="pref-position">Position</label>
+        <div id="position-selector-placeholder"></div>
+      </div>
+    `;
     const generalSectionHtml = this._createCheckboxSectionHtml(
       "General",
-      generalSettings,
+      generalSettings,true, '',
+      positionSelectorPlaceholderHtml,
     );
 
     const aiBehaviorSettings = [
@@ -348,7 +390,7 @@ export const SettingsModal = {
     `;
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
-      aiBehaviorSettings,
+      aiBehaviorSettings,true,
       aiBehaviorWarningHtml,
     );
 
@@ -373,12 +415,10 @@ export const SettingsModal = {
       },
       { label: "Entire Word", pref: "findbar.entireword" },
       { label: "Highlight All", pref: "findbar.highlightAll" },
-
     ];
     const browserSettingsHtml = this._createCheckboxSectionHtml(
       "Browser Findbar",
       browserFindbarSettings,
-      undefined,
       false,
     );
 
