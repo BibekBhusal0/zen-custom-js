@@ -24,6 +24,9 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
+      - name: Grant read permissions
+        run: find . -name "theme.json" -print0 | xargs -0 chmod a+r
+
       - name: Update theme.json
         id: update_theme
         run: |
@@ -31,42 +34,55 @@ jobs:
           import os
           import json
           import subprocess
+          from pathlib import Path
 
           def get_last_modified_date(directory):
               result = subprocess.run(['stat', '-c', '%y', directory], capture_output=True, text=True)
               return result.stdout.split(' ')[0]
 
+          def normalize_json(data):
+              return json.dumps(data, indent=2, separators=(',', ': '), ensure_ascii=False)
+
           def update_theme_json(file_path):
               try:
-                  with open(file_path, 'r') as f:
-                      content_before = f.read()
-                      f.seek(0)
-                      data = json.load(f)
-                  
+                  with open(file_path, 'r', encoding='utf-8') as f:
+                      original_data = json.load(f)
+
                   directory = os.path.dirname(file_path)
                   last_modified = get_last_modified_date(directory)
-                  data['updatedAt'] = last_modified
 
-                  with open(file_path, 'w') as f:
-                      json.dump(data, f, indent=2)
-                      f.truncate()
-                      content_after = f.read()
+                  if original_data.get('updatedAt') == last_modified:
+                      print(f"Unchanged {file_path}")
+                      return False
 
-                  if content_before == content_after:
-                      print("::set-output name=updated::false")
-                  else:
-                      print("::set-output name=updated::true")
-                  
+                  updated_data = dict(original_data)
+                  updated_data['updatedAt'] = last_modified
+
+                  original_json = normalize_json(original_data)
+                  updated_json = normalize_json(updated_data)
+
+                  if original_json == updated_json:
+                      print(f"Unchanged {file_path}")
+                      return False
+
+                  with open(file_path, 'w', encoding='utf-8') as f:
+                      f.write(updated_json + '\n')
+
                   print(f"Updated {file_path} with date {last_modified}")
+                  return True
 
               except Exception as e:
                   print(f"Error processing {file_path}: {e}")
-                  print("::set-output name=updated::false")
+                  return False
 
           files = subprocess.run(['find', '.', '-name', 'theme.json', '-print0'], capture_output=True, text=True).stdout.split('\0')
-          
+          updated = False
           for file in filter(None, files):
-              update_theme_json(file)
+              if update_theme_json(file):
+                  updated = True
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"updated={'true' if updated else 'false'}\n")
           EOF
 
       - name: Commit theme.json changes
