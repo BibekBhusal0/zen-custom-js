@@ -1,0 +1,6 @@
+.github/workflows/
+node_modules/
+build/
+dist/
+public/
+package-lock.json
