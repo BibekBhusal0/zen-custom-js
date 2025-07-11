@@ -1,0 +1,61 @@
+name: Update theme.json
+
+
+permissions:
+  contents: write 
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update_theme_json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+      - name: Update theme.json
+        run: |
+          python <<EOF
+          import os
+          import json
+          import subprocess
+
+          def get_last_modified_date(directory):
+              result = subprocess.run(['stat', '-c', '%y', directory], capture_output=True, text=True)
+              return result.stdout.split(' ')[0]
+
+          def update_theme_json(file_path):
+              try:
+                  with open(file_path, 'r') as f:
+                      data = json.load(f)
+                  
+                  directory = os.path.dirname(file_path)
+                  last_modified = get_last_modified_date(directory)
+                  data['updatedAt'] = last_modified
+
+                  with open(file_path, 'w') as f:
+                      json.dump(data, f, indent=2)
+                  
+                  print(f"Updated {file_path} with date {last_modified}")
+
+              except Exception as e:
+                  print(f"Error processing {file_path}: {e}")
+
+          files = subprocess.run(['find', '.', '-name', 'theme.json', '-print0'], capture_output=True, text=True).stdout.split('\0')
+          
+          for file in filter(None, files):
+              update_theme_json(file)
+          EOF
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "chore: Update updatedAt in theme.json"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+
