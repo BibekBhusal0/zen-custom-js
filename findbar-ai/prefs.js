@@ -2,6 +2,8 @@ export const PREFS = {
   ENABLED: "extension.findbar-ai.enabled",
   MINIMAL: "extension.findbar-ai.minimal",
   PERSIST: "extension.findbar-ai.persist-chat",
+  DND_ENABLED: "extension.findbar-ai.dnd-enabled",
+  POSITION: "extension.findbar-ai.position",
 
   GOD_MODE: "extension.findbar-ai.god-mode",
   CITATIONS_ENABLED: "extension.findbar-ai.citations-enabled",
@@ -23,8 +25,6 @@ export const PREFS = {
 
   CONFORMATION: "extension.findbar-ai.conform-before-tool-call",
   SHOW_TOOL_CALL: "extension.findbar-ai.show-tool-call",
-  DND_ENABLED: "extension.findbar-ai.dnd-enabled",
-  POSITION: "extension.findbar-ai.position",
 
   defaultValues: {},
 
@@ -197,12 +197,12 @@ PREFS.defaultValues = {
   [PREFS.MISTRAL_MODEL]: "mistral-medium-latest",
   [PREFS.GEMINI_API_KEY]: "",
   [PREFS.GEMINI_MODEL]: "gemini-2.0-flash",
+  [PREFS.DND_ENABLED]: true,
+  [PREFS.POSITION]: "top-right",
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
   // [PREFS.CONFORMATION]: true,
   // [PREFS.SHOW_TOOL_CALL]: false,
-  // [PREFS.DND_ENABLED]: true,
-  // [PREFS.POSITION]: "top-right",
 };
 
 export default PREFS;
