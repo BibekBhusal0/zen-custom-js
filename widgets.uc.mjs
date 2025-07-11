@@ -21,7 +21,7 @@ const widgets = [
     tooltip: "Reopen closed tab",
     class: "toolbarbutton-1 chromeclass-toolbar-additional",
     image: "chrome://browser/skin/zen-icons/edit-undo.svg",
-    callback: function() {
+    callback: function () {
       undoCloseTab();
     },
   },

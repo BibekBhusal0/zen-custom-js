@@ -1,10 +1,6 @@
 import gemini from "./provider/gemini.js";
 import mistral from "./provider/mistral.js";
-import {
-  toolDeclarations,
-  availableTools,
-  getToolSystemPrompt,
-} from "./tools.js";
+import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
 import { windowManagerAPI } from "../windowManager.js";
 import PREFS, { debugLog, debugError } from "../prefs.js";
 
@@ -53,11 +49,12 @@ const llm = {
 - **When to Cite**: For any statement of fact that is directly supported by the provided page content, you **SHOULD** provide a citation. It is not mandatory for every sentence.
 - **How to Cite**: In your \`"answer"\`, append a marker like \`[1]\`, \`[2]\`. Each marker must correspond to a citation object in the array.
 - **CRITICAL RULES FOR CITATIONS**:
-    1.  **source_quote**: This MUST be the **exact, verbatim, and short** text from the page content (typically a single sentence or less).
+    1.  **source_quote**: This MUST be the **exact, verbatim, and short** text from the page content.
     2.  **Accuracy**: The \`"source_quote"\` field must be identical to the text on the page, including punctuation and casing.
     3.  **Multiple Citations**: If multiple sources support one sentence, format them like \`[1][2]\`, not \`[1,2]\`.
     4.  **Unique IDs**: Each citation object **must** have a unique \`"id"\` that matches its marker in the answer text.
-- **Do Not Cite**: Do not cite your own abilities, general greetings, or information not from the provided text.
+    5.  **Short**: The source quote must be short no longer than one sentence and should not contain line brakes.
+- **Do Not Cite**: Do not cite your own abilities, general greetings, or information not from the provided text. Make sure the text is from page text content not from page title or URL.
 - **Tool Calls**: If you call a tool, you **must not** provide citations in the same turn.
 
 ### Citation Examples
@@ -182,22 +179,43 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 
 Here is the initial info about the current page:
 `;
-      const pageContext = await windowManagerAPI.getPageTextContent();
+      const pageContext = await windowManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
 
     return systemPrompt;
   },
   setSystemPrompt(promptText) {
-    this.systemInstruction = promptText
-      ? { parts: [{ text: promptText }] }
-      : null;
+    this.systemInstruction = promptText ? { parts: [{ text: promptText }] } : null;
     return this;
   },
-  async sendMessage(prompt, pageContext) {
-    if (!this.systemInstruction) {
-      await this.updateSystemPrompt();
+
+  parseModelResponseText(responseText) {
+    let answer = responseText;
+    let citations = [];
+
+    if (PREFS.citationsEnabled) {
+      try {
+        const parsedContent = JSON.parse(responseText);
+        if (typeof parsedContent.answer === "string") {
+          answer = parsedContent.answer;
+          if (Array.isArray(parsedContent.citations)) {
+            citations = parsedContent.citations;
+          }
+        } else {
+          // Parsed JSON but 'answer' field is missing or not a string.
+          debugLog("AI response JSON missing 'answer' field or not a string:", parsedContent);
+        }
+      } catch (e) {
+        // JSON parsing failed, keep rawText as answer.
+        debugError("Failed to parse AI message content as JSON:", e, "Raw Text:", responseText);
+      }
     }
+    return { answer, citations };
+  },
+
+  async sendMessage(prompt, pageContext) {
+    await this.updateSystemPrompt();
 
     const fullPrompt = `[Current Page Context: ${JSON.stringify(pageContext || {})}] ${prompt}`;
     this.history.push({ role: "user", parts: [{ text: fullPrompt }] });
@@ -219,11 +237,9 @@ Here is the initial info about the current page:
     }
     this.history.push(modelResponse);
 
-    const functionCalls = modelResponse.parts?.filter(
-      (part) => part.functionCall,
-    );
+    const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
 
-    if (PREFS.godMode && functionCalls.length > 0) {
+    if (PREFS.godMode && functionCalls && functionCalls.length > 0) {
       debugLog("Function call(s) requested by model:", functionCalls);
 
       const functionResponses = [];
@@ -252,9 +268,7 @@ Here is the initial info about the current page:
       requestBody = {
         contents: this.history,
         systemInstruction: this.systemInstruction,
-        generationConfig: PREFS.citationsEnabled
-          ? { responseMimeType: "application/json" }
-          : {},
+        generationConfig: PREFS.citationsEnabled ? { responseMimeType: "application/json" } : {},
       };
 
       modelResponse = await this.currentProvider.sendMessage(requestBody);
@@ -262,44 +276,23 @@ Here is the initial info about the current page:
     }
 
     if (PREFS.citationsEnabled) {
-      try {
-        const responseText =
-          modelResponse.parts?.find((part) => part.text)?.text || "{}";
-        let parsedResponse;
-        try {
-          parsedResponse = JSON.parse(responseText);
-        } catch (e) {
-          // Try to extract JSON object from the response using regex
-          const match = responseText.match(/\{[\s\S]*\}/);
-          if (match) {
-            parsedResponse = JSON.parse(match[0]);
-          } else {
-            // If parsing fails, just return the raw text as the answer, no error log
-            return {
-              answer: responseText,
-              citations: [],
-            };
-          }
-        }
-        debugLog("Parsed AI Response:", parsedResponse);
+      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
+      const parsedResponse = this.parseModelResponseText(responseText);
 
-        if (!parsedResponse.answer) {
-          if (functionCalls.length > 0)
-            return { answer: "I used my tools to complete your request." };
-          this.history.pop();
+      debugLog("Parsed AI Response:", parsedResponse);
+
+      if (!parsedResponse.answer) {
+        if (functionCalls.length > 0) {
+          return { answer: "I used my tools to complete your request." };
         }
-        return parsedResponse;
-      } catch (e) {
-        // If something else fails, fallback to raw text, no error log
-        const rawText = modelResponse.parts[0]?.text || "[Empty Response]";
+        this.history.pop();
         return {
-          answer: rawText,
-          citations: [],
+          answer: "Sorry, I received an invalid response from the server.",
         };
       }
+      return parsedResponse;
     } else {
-      const responseText =
-        modelResponse.parts?.find((part) => part.text)?.text || "";
+      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
       if (!responseText && functionCalls.length === 0) {
         this.history.pop();
       }
@@ -316,9 +309,7 @@ Here is the initial info about the current page:
     this.setSystemPrompt(null);
   },
   getLastMessage() {
-    return this.history.length > 0
-      ? this.history[this.history.length - 1]
-      : null;
+    return this.history.length > 0 ? this.history[this.history.length - 1] : null;
   },
 };
 

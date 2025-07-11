@@ -3,19 +3,12 @@
   "name": "Floating Sidebar",
   "description": "Lightweight script to, make firefox Sidebar Floating also option to pin/unpin the sidebar.",
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js/tree/main/floating-sidebar",
-  "js": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/floating-sidebar/floating-sidebar.uc.js",
+  "js": true,
   "style": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/floating-sidebar/style.css",
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/floating-sidebar/readme.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
-  "tags": [
-    "Sidebar",
-    "Pin",
-    "sine",
-    "fx-autoconfig",
-    "JavaScript",
-    "Bibek Bhusal"
-  ],
+  "tags": ["Sidebar", "Pin", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
   "createdAt": "2025-06-23",
-  "updatedAt": "2025-07-01"
+  "updatedAt": "2025-07-11"
 }

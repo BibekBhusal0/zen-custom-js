@@ -83,27 +83,14 @@ export const windowManagerAPI = {
     }
   },
 
-  async getPageTextContent() {
+  async getPageTextContent(trimWhiteSpace) {
     const wm = this.getWindowManager();
     if (!wm) return getUrlAndTitle();
     try {
-      return await wm.getPageTextContent();
+      return await wm.getPageTextContent(trimWhiteSpace);
     } catch (error) {
       debugError("Failed to get page text content:", error);
       return getUrlAndTitle();
-    }
-  },
-
-  async highlightAndScrollToText(text) {
-    // __AUTO_GENERATED_PRINT_VAR_START__
-    console.log("highlightAndScrollToText text:", text); // __AUTO_GENERATED_PRINT_VAR_END__
-    const wm = this.getWindowManager();
-    if (!wm) return { error: "Window manager not available." };
-    try {
-      return await wm.highlightAndScrollToText(text);
-    } catch (error) {
-      debugError("Failed to highlight text:", error);
-      return { error: "Failed to highlight text." };
     }
   },
 };

@@ -4,8 +4,8 @@
 // @ignorecache
 // ==/UserScript==
 
-function addSettingKeymapSearch() {
-  const groupbox = document.getElementById("zenCKSGroup");
+function _setupKeymapSearchUI(groupbox) {
+  if (groupbox.querySelector(".zen-keyboard-controls")) return;
 
   // Create search input container
   const searchContainer = document.createElement("div");
@@ -22,9 +22,9 @@ function addSettingKeymapSearch() {
   searchContainer.appendChild(searchInput);
   searchContainer.appendChild(filterButton);
 
-  // Insert before first hbox (e.g., Reset button)
   const firstHBox = groupbox.querySelector("hbox");
-  groupbox.insertBefore(searchContainer, firstHBox);
+  if (firstHBox) groupbox.insertBefore(searchContainer, firstHBox);
+  else groupbox.appendChild(searchContainer);
 
   // Create filter popover
   const filterPopover = document.createElement("div");
@@ -39,27 +39,28 @@ function addSettingKeymapSearch() {
     const groupId = h2.getAttribute("data-group");
     const label = h2.textContent.trim();
 
-    const wrapper = document.createElement("label");
-    wrapper.className = "zen-keyboard-filter-checkbox";
+    if (label) {
+      const wrapper = document.createElement("label");
+      wrapper.className = "zen-keyboard-filter-checkbox";
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = true;
-    checkbox.dataset.group = groupId;
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = true;
+      checkbox.dataset.group = groupId;
 
-    groupCheckboxes[groupId] = checkbox;
+      groupCheckboxes[groupId] = checkbox;
 
-    wrapper.appendChild(checkbox);
-    wrapper.appendChild(document.createTextNode(label));
-    filterPopover.appendChild(wrapper);
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(document.createTextNode(label));
+      filterPopover.appendChild(wrapper);
+    }
   });
 
   filterButton.addEventListener("click", () => {
     const rect = filterButton.getBoundingClientRect();
     filterPopover.style.top = `${rect.bottom + window.scrollY}px`;
     filterPopover.style.left = `${rect.left + window.scrollX}px`;
-    filterPopover.style.display =
-      filterPopover.style.display === "none" ? "flex" : "none";
+    filterPopover.style.display = filterPopover.style.display === "none" ? "flex" : "none";
   });
 
   document.addEventListener("click", (e) => {
@@ -92,16 +93,10 @@ function addSettingKeymapSearch() {
     });
 
     groupHeadings.forEach((h2) => {
-      const groupId = h2
-        .getAttribute("data-group")
-        .replace("zenCKSOption-group-", "");
+      const groupId = h2.getAttribute("data-group").replace("zenCKSOption-group-", "");
       const anyVisible = [
-        ...groupbox.querySelectorAll(
-          `.zenCKSOption-input[data-group="${groupId}"]`,
-        ),
-      ].some(
-        (input) => input.closest("hbox.zenCKSOption").style.display !== "none",
-      );
+        ...groupbox.querySelectorAll(`.zenCKSOption-input[data-group="${groupId}"]`),
+      ].some((input) => input.closest("hbox.zenCKSOption").style.display !== "none");
 
       h2.style.display = anyVisible ? "" : "none";
     });
@@ -111,6 +106,81 @@ function addSettingKeymapSearch() {
   Object.values(groupCheckboxes).forEach((cb) => {
     cb.addEventListener("change", applyFilters);
   });
+
+  applyFilters();
 }
 
-setTimeout(addSettingKeymapSearch, 1000);
+function addSettingKeymapSearch() {
+  const groupbox = document.getElementById("zenCKSGroup");
+  if (!groupbox) return; // If groupbox is not found, cannot proceed.
+
+  if (groupbox.querySelector(".zen-keyboard-controls")) {
+    return;
+  }
+
+  const checkAndSetup = () => {
+    const groupHeadings = groupbox.querySelectorAll("h2[data-group]");
+    const options = groupbox.querySelectorAll("hbox.zenCKSOption");
+
+    // Check if there are headings AND if at least one heading has text content
+    const hasValidHeadings = Array.from(groupHeadings).some(
+      (h2) => h2.textContent.trim().length > 0
+    );
+
+    if (hasValidHeadings && options.length > 0) {
+      _setupKeymapSearchUI(groupbox);
+      return true;
+    }
+    return false;
+  };
+
+  if (checkAndSetup()) {
+    return;
+  }
+
+  const contentReadyObserver = new MutationObserver((mutations, observer) => {
+    if (checkAndSetup()) {
+      observer.disconnect();
+    }
+  });
+
+  // Observe the groupbox itself for child additions (including descendants).
+  contentReadyObserver.observe(groupbox, { childList: true, subtree: true });
+}
+
+addSettingKeymapSearch();
+
+const observer = new MutationObserver((mutations) => {
+  let groupboxAppeared = false;
+  for (const mutation of mutations) {
+    if (mutation.type === "childList") {
+      // Check if zenCKSGroup itself was added
+      if (
+        Array.from(mutation.addedNodes).some(
+          (node) => node.nodeType === Node.ELEMENT_NODE && node.id === "zenCKSGroup"
+        )
+      ) {
+        groupboxAppeared = true;
+        break;
+      }
+      // Check if an added node *contains* zenCKSGroup (e.g., a new panel div was added)
+      if (
+        Array.from(mutation.addedNodes).some(
+          (node) =>
+            node.nodeType === Node.ELEMENT_NODE &&
+            node.querySelector &&
+            node.querySelector("#zenCKSGroup")
+        )
+      ) {
+        groupboxAppeared = true;
+        break;
+      }
+    }
+  }
+
+  if (groupboxAppeared) {
+    addSettingKeymapSearch();
+  }
+});
+
+observer.observe(document.body, { childList: true, subtree: true });

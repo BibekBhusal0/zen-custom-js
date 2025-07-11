@@ -52,34 +52,14 @@ export class FindbarAIWindowManagerParent extends JSWindowActorParent {
     }
   }
 
-  async getPageTextContent() {
+  async getPageTextContent(trimWhiteSpace) {
     try {
-      const result = await this.sendQuery("FindbarAI:GetPageTextContent");
+      const result = await this.sendQuery("FindbarAI:GetPageTextContent", {
+        trimWhiteSpace,
+      });
       return result;
     } catch (e) {
       debugError("Failed to get page text content:", e);
-      return {};
-    }
-  }
-
-  async highlightAndScrollToText(text) {
-    // __AUTO_GENERATED_PRINT_VAR_START__
-    console.log(
-      "FindbarAIWindowManagerParent#highlightAndScrollToText text:",
-      text,
-    ); // __AUTO_GENERATED_PRINT_VAR_END__
-    try {
-      const result = await this.sendQuery("FindbarAI:HighlightAndScroll", {
-        text,
-      });
-      // __AUTO_GENERATED_PRINT_VAR_START__
-      console.log(
-        "FindbarAIWindowManagerParent#highlightAndScrollToText result:",
-        result,
-      ); // __AUTO_GENERATED_PRINT_VAR_END__
-      return result;
-    } catch (e) {
-      debugError("Failed to send highlight command to child:", e);
       return {};
     }
   }

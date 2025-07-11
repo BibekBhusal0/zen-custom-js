@@ -61,23 +61,16 @@ function injectToastStyles() {
   toastStyleInjected = true;
 }
 
-export function showToast(
-  text = "This is toast.",
-  priority = null,
-  options = {},
-) {
+export function showToast(text = "This is toast.", priority = null, options = {}) {
   injectToastStyles();
   const validPriority = priorities.hasOwnProperty(priority) ? priority : null;
   gZenUIManager.showToast(`custom-toast`, options);
 
-  const toastElement = document.querySelector(
-    `label[data-l10n-id="custom-toast"]`,
-  );
+  const toastElement = document.querySelector(`label[data-l10n-id="custom-toast"]`);
   if (toastElement) {
     toastElement.textContent = text;
-    if (validPriority)
-      toastElement.classList.add(`toast-priority-${validPriority}`);
+    if (validPriority) toastElement.classList.add(`toast-priority-${validPriority}`);
   }
 }
 
-window.showToast = showToast
+window.showToast = showToast;

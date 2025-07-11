@@ -9,4 +9,4 @@ const getPref = (key, defaultValue) => {
   }
 };
 
-export default getPref
+export default getPref;

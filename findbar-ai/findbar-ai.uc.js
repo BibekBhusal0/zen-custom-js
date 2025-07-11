@@ -1,6 +1,7 @@
 import windowManager, { windowManagerAPI } from "./windowManager.js";
 import { llm } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./prefs.js";
+import { SettingsModal } from "./settings.js";
 
 windowManager();
 
@@ -30,9 +31,7 @@ PREFS.setInitialPrefs();
 var markdownStylesInjected = false;
 const injectMarkdownStyles = async () => {
   try {
-    const { markedStyles } = await import(
-      "chrome://userscripts/content/engine/marked.js"
-    );
+    const { markedStyles } = await import("chrome://userscripts/content/engine/marked.js");
     const styleTag = parseElement(`<style>${markedStyles}<style>`);
     document.head.appendChild(styleTag);
     markdownStylesInjected = true;
@@ -48,9 +47,7 @@ function parseMD(markdown) {
   if (!markdownStylesInjected) {
     injectMarkdownStyles();
   }
-  const content = window.marked
-    ? window.marked.parse(markdown, markedOptions)
-    : markdown;
+  const content = window.marked ? window.marked.parse(markdown, markedOptions) : markdown;
   let htmlContent = parseElement(`<div class="markdown-body">${content}</div>`);
 
   return htmlContent;
@@ -65,13 +62,29 @@ const findbar = {
   _addKeymaps: null,
   _handleInputKeyPress: null,
   _handleFindFieldInput: null,
-  _clearLLMData: null,
   _isExpanded: false,
-  _handleContextMenuPrefChange: null,
   _updateContextMenuText: null,
-  _handleMinimalPrefChange: null,
+  _godModeListener: null,
+  _citationsListener: null,
+  _contextMenuEnabledListener: null,
+  _persistListener: null,
+  _minimalListener: null,
+  _dndListener: null,
   contextMenuItem: null,
-  isOpen: false,
+  _matchesObserver: null,
+  _isDragging: false,
+  _startDrag: null,
+  _stopDrag: null,
+  _handleDrag: null,
+  _initialContainerCoor: { x: null, y: null },
+  _initialMouseCoor: { x: null, y: null },
+  _startWidth: null,
+  _resizeHandle: null,
+  _isResizing: false,
+  _startResize: null,
+  _stopResize: null,
+  _handleResize: null,
+  _handleResizeEnd: null,
 
   get expanded() {
     return this._isExpanded;
@@ -80,30 +93,19 @@ const findbar = {
     const isChanged = value !== this._isExpanded;
     this._isExpanded = value;
     if (!this.findbar) return;
-
-    // Handle the button text for the non-minimal "Expand" button
-    if (this.expandButton) {
-      this.expandButton.textContent = value ? "Collapse" : "Expand";
-    }
+    this.findbar.expanded = value;
 
     if (value) {
-      if (!this.minimal) {
-        this.findbar.classList.add("ai-expanded");
-      }
-      // Set AI mode attribute
-      this.findbar.setAttribute("ai-mode", "true");
+      this.findbar.classList.add("ai-expanded");
       this.show();
       this.showAIInterface();
       if (isChanged) this.focusPrompt();
-      const messagesContainer =
-        this?.chatContainer?.querySelector("#chat-messages");
+      const messagesContainer = this?.chatContainer?.querySelector("#chat-messages");
       if (messagesContainer) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
     } else {
       this.findbar.classList.remove("ai-expanded");
-      // Remove AI mode attribute
-      this.findbar.removeAttribute("ai-mode");
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
     }
@@ -130,93 +132,78 @@ const findbar = {
     return PREFS.minimal;
   },
   set minimal(value) {
-    if (typeof value === "boolean") {
-      PREFS.minimal = value;
-      if (value) this.expanded = false;
-      // Remove both buttons and add the correct one for the new mode
-      if (this.findbar) {
-        this.removeExpandButton();
-        this.addExpandButton();
-        // Set or remove AI mode attribute for minimal mode
-        if (PREFS.minimal) {
-          this.findbar.setAttribute("ai-mode", "true");
-        } else {
-          this.findbar.removeAttribute("ai-mode");
-        }
-      }
-    }
+    if (typeof value === "boolean") PREFS.minimal = value;
   },
-  handleMinimalPrefChange: function (pref) {
-    this.minimal = pref.value;
-    this.updateFindbar();
+
+  handleMinimalPrefChange: function () {
+    this.removeExpandButton();
+    this.addExpandButton();
+    this.removeAIInterface();
+    this.showAIInterface();
   },
 
   updateFindbar() {
+    SettingsModal.hide();
     this.removeExpandButton();
     this.removeAIInterface();
+    this.disableResize();
     if (!PREFS.persistChat) {
       this.hide();
       this.expanded = false;
-      llm.clearData();
+      this.clear();
     }
     gBrowser.getFindBar().then((findbar) => {
       this.findbar = findbar;
       this.addExpandButton();
       if (PREFS.persistChat) {
-        if (this.isOpen) this.show();
-        setTimeout(() => {
-          this.expanded = this.expanded; // just to make sure in new tab UI willl also be visible
-        }, 200);
+        if (this?.findbar?.history) {
+          llm.history = this.findbar.history;
+          if (
+            this?.findbar?.aiStatus &&
+            JSON.stringify(this.aiStatus) !== JSON.stringify(this.findbar.aiStatus)
+          ) {
+            llm.history = [];
+            this.findbar.history = [];
+          }
+        } else llm.history = [];
+        if (this?.findbar?.expanded) {
+          setTimeout(() => (this.expanded = true), 200);
+        } else {
+          this.hide();
+          this.expanded = false;
+        }
       } else {
         this.hide();
         this.expanded = false;
       }
-      if (!this.isOpen) {
-        this.hide();
-        this.expanded = false;
-      }
-      setTimeout(() => this.updateFoundMatchesDisplay(), 0); // Wait for DOM update
-      this.findbar._findField.removeEventListener(
-        "keypress",
-        this._handleInputKeyPress,
-      );
-      this.findbar._findField.addEventListener(
-        "keypress",
-        this._handleInputKeyPress,
-      );
-      this.findbar._findField.removeEventListener(
-        "input",
-        this._handleFindFieldInput,
-      );
-      this.findbar._findField.addEventListener(
-        "input",
-        this._handleFindFieldInput,
-      );
+      this.updateFindbarStatus();
+      setTimeout(() => {
+        if (PREFS.dndEnabled) this.enableResize();
+      }, 0);
+      setTimeout(() => this.updateFoundMatchesDisplay(), 0);
+      this.findbar._findField.removeEventListener("keypress", this._handleInputKeyPress);
+      this.findbar._findField.addEventListener("keypress", this._handleInputKeyPress);
+      this.findbar._findField.removeEventListener("input", this._handleFindFieldInput);
+      this.findbar._findField.addEventListener("input", this._handleFindFieldInput);
 
       const originalOnFindbarOpen = this.findbar.browser.finder.onFindbarOpen;
       const originalOnFindbarClose = this.findbar.browser.finder.onFindbarClose;
 
-      //makeing sure this only runs one time
+      //making sure this only runs one time
       if (!findbar?.openOverWritten) {
         //update placeholder when findbar is opened
         findbar.browser.finder.onFindbarOpen = (...args) => {
           originalOnFindbarOpen.apply(findbar.browser.finder, args); //making sure original function is called
-          this.isOpen = true;
           if (this.enabled) {
             debugLog("Findbar is being opened");
             setTimeout(
-              () =>
-                (this.findbar._findField.placeholder =
-                  "Press Alt + Enter to ask AI"),
-              100,
+              () => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"),
+              100
             );
-
-            if (this.minimal) this.showAIInterface();
           }
         };
         findbar.browser.finder.onFindbarClose = (...args) => {
           originalOnFindbarClose.apply(findbar.browser.finder, args);
-          this.isOpen = false;
           if (this.enabled) {
             debugLog("Findbar is being closed");
           }
@@ -226,11 +213,18 @@ const findbar = {
     });
   },
 
+  highlight(word) {
+    if (!this.findbar) return;
+    this.findbar._find(word);
+    setTimeout(() => {
+      this.findbar.browser.finder.highlight(false);
+    }, 2000);
+  },
+
   show() {
     if (!this.findbar) return false;
     this.findbar.open();
     this.focusInput();
-    if (this.minimal) this.showAIInterface();
     return true;
   },
   hide() {
@@ -245,6 +239,27 @@ const findbar = {
     else this.hide();
   },
 
+  clear() {
+    llm.clearData();
+    if (this.findbar) {
+      this.findbar.history = null;
+    }
+    const messages = this?.chatContainer?.querySelector("#chat-messages");
+    if (messages) messages.innerHTML = "";
+  },
+
+  aiStatus: {
+    citationsEnabled: PREFS.citationsEnabled,
+    godMode: PREFS.godMode,
+  },
+  updateFindbarStatus() {
+    this.aiStatus = {
+      godMode: PREFS.godMode,
+      citationsEnabled: PREFS.citationsEnabled,
+    };
+    if (this.findbar) this.findbar.aiStatus = this.aiStatus;
+  },
+
   createAPIKeyInterface() {
     const currentProviderName = llm.currentProvider.name;
     const menuItems = Object.entries(llm.AVAILABLE_PROVIDERS)
@@ -256,7 +271,7 @@ const findbar = {
                     ${name === currentProviderName ? 'selected="true"' : ""}
                     ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
                   />
-                `,
+                `
       )
       .join("");
 
@@ -288,9 +303,7 @@ const findbar = {
         </div>`;
     const container = parseElement(html);
 
-    const providerSelectionGroup = container.querySelector(
-      ".provider-selection-group",
-    );
+    const providerSelectionGroup = container.querySelector(".provider-selection-group");
     // Insert the XUL menulist after the label within the group
     providerSelectionGroup.appendChild(providerSelectorXulElement);
 
@@ -309,7 +322,7 @@ const findbar = {
     // Use 'command' event for XUL menulist
     providerSelector.addEventListener("command", (e) => {
       const selectedProviderName = e.target.value;
-      llm.setProvider(selectedProviderName);
+      llm.setProvider(selectedProviderName); // This also updates PREFS.llmProvider internally
       input.value = llm.currentProvider.apiKey || "";
       getApiKeyLink.disabled = !llm.currentProvider.apiKeyUrl;
       getApiKeyLink.title = llm.currentProvider.apiKeyUrl
@@ -324,8 +337,8 @@ const findbar = {
     saveBtn.addEventListener("click", () => {
       const key = input.value.trim();
       if (key) {
-        llm.currentProvider.apiKey = key;
-        this.showAIInterface();
+        llm.currentProvider.apiKey = key; // This also updates PREFS.mistralApiKey/geminiApiKey internally
+        this.showAIInterface(); // Refresh UI after saving key
       }
     });
     input.addEventListener("keypress", (e) => {
@@ -348,8 +361,7 @@ const findbar = {
     this.addChatMessage({ answer: prompt }, "user");
 
     const loadingIndicator = this.createLoadingIndicator();
-    const messagesContainer =
-      this.chatContainer.querySelector("#chat-messages");
+    const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (messagesContainer) {
       messagesContainer.appendChild(loadingIndicator);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -364,61 +376,92 @@ const findbar = {
       this.addChatMessage({ answer: `Error: ${e.message}` }, "error");
     } finally {
       loadingIndicator.remove();
-      this.focusInput();
+      this.focusPrompt();
+      if (PREFS.persistChat) this.findbar.history = llm.getHistory();
     }
   },
 
   createChatInterface() {
-    const modelOptions = llm.currentProvider.AVAILABLE_MODELS.map((model) => {
-      const displayName =
-        model.charAt(0).toUpperCase() + model.slice(1).replace(/-/g, " ");
-      return `<option value="${model}" ${
-        model === llm.currentProvider.model ? "selected" : ""
-      }>${displayName}</option>`;
-    }).join("");
-
-    const chatInputGroup = this.minimal
-      ? ""
-      : `<div class="ai-chat-input-group">
+    const chatInputGroup = `<div class="ai-chat-input-group">
           <textarea id="ai-prompt" placeholder="Ask AI anything..." rows="2"></textarea>
-          <button id="send-prompt" class="send-btn">Send</button>
+          <button id="send-prompt" class="send-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M17.991 6.01L5.399 10.563l4.195 2.428l3.699-3.7a1 1 0 0 1 1.414 1.415l-3.7 3.7l2.43 4.194L17.99 6.01Zm.323-2.244c1.195-.433 2.353.725 1.92 1.92l-5.282 14.605c-.434 1.198-2.07 1.344-2.709.241l-3.217-5.558l-5.558-3.217c-1.103-.639-.957-2.275.241-2.709z" />
+            </svg>
+          </button>
         </div>`;
 
-    const html = `
-      <div class="findbar-ai-chat">
-        <div class="ai-chat-header">
-          <button id="clear-chat" class="clear-chat-btn">Clear</button>
-          <select id="model-selector" class="model-selector">${modelOptions}</select>
-        </div>
-        <div class="ai-chat-messages" id="chat-messages"></div>
-        ${chatInputGroup}
-      </div>`;
-    const container = parseElement(html);
+    const container = parseElement(`
+        <div class="findbar-ai-chat">
+          <div class="ai-chat-header">
+            <div class="findbar-drag-handle"></div>
+          </div>
+          <div class="ai-chat-messages" id="chat-messages"></div>
+          ${chatInputGroup}
+        </div>`);
 
-    const modelSelector = container.querySelector("#model-selector");
+    const chatHeader = container.querySelector(".ai-chat-header");
+
+    const clearBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="clear-chat" 
+          class="clear-chat-btn" 
+          image="chrome://global/skin/icons/delete.svg" 
+          tooltiptext="Clear Chat"
+        />`,
+      "xul"
+    );
+
+    const settingsBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="open-settings-btn" 
+          class="settings-btn" 
+          image="chrome://global/skin/icons/settings.svg" 
+          tooltiptext="Settings"
+        />`,
+      "xul"
+    );
+
+    const collapseBtn = parseElement(
+      `
+        <toolbarbutton 
+          id="findbar-collapse-btn" 
+          class="findbar-collapse-btn" 
+          image="chrome://browser/skin/zen-icons/unpin.svg" 
+          tooltiptext="Collapse"
+        />`,
+      "xul"
+    );
+
+    chatHeader.appendChild(clearBtn);
+    chatHeader.appendChild(settingsBtn);
+    chatHeader.appendChild(collapseBtn);
+
     const chatMessages = container.querySelector("#chat-messages");
-    const clearBtn = container.querySelector("#clear-chat");
 
-    modelSelector.addEventListener("change", (e) => {
-      llm.currentProvider.model = e.target.value;
+    const promptInput = container.querySelector("#ai-prompt");
+    const sendBtn = container.querySelector("#send-prompt");
+    const handleSend = () => this.sendMessage(promptInput.value.trim());
+    sendBtn.addEventListener("click", handleSend);
+    promptInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
     });
 
-    if (!this.minimal) {
-      const promptInput = container.querySelector("#ai-prompt");
-      const sendBtn = container.querySelector("#send-prompt");
-      const handleSend = () => this.sendMessage(promptInput.value.trim());
-      sendBtn.addEventListener("click", handleSend);
-      promptInput.addEventListener("keypress", (e) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-          e.preventDefault();
-          handleSend();
-        }
-      });
-    }
-
     clearBtn.addEventListener("click", () => {
-      container.querySelector("#chat-messages").innerHTML = "";
-      llm.clearData();
+      this.clear();
+      this.expanded = false;
+    });
+
+    settingsBtn.addEventListener("click", () => {
+      SettingsModal.show();
+    });
+
+    collapseBtn.addEventListener("click", () => {
       this.expanded = false;
     });
 
@@ -434,11 +477,9 @@ const findbar = {
           if (citation && citation.source_quote) {
             debugLog(
               `[findbar-ai] Citation [${citationId}] clicked. Requesting highlight for:`,
-              citation.source_quote,
+              citation.source_quote
             );
-            await windowManagerAPI.highlightAndScrollToText(
-              citation.source_quote,
-            );
+            this.highlight(citation.source_quote);
           }
         }
       } else if (e.target?.href) {
@@ -453,12 +494,8 @@ const findbar = {
   },
 
   createLoadingIndicator() {
-    const messageDiv = parseElement(
-      `<div class="chat-message chat-message-loading"></div>`,
-    );
-    const contentDiv = parseElement(
-      `<div class="message-content">Loading...</div>`,
-    );
+    const messageDiv = parseElement(`<div class="chat-message chat-message-loading"></div>`);
+    const contentDiv = parseElement(`<div class="message-content">Loading...</div>`);
     messageDiv.appendChild(contentDiv);
     return messageDiv;
   },
@@ -466,13 +503,10 @@ const findbar = {
   addChatMessage(response, type) {
     const { answer, citations } = response;
     if (!this.chatContainer || !answer) return;
-    const messagesContainer =
-      this.chatContainer.querySelector("#chat-messages");
+    const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (!messagesContainer) return;
 
-    const messageDiv = parseElement(
-      `<div class="chat-message chat-message-${type}"></div>`,
-    );
+    const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
     if (citations && citations.length > 0) {
       messageDiv.dataset.citations = JSON.stringify(citations);
     }
@@ -480,7 +514,7 @@ const findbar = {
     const contentDiv = parseElement(`<div class="message-content"></div>`);
     const processedContent = answer.replace(
       /\[(\d+)\]/g,
-      `<button class="citation-link" data-citation-id="$1">[$1]</button>`,
+      `<button class="citation-link" data-citation-id="$1">[$1]</button>`
     );
     contentDiv.appendChild(parseMD(processedContent));
 
@@ -491,23 +525,27 @@ const findbar = {
 
   showAIInterface() {
     if (!this.findbar) return;
-    this.removeAIInterface();
+    this.removeAIInterface(); // Removes API key, chat, and settings interfaces
+
+    // Remove settings modal class from findbar as it's now a separate modal
+    this.findbar.classList.remove("ai-settings-active");
 
     if (!llm.currentProvider.apiKey) {
       this.apiKeyContainer = this.createAPIKeyInterface();
       this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     } else {
       this.chatContainer = this.createChatInterface();
+      if (PREFS.dndEnabled) this.enableDND();
       const history = llm.getHistory();
       for (const message of history) {
         if (
           message.role === "tool" ||
-          (message.parts && message.parts.some((p) => p.functionCall))
+          (message?.parts && message?.parts.some((p) => p.functionCall))
         )
           continue;
 
         const isModel = message.role === "model";
-        const textContent = message.parts[0]?.text;
+        const textContent = message?.parts[0]?.text;
         if (!textContent) continue;
 
         let responsePayload = { answer: "" };
@@ -515,10 +553,7 @@ const findbar = {
         if (isModel && PREFS.citationsEnabled) {
           responsePayload = llm.parseModelResponseText(textContent);
         } else {
-          responsePayload.answer = textContent.replace(
-            /\[Current Page Context:.*?\]\s*/,
-            "",
-          );
+          responsePayload.answer = textContent.replace(/\[Current Page Context:.*?\]\s*/, "");
         }
 
         if (responsePayload.answer) {
@@ -533,28 +568,17 @@ const findbar = {
     if (this.findbar) setTimeout(() => this.findbar._findField.focus(), 10);
   },
   focusPrompt() {
-    if (this.minimal) {
-      this.focusInput();
-      return;
-    }
     const promptInput = this.chatContainer?.querySelector("#ai-prompt");
     if (promptInput) setTimeout(() => promptInput.focus(), 10);
   },
   setPromptText(text) {
-    if (this.minimal) {
-      if (this.findbar?._findField) {
-        this.findbar._findField.value = text;
-      }
-      return;
-    }
     const promptInput = this?.chatContainer?.querySelector("#ai-prompt");
     if (promptInput && text) promptInput.value = text;
   },
   async setPromptTextFromSelection() {
     let text = "";
     const selection = await windowManagerAPI.getSelectedText();
-    if (!selection || !selection.hasSelection)
-      text = this?.findbar?._findField?.value;
+    if (!selection || !selection.hasSelection) text = this?.findbar?._findField?.value;
     else text = selection.selectedText;
     this.setPromptText(text);
   },
@@ -581,10 +605,13 @@ const findbar = {
   destroy() {
     this.findbar = null;
     this.expanded = false;
-    this.removeListeners();
+    try {
+      this.removeListeners();
+    } catch {}
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
+    SettingsModal.hide();
   },
 
   addExpandButton() {
@@ -596,9 +623,7 @@ const findbar = {
     if (this.minimal) {
       const container = this.findbar.querySelector(".findbar-container");
       if (container && !container.querySelector("#findbar-ask")) {
-        const askBtn = parseElement(
-          `<button id="findbar-ask" anonid="findbar-ask">Ask</button>`,
-        );
+        const askBtn = parseElement(`<button id="findbar-ask" anonid="findbar-ask">Ask</button>`);
         askBtn.addEventListener("click", () => {
           const inpText = this.findbar._findField.value.trim();
           this.sendMessage(inpText);
@@ -611,10 +636,10 @@ const findbar = {
     } else {
       const button_id = "findbar-expand";
       const button = parseElement(
-        `<button id="${button_id}" anonid="${button_id}">Expand</button>`,
+        `<button id="${button_id}" anonid="${button_id}">Expand</button>`
       );
       button.addEventListener("click", () => this.toggleExpanded());
-      button.textContent = this.expanded ? "Collapse" : "Expand";
+      button.textContent = "Expand";
       this.findbar.appendChild(button);
       this.expandButton = button;
     }
@@ -651,14 +676,10 @@ const findbar = {
 
     if (!contextMenu) {
       if (retryCount < 5) {
-        debugLog(
-          `Context menu not found, retrying... (attempt ${retryCount + 1}/5)`,
-        );
+        debugLog(`Context menu not found, retrying... (attempt ${retryCount + 1}/5)`);
         setTimeout(() => this.addContextMenuItem(retryCount + 1), 200);
       } else {
-        debugError(
-          "Failed to add context menu item after 5 attempts: Context menu not found.",
-        );
+        debugError("Failed to add context menu item after 5 attempts: Context menu not found.");
       }
       return;
     }
@@ -668,10 +689,7 @@ const findbar = {
     menuItem.setAttribute("label", "Ask AI");
     menuItem.setAttribute("accesskey", "A");
 
-    menuItem.addEventListener(
-      "command",
-      this.handleContextMenuClick.bind(this),
-    );
+    menuItem.addEventListener("command", this.handleContextMenuClick.bind(this));
     this.contextMenuItem = menuItem;
 
     const searchSelectItem = contextMenu.querySelector("#context-searchselect");
@@ -747,21 +765,163 @@ const findbar = {
     this.contextMenuItem.label = hasSelection ? "Ask AI" : "Summarize with AI";
   },
 
-  //TODO: add drag and drop
-  doResize: function () {},
-  stopResize: function () {},
-  doDrag: function () {},
-  stopDrag: function () {},
-  stopDrag: function () {},
+  enableResize() {
+    if (!this.findbar) return;
+    if (this._resizeHandle) return;
+    const resizeHandle = parseElement(`<div class="findbar-resize-handle"></div>`);
+    this.findbar.appendChild(resizeHandle);
+    this._resizeHandle = resizeHandle;
+    this._startResize = this.startResize.bind(this);
+    this._resizeHandle.addEventListener("mousedown", this._startResize);
+  },
+
+  startResize(e) {
+    if (e.button !== 0) return;
+    if (!this.findbar) return;
+    this._isResizing = true;
+    this._initialMouseCoor = { x: e.clientX, y: e.clientY };
+    const rect = this.findbar.getBoundingClientRect();
+    this.startWidth = rect.width;
+    this._handleResize = this.doResize.bind(this);
+    this._stopResize = this.stopResize.bind(this);
+    document.addEventListener("mousemove", this._handleResize);
+    document.addEventListener("mouseup", this._stopResize);
+  },
+
+  doResize(e) {
+    if (!this._isResizing) return;
+    if (!this.findbar) return;
+    const minWidth = 300;
+    const maxWidth = 800;
+    const directionFactor = PREFS.position.includes("right") ? -1 : 1;
+    let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
+    newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
+    this.findbar.style.width = `${newWidth}px`;
+  },
+
+  stopResize() {
+    this._isResizing = false;
+    document.removeEventListener("mousemove", this._handleResize);
+    document.removeEventListener("mouseup", this._stopResize);
+    this._handleResize = null;
+    this._stopResize = null;
+  },
+  disableResize() {
+    this._resizeHandle?.remove();
+    this._resizeHandle = null;
+    this.stopResize();
+  },
+
+  startDrag(e) {
+    if (!this.chatContainer) return;
+    if (e.button !== 0) return;
+    this._isDragging = true;
+    this._initialMouseCoor = { x: e.clientX, y: e.clientY };
+    const rect = this.findbar.getBoundingClientRect();
+    this._initialContainerCoor = { x: rect.left, y: rect.top };
+    this._handleDrag = this.doDrag.bind(this);
+    this._stopDrag = this.stopDrag.bind(this);
+    document.addEventListener("mousemove", this._handleDrag);
+    document.addEventListener("mouseup", this._stopDrag);
+  },
+
+  doDrag(e) {
+    if (!this._isDragging) return;
+
+    const minCoors = { x: 15, y: 35 };
+    const rect = this.findbar.getBoundingClientRect();
+    const maxCoors = {
+      x: window.innerWidth - rect.width - 33,
+      y: window.innerHeight - rect.height - 33,
+    };
+    const newCoors = {
+      x: this._initialContainerCoor.x + (e.clientX - this._initialMouseCoor.x),
+      y: this._initialContainerCoor.y + (e.clientY - this._initialMouseCoor.y),
+    };
+
+    newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
+    newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
+
+    this.findbar.style.setProperty("left", `${newCoors.x}px`, "important");
+    this.findbar.style.setProperty("top", `${newCoors.y}px`, "important");
+    this.findbar.style.setProperty("right", "unset", "important");
+    this.findbar.style.setProperty("bottom", "unset", "important");
+  },
+
+  stopDrag() {
+    this._isDragging = false;
+    this.snapToClosestCorner();
+    this._initialMouseCoor = { x: null, y: null };
+    this._initialContainerCoor = { x: null, y: null };
+    document.removeEventListener("mouseup", this._stopDrag);
+    document.removeEventListener("mousemove", this._handleDrag);
+    this._handleDrag = null;
+    this._stopDrag = null;
+  },
+
+  snapToClosestCorner() {
+    if (!this.findbar || !PREFS.dndEnabled) return;
+
+    const rect = this.findbar.getBoundingClientRect();
+    const currentX = rect.left;
+    const currentY = rect.top;
+    const findbarWidth = rect.width;
+    const findbarHeight = rect.height;
+
+    const snapPoints = {
+      "top-left": { x: 0, y: 0 },
+      "top-right": { x: window.innerWidth - findbarWidth, y: 0 },
+      "bottom-left": { x: 0, y: window.innerHeight - findbarHeight },
+      "bottom-right": {
+        x: window.innerWidth - findbarWidth,
+        y: window.innerHeight - findbarHeight,
+      },
+    };
+
+    let closestPointName = PREFS.position;
+    let minDistance = Infinity;
+
+    for (const name in snapPoints) {
+      const p = snapPoints[name];
+      const distance = Math.sqrt(Math.pow(currentX - p.x, 2) + Math.pow(currentY - p.y, 2));
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPointName = name;
+      }
+    }
+
+    // Update preference if position changed
+    if (closestPointName !== PREFS.position) {
+      PREFS.position = closestPointName;
+    }
+    this.findbar.style.removeProperty("left");
+    this.findbar.style.removeProperty("top");
+    this.findbar.style.removeProperty("bottom");
+    this.findbar.style.removeProperty("right");
+    // this.applyFindbarPosition(closestPointName);
+  },
+  enableDND() {
+    if (!this.chatContainer) return;
+    const handle = this.chatContainer.querySelector(".findbar-drag-handle");
+    if (!handle) return;
+    this._startDrag = this.startDrag.bind(this);
+    handle.addEventListener("mousedown", this._startDrag);
+  },
+  disableDND() {
+    this._isDragging = false;
+    if (!this.chatContainer) return;
+    const handle = this.chatContainer.querySelector(".findbar-drag-handle");
+    if (!handle) return;
+    handle.removeEventListener("mousedown", this._startDrag);
+    document.removeEventListener("mouseup", this._stopDrag);
+    document.removeEventListener("mousemove", this._handleDrag);
+    this._startDrag = null;
+    this._stopDrag = null;
+  },
 
   addKeymaps: function (e) {
-    if (
-      e.key &&
-      e.key.toLowerCase() === "f" &&
-      e.ctrlKey &&
-      e.shiftKey &&
-      !e.altKey
-    ) {
+    if (e.key && e.key.toLowerCase() === "f" && e.ctrlKey && e.shiftKey && !e.altKey) {
       e.preventDefault();
       e.stopPropagation();
       this.expanded = true;
@@ -770,13 +930,17 @@ const findbar = {
       this.setPromptTextFromSelection();
     }
     if (e.key?.toLowerCase() === "escape") {
-      if (this.expanded) {
+      if (SettingsModal._modalElement && SettingsModal._modalElement.parentNode) {
+        // If settings modal is open, close it
+        e.preventDefault();
+        e.stopPropagation();
+        SettingsModal.hide();
+      } else if (this.expanded) {
         e.preventDefault();
         e.stopPropagation();
         this.expanded = false;
-        if (this.minimal) this.hide();
-        else this.focusInput();
-      } else if (this.isOpen) this.hide();
+        this.focusInput();
+      }
     }
   },
 
@@ -785,65 +949,80 @@ const findbar = {
     this._addKeymaps = this.addKeymaps.bind(this);
     this._handleInputKeyPress = this.handleInputKeyPress.bind(this);
     this._handleFindFieldInput = this.updateFoundMatchesDisplay.bind(this);
-    this._clearLLMData = llm.clearData.bind(llm);
-    this._handleContextMenuPrefChange =
-      this.handleContextMenuPrefChange.bind(this);
-    this._handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
+    const _clearLLMData = () => {
+      this.updateFindbarStatus();
+      this.clear();
+    };
+    const _handleContextMenuPrefChange = this.handleContextMenuPrefChange.bind(this);
+    const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._updateFindbar);
     document.addEventListener("keydown", this._addKeymaps);
-    UC_API.Prefs.addListener(PREFS.GOD_MODE, this._clearLLMData);
-    UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, this._clearLLMData);
-    UC_API.Prefs.addListener(PREFS.MINIMAL, this._handleMinimalPrefChange);
-    UC_API.Prefs.addListener(
+    this._godModeListener = UC_API.Prefs.addListener(PREFS.GOD_MODE, _clearLLMData);
+    this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
+    this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
+    this._contextMenuEnabledListener = UC_API.Prefs.addListener(
       PREFS.CONTEXT_MENU_ENABLED,
-      this._handleContextMenuPrefChange,
+      _handleContextMenuPrefChange
     );
+    this._persistListener = UC_API.Prefs.addListener(PREFS.PERSIST, (pref) => {
+      if (!this.findbar) return;
+      if (pref.value) this.findbar.history = llm.history;
+      else this.findbar.history = null;
+    });
+    this._dndListener = UC_API.Prefs.addListener(PREFS.DND_ENABLED, (pref) => {
+      if (pref.value) {
+        this.enableDND();
+        this.enableResize();
+      } else {
+        this.disableDND();
+        this.disableResize();
+      }
+    });
   },
+
   removeListeners() {
     if (this.findbar) {
-      this.findbar._findField.removeEventListener(
-        "keypress",
-        this._handleInputKeyPress,
-      );
-      this.findbar._findField.removeEventListener(
-        "input",
-        this._handleFindFieldInput,
-      );
+      this.findbar._findField.removeEventListener("keypress", this._handleInputKeyPress);
+      this.findbar._findField.removeEventListener("input", this._handleFindFieldInput);
     }
     gBrowser.tabContainer.removeEventListener("TabSelect", this._updateFindbar);
     document.removeEventListener("keydown", this._addKeymaps);
-    UC_API.Prefs.removeListener(PREFS.GOD_MODE, this._clearLLMData);
-    UC_API.Prefs.removeListener(PREFS.CITATIONS_ENABLED, this._clearLLMData);
-    UC_API.Prefs.removeListener(PREFS.MINIMAL, this._handleMinimalPrefChange);
-    UC_API.Prefs.removeListener(
-      PREFS.CONTEXT_MENU_ENABLED,
-      this._handleContextMenuPrefChange,
-    );
+    UC_API.Prefs.removeListener(this._godModeListener);
+    UC_API.Prefs.removeListener(this._citationsListener);
+    UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
+    UC_API.Prefs.removeListener(this._minimalListener);
+    UC_API.Prefs.removeListener(this._persistListener);
+    UC_API.Prefs.removeListener(this._dndListener);
+    this.disableDND();
+
+    // Disconnect the MutationObserver when listeners are removed
+    if (this._matchesObserver) {
+      this._matchesObserver.disconnect();
+      this._matchesObserver = null;
+    }
 
     this._handleInputKeyPress = null;
     this._handleFindFieldInput = null;
     this._updateFindbar = null;
     this._addKeymaps = null;
-    this._handleContextMenuPrefChange = null;
-    this._handleMinimalPrefChange = null;
-    this._clearLLMData = null;
+    this._godModeListener = null;
+    this._citationsListener = null;
+    this._contextMenuEnabledListener = null;
+    this._minimalListener = null;
+    this._dndListener = null;
   },
 
   updateFoundMatchesDisplay(retry = 0) {
     if (!this.findbar) return;
     const matches = this.findbar.querySelector(".found-matches");
     const status = this.findbar.querySelector(".findbar-find-status");
-    const wrapper = this.findbar.querySelector(
-      'hbox[anonid="findbar-textbox-wrapper"]',
-    );
+    const wrapper = this.findbar.querySelector('hbox[anonid="findbar-textbox-wrapper"]');
     if (!wrapper) {
-      if (retry < 10)
-        setTimeout(() => this.updateFoundMatchesDisplay(retry + 1), 100);
+      if (retry < 10) setTimeout(() => this.updateFoundMatchesDisplay(retry + 1), 100);
       return;
     }
-    if (matches && matches.parentElement !== wrapper)
-      wrapper.appendChild(matches);
+    if (matches && matches.parentElement !== wrapper) wrapper.appendChild(matches);
     if (status && status.parentElement !== wrapper) wrapper.appendChild(status);
 
     if (status && status.getAttribute("status") === "notfound") {
@@ -858,26 +1037,22 @@ const findbar = {
         : matches.getAttribute("value");
       let newLabel = "";
       if (labelValue) {
-        let normalized = labelValue.replace(
-          /(\d+)\s+of\s+(\d+)(?:\s+match(?:es)?)?/i,
-          "$1/$2",
-        );
+        let normalized = labelValue.replace(/(\d+)\s+of\s+(\d+)(?:\s+match(?:es)?)?/i, "$1/$2");
         newLabel = normalized === "1/1" ? "1/1" : normalized;
       }
       if (labelChild) {
         if (labelChild.getAttribute("value") !== newLabel)
           labelChild.setAttribute("value", newLabel);
-        if (labelChild.textContent !== newLabel)
-          labelChild.textContent = newLabel;
+        if (labelChild.textContent !== newLabel) labelChild.textContent = newLabel;
       } else {
-        if (matches.getAttribute("value") !== newLabel)
-          matches.setAttribute("value", newLabel);
+        if (matches.getAttribute("value") !== newLabel) matches.setAttribute("value", newLabel);
         if (matches.textContent !== newLabel) matches.textContent = newLabel;
       }
-      if (matches._observer) matches._observer.disconnect();
-      const observer = new MutationObserver(() =>
-        this.updateFoundMatchesDisplay(),
-      );
+
+      // Disconnect existing observer before creating a new one
+      if (this._matchesObserver) this._matchesObserver.disconnect();
+
+      const observer = new MutationObserver(() => this.updateFoundMatchesDisplay());
       observer.observe(matches, {
         attributes: true,
         attributeFilter: ["value"],
@@ -892,14 +1067,11 @@ const findbar = {
           attributes: true,
           attributeFilter: ["status", "value"],
         });
-      matches._observer = observer;
+      this._matchesObserver = observer;
     }
   },
 };
 
 findbar.init();
-UC_API.Prefs.addListener(
-  PREFS.ENABLED,
-  findbar.handleEnabledChange.bind(findbar),
-);
+UC_API.Prefs.addListener(PREFS.ENABLED, findbar.handleEnabledChange.bind(findbar));
 window.findbar = findbar;

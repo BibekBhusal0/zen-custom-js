@@ -57,8 +57,8 @@ function normalizeSchemaTypes(obj) {
 
 // Generate a valid tool_call_id for Mistral: 9 chars, a-z, A-Z, 0-9
 function generateToolCallId() {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let id = '';
+  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let id = "";
   for (let i = 0; i < 9; i++) {
     id += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -68,8 +68,7 @@ function generateToolCallId() {
 const mistral = {
   name: "mistral",
   label: "Mistral AI",
-  faviconUrl:
-    "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fmistral.ai%2F",
+  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fmistral.ai%2F",
   apiKeyUrl: "https://console.mistral.ai/api-keys/",
   AVAILABLE_MODELS: [
     "mistral-small",
@@ -77,6 +76,14 @@ const mistral = {
     "mistral-large-latest",
     "pixtral-large-latest",
   ],
+  AVAILABLE_MODELS_LABELS: {
+    "mistral-small": "Mistral Small",
+    "mistral-medium-latest": "Mistral Medium (Latest)",
+    "mistral-large-latest": "Mistral Large (Latest)",
+    "pixtral-large-latest": "Pixtral Large (Latest)",
+  },
+  modelPref: PREFS.MISTRAL_MODEL,
+  apiPref: PREFS.MISTRAL_API_KEY,
 
   get apiKey() {
     return PREFS.mistralApiKey;
@@ -197,8 +204,7 @@ const mistral = {
       try {
         const errorData = await response.json();
         debugError("Mistral API Error Details:", errorData);
-        if (errorData.error && errorData.error.message)
-          errorMsg += ` - ${errorData.error.message}`;
+        if (errorData.error && errorData.error.message) errorMsg += ` - ${errorData.error.message}`;
       } catch (err) {
         debugError("Mistral API Error: Could not parse error response.", err);
       }
@@ -218,10 +224,7 @@ const mistral = {
       modelResponse.parts.push({ text: choice.message.content });
     }
 
-    if (
-      choice?.message?.tool_calls &&
-      Array.isArray(choice.message.tool_calls)
-    ) {
+    if (choice?.message?.tool_calls && Array.isArray(choice.message.tool_calls)) {
       for (const call of choice.message.tool_calls) {
         modelResponse.parts.push({
           functionCall: {
