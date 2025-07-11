@@ -1,10 +1,6 @@
 import gemini from "./provider/gemini.js";
 import mistral from "./provider/mistral.js";
-import {
-  toolDeclarations,
-  availableTools,
-  getToolSystemPrompt,
-} from "./tools.js";
+import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
 import { windowManagerAPI } from "../windowManager.js";
 import PREFS, { debugLog, debugError } from "../prefs.js";
 
@@ -183,18 +179,14 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 
 Here is the initial info about the current page:
 `;
-      const pageContext = await windowManagerAPI.getPageTextContent(
-        !PREFS.citationsEnabled,
-      );
+      const pageContext = await windowManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
 
     return systemPrompt;
   },
   setSystemPrompt(promptText) {
-    this.systemInstruction = promptText
-      ? { parts: [{ text: promptText }] }
-      : null;
+    this.systemInstruction = promptText ? { parts: [{ text: promptText }] } : null;
     return this;
   },
 
@@ -212,19 +204,11 @@ Here is the initial info about the current page:
           }
         } else {
           // Parsed JSON but 'answer' field is missing or not a string.
-          debugLog(
-            "AI response JSON missing 'answer' field or not a string:",
-            parsedContent,
-          );
+          debugLog("AI response JSON missing 'answer' field or not a string:", parsedContent);
         }
       } catch (e) {
         // JSON parsing failed, keep rawText as answer.
-        debugError(
-          "Failed to parse AI message content as JSON:",
-          e,
-          "Raw Text:",
-          responseText,
-        );
+        debugError("Failed to parse AI message content as JSON:", e, "Raw Text:", responseText);
       }
     }
     return { answer, citations };
@@ -253,9 +237,7 @@ Here is the initial info about the current page:
     }
     this.history.push(modelResponse);
 
-    const functionCalls = modelResponse?.parts?.filter(
-      (part) => part.functionCall,
-    );
+    const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
 
     if (PREFS.godMode && functionCalls && functionCalls.length > 0) {
       debugLog("Function call(s) requested by model:", functionCalls);
@@ -286,9 +268,7 @@ Here is the initial info about the current page:
       requestBody = {
         contents: this.history,
         systemInstruction: this.systemInstruction,
-        generationConfig: PREFS.citationsEnabled
-          ? { responseMimeType: "application/json" }
-          : {},
+        generationConfig: PREFS.citationsEnabled ? { responseMimeType: "application/json" } : {},
       };
 
       modelResponse = await this.currentProvider.sendMessage(requestBody);
@@ -296,8 +276,7 @@ Here is the initial info about the current page:
     }
 
     if (PREFS.citationsEnabled) {
-      const responseText =
-        modelResponse?.parts?.find((part) => part.text)?.text || "";
+      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
       const parsedResponse = this.parseModelResponseText(responseText);
 
       debugLog("Parsed AI Response:", parsedResponse);
@@ -313,8 +292,7 @@ Here is the initial info about the current page:
       }
       return parsedResponse;
     } else {
-      const responseText =
-        modelResponse?.parts?.find((part) => part.text)?.text || "";
+      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
       if (!responseText && functionCalls.length === 0) {
         this.history.pop();
       }
@@ -331,9 +309,7 @@ Here is the initial info about the current page:
     this.setSystemPrompt(null);
   },
   getLastMessage() {
-    return this.history.length > 0
-      ? this.history[this.history.length - 1]
-      : null;
+    return this.history.length > 0 ? this.history[this.history.length - 1] : null;
   },
 };
 

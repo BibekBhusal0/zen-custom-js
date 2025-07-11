@@ -26,10 +26,7 @@ async function searchBookmarks(args) {
       parentID: bookmark.parentGuid,
     }));
 
-    debugLog(
-      `Found ${results.length} bookmarks for query "${query}":`,
-      results,
-    );
+    debugLog(`Found ${results.length} bookmarks for query "${query}":`, results);
     return { bookmarks: results };
   } catch (e) {
     debugError(`Error searching bookmarks for query "${query}":`, e);
@@ -109,10 +106,7 @@ async function addBookmarkFolder(args) {
 
     const folder = await PlacesUtils.bookmarks.insert(folderInfo);
 
-    debugLog(
-      `Bookmark folder created successfully:`,
-      JSON.stringify(folderInfo),
-    );
+    debugLog(`Bookmark folder created successfully:`, JSON.stringify(folderInfo));
     return { result: `Successfully created folder "${folder.title}".` };
   } catch (e) {
     debugError(`Error creating bookmark folder "${title}":`, e);

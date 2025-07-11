@@ -10,9 +10,7 @@ function googleFaviconAPI(url) {
 }
 
 async function updateFavicon() {
-  const component = document.getElementById(
-    "urlbar-search-mode-indicator-title",
-  );
+  const component = document.getElementById("urlbar-search-mode-indicator-title");
   if (!component) return false;
   const engineName = component.innerText;
   if (engineName === currentEngine) return false;
@@ -44,13 +42,11 @@ async function updateFavicon() {
 }
 
 function observeSearchModeIndicator() {
-  const component = document.getElementById(
-    "urlbar-search-mode-indicator-title",
-  );
+  const component = document.getElementById("urlbar-search-mode-indicator-title");
   if (!component) return;
 
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
+  const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
       if (mutation.type === "characterData" || mutation.type === "childList") {
         updateFavicon();
       }

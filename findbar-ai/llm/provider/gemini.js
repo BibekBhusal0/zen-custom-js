@@ -3,8 +3,7 @@ import PREFS from "../../prefs.js";
 const gemini = {
   name: "gemini",
   label: "Google Gemini",
-  faviconUrl:
-    "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fgemini.google.com",
+  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fgemini.google.com",
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
   AVAILABLE_MODELS: [
     "gemini-2.5-pro",
@@ -61,9 +60,7 @@ const gemini = {
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(
-        `API Error: ${response.status} - ${errorData.error.message}`,
-      );
+      throw new Error(`API Error: ${response.status} - ${errorData.error.message}`);
     }
 
     let data = await response.json();

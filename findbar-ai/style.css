@@ -4,11 +4,10 @@
   --acrylic-border: 0.5px solid rgba(255, 255, 255, 0.1);
   --acrylic-shadow: 0 8px 32px color-mix(in srgb, var(--zen-primary-color) 15%, transparent 85%);
   --acrylic-radius: 8px;
-  --acrylic-glass-bg: color-mix(in srgb,
-      var(--zen-themed-toolbar-bg) 80%,
-      transparent 20%);
+  --acrylic-glass-bg: color-mix(in srgb, var(--zen-themed-toolbar-bg) 80%, transparent 20%);
   --acrylic-glass-blur: blur(20px);
-  --acrylic-glass-border: 1.5px solid color-mix(in srgb, var(--zen-primary-color) 20%, transparent 80%);
+  --acrylic-glass-border: 1.5px solid
+    color-mix(in srgb, var(--zen-primary-color) 20%, transparent 80%);
 }
 
 browser {
@@ -81,7 +80,6 @@ browser {
 
   findbar,
   .findbar-ai-settings-modal {
-
     input[type="text"],
     input[type="password"],
     menulist,
@@ -112,9 +110,7 @@ browser {
       outline: none !important;
 
       &:hover {
-        background-color: color-mix(in srgb,
-            var(--zen-primary-color) 80%,
-            black 20%) !important;
+        background-color: color-mix(in srgb, var(--zen-primary-color) 80%, black 20%) !important;
       }
 
       &:active {
@@ -301,7 +297,7 @@ browser {
       height: auto !important;
       row-gap: 10px;
 
-      &> :first-child {
+      & > :first-child {
         width: 100% !important;
         margin-top: 8px !important;
         padding-bottom: 10px !important;
@@ -485,7 +481,7 @@ browser {
         justify-content: center !important;
         gap: 4px !important;
 
-        >label {
+        > label {
           font-size: 15px !important;
           padding-top: 14px !important;
         }
@@ -572,7 +568,7 @@ browser {
         &:empty {
           display: none !important;
 
-          &~.ai-chat-input-group {
+          & ~ .ai-chat-input-group {
             padding-top: 4px !important;
 
             /* When there are no messages, the parent .findbar-ai-chat should not have a header or separator line */
@@ -608,9 +604,7 @@ browser {
 
       .chat-message-error {
         align-self: flex-start;
-        background: color-mix(in srgb,
-            var(--zen-primary-color) 50%,
-            transparent 50%);
+        background: color-mix(in srgb, var(--zen-primary-color) 50%, transparent 50%);
         color: var(--tab-selected-textcolor);
         border: 1px solid var(--zen-primary-color);
       }
@@ -676,9 +670,7 @@ browser {
           }
 
           &:disabled {
-            background: color-mix(in srgb,
-                var(--zen-primary-color) 30%,
-                black 70%);
+            background: color-mix(in srgb, var(--zen-primary-color) 30%, black 70%);
             cursor: not-allowed;
             opacity: 0.6;
           }
@@ -693,10 +685,12 @@ browser {
 
         .message-content {
           animation: pulse 1.5s ease-in-out infinite;
-          background: linear-gradient(90deg,
-              transparent,
-              color-mix(in srgb, var(--zen-primary-color) 20%, transparent 80%),
-              transparent);
+          background: linear-gradient(
+            90deg,
+            transparent,
+            color-mix(in srgb, var(--zen-primary-color) 20%, transparent 80%),
+            transparent
+          );
           background-size: 200% 100%;
           animation: shimmer 2s infinite;
         }
@@ -716,9 +710,7 @@ browser {
       margin: 1px 3px;
       vertical-align: middle;
       padding: 0.3px !important;
-      background: color-mix(in srgb,
-          var(--zen-primary-color) 40%,
-          transparent 60%) !important;
+      background: color-mix(in srgb, var(--zen-primary-color) 40%, transparent 60%) !important;
     }
 
     #findbar-expand {
@@ -739,7 +731,7 @@ browser {
     }
 
     @media -moz-pref("extension.findbar-ai.minimal") {
-      width: 420px ;
+      width: 420px;
       min-height: 36px !important;
       align-items: center !important;
       flex-direction: column !important;
@@ -759,7 +751,7 @@ browser {
         height: 32px !important;
         width: 100% !important;
 
-        &> :first-child {
+        & > :first-child {
           border-bottom: 0 !important;
           width: calc(100% - 33px) !important;
           padding-right: 3px !important;
@@ -863,7 +855,6 @@ browser {
       &:has(.findbar-closebutton:hover),
       &:has(.findbar-drag-handle:active),
       &:has(.ai-chat-header:hover) {
-
         .clear-chat-btn,
         .settings-btn,
         .findbar-collapse-btn,

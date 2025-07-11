@@ -43,7 +43,7 @@ export const SettingsModal = {
             label="${escapeXmlAttribute(provider.label)}"
             ${name === PREFS.llmProvider ? 'selected="true"' : ""}
             ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
-          />`,
+          />`
       )
       .join("");
 
@@ -55,9 +55,7 @@ export const SettingsModal = {
       </menulist>`;
 
     const providerSelectorXulElement = parseElement(menulistXul, "xul");
-    const placeholder = this._modalElement.querySelector(
-      "#llm-provider-selector-placeholder",
-    );
+    const placeholder = this._modalElement.querySelector("#llm-provider-selector-placeholder");
     if (placeholder) {
       placeholder.replaceWith(providerSelectorXulElement);
     }
@@ -75,7 +73,7 @@ export const SettingsModal = {
             value="${value}"
             label="${escapeXmlAttribute(label)}"
             ${value === PREFS.position ? 'selected="true"' : ""}
-          />`,
+          />`
       )
       .join("");
 
@@ -86,9 +84,7 @@ export const SettingsModal = {
         </menupopup>
       </menulist>`;
     const positionSelectorXulElement = parseElement(positionMenulistXul, "xul");
-    const positionPlaceholder = this._modalElement.querySelector(
-      "#position-selector-placeholder",
-    );
+    const positionPlaceholder = this._modalElement.querySelector("#position-selector-placeholder");
 
     if (positionPlaceholder) {
       positionPlaceholder.replaceWith(positionSelectorXulElement);
@@ -104,7 +100,7 @@ export const SettingsModal = {
               value="${model}"
               label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
               ${model === currentModel ? 'selected="true"' : ""}
-            />`,
+            />`
       ).join("");
 
       const modelMenulistXul = `
@@ -115,7 +111,7 @@ export const SettingsModal = {
           </menulist>`;
 
       const modelPlaceholder = this._modalElement.querySelector(
-        `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`,
+        `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`
       );
       if (modelPlaceholder) {
         const modelSelectorXulElement = parseElement(modelMenulistXul, "xul");
@@ -132,21 +128,17 @@ export const SettingsModal = {
     if (!this._modalElement) return;
 
     // Close button
-    this._modalElement
-      .querySelector("#close-settings")
-      .addEventListener("click", () => {
-        this.hide();
-      });
+    this._modalElement.querySelector("#close-settings").addEventListener("click", () => {
+      this.hide();
+    });
 
     // Save button
-    this._modalElement
-      .querySelector("#save-settings")
-      .addEventListener("click", () => {
-        this.saveSettings();
-        this.hide();
-        if (findbar.enabled) findbar.show();
-        else findbar.destroy();
-      });
+    this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
+      this.saveSettings();
+      this.hide();
+      if (findbar.enabled) findbar.show();
+      else findbar.destroy();
+    });
 
     this._modalElement.addEventListener("click", (e) => {
       if (e.target === this._modalElement) {
@@ -154,15 +146,13 @@ export const SettingsModal = {
       }
     });
 
-    this._modalElement
-      .querySelectorAll(".accordion-header")
-      .forEach((header) => {
-        header.addEventListener("click", () => {
-          const section = header.closest(".settings-accordion");
-          const isExpanded = section.dataset.expanded === "true";
-          section.dataset.expanded = isExpanded ? "false" : "true";
-        });
+    this._modalElement.querySelectorAll(".accordion-header").forEach((header) => {
+      header.addEventListener("click", () => {
+        const section = header.closest(".settings-accordion");
+        const isExpanded = section.dataset.expanded === "true";
+        section.dataset.expanded = isExpanded ? "false" : "true";
       });
+    });
 
     // Initialize and listen to changes on controls (store in _currentPrefValues)
     this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
@@ -185,12 +175,12 @@ export const SettingsModal = {
         control.addEventListener("command", (e) => {
           this._currentPrefValues[prefKey] = e.target.value;
           debugLog(
-            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`,
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
           if (prefKey === PREFS.LLM_PROVIDER) {
             this._updateProviderSpecificSettings(
               this._modalElement,
-              this._currentPrefValues[prefKey],
+              this._currentPrefValues[prefKey]
             );
           }
         });
@@ -199,12 +189,9 @@ export const SettingsModal = {
           this._currentPrefValues[prefKey] =
             control.type === "checkbox" ? e.target.checked : e.target.value;
           debugLog(
-            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`,
+            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
-          if (
-            prefKey === PREFS.CITATIONS_ENABLED ||
-            prefKey === PREFS.GOD_MODE
-          ) {
+          if (prefKey === PREFS.CITATIONS_ENABLED || prefKey === PREFS.GOD_MODE) {
             this._updateWarningMessage();
           }
         });
@@ -229,9 +216,7 @@ export const SettingsModal = {
 
   saveSettings() {
     for (const prefKey in this._currentPrefValues) {
-      if (
-        Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)
-      ) {
+      if (Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)) {
         PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
         debugLog(`Saving pref ${prefKey} to: ${PREFS.getPref(prefKey)}`);
       }
@@ -278,7 +263,7 @@ export const SettingsModal = {
 
     // Use the safe ID for the selector
     const activeGroup = container.querySelector(
-      `#${this._getSafeIdForProvider(selectedProviderName)}-settings-group`,
+      `#${this._getSafeIdForProvider(selectedProviderName)}-settings-group`
     );
     if (activeGroup) {
       activeGroup.style.display = "block";
@@ -288,12 +273,10 @@ export const SettingsModal = {
       if (modelPrefKey) {
         // Use the safe ID for the model selector as well
         const modelSelect = activeGroup.querySelector(
-          `#pref-${this._getSafeIdForProvider(selectedProviderName)}-model`,
+          `#pref-${this._getSafeIdForProvider(selectedProviderName)}-model`
         );
         if (modelSelect) {
-          modelSelect.value =
-            this._currentPrefValues[modelPrefKey] ||
-            PREFS.getPref(modelPrefKey);
+          modelSelect.value = this._currentPrefValues[modelPrefKey] || PREFS.getPref(modelPrefKey);
         }
       }
       // Update the "Get API Key" link's state for the active provider
@@ -316,9 +299,7 @@ export const SettingsModal = {
 
     const citationsEnabled = this._currentPrefValues[PREFS.CITATIONS_ENABLED];
     const godModeEnabled = this._currentPrefValues[PREFS.GOD_MODE];
-    const warningDiv = this._modalElement.querySelector(
-      "#citations-god-mode-warning",
-    );
+    const warningDiv = this._modalElement.querySelector("#citations-god-mode-warning");
 
     if (citationsEnabled && godModeEnabled) {
       if (warningDiv) warningDiv.style.display = "block";
@@ -342,7 +323,7 @@ export const SettingsModal = {
     settingsArray,
     expanded = true,
     contentBefore = "",
-    contentAfter = "",
+    contentAfter = ""
   ) {
     const settingsHtml = settingsArray
       .map((s) => this._generateCheckboxSettingHtml(s.label, s.pref))
@@ -375,8 +356,10 @@ export const SettingsModal = {
     `;
     const generalSectionHtml = this._createCheckboxSectionHtml(
       "General",
-      generalSettings,true, '',
-      positionSelectorPlaceholderHtml,
+      generalSettings,
+      true,
+      "",
+      positionSelectorPlaceholderHtml
     );
 
     const aiBehaviorSettings = [
@@ -390,8 +373,9 @@ export const SettingsModal = {
     `;
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
-      aiBehaviorSettings,true,
-      aiBehaviorWarningHtml,
+      aiBehaviorSettings,
+      true,
+      aiBehaviorWarningHtml
     );
 
     // Context Menu Settings
@@ -404,7 +388,7 @@ export const SettingsModal = {
     ];
     const contextMenuSectionHtml = this._createCheckboxSectionHtml(
       "Context Menu",
-      contextMenuSettings,
+      contextMenuSettings
     );
 
     const browserFindbarSettings = [
@@ -419,7 +403,7 @@ export const SettingsModal = {
     const browserSettingsHtml = this._createCheckboxSectionHtml(
       "Browser Findbar",
       browserFindbarSettings,
-      false,
+      false
     );
 
     let llmProviderSettingsHtml = "";

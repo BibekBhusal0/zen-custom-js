@@ -14,16 +14,13 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
   // }
 
   debugLog(...args) {
-    this.browsingContext.top.window.console.log(
-      "[findbar-ai] windowManager.js (Child):",
-      ...args,
-    );
+    this.browsingContext.top.window.console.log("[findbar-ai] windowManager.js (Child):", ...args);
   }
 
   debugError(...args) {
     this.browsingContext.top.window.console.error(
       "[findbar-ai] windowManager.js (Child Error):",
-      ...args,
+      ...args
     );
   }
 
@@ -60,7 +57,7 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
     this.debugLog("extractTextContent called");
     const clonedDocument = this.document.cloneNode(true);
     const elementsToRemove = clonedDocument.querySelectorAll(
-      "script, style, noscript, iframe, svg, canvas, input, textarea, select",
+      "script, style, noscript, iframe, svg, canvas, input, textarea, select"
     );
     elementsToRemove.forEach((el) => el.remove());
 

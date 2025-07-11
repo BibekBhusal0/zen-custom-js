@@ -4,12 +4,11 @@
 // @description    Adds a floating UI to switch search engines on a search results page.
 // ==/UserScript==
 
-(function() {
+(function () {
   "use strict";
 
   const PREF_ENABLED = "extension.search-engine-select.enabled";
-  const PREF_REMEMBER_POSITION =
-    "extension.search-engine-select.remember-position";
+  const PREF_REMEMBER_POSITION = "extension.search-engine-select.remember-position";
   const PREF_Y_COOR = "extension.search-engine-select.y-coor";
   const PREF_DEBUG_MODE = "extension.search-engine-select.debug-mode";
 
@@ -106,10 +105,7 @@
       const img = document.createElement("img");
       const fallbackIcon = "chrome://branding/content/icon32.png";
       const submissionUrl = engine.getSubmission("test_query").uri.spec;
-      img.src =
-        engine.iconURI?.spec ||
-        this.googleFaviconAPI(submissionUrl) ||
-        fallbackIcon;
+      img.src = engine.iconURI?.spec || this.googleFaviconAPI(submissionUrl) || fallbackIcon;
       img.onerror = () => (img.src = fallbackIcon);
       return img;
     },
@@ -125,14 +121,8 @@
           const submission = engine.getSubmission(PLACEHOLDER);
           if (!submission) continue;
 
-          let regexString = submission.uri.spec.replace(
-            /[.*+?^${}()|[\]\\]/g,
-            "\\$&",
-          );
-          const placeholderRegex = PLACEHOLDER.replace(
-            /[.*+?^${}()|[\]\\]/g,
-            "\\$&",
-          );
+          let regexString = submission.uri.spec.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const placeholderRegex = PLACEHOLDER.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
           regexString = regexString.replace(placeholderRegex, "([^&]*)");
 
           this._engineCache.push({
@@ -232,9 +222,7 @@
       }
 
       if (engine && term) {
-        debugLog(
-          `URL bar search detected. Engine: ${engine.name}, Term: ${term}`,
-        );
+        debugLog(`URL bar search detected. Engine: ${engine.name}, Term: ${term}`);
         this._currentSearchInfo = { engine, term };
         this._show();
       }
@@ -259,12 +247,7 @@
       let actionTaken = false;
 
       // Ctrl+Click (no other modifiers) -> Split View
-      if (
-        event.button === 0 &&
-        event.ctrlKey &&
-        !event.altKey &&
-        !event.shiftKey
-      ) {
+      if (event.button === 0 && event.ctrlKey && !event.altKey && !event.shiftKey) {
         debugLog("Action: Split View");
         if (window.gZenViewSplitter) {
           const previousTab = gBrowser.selectedTab;
@@ -323,14 +306,8 @@
       const shouldOpen = this._engineOptions.style.display !== "block";
       if (shouldOpen) {
         const containerRect = this._container.getBoundingClientRect();
-        this._engineOptions.classList.toggle(
-          "popup-below",
-          containerRect.top < 220,
-        );
-        this._engineOptions.classList.toggle(
-          "popup-above",
-          containerRect.top >= 220,
-        );
+        this._engineOptions.classList.toggle("popup-below", containerRect.top < 220);
+        this._engineOptions.classList.toggle("popup-above", containerRect.top >= 220);
         this._engineOptions.style.display = "block";
         this._container.classList.add("options-visible");
       } else {
@@ -348,7 +325,7 @@
     createUI() {
       this._container = document.createElement("div");
       this._container.id = "search-engine-switcher-container";
-      this._container.style.top = this.Y_COOR 
+      this._container.style.top = this.Y_COOR;
 
       this._engineSelect = document.createElement("div");
       this._engineSelect.id = "ses-engine-select";
@@ -359,11 +336,7 @@
       this._dragHandle = document.createElement("div");
       this._dragHandle.id = "ses-drag-handle";
 
-      this._container.append(
-        this._engineSelect,
-        this._dragHandle,
-        this._engineOptions,
-      );
+      this._container.append(this._engineSelect, this._dragHandle, this._engineOptions);
       document.documentElement.append(this._container);
       this.populateEngineList();
     },
@@ -379,9 +352,7 @@
         const name = document.createElement("span");
         name.textContent = engine.name;
         option.append(name);
-        option.addEventListener("mousedown", (e) =>
-          this.handleEngineClick(e, engine),
-        );
+        option.addEventListener("mousedown", (e) => this.handleEngineClick(e, engine));
         this._engineOptions.append(option);
       });
     },
@@ -435,60 +406,29 @@
       this._boundListeners.handleTabSelect = this.handleTabSelect.bind(this);
       this._boundListeners.handleURLBarKey = this.handleURLBarKey.bind(this);
       this._boundListeners.toggleOptions = this.toggleOptions.bind(this);
-      this._boundListeners.hideOptionsOnClickOutside =
-        this.hideOptionsOnClickOutside.bind(this);
+      this._boundListeners.hideOptionsOnClickOutside = this.hideOptionsOnClickOutside.bind(this);
       this._boundListeners.startDrag = this.startDrag.bind(this);
       this._boundListeners.doDrag = this.doDrag.bind(this);
       this._boundListeners.stopDrag = this.stopDrag.bind(this);
 
-      gBrowser.tabContainer.addEventListener(
-        "TabSelect",
-        this._boundListeners.handleTabSelect,
-      );
+      gBrowser.tabContainer.addEventListener("TabSelect", this._boundListeners.handleTabSelect);
       gBrowser.addTabsProgressListener(this._progressListener);
-      gURLBar.inputField.addEventListener(
-        "keydown",
-        this._boundListeners.handleURLBarKey,
-      );
-      this._engineSelect.addEventListener(
-        "click",
-        this._boundListeners.toggleOptions,
-      );
-      document.addEventListener(
-        "click",
-        this._boundListeners.hideOptionsOnClickOutside,
-      );
-      this._dragHandle.addEventListener(
-        "mousedown",
-        this._boundListeners.startDrag,
-      );
+      gURLBar.inputField.addEventListener("keydown", this._boundListeners.handleURLBarKey);
+      this._engineSelect.addEventListener("click", this._boundListeners.toggleOptions);
+      document.addEventListener("click", this._boundListeners.hideOptionsOnClickOutside);
+      this._dragHandle.addEventListener("mousedown", this._boundListeners.startDrag);
     },
 
     removeEventListeners() {
-      gBrowser.tabContainer.removeEventListener(
-        "TabSelect",
-        this._boundListeners.handleTabSelect,
-      );
+      gBrowser.tabContainer.removeEventListener("TabSelect", this._boundListeners.handleTabSelect);
       if (this._progressListener) {
         gBrowser.removeTabsProgressListener(this._progressListener);
         this._progressListener = null;
       }
-      gURLBar.inputField.removeEventListener(
-        "keydown",
-        this._boundListeners.handleURLBarKey,
-      );
-      this._engineSelect?.removeEventListener(
-        "click",
-        this._boundListeners.toggleOptions,
-      );
-      document.removeEventListener(
-        "click",
-        this._boundListeners.hideOptionsOnClickOutside,
-      );
-      this._dragHandle?.removeEventListener(
-        "mousedown",
-        this._boundListeners.startDrag,
-      );
+      gURLBar.inputField.removeEventListener("keydown", this._boundListeners.handleURLBarKey);
+      this._engineSelect?.removeEventListener("click", this._boundListeners.toggleOptions);
+      document.removeEventListener("click", this._boundListeners.hideOptionsOnClickOutside);
+      this._dragHandle?.removeEventListener("mousedown", this._boundListeners.startDrag);
       document.removeEventListener("mousemove", this._boundListeners.doDrag);
       document.removeEventListener("mouseup", this._boundListeners.stopDrag);
       this._boundListeners = {};

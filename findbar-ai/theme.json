@@ -27,7 +27,5 @@
   ],
   "createdAt": "2024-05-22",
   "updatedAt": "2024-05-22",
-  "fork": [
-    "zen"
-  ]
+  "fork": ["zen"]
 }

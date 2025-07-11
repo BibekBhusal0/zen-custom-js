@@ -56,8 +56,7 @@ const alternateSearch = (window, split) => {
       }
       openTrustedLinkIn(newURL, "tab");
       const currentTab = window.gBrowser.selectedTab;
-      if (previousTab && split)
-        gZenViewSplitter.splitTabs([currentTab, previousTab], "vsep", 1);
+      if (previousTab && split) gZenViewSplitter.splitTabs([currentTab, previousTab], "vsep", 1);
     } else {
       showToast("Failed to search.", "error");
     }
@@ -82,9 +81,7 @@ const pasteAndGo = () => {
 };
 
 function MinimizeMemoryUse() {
-  const observerService = Cc["@mozilla.org/observer-service;1"].getService(
-    Ci.nsIObserverService,
-  );
+  const observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
   for (let i = 0; i < 3; i++) {
     observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
   }
@@ -105,12 +102,9 @@ const clearTabs = () => {
     const groupSelector = `tab-group:has(tab[zen-workspace-id="${currentWorkspaceId}"])`;
     const tabsToClose = [];
     for (const tab of gBrowser.tabs) {
-      const isSameWorkSpace =
-        tab.getAttribute("zen-workspace-id") === currentWorkspaceId;
+      const isSameWorkSpace = tab.getAttribute("zen-workspace-id") === currentWorkspaceId;
       const groupParent = tab.closest("tab-group");
-      const isInGroupInCorrectWorkspace = groupParent
-        ? groupParent.matches(groupSelector)
-        : false;
+      const isInGroupInCorrectWorkspace = groupParent ? groupParent.matches(groupSelector) : false;
       const isEmptyZenTab = tab.hasAttribute("zen-empty-tab");
       if (
         isSameWorkSpace &&
@@ -180,16 +174,14 @@ const hotkeys = [
     id: "previousTab",
     modifiers: "alt",
     key: "J",
-    command: (window) =>
-      window.gBrowser.tabContainer.advanceSelectedTab(1, true),
+    command: (window) => window.gBrowser.tabContainer.advanceSelectedTab(1, true),
   },
 
   {
     id: "nextTab",
     modifiers: "alt",
     key: "K",
-    command: (window) =>
-      window.gBrowser.tabContainer.advanceSelectedTab(-1, true),
+    command: (window) => window.gBrowser.tabContainer.advanceSelectedTab(-1, true),
   },
 
   {

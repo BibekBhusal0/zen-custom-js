@@ -31,9 +31,7 @@ PREFS.setInitialPrefs();
 var markdownStylesInjected = false;
 const injectMarkdownStyles = async () => {
   try {
-    const { markedStyles } = await import(
-      "chrome://userscripts/content/engine/marked.js"
-    );
+    const { markedStyles } = await import("chrome://userscripts/content/engine/marked.js");
     const styleTag = parseElement(`<style>${markedStyles}<style>`);
     document.head.appendChild(styleTag);
     markdownStylesInjected = true;
@@ -49,9 +47,7 @@ function parseMD(markdown) {
   if (!markdownStylesInjected) {
     injectMarkdownStyles();
   }
-  const content = window.marked
-    ? window.marked.parse(markdown, markedOptions)
-    : markdown;
+  const content = window.marked ? window.marked.parse(markdown, markedOptions) : markdown;
   let htmlContent = parseElement(`<div class="markdown-body">${content}</div>`);
 
   return htmlContent;
@@ -104,8 +100,7 @@ const findbar = {
       this.show();
       this.showAIInterface();
       if (isChanged) this.focusPrompt();
-      const messagesContainer =
-        this?.chatContainer?.querySelector("#chat-messages");
+      const messagesContainer = this?.chatContainer?.querySelector("#chat-messages");
       if (messagesContainer) {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
@@ -140,7 +135,7 @@ const findbar = {
     if (typeof value === "boolean") PREFS.minimal = value;
   },
 
-  handleMinimalPrefChange: function() {
+  handleMinimalPrefChange: function () {
     this.removeExpandButton();
     this.addExpandButton();
     this.removeAIInterface();
@@ -165,8 +160,7 @@ const findbar = {
           llm.history = this.findbar.history;
           if (
             this?.findbar?.aiStatus &&
-            JSON.stringify(this.aiStatus) !==
-            JSON.stringify(this.findbar.aiStatus)
+            JSON.stringify(this.aiStatus) !== JSON.stringify(this.findbar.aiStatus)
           ) {
             llm.history = [];
             this.findbar.history = [];
@@ -187,22 +181,10 @@ const findbar = {
         if (PREFS.dndEnabled) this.enableResize();
       }, 0);
       setTimeout(() => this.updateFoundMatchesDisplay(), 0);
-      this.findbar._findField.removeEventListener(
-        "keypress",
-        this._handleInputKeyPress,
-      );
-      this.findbar._findField.addEventListener(
-        "keypress",
-        this._handleInputKeyPress,
-      );
-      this.findbar._findField.removeEventListener(
-        "input",
-        this._handleFindFieldInput,
-      );
-      this.findbar._findField.addEventListener(
-        "input",
-        this._handleFindFieldInput,
-      );
+      this.findbar._findField.removeEventListener("keypress", this._handleInputKeyPress);
+      this.findbar._findField.addEventListener("keypress", this._handleInputKeyPress);
+      this.findbar._findField.removeEventListener("input", this._handleFindFieldInput);
+      this.findbar._findField.addEventListener("input", this._handleFindFieldInput);
 
       const originalOnFindbarOpen = this.findbar.browser.finder.onFindbarOpen;
       const originalOnFindbarClose = this.findbar.browser.finder.onFindbarClose;
@@ -215,10 +197,8 @@ const findbar = {
           if (this.enabled) {
             debugLog("Findbar is being opened");
             setTimeout(
-              () =>
-              (this.findbar._findField.placeholder =
-                "Press Alt + Enter to ask AI"),
-              100,
+              () => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"),
+              100
             );
           }
         };
@@ -291,7 +271,7 @@ const findbar = {
                     ${name === currentProviderName ? 'selected="true"' : ""}
                     ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
                   />
-                `,
+                `
       )
       .join("");
 
@@ -323,9 +303,7 @@ const findbar = {
         </div>`;
     const container = parseElement(html);
 
-    const providerSelectionGroup = container.querySelector(
-      ".provider-selection-group",
-    );
+    const providerSelectionGroup = container.querySelector(".provider-selection-group");
     // Insert the XUL menulist after the label within the group
     providerSelectionGroup.appendChild(providerSelectorXulElement);
 
@@ -383,8 +361,7 @@ const findbar = {
     this.addChatMessage({ answer: prompt }, "user");
 
     const loadingIndicator = this.createLoadingIndicator();
-    const messagesContainer =
-      this.chatContainer.querySelector("#chat-messages");
+    const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (messagesContainer) {
       messagesContainer.appendChild(loadingIndicator);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -433,7 +410,7 @@ const findbar = {
           image="chrome://global/skin/icons/delete.svg" 
           tooltiptext="Clear Chat"
         />`,
-      "xul",
+      "xul"
     );
 
     const settingsBtn = parseElement(
@@ -444,7 +421,7 @@ const findbar = {
           image="chrome://global/skin/icons/settings.svg" 
           tooltiptext="Settings"
         />`,
-      "xul",
+      "xul"
     );
 
     const collapseBtn = parseElement(
@@ -455,7 +432,7 @@ const findbar = {
           image="chrome://browser/skin/zen-icons/unpin.svg" 
           tooltiptext="Collapse"
         />`,
-      "xul",
+      "xul"
     );
 
     chatHeader.appendChild(clearBtn);
@@ -500,7 +477,7 @@ const findbar = {
           if (citation && citation.source_quote) {
             debugLog(
               `[findbar-ai] Citation [${citationId}] clicked. Requesting highlight for:`,
-              citation.source_quote,
+              citation.source_quote
             );
             this.highlight(citation.source_quote);
           }
@@ -509,7 +486,7 @@ const findbar = {
         e.preventDefault();
         try {
           openTrustedLinkIn(e.target.href, "tab");
-        } catch (e) { }
+        } catch (e) {}
       }
     });
 
@@ -517,12 +494,8 @@ const findbar = {
   },
 
   createLoadingIndicator() {
-    const messageDiv = parseElement(
-      `<div class="chat-message chat-message-loading"></div>`,
-    );
-    const contentDiv = parseElement(
-      `<div class="message-content">Loading...</div>`,
-    );
+    const messageDiv = parseElement(`<div class="chat-message chat-message-loading"></div>`);
+    const contentDiv = parseElement(`<div class="message-content">Loading...</div>`);
     messageDiv.appendChild(contentDiv);
     return messageDiv;
   },
@@ -530,13 +503,10 @@ const findbar = {
   addChatMessage(response, type) {
     const { answer, citations } = response;
     if (!this.chatContainer || !answer) return;
-    const messagesContainer =
-      this.chatContainer.querySelector("#chat-messages");
+    const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (!messagesContainer) return;
 
-    const messageDiv = parseElement(
-      `<div class="chat-message chat-message-${type}"></div>`,
-    );
+    const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
     if (citations && citations.length > 0) {
       messageDiv.dataset.citations = JSON.stringify(citations);
     }
@@ -544,7 +514,7 @@ const findbar = {
     const contentDiv = parseElement(`<div class="message-content"></div>`);
     const processedContent = answer.replace(
       /\[(\d+)\]/g,
-      `<button class="citation-link" data-citation-id="$1">[$1]</button>`,
+      `<button class="citation-link" data-citation-id="$1">[$1]</button>`
     );
     contentDiv.appendChild(parseMD(processedContent));
 
@@ -583,10 +553,7 @@ const findbar = {
         if (isModel && PREFS.citationsEnabled) {
           responsePayload = llm.parseModelResponseText(textContent);
         } else {
-          responsePayload.answer = textContent.replace(
-            /\[Current Page Context:.*?\]\s*/,
-            "",
-          );
+          responsePayload.answer = textContent.replace(/\[Current Page Context:.*?\]\s*/, "");
         }
 
         if (responsePayload.answer) {
@@ -611,8 +578,7 @@ const findbar = {
   async setPromptTextFromSelection() {
     let text = "";
     const selection = await windowManagerAPI.getSelectedText();
-    if (!selection || !selection.hasSelection)
-      text = this?.findbar?._findField?.value;
+    if (!selection || !selection.hasSelection) text = this?.findbar?._findField?.value;
     else text = selection.selectedText;
     this.setPromptText(text);
   },
@@ -641,7 +607,7 @@ const findbar = {
     this.expanded = false;
     try {
       this.removeListeners();
-    } catch { }
+    } catch {}
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
@@ -657,9 +623,7 @@ const findbar = {
     if (this.minimal) {
       const container = this.findbar.querySelector(".findbar-container");
       if (container && !container.querySelector("#findbar-ask")) {
-        const askBtn = parseElement(
-          `<button id="findbar-ask" anonid="findbar-ask">Ask</button>`,
-        );
+        const askBtn = parseElement(`<button id="findbar-ask" anonid="findbar-ask">Ask</button>`);
         askBtn.addEventListener("click", () => {
           const inpText = this.findbar._findField.value.trim();
           this.sendMessage(inpText);
@@ -672,7 +636,7 @@ const findbar = {
     } else {
       const button_id = "findbar-expand";
       const button = parseElement(
-        `<button id="${button_id}" anonid="${button_id}">Expand</button>`,
+        `<button id="${button_id}" anonid="${button_id}">Expand</button>`
       );
       button.addEventListener("click", () => this.toggleExpanded());
       button.textContent = "Expand";
@@ -694,7 +658,7 @@ const findbar = {
     return true;
   },
 
-  handleInputKeyPress: function(e) {
+  handleInputKeyPress: function (e) {
     if (e?.key === "Enter" && e?.altKey) {
       e.preventDefault();
       const inpText = this.findbar._findField.value.trim();
@@ -712,14 +676,10 @@ const findbar = {
 
     if (!contextMenu) {
       if (retryCount < 5) {
-        debugLog(
-          `Context menu not found, retrying... (attempt ${retryCount + 1}/5)`,
-        );
+        debugLog(`Context menu not found, retrying... (attempt ${retryCount + 1}/5)`);
         setTimeout(() => this.addContextMenuItem(retryCount + 1), 200);
       } else {
-        debugError(
-          "Failed to add context menu item after 5 attempts: Context menu not found.",
-        );
+        debugError("Failed to add context menu item after 5 attempts: Context menu not found.");
       }
       return;
     }
@@ -729,10 +689,7 @@ const findbar = {
     menuItem.setAttribute("label", "Ask AI");
     menuItem.setAttribute("accesskey", "A");
 
-    menuItem.addEventListener(
-      "command",
-      this.handleContextMenuClick.bind(this),
-    );
+    menuItem.addEventListener("command", this.handleContextMenuClick.bind(this));
     this.contextMenuItem = menuItem;
 
     const searchSelectItem = contextMenu.querySelector("#context-searchselect");
@@ -763,14 +720,14 @@ const findbar = {
     contextMenu.addEventListener("popupshowing", this._updateContextMenuText);
   },
 
-  removeContextMenuItem: function() {
+  removeContextMenuItem: function () {
     this?.contextMenuItem?.remove();
     this.contextMenuItem = null;
     document
       ?.getElementById("contentAreaContextMenu")
       ?.removeEventListener("popupshowing", this._updateContextMenuText);
   },
-  handleContextMenuClick: async function() {
+  handleContextMenuClick: async function () {
     const selection = await windowManagerAPI.getSelectedText();
     let finalMessage = "";
     if (!selection.hasSelection) {
@@ -797,7 +754,7 @@ const findbar = {
     }
   },
 
-  handleContextMenuPrefChange: function(pref) {
+  handleContextMenuPrefChange: function (pref) {
     if (pref.value) this.addContextMenuItem();
     else this.removeContextMenuItem();
   },
@@ -811,9 +768,7 @@ const findbar = {
   enableResize() {
     if (!this.findbar) return;
     if (this._resizeHandle) return;
-    const resizeHandle = parseElement(
-      `<div class="findbar-resize-handle"></div>`,
-    );
+    const resizeHandle = parseElement(`<div class="findbar-resize-handle"></div>`);
     this.findbar.appendChild(resizeHandle);
     this._resizeHandle = resizeHandle;
     this._startResize = this.startResize.bind(this);
@@ -839,9 +794,7 @@ const findbar = {
     const minWidth = 300;
     const maxWidth = 800;
     const directionFactor = PREFS.position.includes("right") ? -1 : 1;
-    let newWidth =
-      this.startWidth +
-      (e.clientX - this._initialMouseCoor.x) * directionFactor;
+    let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
   },
@@ -930,9 +883,7 @@ const findbar = {
 
     for (const name in snapPoints) {
       const p = snapPoints[name];
-      const distance = Math.sqrt(
-        Math.pow(currentX - p.x, 2) + Math.pow(currentY - p.y, 2),
-      );
+      const distance = Math.sqrt(Math.pow(currentX - p.x, 2) + Math.pow(currentY - p.y, 2));
 
       if (distance < minDistance) {
         minDistance = distance;
@@ -969,14 +920,8 @@ const findbar = {
     this._stopDrag = null;
   },
 
-  addKeymaps: function(e) {
-    if (
-      e.key &&
-      e.key.toLowerCase() === "f" &&
-      e.ctrlKey &&
-      e.shiftKey &&
-      !e.altKey
-    ) {
+  addKeymaps: function (e) {
+    if (e.key && e.key.toLowerCase() === "f" && e.ctrlKey && e.shiftKey && !e.altKey) {
       e.preventDefault();
       e.stopPropagation();
       this.expanded = true;
@@ -985,10 +930,7 @@ const findbar = {
       this.setPromptTextFromSelection();
     }
     if (e.key?.toLowerCase() === "escape") {
-      if (
-        SettingsModal._modalElement &&
-        SettingsModal._modalElement.parentNode
-      ) {
+      if (SettingsModal._modalElement && SettingsModal._modalElement.parentNode) {
         // If settings modal is open, close it
         e.preventDefault();
         e.stopPropagation();
@@ -1011,27 +953,17 @@ const findbar = {
       this.updateFindbarStatus();
       this.clear();
     };
-    const _handleContextMenuPrefChange =
-      this.handleContextMenuPrefChange.bind(this);
+    const _handleContextMenuPrefChange = this.handleContextMenuPrefChange.bind(this);
     const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._updateFindbar);
     document.addEventListener("keydown", this._addKeymaps);
-    this._godModeListener = UC_API.Prefs.addListener(
-      PREFS.GOD_MODE,
-      _clearLLMData,
-    );
-    this._citationsListener = UC_API.Prefs.addListener(
-      PREFS.CITATIONS_ENABLED,
-      _clearLLMData,
-    );
-    this._minimalListener = UC_API.Prefs.addListener(
-      PREFS.MINIMAL,
-      _handleMinimalPrefChange,
-    );
+    this._godModeListener = UC_API.Prefs.addListener(PREFS.GOD_MODE, _clearLLMData);
+    this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
+    this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
     this._contextMenuEnabledListener = UC_API.Prefs.addListener(
       PREFS.CONTEXT_MENU_ENABLED,
-      _handleContextMenuPrefChange,
+      _handleContextMenuPrefChange
     );
     this._persistListener = UC_API.Prefs.addListener(PREFS.PERSIST, (pref) => {
       if (!this.findbar) return;
@@ -1051,14 +983,8 @@ const findbar = {
 
   removeListeners() {
     if (this.findbar) {
-      this.findbar._findField.removeEventListener(
-        "keypress",
-        this._handleInputKeyPress,
-      );
-      this.findbar._findField.removeEventListener(
-        "input",
-        this._handleFindFieldInput,
-      );
+      this.findbar._findField.removeEventListener("keypress", this._handleInputKeyPress);
+      this.findbar._findField.removeEventListener("input", this._handleFindFieldInput);
     }
     gBrowser.tabContainer.removeEventListener("TabSelect", this._updateFindbar);
     document.removeEventListener("keydown", this._addKeymaps);
@@ -1091,16 +1017,12 @@ const findbar = {
     if (!this.findbar) return;
     const matches = this.findbar.querySelector(".found-matches");
     const status = this.findbar.querySelector(".findbar-find-status");
-    const wrapper = this.findbar.querySelector(
-      'hbox[anonid="findbar-textbox-wrapper"]',
-    );
+    const wrapper = this.findbar.querySelector('hbox[anonid="findbar-textbox-wrapper"]');
     if (!wrapper) {
-      if (retry < 10)
-        setTimeout(() => this.updateFoundMatchesDisplay(retry + 1), 100);
+      if (retry < 10) setTimeout(() => this.updateFoundMatchesDisplay(retry + 1), 100);
       return;
     }
-    if (matches && matches.parentElement !== wrapper)
-      wrapper.appendChild(matches);
+    if (matches && matches.parentElement !== wrapper) wrapper.appendChild(matches);
     if (status && status.parentElement !== wrapper) wrapper.appendChild(status);
 
     if (status && status.getAttribute("status") === "notfound") {
@@ -1115,29 +1037,22 @@ const findbar = {
         : matches.getAttribute("value");
       let newLabel = "";
       if (labelValue) {
-        let normalized = labelValue.replace(
-          /(\d+)\s+of\s+(\d+)(?:\s+match(?:es)?)?/i,
-          "$1/$2",
-        );
+        let normalized = labelValue.replace(/(\d+)\s+of\s+(\d+)(?:\s+match(?:es)?)?/i, "$1/$2");
         newLabel = normalized === "1/1" ? "1/1" : normalized;
       }
       if (labelChild) {
         if (labelChild.getAttribute("value") !== newLabel)
           labelChild.setAttribute("value", newLabel);
-        if (labelChild.textContent !== newLabel)
-          labelChild.textContent = newLabel;
+        if (labelChild.textContent !== newLabel) labelChild.textContent = newLabel;
       } else {
-        if (matches.getAttribute("value") !== newLabel)
-          matches.setAttribute("value", newLabel);
+        if (matches.getAttribute("value") !== newLabel) matches.setAttribute("value", newLabel);
         if (matches.textContent !== newLabel) matches.textContent = newLabel;
       }
 
       // Disconnect existing observer before creating a new one
       if (this._matchesObserver) this._matchesObserver.disconnect();
 
-      const observer = new MutationObserver(() =>
-        this.updateFoundMatchesDisplay(),
-      );
+      const observer = new MutationObserver(() => this.updateFoundMatchesDisplay());
       observer.observe(matches, {
         attributes: true,
         attributeFilter: ["value"],
@@ -1158,8 +1073,5 @@ const findbar = {
 };
 
 findbar.init();
-UC_API.Prefs.addListener(
-  PREFS.ENABLED,
-  findbar.handleEnabledChange.bind(findbar),
-);
+UC_API.Prefs.addListener(PREFS.ENABLED, findbar.handleEnabledChange.bind(findbar));
 window.findbar = findbar;

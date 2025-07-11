@@ -25,9 +25,7 @@ async function getSearchURL(engineName, searchTerm) {
     }
     const submission = engine.getSubmission(searchTerm.trim());
     if (!submission) {
-      debugError(
-        `No submission found for term: ${searchTerm} and engine: ${engineName}`,
-      );
+      debugError(`No submission found for term: ${searchTerm} and engine: ${engineName}`);
       return null;
     }
     return submission.uri.spec;
@@ -113,8 +111,7 @@ async function search(args) {
 
 async function newSplit(args) {
   const { link1, link2, type = "vertical" } = args;
-  if (!window.gZenViewSplitter)
-    return { error: "Split view function is not available." };
+  if (!window.gZenViewSplitter) return { error: "Split view function is not available." };
   if (!link1 || !link2) return { error: "newSplit requires two links." };
   try {
     const sep = type.toLowerCase() === "vertical" ? "vsep" : "hsep";
@@ -134,17 +131,16 @@ async function newSplit(args) {
 
 // TODO:
 // --- Tool for browser control ---
-function compactMode() { }
-function getBookmakrs() { }
-function addBookmakrs() { }
-function removeBookmarks() { }
+function compactMode() {}
+function getBookmakrs() {}
+function addBookmakrs() {}
+function removeBookmarks() {}
 
 const availableTools = {
   search,
   newSplit,
   openLink,
-  getPageTextContent:
-    windowManagerAPI.getPageTextContent.bind(windowManagerAPI),
+  getPageTextContent: windowManagerAPI.getPageTextContent.bind(windowManagerAPI),
   getHTMLContent: windowManagerAPI.getHTMLContent.bind(windowManagerAPI),
 };
 
@@ -153,8 +149,7 @@ const toolDeclarations = [
     functionDeclarations: [
       {
         name: "search",
-        description:
-          "Performs a web search using a specified search engine and opens the results.",
+        description: "Performs a web search using a specified search engine and opens the results.",
         parameters: {
           type: "OBJECT",
           properties: {

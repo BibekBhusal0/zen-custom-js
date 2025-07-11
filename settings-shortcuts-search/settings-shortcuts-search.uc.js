@@ -60,8 +60,7 @@ function _setupKeymapSearchUI(groupbox) {
     const rect = filterButton.getBoundingClientRect();
     filterPopover.style.top = `${rect.bottom + window.scrollY}px`;
     filterPopover.style.left = `${rect.left + window.scrollX}px`;
-    filterPopover.style.display =
-      filterPopover.style.display === "none" ? "flex" : "none";
+    filterPopover.style.display = filterPopover.style.display === "none" ? "flex" : "none";
   });
 
   document.addEventListener("click", (e) => {
@@ -94,16 +93,10 @@ function _setupKeymapSearchUI(groupbox) {
     });
 
     groupHeadings.forEach((h2) => {
-      const groupId = h2
-        .getAttribute("data-group")
-        .replace("zenCKSOption-group-", "");
+      const groupId = h2.getAttribute("data-group").replace("zenCKSOption-group-", "");
       const anyVisible = [
-        ...groupbox.querySelectorAll(
-          `.zenCKSOption-input[data-group="${groupId}"]`,
-        ),
-      ].some(
-        (input) => input.closest("hbox.zenCKSOption").style.display !== "none",
-      );
+        ...groupbox.querySelectorAll(`.zenCKSOption-input[data-group="${groupId}"]`),
+      ].some((input) => input.closest("hbox.zenCKSOption").style.display !== "none");
 
       h2.style.display = anyVisible ? "" : "none";
     });
@@ -131,7 +124,7 @@ function addSettingKeymapSearch() {
 
     // Check if there are headings AND if at least one heading has text content
     const hasValidHeadings = Array.from(groupHeadings).some(
-      (h2) => h2.textContent.trim().length > 0,
+      (h2) => h2.textContent.trim().length > 0
     );
 
     if (hasValidHeadings && options.length > 0) {
@@ -164,8 +157,7 @@ const observer = new MutationObserver((mutations) => {
       // Check if zenCKSGroup itself was added
       if (
         Array.from(mutation.addedNodes).some(
-          (node) =>
-            node.nodeType === Node.ELEMENT_NODE && node.id === "zenCKSGroup",
+          (node) => node.nodeType === Node.ELEMENT_NODE && node.id === "zenCKSGroup"
         )
       ) {
         groupboxAppeared = true;
@@ -177,7 +169,7 @@ const observer = new MutationObserver((mutations) => {
           (node) =>
             node.nodeType === Node.ELEMENT_NODE &&
             node.querySelector &&
-            node.querySelector("#zenCKSGroup"),
+            node.querySelector("#zenCKSGroup")
         )
       ) {
         groupboxAppeared = true;
