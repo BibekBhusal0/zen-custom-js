@@ -145,6 +145,29 @@ browser {
     position: fixed;
     top: 35px;
     right: 15px !important;
+
+    @media (-moz-pref("extension.findbar-ai.position", "top-right")) {
+      top: 35px;
+      right: 15px !important;
+    }
+
+    @media (-moz-pref("extension.findbar-ai.position", "top-left")) {
+      top: 35px;
+      left: 15px !important;
+    }
+
+    @media (-moz-pref("extension.findbar-ai.position", "bottom-right")) {
+      bottom: 15px;
+      right: 15px !important;
+      top: unset !important;
+    }
+
+    @media (-moz-pref("extension.findbar-ai.position", "bottom-left")) {
+      bottom: 15px;
+      left: 15px !important;
+      top: unset !important;
+    }
+
     width: min-content !important;
     min-width: 400px !important;
     border-radius: var(--acrylic-radius) !important;
@@ -805,8 +828,6 @@ browser {
       }
 
       &.ai-expanded {
-        .findbar-container> :first-child::before {}
-
         .ai-chat-input-group {
           padding-left: 3px !important;
 
