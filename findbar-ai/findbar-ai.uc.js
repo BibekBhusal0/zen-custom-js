@@ -818,11 +818,11 @@ const findbar = {
   doDrag: function(e) {
     if (!this._isDragging) return;
 
-    const minCoors = { x: 15, y: 15 };
+    const minCoors = { x: 15, y: 35 };
     const rect = this.findbar.getBoundingClientRect();
     const maxCoors = {
-      x: window.innerWidth - rect.width - minCoors.x,
-      y: window.innerHeight - rect.height - minCoors.y,
+      x: window.innerWidth - rect.width - 33,
+      y: window.innerHeight - rect.height -33,
     };
     const newCoors = {
       x: this._initialContainerCoor.x + (e.clientX - this._initialMouseCoor.x),
