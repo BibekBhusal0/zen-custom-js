@@ -365,6 +365,23 @@ export const SettingsModal = {
       contextMenuSettings,
     );
 
+    const browserFindbarSettings = [
+      { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
+      {
+        label: "Enable sound",
+        pref: "accessibility.typeaheadfind.enablesound",
+      },
+      { label: "Entire Word", pref: "findbar.entireword" },
+      { label: "Highlight All", pref: "findbar.highlightAll" },
+
+    ];
+    const browserSettingsHtml = this._createCheckboxSectionHtml(
+      "Browser Findbar",
+      browserFindbarSettings,
+      undefined,
+      false,
+    );
+
     let llmProviderSettingsHtml = "";
     for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
       const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
@@ -426,6 +443,7 @@ export const SettingsModal = {
             ${aiBehaviorSectionHtml}
             ${contextMenuSectionHtml}
             ${llmProvidersSectionHtml}
+            ${browserSettingsHtml}
           </div>
         </div>
       </div>
