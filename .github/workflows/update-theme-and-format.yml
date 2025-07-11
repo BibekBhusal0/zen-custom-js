@@ -26,6 +26,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Update theme.json
+        id: update_theme
         run: |
           python <<EOF
           import os
@@ -39,6 +40,8 @@ jobs:
           def update_theme_json(file_path):
               try:
                   with open(file_path, 'r') as f:
+                      content_before = f.read()
+                      f.seek(0)
                       data = json.load(f)
                   
                   directory = os.path.dirname(file_path)
@@ -47,11 +50,19 @@ jobs:
 
                   with open(file_path, 'w') as f:
                       json.dump(data, f, indent=2)
+                      f.truncate()
+                      content_after = f.read()
+
+                  if content_before == content_after:
+                      print("::set-output name=updated::false")
+                  else:
+                      print("::set-output name=updated::true")
                   
                   print(f"Updated {file_path} with date {last_modified}")
 
               except Exception as e:
                   print(f"Error processing {file_path}: {e}")
+                  print("::set-output name=updated::false")
 
           files = subprocess.run(['find', '.', '-name', 'theme.json', '-print0'], capture_output=True, text=True).stdout.split('\0')
           
@@ -60,6 +71,7 @@ jobs:
           EOF
 
       - name: Commit theme.json changes
+        if: steps.update_theme.outputs.updated == 'true'
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "chore: Update theme.json"
