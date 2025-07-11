@@ -73,7 +73,7 @@ const findbar = {
   _contextMenuEnabledListener: null,
   _persistListener: null,
   _minimalListener: null,
-  _dndListener : null,
+  _dndListener: null,
   contextMenuItem: null,
   _matchesObserver: null,
   _isDragging: false,
@@ -82,6 +82,13 @@ const findbar = {
   _handleDrag: null,
   _initialContainerCoor: { x: null, y: null },
   _initialMouseCoor: { x: null, y: null },
+  _startWidth: null,
+  _resizeHandle: null,
+  _isResizing: false,
+  _startResize: null,
+  _stopResize: null,
+  _handleResize: null,
+  _handleResizeEnd: null,
 
   get expanded() {
     return this._isExpanded;
@@ -144,6 +151,7 @@ const findbar = {
     SettingsModal.hide();
     this.removeExpandButton();
     this.removeAIInterface();
+    this.disableResize();
     if (!PREFS.persistChat) {
       this.hide();
       this.expanded = false;
@@ -175,7 +183,10 @@ const findbar = {
         this.expanded = false;
       }
       this.updateFindbarStatus();
-      setTimeout(() => this.updateFoundMatchesDisplay(), 0); // Wait for DOM update
+      setTimeout(() => {
+        if (PREFS.dndEnabled) this.enableResize();
+      }, 0);
+      setTimeout(() => this.updateFoundMatchesDisplay(), 0);
       this.findbar._findField.removeEventListener(
         "keypress",
         this._handleInputKeyPress,
@@ -797,15 +808,60 @@ const findbar = {
     this.contextMenuItem.label = hasSelection ? "Ask AI" : "Summarize with AI";
   },
 
-  //TODO: add drag and drop
-  doResize: function() { },
-  stopResize: function() { },
+  enableResize() {
+    if (!this.findbar) return;
+    if (this._resizeHandle) return;
+    const resizeHandle = parseElement(
+      `<div class="findbar-resize-handle"></div>`,
+    );
+    this.findbar.appendChild(resizeHandle);
+    this._resizeHandle = resizeHandle;
+    this._startResize = this.startResize.bind(this);
+    this._resizeHandle.addEventListener("mousedown", this._startResize);
+  },
 
-  startDrag: function(e) {
+  startResize(e) {
+    if (e.button !== 0) return;
+    if (!this.findbar) return;
+    this._isResizing = true;
+    this._initialMouseCoor = { x: e.clientX, y: e.clientY };
+    const rect = this.findbar.getBoundingClientRect();
+    this.startWidth = rect.width;
+    this._handleResize = this.doResize.bind(this);
+    this._stopResize = this.stopResize.bind(this);
+    document.addEventListener("mousemove", this._handleResize);
+    document.addEventListener("mouseup", this._stopResize);
+  },
+
+  doResize(e) {
+    if (!this._isResizing) return;
+    if (!this.findbar) return;
+    const minWidth = 300;
+    const maxWidth = 800;
+    const directionFactor = PREFS.position.includes("right") ? -1 : 1;
+    let newWidth =
+      this.startWidth +
+      (e.clientX - this._initialMouseCoor.x) * directionFactor;
+    newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
+    this.findbar.style.width = `${newWidth}px`;
+  },
+
+  stopResize() {
+    this._isResizing = false;
+    document.removeEventListener("mousemove", this._handleResize);
+    document.removeEventListener("mouseup", this._stopResize);
+    this._handleResize = null;
+    this._stopResize = null;
+  },
+  disableResize() {
+    this._resizeHandle?.remove();
+    this._resizeHandle = null;
+    this.stopResize();
+  },
+
+  startDrag(e) {
     if (!this.chatContainer) return;
     if (e.button !== 0) return;
-    const handle = this.chatContainer.querySelector(".findbar-drag-handle");
-    if (!handle) return;
     this._isDragging = true;
     this._initialMouseCoor = { x: e.clientX, y: e.clientY };
     const rect = this.findbar.getBoundingClientRect();
@@ -816,7 +872,7 @@ const findbar = {
     document.addEventListener("mouseup", this._stopDrag);
   },
 
-  doDrag: function(e) {
+  doDrag(e) {
     if (!this._isDragging) return;
 
     const minCoors = { x: 15, y: 35 };
@@ -833,13 +889,13 @@ const findbar = {
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
 
-    this.findbar.style.setProperty('left', `${newCoors.x}px`, 'important');
-    this.findbar.style.setProperty('top', `${newCoors.y}px`, 'important');
-    this.findbar.style.setProperty('right', "unset", 'important');
-    this.findbar.style.setProperty('bottom', "unset", 'important');
+    this.findbar.style.setProperty("left", `${newCoors.x}px`, "important");
+    this.findbar.style.setProperty("top", `${newCoors.y}px`, "important");
+    this.findbar.style.setProperty("right", "unset", "important");
+    this.findbar.style.setProperty("bottom", "unset", "important");
   },
 
-  stopDrag: function() {
+  stopDrag() {
     this._isDragging = false;
     this.snapToClosestCorner();
     this._initialMouseCoor = { x: null, y: null };
@@ -894,14 +950,14 @@ const findbar = {
     this.findbar.style.removeProperty("right");
     // this.applyFindbarPosition(closestPointName);
   },
-  enableDND: function() {
+  enableDND() {
     if (!this.chatContainer) return;
     const handle = this.chatContainer.querySelector(".findbar-drag-handle");
     if (!handle) return;
     this._startDrag = this.startDrag.bind(this);
     handle.addEventListener("mousedown", this._startDrag);
   },
-  disableDND: function() {
+  disableDND() {
     this._isDragging = false;
     if (!this.chatContainer) return;
     const handle = this.chatContainer.querySelector(".findbar-drag-handle");
@@ -983,9 +1039,14 @@ const findbar = {
       else this.findbar.history = null;
     });
     this._dndListener = UC_API.Prefs.addListener(PREFS.DND_ENABLED, (pref) => {
-      if (pref.value) this.enableDND()
-      else this.disableDND()
-    })
+      if (pref.value) {
+        this.enableDND();
+        this.enableResize();
+      } else {
+        this.disableDND();
+        this.disableResize();
+      }
+    });
   },
 
   removeListeners() {
@@ -1023,7 +1084,7 @@ const findbar = {
     this._citationsListener = null;
     this._contextMenuEnabledListener = null;
     this._minimalListener = null;
-    this._dndListener = ull
+    this._dndListener = null;
   },
 
   updateFoundMatchesDisplay(retry = 0) {

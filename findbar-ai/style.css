@@ -145,31 +145,9 @@ browser {
     position: fixed;
     top: 35px;
     right: 15px;
-
-    @media (-moz-pref("extension.findbar-ai.position", "top-right")) {
-      top: 35px;
-      right: 15px;
-    }
-
-    @media (-moz-pref("extension.findbar-ai.position", "top-left")) {
-      top: 35px;
-      left: 15px;
-    }
-
-    @media (-moz-pref("extension.findbar-ai.position", "bottom-right")) {
-      bottom: 15px;
-      right: 15px;
-      top: unset;
-    }
-
-    @media (-moz-pref("extension.findbar-ai.position", "bottom-left")) {
-      bottom: 15px;
-      left: 15px;
-      top: unset;
-    }
-
-    width: min-content !important;
-    min-width: 400px !important;
+    width: 500px;
+    max-width: 800px !important;
+    min-width: 300px !important;
     border-radius: var(--acrylic-radius) !important;
     box-shadow: var(--acrylic-shadow) !important;
     background: var(--acrylic-glass-bg) !important;
@@ -186,6 +164,60 @@ browser {
       animation-fill-mode: forwards !important;
       filter: blur(5px);
       transform: translateY(-10px);
+    }
+
+    .findbar-resize-handle {
+      /* background: red; */
+      width: 3px;
+      height: calc(100% - 1px);
+      position: absolute;
+      right: 0;
+
+      @media not -moz-pref("extension.findbar-ai.dnd-enabled") {
+        display: none !important;
+      }
+    }
+
+    @media -moz-pref("extension.findbar-ai.position", "top-right") {
+      top: 35px;
+      right: 15px;
+
+      .findbar-resize-handle {
+        left: 0;
+        cursor: w-resize;
+      }
+    }
+
+    @media -moz-pref("extension.findbar-ai.position", "top-left") {
+      top: 35px;
+      left: 15px;
+
+      .findbar-resize-handle {
+        right: 0;
+        cursor: e-resize;
+      }
+    }
+
+    @media -moz-pref("extension.findbar-ai.position", "bottom-right") {
+      bottom: 15px;
+      right: 15px;
+      top: unset;
+
+      .findbar-resize-handle {
+        left: 0;
+        cursor: w-resize;
+      }
+    }
+
+    @media -moz-pref("extension.findbar-ai.position", "bottom-left") {
+      bottom: 15px;
+      left: 15px;
+      top: unset;
+
+      .findbar-resize-handle {
+        right: 0;
+        cursor: e-resize;
+      }
     }
 
     .findbar-closebutton,
@@ -707,7 +739,7 @@ browser {
     }
 
     @media -moz-pref("extension.findbar-ai.minimal") {
-      max-width: 420px !important;
+      width: 420px ;
       min-height: 36px !important;
       align-items: center !important;
       flex-direction: column !important;
