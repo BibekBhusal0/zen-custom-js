@@ -129,7 +129,7 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [ ] Conformation before calling tools
 - [x] Tool calls (opening links, search)
 - [ ] Add support for other AI models (Claude, OpenAI) [WIP]
-- [X] Drag-and-drop to resize and move the findbar (optional)
+- [x] Drag-and-drop to resize and move the findbar (optional)
 - [ ] Pin/unpin the findbar (optional)
 - [x] Context Menu integration
 - [ ] Different themes (glass, light, dark, etc.)
