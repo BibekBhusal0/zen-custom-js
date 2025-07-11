@@ -144,28 +144,28 @@ browser {
     box-sizing: border-box;
     position: fixed;
     top: 35px;
-    right: 15px !important;
+    right: 15px;
 
     @media (-moz-pref("extension.findbar-ai.position", "top-right")) {
       top: 35px;
-      right: 15px !important;
+      right: 15px;
     }
 
     @media (-moz-pref("extension.findbar-ai.position", "top-left")) {
       top: 35px;
-      left: 15px !important;
+      left: 15px;
     }
 
     @media (-moz-pref("extension.findbar-ai.position", "bottom-right")) {
       bottom: 15px;
-      right: 15px !important;
-      top: unset !important;
+      right: 15px;
+      top: unset;
     }
 
     @media (-moz-pref("extension.findbar-ai.position", "bottom-left")) {
       bottom: 15px;
-      left: 15px !important;
-      top: unset !important;
+      left: 15px;
+      top: unset;
     }
 
     width: min-content !important;
@@ -400,14 +400,21 @@ browser {
       gap: 4px !important;
       padding-left: 8px !important;
 
-      #model-selector {
-        color: var(--tab-selected-textcolor) !important;
-        display: flex !important;
-        width: min-content !important;
-        padding: 2px !important;
-        padding-inline: 0 !important;
-        margin: 0 !important;
-        font-weight: 400 !important;
+      * {
+        z-index: 2 !important;
+      }
+
+      .findbar-drag-handle {
+        position: absolute !important;
+        width: 100% !important;
+        height: 30px !important;
+        cursor: move !important;
+        /* background-color: green !important; */
+        z-index: 1 !important;
+
+        @media not -moz-pref("extension.findbar-ai.dnd-enabled") {
+          display: none !important;
+        }
       }
 
       &::before {

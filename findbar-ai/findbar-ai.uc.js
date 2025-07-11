@@ -75,6 +75,12 @@ const findbar = {
   _minimalListener: null,
   contextMenuItem: null,
   _matchesObserver: null,
+  _isDragging: false,
+  _startDrag: null,
+  _stopDrag: null,
+  _handleDrag: null,
+  _initialContainerCoor: { x: null, y: null },
+  _initialMouseCoor: { x: null, y: null },
 
   get expanded() {
     return this._isExpanded;
@@ -132,7 +138,6 @@ const findbar = {
     this.removeAIInterface();
     this.showAIInterface();
   },
-
 
   updateFindbar() {
     SettingsModal.hide();
@@ -217,10 +222,10 @@ const findbar = {
   },
 
   highlight(word) {
-    if (!this.findbar) return
-    this.findbar._find(word)
+    if (!this.findbar) return;
+    this.findbar._find(word);
     setTimeout(() => {
-      this.findbar.browser.finder.highlight(false)
+      this.findbar.browser.finder.highlight(false);
     }, 2000);
   },
 
@@ -399,7 +404,9 @@ const findbar = {
 
     const container = parseElement(`
         <div class="findbar-ai-chat">
-          <div class="ai-chat-header"></div>
+          <div class="ai-chat-header">
+            <div class="findbar-drag-handle"></div>
+          </div>
           <div class="ai-chat-messages" id="chat-messages"></div>
           ${chatInputGroup}
         </div>`);
@@ -483,7 +490,7 @@ const findbar = {
               `[findbar-ai] Citation [${citationId}] clicked. Requesting highlight for:`,
               citation.source_quote,
             );
-            this.highlight(citation.source_quote)
+            this.highlight(citation.source_quote);
           }
         }
       } else if (e.target?.href) {
@@ -546,6 +553,7 @@ const findbar = {
       this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     } else {
       this.chatContainer = this.createChatInterface();
+      if (PREFS.dndEnabled) this.enableDND();
       const history = llm.getHistory();
       for (const message of history) {
         if (
@@ -791,9 +799,118 @@ const findbar = {
   //TODO: add drag and drop
   doResize: function() { },
   stopResize: function() { },
-  doDrag: function() { },
-  stopDrag: function() { },
-  stopDrag: function() { },
+
+  startDrag: function(e) {
+    if (!this.chatContainer) return;
+    if (e.button !== 0) return;
+    const handle = this.chatContainer.querySelector(".findbar-drag-handle");
+    if (!handle) return;
+    this._isDragging = true;
+    this._initialMouseCoor = { x: e.clientX, y: e.clientY };
+    const rect = this.findbar.getBoundingClientRect();
+    this._initialContainerCoor = { x: rect.left, y: rect.top };
+    this._handleDrag = this.doDrag.bind(this);
+    this._stopDrag = this.stopDrag.bind(this);
+    document.addEventListener("mousemove", this._handleDrag);
+    document.addEventListener("mouseup", this._stopDrag);
+  },
+
+  doDrag: function(e) {
+    if (!this._isDragging) return;
+
+    const minCoors = { x: 15, y: 15 };
+    const rect = this.findbar.getBoundingClientRect();
+    const maxCoors = {
+      x: window.innerWidth - rect.width - minCoors.x,
+      y: window.innerHeight - rect.height - minCoors.y,
+    };
+    const newCoors = {
+      x: this._initialContainerCoor.x + (e.clientX - this._initialMouseCoor.x),
+      y: this._initialContainerCoor.y + (e.clientY - this._initialMouseCoor.y),
+    };
+
+    newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
+    newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
+
+    this.findbar.style.setProperty('left', `${newCoors.x}px`, 'important');
+    this.findbar.style.setProperty('top', `${newCoors.y}px`, 'important');
+    this.findbar.style.setProperty('right', "unset", 'important');
+    this.findbar.style.setProperty('bottom', "unset", 'important');
+  },
+
+  stopDrag: function() {
+    this._isDragging = false;
+    this.snapToClosestCorner();
+    this._initialMouseCoor = { x: null, y: null };
+    this._initialContainerCoor = { x: null, y: null };
+    document.removeEventListener("mouseup", this._stopDrag);
+    document.removeEventListener("mousemove", this._handleDrag);
+    this._handleDrag = null;
+    this._stopDrag = null;
+  },
+
+  snapToClosestCorner() {
+    if (!this.findbar || !PREFS.dndEnabled) return;
+
+    const rect = this.findbar.getBoundingClientRect();
+    const currentX = rect.left;
+    const currentY = rect.top;
+    const findbarWidth = rect.width;
+    const findbarHeight = rect.height;
+
+    const snapPoints = {
+      "top-left": { x: 0, y: 0 },
+      "top-right": { x: window.innerWidth - findbarWidth, y: 0 },
+      "bottom-left": { x: 0, y: window.innerHeight - findbarHeight },
+      "bottom-right": {
+        x: window.innerWidth - findbarWidth,
+        y: window.innerHeight - findbarHeight,
+      },
+    };
+
+    let closestPointName = PREFS.position;
+    let minDistance = Infinity;
+
+    for (const name in snapPoints) {
+      const p = snapPoints[name];
+      const distance = Math.sqrt(
+        Math.pow(currentX - p.x, 2) + Math.pow(currentY - p.y, 2),
+      );
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestPointName = name;
+      }
+    }
+
+    // Update preference if position changed
+    if (closestPointName !== PREFS.position) {
+      PREFS.position = closestPointName;
+    }
+    this.findbar.style.removeProperty("left");
+    this.findbar.style.removeProperty("top");
+    this.findbar.style.removeProperty("bottom");
+    this.findbar.style.removeProperty("right");
+    // this.applyFindbarPosition(closestPointName);
+  },
+  enableDND: function() {
+    if (!this.chatContainer) return;
+    const handle = this.chatContainer.querySelector(".findbar-drag-handle");
+    if (!handle) return;
+    this._startDrag = this.startDrag.bind(this);
+    handle.addEventListener("mousedown", this._startDrag);
+  },
+  disableDND: function() {
+    this._isDragging = flase;
+    if (!this.chatContainer) return;
+    const handle = this.chatContainer.querySelector(".findbar-drag-handle");
+    if (!handle) return;
+    handle.removeEventListener("mousedown", this._startDrag);
+    document.removeEventListener("mouseup", this._stopDrag);
+    document.removeEventListener("mousemove", this._handleDrag);
+    this._startDrag = null;
+    this._stopDrag = null;
+  },
 
   addKeymaps: function(e) {
     if (
@@ -884,6 +1001,7 @@ const findbar = {
     UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
     UC_API.Prefs.removeListener(this._minimalListener);
     UC_API.Prefs.removeListener(this._persistListener);
+    this.disableDND();
 
     // Disconnect the MutationObserver when listeners are removed
     if (this._matchesObserver) {
