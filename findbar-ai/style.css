@@ -785,6 +785,28 @@ browser {
           display: none !important;
         }
 
+        .findbar-drag-handle {
+          width: 20px !important;
+          opacity: 0 !important;
+          background: var(--tab-hover-background-color) !important;
+          border-radius: 4px !important;
+          display: flex !important;
+          justify-content: center !important;
+          align-content: center !important;
+          position: relative !important;
+
+          &::after {
+            content: url("chrome://browser/skin/zen-icons/drag-indicator.svg") !important;
+            -moz-context-properties: fill !important;
+            fill: light-dark(black, white) !important;
+            padding-top: 6px !important;
+          }
+
+          @media not -moz-pref("extension.findbar-ai.dnd-enabled") {
+            display: none !important;
+          }
+        }
+
         .clear-chat-btn,
         .settings-btn,
         .findbar-collapse-btn {
@@ -807,12 +829,14 @@ browser {
       }
 
       &:has(.findbar-closebutton:hover),
+      &:has(.findbar-drag-handle:active),
       &:has(.ai-chat-header:hover) {
 
         .clear-chat-btn,
         .settings-btn,
         .findbar-collapse-btn,
         .findbar-closebutton,
+        .findbar-drag-handle,
         .ai-chat-header::after {
           opacity: 1 !important;
         }
