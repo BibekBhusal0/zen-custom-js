@@ -133,6 +133,7 @@ const findbar = {
     this.showAIInterface();
   },
 
+
   updateFindbar() {
     SettingsModal.hide();
     this.removeExpandButton();
@@ -213,6 +214,14 @@ const findbar = {
         findbar.openOverWritten = true;
       }
     });
+  },
+
+  highlight(word) {
+    if (!this.findbar) return
+    this.findbar._find(word)
+    setTimeout(() => {
+      this.findbar.browser.finder.highlight(false)
+    }, 2000);
   },
 
   show() {
@@ -474,9 +483,10 @@ const findbar = {
               `[findbar-ai] Citation [${citationId}] clicked. Requesting highlight for:`,
               citation.source_quote,
             );
-            await windowManagerAPI.highlightAndScrollToText(
-              citation.source_quote,
-            );
+            this.highlight(citation.source_quote)
+            // await windowManagerAPI.highlightAndScrollToText(
+            //   citation.source_quote,
+            // );
           }
         }
       } else if (e.target?.href) {
