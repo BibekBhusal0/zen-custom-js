@@ -902,7 +902,7 @@ const findbar = {
     handle.addEventListener("mousedown", this._startDrag);
   },
   disableDND: function() {
-    this._isDragging = flase;
+    this._isDragging = false;
     if (!this.chatContainer) return;
     const handle = this.chatContainer.querySelector(".findbar-drag-handle");
     if (!handle) return;
