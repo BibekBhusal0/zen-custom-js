@@ -484,9 +484,6 @@ const findbar = {
               citation.source_quote,
             );
             this.highlight(citation.source_quote)
-            // await windowManagerAPI.highlightAndScrollToText(
-            //   citation.source_quote,
-            // );
           }
         }
       } else if (e.target?.href) {
