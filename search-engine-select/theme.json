@@ -9,16 +9,8 @@
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/search-engine-select/readme.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
-  "tags": [
-    "Search",
-    "sine",
-    "fx-autoconfig",
-    "JavaScript",
-    "Bibek Bhusal"
-  ],
+  "tags": ["Search", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
   "createdAt": "2025-06-23",
   "updatedAt": "2025-07-11",
-  "fork": [
-    "zen"
-  ]
+  "fork": ["zen"]
 }
