@@ -4,8 +4,8 @@ import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.j
 import { windowManagerAPI } from "../windowManager.js";
 import PREFS, { debugLog, debugError } from "../prefs.js";
 
-const maxRecursionDepth = 3
-async function executeToolCalls(llmInstance, requestBody, modelResponse,  currentDepth = 0) {
+async function executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth = 0) {
+  const maxRecursionDepth = PREFS.maxToolCalls || 3;
   const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
 
   if (!functionCalls || functionCalls.length === 0) {
@@ -53,7 +53,7 @@ async function executeToolCalls(llmInstance, requestBody, modelResponse,  curren
 
   // Only recurse if the model provided a valid response
   if (modelResponse?.parts?.length > 0) {
-    debugLog("Running tool call",currentDepth+ 1, "Time");
+    debugLog("Running tool call", currentDepth + 1, "Time");
     return executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth + 1);
   } else {
     debugLog("Model returned an empty response after tool execution.");

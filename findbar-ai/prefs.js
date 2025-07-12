@@ -7,6 +7,7 @@ export const PREFS = {
 
   GOD_MODE: "extension.findbar-ai.god-mode",
   CITATIONS_ENABLED: "extension.findbar-ai.citations-enabled",
+  MAX_TOOL_CALLS: "extension.findbar-ai.max-tool-calls",
 
   CONTEXT_MENU_ENABLED: "extension.findbar-ai.context-menu-enabled",
   CONTEXT_MENU_AUTOSEND: "extension.findbar-ai.context-menu-autosend",
@@ -133,6 +134,13 @@ export const PREFS = {
     this.setPref(this.PERSIST, value);
   },
 
+  get maxToolCalls() {
+    return this.getPref(this.MAX_TOOL_CALLS);
+  },
+  set maxToolCalls(value) {
+    this.setPref(this.MAX_TOOL_CALLS, value);
+  },
+
   get copyBtnEnabled() {
     return this.getPref(this.COPY_BTN_ENABLED);
   },
@@ -199,6 +207,7 @@ PREFS.defaultValues = {
   [PREFS.GEMINI_MODEL]: "gemini-2.0-flash",
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
+  [PREFS.MAX_TOOL_CALLS]:  5,
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
   // [PREFS.CONFORMATION]: true,
