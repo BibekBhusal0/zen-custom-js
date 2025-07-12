@@ -207,7 +207,7 @@ PREFS.defaultValues = {
   [PREFS.GEMINI_MODEL]: "gemini-2.0-flash",
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
-  [PREFS.MAX_TOOL_CALLS]:  5,
+  [PREFS.MAX_TOOL_CALLS]: 5,
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
   // [PREFS.CONFORMATION]: true,

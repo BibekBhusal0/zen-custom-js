@@ -161,13 +161,13 @@ export const SettingsModal = {
       // Initialize control value from PREFS
       if (control.type === "checkbox") {
         control.checked = PREFS.getPref(prefKey);
-      } else {
+      } else 
         if (control.tagName.toLowerCase() === "menulist") {
           control.value = PREFS.getPref(prefKey);
         } else {
           control.value = PREFS.getPref(prefKey);
         }
-      }
+
       this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
 
       // Store changes in _currentPrefValues
@@ -186,8 +186,18 @@ export const SettingsModal = {
         });
       } else {
         control.addEventListener("change", (e) => {
-          this._currentPrefValues[prefKey] =
-            control.type === "checkbox" ? e.target.checked : e.target.value;
+          if (control.type === "checkbox") {
+            this._currentPrefValues[prefKey] = e.target.checked;
+          } else if (control.type === "number") {
+            try {
+              this._currentPrefValues[prefKey] = Number(e.target.value);
+            } catch (error) {
+              this._currentPrefValues[prefKey] = 0;
+            }
+          }
+           else  {
+            this._currentPrefValues[prefKey] = e.target.value;
+          }
           debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
@@ -371,11 +381,19 @@ export const SettingsModal = {
         Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
       </div>
     `;
+const maxToolCallsHtml = `
+  <div class="setting-item">
+    <label for="pref-max-tool-calls">Max Tool Calls</label>
+    <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
+  </div>
+`;
+
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
       aiBehaviorSettings,
       true,
       aiBehaviorWarningHtml
+      , maxToolCallsHtml
     );
 
     // Context Menu Settings
