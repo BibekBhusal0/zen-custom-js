@@ -353,9 +353,9 @@ export const SettingsModal = {
   _generateSettingsHtml() {
     const generalSettings = [
       { label: "Enable AI Findbar", pref: PREFS.ENABLED },
-      { label: "Minimal Mode", pref: PREFS.MINIMAL },
-      { label: "Persist Chat", pref: PREFS.PERSIST },
-      { label: "Debug Mode", pref: PREFS.DEBUG_MODE },
+      { label: "Minimal Mode (similar to arc)", pref: PREFS.MINIMAL },
+      { label: "Persist Chat (don't persist when browser closes)", pref: PREFS.PERSIST },
+      { label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE },
       { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
     ];
     const positionSelectorPlaceholderHtml = `
@@ -383,7 +383,7 @@ export const SettingsModal = {
     `;
 const maxToolCallsHtml = `
   <div class="setting-item">
-    <label for="pref-max-tool-calls">Max Tool Calls</label>
+    <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
     <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
   </div>
 `;
@@ -398,7 +398,7 @@ const maxToolCallsHtml = `
 
     // Context Menu Settings
     const contextMenuSettings = [
-      { label: "Enable Context Menu", pref: PREFS.CONTEXT_MENU_ENABLED },
+      { label: "Enable Context Menu (right click menu)", pref: PREFS.CONTEXT_MENU_ENABLED },
       {
         label: "Auto Send from Context Menu",
         pref: PREFS.CONTEXT_MENU_AUTOSEND,
@@ -412,7 +412,7 @@ const maxToolCallsHtml = `
     const browserFindbarSettings = [
       { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
       {
-        label: "Enable sound",
+        label: "Enable sound (when word not found)",
         pref: "accessibility.typeaheadfind.enablesound",
       },
       { label: "Entire Word", pref: "findbar.entireword" },
