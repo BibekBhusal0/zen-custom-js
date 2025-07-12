@@ -35,40 +35,54 @@ jobs:
           import json
           import subprocess
           from pathlib import Path
+          from datetime import datetime
 
-          def get_last_modified_date(directory):
-              result = subprocess.run(['stat', '-c', '%y', directory], capture_output=True, text=True)
-              return result.stdout.split(' ')[0]
+          def get_directory_last_modified_date(directory):
+              latest_mtime = 0
+              print(f"\nChecking directory: {directory}")
+              for entry in os.scandir(directory):
+                  if entry.is_file():
+                      mtime = entry.stat().st_mtime
+                      print(f"  File: {entry.name}, Modified: {datetime.fromtimestamp(mtime).strftime('%Y-%m-%d %H:%M:%S')}")
+                      if mtime > latest_mtime:
+                          latest_mtime = mtime
+              if latest_mtime == 0:
+                  print("  No files found.")
+                  return None
+              return datetime.fromtimestamp(latest_mtime).strftime('%Y-%m-%d')
 
           def normalize_json(data):
               return json.dumps(data, indent=2, separators=(',', ': '), ensure_ascii=False)
 
           def update_theme_json(file_path):
               try:
+                  directory = os.path.dirname(file_path)
+                  last_modified_date = get_directory_last_modified_date(directory)
+                  if last_modified_date is None:
+                      print(f"Skipped {file_path} — no files to check.")
+                      return False
+
                   with open(file_path, 'r', encoding='utf-8') as f:
                       original_data = json.load(f)
 
-                  directory = os.path.dirname(file_path)
-                  last_modified = get_last_modified_date(directory)
-
-                  if original_data.get('updatedAt') == last_modified:
-                      print(f"Unchanged {file_path}")
+                  if original_data.get('updatedAt') == last_modified_date:
+                      print(f"Unchanged {file_path} — updatedAt already set to {last_modified_date}")
                       return False
 
                   updated_data = dict(original_data)
-                  updated_data['updatedAt'] = last_modified
+                  updated_data['updatedAt'] = last_modified_date
 
                   original_json = normalize_json(original_data)
                   updated_json = normalize_json(updated_data)
 
                   if original_json == updated_json:
-                      print(f"Unchanged {file_path}")
+                      print(f"Unchanged {file_path} — no structural change")
                       return False
 
                   with open(file_path, 'w', encoding='utf-8') as f:
                       f.write(updated_json + '\n')
 
-                  print(f"Updated {file_path} with date {last_modified}")
+                  print(f"Updated {file_path} with date {last_modified_date}")
                   return True
 
               except Exception as e:
@@ -76,6 +90,7 @@ jobs:
                   return False
 
           files = subprocess.run(['find', '.', '-name', 'theme.json', '-print0'], capture_output=True, text=True).stdout.split('\0')
+
           updated = False
           for file in filter(None, files):
               if update_theme_json(file):
@@ -117,4 +132,3 @@ jobs:
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-
