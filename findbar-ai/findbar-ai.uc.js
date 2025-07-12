@@ -539,12 +539,12 @@ const findbar = {
       const history = llm.getHistory();
       for (const message of history) {
         if (
-          message.role === "tool" ||
+          message?.role === "tool" ||
           (message?.parts && message?.parts.some((p) => p.functionCall))
         )
           continue;
 
-        const isModel = message.role === "model";
+        const isModel = message?.role === "model";
         const textContent = message?.parts[0]?.text;
         if (!textContent) continue;
 

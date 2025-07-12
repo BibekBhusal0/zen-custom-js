@@ -305,13 +305,7 @@ Here is the initial info about the current page:
       debugLog("Parsed AI Response:", parsedResponse);
 
       if (!parsedResponse.answer) {
-        if (functionCalls.length > 0) {
-          return { answer: "I used my tools to complete your request." };
-        }
         this.history.pop();
-        return {
-          answer: "Sorry, I received an invalid response from the server.",
-        };
       }
       return parsedResponse;
     } else {
