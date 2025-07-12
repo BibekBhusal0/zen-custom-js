@@ -82,10 +82,11 @@ browser {
   .findbar-ai-settings-modal {
     input[type="text"],
     input[type="password"],
+    input[type="number"],
     menulist,
     select {
       flex-grow: 1 !important;
-      padding: 10px 12px !important;
+      padding: 8px 12px !important;
       font-size: 14px !important;
       transition: all 0.2s ease !important;
       border: 2px solid transparent !important;
@@ -95,7 +96,10 @@ browser {
         border: 2px solid var(--zen-primary-color) !important;
       }
     }
-
+      input[type="number"]{
+      padding: 8px 0px !important;
+     max-width: 50px !important;
+    }    
     button {
       cursor: pointer;
       font-weight: 600;
