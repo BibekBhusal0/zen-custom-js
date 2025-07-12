@@ -36,31 +36,18 @@ jobs:
           import json
           import subprocess
 
-          def get_git_modified_date(file_path):
+          def get_git_modified_date_for_directory(dir_path):
               try:
                   result = subprocess.run(
-                      ['git', 'log', '-1', '--format=%ad', '--date=short', '--', file_path],
+                      ['git', 'log', '-1', '--format=%ad', '--date=short', '--', dir_path],
                       capture_output=True, text=True, check=True
                   )
-                  return result.stdout.strip()
+                  date = result.stdout.strip()
+                  print(f"Directory {dir_path} last git modified date: {date}")
+                  return date
               except subprocess.CalledProcessError:
+                  print(f"Could not get git log for directory {dir_path}")
                   return None
-
-          def get_latest_date_in_directory(dir_path):
-              latest_date = None
-              print(f"\nChecking directory: {dir_path}")
-              for entry in os.listdir(dir_path):
-                  full_path = os.path.join(dir_path, entry)
-                  if not os.path.isfile(full_path):
-                      continue
-                  if entry == "theme.json":
-                      continue
-                  date = get_git_modified_date(full_path)
-                  if date:
-                      print(f"  File: {entry}, Last Git Modified: {date}")
-                      if not latest_date or date > latest_date:
-                          latest_date = date
-              return latest_date
 
           def normalize_json(data):
               return json.dumps(data, indent=2, separators=(',', ': '), ensure_ascii=False)
@@ -68,9 +55,9 @@ jobs:
           def update_theme_json(theme_path):
               try:
                   dir_path = os.path.dirname(theme_path)
-                  latest_date = get_latest_date_in_directory(dir_path)
+                  latest_date = get_git_modified_date_for_directory(dir_path)
                   if not latest_date:
-                      print(f"  No valid files in {dir_path}")
+                      print(f"No git history for directory {dir_path}")
                       return False
 
                   with open(theme_path, 'r', encoding='utf-8') as f:
