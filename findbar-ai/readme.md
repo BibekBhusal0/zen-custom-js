@@ -141,10 +141,12 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [ ] Slash Command and variables
 - [ ] Adding more tools (tab groups, workspaces, background search, clicking, filling forms)
 - [ ] Giving AI YouTube transcript instead of page content
+- [ ] Tagging multiple tabs
 
 ## 🐛 Bugs and potential issues (I am working on fixing them)
 
 - AI can't make multiple tool calls one after another (just 1 tool call is allowed for now, to keep it simple)
+- Styles in glance
 
 ## Credits
 
