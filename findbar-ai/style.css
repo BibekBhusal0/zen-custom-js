@@ -96,10 +96,10 @@ browser {
         border: 2px solid var(--zen-primary-color) !important;
       }
     }
-      input[type="number"]{
+    input[type="number"] {
       padding: 8px 0px !important;
-     max-width: 50px !important;
-    }    
+      max-width: 50px !important;
+    }
     button {
       cursor: pointer;
       font-weight: 600;

@@ -161,12 +161,11 @@ export const SettingsModal = {
       // Initialize control value from PREFS
       if (control.type === "checkbox") {
         control.checked = PREFS.getPref(prefKey);
-      } else 
-        if (control.tagName.toLowerCase() === "menulist") {
-          control.value = PREFS.getPref(prefKey);
-        } else {
-          control.value = PREFS.getPref(prefKey);
-        }
+      } else if (control.tagName.toLowerCase() === "menulist") {
+        control.value = PREFS.getPref(prefKey);
+      } else {
+        control.value = PREFS.getPref(prefKey);
+      }
 
       this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
 
@@ -194,8 +193,7 @@ export const SettingsModal = {
             } catch (error) {
               this._currentPrefValues[prefKey] = 0;
             }
-          }
-           else  {
+          } else {
             this._currentPrefValues[prefKey] = e.target.value;
           }
           debugLog(
@@ -381,7 +379,7 @@ export const SettingsModal = {
         Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
       </div>
     `;
-const maxToolCallsHtml = `
+    const maxToolCallsHtml = `
   <div class="setting-item">
     <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
     <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
@@ -392,8 +390,8 @@ const maxToolCallsHtml = `
       "AI Behavior",
       aiBehaviorSettings,
       true,
-      aiBehaviorWarningHtml
-      , maxToolCallsHtml
+      aiBehaviorWarningHtml,
+      maxToolCallsHtml
     );
 
     // Context Menu Settings

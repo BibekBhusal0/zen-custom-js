@@ -119,7 +119,6 @@ async function newSplit(args) {
   }
 }
 
-
 // ╭─────────────────────────────────────────────────────────╮
 // │                        BOOKMARKS                        │
 // ╰─────────────────────────────────────────────────────────╯
@@ -418,7 +417,8 @@ const toolDeclarations = [
             },
             title: {
               type: "STRING",
-              description: "Optional. The title for the bookmark. If not provided, the URL is used.",
+              description:
+                "Optional. The title for the bookmark. If not provided, the URL is used.",
             },
             parentID: {
               type: "STRING",
@@ -572,4 +572,3 @@ Therse are just examples for you on how you can use tools calls, each example gi
 };
 
 export { availableTools, toolDeclarations, getToolSystemPrompt };
-
