@@ -22,7 +22,7 @@ async function searchBookmarks(args) {
     const results = bookmarks.map((bookmark) => ({
       id: bookmark.guid,
       title: bookmark.title,
-      url: bookmark.url.href,
+      url: bookmark?.url?.href,
       parentID: bookmark.parentGuid,
     }));
 
@@ -46,7 +46,8 @@ async function getAllBookmarks() {
     const results = bookmarks.map((bookmark) => ({
       id: bookmark.guid,
       title: bookmark.title,
-      url: bookmark.url.href,
+      url: bookmark?.url?.href,
+      parentID: bookmark.parentGuid,
     }));
 
     debugLog(`Read ${results.length} total bookmarks.`);
@@ -62,16 +63,16 @@ async function getAllBookmarks() {
  * @param {object} args - The arguments object.
  * @param {string} args.url - The URL to bookmark.
  * @param {string} [args.title] - The title for the bookmark. If not provided, the URL is used.
- * @param {string} [args.parentId] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
+ * @param {string} [args.parentID] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
 async function createBookmark(args) {
-  const { url, title, parentId } = args;
+  const { url, title, parentID } = args;
   if (!url) return { error: "createBookmark requires a URL." };
 
   try {
     const bookmarkInfo = {
-      parentGuid: parentId || PlacesUtils.bookmarks.unfiledGuid,
+      parentGuid: parentID || PlacesUtils.bookmarks.unfiledGuid,
       url: new URL(url),
       title: title || url,
     };
@@ -90,16 +91,16 @@ async function createBookmark(args) {
  * Creates a new bookmark folder.
  * @param {object} args - The arguments object.
  * @param {string} args.title - The title for the new folder.
- * @param {string} [args.parentId] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
+ * @param {string} [args.parentID] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
 async function addBookmarkFolder(args) {
-  const { title, parentId } = args;
+  const { title, parentID } = args;
   if (!title) return { error: "addBookmarkFolder requires a title." };
 
   try {
     const folderInfo = {
-      parentGuid: parentId || PlacesUtils.bookmarks.unfiledGuid,
+      parentGuid: parentID || PlacesUtils.bookmarks.unfiledGuid,
       type: PlacesUtils.bookmarks.TYPE_FOLDER,
       title: title,
     };
@@ -119,12 +120,13 @@ async function addBookmarkFolder(args) {
  * @param {object} args - The arguments object.
  * @param {string} args.id - The GUID of the bookmark to update.
  * @param {string} [args.url] - The new URL for the bookmark.
+ * @param {string} [args.parentID] - parent id
  *
  * @param {string} [args.title] - The new title for the bookmark.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
 async function updateBookmark(args) {
-  const { id, url, title, parentGuid } = args;
+  const { id, url, title, parentID } = args;
   if (!id) return { error: "updateBookmark requires a bookmark id (guid)." };
   if (!url && !title)
     return {
@@ -141,7 +143,7 @@ async function updateBookmark(args) {
       guid: id,
       url: url ? new URL(url) : oldBookmark.url,
       title: title || oldBookmark.title,
-      parentGuid: parentGuid || oldBookmark.parentGuid,
+      parentGuid: parentID || oldBookmark.parentGuid,
     });
 
     debugLog(`Bookmark updated successfully:`, JSON.stringify(bm));
