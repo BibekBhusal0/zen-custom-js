@@ -302,7 +302,6 @@ export const SettingsModal = {
     }
   },
 
-
   _generateCheckboxSettingHtml(label, prefConstant) {
     const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
     return `

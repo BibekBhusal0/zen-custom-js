@@ -910,7 +910,8 @@ browser {
     }
   }
 
-  #ai-settings-modal-overlay,.tool-confirmation-dialog {
+  #ai-settings-modal-overlay,
+  .tool-confirmation-dialog {
     position: fixed;
     top: 0;
     left: 0;
@@ -1058,16 +1059,16 @@ browser {
       }
     }
 
-    #citations-god-mode-warning{
-      display: none; 
+    #citations-god-mode-warning {
+      display: none;
       color: red;
-      margin-bottom: 10px
+      margin-bottom: 10px;
     }
 
     &:has(#pref-extension\.findbar-ai\.citations-enabled:checked)
-    :has(#pref-extension\.findbar-ai\.god-mode:checked){
+      :has(#pref-extension\.findbar-ai\.god-mode:checked) {
       #citations-god-mode-warning {
-        display: block !important
+        display: block !important;
       }
     }
 
@@ -1109,7 +1110,7 @@ browser {
       cursor: pointer;
       font-size: 14px;
       &.confirm-tool {
-        background-color: #4CAF50;
+        background-color: #4caf50;
         color: white;
       }
 

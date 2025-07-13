@@ -14,7 +14,6 @@ export const PREFS = {
   CONTEXT_MENU_ENABLED: "extension.findbar-ai.context-menu-enabled",
   CONTEXT_MENU_AUTOSEND: "extension.findbar-ai.context-menu-autosend",
 
-
   LLM_PROVIDER: "extension.findbar-ai.llm-provider",
   MISTRAL_API_KEY: "extension.findbar-ai.mistral-api-key",
   MISTRAL_MODEL: "extension.findbar-ai.mistral-model",
