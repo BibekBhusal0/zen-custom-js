@@ -1102,22 +1102,32 @@ browser {
       font-size: 16px;
     }
 
-    button {
-      padding: 10px 20px;
-      margin: 0 10px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      &.confirm-tool {
-        background-color: #4caf50;
-        color: white;
+    .buttons{
+      display: flex ;
+      justify-content: space-between;
+      .right-side-buttons{
+        display: flex !important;
+        gap : 10px !important;
       }
+      button {
+        padding: 7px 14px;
+        margin: 0 !important;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
 
-      &.cancel-tool {
-        background-color: #f44336;
-        color: white;
+        &.confirm-tool {
+          background-color: #4caf50;
+          color: white;
+        }
+
+        &.cancel-tool {
+          background-color: #f44336;
+          color: white;
+        }
       }
     }
+      
   }
 }

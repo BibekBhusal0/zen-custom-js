@@ -148,27 +148,41 @@ const findbar = {
       const dialog = parseElement(`
         <div class="tool-confirmation-dialog">
           <div class="tool-confirmation-content">
-            <p>Allow the following tools to run: ${toolNames.join(", ")}?</p>
-            <button class="confirm-tool">Yes</button>
-            <button class="cancel-tool">No</button>
+            <p>Allow the following tools to run: ${toolNames?.join(", ")}?</p>
+            <div class="buttons">
+              <button class="not-again">Don't ask again</button>
+              <div class="right-side-buttons">
+                <button class="confirm-tool">Yes</button>
+                <button class="cancel-tool">No</button>
+              </div>
+            </div>
           </div>
         </div>
       `);
       this._toolConfirmationDialog = dialog;
 
-      // Add event listeners to the buttons
-      const confirmButton = dialog.querySelector(".confirm-tool");
-      confirmButton.addEventListener("click", () => {
+      const removeDilog = ()=>{
         dialog.remove();
         this._toolConfirmationDialog = null;
+      }
+      
+      const confirmButton = dialog.querySelector(".confirm-tool");
+      confirmButton.addEventListener("click", () => {
+        removeDilog()
         resolve(true);
       });
 
       const cancelButton = dialog.querySelector(".cancel-tool");
       cancelButton.addEventListener("click", () => {
-        dialog.remove();
-        this._toolConfirmationDialog = null;
+        removeDilog()
         resolve(false);
+      });
+
+      const notAgainButton = dialog.querySelector(".not-again");
+      notAgainButton.addEventListener("click", () => {
+        removeDilog()
+        PREFS.conformation = false;
+        resolve(true);
       });
 
       document.body.appendChild(dialog);
@@ -519,7 +533,7 @@ const findbar = {
         e.preventDefault();
         try {
           openTrustedLinkIn(e.target.href, "tab");
-        } catch (e) {}
+        } catch (e) { }
       }
     });
 
@@ -640,7 +654,7 @@ const findbar = {
     this.expanded = false;
     try {
       this.removeListeners();
-    } catch {}
+    } catch { }
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
@@ -693,7 +707,7 @@ const findbar = {
     return true;
   },
 
-  handleInputKeyPress: function (e) {
+  handleInputKeyPress: function(e) {
     if (e?.key === "Enter" && e?.altKey) {
       e.preventDefault();
       const inpText = this.findbar._findField.value.trim();
@@ -755,14 +769,14 @@ const findbar = {
     contextMenu.addEventListener("popupshowing", this._updateContextMenuText);
   },
 
-  removeContextMenuItem: function () {
+  removeContextMenuItem: function() {
     this?.contextMenuItem?.remove();
     this.contextMenuItem = null;
     document
       ?.getElementById("contentAreaContextMenu")
       ?.removeEventListener("popupshowing", this._updateContextMenuText);
   },
-  handleContextMenuClick: async function () {
+  handleContextMenuClick: async function() {
     const selection = await windowManagerAPI.getSelectedText();
     let finalMessage = "";
     if (!selection.hasSelection) {
@@ -789,7 +803,7 @@ const findbar = {
     }
   },
 
-  handleContextMenuPrefChange: function (pref) {
+  handleContextMenuPrefChange: function(pref) {
     if (pref.value) this.addContextMenuItem();
     else this.removeContextMenuItem();
   },
@@ -955,7 +969,7 @@ const findbar = {
     this._stopDrag = null;
   },
 
-  addKeymaps: function (e) {
+  addKeymaps: function(e) {
     if (e.key && e.key.toLowerCase() === "f" && e.ctrlKey && e.shiftKey && !e.altKey) {
       e.preventDefault();
       e.stopPropagation();
