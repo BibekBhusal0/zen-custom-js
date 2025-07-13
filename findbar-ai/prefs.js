@@ -208,9 +208,9 @@ PREFS.defaultValues = {
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
   [PREFS.MAX_TOOL_CALLS]: 5,
+  [PREFS.CONFORMATION]: true,
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
-  // [PREFS.CONFORMATION]: true,
   // [PREFS.SHOW_TOOL_CALL]: false,
 };
 

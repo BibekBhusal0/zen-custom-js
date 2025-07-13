@@ -19,22 +19,44 @@ async function executeToolCalls(llmInstance, requestBody, modelResponse, current
 
   debugLog(`Function call(s) requested by model (depth ${currentDepth}):`, functionCalls);
 
+  // Gather the names of all tools to be called
+  const toolNames = functionCalls.map((call) => call.functionCall.name);
+
+  let confirmed = true;
+  if (PREFS.conformation) {
+    confirmed = await findbar.createToolConfirmationDialog(toolNames);
+  }
+
   const functionResponses = [];
-  for (const call of functionCalls) {
-    const { name, args } = call.functionCall;
-    if (availableTools[name]) {
-      debugLog(`Executing tool: "${name}" with args:`, args);
-      const toolResult = await availableTools[name](args);
-      debugLog(`Tool "${name}" executed. Result:`, toolResult);
-      functionResponses.push({
-        functionResponse: { name, response: toolResult },
-      });
-    } else {
-      debugError(`Tool "${name}" not found!`);
+  if (confirmed) {
+    for (const call of functionCalls) {
+      const { name, args } = call.functionCall;
+
+      if (availableTools[name]) {
+        debugLog(`Executing tool: "${name}" with args:`, args);
+        const toolResult = await availableTools[name](args);
+        debugLog(`Tool "${name}" executed. Result:`, toolResult);
+        functionResponses.push({
+          functionResponse: { name, response: toolResult },
+        });
+      } else {
+        debugError(`Tool "${name}" not found!`);
+        functionResponses.push({
+          functionResponse: {
+            name,
+            response: { error: `Tool "${name}" is not available.` },
+          },
+        });
+      }
+    }
+  } else {
+    debugLog("Tool execution cancelled by user.");
+    // Create error responses for all tool calls
+    for (const name of toolNames) {
       functionResponses.push({
         functionResponse: {
           name,
-          response: { error: `Tool "${name}" is not available.` },
+          response: { error: `Tool "${name}" execution cancelled by user.` },
         },
       });
     }

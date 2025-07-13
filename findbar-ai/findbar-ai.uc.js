@@ -85,6 +85,7 @@ const findbar = {
   _stopResize: null,
   _handleResize: null,
   _handleResizeEnd: null,
+  _toolConfirmationDialog: null,
 
   get expanded() {
     return this._isExpanded;
@@ -140,6 +141,38 @@ const findbar = {
     this.addExpandButton();
     this.removeAIInterface();
     this.showAIInterface();
+  },
+
+  createToolConfirmationDialog(toolNames) {
+    return new Promise((resolve) => {
+      const dialog = parseElement(`
+        <div class="tool-confirmation-dialog">
+          <div class="tool-confirmation-content">
+            <p>Allow the following tools to run: ${toolNames.join(", ")}?</p>
+            <button class="confirm-tool">Yes</button>
+            <button class="cancel-tool">No</button>
+          </div>
+        </div>
+      `);
+      this._toolConfirmationDialog = dialog;
+
+      // Add event listeners to the buttons
+      const confirmButton = dialog.querySelector(".confirm-tool");
+      confirmButton.addEventListener("click", () => {
+        dialog.remove();
+        this._toolConfirmationDialog = null;
+        resolve(true);
+      });
+
+      const cancelButton = dialog.querySelector(".cancel-tool");
+      cancelButton.addEventListener("click", () => {
+        dialog.remove();
+        this._toolConfirmationDialog = null;
+        resolve(false);
+      });
+
+      document.body.appendChild(dialog);
+    });
   },
 
   updateFindbar() {
@@ -931,10 +964,12 @@ const findbar = {
     }
     if (e.key?.toLowerCase() === "escape") {
       if (SettingsModal._modalElement && SettingsModal._modalElement.parentNode) {
-        // If settings modal is open, close it
         e.preventDefault();
         e.stopPropagation();
         SettingsModal.hide();
+      } else if (this._toolConfirmationDialog) {
+        const cancelButton = this._toolConfirmationDialog.querySelector(".cancel-tool");
+        cancelButton?.click();
       } else if (this.expanded) {
         e.preventDefault();
         e.stopPropagation();
