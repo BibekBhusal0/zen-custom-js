@@ -6,7 +6,6 @@
 const { Runtime, Hotkeys, Prefs } = UC_API;
 import { showToast } from "./utils/toast.mjs";
 
-
 const alternateSearch = (window, split) => {
   try {
     const currentURL = window.gBrowser.currentURI.spec;

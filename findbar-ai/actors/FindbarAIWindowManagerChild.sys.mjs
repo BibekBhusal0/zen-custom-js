@@ -127,4 +127,3 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
       .trim();
   }
 }
-

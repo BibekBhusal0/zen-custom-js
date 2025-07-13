@@ -310,7 +310,7 @@ Here is the initial info about the current page:
       return parsedResponse;
     } else {
       const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      if (!responseText ) {
+      if (!responseText) {
         this.history.pop();
       }
       return {

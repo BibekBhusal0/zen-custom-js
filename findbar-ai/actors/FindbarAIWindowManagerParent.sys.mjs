@@ -84,4 +84,3 @@ export class FindbarAIWindowManagerParent extends JSWindowActorParent {
     }
   }
 }
-
