@@ -644,6 +644,8 @@ const findbar = {
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
+    this._toolConfirmationDialog?.remove();
+    this._toolConfirmationDialog = null;
     SettingsModal.hide();
   },
 
