@@ -145,7 +145,7 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 
 ## 🐛 Bugs and potential issues (I am working on fixing them)
 
-- AI can't make multiple tool calls one after another (just 1 tool call is allowed for now, to keep it simple)
+- If AI makes tool call to open tab, history might not persist correctly.
 - Styles in glance
 
 ## Credits
