@@ -83,4 +83,14 @@ export class FindbarAIWindowManagerParent extends JSWindowActorParent {
       return { error: `Failed to fill form: ${e}` };
     }
   }
+
+  async getYoutubeTranscript() {
+    try {
+      const result = await this.sendQuery("FindbarAI:GetYoutubeTranscript");
+      return result;
+    } catch (e) {
+      debugError("Failed to get youtube transcript:", e);
+      return { error: `Failed to get youtube transcript: ${e}` };
+    }
+  }
 }

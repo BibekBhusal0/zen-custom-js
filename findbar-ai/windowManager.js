@@ -115,6 +115,17 @@ export const windowManagerAPI = {
       return { error: `Failed to fill form with selector "${selector}".` };
     }
   },
+
+  async getYoutubeTranscript() {
+    const wm = this.getWindowManager();
+    if (!wm) return { error: "No window manager found." };
+    try {
+      return await wm.getYoutubeTranscript();
+    } catch (error) {
+      debugError("Failed to get youtube transcript:", error);
+      return { error: "Failed to get youtube transcript." };
+    }
+  },
 };
 
 export default windowManager;

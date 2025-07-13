@@ -79,8 +79,90 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
           return { error: `Failed to fill form: ${error}` };
         }
 
+      case "FindbarAI:GetYoutubeTranscript":
+        try {
+          const transcript = await this.getYouTubeTranscript();
+          return { transcript };
+        } catch (err) {
+          this.debugError("Transcript extraction failed:", err);
+          return { error: err.message };
+        }
+
       default:
         this.debugLog(`Unhandled message: ${message.name}`);
+    }
+  }
+
+  async getYouTubeTranscript() {
+    const win = this.browsingContext.top.window;
+    const doc = this.document;
+
+    async function ensureBodyAvailable() {
+      if (doc.body) return;
+      await new Promise((resolve) => {
+        const check = () => {
+          if (doc.body) resolve();
+          else win.setTimeout(check, 50);
+        };
+        check();
+      });
+    }
+
+    function waitForSelectorWithObserver(selector, timeout = 5000) {
+      return new Promise(async (resolve, reject) => {
+        try {
+          await ensureBodyAvailable();
+          const el = doc.querySelector(selector);
+          if (el) return resolve(el);
+
+          const observer = new win.MutationObserver(() => {
+            const el = doc.querySelector(selector);
+            if (el) {
+              observer.disconnect();
+              resolve(el);
+            }
+          });
+
+          observer.observe(doc.body, {
+            childList: true,
+            subtree: true,
+          });
+
+          win.setTimeout(() => {
+            observer.disconnect();
+            reject(new Error(`Timeout waiting for ${selector}`));
+          }, timeout);
+        } catch (e) {
+          reject(new Error(`waitForSelectorWithObserver failed: ${e.message}`));
+        }
+      });
+    }
+
+    try {
+      if (!doc.querySelector("ytd-transcript-renderer")) {
+        const button = doc.querySelector('button[aria-label="Show transcript"]');
+        if (!button)
+          throw new Error('"Show transcript" button not found — transcript may not be available.');
+        button.click();
+        await waitForSelectorWithObserver("ytd-transcript-renderer", 5000);
+      }
+
+      await waitForSelectorWithObserver("ytd-transcript-segment-renderer .segment-text", 5000);
+
+      const segments = Array.from(
+        doc.querySelectorAll("ytd-transcript-segment-renderer .segment-text")
+      );
+      if (!segments.length) throw new Error("Transcript segments found, but all are empty.");
+
+      const transcript = segments
+        .map((el) => el.textContent.trim())
+        .filter(Boolean)
+        .join("\n");
+      this.debugLog("YouTube transcript extracted successfully.");
+      return transcript;
+    } catch (err) {
+      this.debugError("Transcript extraction failed:", err);
+      return { error: err.message };
     }
   }
 

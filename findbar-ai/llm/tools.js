@@ -329,6 +329,7 @@ const availableTools = {
   openLink,
   getPageTextContent: windowManagerAPI.getPageTextContent.bind(windowManagerAPI),
   getHTMLContent: windowManagerAPI.getHTMLContent.bind(windowManagerAPI),
+  getYoutubeTranscript: windowManagerAPI.getYoutubeTranscript.bind(windowManagerAPI),
   searchBookmarks,
   getAllBookmarks,
   createBookmark,
@@ -416,6 +417,12 @@ const toolDeclarations = [
         name: "getHTMLContent",
         description:
           "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
+        parameters: { type: "OBJECT", properties: {} },
+      },
+      {
+        name: "getYoutubeTranscript",
+        description:
+        "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
         parameters: { type: "OBJECT", properties: {} },
       },
       {
