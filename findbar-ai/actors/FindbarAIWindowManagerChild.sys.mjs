@@ -169,7 +169,7 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
   extractRelevantContent() {
     const clonedBody = this.document.body.cloneNode(true);
     const elementsToRemove = clonedBody.querySelectorAll(
-      "script, style, noscript, iframe, svg, canvas, img, video, audio, object, embed, applet, link, head"
+      "script, style, meta, noscript, iframe, svg, canvas, img, video, audio, object, embed, applet, link, head"
     );
     elementsToRemove.forEach((el) => el.remove());
     return clonedBody.innerHTML;
@@ -179,7 +179,7 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
     this.debugLog("extractTextContent called");
     const clonedDocument = this.document.body.cloneNode(true);
     const elementsToRemove = clonedDocument.querySelectorAll(
-      "script, style, noscript, iframe, svg, canvas, input, textarea, select, img, video, audio, object, embed, applet, form, button, link, head"
+      "script, style, meta, noscript, iframe, svg, canvas, input, textarea, select, img, video, audio, object, embed, applet, form, button, link, head"
     );
     elementsToRemove.forEach((el) => el.remove());
 
