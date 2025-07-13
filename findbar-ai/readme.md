@@ -12,13 +12,14 @@ https://github.com/user-attachments/assets/8db50ef3-c704-482f-a5bc-8d002660e796
 
 ## Features
 
-- **Modern, Floating UI**: Replaces the default findbar with a sleek, centered, and collapsible interface.
-- **AI-Powered Chat**: Integrates Google's Gemini AI to provide a conversational experience.
-- **Page Content Awareness**: The AI can read the text content of the current webpage to answer your questions accurately.
-- **Buildin Keyboard Shortcuts**: Use the `Ctrl+Shift+F`, `alt+Enter` keymap to open findbar.
-- **Customizable**: Many customization options from `about:config`.
-- **AI Interacting with Browser**: AI can make tool calls to control the browser.
-- **Context Menu**: Directoly ask question about current page to AI from context Menu.
+- **Modern, Floating UI**: Replaces the default findbar with a sleek, draggable, resizable, and collapsible interface.
+- **Multi-Provider AI Chat**: Integrates with Google's Gemini and Mistral models for a conversational experience.
+- **Page Content Awareness**: The AI can read the text content, HTML, and even YouTube transcripts of the current webpage to answer your questions accurately.
+- **Built-in Keyboard Shortcuts**: Use `Ctrl+Shift+F` and `Alt+Enter` for quick AI access.
+- **Highly Customizable**: Fine-tune your experience through an extensive in-app settings or `about:config`.
+- **AI Browser Control (God Mode)**: Allow the AI to perform actions like searching, opening links, managing bookmarks, and interacting with page elements.
+- **Context Menu Integration**: Right-click to quickly ask the AI about selected text or the current page.
+- **Citation Support**: (Experimental) Get direct quotes from the page text that support the AI's answer.
 
 ## 🚨 Caution 🚨
 
@@ -57,34 +58,39 @@ https://github.com/user-attachments/assets/8db50ef3-c704-482f-a5bc-8d002660e796
 
 ## Usage
 
-1.  **Get an API Key**: After installation, the Findbar AI will prompt you for a select provider and set API key. It will also give link to get AI key.
+1.  **Get an API Key**: After installation, the Findbar AI will prompt you to select a provider and set an API key. It will also provide a link to get the required key.
 2.  **Save the Key**: Paste the key into the input field and click "Save". The chat interface will now appear.
 3.  **Start Chatting**:
     - Press `Ctrl+F` to open the standard findbar.
-    - Click the "Expand" button to switch to the AI chat view or enter your query and click on ask if you are in Minimal Mode.
+    - In the default (non-minimal) view, click the "Expand" button to switch to AI chat. In Minimal Mode, just enter your query and click "Ask".
     - Type your questions about the current page and press "Send".
     - Use `Ctrl+Shift+F` to open the AI chat directly, using any text you have selected on the page as the initial prompt.
 
 ## Customization
 
-You can customize the Findbar AI via `about:config`.
+You can customize the Findbar AI through the settings modal (found in the chat header) or via `about:config`.
 
 ### Preferences (`about:config`)
 
-| Preference                                   | Type                  | Default                 | Description                                                                        |
-| -------------------------------------------- | --------------------- | ----------------------- | ---------------------------------------------------------------------------------- |
-| `extension.findbar-ai.enabled`               | Boolean               | `true`                  | Toggles the entire feature on or off.                                              |
-| `extension.findbar-ai.minimal`               | Boolean               | `true`                  | Simple and minimal design hinding many UI components                               |
-| `extension.findbar-ai.llm-provider`          | `gemini` or `mistral` | "gemini"                | Which AI providr to use (More comming soon)                                        |
-| `extension.findbar-ai.mistral-api-key`       | String                | _(empty)_               | API key for mistral                                                                |
-| `extension.findbar-ai.mistral-modal`         | String                | "mistral-medium-latest" | Specific Mistral model to use in chat                                              |
-| `extension.findbar-ai.gemini-api-key`        | String                | _(empty)_               | API key for Gemini                                                                 |
-| `extension.findbar-ai.gemini-model`          | String                | `"gemini-2.0-flash"`    | The specific Gemini model to use for chat.                                         |
-| `extension.findbar-ai.context-menu-enabled`  | Boolean               | `true`                  | Weather or not to enable context menu item                                         |
-| `extension.findbar-ai.context-menu-autosend` | Boolean               | `true`                  | When true, message is autometically send to AI after clicking in context menu item |
-| `extension.findbar-ai.debug-mode`            | Boolean               | `false`                 | Set to `true` to enable verbose logging in the Browser Console.                    |
-| `extension.findbar-ai.god-mode`              | Boolean               | `false`                 | When `true` AI can make tool calls.                                                |
-| `extension.findbar-ai.citations-enabled`     | Boolean               | `false`                 | When `true` AI will give source where it the statement from (experimental).        |
+| Preference                                      | Type    | Default                   | Description                                                                                               |
+| ----------------------------------------------- | ------- | ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `extension.findbar-ai.enabled`                  | Boolean | `true`                    | Toggles the entire feature on or off.                                                                     |
+| `extension.findbar-ai.minimal`                  | Boolean | `true`                    | Toggles a simpler, more compact UI.                                                                       |
+| `extension.findbar-ai.persist-chat`             | Boolean | `false`                   | Persists chat history across tab switches (but not browser restarts).                                     |
+| `extension.findbar-ai.dnd-enabled`              | Boolean | `true`                    | Enables dragging to move and resizing of the findbar window.                                              |
+| `extension.findbar-ai.position`                 | String  | `"top-right"`             | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`. |
+| `extension.findbar-ai.llm-provider`             | String  | `"gemini"`                | Which AI provider to use. Options: `gemini`, `mistral`.                                                   |
+| `extension.findbar-ai.gemini-api-key`           | String  | _(empty)_                 | Your API key for Google Gemini.                                                                           |
+| `extension.findbar-ai.gemini-model`             | String  | `"gemini-2.0-flash"`      | The specific Gemini model to use.                                                                         |
+| `extension.findbar-ai.mistral-api-key`          | String  | _(empty)_                 | Your API key for Mistral AI.                                                                              |
+| `extension.findbar-ai.mistral-model`            | String  | `"mistral-medium-latest"` | The specific Mistral model to use.                                                                        |
+| `extension.findbar-ai.context-menu-enabled`     | Boolean | `true`                    | Toggles the "Ask AI" item in the right-click context menu.                                                |
+| `extension.findbar-ai.context-menu-autosend`    | Boolean | `true`                    | If true, clicking the context menu item sends the request to the AI immediately.                          |
+| `extension.findbar-ai.god-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                         |
+| `extension.findbar-ai.max-tool-calls`           | Number  | `5`                       | The maximum number of consecutive tool calls the AI can make in one turn.                                 |
+| `extension.findbar-ai.conform-before-tool-call` | Boolean | `true`                    | If true, prompts you for confirmation before the AI executes any tools.                                   |
+| `extension.findbar-ai.citations-enabled`        | Boolean | `false`                   | (Experimental) If true, the AI will try to cite its sources from the page content.                        |
+| `extension.findbar-ai.debug-mode`               | Boolean | `false`                   | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                       |
 
 > [!WARNING]
 > Don't turn both god-mode and citation at the same time. AI might not function properly.
@@ -95,19 +101,22 @@ You can customize the Findbar AI via `about:config`.
 | -------------- | ----------------------------------------------------------------------------------------------------------- |
 | `Ctrl+Shift+F` | Opens the findbar directly into the expanded AI mode.                                                       |
 | `Escape`       | If the AI interface is expanded, it collapses to the standard findbar. If not expanded, closes the findbar. |
-| `Alt + Enter`  | If findbar is not expanded, this expandes findbar while sending query from findbar to AI                    |
+| `Alt + Enter`  | Sends the text from the standard findbar to the AI, expanding the view.                                     |
 
 ## 🔨 Tool-calls
 
-AI can also make tool calls to enable this go to `about:config` and set `extension.findbar-ai.god-mode`
+AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.findbar-ai.god-mode` to `true`.
 
 Currently available tool calls are:
 
-- **Search** : Searches specific term in search engines from browsers, and it can be open in `current tab`, `new tab`, `new window`, `incognito`, `glance`, `vsplit`, `hsplit`.
-- **Open Link** : Opens link, and it can be open in `current tab`, `new tab`, `new window`, `incognito`, `glance`, `vsplit`, `hsplit`.
-- **New Split** : Opens 2 tab it can be open it can be opened in `horizontal` or `vertical` split.
-- **Get Page Text Content**: Returns text content.
-- **Get HTML Content**: Returns entire HTML content of page.
+- **Search**: Searches a term on your default or a specified search engine.
+- **Open Link**: Opens a URL in the current tab, new tab, new window, private window, or special Zen Browser views like Glance, vertical split, or horizontal split.
+- **New Split**: Creates a vertical or horizontal split view with two new URLs.
+- **Get Page Text Content**: Reads the plain text content of the current page.
+- **Get HTML Content**: Reads the full HTML source of the current page.
+- **Get YouTube Transcript**: Retrieves the transcript for the current YouTube video.
+- **Bookmark Management**: A full suite of tools to `searchBookmarks`, `getAllBookmarks`, `createBookmark`, `addBookmarkFolder`, `updateBookmark`, and `deleteBookmark`.
+- **Page Interaction**: Tools to `clickElement` using a CSS selector and `fillForm` inputs.
 
 More tools will be comming soon. [More tools](./llm/more-tools.js) are currently in test.
 
@@ -125,10 +134,10 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [x] Markdown formatting
 - [x] Minimal styles (like Arc Browser)
 - [x] Highlight text in page that corresponds to AI's answer
-- [ ] AI interacting with page content (filling forms, clicking buttons)
-- [ ] Conformation before calling tools
+- [x] AI interacting with page content (filling forms, clicking buttons)
+- [x] Conformation before calling tools
 - [x] Tool calls (opening links, search)
-- [ ] Add support for other AI models (Claude, OpenAI) [WIP]
+- [x] Add support for other AI models (Gemini, Mistral)
 - [x] Drag-and-drop to resize and move the findbar (optional)
 - [ ] Pin/unpin the findbar (optional)
 - [x] Context Menu integration
@@ -139,8 +148,8 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [ ] Copy Button
 - [ ] Markdown Formatting toggle
 - [ ] Slash Command and variables
-- [ ] Adding more tools (tab groups, workspaces, background search, clicking, filling forms)
-- [ ] Giving AI YouTube transcript instead of page content
+- [ ] Adding more tools (tab groups, workspaces, background search)
+- [x] Giving AI YouTube transcript 
 - [ ] Tagging multiple tabs
 
 ## 🐛 Bugs and potential issues (I am working on fixing them)
