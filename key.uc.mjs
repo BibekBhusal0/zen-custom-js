@@ -6,26 +6,6 @@
 const { Runtime, Hotkeys, Prefs } = UC_API;
 import { showToast } from "./utils/toast.mjs";
 
-const copyGithubRepo = (window) => {
-  const url = window.gBrowser.currentURI.spec;
-  const githubRepoRegex = /github\.com\/([^\/]+)\/([^\/]+)/;
-  const match = url.match(githubRepoRegex);
-  if (match && match.length === 3) {
-    const username = match[1];
-    const repoName = match[2];
-    const repoString = `${username}/${repoName}`;
-    navigator.clipboard
-      .writeText(repoString)
-      .then(() => {
-        showToast("Copied Github Repo.", "success");
-      })
-      .catch(() => {
-        showToast("Failed to copy Github Repo.", "error");
-      });
-  } else {
-    showToast("Not a Github Repo", "error");
-  }
-};
 
 const alternateSearch = (window, split) => {
   try {
@@ -227,13 +207,6 @@ const hotkeys = [
   },
 
   {
-    id: "copyGithubRepo",
-    modifiers: "ctrl shift alt",
-    key: "G",
-    command: copyGithubRepo,
-  },
-
-  {
     id: "alternateSearchSplit",
     modifiers: "alt",
     key: "Y",
@@ -262,17 +235,10 @@ const hotkeys = [
   },
 
   {
-    id: "toggleDarkMode",
+    id: "togglePDFDarkMode",
     modifiers: "ctrl alt shift",
     key: "D",
     command: () => togglePref("pdf.dark.mode.disabled"),
-  },
-
-  {
-    id: "toggleGameMode",
-    modifiers: "alt",
-    key: "G",
-    command: () => togglePref("natsumi.gamemode.enabled"),
   },
 
   {
