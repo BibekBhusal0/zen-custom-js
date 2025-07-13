@@ -48,6 +48,37 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
           title: this.document.title,
         };
 
+      case "FindbarAI:ClickElement":
+        try {
+          const { selector } = message.data;
+          const element = this.document.querySelector(selector);
+          if (!element) {
+            return { error: `Element with selector "${selector}" not found.` };
+          }
+          element.click();
+          return { result: `Clicked element with selector "${selector}".` };
+        } catch (error) {
+          this.debugError(`Error clicking element:`, error);
+          return { error: `Failed to click element: ${error}` };
+        }
+
+      case "FindbarAI:FillForm":
+        try {
+          const { selector, value } = message.data;
+          const element = this.document.querySelector(selector);
+          if (!element) {
+            return { error: `Element with selector "${selector}" not found.` };
+          }
+          element.value = value;
+          element.dispatchEvent(new Event("input", { bubbles: true })); // Trigger input event for React and other frameworks
+          return {
+            result: `Filled element with selector "${selector}" with value "${value}".`,
+          };
+        } catch (error) {
+          this.debugError(`Error filling form:`, error);
+          return { error: `Failed to fill form: ${error}` };
+        }
+
       default:
         this.debugLog(`Unhandled message: ${message.name}`);
     }

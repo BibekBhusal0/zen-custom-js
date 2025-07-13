@@ -293,6 +293,36 @@ async function deleteBookmark(args) {
   }
 }
 
+// ╭─────────────────────────────────────────────────────────╮
+// │                         ELEMENTS                        │
+// ╰─────────────────────────────────────────────────────────╯
+
+/**
+ * Clicks an element on the page.
+ * @param {object} args - The arguments object.
+ * @param {string} args.selector - The CSS selector of the element to click.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function clickElement(args) {
+  const { selector } = args;
+  if (!selector) return { error: "clickElement requires a selector." };
+  return windowManagerAPI.clickElement(selector);
+}
+
+/**
+ * Fills a form input on the page.
+ * @param {object} args - The arguments object.
+ * @param {string} args.selector - The CSS selector of the input element to fill.
+ * @param {string} args.value - The value to fill the input with.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function fillForm(args) {
+  const { selector, value } = args;
+  if (!selector) return { error: "fillForm requires a selector." };
+  if (!value) return { error: "fillForm requires a value." };
+  return windowManagerAPI.fillForm(selector, value);
+}
+
 const availableTools = {
   search,
   newSplit,
@@ -305,6 +335,8 @@ const availableTools = {
   addBookmarkFolder,
   updateBookmark,
   deleteBookmark,
+  clickElement,
+  fillForm,
 };
 
 const toolDeclarations = [
@@ -488,6 +520,38 @@ const toolDeclarations = [
           required: ["id"],
         },
       },
+      {
+        name: "clickElement",
+        description: "Clicks an element on the page.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            selector: {
+              type: "STRING",
+              description: "The CSS selector of the element to click.",
+            },
+          },
+          required: ["selector"],
+        },
+      },
+      {
+        name: "fillForm",
+        description: "Fills a form input on the page.",
+        parameters: {
+          type: "OBJECT",
+          properties: {
+            selector: {
+              type: "STRING",
+              description: "The CSS selector of the input element to fill.",
+            },
+            value: {
+              type: "STRING",
+              description: "The value to fill the input with.",
+            },
+          },
+          required: ["selector", "value"],
+        },
+      },
     ],
   },
 ];
@@ -516,6 +580,8 @@ You have access to browser functions. The user knows you have these abilities.
 - \`addBookmarkFolder(title, parentID)\`: Creates a new bookmark folder. The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
 - \`updateBookmark(id, url, title, parentID)\`: Updates an existing bookmark.  The \`id\` is the GUID of the bookmark.  You must provide the ID and either a new URL or a new title or new parentID (or any one or two).
 - \`deleteBookmark(id)\`: Deletes a bookmark.  The \`id\` is the GUID of the bookmark.
+- \`clickElement(selector)\`: Clicks an element on the page.
+- \`fillForm(selector, value)\`: Fills a form input on the page.
 
 ## More instructions for Running tools
 - While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
@@ -554,8 +620,15 @@ Therse are just examples for you on how you can use tools calls, each example gi
 #### Finding and Editing a bookmark by folder name:
 -   **User Prompt:** "Move bookmark titled 'Example' to folder 'MyFolder'"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "Example"}}}\`
--   **Your Second Tool Call:** \`{"functionCall": {"name": "addBookmarkFolder", "args": {"title": "MyFolder"}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "MyFolder"}}}\`
 -   **Your Third Tool Call (after receiving the bookmark and folder ids):** \`{"functionCall": {"name": "updateBookmark", "args": {"id": "xxxxxxxxxxxx", "parentID": "yyyyyyyyyyyy"}}}\`
+Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.
+
+#### Filling a form:
+-   **User Prompt:** "Fill the name with John and submit"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "fillForm", "args": {"selector": "#name", "value": "John"}}}\`
+-   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\`
 
 ### Calling multiple tools at once.
 #### Making 2 searches in split 

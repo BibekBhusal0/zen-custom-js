@@ -93,6 +93,28 @@ export const windowManagerAPI = {
       return getUrlAndTitle();
     }
   },
+
+  async clickElement(selector) {
+    const wm = this.getWindowManager();
+    if (!wm) return { error: "No window manager found." };
+    try {
+      return await wm.clickElement(selector);
+    } catch (error) {
+      debugError(`Failed to click element with selector "${selector}":`, error);
+      return { error: `Failed to click element with selector "${selector}".` };
+    }
+  },
+
+  async fillForm(selector, value) {
+    const wm = this.getWindowManager();
+    if (!wm) return { error: "No window manager found." };
+    try {
+      return await wm.fillForm(selector, value);
+    } catch (error) {
+      debugError(`Failed to fill form with selector "${selector}":`, error);
+      return { error: `Failed to fill form with selector "${selector}".` };
+    }
+  },
 };
 
 export default windowManager;

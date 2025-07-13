@@ -63,4 +63,25 @@ export class FindbarAIWindowManagerParent extends JSWindowActorParent {
       return {};
     }
   }
+
+  async clickElement(selector) {
+    try {
+      const result = await this.sendQuery("FindbarAI:ClickElement", { selector });
+      return result;
+    } catch (e) {
+      debugError("Failed to click element:", e);
+      return { error: `Failed to click element: ${e}` };
+    }
+  }
+
+  async fillForm(selector, value) {
+    try {
+      const result = await this.sendQuery("FindbarAI:FillForm", { selector, value });
+      return result;
+    } catch (e) {
+      debugError("Failed to fill form:", e);
+      return { error: `Failed to fill form: ${e}` };
+    }
+  }
 }
+
