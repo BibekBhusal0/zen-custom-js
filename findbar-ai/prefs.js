@@ -4,15 +4,16 @@ export const PREFS = {
   PERSIST: "extension.findbar-ai.persist-chat",
   DND_ENABLED: "extension.findbar-ai.dnd-enabled",
   POSITION: "extension.findbar-ai.position",
+  DEBUG_MODE: "extension.findbar-ai.debug-mode",
 
   GOD_MODE: "extension.findbar-ai.god-mode",
   CITATIONS_ENABLED: "extension.findbar-ai.citations-enabled",
   MAX_TOOL_CALLS: "extension.findbar-ai.max-tool-calls",
+  CONFORMATION: "extension.findbar-ai.conform-before-tool-call",
 
   CONTEXT_MENU_ENABLED: "extension.findbar-ai.context-menu-enabled",
   CONTEXT_MENU_AUTOSEND: "extension.findbar-ai.context-menu-autosend",
 
-  DEBUG_MODE: "extension.findbar-ai.debug-mode",
 
   LLM_PROVIDER: "extension.findbar-ai.llm-provider",
   MISTRAL_API_KEY: "extension.findbar-ai.mistral-api-key",
@@ -23,8 +24,6 @@ export const PREFS = {
   //TODO: Not yet implimented
   COPY_BTN_ENABLED: "extension.findbar-ai.copy-btn-enabled",
   MARKDOWN_ENABLED: "extension.findbar-ai.markdown-enabled",
-
-  CONFORMATION: "extension.findbar-ai.conform-before-tool-call",
   SHOW_TOOL_CALL: "extension.findbar-ai.show-tool-call",
 
   defaultValues: {},

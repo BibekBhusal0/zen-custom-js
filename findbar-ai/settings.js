@@ -378,6 +378,7 @@ export const SettingsModal = {
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "God Mode (AI can use tool calls)", pref: PREFS.GOD_MODE },
+      { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
     ];
     const aiBehaviorWarningHtml = `
       <div id="citations-god-mode-warning" class="warning-message" style="display: none; color: red; margin-bottom: 10px;">
