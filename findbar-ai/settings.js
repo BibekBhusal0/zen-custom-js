@@ -120,7 +120,6 @@ export const SettingsModal = {
     }
 
     this._attachEventListeners();
-    this._updateWarningMessage();
     return container;
   },
 
@@ -199,9 +198,6 @@ export const SettingsModal = {
           debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
-          if (prefKey === PREFS.CITATIONS_ENABLED || prefKey === PREFS.GOD_MODE) {
-            this._updateWarningMessage();
-          }
         });
       }
     });
@@ -257,7 +253,6 @@ export const SettingsModal = {
       this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
     });
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
-    this._updateWarningMessage();
 
     document.documentElement.appendChild(this._modalElement);
   },
@@ -307,19 +302,6 @@ export const SettingsModal = {
     }
   },
 
-  _updateWarningMessage() {
-    if (!this._modalElement) return;
-
-    const citationsEnabled = this._currentPrefValues[PREFS.CITATIONS_ENABLED];
-    const godModeEnabled = this._currentPrefValues[PREFS.GOD_MODE];
-    const warningDiv = this._modalElement.querySelector("#citations-god-mode-warning");
-
-    if (citationsEnabled && godModeEnabled) {
-      if (warningDiv) warningDiv.style.display = "block";
-    } else {
-      if (warningDiv) warningDiv.style.display = "none";
-    }
-  },
 
   _generateCheckboxSettingHtml(label, prefConstant) {
     const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
@@ -381,7 +363,7 @@ export const SettingsModal = {
       { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
     ];
     const aiBehaviorWarningHtml = `
-      <div id="citations-god-mode-warning" class="warning-message" style="display: none; color: red; margin-bottom: 10px;">
+      <div id="citations-god-mode-warning" class="warning-message" >
         Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
       </div>
     `;

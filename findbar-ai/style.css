@@ -1057,6 +1057,31 @@ browser {
         }
       }
     }
+
+    #citations-god-mode-warning{
+      display: none; 
+      color: red;
+      margin-bottom: 10px
+    }
+
+    &:has(#pref-extension\.findbar-ai\.citations-enabled:checked)
+    :has(#pref-extension\.findbar-ai\.god-mode:checked){
+      #citations-god-mode-warning {
+        display: block !important
+      }
+    }
+
+    .setting-item:has(#pref-extension\.findbar-ai\.conform-before-tool-call),
+    .setting-item:has(#pref-max-tool-calls) {
+      display: none;
+    }
+
+    :has(#pref-extension\.findbar-ai\.god-mode:checked) {
+      .setting-item:has(#pref-extension\.findbar-ai\.conform-before-tool-call),
+      .setting-item:has(#pref-max-tool-calls) {
+        display: flex;
+      }
+    }
   }
 
   .tool-confirmation-content {
