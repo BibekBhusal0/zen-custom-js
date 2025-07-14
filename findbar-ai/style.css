@@ -118,7 +118,7 @@ browser {
         border: 2px solid var(--browser-primary-color) !important;
       }
     }
-    menupopup{
+    menupopup {
       --panel-background: var(--acrylic-bg) !important;
     }
     input[type="number"] {
