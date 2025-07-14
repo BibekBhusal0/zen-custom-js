@@ -3,12 +3,13 @@
   --browser-primary-color: var(--zen-primary-color, #8ae3be);
   --browser-themed-toolbar-bg: var(--zen-themed-toolbar-bg, #333333);
 
+  --acrylic-bg: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));
   --acrylic-background: rgba(36, 37, 39, 0.6) !important;
   --acrylic-backdrop: saturate(2.5) !important;
   --acrylic-border: 0.5px solid rgba(127, 127, 127, 0.3);
   --acrylic-shadow: 0 8px 32px color-mix(in srgb, var(--browser-primary-color) 15%, transparent 85%);
   --acrylic-radius: 8px;
-  --acrylic-glass-bg: light-dark(rgba(250, 250, 250, 0.6), rgba(24, 24, 27, 0.6));
+  --acrylic-glass-bg: color-mix(in srgb, var(--acrylic-bg) 40%, transparent 60%);
   --acrylic-glass-blur: blur(50px);
   --acrylic-glass-border: 1.5px solid
     color-mix(in srgb, var(--browser-primary-color) 20%, transparent 80%);
@@ -108,7 +109,7 @@ browser {
       padding: 8px 12px !important;
       font-size: 14px !important;
       transition: all 0.2s ease !important;
-      border: 2px solid color-mix(in srgb var(--browser-primary-color) 50%, transparent 50%) !important;
+      border: 2px solid color-mix(in srgb, var(--browser-primary-color) 30%, transparent 70%) !important;
       background: var(--acrylic-glass-bg) !important;
       backdrop-filter: var(--acrylic-glass-blur) brightness(0.8);
 
@@ -116,6 +117,9 @@ browser {
         outline: none !important;
         border: 2px solid var(--browser-primary-color) !important;
       }
+    }
+    menupopup{
+      --panel-background: var(--acrylic-bg) !important;
     }
     input[type="number"] {
       padding: 8px 0px !important;
