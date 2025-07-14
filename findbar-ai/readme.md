@@ -137,7 +137,7 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [x] AI interacting with page content (filling forms, clicking buttons)
 - [x] Conformation before calling tools
 - [x] Tool calls (opening links, search)
-- [x] Add support for other AI models (Gemini, Mistral)
+- [ ] Add support for other AI models (Open AI, Claude, Deepseek)
 - [x] Drag-and-drop to resize and move the findbar (optional)
 - [ ] Pin/unpin the findbar (optional)
 - [x] Context Menu integration
