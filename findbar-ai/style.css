@@ -17,16 +17,16 @@
     color-mix(in srgb, var(--browser-primary-color) 90%, white 10%),
     color-mix(in srgb, var(--browser-primary-color) 70%, black 30%)
   );
-   --findbar-ai-primary: light-dark(
+  --findbar-ai-primary: light-dark(
     color-mix(in srgb, var(--browser-primary-color) 50%, black 50%),
     color-mix(in srgb, var(--browser-primary-color) 50%, white 50%)
   );
   --findbar-ai-error: #f31260;
-  --findbar-ai-error-bg: light-dark(#fdd0df,#610726);
+  --findbar-ai-error-bg: light-dark(#fdd0df, #610726);
   --findbar-ai-success: #17c964;
-  --findbar-ai-success-bg: light-dark(#d1f4e0,#095028);
+  --findbar-ai-success-bg: light-dark(#d1f4e0, #095028);
   --findbar-ai-warning: #f5a524;
-  --findbar-ai-warning-bg: light-dark(#fdedd3,#62420e);
+  --findbar-ai-warning-bg: light-dark(#fdedd3, #62420e);
 }
 
 browser {
@@ -135,7 +135,11 @@ browser {
       outline: none !important;
 
       &:hover {
-        background-color: color-mix(in srgb, var(--findbar-ai-primary-bg) 80%, black 20%) !important;
+        background-color: color-mix(
+          in srgb,
+          var(--findbar-ai-primary-bg) 80%,
+          black 20%
+        ) !important;
       }
 
       &:active {
@@ -1123,12 +1127,12 @@ browser {
       font-size: 16px;
     }
 
-    .buttons{
-      display: flex ;
+    .buttons {
+      display: flex;
       justify-content: space-between;
-      .right-side-buttons{
+      .right-side-buttons {
         display: flex !important;
-        gap : 10px !important;
+        gap: 10px !important;
       }
       button {
         padding: 7px 14px;
@@ -1149,6 +1153,5 @@ browser {
         }
       }
     }
-      
   }
 }

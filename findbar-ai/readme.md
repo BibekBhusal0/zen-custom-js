@@ -149,7 +149,7 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [ ] Markdown Formatting toggle
 - [ ] Slash Command and variables
 - [ ] Adding more tools (tab groups, workspaces, background search)
-- [x] Giving AI YouTube transcript 
+- [x] Giving AI YouTube transcript
 - [ ] Tagging multiple tabs
 
 ## 🐛 Bugs and potential issues (I am working on fixing them)

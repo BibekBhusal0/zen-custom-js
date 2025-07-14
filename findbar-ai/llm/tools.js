@@ -422,7 +422,7 @@ const toolDeclarations = [
       {
         name: "getYoutubeTranscript",
         description:
-        "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
+          "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
         parameters: { type: "OBJECT", properties: {} },
       },
       {
