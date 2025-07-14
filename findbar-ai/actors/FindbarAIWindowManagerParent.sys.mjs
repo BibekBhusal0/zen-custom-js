@@ -53,10 +53,14 @@ export class FindbarAIWindowManagerParent extends JSWindowActorParent {
   }
 
   async getPageTextContent(trimWhiteSpace) {
+    // __AUTO_GENERATED_PRINT_VAR_START__
+    console.log("FindbarAIWindowManagerParent#getPageTextContent trimWhiteSpace:", trimWhiteSpace); // __AUTO_GENERATED_PRINT_VAR_END__
     try {
       const result = await this.sendQuery("FindbarAI:GetPageTextContent", {
         trimWhiteSpace,
       });
+      // __AUTO_GENERATED_PRINT_VAR_START__
+      console.log("FindbarAIWindowManagerParent#getPageTextContent result:", result); // __AUTO_GENERATED_PRINT_VAR_END__
       return result;
     } catch (e) {
       debugError("Failed to get page text content:", e);

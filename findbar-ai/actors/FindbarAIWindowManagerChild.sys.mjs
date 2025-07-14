@@ -177,25 +177,25 @@ export class FindbarAIWindowManagerChild extends JSWindowActorChild {
 
   extractTextContent(trimWhiteSpace = true) {
     this.debugLog("extractTextContent called");
-    const clonedDocument = this.document.body.cloneNode(true);
-    const elementsToRemove = clonedDocument.querySelectorAll(
+    const clonedBody = this.document.body.cloneNode(true);
+    const elementsToRemove = clonedBody.querySelectorAll(
       "script, style, meta, noscript, iframe, svg, canvas, input, textarea, select, img, video, audio, object, embed, applet, form, button, link, head"
     );
     elementsToRemove.forEach((el) => el.remove());
 
     // Replace <br> elements with a newline character.
-    clonedDocument.querySelectorAll("br").forEach((br) => {
+    clonedBody.querySelectorAll("br").forEach((br) => {
       br.replaceWith("\n");
     });
 
     // Append a newline to block-level elements to ensure separation.
     const blockSelector =
       "p, div, li, h1, h2, h3, h4, h5, h6, tr, article, section, header, footer, aside, main, blockquote, pre";
-    clonedDocument.querySelectorAll(blockSelector).forEach((el) => {
+    clonedBody.querySelectorAll(blockSelector).forEach((el) => {
       el.append("\n");
     });
 
-    const textContent = clonedDocument.body.textContent;
+    const textContent = clonedBody.textContent;
 
     if (trimWhiteSpace) {
       return textContent.replace(/\s+/g, " ").trim();
