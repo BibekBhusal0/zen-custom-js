@@ -1,13 +1,32 @@
 :root {
+  /*using fallback colors for zen colors*/
+  --browser-primary-color: var(--zen-primary-color, #8ae3be);
+  --browser-themed-toolbar-bg: var(--zen-themed-toolbar-bg, #333333);
+
   --acrylic-background: rgba(36, 37, 39, 0.6) !important;
-  --acrylic-backdrop: blur(32px) brightness(0.7) saturate(2.5) !important;
-  --acrylic-border: 0.5px solid rgba(255, 255, 255, 0.1);
-  --acrylic-shadow: 0 8px 32px color-mix(in srgb, var(--zen-primary-color) 15%, transparent 85%);
+  --acrylic-backdrop: saturate(2.5) !important;
+  --acrylic-border: 0.5px solid rgba(127, 127, 127, 0.3);
+  --acrylic-shadow: 0 8px 32px color-mix(in srgb, var(--browser-primary-color) 15%, transparent 85%);
   --acrylic-radius: 8px;
-  --acrylic-glass-bg: color-mix(in srgb, var(--zen-themed-toolbar-bg) 80%, transparent 20%);
-  --acrylic-glass-blur: blur(20px);
+  --acrylic-glass-bg: light-dark(rgba(250, 250, 250, 0.6), rgba(24, 24, 27, 0.6));
+  --acrylic-glass-blur: blur(50px);
   --acrylic-glass-border: 1.5px solid
-    color-mix(in srgb, var(--zen-primary-color) 20%, transparent 80%);
+    color-mix(in srgb, var(--browser-primary-color) 20%, transparent 80%);
+
+  --findbar-ai-primary-bg: light-dark(
+    color-mix(in srgb, var(--browser-primary-color) 90%, white 10%),
+    color-mix(in srgb, var(--browser-primary-color) 70%, black 30%)
+  );
+   --findbar-ai-primary: light-dark(
+    color-mix(in srgb, var(--browser-primary-color) 50%, black 50%),
+    color-mix(in srgb, var(--browser-primary-color) 50%, white 50%)
+  );
+  --findbar-ai-error: #f31260;
+  --findbar-ai-error-bg: light-dark(#fdd0df,#610726);
+  --findbar-ai-success: #17c964;
+  --findbar-ai-success-bg: light-dark(#d1f4e0,#095028);
+  --findbar-ai-warning: #f5a524;
+  --findbar-ai-warning-bg: light-dark(#fdedd3,#62420e);
 }
 
 browser {
@@ -89,11 +108,13 @@ browser {
       padding: 8px 12px !important;
       font-size: 14px !important;
       transition: all 0.2s ease !important;
-      border: 2px solid transparent !important;
+      border: 2px solid color-mix(in srgb var(--browser-primary-color) 50%, transparent 50%) !important;
+      background: var(--acrylic-glass-bg) !important;
+      backdrop-filter: var(--acrylic-glass-blur) brightness(0.8);
 
       &:focus {
         outline: none !important;
-        border: 2px solid var(--zen-primary-color) !important;
+        border: 2px solid var(--browser-primary-color) !important;
       }
     }
     input[type="number"] {
@@ -106,7 +127,7 @@ browser {
       transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
-      background-color: var(--zen-primary-color) !important;
+      background-color: var(--findbar-ai-primary-bg) !important;
       border: none !important;
       min-width: 60px !important;
       font-size: 14px !important;
@@ -114,7 +135,7 @@ browser {
       outline: none !important;
 
       &:hover {
-        background-color: color-mix(in srgb, var(--zen-primary-color) 80%, black 20%) !important;
+        background-color: color-mix(in srgb, var(--findbar-ai-primary-bg) 80%, black 20%) !important;
       }
 
       &:active {
@@ -455,7 +476,7 @@ browser {
         top: 34px !important;
         left: 0 !important;
         width: 100% !important;
-        border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-top: 1px solid rgba(127, 127, 127, 0.3) !important;
       }
     }
 
@@ -511,7 +532,7 @@ browser {
           transition: all 0.2s ease;
           position: relative;
           overflow: hidden;
-          background-color: var(--zen-primary-color) !important;
+          background-color: var(--findbar-ai-primary-bg) !important;
           border: none !important;
           min-width: 60px !important;
           font-size: 17px !important;
@@ -594,7 +615,7 @@ browser {
 
       .chat-message-user {
         align-self: flex-end;
-        background: var(--zen-primary-color);
+        background: var(--findbar-ai-primary-bg);
         color: var(--tab-selected-textcolor);
         border-bottom-right-radius: 4px;
         font-weight: 500;
@@ -608,9 +629,8 @@ browser {
 
       .chat-message-error {
         align-self: flex-start;
-        background: color-mix(in srgb, var(--zen-primary-color) 50%, transparent 50%);
-        color: var(--tab-selected-textcolor);
-        border: 1px solid var(--zen-primary-color);
+        background: var(--findbar-ai-error-bg);
+        color: var(--findbar-ai-error);
       }
 
       .ai-chat-input-group {
@@ -632,7 +652,7 @@ browser {
 
           left: 0% !important;
           width: 100% !important;
-          border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+          border-top: 1px solid rgba(127, 127, 127, 0.3) !important;
         }
 
         textarea {
@@ -647,24 +667,24 @@ browser {
           resize: none !important;
           border: none !important;
           background: none !important;
-          color: var(--tab-selected-textcolor) !important;
+          /* color: var(--tab-selected-textcolor) !important; */
           font-size: 14px !important;
           transition: all 0.2s ease !important;
           --focus-outline: none !important;
           --focus-outline-inset: 0 !important;
 
-          &::placeholder {
-            color: var(--toolbox-textcolor-inactive) !important;
-          }
+          /* &::placeholder { */
+          /*   color: var(--toolbox-textcolor-inactive) !important; */
+          /* } */
         }
 
         .send-btn {
           margin-left: auto !important;
           border: none !important;
-          background-color: var(--zen-primary-color) !important;
+          background-color: var(--findbar-ai-primary-bg) !important;
           padding: 3px !important;
           display: inline-flex !important;
-          color: color-mix(in srgb, var(--zen-primary-color) 30%, white 70%);
+          color: var(--findbar-ai-primary) !important;
           align-self: end !important;
           min-width: 30px !important;
           min-height: 30px !important;
@@ -674,7 +694,7 @@ browser {
           }
 
           &:disabled {
-            background: color-mix(in srgb, var(--zen-primary-color) 30%, black 70%);
+            background: color-mix(in srgb, var(--findbar-ai-primary-bg) 30%, black 70%);
             cursor: not-allowed;
             opacity: 0.6;
           }
@@ -692,7 +712,7 @@ browser {
           background: linear-gradient(
             90deg,
             transparent,
-            color-mix(in srgb, var(--zen-primary-color) 20%, transparent 80%),
+            color-mix(in srgb, var(--findbar-ai-primary-bg) 20%, transparent 80%),
             transparent
           );
           background-size: 200% 100%;
@@ -714,7 +734,7 @@ browser {
       margin: 1px 3px;
       vertical-align: middle;
       padding: 0.3px !important;
-      background: color-mix(in srgb, var(--zen-primary-color) 40%, transparent 60%) !important;
+      background: color-mix(in srgb, var(--findbar-ai-primary-bg) 40%, transparent 60%) !important;
     }
 
     #findbar-expand {
@@ -724,7 +744,7 @@ browser {
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       border-radius: 4px;
-      background: var(--zen-primary-color);
+      /* background: var(--findbar-ai-primary); */
       font-weight: 600;
       border: none !important;
       width: 100% !important;
@@ -816,7 +836,8 @@ browser {
         .findbar-drag-handle {
           width: 20px !important;
           opacity: 0 !important;
-          background: var(--tab-hover-background-color) !important;
+          background: var(--acrylic-glass-bg) !important;
+          backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
           border-radius: 4px !important;
           display: flex !important;
           justify-content: center !important;
@@ -945,7 +966,7 @@ browser {
       justify-content: space-between;
       align-items: center;
       padding-bottom: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      border-bottom: 1px solid rgba(127, 127, 127, 0.3);
       margin-right: 18px !important;
       margin-bottom: 5px;
 
@@ -972,14 +993,14 @@ browser {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 8px;
         padding: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(127, 127, 127, 0.3);
         margin: 10px 0px !important;
 
         h4 {
           margin: 0 0 10px 0 !important;
           font-size: 16px !important;
-          color: var(--zen-primary-color) !important;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          color: var(--findbar-ai-primary) !important;
+          border-bottom: 1px solid rgba(127, 127, 127, 0.3);
           padding-bottom: 8px;
         }
 
@@ -988,7 +1009,7 @@ browser {
           justify-content: space-between;
           align-items: center;
           padding: 8px 0;
-          border-bottom: 1px dotted rgba(255, 255, 255, 0.05);
+          border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
 
           &:last-child {
             border-bottom: none;
@@ -1043,7 +1064,7 @@ browser {
     .provider-settings-group {
       margin-top: 15px;
       padding-top: 10px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(127, 127, 127, 0.3);
 
       .provider-header-group {
         display: flex !important;
@@ -1118,13 +1139,13 @@ browser {
         font-size: 16px;
 
         &.confirm-tool {
-          background-color: #4caf50;
+          background-color: var(--findbar-ai-success);
           color: white;
         }
 
         &.cancel-tool {
-          background-color: #f44336;
           color: white;
+          background-color: var(--findbar-ai-error);
         }
       }
     }
