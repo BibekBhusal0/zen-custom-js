@@ -277,6 +277,38 @@ const hotkeys = [
       showToast("Tabs Closed", "success");
     },
   },
+
+  {
+    id: "unloadTab",
+    modifiers: "alt",
+    key: "U",
+    command: (window) => {
+      const current = window.gBrowser.selectedTab;
+
+      const tabs = Array.from(window.gBrowser.tabs)
+        .filter((t) => t !== current && !t.hasAttribute("pending"))
+        .sort((a, b) => b._lastAccessed - a._lastAccessed);
+
+      const target = tabs[0];
+      if (target) window.gBrowser.selectedTab = target;
+      else openTrustedLinkIn("about:blank", "tab");
+
+      setTimeout(() => {
+        window.gBrowser.discardBrowser(current);
+      }, 500);
+    },
+  },
+
+  {
+    id: "unloadOtherTab",
+    modifiers: "alt ctrl",
+    key: "U",
+    command: (window) => {
+      for (let tab of window.gBrowser.tabs) {
+        if (!tab.selected) window.gBrowser.discardBrowser(tab);
+      }
+    },
+  },
 ];
 
 if (typeof UC_API !== "undefined") {
