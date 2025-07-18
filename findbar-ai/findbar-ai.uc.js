@@ -1,10 +1,9 @@
-import windowManager, { windowManagerAPI } from "./windowManager.js";
+import {messageManagerAPI} from './messageManager.js'
 import { llm } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
 
-windowManager();
 
 var markdownStylesInjected = false;
 const injectMarkdownStyles = async () => {
@@ -602,7 +601,7 @@ const findbar = {
   },
   async setPromptTextFromSelection() {
     let text = "";
-    const selection = await windowManagerAPI.getSelectedText();
+    const selection = await messageManagerAPI.getSelectedText();
     if (!selection || !selection.hasSelection) text = this?.findbar?._findField?.value;
     else text = selection.selectedText;
     this.setPromptText(text);
@@ -755,7 +754,7 @@ const findbar = {
       ?.removeEventListener("popupshowing", this._updateContextMenuText);
   },
   handleContextMenuClick: async function () {
-    const selection = await windowManagerAPI.getSelectedText();
+    const selection = await messageManagerAPI.getSelectedText();
     let finalMessage = "";
     if (!selection.hasSelection) {
       finalMessage = "Summarize current page";

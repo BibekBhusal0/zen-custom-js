@@ -1,4 +1,4 @@
-import { windowManagerAPI } from "../windowManager.js";
+import {messageManagerAPI} from '../messageManager.js'
 import { debugLog, debugError } from "../utils/prefs.js";
 
 // ╭─────────────────────────────────────────────────────────╮
@@ -306,7 +306,7 @@ async function deleteBookmark(args) {
 async function clickElement(args) {
   const { selector } = args;
   if (!selector) return { error: "clickElement requires a selector." };
-  return windowManagerAPI.clickElement(selector);
+  return messageManagerAPI.clickElement(selector);
 }
 
 /**
@@ -320,16 +320,16 @@ async function fillForm(args) {
   const { selector, value } = args;
   if (!selector) return { error: "fillForm requires a selector." };
   if (!value) return { error: "fillForm requires a value." };
-  return windowManagerAPI.fillForm(selector, value);
+  return messageManagerAPI.fillForm(selector, value);
 }
 
 const availableTools = {
   search,
   newSplit,
   openLink,
-  getPageTextContent: windowManagerAPI.getPageTextContent.bind(windowManagerAPI),
-  getHTMLContent: windowManagerAPI.getHTMLContent.bind(windowManagerAPI),
-  getYoutubeTranscript: windowManagerAPI.getYoutubeTranscript.bind(windowManagerAPI),
+  getPageTextContent: messageManagerAPI.getPageTextContent.bind(messageManagerAPI),
+  getHTMLContent: messageManagerAPI.getHTMLContent.bind(messageManagerAPI),
+  getYoutubeTranscript: messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI),
   searchBookmarks,
   getAllBookmarks,
   createBookmark,

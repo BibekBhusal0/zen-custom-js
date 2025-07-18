@@ -1,7 +1,7 @@
 import gemini from "./provider/gemini.js";
 import mistral from "./provider/mistral.js";
 import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
-import { windowManagerAPI } from "../windowManager.js";
+import {messageManagerAPI} from '../messageManager.js'
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
 
 async function executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth = 0) {
@@ -258,7 +258,7 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 
 Here is the initial info about the current page:
 `;
-      const pageContext = await windowManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
+      const pageContext = await messageManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
 
