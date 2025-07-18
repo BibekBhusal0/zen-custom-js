@@ -21,10 +21,6 @@ jobs:
         npm init -y
         npm install --save-dev rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs
 
-    - name: Replace actor paths in all source files
-      run: |
-        find findbar-ai -type f \( -name '*.js' -o -name '*.mjs' \) -exec sed -i 's|chrome://userscripts/content/custom/findbar-ai/actors|chrome://userscripts/content|g' {} +
-
     - name: Create Rollup Configuration
       run: |
         echo "import resolve from '@rollup/plugin-node-resolve';
@@ -48,19 +44,12 @@ jobs:
     - name: Bundle JavaScript
       run: |
         npx rollup -c --bundleConfigAsCjs
-
-    - name: Copy actor files into dist
-      run: |
         mkdir -p dist
-        cp findbar-ai/actors/FindbarAIWindowManagerChild.sys.mjs dist/
-        cp findbar-ai/actors/FindbarAIWindowManagerParent.sys.mjs dist/
 
-    - name: Upload bundled file and actors
+    - name: Upload bundled file
       uses: actions/upload-artifact@v4
       with:
         name: bundled-js
         path: |
           dist/findbar-ai.uc.js
-          dist/FindbarAIWindowManagerChild.sys.mjs
-          dist/FindbarAIWindowManagerParent.sys.mjs
 
