@@ -24,7 +24,7 @@ async function executeToolCalls(llmInstance, requestBody, modelResponse, current
 
   let confirmed = true;
   if (PREFS.conformation) {
-    confirmed = await findbar.createToolConfirmationDialog(toolNames);
+    confirmed = await window.findbar.createToolConfirmationDialog(toolNames);
   }
 
   const functionResponses = [];
