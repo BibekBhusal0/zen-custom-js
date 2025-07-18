@@ -1,6 +1,6 @@
 import { llm } from "./llm/index.js";
 import { PREFS, debugLog } from "./utils/prefs.js";
-import {parseElement,escapeXmlAttribute} from "./utils/parse.js";
+import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 
 export const SettingsModal = {
   _modalElement: null,
