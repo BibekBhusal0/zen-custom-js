@@ -26,6 +26,8 @@
     "chat"
   ],
   "createdAt": "2024-05-22",
-  "updatedAt": "2025-07-15",
-  "fork": ["zen"]
+  "updatedAt": "2025-07-16",
+  "fork": [
+    "zen"
+  ]
 }
