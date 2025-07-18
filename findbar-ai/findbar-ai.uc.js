@@ -1,32 +1,10 @@
 import windowManager, { windowManagerAPI } from "./windowManager.js";
 import { llm } from "./llm/index.js";
-import { PREFS, debugLog, debugError } from "./prefs.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import {parseElement,escapeXmlAttribute} from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
 
 windowManager();
-
-const parseElement = (elementString, type = "html") => {
-  if (type === "xul") {
-    return window.MozXULElement.parseXULToFragment(elementString).firstChild;
-  }
-
-  let element = new DOMParser().parseFromString(elementString, "text/html");
-  if (element.body.children.length) element = element.body.firstChild;
-  else element = element.head.firstChild;
-  return element;
-};
-
-const escapeXmlAttribute = (str) => {
-  if (typeof str !== "string") return str;
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-};
-
-PREFS.setInitialPrefs();
 
 var markdownStylesInjected = false;
 const injectMarkdownStyles = async () => {

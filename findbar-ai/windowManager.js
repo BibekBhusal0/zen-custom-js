@@ -2,7 +2,7 @@
 // ===========================================================
 // Module to read HTML content (and maybe modify if I implement it)
 // ===========================================================
-import { debugError, debugLog } from "./prefs.js";
+import { debugError, debugLog } from "./utils/prefs.js";
 
 const getUrlAndTitle = () => {
   return {

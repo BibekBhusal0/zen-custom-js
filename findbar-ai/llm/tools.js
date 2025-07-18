@@ -1,5 +1,5 @@
 import { windowManagerAPI } from "../windowManager.js";
-import { debugLog, debugError } from "../prefs.js";
+import { debugLog, debugError } from "../utils/prefs.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                         SEARCH                          │

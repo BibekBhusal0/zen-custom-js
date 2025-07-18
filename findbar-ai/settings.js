@@ -1,26 +1,6 @@
 import { llm } from "./llm/index.js";
-import { PREFS, debugLog } from "./prefs.js";
-
-const parseElement = (elementString, type = "html") => {
-  if (type === "xul") {
-    return window.MozXULElement.parseXULToFragment(elementString).firstChild;
-  }
-
-  let element = new DOMParser().parseFromString(elementString, "text/html");
-  if (element.body.children.length) element = element.body.firstChild;
-  else element = element.head.firstChild;
-  return element;
-};
-
-const escapeXmlAttribute = (str) => {
-  if (typeof str !== "string") return str;
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-};
+import { PREFS, debugLog } from "./utils/prefs.js";
+import {parseElement,escapeXmlAttribute} from "./utils/parse.js";
 
 export const SettingsModal = {
   _modalElement: null,
