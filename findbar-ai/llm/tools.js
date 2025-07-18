@@ -1,4 +1,4 @@
-import {messageManagerAPI} from '../messageManager.js'
+import { messageManagerAPI } from "../messageManager.js";
 import { debugLog, debugError } from "../utils/prefs.js";
 
 // ╭─────────────────────────────────────────────────────────╮

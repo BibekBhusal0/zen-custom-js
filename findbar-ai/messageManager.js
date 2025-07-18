@@ -170,7 +170,7 @@ function frameScript() {
     },
   };
 
-  addMessageListener("FindbarAI:Command", async function(msg) {
+  addMessageListener("FindbarAI:Command", async function (msg) {
     const cmd = msg.data.command;
     const data = msg.data.data || {};
     try {

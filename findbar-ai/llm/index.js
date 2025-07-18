@@ -1,7 +1,7 @@
 import gemini from "./provider/gemini.js";
 import mistral from "./provider/mistral.js";
 import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
-import {messageManagerAPI} from '../messageManager.js'
+import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
 
 async function executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth = 0) {
