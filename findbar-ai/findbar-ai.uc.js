@@ -1123,6 +1123,8 @@ const findbar = {
   },
 };
 
-findbar.init();
-UC_API.Prefs.addListener(PREFS.ENABLED, findbar.handleEnabledChange.bind(findbar));
-window.findbar = findbar;
+UC_API.Runtime.startupFinished().then(() => {
+  findbar.init();
+  UC_API.Prefs.addListener(PREFS.ENABLED, findbar.handleEnabledChange.bind(findbar));
+  window.findbar = findbar;
+});
