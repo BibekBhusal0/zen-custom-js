@@ -52,8 +52,8 @@ jobs:
     - name: Copy actor files into dist
       run: |
         mkdir -p dist/findbar-ai/actors
-        cp findbar-ai/FindbarAIWindowManagerChild.sys.mjs dist/findbar-ai/actors/
-        cp findbar-ai/FindbarAIWindowManagerParent.sys.mjs dist/findbar-ai/actors/
+        cp findbar-ai/actors/FindbarAIWindowManagerChild.sys.mjs dist/findbar-ai/actors/
+        cp findbar-ai/actors/FindbarAIWindowManagerParent.sys.mjs dist/findbar-ai/actors/
     
     - name: Upload bundled file and actors
       uses: actions/upload-artifact@v4
