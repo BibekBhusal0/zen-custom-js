@@ -1,0 +1,52 @@
+name: Bundle Findbar JS Files
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bundle-js:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+    
+    - name: Install dependencies
+      run: |
+        npm init -y
+        npm install --save-dev rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs
+    
+    - name: Create Rollup Configuration
+      run: |
+        echo "import resolve from '@rollup/plugin-node-resolve';
+        import commonjs from '@rollup/plugin-commonjs';
+
+        export default {
+          input: 'findbar-ai/findbar-ai.uc.js',
+          output: [
+            {
+              file: 'dist/findbar-ai.uc.js',
+              format: 'umd',
+              name: 'FindbarAI'
+            }
+          ],
+          plugins: [
+            resolve(),
+            commonjs()
+          ]
+        }" > rollup.config.js
+    
+    - name: Bundle JavaScript
+      run: |
+        npx rollup -c
+    
+    - name: Upload bundled file
+      uses: actions/upload-artifact@v3
+      with:
+        name: bundled-js
+        path: dist/findbar-ai.uc.js
