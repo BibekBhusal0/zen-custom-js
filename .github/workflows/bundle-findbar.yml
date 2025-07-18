@@ -23,7 +23,7 @@ jobs:
 
     - name: Replace actor paths in all source files
       run: |
-        find findbar-ai -type f \( -name '*.js' -o -name '*.mjs' \) -exec sed -i 's|chrome://userscripts/content/custom/findbar-ai/actors|chrome://userscripts/content/|g' {} +
+        find findbar-ai -type f \( -name '*.js' -o -name '*.mjs' \) -exec sed -i 's|chrome://userscripts/content/custom/findbar-ai/actors|chrome://userscripts/content|g' {} +
 
     - name: Create Rollup Configuration
       run: |
