@@ -21,9 +21,9 @@ jobs:
         npm init -y
         npm install --save-dev rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs
     
-    - name: Replace actor paths in source
+    - name: Replace actor paths in all source files
       run: |
-        sed -i 's|chrome://userscripts/content/custom/findbar-ai/actors|chrome://userscripts/content/findbar-ai/actors|g' findbar-ai/findbar-ai.uc.js
+        find findbar-ai -type f \( -name '*.js' -o -name '*.mjs' \) -exec sed -i 's|chrome://userscripts/content/custom/findbar-ai/actors|chrome://userscripts/content/findbar-ai/actors|g' {} +
     
     - name: Create Rollup Configuration
       run: |
