@@ -43,7 +43,7 @@ jobs:
     
     - name: Bundle JavaScript
       run: |
-        npx rollup -c
+        npx rollup -c --bundleConfigAsCjs
     
     - name: Upload bundled file
       uses: actions/upload-artifact@v4
