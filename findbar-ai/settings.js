@@ -115,8 +115,8 @@ export const SettingsModal = {
     this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
       this.saveSettings();
       this.hide();
-      if (findbar.enabled) findbar.show();
-      else findbar.destroy();
+      if (window.findbar.enabled) window.findbar.show();
+      else window.findbar.destroy();
     });
 
     this._modalElement.addEventListener("click", (e) => {
@@ -212,7 +212,7 @@ export const SettingsModal = {
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
     if (!llm.currentProvider.apiKey) {
-      findbar.expanded = false;
+      window.findbar.expanded = false;
     }
   },
 
