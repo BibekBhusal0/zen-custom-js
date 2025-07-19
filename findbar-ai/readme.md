@@ -21,12 +21,11 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## Installation
 
-
 ### Method 1: Using Sine (recommended)
 
 [Sine](https://github.com/CosmoCreeper/Sine) is a modern userscript and theme manager. This is available for instillation from Sine marketplace.
 
-1. Follow instillation instruction from  [Sine](https://github.com/CosmoCreeper/Sine).
+1. Follow instillation instruction from [Sine](https://github.com/CosmoCreeper/Sine).
 
 2. Open settings and go to `Sine Mods`.
 
