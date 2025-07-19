@@ -159,7 +159,6 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 
 ## Credits
 
-- **[CosmoCreeper](https://github.com/CosmoCreeper)**: For creating **Sine** and for the JSWindowActor pattern which made page content interaction possible.
 - **[natsumi-browser](https://github.com/greeeen-dev/natsumi-browser)**: For inspiration on the modern, floating UI styles.
 
 ## License
