@@ -29,7 +29,7 @@ function parseMD(markdown) {
   return htmlContent;
 }
 
-PREFS.setInitialPrefs()
+PREFS.setInitialPrefs();
 const browserBotfindbar = {
   findbar: null,
   expandButton: null,
@@ -1102,6 +1102,9 @@ const browserBotfindbar = {
 
 UC_API.Runtime.startupFinished().then(() => {
   browserBotfindbar.init();
-  UC_API.Prefs.addListener(PREFS.ENABLED, browserBotfindbar.handleEnabledChange.bind(browserBotfindbar));
+  UC_API.Prefs.addListener(
+    PREFS.ENABLED,
+    browserBotfindbar.handleEnabledChange.bind(browserBotfindbar)
+  );
   window.browserBotFindbar = browserBotfindbar;
 });
