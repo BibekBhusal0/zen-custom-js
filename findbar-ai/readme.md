@@ -2,13 +2,7 @@
 
 Inspired by Arc Browser, this script transforms the standard findbar in **Zen Browser** into a modern, floating, AI-powered chat interface. It leverages Different AI models to allow you to interact with and ask questions about the content of the current webpage.
 
-## Demo
-
-https://github.com/user-attachments/assets/258d2643-6135-4b2b-accc-c1d59f3f76fc
-
-https://github.com/user-attachments/assets/73413ee0-15b6-4ef3-bc16-faa0302c622f
-
-https://github.com/user-attachments/assets/8db50ef3-c704-482f-a5bc-8d002660e796
+https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## Features
 
