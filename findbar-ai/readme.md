@@ -21,7 +21,18 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## Installation
 
-### Method 1: Using `fx-autoconfig`
+
+### Method 1: Using Sine (recommended)
+
+[Sine](https://github.com/CosmoCreeper/Sine) is a modern userscript and theme manager. This is available for instillation from Sine marketplace.
+
+1. Follow instillation instruction from  [Sine](https://github.com/CosmoCreeper/Sine).
+
+2. Open settings and go to `Sine Mods`.
+
+3. Search for BrowseBot and install.
+
+### Method 2: Using `fx-autoconfig`
 
 1.  **Setup `fx-autoconfig`**: If you haven't already, follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig).
 
@@ -44,10 +55,6 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
     ```
 
 5.  **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
-
-### Method 2: Using Sine
-
-[Sine](https://github.com/CosmoCreeper/Sine) is a modern userscript and theme manager. This script will be available on the Sine marketplace in a future update.
 
 ## Usage
 
