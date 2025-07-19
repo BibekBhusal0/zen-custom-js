@@ -71,7 +71,7 @@
     "property": "extension.browse-bot.gemini-model",
     "label": "Gemini Model",
     "type": "dropdown",
-    "default": "gemini-1.5-flash",
+    "default": "gemini-2.0-flash",
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
       {
@@ -293,7 +293,7 @@
     "property": "extension.browse-bot.dnd-enabled",
     "label": "Enable Drag & Drop and Resizing",
     "type": "checkbox",
-    "default": false,
+    "default": true,
     "description": "Allows the AI chat panel to be moved around the screen and resized.",
     "conditions": [
       {
@@ -308,7 +308,7 @@
     "property": "extension.browse-bot.position",
     "label": "Snap-to Corner",
     "type": "dropdown",
-    "default": "bottom-right",
+    "default": "top-right",
     "description": "The corner the findbar will snap to after being dragged.",
     "options": [
       {
@@ -369,7 +369,7 @@
     "property": "extension.browse-bot.context-menu.autosend",
     "label": "Automatically Send Query from Context Menu",
     "type": "checkbox",
-    "default": false,
+    "default": true,
     "description": "If enabled, clicking the context menu item immediately sends the query. If disabled, it only populates the input field.",
     "conditions": [
       {
