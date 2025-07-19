@@ -1,4 +1,4 @@
-name: Bundle Findbar JS Files
+name: Bundle BrowseBot JS Files
 
 on:
   workflow_dispatch:

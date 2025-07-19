@@ -1,4 +1,4 @@
-# 🔍 Findbar AI for Zen Browser
+# 🔍 BrowseBot for Zen Browser
 
 Inspired by Arc Browser, this script transforms the standard findbar in **Zen Browser** into a modern, floating, AI-powered chat interface. It leverages Different AI models to allow you to interact with and ask questions about the content of the current webpage.
 
@@ -58,7 +58,7 @@ https://github.com/user-attachments/assets/8db50ef3-c704-482f-a5bc-8d002660e796
 
 ## Usage
 
-1.  **Get an API Key**: After installation, the Findbar AI will prompt you to select a provider and set an API key. It will also provide a link to get the required key.
+1.  **Get an API Key**: After installation, the BrowseBot will prompt you to select a provider and set an API key. It will also provide a link to get the required key.
 2.  **Save the Key**: Paste the key into the input field and click "Save". The chat interface will now appear.
 3.  **Start Chatting**:
     - Press `Ctrl+F` to open the standard findbar.
@@ -68,7 +68,7 @@ https://github.com/user-attachments/assets/8db50ef3-c704-482f-a5bc-8d002660e796
 
 ## Customization
 
-You can customize the Findbar AI through the settings modal (found in the chat header) or via `about:config`.
+You can customize the BrowseBot through the settings modal (found in the chat header) or via `about:config`.
 
 ### Preferences (`about:config`)
 
