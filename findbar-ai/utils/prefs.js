@@ -1,29 +1,29 @@
 export const PREFS = {
-  ENABLED: "extension.findbar-ai.enabled",
-  MINIMAL: "extension.findbar-ai.minimal",
-  PERSIST: "extension.findbar-ai.persist-chat",
-  DND_ENABLED: "extension.findbar-ai.dnd-enabled",
-  POSITION: "extension.findbar-ai.position",
-  DEBUG_MODE: "extension.findbar-ai.debug-mode",
+  ENABLED: "extension.browse-bot.enabled",
+  MINIMAL: "extension.browse-bot.minimal",
+  PERSIST: "extension.browse-bot.persist-chat",
+  DND_ENABLED: "extension.browse-bot.dnd-enabled",
+  POSITION: "extension.browse-bot.position",
+  DEBUG_MODE: "extension.browse-bot.debug-mode",
 
-  GOD_MODE: "extension.findbar-ai.god-mode",
-  CITATIONS_ENABLED: "extension.findbar-ai.citations-enabled",
-  MAX_TOOL_CALLS: "extension.findbar-ai.max-tool-calls",
-  CONFORMATION: "extension.findbar-ai.conform-before-tool-call",
+  GOD_MODE: "extension.browse-bot.god-mode",
+  CITATIONS_ENABLED: "extension.browse-bot.citations-enabled",
+  MAX_TOOL_CALLS: "extension.browse-bot.max-tool-calls",
+  CONFORMATION: "extension.browse-bot.conform-before-tool-call",
 
-  CONTEXT_MENU_ENABLED: "extension.findbar-ai.context-menu-enabled",
-  CONTEXT_MENU_AUTOSEND: "extension.findbar-ai.context-menu-autosend",
+  CONTEXT_MENU_ENABLED: "extension.browse-bot.context-menu-enabled",
+  CONTEXT_MENU_AUTOSEND: "extension.browse-bot.context-menu-autosend",
 
-  LLM_PROVIDER: "extension.findbar-ai.llm-provider",
-  MISTRAL_API_KEY: "extension.findbar-ai.mistral-api-key",
-  MISTRAL_MODEL: "extension.findbar-ai.mistral-model",
-  GEMINI_API_KEY: "extension.findbar-ai.gemini-api-key",
-  GEMINI_MODEL: "extension.findbar-ai.gemini-model",
+  LLM_PROVIDER: "extension.browse-bot.llm-provider",
+  MISTRAL_API_KEY: "extension.browse-bot.mistral-api-key",
+  MISTRAL_MODEL: "extension.browse-bot.mistral-model",
+  GEMINI_API_KEY: "extension.browse-bot.gemini-api-key",
+  GEMINI_MODEL: "extension.browse-bot.gemini-model",
 
   //TODO: Not yet implimented
-  COPY_BTN_ENABLED: "extension.findbar-ai.copy-btn-enabled",
-  MARKDOWN_ENABLED: "extension.findbar-ai.markdown-enabled",
-  SHOW_TOOL_CALL: "extension.findbar-ai.show-tool-call",
+  COPY_BTN_ENABLED: "extension.browse-bot.copy-btn-enabled",
+  MARKDOWN_ENABLED: "extension.browse-bot.markdown-enabled",
+  SHOW_TOOL_CALL: "extension.browse-bot.show-tool-call",
 
   defaultValues: {},
 
@@ -179,13 +179,13 @@ export const PREFS = {
 
 export const debugLog = (...args) => {
   if (PREFS.getPref(PREFS.DEBUG_MODE, false)) {
-    console.log("FindbarAI :", ...args);
+    console.log("BrowseBot :", ...args);
   }
 };
 
 export const debugError = (...args) => {
   if (PREFS.getPref(PREFS.DEBUG_MODE, false)) {
-    console.error("FindbarAI :", ...args);
+    console.error("BrowseBot :", ...args);
   }
 };
 

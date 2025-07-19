@@ -14,20 +14,20 @@
   --acrylic-glass-border: 1.5px solid
     color-mix(in srgb, var(--browser-primary-color) 20%, transparent 80%);
 
-  --findbar-ai-primary-bg: light-dark(
+  --browse-bot-primary-bg: light-dark(
     color-mix(in srgb, var(--browser-primary-color) 90%, white 10%),
     color-mix(in srgb, var(--browser-primary-color) 70%, black 30%)
   );
-  --findbar-ai-primary: light-dark(
+  --browse-bot-primary: light-dark(
     color-mix(in srgb, var(--browser-primary-color) 50%, black 50%),
     color-mix(in srgb, var(--browser-primary-color) 50%, white 50%)
   );
-  --findbar-ai-error: #f31260;
-  --findbar-ai-error-bg: light-dark(#fdd0df, #610726);
-  --findbar-ai-success: #17c964;
-  --findbar-ai-success-bg: light-dark(#d1f4e0, #095028);
-  --findbar-ai-warning: #f5a524;
-  --findbar-ai-warning-bg: light-dark(#fdedd3, #62420e);
+  --browse-bot-error: #f31260;
+  --browse-bot-error-bg: light-dark(#fdd0df, #610726);
+  --browse-bot-success: #17c964;
+  --browse-bot-success-bg: light-dark(#d1f4e0, #095028);
+  --browse-bot-warning: #f5a524;
+  --browse-bot-warning-bg: light-dark(#fdedd3, #62420e);
 }
 
 browser {
@@ -91,15 +91,15 @@ browser {
   }
 }
 
-@media -moz-pref("extension.findbar-ai.enabled") {
-  @media -moz-pref("extension.findbar-ai.context-menu-enabled") {
-    #ai-findbar-context-menu-item {
+@media -moz-pref("extension.browse-bot.enabled") {
+  @media -moz-pref("extension.browse-bot.context-menu-enabled") {
+    #browse-bot-context-menu-item {
       --menu-image: url("chrome://browser/skin/trending.svg");
     }
   }
 
   findbar,
-  .findbar-ai-settings-modal {
+  .browse-bot-settings-modal {
     input[type="text"],
     input[type="password"],
     input[type="number"],
@@ -131,7 +131,7 @@ browser {
       transition: all 0.2s ease;
       position: relative;
       overflow: hidden;
-      background-color: var(--findbar-ai-primary-bg) !important;
+      background-color: var(--browse-bot-primary-bg) !important;
       border: none !important;
       min-width: 60px !important;
       font-size: 14px !important;
@@ -141,7 +141,7 @@ browser {
       &:hover {
         background-color: color-mix(
           in srgb,
-          var(--findbar-ai-primary-bg) 80%,
+          var(--browse-bot-primary-bg) 80%,
           black 20%
         ) !important;
       }
@@ -202,12 +202,12 @@ browser {
       position: absolute;
       right: 0;
 
-      @media not -moz-pref("extension.findbar-ai.dnd-enabled") {
+      @media not -moz-pref("extension.browse-bot.dnd-enabled") {
         display: none !important;
       }
     }
 
-    @media -moz-pref("extension.findbar-ai.position", "top-right") {
+    @media -moz-pref("extension.browse-bot.position", "top-right") {
       top: 35px;
       right: 15px;
 
@@ -217,7 +217,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.findbar-ai.position", "top-left") {
+    @media -moz-pref("extension.browse-bot.position", "top-left") {
       top: 35px;
       left: 15px;
 
@@ -227,7 +227,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.findbar-ai.position", "bottom-right") {
+    @media -moz-pref("extension.browse-bot.position", "bottom-right") {
       bottom: 15px;
       right: 15px;
       top: unset;
@@ -238,7 +238,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.findbar-ai.position", "bottom-left") {
+    @media -moz-pref("extension.browse-bot.position", "bottom-left") {
       bottom: 15px;
       left: 15px;
       top: unset;
@@ -294,7 +294,7 @@ browser {
         display: none !important;
       }
 
-      @media not -moz-pref("extension.findbar-ai.minimal") {
+      @media not -moz-pref("extension.browse-bot.minimal") {
         .findbar-closebutton {
           top: 0px !important;
         }
@@ -444,8 +444,8 @@ browser {
       }
     }
 
-    .findbar-ai-setup,
-    .findbar-ai-chat {
+    .browse-bot-setup,
+    .browse-bot-chat {
       width: 100%;
       box-sizing: border-box;
       display: flex;
@@ -473,7 +473,7 @@ browser {
         /* background-color: green !important; */
         z-index: 1 !important;
 
-        @media not -moz-pref("extension.findbar-ai.dnd-enabled") {
+        @media not -moz-pref("extension.browse-bot.dnd-enabled") {
           display: none !important;
         }
       }
@@ -488,7 +488,7 @@ browser {
       }
     }
 
-    .findbar-ai-setup {
+    .browse-bot-setup {
       .ai-setup-content {
         text-align: center;
         padding: 15px !important;
@@ -540,7 +540,7 @@ browser {
           transition: all 0.2s ease;
           position: relative;
           overflow: hidden;
-          background-color: var(--findbar-ai-primary-bg) !important;
+          background-color: var(--browse-bot-primary-bg) !important;
           border: none !important;
           min-width: 60px !important;
           font-size: 17px !important;
@@ -588,7 +588,7 @@ browser {
       }
     }
 
-    .findbar-ai-chat {
+    .browse-bot-chat {
       .ai-chat-messages {
         max-height: 320px;
         overflow-y: auto;
@@ -604,7 +604,7 @@ browser {
           & ~ .ai-chat-input-group {
             padding-top: 4px !important;
 
-            /* When there are no messages, the parent .findbar-ai-chat should not have a header or separator line */
+            /* When there are no messages, the parent .browse-bot-chat should not have a header or separator line */
             &::after {
               display: none;
             }
@@ -623,7 +623,7 @@ browser {
 
       .chat-message-user {
         align-self: flex-end;
-        background: var(--findbar-ai-primary-bg);
+        background: var(--browse-bot-primary-bg);
         color: var(--tab-selected-textcolor);
         border-bottom-right-radius: 4px;
         font-weight: 500;
@@ -637,8 +637,8 @@ browser {
 
       .chat-message-error {
         align-self: flex-start;
-        background: var(--findbar-ai-error-bg);
-        color: var(--findbar-ai-error);
+        background: var(--browse-bot-error-bg);
+        color: var(--browse-bot-error);
       }
 
       .ai-chat-input-group {
@@ -654,7 +654,7 @@ browser {
           position: absolute !important;
           bottom: 57px !important;
 
-          @media -moz-pref("extension.findbar-ai.minimal") {
+          @media -moz-pref("extension.browse-bot.minimal") {
             bottom: 32px !important;
           }
 
@@ -689,10 +689,10 @@ browser {
         .send-btn {
           margin-left: auto !important;
           border: none !important;
-          background-color: var(--findbar-ai-primary-bg) !important;
+          background-color: var(--browse-bot-primary-bg) !important;
           padding: 3px !important;
           display: inline-flex !important;
-          color: var(--findbar-ai-primary) !important;
+          color: var(--browse-bot-primary) !important;
           align-self: end !important;
           min-width: 30px !important;
           min-height: 30px !important;
@@ -702,7 +702,7 @@ browser {
           }
 
           &:disabled {
-            background: color-mix(in srgb, var(--findbar-ai-primary-bg) 30%, black 70%);
+            background: color-mix(in srgb, var(--browse-bot-primary-bg) 30%, black 70%);
             cursor: not-allowed;
             opacity: 0.6;
           }
@@ -720,7 +720,7 @@ browser {
           background: linear-gradient(
             90deg,
             transparent,
-            color-mix(in srgb, var(--findbar-ai-primary-bg) 20%, transparent 80%),
+            color-mix(in srgb, var(--browse-bot-primary-bg) 20%, transparent 80%),
             transparent
           );
           background-size: 200% 100%;
@@ -742,7 +742,7 @@ browser {
       margin: 1px 3px;
       vertical-align: middle;
       padding: 0.3px !important;
-      background: color-mix(in srgb, var(--findbar-ai-primary-bg) 40%, transparent 60%) !important;
+      background: color-mix(in srgb, var(--browse-bot-primary-bg) 40%, transparent 60%) !important;
     }
 
     #findbar-expand {
@@ -752,7 +752,7 @@ browser {
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       border-radius: 4px;
-      /* background: var(--findbar-ai-primary); */
+      /* background: var(--browse-bot-primary); */
       font-weight: 600;
       border: none !important;
       width: 100% !important;
@@ -762,7 +762,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.findbar-ai.minimal") {
+    @media -moz-pref("extension.browse-bot.minimal") {
       width: 420px;
       min-height: 36px !important;
       align-items: center !important;
@@ -859,7 +859,7 @@ browser {
             padding-top: 6px !important;
           }
 
-          @media not -moz-pref("extension.findbar-ai.dnd-enabled") {
+          @media not -moz-pref("extension.browse-bot.dnd-enabled") {
             display: none !important;
           }
         }
@@ -955,7 +955,7 @@ browser {
     align-items: center;
   }
 
-  .findbar-ai-settings-modal {
+  .browse-bot-settings-modal {
     position: relative;
     width: 500px;
     min-width: 500px;
@@ -1007,7 +1007,7 @@ browser {
         h4 {
           margin: 0 0 10px 0 !important;
           font-size: 16px !important;
-          color: var(--findbar-ai-primary) !important;
+          color: var(--browse-bot-primary) !important;
           border-bottom: 1px solid rgba(127, 127, 127, 0.3);
           padding-bottom: 8px;
         }
@@ -1094,20 +1094,20 @@ browser {
       margin-bottom: 10px;
     }
 
-    &:has(#pref-extension\.findbar-ai\.citations-enabled:checked)
-      :has(#pref-extension\.findbar-ai\.god-mode:checked) {
+    &:has(#pref-extension\.browse-bot\.citations-enabled:checked)
+      :has(#pref-extension\.browse-bot\.god-mode:checked) {
       #citations-god-mode-warning {
         display: block !important;
       }
     }
 
-    .setting-item:has(#pref-extension\.findbar-ai\.conform-before-tool-call),
+    .setting-item:has(#pref-extension\.browse-bot\.conform-before-tool-call),
     .setting-item:has(#pref-max-tool-calls) {
       display: none;
     }
 
-    :has(#pref-extension\.findbar-ai\.god-mode:checked) {
-      .setting-item:has(#pref-extension\.findbar-ai\.conform-before-tool-call),
+    :has(#pref-extension\.browse-bot\.god-mode:checked) {
+      .setting-item:has(#pref-extension\.browse-bot\.conform-before-tool-call),
       .setting-item:has(#pref-max-tool-calls) {
         display: flex;
       }
@@ -1147,13 +1147,13 @@ browser {
         font-size: 16px;
 
         &.confirm-tool {
-          background-color: var(--findbar-ai-success);
+          background-color: var(--browse-bot-success);
           color: white;
         }
 
         &.cancel-tool {
           color: white;
-          background-color: var(--findbar-ai-error);
+          background-color: var(--browse-bot-error);
         }
       }
     }

@@ -115,8 +115,8 @@ export const SettingsModal = {
     this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
       this.saveSettings();
       this.hide();
-      if (window.findbar.enabled) window.findbar.show();
-      else window.findbar.destroy();
+      if (window.browserBotFindbar.enabled) window.browserBotFindbar.show();
+      else window.browserBotFindbar.destroy();
     });
 
     this._modalElement.addEventListener("click", (e) => {
@@ -212,7 +212,7 @@ export const SettingsModal = {
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
     if (!llm.currentProvider.apiKey) {
-      window.findbar.expanded = false;
+      window.browserBotFindbar.expanded = false;
     }
   },
 
@@ -437,7 +437,7 @@ export const SettingsModal = {
 
     return `
       <div id="ai-settings-modal-overlay">
-        <div class="findbar-ai-settings-modal">
+        <div class="browse-bot-settings-modal">
           <div class="ai-settings-header">
             <h3>Settings</h3>
             <div>

@@ -29,7 +29,8 @@ function parseMD(markdown) {
   return htmlContent;
 }
 
-const findbar = {
+PREFS.setInitialPrefs()
+const browserBotfindbar = {
   findbar: null,
   expandButton: null,
   chatContainer: null,
@@ -308,7 +309,7 @@ const findbar = {
     const providerSelectorXulElement = parseElement(menulistXul, "xul");
 
     const html = `
-        <div class="findbar-ai-setup">
+        <div class="browse-bot-setup">
           <div class="ai-setup-content">
             <h3>AI Setup Required</h3>
             <p>To use AI features, you need to set up your API key and select a provider.</p>
@@ -415,7 +416,7 @@ const findbar = {
         </div>`;
 
     const container = parseElement(`
-        <div class="findbar-ai-chat">
+        <div class="browse-bot-chat">
           <div class="ai-chat-header">
             <div class="findbar-drag-handle"></div>
           </div>
@@ -499,7 +500,7 @@ const findbar = {
           const citation = citations.find((c) => c.id == citationId);
           if (citation && citation.source_quote) {
             debugLog(
-              `[findbar-ai] Citation [${citationId}] clicked. Requesting highlight for:`,
+              `Citation [${citationId}] clicked. Requesting highlight for:`,
               citation.source_quote
             );
             this.highlight(citation.source_quote);
@@ -710,7 +711,7 @@ const findbar = {
     }
 
     const menuItem = document.createXULElement("menuitem");
-    menuItem.id = "ai-findbar-context-menu-item";
+    menuItem.id = "browse-bot-context-menu-item";
     menuItem.setAttribute("label", "Ask AI");
     menuItem.setAttribute("accesskey", "A");
 
@@ -1100,7 +1101,7 @@ const findbar = {
 };
 
 UC_API.Runtime.startupFinished().then(() => {
-  findbar.init();
-  UC_API.Prefs.addListener(PREFS.ENABLED, findbar.handleEnabledChange.bind(findbar));
-  window.findbar = findbar;
+  browserBotfindbar.init();
+  UC_API.Prefs.addListener(PREFS.ENABLED, browserBotfindbar.handleEnabledChange.bind(browserBotfindbar));
+  window.browserBotFindbar = browserBotfindbar;
 });

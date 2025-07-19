@@ -1,6 +1,6 @@
 [
   {
-    "property": "extension.findbar-ai.enabled",
+    "property": "extension.browse-bot.enabled",
     "label": "Enable Findbar AI",
     "type": "checkbox",
     "default": true,
@@ -8,19 +8,19 @@
   },
   {
     "type": "separator",
-    "id": "findbar-ai-api-separator",
+    "id": "browse-bot-api-separator",
     "label": "API Configuration",
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.llm-provider",
+    "property": "extension.browse-bot.llm-provider",
     "label": "AI Provider",
     "type": "dropdown",
     "default": "gemini",
@@ -38,14 +38,14 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.gemini-api-key",
+    "property": "extension.browse-bot.gemini-api-key",
     "label": "Gemini API Key",
     "type": "string",
     "placeholder": "Enter your Google Gemini API key",
@@ -54,13 +54,13 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       },
       {
         "if": {
-          "property": "extension.findbar-ai.llm-provider",
+          "property": "extension.browse-bot.llm-provider",
           "value": "gemini"
         }
       }
@@ -68,7 +68,7 @@
     "operator": "AND"
   },
   {
-    "property": "extension.findbar-ai.gemini-model",
+    "property": "extension.browse-bot.gemini-model",
     "label": "Gemini Model",
     "type": "dropdown",
     "default": "gemini-1.5-flash",
@@ -106,13 +106,13 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       },
       {
         "if": {
-          "property": "extension.findbar-ai.llm-provider",
+          "property": "extension.browse-bot.llm-provider",
           "value": "gemini"
         }
       }
@@ -120,7 +120,7 @@
     "operator": "AND"
   },
   {
-    "property": "extension.findbar-ai.mistral-api-key",
+    "property": "extension.browse-bot.mistral-api-key",
     "label": "Mistral API Key",
     "type": "string",
     "placeholder": "Enter your Mistral API key",
@@ -129,13 +129,13 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       },
       {
         "if": {
-          "property": "extension.findbar-ai.llm-provider",
+          "property": "extension.browse-bot.llm-provider",
           "value": "mistral"
         }
       }
@@ -143,7 +143,7 @@
     "operator": "AND"
   },
   {
-    "property": "extension.findbar-ai.mistral-model",
+    "property": "extension.browse-bot.mistral-model",
     "label": "Mistral Model",
     "type": "dropdown",
     "default": "mistral-medium-latest",
@@ -169,13 +169,13 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       },
       {
         "if": {
-          "property": "extension.findbar-ai.llm-provider",
+          "property": "extension.browse-bot.llm-provider",
           "value": "mistral"
         }
       }
@@ -184,19 +184,19 @@
   },
   {
     "type": "separator",
-    "id": "findbar-ai-response-separator",
+    "id": "browse-bot-response-separator",
     "label": "AI Response",
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.citations-enabled",
+    "property": "extension.browse-bot.citations-enabled",
     "label": "Citations (*EXPERIMENTAL*)",
     "type": "checkbox",
     "default": false,
@@ -204,14 +204,14 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.god-mode",
+    "property": "extension.browse-bot.god-mode",
     "label": "God Mode (Enable Tools)",
     "type": "checkbox",
     "default": false,
@@ -219,14 +219,14 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.conform-before-tool-call",
+    "property": "extension.browse-bot.conform-before-tool-call",
     "label": "Ask before tool call",
     "type": "checkbox",
     "default": true,
@@ -234,13 +234,13 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       },
       {
         "if": {
-          "property": "extension.findbar-ai.god-mode",
+          "property": "extension.browse-bot.god-mode",
           "value": true
         }
       }
@@ -249,33 +249,33 @@
   },
   {
     "type": "separator",
-    "id": "findbar-ai-appearance-separator",
+    "id": "browse-bot-appearance-separator",
     "label": "Appearance & Behavior",
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.minimal",
+    "property": "extension.browse-bot.minimal",
     "label": "Enable Minimal Mode (Arc-style)",
     "type": "checkbox",
     "default": true,
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.persist-chat",
+    "property": "extension.browse-bot.persist-chat",
     "label": "Persist Chat History per Tab",
     "type": "checkbox",
     "default": false,
@@ -283,14 +283,14 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.dnd-enabled",
+    "property": "extension.browse-bot.dnd-enabled",
     "label": "Enable Drag & Drop and Resizing",
     "type": "checkbox",
     "default": false,
@@ -298,14 +298,14 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.position",
+    "property": "extension.browse-bot.position",
     "label": "Snap-to Corner",
     "type": "dropdown",
     "default": "bottom-right",
@@ -331,7 +331,7 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
@@ -339,19 +339,19 @@
   },
   {
     "type": "separator",
-    "id": "findbar-ai-context-menu-separator",
+    "id": "browse-bot-context-menu-separator",
     "label": "Context Menu",
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.context-menu.enabled",
+    "property": "extension.browse-bot.context-menu.enabled",
     "label": "Enable Context Menu Item",
     "type": "checkbox",
     "default": true,
@@ -359,14 +359,14 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.context-menu.autosend",
+    "property": "extension.browse-bot.context-menu.autosend",
     "label": "Automatically Send Query from Context Menu",
     "type": "checkbox",
     "default": false,
@@ -374,13 +374,13 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       },
       {
         "if": {
-          "property": "extension.findbar-ai.context-menu.enabled",
+          "property": "extension.browse-bot.context-menu.enabled",
           "value": true
         }
       }
@@ -389,19 +389,19 @@
   },
   {
     "type": "separator",
-    "id": "findbar-ai-development-separator",
+    "id": "browse-bot-development-separator",
     "label": "Development",
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }
     ]
   },
   {
-    "property": "extension.findbar-ai.debug-mode",
+    "property": "extension.browse-bot.debug-mode",
     "label": "Enable Debug Mode",
     "type": "checkbox",
     "default": false,
@@ -409,7 +409,7 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.findbar-ai.enabled",
+          "property": "extension.browse-bot.enabled",
           "value": true
         }
       }

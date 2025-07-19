@@ -74,23 +74,23 @@ You can customize the Findbar AI through the settings modal (found in the chat h
 
 | Preference                                      | Type    | Default                   | Description                                                                                               |
 | ----------------------------------------------- | ------- | ------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `extension.findbar-ai.enabled`                  | Boolean | `true`                    | Toggles the entire feature on or off.                                                                     |
-| `extension.findbar-ai.minimal`                  | Boolean | `true`                    | Toggles a simpler, more compact UI.                                                                       |
-| `extension.findbar-ai.persist-chat`             | Boolean | `false`                   | Persists chat history across tab switches (but not browser restarts).                                     |
-| `extension.findbar-ai.dnd-enabled`              | Boolean | `true`                    | Enables dragging to move and resizing of the findbar window.                                              |
-| `extension.findbar-ai.position`                 | String  | `"top-right"`             | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`. |
-| `extension.findbar-ai.llm-provider`             | String  | `"gemini"`                | Which AI provider to use. Options: `gemini`, `mistral`.                                                   |
-| `extension.findbar-ai.gemini-api-key`           | String  | _(empty)_                 | Your API key for Google Gemini.                                                                           |
-| `extension.findbar-ai.gemini-model`             | String  | `"gemini-2.0-flash"`      | The specific Gemini model to use.                                                                         |
-| `extension.findbar-ai.mistral-api-key`          | String  | _(empty)_                 | Your API key for Mistral AI.                                                                              |
-| `extension.findbar-ai.mistral-model`            | String  | `"mistral-medium-latest"` | The specific Mistral model to use.                                                                        |
-| `extension.findbar-ai.context-menu-enabled`     | Boolean | `true`                    | Toggles the "Ask AI" item in the right-click context menu.                                                |
-| `extension.findbar-ai.context-menu-autosend`    | Boolean | `true`                    | If true, clicking the context menu item sends the request to the AI immediately.                          |
-| `extension.findbar-ai.god-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                         |
-| `extension.findbar-ai.max-tool-calls`           | Number  | `5`                       | The maximum number of consecutive tool calls the AI can make in one turn.                                 |
-| `extension.findbar-ai.conform-before-tool-call` | Boolean | `true`                    | If true, prompts you for confirmation before the AI executes any tools.                                   |
-| `extension.findbar-ai.citations-enabled`        | Boolean | `false`                   | (Experimental) If true, the AI will try to cite its sources from the page content.                        |
-| `extension.findbar-ai.debug-mode`               | Boolean | `false`                   | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                       |
+| `extension.browse-bot.enabled`                  | Boolean | `true`                    | Toggles the entire feature on or off.                                                                     |
+| `extension.browse-bot.minimal`                  | Boolean | `true`                    | Toggles a simpler, more compact UI.                                                                       |
+| `extension.browse-bot.persist-chat`             | Boolean | `false`                   | Persists chat history across tab switches (but not browser restarts).                                     |
+| `extension.browse-bot.dnd-enabled`              | Boolean | `true`                    | Enables dragging to move and resizing of the findbar window.                                              |
+| `extension.browse-bot.position`                 | String  | `"top-right"`             | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`. |
+| `extension.browse-bot.llm-provider`             | String  | `"gemini"`                | Which AI provider to use. Options: `gemini`, `mistral`.                                                   |
+| `extension.browse-bot.gemini-api-key`           | String  | _(empty)_                 | Your API key for Google Gemini.                                                                           |
+| `extension.browse-bot.gemini-model`             | String  | `"gemini-2.0-flash"`      | The specific Gemini model to use.                                                                         |
+| `extension.browse-bot.mistral-api-key`          | String  | _(empty)_                 | Your API key for Mistral AI.                                                                              |
+| `extension.browse-bot.mistral-model`            | String  | `"mistral-medium-latest"` | The specific Mistral model to use.                                                                        |
+| `extension.browse-bot.context-menu-enabled`     | Boolean | `true`                    | Toggles the "Ask AI" item in the right-click context menu.                                                |
+| `extension.browse-bot.context-menu-autosend`    | Boolean | `true`                    | If true, clicking the context menu item sends the request to the AI immediately.                          |
+| `extension.browse-bot.god-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                         |
+| `extension.browse-bot.max-tool-calls`           | Number  | `5`                       | The maximum number of consecutive tool calls the AI can make in one turn.                                 |
+| `extension.browse-bot.conform-before-tool-call` | Boolean | `true`                    | If true, prompts you for confirmation before the AI executes any tools.                                   |
+| `extension.browse-bot.citations-enabled`        | Boolean | `false`                   | (Experimental) If true, the AI will try to cite its sources from the page content.                        |
+| `extension.browse-bot.debug-mode`               | Boolean | `false`                   | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                       |
 
 > [!WARNING]
 > Don't turn both god-mode and citation at the same time. AI might not function properly.
@@ -105,7 +105,7 @@ You can customize the Findbar AI through the settings modal (found in the chat h
 
 ## 🔨 Tool-calls
 
-AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.findbar-ai.god-mode` to `true`.
+AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.browse-bot.god-mode` to `true`.
 
 Currently available tool calls are:
 
