@@ -1,8 +1,87 @@
 import gemini from "./provider/gemini.js";
 import mistral from "./provider/mistral.js";
 import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
-import { windowManagerAPI } from "../windowManager.js";
-import PREFS, { debugLog, debugError } from "../prefs.js";
+import { messageManagerAPI } from "../messageManager.js";
+import PREFS, { debugLog, debugError } from "../utils/prefs.js";
+
+async function executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth = 0) {
+  const maxRecursionDepth = PREFS.maxToolCalls || 3;
+  const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
+
+  if (!functionCalls || functionCalls.length === 0) {
+    return modelResponse;
+  }
+
+  if (currentDepth >= maxRecursionDepth) {
+    debugLog("Max recursion depth reached. Stopping tool execution.");
+    return modelResponse;
+  }
+
+  debugLog(`Function call(s) requested by model (depth ${currentDepth}):`, functionCalls);
+
+  // Gather the names of all tools to be called
+  const toolNames = functionCalls.map((call) => call.functionCall.name);
+
+  let confirmed = true;
+  if (PREFS.conformation) {
+    confirmed = await window.findbar.createToolConfirmationDialog(toolNames);
+  }
+
+  const functionResponses = [];
+  if (confirmed) {
+    for (const call of functionCalls) {
+      const { name, args } = call.functionCall;
+
+      if (availableTools[name]) {
+        debugLog(`Executing tool: "${name}" with args:`, args);
+        const toolResult = await availableTools[name](args);
+        debugLog(`Tool "${name}" executed. Result:`, toolResult);
+        functionResponses.push({
+          functionResponse: { name, response: toolResult },
+        });
+      } else {
+        debugError(`Tool "${name}" not found!`);
+        functionResponses.push({
+          functionResponse: {
+            name,
+            response: { error: `Tool "${name}" is not available.` },
+          },
+        });
+      }
+    }
+  } else {
+    debugLog("Tool execution cancelled by user.");
+    // Create error responses for all tool calls
+    for (const name of toolNames) {
+      functionResponses.push({
+        functionResponse: {
+          name,
+          response: { error: `Tool "${name}" execution cancelled by user.` },
+        },
+      });
+    }
+  }
+
+  llmInstance.history.push({ role: "tool", parts: functionResponses });
+
+  requestBody = {
+    contents: llmInstance.history,
+    systemInstruction: llmInstance.systemInstruction,
+    generationConfig: PREFS.citationsEnabled ? { responseMimeType: "application/json" } : {},
+  };
+
+  modelResponse = await llmInstance.currentProvider.sendMessage(requestBody);
+  llmInstance.history.push(modelResponse);
+
+  // Only recurse if the model provided a valid response
+  if (modelResponse?.parts?.length > 0) {
+    debugLog("Running tool call", currentDepth + 1, "Time");
+    return executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth + 1);
+  } else {
+    debugLog("Model returned an empty response after tool execution.");
+    return modelResponse;
+  }
+}
 
 const llm = {
   history: [],
@@ -179,7 +258,7 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 
 Here is the initial info about the current page:
 `;
-      const pageContext = await windowManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
+      const pageContext = await messageManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
 
@@ -237,42 +316,8 @@ Here is the initial info about the current page:
     }
     this.history.push(modelResponse);
 
-    const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
-
-    if (PREFS.godMode && functionCalls && functionCalls.length > 0) {
-      debugLog("Function call(s) requested by model:", functionCalls);
-
-      const functionResponses = [];
-      for (const call of functionCalls) {
-        const { name, args } = call.functionCall;
-        if (availableTools[name]) {
-          debugLog(`Executing tool: "${name}" with args:`, args);
-          const toolResult = await availableTools[name](args);
-          debugLog(`Tool "${name}" executed. Result:`, toolResult);
-          functionResponses.push({
-            functionResponse: { name, response: toolResult },
-          });
-        } else {
-          debugError(`Tool "${name}" not found!`);
-          functionResponses.push({
-            functionResponse: {
-              name,
-              response: { error: `Tool "${name}" is not available.` },
-            },
-          });
-        }
-      }
-
-      this.history.push({ role: "tool", parts: functionResponses });
-
-      requestBody = {
-        contents: this.history,
-        systemInstruction: this.systemInstruction,
-        generationConfig: PREFS.citationsEnabled ? { responseMimeType: "application/json" } : {},
-      };
-
-      modelResponse = await this.currentProvider.sendMessage(requestBody);
-      this.history.push(modelResponse);
+    if (PREFS.godMode) {
+      modelResponse = await executeToolCalls(this, requestBody, modelResponse);
     }
 
     if (PREFS.citationsEnabled) {
@@ -282,18 +327,12 @@ Here is the initial info about the current page:
       debugLog("Parsed AI Response:", parsedResponse);
 
       if (!parsedResponse.answer) {
-        if (functionCalls.length > 0) {
-          return { answer: "I used my tools to complete your request." };
-        }
         this.history.pop();
-        return {
-          answer: "Sorry, I received an invalid response from the server.",
-        };
       }
       return parsedResponse;
     } else {
       const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      if (!responseText && functionCalls.length === 0) {
+      if (!responseText) {
         this.history.pop();
       }
       return {

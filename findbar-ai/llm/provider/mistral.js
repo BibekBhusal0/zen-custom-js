@@ -1,4 +1,4 @@
-import PREFS, { debugLog, debugError } from "../../prefs.js";
+import PREFS, { debugLog, debugError } from "../../utils/prefs.js";
 
 // --- Mistral API Rate Limiting ---
 let mistralRequestQueue = [];

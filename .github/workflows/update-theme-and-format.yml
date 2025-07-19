@@ -7,7 +7,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   update_and_format:
@@ -16,6 +15,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -25,6 +25,9 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
+      - name: Grant read permissions
+        run: find . -name "theme.json" -print0 | xargs -0 chmod a+r
+
       - name: Update theme.json
         id: update_theme
         run: |
@@ -33,41 +36,67 @@ jobs:
           import json
           import subprocess
 
-          def get_last_modified_date(directory):
-              result = subprocess.run(['stat', '-c', '%y', directory], capture_output=True, text=True)
-              return result.stdout.split(' ')[0]
-
-          def update_theme_json(file_path):
+          def get_git_modified_date_for_directory(dir_path):
               try:
-                  with open(file_path, 'r') as f:
-                      content_before = f.read()
-                      f.seek(0)
-                      data = json.load(f)
-                  
-                  directory = os.path.dirname(file_path)
-                  last_modified = get_last_modified_date(directory)
-                  data['updatedAt'] = last_modified
+                  result = subprocess.run(
+                      ['git', 'log', '-1', '--format=%ad', '--date=short', '--', dir_path],
+                      capture_output=True, text=True, check=True
+                  )
+                  date = result.stdout.strip()
+                  print(f"Directory {dir_path} last git modified date: {date}")
+                  return date
+              except subprocess.CalledProcessError:
+                  print(f"Could not get git log for directory {dir_path}")
+                  return None
 
-                  with open(file_path, 'w') as f:
-                      json.dump(data, f, indent=2)
-                      f.truncate()
-                      content_after = f.read()
+          def normalize_json(data):
+              return json.dumps(data, indent=2, separators=(',', ': '), ensure_ascii=False)
 
-                  if content_before == content_after:
-                      print("::set-output name=updated::false")
-                  else:
-                      print("::set-output name=updated::true")
-                  
-                  print(f"Updated {file_path} with date {last_modified}")
+          def update_theme_json(theme_path):
+              try:
+                  dir_path = os.path.dirname(theme_path)
+                  latest_date = get_git_modified_date_for_directory(dir_path)
+                  if not latest_date:
+                      print(f"No git history for directory {dir_path}")
+                      return False
+
+                  with open(theme_path, 'r', encoding='utf-8') as f:
+                      original_data = json.load(f)
+
+                  if original_data.get('updatedAt') == latest_date:
+                      print(f"Unchanged {theme_path} — updatedAt already set to {latest_date}")
+                      return False
+
+                  updated_data = dict(original_data)
+                  updated_data['updatedAt'] = latest_date
+
+                  original_json = normalize_json(original_data)
+                  updated_json = normalize_json(updated_data)
+
+                  if original_json == updated_json:
+                      print(f"Unchanged {theme_path} — no structural changes")
+                      return False
+
+                  with open(theme_path, 'w', encoding='utf-8') as f:
+                      f.write(updated_json + '\n')
+
+                  print(f"Updated {theme_path} with date {latest_date}")
+                  return True
 
               except Exception as e:
-                  print(f"Error processing {file_path}: {e}")
-                  print("::set-output name=updated::false")
+                  print(f"Error processing {theme_path}: {e}")
+                  return False
 
-          files = subprocess.run(['find', '.', '-name', 'theme.json', '-print0'], capture_output=True, text=True).stdout.split('\0')
-          
+          result = subprocess.run(['find', '.', '-name', 'theme.json', '-print0'], capture_output=True, text=True)
+          files = result.stdout.split('\0')
+
+          updated_any = False
           for file in filter(None, files):
-              update_theme_json(file)
+              if update_theme_json(file):
+                  updated_any = True
+
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f"updated={'true' if updated_any else 'false'}\n")
           EOF
 
       - name: Commit theme.json changes
@@ -88,9 +117,7 @@ jobs:
         run: npm install --save-dev prettier
 
       - name: Add node_modules to path
-        run: echo "::add-path::./node_modules/.bin"
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+        run: echo "./node_modules/.bin" >> $GITHUB_PATH
 
       - name: Run Prettier
         run: prettier --write .
@@ -102,4 +129,3 @@ jobs:
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
-

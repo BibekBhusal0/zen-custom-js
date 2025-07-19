@@ -1,32 +1,8 @@
-import windowManager, { windowManagerAPI } from "./windowManager.js";
+import { messageManagerAPI } from "./messageManager.js";
 import { llm } from "./llm/index.js";
-import { PREFS, debugLog, debugError } from "./prefs.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
-
-windowManager();
-
-const parseElement = (elementString, type = "html") => {
-  if (type === "xul") {
-    return window.MozXULElement.parseXULToFragment(elementString).firstChild;
-  }
-
-  let element = new DOMParser().parseFromString(elementString, "text/html");
-  if (element.body.children.length) element = element.body.firstChild;
-  else element = element.head.firstChild;
-  return element;
-};
-
-const escapeXmlAttribute = (str) => {
-  if (typeof str !== "string") return str;
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-};
-
-PREFS.setInitialPrefs();
 
 var markdownStylesInjected = false;
 const injectMarkdownStyles = async () => {
@@ -85,6 +61,7 @@ const findbar = {
   _stopResize: null,
   _handleResize: null,
   _handleResizeEnd: null,
+  _toolConfirmationDialog: null,
 
   get expanded() {
     return this._isExpanded;
@@ -140,6 +117,52 @@ const findbar = {
     this.addExpandButton();
     this.removeAIInterface();
     this.showAIInterface();
+  },
+
+  createToolConfirmationDialog(toolNames) {
+    return new Promise((resolve) => {
+      const dialog = parseElement(`
+        <div class="tool-confirmation-dialog">
+          <div class="tool-confirmation-content">
+            <p>Allow the following tools to run: ${toolNames?.join(", ")}?</p>
+            <div class="buttons">
+              <button class="not-again">Don't ask again</button>
+              <div class="right-side-buttons">
+                <button class="confirm-tool">Yes</button>
+                <button class="cancel-tool">No</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `);
+      this._toolConfirmationDialog = dialog;
+
+      const removeDilog = () => {
+        dialog.remove();
+        this._toolConfirmationDialog = null;
+      };
+
+      const confirmButton = dialog.querySelector(".confirm-tool");
+      confirmButton.addEventListener("click", () => {
+        removeDilog();
+        resolve(true);
+      });
+
+      const cancelButton = dialog.querySelector(".cancel-tool");
+      cancelButton.addEventListener("click", () => {
+        removeDilog();
+        resolve(false);
+      });
+
+      const notAgainButton = dialog.querySelector(".not-again");
+      notAgainButton.addEventListener("click", () => {
+        removeDilog();
+        PREFS.conformation = false;
+        resolve(true);
+      });
+
+      document.body.appendChild(dialog);
+    });
   },
 
   updateFindbar() {
@@ -539,12 +562,12 @@ const findbar = {
       const history = llm.getHistory();
       for (const message of history) {
         if (
-          message.role === "tool" ||
+          message?.role === "tool" ||
           (message?.parts && message?.parts.some((p) => p.functionCall))
         )
           continue;
 
-        const isModel = message.role === "model";
+        const isModel = message?.role === "model";
         const textContent = message?.parts[0]?.text;
         if (!textContent) continue;
 
@@ -577,7 +600,7 @@ const findbar = {
   },
   async setPromptTextFromSelection() {
     let text = "";
-    const selection = await windowManagerAPI.getSelectedText();
+    const selection = await messageManagerAPI.getSelectedText();
     if (!selection || !selection.hasSelection) text = this?.findbar?._findField?.value;
     else text = selection.selectedText;
     this.setPromptText(text);
@@ -611,6 +634,8 @@ const findbar = {
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
+    this._toolConfirmationDialog?.remove();
+    this._toolConfirmationDialog = null;
     SettingsModal.hide();
   },
 
@@ -728,7 +753,7 @@ const findbar = {
       ?.removeEventListener("popupshowing", this._updateContextMenuText);
   },
   handleContextMenuClick: async function () {
-    const selection = await windowManagerAPI.getSelectedText();
+    const selection = await messageManagerAPI.getSelectedText();
     let finalMessage = "";
     if (!selection.hasSelection) {
       finalMessage = "Summarize current page";
@@ -931,10 +956,12 @@ const findbar = {
     }
     if (e.key?.toLowerCase() === "escape") {
       if (SettingsModal._modalElement && SettingsModal._modalElement.parentNode) {
-        // If settings modal is open, close it
         e.preventDefault();
         e.stopPropagation();
         SettingsModal.hide();
+      } else if (this._toolConfirmationDialog) {
+        const cancelButton = this._toolConfirmationDialog.querySelector(".cancel-tool");
+        cancelButton?.click();
       } else if (this.expanded) {
         e.preventDefault();
         e.stopPropagation();
@@ -1072,6 +1099,8 @@ const findbar = {
   },
 };
 
-findbar.init();
-UC_API.Prefs.addListener(PREFS.ENABLED, findbar.handleEnabledChange.bind(findbar));
-window.findbar = findbar;
+UC_API.Runtime.startupFinished().then(() => {
+  findbar.init();
+  UC_API.Prefs.addListener(PREFS.ENABLED, findbar.handleEnabledChange.bind(findbar));
+  window.findbar = findbar;
+});

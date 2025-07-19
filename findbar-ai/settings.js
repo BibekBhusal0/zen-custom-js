@@ -1,26 +1,6 @@
 import { llm } from "./llm/index.js";
-import { PREFS, debugLog } from "./prefs.js";
-
-const parseElement = (elementString, type = "html") => {
-  if (type === "xul") {
-    return window.MozXULElement.parseXULToFragment(elementString).firstChild;
-  }
-
-  let element = new DOMParser().parseFromString(elementString, "text/html");
-  if (element.body.children.length) element = element.body.firstChild;
-  else element = element.head.firstChild;
-  return element;
-};
-
-const escapeXmlAttribute = (str) => {
-  if (typeof str !== "string") return str;
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-};
+import { PREFS, debugLog } from "./utils/prefs.js";
+import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 
 export const SettingsModal = {
   _modalElement: null,
@@ -120,7 +100,6 @@ export const SettingsModal = {
     }
 
     this._attachEventListeners();
-    this._updateWarningMessage();
     return container;
   },
 
@@ -136,8 +115,8 @@ export const SettingsModal = {
     this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
       this.saveSettings();
       this.hide();
-      if (findbar.enabled) findbar.show();
-      else findbar.destroy();
+      if (window.findbar.enabled) window.findbar.show();
+      else window.findbar.destroy();
     });
 
     this._modalElement.addEventListener("click", (e) => {
@@ -161,13 +140,12 @@ export const SettingsModal = {
       // Initialize control value from PREFS
       if (control.type === "checkbox") {
         control.checked = PREFS.getPref(prefKey);
+      } else if (control.tagName.toLowerCase() === "menulist") {
+        control.value = PREFS.getPref(prefKey);
       } else {
-        if (control.tagName.toLowerCase() === "menulist") {
-          control.value = PREFS.getPref(prefKey);
-        } else {
-          control.value = PREFS.getPref(prefKey);
-        }
+        control.value = PREFS.getPref(prefKey);
       }
+
       this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
 
       // Store changes in _currentPrefValues
@@ -186,14 +164,20 @@ export const SettingsModal = {
         });
       } else {
         control.addEventListener("change", (e) => {
-          this._currentPrefValues[prefKey] =
-            control.type === "checkbox" ? e.target.checked : e.target.value;
+          if (control.type === "checkbox") {
+            this._currentPrefValues[prefKey] = e.target.checked;
+          } else if (control.type === "number") {
+            try {
+              this._currentPrefValues[prefKey] = Number(e.target.value);
+            } catch (error) {
+              this._currentPrefValues[prefKey] = 0;
+            }
+          } else {
+            this._currentPrefValues[prefKey] = e.target.value;
+          }
           debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
-          if (prefKey === PREFS.CITATIONS_ENABLED || prefKey === PREFS.GOD_MODE) {
-            this._updateWarningMessage();
-          }
         });
       }
     });
@@ -217,13 +201,18 @@ export const SettingsModal = {
   saveSettings() {
     for (const prefKey in this._currentPrefValues) {
       if (Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)) {
+        if (prefKey.endsWith("api-key")) {
+          const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
+          debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
+        } else {
+          debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
+        }
         PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
-        debugLog(`Saving pref ${prefKey} to: ${PREFS.getPref(prefKey)}`);
       }
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
     if (!llm.currentProvider.apiKey) {
-      findbar.expanded = false;
+      window.findbar.expanded = false;
     }
   },
 
@@ -244,7 +233,6 @@ export const SettingsModal = {
       this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
     });
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
-    this._updateWarningMessage();
 
     document.documentElement.appendChild(this._modalElement);
   },
@@ -294,20 +282,6 @@ export const SettingsModal = {
     }
   },
 
-  _updateWarningMessage() {
-    if (!this._modalElement) return;
-
-    const citationsEnabled = this._currentPrefValues[PREFS.CITATIONS_ENABLED];
-    const godModeEnabled = this._currentPrefValues[PREFS.GOD_MODE];
-    const warningDiv = this._modalElement.querySelector("#citations-god-mode-warning");
-
-    if (citationsEnabled && godModeEnabled) {
-      if (warningDiv) warningDiv.style.display = "block";
-    } else {
-      if (warningDiv) warningDiv.style.display = "none";
-    }
-  },
-
   _generateCheckboxSettingHtml(label, prefConstant) {
     const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
     return `
@@ -343,9 +317,9 @@ export const SettingsModal = {
   _generateSettingsHtml() {
     const generalSettings = [
       { label: "Enable AI Findbar", pref: PREFS.ENABLED },
-      { label: "Minimal Mode", pref: PREFS.MINIMAL },
-      { label: "Persist Chat", pref: PREFS.PERSIST },
-      { label: "Debug Mode", pref: PREFS.DEBUG_MODE },
+      { label: "Minimal Mode (similar to arc)", pref: PREFS.MINIMAL },
+      { label: "Persist Chat (don't persist when browser closes)", pref: PREFS.PERSIST },
+      { label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE },
       { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
     ];
     const positionSelectorPlaceholderHtml = `
@@ -365,22 +339,31 @@ export const SettingsModal = {
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "God Mode (AI can use tool calls)", pref: PREFS.GOD_MODE },
+      { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
     ];
     const aiBehaviorWarningHtml = `
-      <div id="citations-god-mode-warning" class="warning-message" style="display: none; color: red; margin-bottom: 10px;">
+      <div id="citations-god-mode-warning" class="warning-message" >
         Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
       </div>
     `;
+    const maxToolCallsHtml = `
+  <div class="setting-item">
+    <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
+    <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
+  </div>
+`;
+
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
       aiBehaviorSettings,
       true,
-      aiBehaviorWarningHtml
+      aiBehaviorWarningHtml,
+      maxToolCallsHtml
     );
 
     // Context Menu Settings
     const contextMenuSettings = [
-      { label: "Enable Context Menu", pref: PREFS.CONTEXT_MENU_ENABLED },
+      { label: "Enable Context Menu (right click menu)", pref: PREFS.CONTEXT_MENU_ENABLED },
       {
         label: "Auto Send from Context Menu",
         pref: PREFS.CONTEXT_MENU_AUTOSEND,
@@ -394,7 +377,7 @@ export const SettingsModal = {
     const browserFindbarSettings = [
       { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
       {
-        label: "Enable sound",
+        label: "Enable sound (when word not found)",
         pref: "accessibility.typeaheadfind.enablesound",
       },
       { label: "Entire Word", pref: "findbar.entireword" },

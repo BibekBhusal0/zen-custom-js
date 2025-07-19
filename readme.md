@@ -1,6 +1,6 @@
 # Zen Browser UserScripts
 
-Personal collection userscripts and css files designed to enhance browsing experience in Zen Browser browsing experience.
+Personal customization userscripts and css files for enhanceing browsing experience in Zen Browser.
 
 ## Scripts
 

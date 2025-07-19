@@ -4,14 +4,15 @@ export const PREFS = {
   PERSIST: "extension.findbar-ai.persist-chat",
   DND_ENABLED: "extension.findbar-ai.dnd-enabled",
   POSITION: "extension.findbar-ai.position",
+  DEBUG_MODE: "extension.findbar-ai.debug-mode",
 
   GOD_MODE: "extension.findbar-ai.god-mode",
   CITATIONS_ENABLED: "extension.findbar-ai.citations-enabled",
+  MAX_TOOL_CALLS: "extension.findbar-ai.max-tool-calls",
+  CONFORMATION: "extension.findbar-ai.conform-before-tool-call",
 
   CONTEXT_MENU_ENABLED: "extension.findbar-ai.context-menu-enabled",
   CONTEXT_MENU_AUTOSEND: "extension.findbar-ai.context-menu-autosend",
-
-  DEBUG_MODE: "extension.findbar-ai.debug-mode",
 
   LLM_PROVIDER: "extension.findbar-ai.llm-provider",
   MISTRAL_API_KEY: "extension.findbar-ai.mistral-api-key",
@@ -22,8 +23,6 @@ export const PREFS = {
   //TODO: Not yet implimented
   COPY_BTN_ENABLED: "extension.findbar-ai.copy-btn-enabled",
   MARKDOWN_ENABLED: "extension.findbar-ai.markdown-enabled",
-
-  CONFORMATION: "extension.findbar-ai.conform-before-tool-call",
   SHOW_TOOL_CALL: "extension.findbar-ai.show-tool-call",
 
   defaultValues: {},
@@ -133,6 +132,13 @@ export const PREFS = {
     this.setPref(this.PERSIST, value);
   },
 
+  get maxToolCalls() {
+    return this.getPref(this.MAX_TOOL_CALLS);
+  },
+  set maxToolCalls(value) {
+    this.setPref(this.MAX_TOOL_CALLS, value);
+  },
+
   get copyBtnEnabled() {
     return this.getPref(this.COPY_BTN_ENABLED);
   },
@@ -199,9 +205,10 @@ PREFS.defaultValues = {
   [PREFS.GEMINI_MODEL]: "gemini-2.0-flash",
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
+  [PREFS.MAX_TOOL_CALLS]: 5,
+  [PREFS.CONFORMATION]: true,
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
-  // [PREFS.CONFORMATION]: true,
   // [PREFS.SHOW_TOOL_CALL]: false,
 };
 

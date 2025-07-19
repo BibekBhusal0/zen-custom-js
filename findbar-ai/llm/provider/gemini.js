@@ -1,4 +1,4 @@
-import PREFS from "../../prefs.js";
+import PREFS from "../../utils/prefs.js";
 
 const gemini = {
   name: "gemini",
