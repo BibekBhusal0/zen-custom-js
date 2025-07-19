@@ -31,7 +31,9 @@ jobs:
         // @name            BrowseBot
         // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface.
         // @author          BibekBhusal
-        // ==/UserScript==\`;
+        // ==/UserScript==
+
+        \`;
 
         export default {
           input: 'findbar-ai/findbar-ai.uc.js',
