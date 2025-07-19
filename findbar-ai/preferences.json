@@ -8,8 +8,33 @@
   },
   {
     "type": "separator",
+    "id": "findbar-ai-api-separator",
     "label": "API Configuration",
-    "id": "api-separator",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.findbar-ai.llm-provider",
+    "label": "AI Provider",
+    "type": "dropdown",
+    "default": "gemini",
+    "description": "Select the AI service provider to use.",
+    "options": [
+      {
+        "value": "gemini",
+        "label": "Google Gemini"
+      },
+      {
+        "value": "mistral",
+        "label": "Mistral AI"
+      }
+    ],
     "conditions": [
       {
         "if": {
@@ -25,34 +50,37 @@
     "type": "string",
     "placeholder": "Enter your Google Gemini API key",
     "default": "",
-    "description": "Your personal API key from Google AI Studio. This is required for the AI features to work.",
+    "description": "Your personal API key from Google AI Studio. Required to use Gemini models.",
     "conditions": [
       {
         "if": {
           "property": "extension.findbar-ai.enabled",
           "value": true
         }
+      },
+      {
+        "if": {
+          "property": "extension.findbar-ai.llm-provider",
+          "value": "gemini"
+        }
       }
-    ]
+    ],
+    "operator": "AND"
   },
   {
     "property": "extension.findbar-ai.gemini-model",
     "label": "Gemini Model",
     "type": "dropdown",
-    "default": "gemini-2.0-flash",
+    "default": "gemini-1.5-flash",
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
-      {
-        "value": "gemini-2.5-flash",
-        "label": "Gemini 2.5 Flash"
-      },
       {
         "value": "gemini-2.5-pro",
         "label": "Gemini 2.5 Pro"
       },
       {
-        "value": "gemini-2.5-flash-lite",
-        "label": "Gemini 2.5 Flash Lite"
+        "value": "gemini-2.5-flash",
+        "label": "Gemini 2.5 Flash"
       },
       {
         "value": "gemini-2.0-flash",
@@ -63,20 +91,16 @@
         "label": "Gemini 2.0 Flash Lite"
       },
       {
+        "value": "gemini-1.5-pro",
+        "label": "Gemini 1.5 Pro"
+      },
+      {
         "value": "gemini-1.5-flash",
         "label": "Gemini 1.5 Flash"
       },
       {
         "value": "gemini-1.5-flash-8b",
         "label": "Gemini 1.5 Flash 8B"
-      },
-      {
-        "value": "gemini-1.5-pro",
-        "label": "Gemini 1.5 Pro"
-      },
-      {
-        "value": "gemini-1.0-pro",
-        "label": "Gemini 1.0 Pro"
       }
     ],
     "conditions": [
@@ -85,13 +109,83 @@
           "property": "extension.findbar-ai.enabled",
           "value": true
         }
+      },
+      {
+        "if": {
+          "property": "extension.findbar-ai.llm-provider",
+          "value": "gemini"
+        }
       }
-    ]
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.findbar-ai.mistral-api-key",
+    "label": "Mistral API Key",
+    "type": "string",
+    "placeholder": "Enter your Mistral API key",
+    "default": "",
+    "description": "Your personal API key from Mistral AI. Required to use Mistral models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.findbar-ai.llm-provider",
+          "value": "mistral"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.findbar-ai.mistral-model",
+    "label": "Mistral Model",
+    "type": "dropdown",
+    "default": "mistral-medium-latest",
+    "description": "Select the Mistral model to use.",
+    "options": [
+      {
+        "value": "mistral-small",
+        "label": "Mistral Small"
+      },
+      {
+        "value": "mistral-medium-latest",
+        "label": "Mistral Medium (Latest)"
+      },
+      {
+        "value": "mistral-large-latest",
+        "label": "Mistral Large (Latest)"
+      },
+      {
+        "value": "pixtral-large-latest",
+        "label": "Pixtral Large (Latest)"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.findbar-ai.llm-provider",
+          "value": "mistral"
+        }
+      }
+    ],
+    "operator": "AND"
   },
   {
     "type": "separator",
-    "label": "AI Resonse",
-    "id": "ai-reposnse-separator",
+    "id": "findbar-ai-response-separator",
+    "label": "AI Response",
     "conditions": [
       {
         "if": {
@@ -103,10 +197,10 @@
   },
   {
     "property": "extension.findbar-ai.citations-enabled",
-    "label": "Citations",
+    "label": "Citations (*EXPERIMENTAL*)",
     "type": "checkbox",
     "default": false,
-    "description": "(EXPERIMENTAL) Ai will give link in page where text is from",
+    "description": "The AI will provide a link in its response pointing to the source text on the page.",
     "conditions": [
       {
         "if": {
@@ -118,10 +212,10 @@
   },
   {
     "property": "extension.findbar-ai.god-mode",
-    "label": "God Mode",
+    "label": "God Mode (Enable Tools)",
     "type": "checkbox",
     "default": false,
-    "description": "AI can make tool calls like opening links, searching, reading page",
+    "description": "Allows the AI to use tools, such as performing searches or opening links.",
     "conditions": [
       {
         "if": {
@@ -132,32 +226,22 @@
     ]
   },
   {
-    "property": "extension.findbar-ai.god-mode",
-    "label": "",
+    "property": "extension.findbar-ai.conform-before-tool-call",
+    "label": "Ask before tool call",
     "type": "checkbox",
-    "default": false,
-    "description": "AI can make tool calls like opening links, searching, reading page",
+    "default": true,
+    "description": "If unchecked, AI tools will run automatically without asking for permission.",
     "conditions": [
       {
         "if": {
           "property": "extension.findbar-ai.enabled",
           "value": true
-        }
-      }
-    ]
-  },
-  {
-    "type": "text",
-    "label": "Using God Mode and Citation both is not recommended",
-    "conditions": [
-      {
-        "if": {
-          "property": "extension.findbar-ai.god-mode"
         }
       },
       {
         "if": {
-          "property": "extension.findbar-ai.citations-enabled"
+          "property": "extension.findbar-ai.god-mode",
+          "value": true
         }
       }
     ],
@@ -165,8 +249,8 @@
   },
   {
     "type": "separator",
-    "label": "Appearance",
-    "id": "appearance-separator",
+    "id": "findbar-ai-appearance-separator",
+    "label": "Appearance & Behavior",
     "conditions": [
       {
         "if": {
@@ -181,7 +265,69 @@
     "label": "Enable Minimal Mode (Arc-style)",
     "type": "checkbox",
     "default": true,
-    "description": "Changes the findbar behavior to be similar to Arc Browser. Pressing Enter directly queries the AI with the findbar text, rather than showing a separate chat interface.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.findbar-ai.persist-chat",
+    "label": "Persist Chat History per Tab",
+    "type": "checkbox",
+    "default": false,
+    "description": "Saves the chat history for each tab. History is lost when the browser is closed.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.findbar-ai.dnd-enabled",
+    "label": "Enable Drag & Drop and Resizing",
+    "type": "checkbox",
+    "default": false,
+    "description": "Allows the AI chat panel to be moved around the screen and resized.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.findbar-ai.position",
+    "label": "Snap-to Corner",
+    "type": "dropdown",
+    "default": "bottom-right",
+    "description": "The corner the findbar will snap to after being dragged.",
+    "options": [
+      {
+        "value": "top-left",
+        "label": "Top Left"
+      },
+      {
+        "value": "top-right",
+        "label": "Top Right"
+      },
+      {
+        "value": "bottom-left",
+        "label": "Bottom Left"
+      },
+      {
+        "value": "bottom-right",
+        "label": "Bottom Right"
+      }
+    ],
     "conditions": [
       {
         "if": {
@@ -193,8 +339,8 @@
   },
   {
     "type": "separator",
+    "id": "findbar-ai-context-menu-separator",
     "label": "Context Menu",
-    "id": "context-menu Section",
     "conditions": [
       {
         "if": {
@@ -205,11 +351,11 @@
     ]
   },
   {
-    "property": "extension.findbar-ai.context-menu-enabled",
-    "label": "Enable Context Menu",
+    "property": "extension.findbar-ai.context-menu.enabled",
+    "label": "Enable Context Menu Item",
     "type": "checkbox",
     "default": true,
-    "description": "Adds item in right click context menu for asking AI about selected content.",
+    "description": "Adds an 'Ask AI' / 'Summarize with AI' option to the right-click context menu.",
     "conditions": [
       {
         "if": {
@@ -220,12 +366,11 @@
     ]
   },
   {
-    "property": "extension.findbar-ai.context-menu-autosend",
-    "label": "Context Menu Auto Send",
+    "property": "extension.findbar-ai.context-menu.autosend",
+    "label": "Automatically Send Query from Context Menu",
     "type": "checkbox",
-    "default": true,
-    "description": "If true, message will be autometically be send to AI after you click in context menu item.",
-    "operator": "AND",
+    "default": false,
+    "description": "If enabled, clicking the context menu item immediately sends the query. If disabled, it only populates the input field.",
     "conditions": [
       {
         "if": {
@@ -235,16 +380,17 @@
       },
       {
         "if": {
-          "property": "extension.findbar-ai.context-menu-enabled",
+          "property": "extension.findbar-ai.context-menu.enabled",
           "value": true
         }
       }
-    ]
+    ],
+    "operator": "AND"
   },
   {
     "type": "separator",
+    "id": "findbar-ai-development-separator",
     "label": "Development",
-    "id": "development-separator",
     "conditions": [
       {
         "if": {
