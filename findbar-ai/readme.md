@@ -24,7 +24,6 @@ https://github.com/user-attachments/assets/8db50ef3-c704-482f-a5bc-8d002660e796
 ## 🚨 Caution 🚨
 
 - **Privacy**: To answer questions about a webpage, this script sends the text content of the page to your selected provider. Please be aware of the privacy implications before using this feature on pages with sensitive information.
-- **Heavy Development**: This is an experimental project and is under active development. Expect breaking changes, bugs, and frequent updates.
 
 ## Installation
 
