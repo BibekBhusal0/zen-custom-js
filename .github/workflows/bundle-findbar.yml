@@ -19,12 +19,19 @@ jobs:
     - name: Install dependencies
       run: |
         npm init -y
-        npm install --save-dev rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs
+        npm install --save-dev rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs rollup-plugin-string
 
     - name: Create Rollup Configuration
       run: |
         echo "import resolve from '@rollup/plugin-node-resolve';
         import commonjs from '@rollup/plugin-commonjs';
+        import { string } from 'rollup-plugin-string';
+
+        const header = \`// ==UserScript==
+        // @name            BrowseBot
+        // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface.
+        // @author          BibekBhusal
+        // ==/UserScript==\`;
 
         export default {
           input: 'findbar-ai/findbar-ai.uc.js',
@@ -32,7 +39,8 @@ jobs:
             {
               file: 'dist/browse-bot.uc.js',
               format: 'umd',
-              name: 'FindbarAI'
+              name: 'BrowseBot',
+              banner: header
             }
           ],
           plugins: [
