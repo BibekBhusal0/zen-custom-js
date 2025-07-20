@@ -57,7 +57,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## Usage
 
-1.  **Get an API Key**: After installation, the BrowseBot will prompt you to select a provider and set an API key. It will also provide a link to get the required key.
+1.  **Get an API Key**: After installation press `Ctrl+Shift+F`, the BrowseBot will prompt you to select a provider and set an API key. It will also provide a link to get the required key.
 2.  **Save the Key**: Paste the key into the input field and click "Save". The chat interface will now appear.
 3.  **Start Chatting**:
     - Press `Ctrl+F` to open the standard findbar.
