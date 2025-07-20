@@ -591,6 +591,7 @@ browser {
     .browse-bot-chat {
       .ai-chat-messages {
         max-height: 320px;
+        padding: 10px 2px 0 2px !important;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
@@ -626,13 +627,13 @@ browser {
         background: var(--browse-bot-primary-bg);
         color: var(--tab-selected-textcolor);
         border-bottom-right-radius: 4px;
+        padding: 4px 8px !important;
         font-weight: 500;
       }
 
       .chat-message-ai {
+        max-width: 100% !important;
         align-self: flex-start;
-        color: var(--tab-selected-textcolor);
-        border-bottom-left-radius: 4px;
       }
 
       .chat-message-error {
