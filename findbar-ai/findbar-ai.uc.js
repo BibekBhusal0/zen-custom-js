@@ -190,7 +190,7 @@ const browserBotfindbar = {
             this.findbar.history = [];
           }
         } else llm.history = [];
-        if (this?.findbar?.expanded) {
+        if (this?.findbar?.expanded && !this?.findbar?.hidden) {
           setTimeout(() => (this.expanded = true), 200);
         } else {
           this.hide();
