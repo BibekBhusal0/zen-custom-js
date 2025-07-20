@@ -865,6 +865,9 @@ const browserBotfindbar = {
       y: this._initialContainerCoor.y + (e.clientY - this._initialMouseCoor.y),
     };
 
+    if (gZenCompactModeManager && !gZenCompactModeManager?.preference && !gZenCompactModeManager.sidebarIsOnRight){ 
+      newCoors.x -= gZenCompactModeManager.getAndApplySidebarWidth() // deduct sidebar width if not sidebar is visible on right
+    }
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
 
