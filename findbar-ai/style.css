@@ -177,6 +177,7 @@ browser {
     width: 500px;
     max-width: 800px !important;
     min-width: 300px !important;
+    height: unset !important;
     border-radius: var(--acrylic-radius) !important;
     box-shadow: var(--acrylic-shadow) !important;
     background: var(--acrylic-glass-bg) !important;
