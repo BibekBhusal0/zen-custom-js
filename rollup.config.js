@@ -1,6 +1,6 @@
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import { string } from 'rollup-plugin-string';
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import { string } from "rollup-plugin-string";
 
 const header = `// ==UserScript==
 // @name            BrowseBot
@@ -11,20 +11,20 @@ const header = `// ==UserScript==
 `;
 
 export default {
-  input: 'findbar-ai/findbar-ai.uc.js',
+  input: "findbar-ai/findbar-ai.uc.js",
   output: [
     {
-      file: 'dist/browse-bot.uc.js',
-      format: 'umd',
-      name: 'BrowseBot',
-      banner: header
-    }
+      file: "dist/browse-bot.uc.js",
+      format: "umd",
+      name: "BrowseBot",
+      banner: header,
+    },
   ],
   plugins: [
     resolve(),
     commonjs(),
     string({
-      include: "**/*.css"
-    })
-  ]
+      include: "**/*.css",
+    }),
+  ],
 };
