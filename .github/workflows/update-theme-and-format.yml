@@ -23,9 +23,6 @@ jobs:
         with:
           python-version: '3.9'
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
       - name: Grant read permissions
         run: find . -name "theme.json" -print0 | xargs -0 chmod a+r
 
@@ -113,15 +110,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16.x"
+          cache: 'npm'
 
-      - name: Install Prettier
-        run: npm install --save-dev prettier
-
-      - name: Add node_modules to path
-        run: echo "./node_modules/.bin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: npm install
 
       - name: Run Prettier
-        run: prettier --write .
+        run: npm run format
 
       - name: Commit formatting changes
         uses: stefanzweifel/git-auto-commit-action@v4
