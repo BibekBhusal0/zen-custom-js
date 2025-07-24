@@ -1,6 +1,7 @@
 import { llm } from "./llm/index.js";
 import { PREFS, debugLog } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
+import { browseBotFindbar } from "./findbar-ai.uc.js";
 
 export const SettingsModal = {
   _modalElement: null,
@@ -115,8 +116,8 @@ export const SettingsModal = {
     this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
       this.saveSettings();
       this.hide();
-      if (window.browserBotFindbar.enabled) window.browserBotFindbar.show();
-      else window.browserBotFindbar.destroy();
+      if (browseBotFindbar.enabled) browseBotFindbar.show();
+      else browseBotFindbar.destroy();
     });
 
     this._modalElement.addEventListener("click", (e) => {

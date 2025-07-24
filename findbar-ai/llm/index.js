@@ -1,4 +1,5 @@
 import gemini from "./provider/gemini.js";
+import { browseBotFindbar } from "../findbar-ai.uc.js";
 import mistral from "./provider/mistral.js";
 import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
@@ -24,7 +25,7 @@ async function executeToolCalls(llmInstance, requestBody, modelResponse, current
 
   let confirmed = true;
   if (PREFS.conformation) {
-    confirmed = await window.browserBotFindbar.createToolConfirmationDialog(toolNames);
+    confirmed = await browseBotFindbar.createToolConfirmationDialog(toolNames);
   }
 
   const functionResponses = [];

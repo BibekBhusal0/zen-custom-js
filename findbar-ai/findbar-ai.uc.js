@@ -40,7 +40,7 @@ function parseMD(markdown) {
 }
 
 PREFS.setInitialPrefs();
-const browserBotfindbar = {
+const browseBotFindbar = {
   findbar: null,
   expandButton: null,
   chatContainer: null,
@@ -1157,11 +1157,12 @@ const browserBotfindbar = {
 };
 
 UC_API.Runtime.startupFinished().then(() => {
-  browserBotfindbar.init();
+  browseBotFindbar.init();
   UC_API.Prefs.addListener(
     PREFS.ENABLED,
-    browserBotfindbar.handleEnabledChange.bind(browserBotfindbar)
+    browseBotFindbar.handleEnabledChange.bind(browserBotfindbar)
   );
-  window.browserBotFindbar = browserBotfindbar;
+  window.browseBotFindbar = browserBotfindbar;
 });
 
+export {browseBotFindbar}
