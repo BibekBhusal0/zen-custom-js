@@ -73,6 +73,34 @@ const browserBotfindbar = {
   _handleResize: null,
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
+  _findbarDimension: {width: null, height: null},
+  _toolConfirmationDialogDimension:{width: null, height: null},
+  _findbarCoors : {x: null, y: null},
+  _toolConfirmationDialogCoors:{x: null, y: null},
+
+  _updateFindbarDimensions() {
+    if (!this.findbar) {
+      this._findbarDimension = { width: null, height: null };
+      this._findbarCoors = { x: null, y: null };
+      return;
+    }
+    const rect = this.findbar.getBoundingClientRect();
+    this._findbarDimension = { width: rect.width, height: rect.height };
+    this._findbarCoors = { x: rect.left, y: rect.top };
+    this._findbarCoors.x -= getSidebarWidth(); 
+  },
+
+  _updateToolConfirmationDialogDimensions() {
+    if (!this._toolConfirmationDialog) {
+      this._toolConfirmationDialogDimension = { width: null, height: null };
+      this._toolConfirmationDialogCoors = { x: null, y: null };
+      return;
+    }
+    const rect = this._toolConfirmationDialog.getBoundingClientRect();
+    this._toolConfirmationDialogDimension = { width: rect.width, height: rect.height };
+    this._toolConfirmationDialogCoors = { x: rect.left, y: rect.top };
+    this._toolConfirmationDialogCoors.x -= getSidebarWidth(); 
+  },
 
   get expanded() {
     return this._isExpanded;
@@ -97,6 +125,7 @@ const browserBotfindbar = {
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
     }
+    setTimeout(() => this._updateFindbarDimensions(), 0);
   },
   toggleExpanded() {
     this.expanded = !this.expanded;
@@ -151,6 +180,7 @@ const browserBotfindbar = {
       const removeDilog = () => {
         dialog.remove();
         this._toolConfirmationDialog = null;
+        this._updateToolConfirmationDialogDimensions();
       };
 
       const confirmButton = dialog.querySelector(".confirm-tool");
@@ -173,6 +203,7 @@ const browserBotfindbar = {
       });
 
       document.body.appendChild(dialog);
+      this._updateToolConfirmationDialogDimensions();
     });
   },
 
@@ -213,6 +244,7 @@ const browserBotfindbar = {
       this.updateFindbarStatus();
       setTimeout(() => {
         if (PREFS.dndEnabled) this.enableResize();
+        this._updateFindbarDimensions();
       }, 0);
       setTimeout(() => this.updateFoundMatchesDisplay(), 0);
       this.findbar._findField.removeEventListener("keypress", this._handleInputKeyPress);
@@ -259,12 +291,14 @@ const browserBotfindbar = {
     if (!this.findbar) return false;
     this.findbar.open();
     this.focusInput();
+    setTimeout(() => this._updateFindbarDimensions(), 0);
     return true;
   },
   hide() {
     if (!this.findbar) return false;
     this.findbar.close();
     this.findbar.toggleHighlight(false);
+    setTimeout(() => this._updateFindbarDimensions(), 0);
     return true;
   },
   toggleVisibility() {
@@ -280,6 +314,7 @@ const browserBotfindbar = {
     }
     const messages = this?.chatContainer?.querySelector("#chat-messages");
     if (messages) messages.innerHTML = "";
+    this._updateFindbarDimensions();
   },
 
   aiStatus: {
@@ -399,6 +434,7 @@ const browserBotfindbar = {
     if (messagesContainer) {
       messagesContainer.appendChild(loadingIndicator);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      this._updateFindbarDimensions();
     }
 
     try {
@@ -412,6 +448,7 @@ const browserBotfindbar = {
       loadingIndicator.remove();
       this.focusPrompt();
       if (PREFS.persistChat) this.findbar.history = llm.getHistory();
+      this._updateFindbarDimensions();
     }
   },
 
@@ -555,6 +592,7 @@ const browserBotfindbar = {
     messageDiv.appendChild(contentDiv);
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    this._updateFindbarDimensions();
   },
 
   showAIInterface() {
@@ -596,6 +634,7 @@ const browserBotfindbar = {
       }
       this.findbar.insertBefore(this.chatContainer, this.findbar.firstChild);
     }
+    this._updateFindbarDimensions();
   },
 
   focusInput() {
@@ -638,6 +677,7 @@ const browserBotfindbar = {
   },
   destroy() {
     this.findbar = null;
+    this._updateFindbarDimensions();
     this.expanded = false;
     try {
       this.removeListeners();
@@ -647,6 +687,7 @@ const browserBotfindbar = {
     this.removeAIInterface();
     this._toolConfirmationDialog?.remove();
     this._toolConfirmationDialog = null;
+    this._updateToolConfirmationDialogDimensions();
     SettingsModal.hide();
   },
 
@@ -833,6 +874,7 @@ const browserBotfindbar = {
     let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
+    this._findbarDimension.width = newWidth
   },
 
   stopResize() {
@@ -841,6 +883,7 @@ const browserBotfindbar = {
     document.removeEventListener("mouseup", this._stopResize);
     this._handleResize = null;
     this._stopResize = null;
+    this._updateFindbarDimensions();
   },
   disableResize() {
     this._resizeHandle?.remove();
@@ -878,6 +921,7 @@ const browserBotfindbar = {
     newCoors.x -= getSidebarWidth(); 
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
+    this._findbarCoors = newCoors
 
     this.findbar.style.setProperty("left", `${newCoors.x}px`, "important");
     this.findbar.style.setProperty("top", `${newCoors.y}px`, "important");
@@ -894,6 +938,7 @@ const browserBotfindbar = {
     document.removeEventListener("mousemove", this._handleDrag);
     this._handleDrag = null;
     this._stopDrag = null;
+    setTimeout(() => this._updateFindbarDimensions(), 0);
   },
 
   snapToClosestCorner() {
@@ -1119,3 +1164,4 @@ UC_API.Runtime.startupFinished().then(() => {
   );
   window.browserBotFindbar = browserBotfindbar;
 });
+
