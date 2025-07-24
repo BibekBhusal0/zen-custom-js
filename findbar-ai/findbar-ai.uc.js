@@ -18,6 +18,16 @@ const injectMarkdownStyles = async () => {
   }
 };
 
+const getSidebarWidth = ()=>{
+    if (
+      gZenCompactModeManager &&
+      !gZenCompactModeManager?.preference &&
+      !gZenCompactModeManager.sidebarIsOnRight
+    ) {
+      return gZenCompactModeManager.getAndApplySidebarWidth(); 
+    }else return 0
+}
+
 function parseMD(markdown) {
   const markedOptions = { breaks: true, gfm: true };
   if (!markdownStylesInjected) {
@@ -865,13 +875,7 @@ const browserBotfindbar = {
       y: this._initialContainerCoor.y + (e.clientY - this._initialMouseCoor.y),
     };
 
-    if (
-      gZenCompactModeManager &&
-      !gZenCompactModeManager?.preference &&
-      !gZenCompactModeManager.sidebarIsOnRight
-    ) {
-      newCoors.x -= gZenCompactModeManager.getAndApplySidebarWidth(); // deduct sidebar width if not sidebar is visible on right
-    }
+    newCoors.x -= getSidebarWidth(); 
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
 
