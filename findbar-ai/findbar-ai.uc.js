@@ -63,6 +63,8 @@ const browserBotfindbar = {
   _handleResize: null,
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
+  _isStreaming: false,
+  _abortController: null,
 
   get expanded() {
     return this._isExpanded;
@@ -83,6 +85,9 @@ const browserBotfindbar = {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
     } else {
+      if (this._isStreaming) {
+        this._abortController?.abort();
+      }
       this.findbar.classList.remove("ai-expanded");
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
@@ -372,7 +377,7 @@ const browserBotfindbar = {
   },
 
   async sendMessage(prompt) {
-    if (!prompt) return;
+    if (!prompt || this._isStreaming) return;
 
     this.show();
     this.expanded = true;
@@ -381,44 +386,42 @@ const browserBotfindbar = {
     this.addChatMessage({ role: "user", content: prompt });
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
 
-    // Handle non-streaming modes (Citations enabled or Streaming disabled)
-    if (PREFS.citationsEnabled || !PREFS.streamEnabled) {
-      const loadingIndicator = this.createLoadingIndicator();
-      if (messagesContainer) {
-        messagesContainer.appendChild(loadingIndicator);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
+    this._abortController = new AbortController();
+    this._toggleStreamingControls(true);
 
-      try {
-        const result = await llm.sendMessage(prompt);
+    let aiMessageDiv;
 
-        if (PREFS.citationsEnabled) {
-          // result is the { answer, citations } object from generateObject
-          this.addChatMessage({ role: "assistant", content: result });
-        } else {
-          // result is the full response from generateText
-          this.addChatMessage({ role: "assistant", content: result.text });
+    try {
+      const resultPromise = llm.sendMessage(prompt, this._abortController.signal);
+
+      if (PREFS.citationsEnabled || !PREFS.streamEnabled) {
+        const loadingIndicator = this.createLoadingIndicator();
+        if (messagesContainer) {
+          messagesContainer.appendChild(loadingIndicator);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-      } catch (e) {
-        debugError("Error sending message:", e);
-        this.addChatMessage({ role: "error", content: `Error: ${e.message}` });
-      } finally {
-        loadingIndicator.remove();
-        this.focusPrompt();
-      }
-    } else {
-      // Handle streaming mode
-      const aiMessageDiv = parseElement(`<div class="chat-message chat-message-ai"></div>`);
-      const contentDiv = parseElement(`<div class="message-content"></div>`);
-      aiMessageDiv.appendChild(contentDiv);
 
-      if (messagesContainer) {
-        messagesContainer.appendChild(aiMessageDiv);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-      }
+        try {
+          const result = await resultPromise;
+          if (PREFS.citationsEnabled) {
+            this.addChatMessage({ role: "assistant", content: result });
+          } else {
+            this.addChatMessage({ role: "assistant", content: result.text });
+          }
+        } finally {
+          loadingIndicator.remove();
+        }
+      } else {
+        aiMessageDiv = parseElement(`<div class="chat-message chat-message-ai"></div>`);
+        const contentDiv = parseElement(`<div class="message-content"></div>`);
+        aiMessageDiv.appendChild(contentDiv);
 
-      try {
-        const result = await llm.sendMessage(prompt); // Returns a stream object
+        if (messagesContainer) {
+          messagesContainer.appendChild(aiMessageDiv);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        const result = await resultPromise;
         let fullText = "";
         for await (const delta of result.textStream) {
           fullText += delta;
@@ -427,13 +430,39 @@ const browserBotfindbar = {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
           }
         }
-      } catch (e) {
-        debugError("Error sending message:", e);
-        aiMessageDiv.remove();
-        this.addChatMessage({ role: "error", content: `Error: ${e.message}` });
-      } finally {
-        this.focusPrompt();
       }
+    } catch (e) {
+      if (e.name !== "AbortError") {
+        debugError("Error sending message:", e);
+        if (aiMessageDiv) aiMessageDiv.remove();
+        this.addChatMessage({ role: "error", content: `Error: ${e.message}` });
+      } else {
+        debugLog("Streaming aborted by user.");
+        if (aiMessageDiv) aiMessageDiv.remove();
+      }
+    } finally {
+      this._toggleStreamingControls(false);
+      this._abortController = null;
+    }
+  },
+
+  _toggleStreamingControls(isStreaming) {
+    this._isStreaming = isStreaming;
+    if (!this.chatContainer) return;
+
+    const sendBtn = this.chatContainer.querySelector("#send-prompt");
+    const stopBtn = this.chatContainer.querySelector("#stop-generation");
+    const promptInput = this.chatContainer.querySelector("#ai-prompt");
+
+    if (isStreaming) {
+      sendBtn.style.display = "none";
+      stopBtn.style.display = "flex";
+      promptInput.disabled = true;
+    } else {
+      sendBtn.style.display = "flex";
+      stopBtn.style.display = "none";
+      promptInput.disabled = false;
+      this.focusPrompt();
     }
   },
 
@@ -444,6 +473,11 @@ const browserBotfindbar = {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M17.991 6.01L5.399 10.563l4.195 2.428l3.699-3.7a1 1 0 0 1 1.414 1.415l-3.7 3.7l2.43 4.194L17.99 6.01Zm.323-2.244c1.195-.433 2.353.725 1.92 1.92l-5.282 14.605c-.434 1.198-2.07 1.344-2.709.241l-3.217-5.558l-5.558-3.217c-1.103-.639-.957-2.275.241-2.709z" />
             </svg>
+          </button>
+          <button id="stop-generation" class="stop-btn" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m2 6h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" />
+              </svg>
           </button>
         </div>`;
 
@@ -496,15 +530,21 @@ const browserBotfindbar = {
     chatHeader.appendChild(collapseBtn);
 
     const chatMessages = container.querySelector("#chat-messages");
-
     const promptInput = container.querySelector("#ai-prompt");
     const sendBtn = container.querySelector("#send-prompt");
+    const stopBtn = container.querySelector("#stop-generation");
+
     const handleSend = () => {
       const prompt = promptInput.value.trim();
       this.sendMessage(prompt);
       promptInput.value = ""; // Clear input after sending
     };
+
     sendBtn.addEventListener("click", handleSend);
+    stopBtn.addEventListener("click", () => {
+      this._abortController?.abort();
+    });
+
     promptInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -585,7 +625,6 @@ const browserBotfindbar = {
     const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
     const contentDiv = parseElement(`<div class="message-content"></div>`);
 
-    let textToParse = "";
 
     if (role === "assistant" && typeof content === "object" && content.answer !== undefined) {
       // Case 1: Live response from generateObject for citations
@@ -593,7 +632,7 @@ const browserBotfindbar = {
       if (citations && citations.length > 0) {
         messageDiv.dataset.citations = JSON.stringify(citations);
       }
-      textToParse = answer.replace(
+      const textToParse = answer.replace(
         /\[(\d+)\]/g,
         `<button class="citation-link" data-citation-id="$1">[$1]</button>`
       );
@@ -845,15 +884,13 @@ const browserBotfindbar = {
     else this.removeContextMenuItem();
   },
   updateContextMenuText() {
-    if (!PREFS.contextMenuEnabled) return;
-    if (!this.contextMenuItem) return;
+    if (!PREFS.contextMenuEnabled || !this.contextMenuItem) return;
     const hasSelection = gContextMenu?.isTextSelected === true;
     this.contextMenuItem.label = hasSelection ? "Ask AI" : "Summarize with AI";
   },
 
   enableResize() {
-    if (!this.findbar) return;
-    if (this._resizeHandle) return;
+    if (!this.findbar || this._resizeHandle) return;
     const resizeHandle = parseElement(`<div class="findbar-resize-handle"></div>`);
     this.findbar.appendChild(resizeHandle);
     this._resizeHandle = resizeHandle;
@@ -862,8 +899,7 @@ const browserBotfindbar = {
   },
 
   startResize(e) {
-    if (e.button !== 0) return;
-    if (!this.findbar) return;
+    if (e.button !== 0 || !this.findbar) return;
     this._isResizing = true;
     this._initialMouseCoor = { x: e.clientX, y: e.clientY };
     const rect = this.findbar.getBoundingClientRect();
@@ -875,8 +911,7 @@ const browserBotfindbar = {
   },
 
   doResize(e) {
-    if (!this._isResizing) return;
-    if (!this.findbar) return;
+    if (!this._isResizing || !this.findbar) return;
     const minWidth = 300;
     const maxWidth = 800;
     const directionFactor = PREFS.position.includes("right") ? -1 : 1;
@@ -899,8 +934,7 @@ const browserBotfindbar = {
   },
 
   startDrag(e) {
-    if (!this.chatContainer) return;
-    if (e.button !== 0) return;
+    if (!this.chatContainer || e.button !== 0) return;
     this._isDragging = true;
     this._initialMouseCoor = { x: e.clientX, y: e.clientY };
     const rect = this.findbar.getBoundingClientRect();
@@ -913,7 +947,6 @@ const browserBotfindbar = {
 
   doDrag(e) {
     if (!this._isDragging) return;
-
     const minCoors = { x: 15, y: 35 };
     const rect = this.findbar.getBoundingClientRect();
     const maxCoors = {

@@ -204,7 +204,7 @@ Here is the initial info about the current page:
       const pageContext = await messageManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
-    debugLog("Final System Prompt:", systemPrompt);
+    // debugLog("Final System Prompt:", systemPrompt);
     return systemPrompt;
   },
   setSystemPrompt(promptText) {
@@ -239,8 +239,7 @@ Here is the initial info about the current page:
     return { answer, citations };
   },
 
-  async sendMessage(prompt) {
-    debugLog(`sendMessage called with prompt: "${prompt}"`);
+  async sendMessage(prompt, abortSignal) {
     await this.updateSystemPrompt();
 
     this.history.push({ role: "user", content: prompt });
@@ -258,6 +257,7 @@ Here is the initial info about the current page:
         mode: "tool",
         system: this.systemInstruction,
         messages: this.history,
+        abortSignal,
       });
 
       // Manually add the assistant's structured response to the history
@@ -276,6 +276,7 @@ Here is the initial info about the current page:
       messages: this.history,
       tools: PREFS.godMode ? toolSet : undefined,
       maxSteps: PREFS.godMode ? PREFS.maxToolCalls : 1,
+      abortSignal,
     };
 
     // Non-Citation Mode (Streaming or Non-Streaming)

@@ -688,12 +688,11 @@ browser {
           /* } */
         }
 
-        .send-btn {
+        .send-btn,.stop-btn {
           margin-left: auto !important;
           border: none !important;
           background-color: var(--browse-bot-primary-bg) !important;
           padding: 3px !important;
-          display: inline-flex !important;
           color: var(--browse-bot-primary) !important;
           align-self: end !important;
           min-width: 30px !important;
@@ -931,7 +930,7 @@ browser {
             position: relative !important;
           }
 
-          .send-btn {
+          .send-btn,.stop-btn {
             padding: 1px !important;
             min-width: 24px !important;
             min-height: 24px !important;
