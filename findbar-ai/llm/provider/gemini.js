@@ -1,3 +1,4 @@
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import PREFS from "../../utils/prefs.js";
 
 const gemini = {
@@ -40,32 +41,11 @@ const gemini = {
     if (this.AVAILABLE_MODELS.includes(value)) PREFS.geminiModel = value;
   },
 
-  get apiUrl() {
-    const model = this.model;
-    if (!model) return null;
-    return `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
-  },
-
-  async sendMessage(requestBody) {
-    const apiKey = this.apiKey;
-    const apiUrl = this.apiUrl;
-    if (!apiKey || !apiUrl) {
-      throw new Error("Invalid arguments for sendMessage.");
-    }
-    let response = await fetch(apiUrl, {
-      method: "POST",
-      headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
-      body: JSON.stringify(requestBody),
+  getModel() {
+    const google = createGoogleGenerativeAI({
+      apiKey: this.apiKey,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`API Error: ${response.status} - ${errorData.error.message}`);
-    }
-
-    let data = await response.json();
-    let modelResponse = data.candidates?.[0]?.content;
-    return modelResponse;
+    return google(this.model);
   },
 };
 

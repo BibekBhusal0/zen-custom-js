@@ -1,3 +1,5 @@
+import { tool } from "ai";
+import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
 import { debugLog, debugError } from "../utils/prefs.js";
 
@@ -247,9 +249,9 @@ async function addBookmarkFolder(args) {
 async function updateBookmark(args) {
   const { id, url, title, parentID } = args;
   if (!id) return { error: "updateBookmark requires a bookmark id (guid)." };
-  if (!url && !title)
+  if (!url && !title && !parentID)
     return {
-      error: "updateBookmark requires either a new url or a new title.",
+      error: "updateBookmark requires either a new url, title, or parentID.",
     };
 
   try {
@@ -319,249 +321,132 @@ async function clickElement(args) {
 async function fillForm(args) {
   const { selector, value } = args;
   if (!selector) return { error: "fillForm requires a selector." };
-  if (!value) return { error: "fillForm requires a value." };
+  if (value === undefined) return { error: "fillForm requires a value." };
   return messageManagerAPI.fillForm(selector, value);
 }
 
-const availableTools = {
-  search,
-  newSplit,
-  openLink,
-  getPageTextContent: messageManagerAPI.getPageTextContent.bind(messageManagerAPI),
-  getHTMLContent: messageManagerAPI.getHTMLContent.bind(messageManagerAPI),
-  getYoutubeTranscript: messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI),
-  searchBookmarks,
-  getAllBookmarks,
-  createBookmark,
-  addBookmarkFolder,
-  updateBookmark,
-  deleteBookmark,
-  clickElement,
-  fillForm,
+const toolSet = {
+  search: tool({
+    description: "Performs a web search using a specified search engine and opens the results.",
+    parameters: z.object({
+      searchTerm: z.string().describe("The term to search for."),
+      engineName: z.string().optional().describe("The name of the search engine to use."),
+      where: z
+        .string()
+        .optional()
+        .describe(
+          "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'."
+        ),
+    }),
+    execute: search,
+  }),
+  openLink: tool({
+    description:
+      "Opens a given URL in a specified location. Can also create a split view with the current tab.",
+    parameters: z.object({
+      link: z.string().describe("The URL to open."),
+      where: z
+        .string()
+        .optional()
+        .describe(
+          "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'."
+        ),
+    }),
+    execute: openLink,
+  }),
+  newSplit: tool({
+    description:
+      "Creates a split view by opening two new URLs in two new tabs, then arranging them side-by-side.",
+    parameters: z.object({
+      link1: z.string().describe("The URL for the first new tab."),
+      link2: z.string().describe("The URL for the second new tab."),
+      type: z
+        .string()
+        .optional()
+        .describe("The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'."),
+    }),
+    execute: newSplit,
+  }),
+  getPageTextContent: tool({
+    description:
+      "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
+    parameters: z.object({}),
+    execute: messageManagerAPI.getPageTextContent.bind(messageManagerAPI),
+  }),
+  getHTMLContent: tool({
+    description:
+      "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
+    parameters: z.object({}),
+    execute: messageManagerAPI.getHTMLContent.bind(messageManagerAPI),
+  }),
+  getYoutubeTranscript: tool({
+    description:
+      "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
+    parameters: z.object({}),
+    execute: messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI),
+  }),
+  searchBookmarks: tool({
+    description: "Searches bookmarks based on a query.",
+    parameters: z.object({
+      query: z.string().describe("The search term for bookmarks."),
+    }),
+    execute: searchBookmarks,
+  }),
+  getAllBookmarks: tool({
+    description: "Retrieves all bookmarks.",
+    parameters: z.object({}),
+    execute: getAllBookmarks,
+  }),
+  createBookmark: tool({
+    description: "Creates a new bookmark.",
+    parameters: z.object({
+      url: z.string().describe("The URL to bookmark."),
+      title: z.string().optional().describe("The title for the bookmark."),
+      parentID: z.string().optional().describe("The GUID of the parent folder."),
+    }),
+    execute: createBookmark,
+  }),
+  addBookmarkFolder: tool({
+    description: "Creates a new bookmark folder.",
+    parameters: z.object({
+      title: z.string().describe("The title for the new folder."),
+      parentID: z.string().optional().describe("The GUID of the parent folder."),
+    }),
+    execute: addBookmarkFolder,
+  }),
+  updateBookmark: tool({
+    description: "Updates an existing bookmark.",
+    parameters: z.object({
+      id: z.string().describe("The GUID of the bookmark to update."),
+      url: z.string().optional().describe("The new URL for the bookmark."),
+      title: z.string().optional().describe("The new title for the bookmark."),
+      parentID: z.string().optional().describe("The GUID of the parent folder."),
+    }),
+    execute: updateBookmark,
+  }),
+  deleteBookmark: tool({
+    description: "Deletes a bookmark.",
+    parameters: z.object({
+      id: z.string().describe("The GUID of the bookmark to delete."),
+    }),
+    execute: deleteBookmark,
+  }),
+  clickElement: tool({
+    description: "Clicks an element on the page.",
+    parameters: z.object({
+      selector: z.string().describe("The CSS selector of the element to click."),
+    }),
+    execute: clickElement,
+  }),
+  fillForm: tool({
+    description: "Fills a form input on the page.",
+    parameters: z.object({
+      selector: z.string().describe("The CSS selector of the input element to fill."),
+      value: z.string().describe("The value to fill the input with."),
+    }),
+    execute: fillForm,
+  }),
 };
-
-const toolDeclarations = [
-  {
-    functionDeclarations: [
-      {
-        name: "search",
-        description: "Performs a web search using a specified search engine and opens the results.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            searchTerm: {
-              type: "STRING",
-              description: "The term to search for.",
-            },
-            engineName: {
-              type: "STRING",
-              description: "Optional. The name of the search engine to use.",
-            },
-            where: {
-              type: "STRING",
-              description:
-                "Optional. Where to open the search results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Defaults to 'new tab'. Note that 'glance', 'vsplit' and 'hsplit' are special to zen browser. 'glance' opens in small popup and 'vsplit' and 'hsplit' opens in vertical and horizontal split respectively. When user says open in split and don't spicify 'vsplit' or 'hsplit' default to 'vsplit'.",
-            },
-          },
-          required: ["searchTerm"],
-        },
-      },
-      {
-        name: "openLink",
-        description:
-          "Opens a given URL in a specified location. Can also create a split view with the current tab.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            link: { type: "STRING", description: "The URL to open." },
-            where: {
-              type: "STRING",
-              description:
-                "Optional. Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Defaults to 'new tab'. Note that 'glance', 'vsplit' and 'hsplit' are special to zen browser. 'glance' opens in small popup and 'vsplit' and 'hsplit' opens in vertical and horizontal split respectively. When user says open in split and don't spicify 'vsplit' or 'hsplit' default to 'vsplit'.",
-            },
-          },
-          required: ["link"],
-        },
-      },
-      {
-        name: "newSplit",
-        description:
-          "Creates a split view by opening two new URLs in two new tabs, then arranging them side-by-side.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            link1: {
-              type: "STRING",
-              description: "The URL for the first new tab.",
-            },
-            link2: {
-              type: "STRING",
-              description: "The URL for the second new tab.",
-            },
-            type: {
-              type: "STRING",
-              description:
-                "Optional, The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
-            },
-          },
-          required: ["link1", "link2"],
-        },
-      },
-      {
-        name: "getPageTextContent",
-        description:
-          "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
-        parameters: { type: "OBJECT", properties: {} },
-      },
-      {
-        name: "getHTMLContent",
-        description:
-          "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
-        parameters: { type: "OBJECT", properties: {} },
-      },
-      {
-        name: "getYoutubeTranscript",
-        description:
-          "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
-        parameters: { type: "OBJECT", properties: {} },
-      },
-      {
-        name: "searchBookmarks",
-        description: "Searches bookmarks based on a query.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            query: {
-              type: "STRING",
-              description: "The search term for bookmarks.",
-            },
-          },
-          required: ["query"],
-        },
-      },
-      {
-        name: "getAllBookmarks",
-        description: "Retrieves all bookmarks.",
-        parameters: { type: "OBJECT", properties: {} },
-      },
-      {
-        name: "createBookmark",
-        description: "Creates a new bookmark.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            url: {
-              type: "STRING",
-              description: "The URL to bookmark.",
-            },
-            title: {
-              type: "STRING",
-              description:
-                "Optional. The title for the bookmark. If not provided, the URL is used.",
-            },
-            parentID: {
-              type: "STRING",
-              description:
-                'Optional. The GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder.',
-            },
-          },
-          required: ["url"],
-        },
-      },
-      {
-        name: "addBookmarkFolder",
-        description: "Creates a new bookmark folder.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            title: {
-              type: "STRING",
-              description: "The title for the new folder.",
-            },
-            parentID: {
-              type: "STRING",
-              description:
-                'Optional. The GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder.',
-            },
-          },
-          required: ["title"],
-        },
-      },
-      {
-        name: "updateBookmark",
-        description: "Updates an existing bookmark.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            id: {
-              type: "STRING",
-              description: "The GUID of the bookmark to update.",
-            },
-            url: {
-              type: "STRING",
-              description: "The new URL for the bookmark.",
-            },
-            title: {
-              type: "STRING",
-              description: "The new title for the bookmark.",
-            },
-            parentID: {
-              type: "STRING",
-              description: "The GUID of the parent folder.",
-            },
-          },
-          required: ["id"],
-        },
-      },
-      {
-        name: "deleteBookmark",
-        description: "Deletes a bookmark.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            id: {
-              type: "STRING",
-              description: "The GUID of the bookmark to delete.",
-            },
-          },
-          required: ["id"],
-        },
-      },
-      {
-        name: "clickElement",
-        description: "Clicks an element on the page.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            selector: {
-              type: "STRING",
-              description: "The CSS selector of the element to click.",
-            },
-          },
-          required: ["selector"],
-        },
-      },
-      {
-        name: "fillForm",
-        description: "Fills a form input on the page.",
-        parameters: {
-          type: "OBJECT",
-          properties: {
-            selector: {
-              type: "STRING",
-              description: "The CSS selector of the input element to fill.",
-            },
-            value: {
-              type: "STRING",
-              description: "The value to fill the input with.",
-            },
-          },
-          required: ["selector", "value"],
-        },
-      },
-    ],
-  },
-];
 
 const getToolSystemPrompt = async () => {
   try {
@@ -651,4 +536,4 @@ Note that first and second tool clls can be made in parallel, but the third tool
   }
 };
 
-export { availableTools, toolDeclarations, getToolSystemPrompt };
+export { toolSet, getToolSystemPrompt };

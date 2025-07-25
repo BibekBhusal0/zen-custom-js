@@ -20,11 +20,15 @@ export default {
       banner: header,
     },
   ],
+  context: "window",
   plugins: [
-    resolve(),
+    resolve({
+      browser: true,
+    }),
     commonjs(),
     string({
       include: "**/*.css",
     }),
   ],
 };
+

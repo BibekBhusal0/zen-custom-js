@@ -1,91 +1,13 @@
+import { streamText } from "ai";
 import gemini from "./provider/gemini.js";
 import mistral from "./provider/mistral.js";
-import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
+import { toolSet, getToolSystemPrompt } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
 
-async function executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth = 0) {
-  const maxRecursionDepth = PREFS.maxToolCalls || 3;
-  const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
-
-  if (!functionCalls || functionCalls.length === 0) {
-    return modelResponse;
-  }
-
-  if (currentDepth >= maxRecursionDepth) {
-    debugLog("Max recursion depth reached. Stopping tool execution.");
-    return modelResponse;
-  }
-
-  debugLog(`Function call(s) requested by model (depth ${currentDepth}):`, functionCalls);
-
-  // Gather the names of all tools to be called
-  const toolNames = functionCalls.map((call) => call.functionCall.name);
-
-  let confirmed = true;
-  if (PREFS.conformation) {
-    confirmed = await window.browserBotFindbar.createToolConfirmationDialog(toolNames);
-  }
-
-  const functionResponses = [];
-  if (confirmed) {
-    for (const call of functionCalls) {
-      const { name, args } = call.functionCall;
-
-      if (availableTools[name]) {
-        debugLog(`Executing tool: "${name}" with args:`, args);
-        const toolResult = await availableTools[name](args);
-        debugLog(`Tool "${name}" executed. Result:`, toolResult);
-        functionResponses.push({
-          functionResponse: { name, response: toolResult },
-        });
-      } else {
-        debugError(`Tool "${name}" not found!`);
-        functionResponses.push({
-          functionResponse: {
-            name,
-            response: { error: `Tool "${name}" is not available.` },
-          },
-        });
-      }
-    }
-  } else {
-    debugLog("Tool execution cancelled by user.");
-    // Create error responses for all tool calls
-    for (const name of toolNames) {
-      functionResponses.push({
-        functionResponse: {
-          name,
-          response: { error: `Tool "${name}" execution cancelled by user.` },
-        },
-      });
-    }
-  }
-
-  llmInstance.history.push({ role: "tool", parts: functionResponses });
-
-  requestBody = {
-    contents: llmInstance.history,
-    systemInstruction: llmInstance.systemInstruction,
-    generationConfig: PREFS.citationsEnabled ? { responseMimeType: "application/json" } : {},
-  };
-
-  modelResponse = await llmInstance.currentProvider.sendMessage(requestBody);
-  llmInstance.history.push(modelResponse);
-
-  // Only recurse if the model provided a valid response
-  if (modelResponse?.parts?.length > 0) {
-    debugLog("Running tool call", currentDepth + 1, "Time");
-    return executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth + 1);
-  } else {
-    debugLog("Model returned an empty response after tool execution.");
-    return modelResponse;
-  }
-}
-
 const llm = {
   history: [],
-  systemInstruction: null,
+  systemInstruction: "",
   AVAILABLE_PROVIDERS: {
     gemini: gemini,
     mistral: mistral,
@@ -265,8 +187,7 @@ Here is the initial info about the current page:
     return systemPrompt;
   },
   setSystemPrompt(promptText) {
-    this.systemInstruction = promptText ? { parts: [{ text: promptText }] } : null;
-    return this;
+    this.systemInstruction = promptText || "";
   },
 
   parseModelResponseText(responseText) {
@@ -293,59 +214,51 @@ Here is the initial info about the current page:
     return { answer, citations };
   },
 
-  async sendMessage(prompt, pageContext) {
+  async sendMessage(prompt) {
     await this.updateSystemPrompt();
 
-    const fullPrompt = `[Current Page Context: ${JSON.stringify(pageContext || {})}] ${prompt}`;
-    this.history.push({ role: "user", parts: [{ text: fullPrompt }] });
-    let requestBody = {
-      contents: this.history,
-      systemInstruction: this.systemInstruction,
-    };
-    if (PREFS.citationsEnabled) {
-      requestBody.generationConfig = { responseMimeType: "application/json" };
-    }
+    this.history.push({ role: "user", content: prompt });
 
-    if (PREFS.godMode) {
-      requestBody.tools = toolDeclarations;
-    }
-    let modelResponse = await this.currentProvider.sendMessage(requestBody);
-    if (modelResponse === null) {
-      this.history.pop();
-      return { answer: "The model did not return a valid response." };
-    }
-    this.history.push(modelResponse);
+    const model = this.currentProvider.getModel();
 
-    if (PREFS.godMode) {
-      modelResponse = await executeToolCalls(this, requestBody, modelResponse);
-    }
+    const result = streamText({
+      model: model,
+      messages: this.history,
+      system: this.systemInstruction,
+      tools: PREFS.godMode ? toolSet : undefined,
+      maxSteps: PREFS.godMode ? 5 : 1, 
+      async onFinish({ text, toolCalls, toolResults, finishReason, usage, response }) {
+        debugLog("Stream finished:", { finishReason, usage });
 
-    if (PREFS.citationsEnabled) {
-      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      const parsedResponse = this.parseModelResponseText(responseText);
+        llm.history.push(...response.messages);
 
-      debugLog("Parsed AI Response:", parsedResponse);
+        if (window.browseBotFindbar?.findbar && PREFS.persistChat) {
+          window.browseBotFindbar.findbar.history = llm.getHistory();
+        }
+      },
+      async onToolCall({ toolCall }) {
+        const toolNames = [toolCall.toolName];
+        let confirmed = true;
+        if (PREFS.conformation) {
+          confirmed = await window.browseBotFindbar.createToolConfirmationDialog(toolNames);
+        }
 
-      if (!parsedResponse.answer) {
-        this.history.pop();
-      }
-      return parsedResponse;
-    } else {
-      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      if (!responseText) {
-        this.history.pop();
-      }
-      return {
-        answer: responseText || "I used my tools to complete your request.",
-      };
-    }
+        if (!confirmed) {
+          debugLog("Tool execution cancelled by user.");
+          // To cancel, we can throw an error which will be caught by the SDK
+          throw new Error("Tool execution cancelled by user.");
+        }
+      },
+    });
+
+    return result;
   },
   getHistory() {
     return [...this.history];
   },
   clearData() {
     this.history = [];
-    this.setSystemPrompt(null);
+    this.setSystemPrompt("");
   },
   getLastMessage() {
     return this.history.length > 0 ? this.history[this.history.length - 1] : null;

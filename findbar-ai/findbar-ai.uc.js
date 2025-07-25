@@ -377,29 +377,53 @@ const browserBotfindbar = {
     this.show();
     this.expanded = true;
 
-    const pageContext = {
-      url: gBrowser.currentURI.spec,
-      title: gBrowser.selectedBrowser.contentTitle,
-    };
+    // Add user message to the UI immediately
+    this.addChatMessage({ role: "user", content: prompt });
 
-    this.addChatMessage({ answer: prompt }, "user");
+    // Create a placeholder for the AI's streaming response
+    const aiMessageDiv = parseElement(`<div class="chat-message chat-message-ai"></div>`);
+    const contentDiv = parseElement(`<div class="message-content"></div>`);
+    aiMessageDiv.appendChild(contentDiv);
 
-    const loadingIndicator = this.createLoadingIndicator();
+    // const loadingIndicator = this.createLoadingIndicator();
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (messagesContainer) {
-      messagesContainer.appendChild(loadingIndicator);
+      // messagesContainer.appendChild(loadingIndicator);
+      messagesContainer.appendChild(aiMessageDiv);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     try {
-      const response = await llm.sendMessage(prompt, pageContext);
-      if (response && response.answer) {
-        this.addChatMessage(response, "ai");
+      const result = await llm.sendMessage(prompt, );
+
+      let fullText = "";
+      for await (const delta of result.textStream) {
+        fullText += delta;
+        contentDiv.innerHTML = parseMD(fullText).innerHTML;
+        if (messagesContainer) {
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      }
+
+      // After the stream is complete, do final processing for citations
+      if (PREFS.citationsEnabled) {
+        const { answer, citations } = llm.parseModelResponseText(fullText);
+        if (citations && citations.length > 0) {
+          aiMessageDiv.dataset.citations = JSON.stringify(citations);
+        }
+        const processedContent = answer.replace(
+          /\[(\d+)\]/g,
+          `<button class="citation-link" data-citation-id="$1">[$1]</button>`
+        );
+        contentDiv.innerHTML = parseMD(processedContent).innerHTML;
       }
     } catch (e) {
-      this.addChatMessage({ answer: `Error: ${e.message}` }, "error");
+      debugError("Error sending message:", e);
+      // Remove the placeholder and add an error message
+      aiMessageDiv.remove();
+      this.addChatMessage({ role: "error", content: `Error: ${e.message}` });
     } finally {
-      loadingIndicator.remove();
+      // loadingIndicator.remove();
       this.focusPrompt();
       if (PREFS.persistChat) this.findbar.history = llm.getHistory();
     }
@@ -467,7 +491,11 @@ const browserBotfindbar = {
 
     const promptInput = container.querySelector("#ai-prompt");
     const sendBtn = container.querySelector("#send-prompt");
-    const handleSend = () => this.sendMessage(promptInput.value.trim());
+    const handleSend = () => {
+      const prompt = promptInput.value.trim();
+      this.sendMessage(prompt);
+      promptInput.value = ""; 
+    };
     sendBtn.addEventListener("click", handleSend);
     promptInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -524,23 +552,50 @@ const browserBotfindbar = {
     return messageDiv;
   },
 
-  addChatMessage(response, type) {
-    const { answer, citations } = response;
-    if (!this.chatContainer || !answer) return;
+  addChatMessage(message) {
+    const { role, content } = message;
+    if (!this.chatContainer || !content) return;
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (!messagesContainer) return;
 
-    const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
-    if (citations && citations.length > 0) {
-      messageDiv.dataset.citations = JSON.stringify(citations);
+    let type;
+    switch (role) {
+      case "user":
+        type = "user";
+        break;
+      case "assistant":
+        type = "ai";
+        break;
+      case "error":
+        type = "error";
+        break;
+      default:
+        return; 
     }
 
+    const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
     const contentDiv = parseElement(`<div class="message-content"></div>`);
-    const processedContent = answer.replace(
-      /\[(\d+)\]/g,
-      `<button class="citation-link" data-citation-id="$1">[$1]</button>`
-    );
-    contentDiv.appendChild(parseMD(processedContent));
+
+    // Vercel AI SDK messages have content as string or array of parts.
+    // We only care about the text content for display.
+    const textContent = typeof content === "string" ? content : content[0]?.text ?? "";
+
+    if (role === "assistant" && PREFS.citationsEnabled) {
+      // This is for rendering historical messages that already have citations parsed
+      const { answer, citations } = llm.parseModelResponseText(textContent);
+      if (citations && citations.length > 0) {
+        messageDiv.dataset.citations = JSON.stringify(citations);
+      }
+      const processedContent = answer.replace(
+        /\[(\d+)\]/g,
+        `<button class="citation-link" data-citation-id="$1">[$1]</button>`
+      );
+      contentDiv.appendChild(parseMD(processedContent));
+    } else {
+      // For user messages or non-citation AI responses
+      const finalContent = textContent.replace(/\[Current Page Context:.*?\]\s*/, "");
+      contentDiv.appendChild(parseMD(finalContent));
+    }
 
     messageDiv.appendChild(contentDiv);
     messagesContainer.appendChild(messageDiv);
@@ -560,30 +615,13 @@ const browserBotfindbar = {
     } else {
       this.chatContainer = this.createChatInterface();
       if (PREFS.dndEnabled) this.enableDND();
+
+      // Re-render history using the new message format
       const history = llm.getHistory();
       for (const message of history) {
-        if (
-          message?.role === "tool" ||
-          (message?.parts && message?.parts.some((p) => p.functionCall))
-        )
-          continue;
-
-        const isModel = message?.role === "model";
-        const textContent = message?.parts[0]?.text;
-        if (!textContent) continue;
-
-        let responsePayload = { answer: "" };
-
-        if (isModel && PREFS.citationsEnabled) {
-          responsePayload = llm.parseModelResponseText(textContent);
-        } else {
-          responsePayload.answer = textContent.replace(/\[Current Page Context:.*?\]\s*/, "");
-        }
-
-        if (responsePayload.answer) {
-          this.addChatMessage(responsePayload, isModel ? "ai" : "user");
-        }
+        this.addChatMessage(message);
       }
+
       this.findbar.insertBefore(this.chatContainer, this.findbar.firstChild);
     }
   },
