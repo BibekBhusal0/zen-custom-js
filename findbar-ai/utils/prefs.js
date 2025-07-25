@@ -5,6 +5,7 @@ export const PREFS = {
   DND_ENABLED: "extension.browse-bot.dnd-enabled",
   POSITION: "extension.browse-bot.position",
   DEBUG_MODE: "extension.browse-bot.debug-mode",
+  STREAM_ENABLED: "extension.browse-bot.stream-enabled",
 
   GOD_MODE: "extension.browse-bot.god-mode",
   CITATIONS_ENABLED: "extension.browse-bot.citations-enabled",
@@ -60,6 +61,13 @@ export const PREFS = {
   },
   set minimal(value) {
     this.setPref(this.MINIMAL, value);
+  },
+
+  get streamEnabled() {
+    return this.getPref(this.STREAM_ENABLED);
+  },
+  set streamEnabled(value) {
+    this.setPref(this.STREAM_ENABLED, value);
   },
 
   set godMode(value) {
@@ -195,6 +203,7 @@ PREFS.defaultValues = {
   [PREFS.GOD_MODE]: false,
   [PREFS.DEBUG_MODE]: false,
   [PREFS.PERSIST]: false,
+  [PREFS.STREAM_ENABLED]: true,
   [PREFS.CITATIONS_ENABLED]: false,
   [PREFS.CONTEXT_MENU_ENABLED]: true,
   [PREFS.CONTEXT_MENU_AUTOSEND]: true,

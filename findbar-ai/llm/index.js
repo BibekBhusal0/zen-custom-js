@@ -1,9 +1,30 @@
-import { streamText } from "ai";
+import { streamText, generateText, generateObject } from "ai";
+import { z } from "zod";
 import gemini from "./provider/gemini.js";
 import mistral from "./provider/mistral.js";
 import { toolSet, getToolSystemPrompt } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
+
+const citationSchema = z.object({
+  answer: z.string().describe("The conversational answer to the user's query."),
+  citations: z
+    .array(
+      z.object({
+        id: z
+          .number()
+          .describe(
+            "Unique identifier for the citation, corresponding to the marker in the answer text."
+          ),
+        source_quote: z
+          .string()
+          .describe(
+            "The exact, verbatim quote from the source text that supports the information."
+          ),
+      })
+    )
+    .describe("An array of citation objects from the source text."),
+});
 
 const llm = {
   history: [],
@@ -196,7 +217,11 @@ Here is the initial info about the current page:
 
     if (PREFS.citationsEnabled) {
       try {
-        const parsedContent = JSON.parse(responseText);
+        // Find the JSON part of the response
+        const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+        const jsonString = jsonMatch ? jsonMatch[1] : responseText;
+        const parsedContent = JSON.parse(jsonString);
+
         if (typeof parsedContent.answer === "string") {
           answer = parsedContent.answer;
           if (Array.isArray(parsedContent.citations)) {
@@ -225,52 +250,55 @@ Here is the initial info about the current page:
     debugLog(`Using provider: ${this.currentProvider.name}, model: ${this.currentProvider.model}`);
     debugLog("System instruction for this call:", this.systemInstruction);
 
-    const result = streamText({
-      model: model,
-      messages: this.history,
+    // Citation Mode using generateObject (non-streaming)
+    if (PREFS.citationsEnabled) {
+      const { object, response } = await generateObject({
+        model,
+        schema: citationSchema,
+        mode: "tool",
+        system: this.systemInstruction,
+        messages: this.history,
+      });
+      // __AUTO_GENERATED_PRINT_VAR_START__
+      console.log("sendMessage#if response:", response); // __AUTO_GENERATED_PRINT_VAR_END__
+      // __AUTO_GENERATED_PRINT_VAR_START__
+      console.log("sendMessage#if object:", object); // __AUTO_GENERATED_PRINT_VAR_END__
+
+      this.history.push(...response.messages);
+      if (window.browserBotFindbar?.findbar && PREFS.persistChat) {
+        window.browserBotFindbar.findbar.history = this.getHistory();
+      }
+
+      return object; // Return the parsed object directly
+    }
+
+    const commonConfig = {
+      model,
       system: this.systemInstruction,
+      messages: this.history,
       tools: PREFS.godMode ? toolSet : undefined,
-      maxSteps: PREFS.godMode ? 5 : 1,
-      onChunk({ chunk }) {
-        debugLog("Stream chunk received:", chunk);
-      },
-      onError(error) {
-        debugError("An error occurred during streaming:", error);
-      },
-      async onFinish({ text, toolCalls, toolResults, finishReason, usage, response }) {
-        debugLog("Stream finished. Details:", {
-          finishReason,
-          usage,
-          text,
-          toolCalls,
-          toolResults,
-          response,
-        });
+      maxSteps: PREFS.godMode ? PREFS.maxToolCalls : 1,
+    };
 
-        llm.history.push(...response.messages);
-        debugLog("Updated history after stream:", llm.getHistory());
-
-        if (window.browseBotFindbar?.findbar && PREFS.persistChat) {
-          window.browseBotFindbar.findbar.history = llm.getHistory();
-        }
-      },
-      async onToolCall({ toolCall }) {
-        debugLog("Model requested tool call:", toolCall);
-        const toolNames = [toolCall.toolName];
-        let confirmed = true;
-        if (PREFS.conformation) {
-          confirmed = await window.browseBotFindbar.createToolConfirmationDialog(toolNames);
-        }
-
-        if (!confirmed) {
-          debugLog("Tool execution cancelled by user.");
-          // To cancel, we can throw an error which will be caught by the SDK
-          throw new Error("Tool execution cancelled by user.");
-        }
-      },
-    });
-
-    return result;
+    // Non-Citation Mode (Streaming or Non-Streaming)
+    if (PREFS.streamEnabled) {
+      return streamText({
+        ...commonConfig,
+        async onFinish({ response }) {
+          llm.history.push(...response.messages);
+          if (window.browserBotFindbar?.findbar && PREFS.persistChat) {
+            window.browserBotFindbar.findbar.history = llm.getHistory();
+          }
+        },
+      });
+    } else {
+      const result = await generateText(commonConfig);
+      this.history.push(...result.response.messages);
+      if (window.browserBotFindbar?.findbar && PREFS.persistChat) {
+        window.browserBotFindbar.findbar.history = this.getHistory();
+      }
+      return result;
+    }
   },
   getHistory() {
     return [...this.history];

@@ -338,6 +338,7 @@ export const SettingsModal = {
 
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
+      { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
       { label: "God Mode (AI can use tool calls)", pref: PREFS.GOD_MODE },
       { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
     ];

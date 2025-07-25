@@ -1,7 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
-import { debugLog, debugError } from "../utils/prefs.js";
+import { debugLog, debugError, PREFS } from "../utils/prefs.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                         SEARCH                          │
@@ -325,6 +325,18 @@ async function fillForm(args) {
   return messageManagerAPI.fillForm(selector, value);
 }
 
+// Helper function to wrap tool execution with a confirmation dialog
+async function confirmAndExecute(toolName, executeFn, args) {
+  if (PREFS.conformation) {
+    const confirmed = await window.browserBotFindbar.createToolConfirmationDialog([toolName]);
+    if (!confirmed) {
+      debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+      return { error: `Tool execution for '${toolName}' was cancelled by the user.` };
+    }
+  }
+  return executeFn(args);
+}
+
 const toolSet = {
   search: tool({
     description: "Performs a web search using a specified search engine and opens the results.",
@@ -338,7 +350,7 @@ const toolSet = {
           "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'."
         ),
     }),
-    execute: search,
+    execute: (args) => confirmAndExecute("search", search, args),
   }),
   openLink: tool({
     description:
@@ -352,7 +364,7 @@ const toolSet = {
           "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'."
         ),
     }),
-    execute: openLink,
+    execute: (args) => confirmAndExecute("openLink", openLink, args),
   }),
   newSplit: tool({
     description:
@@ -365,37 +377,52 @@ const toolSet = {
         .optional()
         .describe("The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'."),
     }),
-    execute: newSplit,
+    execute: (args) => confirmAndExecute("newSplit", newSplit, args),
   }),
   getPageTextContent: tool({
     description:
       "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
     parameters: z.object({}),
-    execute: messageManagerAPI.getPageTextContent.bind(messageManagerAPI),
+    execute: (args) =>
+      confirmAndExecute(
+        "getPageTextContent",
+        messageManagerAPI.getPageTextContent.bind(messageManagerAPI),
+        args
+      ),
   }),
   getHTMLContent: tool({
     description:
       "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
     parameters: z.object({}),
-    execute: messageManagerAPI.getHTMLContent.bind(messageManagerAPI),
+    execute: (args) =>
+      confirmAndExecute(
+        "getHTMLContent",
+        messageManagerAPI.getHTMLContent.bind(messageManagerAPI),
+        args
+      ),
   }),
   getYoutubeTranscript: tool({
     description:
       "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
     parameters: z.object({}),
-    execute: messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI),
+    execute: (args) =>
+      confirmAndExecute(
+        "getYoutubeTranscript",
+        messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI),
+        args
+      ),
   }),
   searchBookmarks: tool({
     description: "Searches bookmarks based on a query.",
     parameters: z.object({
       query: z.string().describe("The search term for bookmarks."),
     }),
-    execute: searchBookmarks,
+    execute: (args) => confirmAndExecute("searchBookmarks", searchBookmarks, args),
   }),
   getAllBookmarks: tool({
     description: "Retrieves all bookmarks.",
     parameters: z.object({}),
-    execute: getAllBookmarks,
+    execute: (args) => confirmAndExecute("getAllBookmarks", getAllBookmarks, args),
   }),
   createBookmark: tool({
     description: "Creates a new bookmark.",
@@ -404,7 +431,7 @@ const toolSet = {
       title: z.string().optional().describe("The title for the bookmark."),
       parentID: z.string().optional().describe("The GUID of the parent folder."),
     }),
-    execute: createBookmark,
+    execute: (args) => confirmAndExecute("createBookmark", createBookmark, args),
   }),
   addBookmarkFolder: tool({
     description: "Creates a new bookmark folder.",
@@ -412,7 +439,7 @@ const toolSet = {
       title: z.string().describe("The title for the new folder."),
       parentID: z.string().optional().describe("The GUID of the parent folder."),
     }),
-    execute: addBookmarkFolder,
+    execute: (args) => confirmAndExecute("addBookmarkFolder", addBookmarkFolder, args),
   }),
   updateBookmark: tool({
     description: "Updates an existing bookmark.",
@@ -422,21 +449,21 @@ const toolSet = {
       title: z.string().optional().describe("The new title for the bookmark."),
       parentID: z.string().optional().describe("The GUID of the parent folder."),
     }),
-    execute: updateBookmark,
+    execute: (args) => confirmAndExecute("updateBookmark", updateBookmark, args),
   }),
   deleteBookmark: tool({
     description: "Deletes a bookmark.",
     parameters: z.object({
       id: z.string().describe("The GUID of the bookmark to delete."),
     }),
-    execute: deleteBookmark,
+    execute: (args) => confirmAndExecute("deleteBookmark", deleteBookmark, args),
   }),
   clickElement: tool({
     description: "Clicks an element on the page.",
     parameters: z.object({
       selector: z.string().describe("The CSS selector of the element to click."),
     }),
-    execute: clickElement,
+    execute: (args) => confirmAndExecute("clickElement", clickElement, args),
   }),
   fillForm: tool({
     description: "Fills a form input on the page.",
@@ -444,7 +471,7 @@ const toolSet = {
       selector: z.string().describe("The CSS selector of the input element to fill."),
       value: z.string().describe("The value to fill the input with."),
     }),
-    execute: fillForm,
+    execute: (args) => confirmAndExecute("fillForm", fillForm, args),
   }),
 };
 
