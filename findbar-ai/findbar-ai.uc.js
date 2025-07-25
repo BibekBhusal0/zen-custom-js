@@ -235,6 +235,10 @@ const browserBotfindbar = {
           originalOnFindbarClose.apply(findbar.browser.finder, args);
           if (this.enabled) {
             debugLog("Findbar is being closed");
+
+      if (this._isStreaming) {
+        this._abortController?.abort();
+      }
           }
         };
         findbar.openOverWritten = true;
