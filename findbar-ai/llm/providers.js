@@ -138,7 +138,7 @@ const claude = Object.assign(Object.create(providerPrototype), {
   name: "claude",
   label: "Anthropic Claude",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=anthropic.com",
-  apiKeyUrl: "https://console.anthropic.com/api-keys",
+  apiKeyUrl: "https://console.anthropic.com/dashboard",
   AVAILABLE_MODELS: [
     "claude-4-opus",
     "claude-4-sonnet",
