@@ -15,6 +15,10 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 - **Context Menu Integration**: Right-click to quickly ask the AI about selected text or the current page.
 - **Citation Support**: (Experimental) Get direct quotes from the page text that support the AI's answer.
 
+## Technologies used
+- [Vercel AI SDK](https://ai-sdk.dev/) 
+- [Zod](https://zod.dev/) 
+
 ## 🚨 Caution 🚨
 
 - **Privacy**: To answer questions about a webpage, this script sends the text content of the page to your selected provider. Please be aware of the privacy implications before using this feature on pages with sensitive information.
@@ -41,19 +45,26 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
     git clone https://github.com/BibekBhusal0/zen-custom-js.git custom
     ```
 
-3.  **Import the Script**: In your JS directory, create new file `import.uc.mjs` (file name can be anything but should end with `.uc.mjs`), add the following line to import the script:
+3. Since Vercel AI SDK is being used here it is needed to bundle 
 
-    ```javascript
-    import "./custom/findbar-ai/findbar-ai.uc.js";
+    ```bash
+    cd custom
+    npm run build
     ```
 
-4.  **Import the Styles**: In your `userChrome.css` file, add the following line to import the required styles:
+4.  **Import the Script**: In your JS directory, create new file `import.uc.mjs` (file name can be anything but should end with `.uc.mjs`), add the following line to import the script:
+
+    ```javascript
+    import "./custom/dist/browse-bot.uc.js";
+    ```
+
+5.  **Import the Styles**: In your `userChrome.css` file, add the following line to import the required styles:
 
     ```css
     @import "js/custom/findbar-ai/style.css";
     ```
 
-5.  **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
+6.  **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
 
 ## Usage
 
