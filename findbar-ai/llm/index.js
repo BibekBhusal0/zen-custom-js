@@ -248,28 +248,26 @@ Here is the initial info about the current page:
 
     const model = this.currentProvider.getModel();
     debugLog(`Using provider: ${this.currentProvider.name}, model: ${this.currentProvider.model}`);
-    debugLog("System instruction for this call:", this.systemInstruction);
+    // debugLog("System instruction for this call:", this.systemInstruction);
 
     // Citation Mode using generateObject (non-streaming)
     if (PREFS.citationsEnabled) {
-      const { object, response } = await generateObject({
+      const { object } = await generateObject({
         model,
         schema: citationSchema,
         mode: "tool",
         system: this.systemInstruction,
         messages: this.history,
       });
-      // __AUTO_GENERATED_PRINT_VAR_START__
-      console.log("sendMessage#if response:", response); // __AUTO_GENERATED_PRINT_VAR_END__
-      // __AUTO_GENERATED_PRINT_VAR_START__
-      console.log("sendMessage#if object:", object); // __AUTO_GENERATED_PRINT_VAR_END__
 
-      this.history.push(...response.messages);
+      // Manually add the assistant's structured response to the history
+      this.history.push({ role: "assistant", content: JSON.stringify(object) });
+
       if (window.browserBotFindbar?.findbar && PREFS.persistChat) {
         window.browserBotFindbar.findbar.history = this.getHistory();
       }
 
-      return object; // Return the parsed object directly
+      return object;
     }
 
     const commonConfig = {
