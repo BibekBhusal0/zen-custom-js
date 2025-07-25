@@ -7,7 +7,18 @@ import { createPerplexity } from "@ai-sdk/perplexity";
 import { ollama } from "ollama-ai-provider";
 import PREFS from "../utils/prefs.js";
 
-const mistral = {
+// Base object with shared logic for all providers
+const providerPrototype = {
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
+  getModel() {
+    return this.create({ apiKey: this.apiKey })(this.model);
+  }
+};
+
+const mistral = Object.assign(Object.create(providerPrototype), {
   name: "mistral",
   label: "Mistral AI",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fmistral.ai%2F",
@@ -44,14 +55,10 @@ const mistral = {
   },
   modelPref: PREFS.MISTRAL_MODEL,
   apiPref: PREFS.MISTRAL_API_KEY,
-  get apiKey() { return PREFS.getPref(this.apiPref); },
-  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
-  get model() { return PREFS.getPref(this.modelPref); },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
-  getModel() { return createMistral({ apiKey: this.apiKey })(this.model) }
-};
+  create: createMistral,
+});
 
-const gemini = {
+const gemini = Object.assign(Object.create(providerPrototype), {
   name: "gemini",
   label: "Google Gemini",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fgemini.google.com",
@@ -84,14 +91,10 @@ const gemini = {
   },
   modelPref: PREFS.GEMINI_MODEL,
   apiPref: PREFS.GEMINI_API_KEY,
-  get apiKey() { return PREFS.getPref(this.apiPref); },
-  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
-  get model() { return PREFS.getPref(this.modelPref); },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
-  getModel() { return createGoogleGenerativeAI({ apiKey: this.apiKey })(this.model) }
-};
+  create: createGoogleGenerativeAI,
+});
 
-const openai = {
+const openai = Object.assign(Object.create(providerPrototype), {
   name: "openai",
   label: "OpenAI GPT",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=chatgpt.com/",
@@ -128,14 +131,10 @@ const openai = {
   },
   modelPref: PREFS.OPENAI_MODEL,
   apiPref: PREFS.OPENAI_API_KEY,
-  get apiKey() { return PREFS.getPref(this.apiPref); },
-  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
-  get model() { return PREFS.getPref(this.modelPref); },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
-  getModel() { return createOpenAI({ apiKey: this.apiKey })(this.model) }
-};
+  create: createOpenAI,
+});
 
-const claude = {
+const claude = Object.assign(Object.create(providerPrototype), {
   name: "claude",
   label: "Anthropic Claude",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=anthropic.com",
@@ -158,14 +157,10 @@ const claude = {
   },
   modelPref: PREFS.CLAUDE_MODEL,
   apiPref: PREFS.CLAUDE_API_KEY,
-  get apiKey() { return PREFS.getPref(this.apiPref); },
-  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
-  get model() { return PREFS.getPref(this.modelPref); },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
-  getModel() { return createAnthropic({ apiKey: this.apiKey })(this.model) }
-};
+  create: createAnthropic,
+});
 
-const grok = {
+const grok = Object.assign(Object.create(providerPrototype), {
   name: "grok",
   label: "xAI Grok",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=x.ai",
@@ -202,14 +197,10 @@ const grok = {
   },
   modelPref: PREFS.GROK_MODEL,
   apiPref: PREFS.GROK_API_KEY,
-  get apiKey() { return PREFS.getPref(this.apiPref); },
-  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
-  get model() { return PREFS.getPref(this.modelPref); },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
-  getModel() { return createGrok({ apiKey: this.apiKey })(this.model) }
-};
+  create: createGrok,
+});
 
-const perplexity = {
+const perplexity = Object.assign(Object.create(providerPrototype), {
   name: "perplexity",
   label: "Perplexity AI",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=perplexity.ai",
@@ -230,14 +221,10 @@ const perplexity = {
   },
   modelPref: PREFS.PERPLEXITY_MODEL,
   apiPref: PREFS.PERPLEXITY_API_KEY,
-  get apiKey() { return PREFS.getPref(this.apiPref); },
-  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
-  get model() { return PREFS.getPref(this.modelPref); },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
-  getModel() { return createPerplexity({ apiKey: this.apiKey })(this.model) }
-};
+  create: createPerplexity,
+});
 
-const ollamaProvider = {
+const ollamaProvider = Object.assign(Object.create(providerPrototype), {
   name: "ollama",
   label: "Ollama (local)",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=ollama.com/",
@@ -247,12 +234,8 @@ const ollamaProvider = {
   },
   modelPref: PREFS.OLLAMA_MODEL,
   apiPref: PREFS.OLLAMA_API_KEY,
-  get apiKey() { return PREFS.getPref(this.apiPref); },
-  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
-  get model() { return PREFS.getPref(this.modelPref); },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return ollama(this.model) }
-};
+});
 
 export {
   mistral,
@@ -263,4 +246,3 @@ export {
   perplexity,
   ollamaProvider
 };
-
