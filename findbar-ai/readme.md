@@ -16,8 +16,9 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 - **Citation Support**: (Experimental) Get direct quotes from the page text that support the AI's answer.
 
 ## Technologies used
-- [Vercel AI SDK](https://ai-sdk.dev/) 
-- [Zod](https://zod.dev/) 
+
+- [Vercel AI SDK](https://ai-sdk.dev/)
+- [Zod](https://zod.dev/)
 
 ## 🚨 Caution 🚨
 
@@ -45,7 +46,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
     git clone https://github.com/BibekBhusal0/zen-custom-js.git custom
     ```
 
-3. Since Vercel AI SDK is being used here it is needed to bundle 
+3.  Since Vercel AI SDK is being used here it is needed to bundle
 
     ```bash
     cd custom

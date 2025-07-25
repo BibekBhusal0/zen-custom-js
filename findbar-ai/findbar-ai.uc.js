@@ -394,7 +394,7 @@ const browserBotfindbar = {
     }
 
     try {
-      const result = await llm.sendMessage(prompt, );
+      const result = await llm.sendMessage(prompt);
 
       let fullText = "";
       for await (const delta of result.textStream) {
@@ -494,7 +494,7 @@ const browserBotfindbar = {
     const handleSend = () => {
       const prompt = promptInput.value.trim();
       this.sendMessage(prompt);
-      promptInput.value = ""; 
+      promptInput.value = "";
     };
     sendBtn.addEventListener("click", handleSend);
     promptInput.addEventListener("keypress", (e) => {
@@ -570,7 +570,7 @@ const browserBotfindbar = {
         type = "error";
         break;
       default:
-        return; 
+        return;
     }
 
     const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
@@ -578,7 +578,7 @@ const browserBotfindbar = {
 
     // Vercel AI SDK messages have content as string or array of parts.
     // We only care about the text content for display.
-    const textContent = typeof content === "string" ? content : content[0]?.text ?? "";
+    const textContent = typeof content === "string" ? content : (content[0]?.text ?? "");
 
     if (role === "assistant" && PREFS.citationsEnabled) {
       // This is for rendering historical messages that already have citations parsed

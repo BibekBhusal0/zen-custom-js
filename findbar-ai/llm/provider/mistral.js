@@ -35,7 +35,6 @@ const mistral = {
     if (this.AVAILABLE_MODELS.includes(value)) PREFS.mistralModel = value;
   },
 
-  
   getModel() {
     const mistralProvider = createMistral({
       apiKey: this.apiKey,

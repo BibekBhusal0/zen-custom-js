@@ -230,7 +230,7 @@ Here is the initial info about the current page:
       messages: this.history,
       system: this.systemInstruction,
       tools: PREFS.godMode ? toolSet : undefined,
-      maxSteps: PREFS.godMode ? 5 : 1, 
+      maxSteps: PREFS.godMode ? 5 : 1,
       onChunk({ chunk }) {
         debugLog("Stream chunk received:", chunk);
       },
