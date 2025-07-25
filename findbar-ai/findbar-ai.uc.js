@@ -416,8 +416,14 @@ const browserBotfindbar = {
           loadingIndicator.remove();
         }
       } else {
-        aiMessageDiv = parseElement(`<div class="chat-message chat-message-ai"></div>`);
-        const contentDiv = parseElement(`<div class="message-content"></div>`);
+        aiMessageDiv = parseElement(
+          `<div class="chat-message chat-message-ai">
+  <div class="message-content">
+    <div class="markdown-body"></div>
+  </div>
+</div>`
+        );
+        const contentDiv = aiMessageDiv.querySelector('.markdown-body')
         aiMessageDiv.appendChild(contentDiv);
 
         if (messagesContainer) {
