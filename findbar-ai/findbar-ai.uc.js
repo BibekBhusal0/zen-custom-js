@@ -236,9 +236,9 @@ const browserBotfindbar = {
           if (this.enabled) {
             debugLog("Findbar is being closed");
 
-      if (this._isStreaming) {
-        this._abortController?.abort();
-      }
+            if (this._isStreaming) {
+              this._abortController?.abort();
+            }
           }
         };
         findbar.openOverWritten = true;
@@ -423,7 +423,7 @@ const browserBotfindbar = {
   </div>
 </div>`
         );
-        const contentDiv = aiMessageDiv.querySelector('.markdown-body')
+        const contentDiv = aiMessageDiv.querySelector(".markdown-body");
         aiMessageDiv.appendChild(contentDiv);
 
         if (messagesContainer) {
@@ -634,7 +634,6 @@ const browserBotfindbar = {
 
     const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
     const contentDiv = parseElement(`<div class="message-content"></div>`);
-
 
     if (role === "assistant" && typeof content === "object" && content.answer !== undefined) {
       // Case 1: Live response from generateObject for citations

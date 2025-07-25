@@ -688,7 +688,8 @@ browser {
           /* } */
         }
 
-        .send-btn,.stop-btn {
+        .send-btn,
+        .stop-btn {
           margin-left: auto !important;
           border: none !important;
           background-color: var(--browse-bot-primary-bg) !important;
@@ -930,7 +931,8 @@ browser {
             position: relative !important;
           }
 
-          .send-btn,.stop-btn {
+          .send-btn,
+          .stop-btn {
             padding: 1px !important;
             min-width: 24px !important;
             min-height: 24px !important;

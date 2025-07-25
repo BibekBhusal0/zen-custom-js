@@ -31,7 +31,6 @@ export const PREFS = {
   OLLAMA_MODEL: "extension.browse-bot.ollama-model",
   OLLAMA_API_KEY: "extension.browse-bot.ollama-api-key",
 
-
   //TODO: Not yet implimented
   COPY_BTN_ENABLED: "extension.browse-bot.copy-btn-enabled",
   MARKDOWN_ENABLED: "extension.browse-bot.markdown-enabled",
