@@ -1,7 +1,6 @@
 import { streamText, generateText, generateObject } from "ai";
 import { z } from "zod";
-import gemini from "./provider/gemini.js";
-import mistral from "./provider/mistral.js";
+import { mistral , gemini} from "./providers.js";
 import { toolSet, getToolSystemPrompt } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
