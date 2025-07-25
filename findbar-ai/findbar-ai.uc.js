@@ -600,7 +600,7 @@ const browserBotfindbar = {
       contentDiv.appendChild(parseMD(textToParse));
     } else {
       // Case 2: String content (from user, stream, generateText, or history)
-      const textContent = typeof content === "string" ? content : content[0]?.text ?? "";
+      const textContent = typeof content === "string" ? content : (content[0]?.text ?? "");
 
       if (role === "assistant" && PREFS.citationsEnabled) {
         // Sub-case: Rendering historical assistant message in citation mode.
