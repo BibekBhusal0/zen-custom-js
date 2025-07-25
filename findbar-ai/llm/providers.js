@@ -44,10 +44,10 @@ const mistral = {
   },
   modelPref: PREFS.MISTRAL_MODEL,
   apiPref: PREFS.MISTRAL_API_KEY,
-  get apiKey() { return PREFS.mistralApiKey },
-  set apiKey(v) { if (typeof v === "string") PREFS.mistralApiKey = v },
-  get model() { return PREFS.mistralModel },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.mistralModel = v },
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return createMistral({ apiKey: this.apiKey })(this.model) }
 };
 
@@ -84,10 +84,10 @@ const gemini = {
   },
   modelPref: PREFS.GEMINI_MODEL,
   apiPref: PREFS.GEMINI_API_KEY,
-  get apiKey() { return PREFS.geminiApiKey },
-  set apiKey(v) { if (typeof v === "string") PREFS.geminiApiKey = v },
-  get model() { return PREFS.geminiModel },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.geminiModel = v },
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return createGoogleGenerativeAI({ apiKey: this.apiKey })(this.model) }
 };
 
@@ -128,10 +128,10 @@ const openai = {
   },
   modelPref: PREFS.OPENAI_MODEL,
   apiPref: PREFS.OPENAI_API_KEY,
-  get apiKey() { return PREFS.openaiApiKey },
-  set apiKey(v) { if (typeof v === "string") PREFS.openaiApiKey = v },
-  get model() { return PREFS.openaiModel },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.openaiModel = v },
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return createOpenAI({ apiKey: this.apiKey })(this.model) }
 };
 
@@ -158,10 +158,10 @@ const claude = {
   },
   modelPref: PREFS.CLAUDE_MODEL,
   apiPref: PREFS.CLAUDE_API_KEY,
-  get apiKey() { return PREFS.claudeApiKey },
-  set apiKey(v) { if (typeof v === "string") PREFS.claudeApiKey = v },
-  get model() { return PREFS.claudeModel },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.claudeModel = v },
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return createAnthropic({ apiKey: this.apiKey })(this.model) }
 };
 
@@ -202,10 +202,10 @@ const grok = {
   },
   modelPref: PREFS.GROK_MODEL,
   apiPref: PREFS.GROK_API_KEY,
-  get apiKey() { return PREFS.grokApiKey },
-  set apiKey(v) { if (typeof v === "string") PREFS.grokApiKey = v },
-  get model() { return PREFS.grokModel },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.grokModel = v },
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return createGrok({ apiKey: this.apiKey })(this.model) }
 };
 
@@ -230,10 +230,10 @@ const perplexity = {
   },
   modelPref: PREFS.PERPLEXITY_MODEL,
   apiPref: PREFS.PERPLEXITY_API_KEY,
-  get apiKey() { return PREFS.perplexityApiKey },
-  set apiKey(v) { if (typeof v === "string") PREFS.perplexityApiKey = v },
-  get model() { return PREFS.perplexityModel },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.perplexityModel = v },
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return createPerplexity({ apiKey: this.apiKey })(this.model) }
 };
 
@@ -247,10 +247,10 @@ const ollamaProvider = {
   },
   modelPref: PREFS.OLLAMA_MODEL,
   apiPref: PREFS.OLLAMA_API_KEY,
-  get apiKey() { return PREFS.ollamaApiKey },
-  set apiKey(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.ollamaApiKey = v },
-  get model() { return PREFS.ollamaModel },
-  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.ollamaModel = v },
+  get apiKey() { return PREFS.getPref(this.apiPref); },
+  set apiKey(v) { if (typeof v === "string") PREFS.setPref(this.apiPref, v); },
+  get model() { return PREFS.getPref(this.modelPref); },
+  set model(v) { if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v); },
   getModel() { return ollama(this.model) }
 };
 
@@ -260,7 +260,6 @@ export {
   openai,
   claude,
   grok,
-  deepseek,
   perplexity,
   ollamaProvider
 };
