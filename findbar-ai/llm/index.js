@@ -183,7 +183,7 @@ Here is the initial info about the current page:
       const pageContext = await messageManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
-
+    debugLog("Final System Prompt:", systemPrompt);
     return systemPrompt;
   },
   setSystemPrompt(promptText) {
@@ -215,11 +215,15 @@ Here is the initial info about the current page:
   },
 
   async sendMessage(prompt) {
+    debugLog(`sendMessage called with prompt: "${prompt}"`);
     await this.updateSystemPrompt();
 
     this.history.push({ role: "user", content: prompt });
+    debugLog("Current history before sending:", this.history);
 
     const model = this.currentProvider.getModel();
+    debugLog(`Using provider: ${this.currentProvider.name}, model: ${this.currentProvider.model}`);
+    debugLog("System instruction for this call:", this.systemInstruction);
 
     const result = streamText({
       model: model,
@@ -227,16 +231,31 @@ Here is the initial info about the current page:
       system: this.systemInstruction,
       tools: PREFS.godMode ? toolSet : undefined,
       maxSteps: PREFS.godMode ? 5 : 1, 
+      onChunk({ chunk }) {
+        debugLog("Stream chunk received:", chunk);
+      },
+      onError(error) {
+        debugError("An error occurred during streaming:", error);
+      },
       async onFinish({ text, toolCalls, toolResults, finishReason, usage, response }) {
-        debugLog("Stream finished:", { finishReason, usage });
+        debugLog("Stream finished. Details:", {
+          finishReason,
+          usage,
+          text,
+          toolCalls,
+          toolResults,
+          response,
+        });
 
         llm.history.push(...response.messages);
+        debugLog("Updated history after stream:", llm.getHistory());
 
         if (window.browseBotFindbar?.findbar && PREFS.persistChat) {
           window.browseBotFindbar.findbar.history = llm.getHistory();
         }
       },
       async onToolCall({ toolCall }) {
+        debugLog("Model requested tool call:", toolCall);
         const toolNames = [toolCall.toolName];
         let confirmed = true;
         if (PREFS.conformation) {
@@ -257,6 +276,7 @@ Here is the initial info about the current page:
     return [...this.history];
   },
   clearData() {
+    debugLog("Clearing LLM history and system prompt.");
     this.history = [];
     this.setSystemPrompt("");
   },
