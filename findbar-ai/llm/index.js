@@ -1,6 +1,14 @@
 import { streamText, generateText, generateObject } from "ai";
 import { z } from "zod";
-import { mistral , gemini} from "./providers.js";
+import {
+  claude,
+  gemini,
+  grok,
+  mistral,
+  ollamaProvider,
+  openai,
+  perplexity,
+} from "./providers.js";
 import { toolSet, getToolSystemPrompt } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
@@ -29,8 +37,13 @@ const llm = {
   history: [],
   systemInstruction: "",
   AVAILABLE_PROVIDERS: {
-    gemini: gemini,
-    mistral: mistral,
+    claude:claude,
+  gemini:gemini,
+  grok:grok,
+  mistral:mistral,
+  ollama:ollamaProvider,
+  openai:openai,
+  perplexity:perplexity,
   },
   get currentProvider() {
     const providerName = PREFS.llmProvider || "gemini";

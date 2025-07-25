@@ -20,6 +20,17 @@ export const PREFS = {
   MISTRAL_MODEL: "extension.browse-bot.mistral-model",
   GEMINI_API_KEY: "extension.browse-bot.gemini-api-key",
   GEMINI_MODEL: "extension.browse-bot.gemini-model",
+  OPENAI_API_KEY: "extension.browse-bot.openai-api-key",
+  OPENAI_MODEL: "extension.browse-bot.openai-model",
+  CLAUDE_API_KEY: "extension.browse-bot.claude-api-key",
+  CLAUDE_MODEL: "extension.browse-bot.claude-model",
+  GROK_API_KEY: "extension.browse-bot.grok-api-key",
+  GROK_MODEL: "extension.browse-bot.grok-model",
+  PERPLEXITY_API_KEY: "extension.browse-bot.perplexity-api-key",
+  PERPLEXITY_MODEL: "extension.browse-bot.perplexity-model",
+  OLLAMA_MODEL: "extension.browse-bot.ollama-model",
+  OLLAMA_API_KEY: "extension.browse-bot.ollama-api-key",
+
 
   //TODO: Not yet implimented
   COPY_BTN_ENABLED: "extension.browse-bot.copy-btn-enabled",
@@ -133,6 +144,76 @@ export const PREFS = {
     this.setPref(this.GEMINI_MODEL, value);
   },
 
+  get openaiApiKey() {
+    return this.getPref(this.OPENAI_API_KEY);
+  },
+  set openaiApiKey(value) {
+    this.setPref(this.OPENAI_API_KEY, value);
+  },
+
+  get openaiModel() {
+    return this.getPref(this.OPENAI_MODEL);
+  },
+  set openaiModel(value) {
+    this.setPref(this.OPENAI_MODEL, value);
+  },
+
+  get ollamaApiKey() {
+    return this.getPref(this.OLLAMA_API_KEY);
+  },
+  set ollamaApiKey(value) {
+    this.setPref(this.OLLAMA_API_KEY, value);
+  },
+
+  get claudeApiKey() {
+    return this.getPref(this.CLAUDE_API_KEY);
+  },
+  set claudeApiKey(value) {
+    this.setPref(this.CLAUDE_API_KEY, value);
+  },
+
+  get claudeModel() {
+    return this.getPref(this.CLAUDE_MODEL);
+  },
+  set claudeModel(value) {
+    this.setPref(this.CLAUDE_MODEL, value);
+  },
+
+  get grokApiKey() {
+    return this.getPref(this.GROK_API_KEY);
+  },
+  set grokApiKey(value) {
+    this.setPref(this.GROK_API_KEY, value);
+  },
+
+  get grokModel() {
+    return this.getPref(this.GROK_MODEL);
+  },
+  set grokModel(value) {
+    this.setPref(this.GROK_MODEL, value);
+  },
+
+  get perplexityApiKey() {
+    return this.getPref(this.PERPLEXITY_API_KEY);
+  },
+  set perplexityApiKey(value) {
+    this.setPref(this.PERPLEXITY_API_KEY, value);
+  },
+
+  get perplexityModel() {
+    return this.getPref(this.PERPLEXITY_MODEL);
+  },
+  set perplexityModel(value) {
+    this.setPref(this.PERPLEXITY_MODEL, value);
+  },
+
+  get ollamaModel() {
+    return this.getPref(this.OLLAMA_MODEL);
+  },
+  set ollamaModel(value) {
+    this.setPref(this.OLLAMA_MODEL, value);
+  },
+
   get persistChat() {
     return this.getPref(this.PERSIST);
   },
@@ -153,30 +234,35 @@ export const PREFS = {
   set copyBtnEnabled(value) {
     this.setPref(this.COPY_BTN_ENABLED, value);
   },
+
   get markdownEnabled() {
     return this.getPref(this.MARKDOWN_ENABLED);
   },
   set markdownEnabled(value) {
     this.setPref(this.MARKDOWN_ENABLED, value);
   },
+
   get conformation() {
     return this.getPref(this.CONFORMATION);
   },
   set conformation(value) {
     this.setPref(this.CONFORMATION, value);
   },
+
   get showToolCall() {
     return this.getPref(this.SHOW_TOOL_CALL);
   },
   set showToolCall(value) {
     this.setPref(this.SHOW_TOOL_CALL, value);
   },
+
   get dndEnabled() {
     return this.getPref(this.DND_ENABLED);
   },
   set dndEnabled(value) {
     this.setPref(this.DND_ENABLED, value);
   },
+
   get position() {
     return this.getPref(this.POSITION);
   },
@@ -212,6 +298,15 @@ PREFS.defaultValues = {
   [PREFS.MISTRAL_MODEL]: "mistral-medium-latest",
   [PREFS.GEMINI_API_KEY]: "",
   [PREFS.GEMINI_MODEL]: "gemini-2.0-flash",
+  [PREFS.OPENAI_API_KEY]: "",
+  [PREFS.OPENAI_MODEL]: "gpt-4o",
+  [PREFS.CLAUDE_API_KEY]: "",
+  [PREFS.CLAUDE_MODEL]: "claude-4-opus",
+  [PREFS.GROK_API_KEY]: "",
+  [PREFS.GROK_MODEL]: "grok-4",
+  [PREFS.PERPLEXITY_API_KEY]: "",
+  [PREFS.PERPLEXITY_MODEL]: "sonar",
+  [PREFS.OLLAMA_MODEL]: "llama2",
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
   [PREFS.MAX_TOOL_CALLS]: 5,
