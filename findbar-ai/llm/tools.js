@@ -1,4 +1,5 @@
 import { tool } from "ai";
+import { browseBotFindbar } from '../findbar-ai.uc.js'
 import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
 import { debugLog, debugError, PREFS } from "../utils/prefs.js";
@@ -328,7 +329,7 @@ async function fillForm(args) {
 // Helper function to wrap tool execution with a confirmation dialog
 async function confirmAndExecute(toolName, executeFn, args) {
   if (PREFS.conformation) {
-    const confirmed = await window.browserBotFindbar.createToolConfirmationDialog([toolName]);
+    const confirmed = await browseBotFindbar.createToolConfirmationDialog([toolName]);
     if (!confirmed) {
       debugLog(`Tool execution for '${toolName}' cancelled by user.`);
       return { error: `Tool execution for '${toolName}' was cancelled by the user.` };

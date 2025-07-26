@@ -1,4 +1,5 @@
 import { streamText, generateText, generateObject } from "ai";
+import { browseBotFindbar } from '../findbar-ai.uc.js'
 import { z } from "zod";
 import { claude, gemini, grok, mistral, ollamaProvider, openai, perplexity } from "./providers.js";
 import { toolSet, getToolSystemPrompt } from "./tools.js";
@@ -267,8 +268,8 @@ Here is the initial info about the current page:
       // Manually add the assistant's structured response to the history
       this.history.push({ role: "assistant", content: JSON.stringify(object) });
 
-      if (window.browserBotFindbar?.findbar && PREFS.persistChat) {
-        window.browserBotFindbar.findbar.history = this.getHistory();
+      if (browseBotFindbar?.findbar && PREFS.persistChat) {
+        browseBotFindbar.findbar.history = this.getHistory();
       }
 
       return object;
@@ -289,16 +290,16 @@ Here is the initial info about the current page:
         ...commonConfig,
         async onFinish({ response }) {
           llm.history.push(...response.messages);
-          if (window.browserBotFindbar?.findbar && PREFS.persistChat) {
-            window.browserBotFindbar.findbar.history = llm.getHistory();
+          if (browseBotFindbar?.findbar && PREFS.persistChat) {
+            browseBotFindbar.findbar.history = llm.getHistory();
           }
         },
       });
     } else {
       const result = await generateText(commonConfig);
       this.history.push(...result.response.messages);
-      if (window.browserBotFindbar?.findbar && PREFS.persistChat) {
-        window.browserBotFindbar.findbar.history = this.getHistory();
+      if (browseBotFindbar?.findbar && PREFS.persistChat) {
+        browseBotFindbar.findbar.history = this.getHistory();
       }
       return result;
     }
