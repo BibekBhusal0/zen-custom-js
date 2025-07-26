@@ -172,7 +172,7 @@ const grok = Object.assign(Object.create(providerPrototype), {
   name: "grok",
   label: "xAI Grok",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=x.ai",
-  apiKeyUrl: "https://x.ai",
+  apiKeyUrl: "https://x.ai/api",
   AVAILABLE_MODELS: [
     "grok-4",
     "grok-3",
