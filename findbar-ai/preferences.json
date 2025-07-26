@@ -594,10 +594,6 @@
         "label": "GPT 4o Mini"
       },
       {
-        "value": "gpt-4o-audio-preview",
-        "label": "GPT 4o Audio Preview"
-      },
-      {
         "value": "gpt-4-turbo",
         "label": "GPT 4 Turbo"
       },
