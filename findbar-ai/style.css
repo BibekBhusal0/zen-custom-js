@@ -698,6 +698,7 @@ browser {
           align-self: end !important;
           min-width: 30px !important;
           min-height: 30px !important;
+          display: flex;
 
           &:active:not(:disabled) {
             transform: translateY(0);
