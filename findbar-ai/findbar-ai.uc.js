@@ -321,7 +321,7 @@ const browserBotfindbar = {
         <div class="browse-bot-setup">
           <div class="ai-setup-content">
             <h3>AI Setup Required</h3>
-            <p>To use AI features, you need to set up your API key and select a provider.</p>
+            <p>To use AI features, you need to set up your API key and select a provider. If it is Ollama set any value to API key(don't keep it empty).</p>
             <div class="provider-selection-group">
               <label for="provider-selector">Select Provider:</label>
             </div>

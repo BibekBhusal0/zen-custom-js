@@ -1103,6 +1103,12 @@ browser {
         display: block !important;
       }
     }
+    
+    label[for="pref-ollama-api-key"]{
+      &::after{
+        content: " (Set any value)"
+      }
+    }
 
     .setting-item:has(#pref-extension\.browse-bot\.conform-before-tool-call),
     .setting-item:has(#pref-max-tool-calls) {
