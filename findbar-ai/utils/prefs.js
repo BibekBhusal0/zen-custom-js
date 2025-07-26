@@ -208,6 +208,7 @@ PREFS.defaultValues = {
   [PREFS.PERPLEXITY_API_KEY]: "",
   [PREFS.PERPLEXITY_MODEL]: "sonar",
   [PREFS.OLLAMA_MODEL]: "llama2",
+  [PREFS.OLLAMA_API_KEY]: "",
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
   [PREFS.MAX_TOOL_CALLS]: 5,
