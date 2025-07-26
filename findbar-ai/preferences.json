@@ -729,9 +729,14 @@
         "if": {
           "property": "extension.browse-bot.enabled",
           "value": true
+        },
+        "not": {
+          "property": "extension.browse-bot.citations-enabled",
+          "value": true
         }
       }
-    ]
+    ],
+    "operator": "AND"
   },
   {
     "property": "extension.browse-bot.citations-enabled",
