@@ -688,12 +688,12 @@ browser {
           /* } */
         }
 
-        .send-btn {
+        .send-btn,
+        .stop-btn {
           margin-left: auto !important;
           border: none !important;
           background-color: var(--browse-bot-primary-bg) !important;
           padding: 3px !important;
-          display: inline-flex !important;
           color: var(--browse-bot-primary) !important;
           align-self: end !important;
           min-width: 30px !important;
@@ -931,7 +931,8 @@ browser {
             position: relative !important;
           }
 
-          .send-btn {
+          .send-btn,
+          .stop-btn {
             padding: 1px !important;
             min-width: 24px !important;
             min-height: 24px !important;
@@ -1096,10 +1097,22 @@ browser {
       margin-bottom: 10px;
     }
 
+    &:has(#pref-extension\.browse-bot\.citations-enabled:checked) {
+      .setting-item:has(#pref-extension\.browse-bot\.stream-enabled) {
+        display: none !important;
+      }
+    }
+
     &:has(#pref-extension\.browse-bot\.citations-enabled:checked)
       :has(#pref-extension\.browse-bot\.god-mode:checked) {
       #citations-god-mode-warning {
         display: block !important;
+      }
+    }
+
+    label[for="pref-ollama-api-key"] {
+      &::after {
+        content: " (Set any value)";
       }
     }
 

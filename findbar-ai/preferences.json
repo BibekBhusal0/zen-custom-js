@@ -27,12 +27,32 @@
     "description": "Select the AI service provider to use.",
     "options": [
       {
+        "value": "claude",
+        "label": "Anthropic Claude"
+      },
+      {
         "value": "gemini",
         "label": "Google Gemini"
       },
       {
+        "value": "grok",
+        "label": "xAI Grok"
+      },
+      {
         "value": "mistral",
         "label": "Mistral AI"
+      },
+      {
+        "value": "ollama",
+        "label": "Ollama (local)"
+      },
+      {
+        "value": "openai",
+        "label": "OpenAI GPT"
+      },
+      {
+        "value": "perplexity",
+        "label": "Perplexity AI"
       }
     ],
     "conditions": [
@@ -43,6 +63,77 @@
         }
       }
     ]
+  },
+  {
+    "property": "extension.browse-bot.claude-api-key",
+    "label": "Claude API Key",
+    "type": "string",
+    "placeholder": "Enter your Anthropic Claude API key",
+    "default": "",
+    "description": "Your personal API key from Anthropic. Required to use Claude models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "claude"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.claude-model",
+    "label": "Claude Model",
+    "type": "dropdown",
+    "default": "claude-4-opus",
+    "description": "Select the Claude model to use.",
+    "options": [
+      {
+        "value": "claude-4-opus",
+        "label": "Claude 4 Opus"
+      },
+      {
+        "value": "claude-4-sonnet",
+        "label": "Claude 4 Sonnet"
+      },
+      {
+        "value": "claude-4-haiku",
+        "label": "Claude 4 Haiku"
+      },
+      {
+        "value": "claude-3-opus",
+        "label": "Claude 3 Opus"
+      },
+      {
+        "value": "claude-3-sonnet",
+        "label": "Claude 3 Sonnet"
+      },
+      {
+        "value": "claude-3-haiku",
+        "label": "Claude 3 Haiku"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "claude"
+        }
+      }
+    ],
+    "operator": "AND"
   },
   {
     "property": "extension.browse-bot.gemini-api-key",
@@ -83,24 +174,40 @@
         "label": "Gemini 2.5 Flash"
       },
       {
-        "value": "gemini-2.0-flash",
-        "label": "Gemini 2.0 Flash"
+        "value": "gemini-2.5-flash-lite",
+        "label": "Gemini 2.5 Flash Lite"
       },
       {
-        "value": "gemini-2.0-flash-lite",
-        "label": "Gemini 2.0 Flash Lite"
+        "value": "gemini-2.5-flash-lite-preview-06-17",
+        "label": "Gemini 2.5 Flash Lite (preview)"
+      },
+      {
+        "value": "gemini-2.0-flash",
+        "label": "Gemini 2.0 Flash"
       },
       {
         "value": "gemini-1.5-pro",
         "label": "Gemini 1.5 Pro"
       },
       {
+        "value": "gemini-1.5-pro-latest",
+        "label": "Gemini 1.5 Pro Latest"
+      },
+      {
         "value": "gemini-1.5-flash",
         "label": "Gemini 1.5 Flash"
       },
       {
+        "value": "gemini-1.5-flash-latest",
+        "label": "Gemini 1.5 Flash Latest"
+      },
+      {
         "value": "gemini-1.5-flash-8b",
         "label": "Gemini 1.5 Flash 8B"
+      },
+      {
+        "value": "gemini-1.5-flash-8b-latest",
+        "label": "Gemini 1.5 Flash 8B Latest"
       }
     ],
     "conditions": [
@@ -114,6 +221,105 @@
         "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "gemini"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.grok-api-key",
+    "label": "Grok API Key",
+    "type": "string",
+    "placeholder": "Enter your xAI Grok API key",
+    "default": "",
+    "description": "Your personal API key from xAI. Required to use Grok models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "grok"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.grok-model",
+    "label": "Grok Model",
+    "type": "dropdown",
+    "default": "grok-4",
+    "description": "Select the Grok model to use.",
+    "options": [
+      {
+        "value": "grok-4",
+        "label": "Grok 4"
+      },
+      {
+        "value": "grok-3",
+        "label": "Grok 3"
+      },
+      {
+        "value": "grok-3-latest",
+        "label": "Grok 3 Latest"
+      },
+      {
+        "value": "grok-3-fast",
+        "label": "Grok 3 Fast"
+      },
+      {
+        "value": "grok-3-fast-latest",
+        "label": "Grok 3 Fast Latest"
+      },
+      {
+        "value": "grok-3-mini",
+        "label": "Grok 3 Mini"
+      },
+      {
+        "value": "grok-3-mini-latest",
+        "label": "Grok 3 Mini Latest"
+      },
+      {
+        "value": "grok-3-mini-fast",
+        "label": "Grok 3 Mini Fast"
+      },
+      {
+        "value": "grok-3-mini-fast-latest",
+        "label": "Grok 3 Mini Fast Latest"
+      },
+      {
+        "value": "grok-2",
+        "label": "Grok 2"
+      },
+      {
+        "value": "grok-2-latest",
+        "label": "Grok 2 Latest"
+      },
+      {
+        "value": "grok-2-1212",
+        "label": "Grok 2 1212"
+      },
+      {
+        "value": "grok-beta",
+        "label": "Grok Beta"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "grok"
         }
       }
     ],
@@ -150,20 +356,56 @@
     "description": "Select the Mistral model to use.",
     "options": [
       {
-        "value": "mistral-small",
-        "label": "Mistral Small"
-      },
-      {
-        "value": "mistral-medium-latest",
-        "label": "Mistral Medium (Latest)"
+        "value": "pixtral-large-latest",
+        "label": "Pixtral Large (Latest)"
       },
       {
         "value": "mistral-large-latest",
         "label": "Mistral Large (Latest)"
       },
       {
-        "value": "pixtral-large-latest",
-        "label": "Pixtral Large (Latest)"
+        "value": "mistral-medium-latest",
+        "label": "Mistral Medium (Latest)"
+      },
+      {
+        "value": "mistral-medium-2505",
+        "label": "Mistral Medium (2505)"
+      },
+      {
+        "value": "mistral-small-latest",
+        "label": "Mistral Small(Latest)"
+      },
+      {
+        "value": "magistral-small-2506",
+        "label": "Magistral Small (2506)"
+      },
+      {
+        "value": "magistral-medium-2506",
+        "label": "Magistral Medium (2506)"
+      },
+      {
+        "value": "ministral-3b-latest",
+        "label": "Ministral 3B (Latest)"
+      },
+      {
+        "value": "ministral-8b-latest",
+        "label": "Ministral 8B (Latest)"
+      },
+      {
+        "value": "pixtral-12b-2409",
+        "label": "Pixtral 12B (2409)"
+      },
+      {
+        "value": "open-mistral-7b",
+        "label": "Open Mistral 7B"
+      },
+      {
+        "value": "open-mixtral-8x7b",
+        "label": "Open Mixtral 8x7B"
+      },
+      {
+        "value": "open-mixtral-8x22b",
+        "label": "Open Mixtral 8x22B"
       }
     ],
     "conditions": [
@@ -183,6 +425,287 @@
     "operator": "AND"
   },
   {
+    "property": "extension.browse-bot.ollama-api-key",
+    "label": "Ollama API Key (enter any value/ will be ignored)",
+    "type": "string",
+    "placeholder": "Usually not required for local Ollama",
+    "default": "",
+    "description": "API Key for your Ollama service, if required. For local instances, this is often left blank.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "ollama"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.ollama-model",
+    "label": "Ollama Model",
+    "type": "dropdown",
+    "default": "mixtral:8x7b",
+    "description": "Select the Ollama model to use. You must have this model installed locally.",
+    "options": [
+      {
+        "value": "deepseek-r1:8b",
+        "label": "DeepSeek R1 (8B)"
+      },
+      {
+        "value": "deepseek-r1:1.5b",
+        "label": "DeepSeek R1 (1.5B)"
+      },
+      {
+        "value": "deepseek-r1:7b",
+        "label": "DeepSeek R1 (7B)"
+      },
+      {
+        "value": "deepseek-r1:14b",
+        "label": "DeepSeek R1 (14B)"
+      },
+      {
+        "value": "deepseek-r1:32b",
+        "label": "DeepSeek R1 (32B)"
+      },
+      {
+        "value": "deepseek-r1:70b",
+        "label": "DeepSeek R1 (70B)"
+      },
+      {
+        "value": "mixtral:8x22b",
+        "label": "Mixtral (8x22B)"
+      },
+      {
+        "value": "mixtral:8x7b",
+        "label": "Mixtral (8x7B)"
+      },
+      {
+        "value": "qwen3:0.6b",
+        "label": "Qwen3 (0.6B)"
+      },
+      {
+        "value": "qwen3:1.7b",
+        "label": "Qwen3 (1.7B)"
+      },
+      {
+        "value": "qwen3:4b",
+        "label": "Qwen3 (4B)"
+      },
+      {
+        "value": "qwen3:8b",
+        "label": "Qwen3 (8B)"
+      },
+      {
+        "value": "qwen3:14b",
+        "label": "Qwen3 (14B)"
+      },
+      {
+        "value": "qwen3:32b",
+        "label": "Qwen3 (32B)"
+      },
+      {
+        "value": "qwen3:30b-a3b",
+        "label": "Qwen3 (30B MoE, 3B active)"
+      },
+      {
+        "value": "qwen3:235b-a22b",
+        "label": "Qwen3 (235B MoE, 22B active)"
+      },
+      {
+        "value": "llama4:scout",
+        "label": "Llama 4 Scout"
+      },
+      {
+        "value": "llama4:maverick",
+        "label": "Llama 4 Maverick"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "ollama"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.openai-api-key",
+    "label": "OpenAI API Key",
+    "type": "string",
+    "placeholder": "Enter your OpenAI API key",
+    "default": "",
+    "description": "Your personal API key from OpenAI. Required to use GPT models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openai"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.openai-model",
+    "label": "OpenAI Model",
+    "type": "dropdown",
+    "default": "gpt-4o",
+    "description": "Select the OpenAI model to use.",
+    "options": [
+      {
+        "value": "gpt-4.1",
+        "label": "GPT 4.1"
+      },
+      {
+        "value": "gpt-4.1-mini",
+        "label": "GPT 4.1 Mini"
+      },
+      {
+        "value": "gpt-4.1-nano",
+        "label": "GPT 4.1 Nano"
+      },
+      {
+        "value": "gpt-4o",
+        "label": "GPT 4o"
+      },
+      {
+        "value": "gpt-4o-mini",
+        "label": "GPT 4o Mini"
+      },
+      {
+        "value": "gpt-4-turbo",
+        "label": "GPT 4 Turbo"
+      },
+      {
+        "value": "gpt-4",
+        "label": "GPT 4"
+      },
+      {
+        "value": "gpt-3.5-turbo",
+        "label": "GPT 3.5 Turbo"
+      },
+      {
+        "value": "o1",
+        "label": "O1"
+      },
+      {
+        "value": "o3-mini",
+        "label": "O3 Mini"
+      },
+      {
+        "value": "o3",
+        "label": "O3"
+      },
+      {
+        "value": "o4-mini",
+        "label": "O4 Mini"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openai"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.perplexity-api-key",
+    "label": "Perplexity API Key",
+    "type": "string",
+    "placeholder": "Enter your Perplexity API key",
+    "default": "",
+    "description": "Your personal API key from Perplexity AI. Required to use Perplexity models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "perplexity"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.perplexity-model",
+    "label": "Perplexity Model",
+    "type": "dropdown",
+    "default": "sonar",
+    "description": "Select the Perplexity model to use.",
+    "options": [
+      {
+        "value": "sonar-deep-research",
+        "label": "Sonar Deep Research"
+      },
+      {
+        "value": "sonar-reasoning-pro",
+        "label": "Sonar Reasoning Pro"
+      },
+      {
+        "value": "sonar-reasoning",
+        "label": "Sonar Reasoning"
+      },
+      {
+        "value": "sonar-pro",
+        "label": "Sonar Pro"
+      },
+      {
+        "value": "sonar",
+        "label": "Sonar"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "perplexity"
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
     "type": "separator",
     "id": "browse-bot-response-separator",
     "label": "AI Response",
@@ -194,6 +717,26 @@
         }
       }
     ]
+  },
+  {
+    "property": "extension.browse-bot.stream-enabled",
+    "label": "Stream Response (smooth experiance)",
+    "type": "checkbox",
+    "default": true,
+    "description": "AI response will be smooth.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.enabled",
+          "value": true
+        },
+        "not": {
+          "property": "extension.browse-bot.citations-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
   },
   {
     "property": "extension.browse-bot.citations-enabled",

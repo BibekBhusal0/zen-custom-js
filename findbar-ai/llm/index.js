@@ -1,94 +1,42 @@
-import gemini from "./provider/gemini.js";
-import mistral from "./provider/mistral.js";
-import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
+import { streamText, generateText, generateObject } from "ai";
+import { browseBotFindbar } from "../findbar-ai.uc.js";
+import { z } from "zod";
+import { claude, gemini, grok, mistral, ollamaProvider, openai, perplexity } from "./providers.js";
+import { toolSet, getToolSystemPrompt } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
 
-async function executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth = 0) {
-  const maxRecursionDepth = PREFS.maxToolCalls || 3;
-  const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
-
-  if (!functionCalls || functionCalls.length === 0) {
-    return modelResponse;
-  }
-
-  if (currentDepth >= maxRecursionDepth) {
-    debugLog("Max recursion depth reached. Stopping tool execution.");
-    return modelResponse;
-  }
-
-  debugLog(`Function call(s) requested by model (depth ${currentDepth}):`, functionCalls);
-
-  // Gather the names of all tools to be called
-  const toolNames = functionCalls.map((call) => call.functionCall.name);
-
-  let confirmed = true;
-  if (PREFS.conformation) {
-    confirmed = await window.browserBotFindbar.createToolConfirmationDialog(toolNames);
-  }
-
-  const functionResponses = [];
-  if (confirmed) {
-    for (const call of functionCalls) {
-      const { name, args } = call.functionCall;
-
-      if (availableTools[name]) {
-        debugLog(`Executing tool: "${name}" with args:`, args);
-        const toolResult = await availableTools[name](args);
-        debugLog(`Tool "${name}" executed. Result:`, toolResult);
-        functionResponses.push({
-          functionResponse: { name, response: toolResult },
-        });
-      } else {
-        debugError(`Tool "${name}" not found!`);
-        functionResponses.push({
-          functionResponse: {
-            name,
-            response: { error: `Tool "${name}" is not available.` },
-          },
-        });
-      }
-    }
-  } else {
-    debugLog("Tool execution cancelled by user.");
-    // Create error responses for all tool calls
-    for (const name of toolNames) {
-      functionResponses.push({
-        functionResponse: {
-          name,
-          response: { error: `Tool "${name}" execution cancelled by user.` },
-        },
-      });
-    }
-  }
-
-  llmInstance.history.push({ role: "tool", parts: functionResponses });
-
-  requestBody = {
-    contents: llmInstance.history,
-    systemInstruction: llmInstance.systemInstruction,
-    generationConfig: PREFS.citationsEnabled ? { responseMimeType: "application/json" } : {},
-  };
-
-  modelResponse = await llmInstance.currentProvider.sendMessage(requestBody);
-  llmInstance.history.push(modelResponse);
-
-  // Only recurse if the model provided a valid response
-  if (modelResponse?.parts?.length > 0) {
-    debugLog("Running tool call", currentDepth + 1, "Time");
-    return executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth + 1);
-  } else {
-    debugLog("Model returned an empty response after tool execution.");
-    return modelResponse;
-  }
-}
+const citationSchema = z.object({
+  answer: z.string().describe("The conversational answer to the user's query."),
+  citations: z
+    .array(
+      z.object({
+        id: z
+          .number()
+          .describe(
+            "Unique identifier for the citation, corresponding to the marker in the answer text."
+          ),
+        source_quote: z
+          .string()
+          .describe(
+            "The exact, verbatim quote from the source text that supports the information."
+          ),
+      })
+    )
+    .describe("An array of citation objects from the source text."),
+});
 
 const llm = {
   history: [],
-  systemInstruction: null,
+  systemInstruction: "",
   AVAILABLE_PROVIDERS: {
+    claude: claude,
     gemini: gemini,
+    grok: grok,
     mistral: mistral,
+    ollama: ollamaProvider,
+    openai: openai,
+    perplexity: perplexity,
   },
   get currentProvider() {
     const providerName = PREFS.llmProvider || "gemini";
@@ -261,12 +209,11 @@ Here is the initial info about the current page:
       const pageContext = await messageManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
-
+    // debugLog("Final System Prompt:", systemPrompt);
     return systemPrompt;
   },
   setSystemPrompt(promptText) {
-    this.systemInstruction = promptText ? { parts: [{ text: promptText }] } : null;
-    return this;
+    this.systemInstruction = promptText || "";
   },
 
   parseModelResponseText(responseText) {
@@ -275,7 +222,11 @@ Here is the initial info about the current page:
 
     if (PREFS.citationsEnabled) {
       try {
-        const parsedContent = JSON.parse(responseText);
+        // Find the JSON part of the response
+        const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+        const jsonString = jsonMatch ? jsonMatch[1] : responseText;
+        const parsedContent = JSON.parse(jsonString);
+
         if (typeof parsedContent.answer === "string") {
           answer = parsedContent.answer;
           if (Array.isArray(parsedContent.citations)) {
@@ -293,59 +244,73 @@ Here is the initial info about the current page:
     return { answer, citations };
   },
 
-  async sendMessage(prompt, pageContext) {
+  async sendMessage(prompt, abortSignal) {
     await this.updateSystemPrompt();
 
-    const fullPrompt = `[Current Page Context: ${JSON.stringify(pageContext || {})}] ${prompt}`;
-    this.history.push({ role: "user", parts: [{ text: fullPrompt }] });
-    let requestBody = {
-      contents: this.history,
-      systemInstruction: this.systemInstruction,
+    this.history.push({ role: "user", content: prompt });
+    debugLog("Current history before sending:", this.history);
+
+    const model = this.currentProvider.getModel();
+    debugLog(`Using provider: ${this.currentProvider.name}, model: ${this.currentProvider.model}`);
+    // debugLog("System instruction for this call:", this.systemInstruction);
+
+    // Citation Mode using generateObject (non-streaming)
+    if (PREFS.citationsEnabled) {
+      const { object } = await generateObject({
+        model,
+        schema: citationSchema,
+        mode: "tool",
+        system: this.systemInstruction,
+        messages: this.history,
+        abortSignal,
+      });
+
+      // Manually add the assistant's structured response to the history
+      this.history.push({ role: "assistant", content: JSON.stringify(object) });
+
+      if (browseBotFindbar?.findbar && PREFS.persistChat) {
+        browseBotFindbar.findbar.history = this.getHistory();
+      }
+
+      return object;
+    }
+
+    const commonConfig = {
+      model,
+      system: this.systemInstruction,
+      messages: this.history,
+      tools: PREFS.godMode ? toolSet : undefined,
+      maxSteps: PREFS.godMode ? PREFS.maxToolCalls : 1,
+      abortSignal,
     };
-    if (PREFS.citationsEnabled) {
-      requestBody.generationConfig = { responseMimeType: "application/json" };
-    }
 
-    if (PREFS.godMode) {
-      requestBody.tools = toolDeclarations;
-    }
-    let modelResponse = await this.currentProvider.sendMessage(requestBody);
-    if (modelResponse === null) {
-      this.history.pop();
-      return { answer: "The model did not return a valid response." };
-    }
-    this.history.push(modelResponse);
-
-    if (PREFS.godMode) {
-      modelResponse = await executeToolCalls(this, requestBody, modelResponse);
-    }
-
-    if (PREFS.citationsEnabled) {
-      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      const parsedResponse = this.parseModelResponseText(responseText);
-
-      debugLog("Parsed AI Response:", parsedResponse);
-
-      if (!parsedResponse.answer) {
-        this.history.pop();
-      }
-      return parsedResponse;
+    // Non-Citation Mode (Streaming or Non-Streaming)
+    if (PREFS.streamEnabled) {
+      return streamText({
+        ...commonConfig,
+        async onFinish({ response }) {
+          llm.history.push(...response.messages);
+          if (browseBotFindbar?.findbar && PREFS.persistChat) {
+            browseBotFindbar.findbar.history = llm.getHistory();
+          }
+        },
+      });
     } else {
-      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      if (!responseText) {
-        this.history.pop();
+      const result = await generateText(commonConfig);
+      this.history.push(...result.response.messages);
+      if (browseBotFindbar?.findbar && PREFS.persistChat) {
+        browseBotFindbar.findbar.history = this.getHistory();
       }
-      return {
-        answer: responseText || "I used my tools to complete your request.",
-      };
+      return result;
     }
   },
   getHistory() {
     return [...this.history];
   },
   clearData() {
+    debugLog("Clearing LLM history and system prompt.");
     this.history = [];
-    this.setSystemPrompt(null);
+    this.setSystemPrompt("");
   },
   getLastMessage() {
     return this.history.length > 0 ? this.history[this.history.length - 1] : null;

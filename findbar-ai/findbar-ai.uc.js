@@ -30,7 +30,7 @@ function parseMD(markdown) {
 }
 
 PREFS.setInitialPrefs();
-const browserBotfindbar = {
+export const browseBotFindbar = {
   findbar: null,
   expandButton: null,
   chatContainer: null,
@@ -63,6 +63,8 @@ const browserBotfindbar = {
   _handleResize: null,
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
+  _isStreaming: false,
+  _abortController: null,
 
   get expanded() {
     return this._isExpanded;
@@ -83,6 +85,9 @@ const browserBotfindbar = {
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
     } else {
+      if (this._isStreaming) {
+        this._abortController?.abort();
+      }
       this.findbar.classList.remove("ai-expanded");
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
@@ -230,6 +235,10 @@ const browserBotfindbar = {
           originalOnFindbarClose.apply(findbar.browser.finder, args);
           if (this.enabled) {
             debugLog("Findbar is being closed");
+
+            if (this._isStreaming) {
+              this._abortController?.abort();
+            }
           }
         };
         findbar.openOverWritten = true;
@@ -312,7 +321,7 @@ const browserBotfindbar = {
         <div class="browse-bot-setup">
           <div class="ai-setup-content">
             <h3>AI Setup Required</h3>
-            <p>To use AI features, you need to set up your API key and select a provider.</p>
+            <p>To use AI features, you need to set up your API key and select a provider. If it is Ollama set any value to API key(don't keep it empty).</p>
             <div class="provider-selection-group">
               <label for="provider-selector">Select Provider:</label>
             </div>
@@ -372,36 +381,98 @@ const browserBotfindbar = {
   },
 
   async sendMessage(prompt) {
-    if (!prompt) return;
+    if (!prompt || this._isStreaming) return;
 
     this.show();
     this.expanded = true;
 
-    const pageContext = {
-      url: gBrowser.currentURI.spec,
-      title: gBrowser.selectedBrowser.contentTitle,
-    };
-
-    this.addChatMessage({ answer: prompt }, "user");
-
-    const loadingIndicator = this.createLoadingIndicator();
+    // Add user message to the UI immediately
+    this.addChatMessage({ role: "user", content: prompt });
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
-    if (messagesContainer) {
-      messagesContainer.appendChild(loadingIndicator);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+
+    this._abortController = new AbortController();
+    this._toggleStreamingControls(true);
+
+    let aiMessageDiv;
 
     try {
-      const response = await llm.sendMessage(prompt, pageContext);
-      if (response && response.answer) {
-        this.addChatMessage(response, "ai");
+      const resultPromise = llm.sendMessage(prompt, this._abortController.signal);
+
+      if (PREFS.citationsEnabled || !PREFS.streamEnabled) {
+        const loadingIndicator = this.createLoadingIndicator();
+        if (messagesContainer) {
+          messagesContainer.appendChild(loadingIndicator);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        try {
+          const result = await resultPromise;
+          if (PREFS.citationsEnabled) {
+            this.addChatMessage({ role: "assistant", content: result });
+          } else {
+            this.addChatMessage({ role: "assistant", content: result.text });
+          }
+        } finally {
+          loadingIndicator.remove();
+        }
+      } else {
+        aiMessageDiv = parseElement(
+          `<div class="chat-message chat-message-ai">
+  <div class="message-content">
+    <div class="markdown-body"></div>
+  </div>
+</div>`
+        );
+        const contentDiv = aiMessageDiv.querySelector(".markdown-body");
+        aiMessageDiv.appendChild(contentDiv);
+
+        if (messagesContainer) {
+          messagesContainer.appendChild(aiMessageDiv);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        const result = await resultPromise;
+        let fullText = "";
+        for await (const delta of result.textStream) {
+          fullText += delta;
+          contentDiv.innerHTML = parseMD(fullText).innerHTML;
+          if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+        }
       }
     } catch (e) {
-      this.addChatMessage({ answer: `Error: ${e.message}` }, "error");
+      if (e.name !== "AbortError") {
+        debugError("Error sending message:", e);
+        if (aiMessageDiv) aiMessageDiv.remove();
+        this.addChatMessage({ role: "error", content: `Error: ${e.message}` });
+      } else {
+        debugLog("Streaming aborted by user.");
+        if (aiMessageDiv) aiMessageDiv.remove();
+      }
     } finally {
-      loadingIndicator.remove();
+      this._toggleStreamingControls(false);
+      this._abortController = null;
+    }
+  },
+
+  _toggleStreamingControls(isStreaming) {
+    this._isStreaming = isStreaming;
+    if (!this.chatContainer) return;
+
+    const sendBtn = this.chatContainer.querySelector("#send-prompt");
+    const stopBtn = this.chatContainer.querySelector("#stop-generation");
+    const promptInput = this.chatContainer.querySelector("#ai-prompt");
+
+    if (isStreaming) {
+      sendBtn.style.display = "none";
+      stopBtn.style.display = "flex";
+      promptInput.disabled = true;
+    } else {
+      sendBtn.style.display = "flex";
+      stopBtn.style.display = "none";
+      promptInput.disabled = false;
       this.focusPrompt();
-      if (PREFS.persistChat) this.findbar.history = llm.getHistory();
     }
   },
 
@@ -412,6 +483,11 @@ const browserBotfindbar = {
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M17.991 6.01L5.399 10.563l4.195 2.428l3.699-3.7a1 1 0 0 1 1.414 1.415l-3.7 3.7l2.43 4.194L17.99 6.01Zm.323-2.244c1.195-.433 2.353.725 1.92 1.92l-5.282 14.605c-.434 1.198-2.07 1.344-2.709.241l-3.217-5.558l-5.558-3.217c-1.103-.639-.957-2.275.241-2.709z" />
             </svg>
+          </button>
+          <button id="stop-generation" class="stop-btn" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m2 6h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" />
+              </svg>
           </button>
         </div>`;
 
@@ -464,11 +540,21 @@ const browserBotfindbar = {
     chatHeader.appendChild(collapseBtn);
 
     const chatMessages = container.querySelector("#chat-messages");
-
     const promptInput = container.querySelector("#ai-prompt");
     const sendBtn = container.querySelector("#send-prompt");
-    const handleSend = () => this.sendMessage(promptInput.value.trim());
+    const stopBtn = container.querySelector("#stop-generation");
+
+    const handleSend = () => {
+      const prompt = promptInput.value.trim();
+      this.sendMessage(prompt);
+      promptInput.value = ""; // Clear input after sending
+    };
+
     sendBtn.addEventListener("click", handleSend);
+    stopBtn.addEventListener("click", () => {
+      this._abortController?.abort();
+    });
+
     promptInput.addEventListener("keypress", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
@@ -524,23 +610,63 @@ const browserBotfindbar = {
     return messageDiv;
   },
 
-  addChatMessage(response, type) {
-    const { answer, citations } = response;
-    if (!this.chatContainer || !answer) return;
+  addChatMessage(message) {
+    const { role, content } = message;
+    if (!this.chatContainer || content === undefined || content === null) return;
+
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (!messagesContainer) return;
 
-    const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
-    if (citations && citations.length > 0) {
-      messageDiv.dataset.citations = JSON.stringify(citations);
+    let type;
+    switch (role) {
+      case "user":
+        type = "user";
+        break;
+      case "assistant":
+        type = "ai";
+        break;
+      case "error":
+        type = "error";
+        break;
+      default:
+        return; // Don't display other roles like 'tool'
     }
 
+    const messageDiv = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
     const contentDiv = parseElement(`<div class="message-content"></div>`);
-    const processedContent = answer.replace(
-      /\[(\d+)\]/g,
-      `<button class="citation-link" data-citation-id="$1">[$1]</button>`
-    );
-    contentDiv.appendChild(parseMD(processedContent));
+
+    if (role === "assistant" && typeof content === "object" && content.answer !== undefined) {
+      // Case 1: Live response from generateObject for citations
+      const { answer, citations } = content;
+      if (citations && citations.length > 0) {
+        messageDiv.dataset.citations = JSON.stringify(citations);
+      }
+      const textToParse = answer.replace(
+        /\[(\d+)\]/g,
+        `<button class="citation-link" data-citation-id="$1">[$1]</button>`
+      );
+      contentDiv.appendChild(parseMD(textToParse));
+    } else {
+      // Case 2: String content (from user, stream, generateText, or history)
+      const textContent = typeof content === "string" ? content : (content[0]?.text ?? "");
+
+      if (role === "assistant" && PREFS.citationsEnabled) {
+        // Sub-case: Rendering historical assistant message in citation mode.
+        // It's a string that needs to be parsed into answer/citations.
+        const { answer, citations } = llm.parseModelResponseText(textContent);
+        if (citations && citations.length > 0) {
+          messageDiv.dataset.citations = JSON.stringify(citations);
+        }
+        textToParse = answer.replace(
+          /\[(\d+)\]/g,
+          `<button class="citation-link" data-citation-id="$1">[$1]</button>`
+        );
+        contentDiv.appendChild(parseMD(textToParse));
+      } else {
+        // Sub-case: Simple string content
+        contentDiv.appendChild(parseMD(textContent));
+      }
+    }
 
     messageDiv.appendChild(contentDiv);
     messagesContainer.appendChild(messageDiv);
@@ -549,9 +675,8 @@ const browserBotfindbar = {
 
   showAIInterface() {
     if (!this.findbar) return;
-    this.removeAIInterface(); // Removes API key, chat, and settings interfaces
+    this.removeAIInterface();
 
-    // Remove settings modal class from findbar as it's now a separate modal
     this.findbar.classList.remove("ai-settings-active");
 
     if (!llm.currentProvider.apiKey) {
@@ -560,30 +685,13 @@ const browserBotfindbar = {
     } else {
       this.chatContainer = this.createChatInterface();
       if (PREFS.dndEnabled) this.enableDND();
+
+      // Re-render history using the new message format
       const history = llm.getHistory();
       for (const message of history) {
-        if (
-          message?.role === "tool" ||
-          (message?.parts && message?.parts.some((p) => p.functionCall))
-        )
-          continue;
-
-        const isModel = message?.role === "model";
-        const textContent = message?.parts[0]?.text;
-        if (!textContent) continue;
-
-        let responsePayload = { answer: "" };
-
-        if (isModel && PREFS.citationsEnabled) {
-          responsePayload = llm.parseModelResponseText(textContent);
-        } else {
-          responsePayload.answer = textContent.replace(/\[Current Page Context:.*?\]\s*/, "");
-        }
-
-        if (responsePayload.answer) {
-          this.addChatMessage(responsePayload, isModel ? "ai" : "user");
-        }
+        this.addChatMessage(message);
       }
+
       this.findbar.insertBefore(this.chatContainer, this.findbar.firstChild);
     }
   },
@@ -785,15 +893,13 @@ const browserBotfindbar = {
     else this.removeContextMenuItem();
   },
   updateContextMenuText() {
-    if (!PREFS.contextMenuEnabled) return;
-    if (!this.contextMenuItem) return;
+    if (!PREFS.contextMenuEnabled || !this.contextMenuItem) return;
     const hasSelection = gContextMenu?.isTextSelected === true;
     this.contextMenuItem.label = hasSelection ? "Ask AI" : "Summarize with AI";
   },
 
   enableResize() {
-    if (!this.findbar) return;
-    if (this._resizeHandle) return;
+    if (!this.findbar || this._resizeHandle) return;
     const resizeHandle = parseElement(`<div class="findbar-resize-handle"></div>`);
     this.findbar.appendChild(resizeHandle);
     this._resizeHandle = resizeHandle;
@@ -802,8 +908,7 @@ const browserBotfindbar = {
   },
 
   startResize(e) {
-    if (e.button !== 0) return;
-    if (!this.findbar) return;
+    if (e.button !== 0 || !this.findbar) return;
     this._isResizing = true;
     this._initialMouseCoor = { x: e.clientX, y: e.clientY };
     const rect = this.findbar.getBoundingClientRect();
@@ -815,8 +920,7 @@ const browserBotfindbar = {
   },
 
   doResize(e) {
-    if (!this._isResizing) return;
-    if (!this.findbar) return;
+    if (!this._isResizing || !this.findbar) return;
     const minWidth = 300;
     const maxWidth = 800;
     const directionFactor = PREFS.position.includes("right") ? -1 : 1;
@@ -839,8 +943,7 @@ const browserBotfindbar = {
   },
 
   startDrag(e) {
-    if (!this.chatContainer) return;
-    if (e.button !== 0) return;
+    if (!this.chatContainer || e.button !== 0) return;
     this._isDragging = true;
     this._initialMouseCoor = { x: e.clientX, y: e.clientY };
     const rect = this.findbar.getBoundingClientRect();
@@ -853,7 +956,6 @@ const browserBotfindbar = {
 
   doDrag(e) {
     if (!this._isDragging) return;
-
     const minCoors = { x: 15, y: 35 };
     const rect = this.findbar.getBoundingClientRect();
     const maxCoors = {
@@ -1108,10 +1210,10 @@ const browserBotfindbar = {
 };
 
 UC_API.Runtime.startupFinished().then(() => {
-  browserBotfindbar.init();
+  browseBotFindbar.init();
   UC_API.Prefs.addListener(
     PREFS.ENABLED,
-    browserBotfindbar.handleEnabledChange.bind(browserBotfindbar)
+    browseBotFindbar.handleEnabledChange.bind(browseBotFindbar)
   );
-  window.browserBotFindbar = browserBotfindbar;
+  window.browseBotFindbar = browseBotFindbar;
 });
