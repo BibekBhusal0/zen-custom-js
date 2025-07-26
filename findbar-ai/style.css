@@ -1096,14 +1096,12 @@ browser {
       color: red;
       margin-bottom: 10px;
     }
-    
-     &:has(#pref-extension\.browse-bot\.citations-enabled:checked){
-       .setting-item:has(#pref-extension\.browse-bot\.stream-enabled){
-         display: none !important;
-       }
+
+    &:has(#pref-extension\.browse-bot\.citations-enabled:checked) {
+      .setting-item:has(#pref-extension\.browse-bot\.stream-enabled) {
+        display: none !important;
+      }
     }
-
-
 
     &:has(#pref-extension\.browse-bot\.citations-enabled:checked)
       :has(#pref-extension\.browse-bot\.god-mode:checked) {
@@ -1111,10 +1109,10 @@ browser {
         display: block !important;
       }
     }
-    
-    label[for="pref-ollama-api-key"]{
-      &::after{
-        content: " (Set any value)"
+
+    label[for="pref-ollama-api-key"] {
+      &::after {
+        content: " (Set any value)";
       }
     }
 

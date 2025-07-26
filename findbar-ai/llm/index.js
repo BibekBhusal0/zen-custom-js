@@ -1,5 +1,5 @@
 import { streamText, generateText, generateObject } from "ai";
-import { browseBotFindbar } from '../findbar-ai.uc.js'
+import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import { claude, gemini, grok, mistral, ollamaProvider, openai, perplexity } from "./providers.js";
 import { toolSet, getToolSystemPrompt } from "./tools.js";

@@ -1,5 +1,5 @@
 import { tool } from "ai";
-import { browseBotFindbar } from '../findbar-ai.uc.js'
+import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
 import { debugLog, debugError, PREFS } from "../utils/prefs.js";
