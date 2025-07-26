@@ -203,14 +203,15 @@ export const SettingsModal = {
       if (Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)) {
         if (prefKey.endsWith("api-key")) {
           if (this._currentPrefValues[prefKey]){
-
           const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
           debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
           }
         } else {
           debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
         }
+        try{
         PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
+        }catch(e){debugError(`Error Saving pref for ${prefKey} ${e}`)}
       }
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
