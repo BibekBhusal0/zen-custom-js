@@ -74,9 +74,7 @@ const browseBotFindbar = {
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
   _findbarDimension: {width: null, height: null},
-  _toolConfirmationDialogDimension:{width: null, height: null},
   _findbarCoors : {x: null, y: null},
-  _toolConfirmationDialogCoors:{x: null, y: null},
 
   _updateFindbarDimensions() {
     if (!this.findbar) {
@@ -88,18 +86,6 @@ const browseBotFindbar = {
     this._findbarDimension = { width: rect.width, height: rect.height };
     this._findbarCoors = { x: rect.left, y: rect.top };
     this._findbarCoors.x -= getSidebarWidth(); 
-  },
-
-  _updateToolConfirmationDialogDimensions() {
-    if (!this._toolConfirmationDialog) {
-      this._toolConfirmationDialogDimension = { width: null, height: null };
-      this._toolConfirmationDialogCoors = { x: null, y: null };
-      return;
-    }
-    const rect = this._toolConfirmationDialog.getBoundingClientRect();
-    this._toolConfirmationDialogDimension = { width: rect.width, height: rect.height };
-    this._toolConfirmationDialogCoors = { x: rect.left, y: rect.top };
-    this._toolConfirmationDialogCoors.x -= getSidebarWidth(); 
   },
 
   get expanded() {
@@ -180,7 +166,6 @@ const browseBotFindbar = {
       const removeDilog = () => {
         dialog.remove();
         this._toolConfirmationDialog = null;
-        this._updateToolConfirmationDialogDimensions();
       };
 
       const confirmButton = dialog.querySelector(".confirm-tool");
@@ -203,7 +188,6 @@ const browseBotFindbar = {
       });
 
       document.body.appendChild(dialog);
-      this._updateToolConfirmationDialogDimensions();
     });
   },
 
@@ -687,7 +671,6 @@ const browseBotFindbar = {
     this.removeAIInterface();
     this._toolConfirmationDialog?.remove();
     this._toolConfirmationDialog = null;
-    this._updateToolConfirmationDialogDimensions();
     SettingsModal.hide();
   },
 
