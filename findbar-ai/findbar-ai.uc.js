@@ -80,12 +80,20 @@ const browseBotFindbar = {
     if (!this.findbar) {
       this._findbarDimension = { width: null, height: null };
       this._findbarCoors = { x: null, y: null };
+      document.documentElement.style.removeProperty("--findbar-width");
+      document.documentElement.style.removeProperty("--findbar-height");
+      document.documentElement.style.removeProperty("--findbar-x");
+      document.documentElement.style.removeProperty("--findbar-y");
       return;
     }
     const rect = this.findbar.getBoundingClientRect();
     this._findbarDimension = { width: rect.width, height: rect.height };
     this._findbarCoors = { x: rect.left, y: rect.top };
-    this._findbarCoors.x -= getSidebarWidth(); 
+    this._findbarCoors.x -= getSidebarWidth();
+    document.documentElement.style.setProperty("--findbar-width", `${this._findbarDimension.width}px`);
+    document.documentElement.style.setProperty("--findbar-height", `${this._findbarDimension.height}px`);
+    document.documentElement.style.setProperty("--findbar-x", `${this._findbarCoors.x}px`);
+    document.documentElement.style.setProperty("--findbar-y", `${this._findbarCoors.y}px`);
   },
 
   get expanded() {
@@ -857,7 +865,7 @@ const browseBotFindbar = {
     let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
-    this._findbarDimension.width = newWidth
+    this.updateFoundMatchesDisplay()
   },
 
   stopResize() {
@@ -904,7 +912,7 @@ const browseBotFindbar = {
     newCoors.x -= getSidebarWidth(); 
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
-    this._findbarCoors = newCoors
+    this._updateFindbarDimensions()
 
     this.findbar.style.setProperty("left", `${newCoors.x}px`, "important");
     this.findbar.style.setProperty("top", `${newCoors.y}px`, "important");
