@@ -34,20 +34,17 @@ browser {
   will-change: transform;
 }
 
-:has.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"]) {
-  #zen-tabbox-wrapper::before {
+:root:has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])) #panel-1-11 > vbox:nth-child(1) > stack:nth-child(1)::before{
     position: absolute !important;
     align-self: center !important;
-    z-index: 0 !important;
+    z-index: 30 !important;
     content: "" !important;
     background-color: light-dark(rgba(255, 255, 255, 1),
         rgba(60, 60, 60, 1)) !important;
-
-    top: var(--findbar-y);
-    left: var(--findbar-x);
-    width: var(--findbar-width);
-    height: var(--findbar-height);
-    /* bottom: calc(var(--zen-element-separation) + 52px); */
+    top: var(--findbar-y)!important;
+    left: var(--findbar-x)!important;
+    width: var(--findbar-width)!important;
+    height: var(--findbar-height)!important;
     opacity: 1 !important;
 
     margin-top: 0px !important;
@@ -62,7 +59,6 @@ browser {
       width 1s ease,
       height 1s ease !important;
   }
-}
 
 @keyframes initial-animation {
   from {
