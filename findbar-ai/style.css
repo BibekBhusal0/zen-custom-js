@@ -34,6 +34,36 @@ browser {
   will-change: transform;
 }
 
+:has.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"]) {
+  #zen-tabbox-wrapper::before {
+    position: absolute !important;
+    align-self: center !important;
+    z-index: 0 !important;
+    content: "" !important;
+    background-color: light-dark(rgba(255, 255, 255, 1),
+        rgba(60, 60, 60, 1)) !important;
+
+    top: var(--findbar-y);
+    left: var(--findbar-x);
+    width: var(--findbar-width);
+    height: var(--findbar-height);
+    /* bottom: calc(var(--zen-element-separation) + 52px); */
+    opacity: 1 !important;
+
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+
+    border-radius: 12px;
+    visibility: visible;
+
+    transition:
+      opacity 0s ease,
+      bottom 1s ease,
+      width 1s ease,
+      height 1s ease !important;
+  }
+}
+
 @keyframes initial-animation {
   from {
     top: 0;
