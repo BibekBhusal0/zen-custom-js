@@ -258,6 +258,7 @@ const browseBotFindbar = {
               () => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"),
               100
             );
+            this._updateFindbarDimensions()
           }
         };
         findbar.browser.finder.onFindbarClose = (...args) => {
@@ -865,7 +866,7 @@ const browseBotFindbar = {
     let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
-    this.updateFoundMatchesDisplay()
+    this._updateFindbarDimensions()
   },
 
   stopResize() {
@@ -930,6 +931,7 @@ const browseBotFindbar = {
     this._handleDrag = null;
     this._stopDrag = null;
     setTimeout(() => this._updateFindbarDimensions(), 0);
+    this._updateFindbarDimensions()
   },
 
   snapToClosestCorner() {

@@ -34,32 +34,6 @@ browser {
   will-change: transform;
 }
 
-:root:has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])) #panel-1-11 > vbox:nth-child(1) > stack:nth-child(1)::before{
-    position: absolute !important;
-    align-self: center !important;
-    z-index: 30 !important;
-    content: "" !important;
-    background-color: light-dark(rgba(255, 255, 255, 1),
-        rgba(60, 60, 60, 1)) !important;
-    top: var(--findbar-y)!important;
-    left: var(--findbar-x)!important;
-    width: var(--findbar-width)!important;
-    height: var(--findbar-height)!important;
-    opacity: 1 !important;
-
-    margin-top: 0px !important;
-    margin-bottom: 0px !important;
-
-    border-radius: 12px;
-    visibility: visible;
-
-    transition:
-      opacity 0s ease,
-      bottom 1s ease,
-      width 1s ease,
-      height 1s ease !important;
-  }
-
 @keyframes initial-animation {
   from {
     top: 0;
@@ -123,6 +97,43 @@ browser {
       --menu-image: url("chrome://browser/skin/trending.svg");
     }
   }
+
+  @media -moz-pref("extension.pseudo-bg.enabled") {
+    .browserSidebarContainer.deck-selected > .browserContainer{
+      background: red !important;
+    }
+    :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])) {
+      .browserSidebarContainer.deck-selected > .browserContainer::before{
+    position: absolute !important;
+    align-self: center !important;
+    z-index: 1 !important;
+    content: "" !important;
+    background-color: var(--acrylic-bg) !important;
+    top: calc(var(--findbar-y) - 10px) !important;
+    left: calc(var(--findbar-x) - 10px) !important;
+    width: var(--findbar-width)!important;
+    height: var(--findbar-height)!important;
+    opacity: 1 !important;
+
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+
+    border-radius: 12px;
+    visibility: visible;
+
+    transition: none  !important;
+  }
+
+    }
+
+    findbar{
+      background: transparent !important;
+      background-color: transparent !important;
+      backdrop-filter:  none !important;
+    }
+
+  }
+
 
   findbar,
   .browse-bot-settings-modal {
