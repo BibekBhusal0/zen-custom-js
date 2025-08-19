@@ -25,6 +25,8 @@
     "Claude"
   ],
   "createdAt": "2024-05-22",
-  "updatedAt": "2025-07-21",
-  "fork": ["zen"]
+  "updatedAt": "2025-08-19",
+  "fork": [
+    "zen"
+  ]
 }
