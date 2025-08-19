@@ -5,6 +5,7 @@ export const PREFS = {
   DND_ENABLED: "extension.browse-bot.dnd-enabled",
   POSITION: "extension.browse-bot.position",
   DEBUG_MODE: "extension.browse-bot.debug-mode",
+  PSEUDO_BG: "extension.pseudo-bg.enabled",
 
   GOD_MODE: "extension.browse-bot.god-mode",
   CITATIONS_ENABLED: "extension.browse-bot.citations-enabled",
@@ -207,6 +208,7 @@ PREFS.defaultValues = {
   [PREFS.POSITION]: "top-right",
   [PREFS.MAX_TOOL_CALLS]: 5,
   [PREFS.CONFORMATION]: true,
+  [PREFS.PSEUDO_BG]: false,
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
   // [PREFS.SHOW_TOOL_CALL]: false,

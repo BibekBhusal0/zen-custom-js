@@ -322,6 +322,7 @@ export const SettingsModal = {
       { label: "Persist Chat (don't persist when browser closes)", pref: PREFS.PERSIST },
       { label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE },
       { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
+      { label: "Psuedo Background (for transparent Browsers)", pref: PREFS.PSEUDO_BG },
     ];
     const positionSelectorPlaceholderHtml = `
       <div class="setting-item">
