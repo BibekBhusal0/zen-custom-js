@@ -5,6 +5,7 @@ export const PREFS = {
   DND_ENABLED: "extension.browse-bot.dnd-enabled",
   POSITION: "extension.browse-bot.position",
   DEBUG_MODE: "extension.browse-bot.debug-mode",
+  SOLID_BG: "extension.browse-bot.solid-bg",
 
   GOD_MODE: "extension.browse-bot.god-mode",
   CITATIONS_ENABLED: "extension.browse-bot.citations-enabled",
