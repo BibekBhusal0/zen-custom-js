@@ -6,7 +6,6 @@
 const { Runtime, Hotkeys, Prefs } = UC_API;
 import { showToast } from "./utils/toast.mjs";
 
-
 const pasteAndGo = () => {
   navigator.clipboard.readText().then((text) => {
     if (text) {
@@ -140,27 +139,27 @@ const hotkeys = [
     command: (window) => window.gBrowser.moveTabBackward(),
   },
 
-   {
-     id: "closeAndGoNext",
-     modifiers: "alt",
-     key: "N",
-     command: (window) => {
-       const tabToClose = window.gBrowser.selectedTab;
-       window.gBrowser.tabContainer.advanceSelectedTab(1, true);
-       window.gBrowser.removeTab(tabToClose);
-     },
-   },
+  {
+    id: "closeAndGoNext",
+    modifiers: "alt",
+    key: "N",
+    command: (window) => {
+      const tabToClose = window.gBrowser.selectedTab;
+      window.gBrowser.tabContainer.advanceSelectedTab(1, true);
+      window.gBrowser.removeTab(tabToClose);
+    },
+  },
 
-   {
-     id: "closeAndGoPrev",
-     modifiers: "alt",
-     key: "P",
-     command: (window) => {
-       const tabToClose = window.gBrowser.selectedTab;
-       window.gBrowser.tabContainer.advanceSelectedTab(-1, true);
-       window.gBrowser.removeTab(tabToClose);
-     },
-   },
+  {
+    id: "closeAndGoPrev",
+    modifiers: "alt",
+    key: "P",
+    command: (window) => {
+      const tabToClose = window.gBrowser.selectedTab;
+      window.gBrowser.tabContainer.advanceSelectedTab(-1, true);
+      window.gBrowser.removeTab(tabToClose);
+    },
+  },
 
   {
     id: "toggletabpin",
