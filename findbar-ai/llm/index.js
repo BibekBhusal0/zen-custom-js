@@ -26,47 +26,56 @@ const citationSchema = z.object({
     .describe("An array of citation objects from the source text."),
 });
 
-const llm = {
-  history: [],
-  systemInstruction: "",
-  AVAILABLE_PROVIDERS: {
-    claude: claude,
-    gemini: gemini,
-    grok: grok,
-    mistral: mistral,
-    ollama: ollamaProvider,
-    openai: openai,
-    perplexity: perplexity,
-  },
+class LLM {
+  constructor() {
+    this.history = [];
+    this.systemInstruction = "";
+    this.AVAILABLE_PROVIDERS = {
+      claude: claude,
+      gemini: gemini,
+      grok: grok,
+      mistral: mistral,
+      ollama: ollamaProvider,
+      openai: openai,
+      perplexity: perplexity,
+    };
+    this.godMode = PREFS.godMode;
+    this.streamEnabled = PREFS.streamEnabled;
+    this.citationsEnabled = PREFS.citationsEnabled;
+    this.persistChat = PREFS.persistChat;
+    this.maxToolCalls = PREFS.maxToolCalls;
+    this.llmProvider = PREFS.llmProvider;
+  }
+
   get currentProvider() {
-    const providerName = PREFS.llmProvider || "gemini";
-    return this.AVAILABLE_PROVIDERS[providerName];
-  },
+    return this.AVAILABLE_PROVIDERS[this.llmProvider || "gemini"] || this.AVAILABLE_PROVIDERS["gemini"];
+  }
   setProvider(providerName) {
     if (this.AVAILABLE_PROVIDERS[providerName]) {
+      this.llmProvider = providerName;
       PREFS.llmProvider = providerName;
       this.clearData();
       debugLog(`Switched LLM provider to: ${providerName}`);
     } else {
       debugError(`Provider "${providerName}" not found.`);
     }
-  },
+  }
   async updateSystemPrompt() {
     debugLog("Updating system prompt...");
     const promptText = await this.getSystemPrompt();
-    this.setSystemPrompt(promptText);
-  },
+    this.systemInstruction = promptText;
+  }
   async getSystemPrompt() {
     let systemPrompt = `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
 
 ## Your Instructions:
 - Be concise, accurate, and helpful.`;
 
-    if (PREFS.godMode) {
+    if (this.godMode) {
       systemPrompt += await getToolSystemPrompt();
     }
 
-    if (PREFS.citationsEnabled) {
+    if (this.citationsEnabled) {
       systemPrompt += `
 
 ## Citation Instructions
@@ -199,23 +208,22 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 `;
     }
 
-    if (!PREFS.godMode) {
+    if (!this.godMode) {
       systemPrompt += `
 - Strictly base all your answers on the webpage content provided below.
 - If the user's question cannot be answered from the content, state that the information is not available on the page.
 
 Here is the initial info about the current page:
 `;
-      const pageContext = await messageManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
+      const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
     // debugLog("Final System Prompt:", systemPrompt);
     return systemPrompt;
-  },
+  }
   setSystemPrompt(promptText) {
     this.systemInstruction = promptText || "";
-  },
-
+  }
   parseModelResponseText(responseText) {
     let answer = responseText;
     let citations = [];
@@ -242,7 +250,7 @@ Here is the initial info about the current page:
       }
     }
     return { answer, citations };
-  },
+  }
 
   async sendMessage(prompt, abortSignal) {
     await this.updateSystemPrompt();
@@ -255,7 +263,7 @@ Here is the initial info about the current page:
     // debugLog("System instruction for this call:", this.systemInstruction);
 
     // Citation Mode using generateObject (non-streaming)
-    if (PREFS.citationsEnabled) {
+    if (this.citationsEnabled) {
       const { object } = await generateObject({
         model,
         schema: citationSchema,
@@ -268,7 +276,7 @@ Here is the initial info about the current page:
       // Manually add the assistant's structured response to the history
       this.history.push({ role: "assistant", content: JSON.stringify(object) });
 
-      if (browseBotFindbar?.findbar && PREFS.persistChat) {
+      if (browseBotFindbar?.findbar && this.persistChat) {
         browseBotFindbar.findbar.history = this.getHistory();
       }
 
@@ -279,18 +287,19 @@ Here is the initial info about the current page:
       model,
       system: this.systemInstruction,
       messages: this.history,
-      tools: PREFS.godMode ? toolSet : undefined,
-      maxSteps: PREFS.godMode ? PREFS.maxToolCalls : 1,
+      tools: this.godMode ? toolSet : undefined,
+      maxSteps: this.godMode ? this.maxToolCalls : 1,
       abortSignal,
     };
 
     // Non-Citation Mode (Streaming or Non-Streaming)
-    if (PREFS.streamEnabled) {
+    if (this.streamEnabled) {
+      const self = this
       return streamText({
         ...commonConfig,
         async onFinish({ response }) {
           llm.history.push(...response.messages);
-          if (browseBotFindbar?.findbar && PREFS.persistChat) {
+          if (browseBotFindbar?.findbar && self.persistChat) {
             browseBotFindbar.findbar.history = llm.getHistory();
           }
         },
@@ -298,23 +307,24 @@ Here is the initial info about the current page:
     } else {
       const result = await generateText(commonConfig);
       this.history.push(...result.response.messages);
-      if (browseBotFindbar?.findbar && PREFS.persistChat) {
+      if (browseBotFindbar?.findbar && this.persistChat) {
         browseBotFindbar.findbar.history = this.getHistory();
       }
       return result;
     }
-  },
+  }
   getHistory() {
     return [...this.history];
-  },
+  }
   clearData() {
     debugLog("Clearing LLM history and system prompt.");
     this.history = [];
     this.setSystemPrompt("");
-  },
+  }
   getLastMessage() {
     return this.history.length > 0 ? this.history[this.history.length - 1] : null;
-  },
+  }
 };
 
-export { llm };
+const llm = new LLM();
+export { LLM, llm };
