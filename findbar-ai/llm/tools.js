@@ -385,7 +385,10 @@ const toolSet = {
     {
       link1: createStringParameter("The URL for the first new tab."),
       link2: createStringParameter("The URL for the second new tab."),
-      type: createStringParameter("The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.", true),
+      type: createStringParameter(
+        "The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
+        true
+      ),
     },
     newSplit
   ),
