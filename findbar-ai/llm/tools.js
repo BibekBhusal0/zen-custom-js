@@ -4,6 +4,33 @@ import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
 import { debugLog, debugError, PREFS } from "../utils/prefs.js";
 
+// Helper function to create Zod string parameters
+const createStringParameter = (description, isOptional = false) => {
+  let schema = z.string().describe(description);
+  return isOptional ? schema.optional() : schema;
+};
+
+// Helper function to create tools with consistent structure
+const createTool = (name, description, parameters, executeFn) => {
+  return tool({
+    description,
+    parameters: z.object(parameters),
+    execute: (args) => confirmAndExecute(name, executeFn, args),
+  });
+};
+
+// Confirmation wrapper
+async function confirmAndExecute(toolName, executeFn, args) {
+  if (PREFS.conformation) {
+    const confirmed = await browseBotFindbar.createToolConfirmationDialog([toolName]);
+    if (!confirmed) {
+      debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+      return { error: `Tool execution for '${toolName}' was cancelled by the user.` };
+    }
+  }
+  return executeFn(args);
+}
+
 // ╭─────────────────────────────────────────────────────────╮
 // │                         SEARCH                          │
 // ╰─────────────────────────────────────────────────────────╯
@@ -326,154 +353,124 @@ async function fillForm(args) {
   return messageManagerAPI.fillForm(selector, value);
 }
 
-// Helper function to wrap tool execution with a confirmation dialog
-async function confirmAndExecute(toolName, executeFn, args) {
-  if (PREFS.conformation) {
-    const confirmed = await browseBotFindbar.createToolConfirmationDialog([toolName]);
-    if (!confirmed) {
-      debugLog(`Tool execution for '${toolName}' cancelled by user.`);
-      return { error: `Tool execution for '${toolName}' was cancelled by the user.` };
-    }
-  }
-  return executeFn(args);
-}
-
 const toolSet = {
-  search: tool({
-    description: "Performs a web search using a specified search engine and opens the results.",
-    parameters: z.object({
-      searchTerm: z.string().describe("The term to search for."),
-      engineName: z.string().optional().describe("The name of the search engine to use."),
-      where: z
-        .string()
-        .optional()
-        .describe(
-          "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'."
-        ),
-    }),
-    execute: (args) => confirmAndExecute("search", search, args),
-  }),
-  openLink: tool({
-    description:
-      "Opens a given URL in a specified location. Can also create a split view with the current tab.",
-    parameters: z.object({
-      link: z.string().describe("The URL to open."),
-      where: z
-        .string()
-        .optional()
-        .describe(
-          "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'."
-        ),
-    }),
-    execute: (args) => confirmAndExecute("openLink", openLink, args),
-  }),
-  newSplit: tool({
-    description:
-      "Creates a split view by opening two new URLs in two new tabs, then arranging them side-by-side.",
-    parameters: z.object({
-      link1: z.string().describe("The URL for the first new tab."),
-      link2: z.string().describe("The URL for the second new tab."),
-      type: z
-        .string()
-        .optional()
-        .describe("The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'."),
-    }),
-    execute: (args) => confirmAndExecute("newSplit", newSplit, args),
-  }),
-  getPageTextContent: tool({
-    description:
-      "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
-    parameters: z.object({}),
-    execute: (args) =>
-      confirmAndExecute(
-        "getPageTextContent",
-        messageManagerAPI.getPageTextContent.bind(messageManagerAPI),
-        args
+  search: createTool(
+    "search",
+    "Performs a web search using a specified search engine and opens the results.",
+    {
+      searchTerm: createStringParameter("The term to search for."),
+      engineName: createStringParameter("The name of the search engine to use.", true),
+      where: createStringParameter(
+        "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
+        true
       ),
-  }),
-  getHTMLContent: tool({
-    description:
-      "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
-    parameters: z.object({}),
-    execute: (args) =>
-      confirmAndExecute(
-        "getHTMLContent",
-        messageManagerAPI.getHTMLContent.bind(messageManagerAPI),
-        args
+    },
+    search
+  ),
+  openLink: createTool(
+    "openLink",
+    "Opens a given URL in a specified location. Can also create a split view with the current tab.",
+    {
+      link: createStringParameter("The URL to open."),
+      where: createStringParameter(
+        "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
+        true
       ),
-  }),
-  getYoutubeTranscript: tool({
-    description:
-      "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
-    parameters: z.object({}),
-    execute: (args) =>
-      confirmAndExecute(
-        "getYoutubeTranscript",
-        messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI),
-        args
-      ),
-  }),
-  searchBookmarks: tool({
-    description: "Searches bookmarks based on a query.",
-    parameters: z.object({
-      query: z.string().describe("The search term for bookmarks."),
-    }),
-    execute: (args) => confirmAndExecute("searchBookmarks", searchBookmarks, args),
-  }),
-  getAllBookmarks: tool({
-    description: "Retrieves all bookmarks.",
-    parameters: z.object({}),
-    execute: (args) => confirmAndExecute("getAllBookmarks", getAllBookmarks, args),
-  }),
-  createBookmark: tool({
-    description: "Creates a new bookmark.",
-    parameters: z.object({
-      url: z.string().describe("The URL to bookmark."),
-      title: z.string().optional().describe("The title for the bookmark."),
-      parentID: z.string().optional().describe("The GUID of the parent folder."),
-    }),
-    execute: (args) => confirmAndExecute("createBookmark", createBookmark, args),
-  }),
-  addBookmarkFolder: tool({
-    description: "Creates a new bookmark folder.",
-    parameters: z.object({
-      title: z.string().describe("The title for the new folder."),
-      parentID: z.string().optional().describe("The GUID of the parent folder."),
-    }),
-    execute: (args) => confirmAndExecute("addBookmarkFolder", addBookmarkFolder, args),
-  }),
-  updateBookmark: tool({
-    description: "Updates an existing bookmark.",
-    parameters: z.object({
-      id: z.string().describe("The GUID of the bookmark to update."),
-      url: z.string().optional().describe("The new URL for the bookmark."),
-      title: z.string().optional().describe("The new title for the bookmark."),
-      parentID: z.string().optional().describe("The GUID of the parent folder."),
-    }),
-    execute: (args) => confirmAndExecute("updateBookmark", updateBookmark, args),
-  }),
-  deleteBookmark: tool({
-    description: "Deletes a bookmark.",
-    parameters: z.object({
-      id: z.string().describe("The GUID of the bookmark to delete."),
-    }),
-    execute: (args) => confirmAndExecute("deleteBookmark", deleteBookmark, args),
-  }),
-  clickElement: tool({
-    description: "Clicks an element on the page.",
-    parameters: z.object({
-      selector: z.string().describe("The CSS selector of the element to click."),
-    }),
-    execute: (args) => confirmAndExecute("clickElement", clickElement, args),
-  }),
-  fillForm: tool({
-    description: "Fills a form input on the page.",
-    parameters: z.object({
-      selector: z.string().describe("The CSS selector of the input element to fill."),
-      value: z.string().describe("The value to fill the input with."),
-    }),
-    execute: (args) => confirmAndExecute("fillForm", fillForm, args),
-  }),
+    },
+    openLink
+  ),
+  newSplit: createTool(
+    "newSplit",
+    "Creates a split view by opening two new URLs in two new tabs, then arranging them side-by-side.",
+    {
+      link1: createStringParameter("The URL for the first new tab."),
+      link2: createStringParameter("The URL for the second new tab."),
+      type: createStringParameter("The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.", true),
+    },
+    newSplit
+  ),
+  getPageTextContent: createTool(
+    "getPageTextContent",
+    "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
+    {},
+    messageManagerAPI.getPageTextContent.bind(messageManagerAPI)
+  ),
+  getHTMLContent: createTool(
+    "getHTMLContent",
+    "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
+    {},
+    messageManagerAPI.getHTMLContent.bind(messageManagerAPI)
+  ),
+  getYoutubeTranscript: createTool(
+    "getYoutubeTranscript",
+    "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
+    {},
+    messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
+  ),
+  searchBookmarks: createTool(
+    "searchBookmarks",
+    "Searches bookmarks based on a query.",
+    {
+      query: createStringParameter("The search term for bookmarks."),
+    },
+    searchBookmarks
+  ),
+  getAllBookmarks: createTool("getAllBookmarks", "Retrieves all bookmarks.", {}, getAllBookmarks),
+  createBookmark: createTool(
+    "createBookmark",
+    "Creates a new bookmark.",
+    {
+      url: createStringParameter("The URL to bookmark."),
+      title: createStringParameter("The title for the bookmark.", true),
+      parentID: createStringParameter("The GUID of the parent folder.", true),
+    },
+    createBookmark
+  ),
+  addBookmarkFolder: createTool(
+    "addBookmarkFolder",
+    "Creates a new bookmark folder.",
+    {
+      title: createStringParameter("The title for the new folder."),
+      parentID: createStringParameter("The GUID of the parent folder.", true),
+    },
+    addBookmarkFolder
+  ),
+  updateBookmark: createTool(
+    "updateBookmark",
+    "Updates an existing bookmark.",
+    {
+      id: createStringParameter("The GUID of the bookmark to update."),
+      url: createStringParameter("The new URL for the bookmark.", true),
+      title: createStringParameter("The new title for the bookmark.", true),
+      parentID: createStringParameter("The GUID of the parent folder.", true),
+    },
+    updateBookmark
+  ),
+  deleteBookmark: createTool(
+    "deleteBookmark",
+    "Deletes a bookmark.",
+    {
+      id: createStringParameter("The GUID of the bookmark to delete."),
+    },
+    deleteBookmark
+  ),
+  clickElement: createTool(
+    "clickElement",
+    "Clicks an element on the page.",
+    {
+      selector: createStringParameter("The CSS selector of the element to click."),
+    },
+    clickElement
+  ),
+  fillForm: createTool(
+    "fillForm",
+    "Fills a form input on the page.",
+    {
+      selector: createStringParameter("The CSS selector of the input element to fill."),
+      value: createStringParameter("The value to fill the input with."),
+    },
+    fillForm
+  ),
 };
 
 const getToolSystemPrompt = async () => {
