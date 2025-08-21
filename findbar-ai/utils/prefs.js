@@ -133,6 +133,13 @@ export const PREFS = {
     this.setPref(this.PERSIST, value);
   },
 
+  get pseudoBg() {
+    return this.getPref(this.PSEUDO_BG);
+  },
+  set maxToolCalls(value) {
+    this.setPref(this.PSEUDO_BG, value);
+  },
+
   get maxToolCalls() {
     return this.getPref(this.MAX_TOOL_CALLS);
   },
