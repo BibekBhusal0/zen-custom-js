@@ -8,7 +8,7 @@ var markdownStylesInjected = false;
 const injectMarkdownStyles = async () => {
   try {
     const { markedStyles } = await import("chrome://userscripts/content/engine/marked.js");
-    const styleTag = parseElement(`<style>${markedStyles}<style>`);
+    const styleTag = parseElement(`<style>${markedStyles}</style>`);
     document.head.appendChild(styleTag);
     markdownStylesInjected = true;
     return true;
