@@ -3,6 +3,7 @@ import { llm } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
+import "./urlbar.uc.js"
 
 var markdownStylesInjected = false;
 const injectMarkdownStyles = async () => {

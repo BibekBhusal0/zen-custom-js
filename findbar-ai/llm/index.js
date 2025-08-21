@@ -327,4 +327,5 @@ Here is the initial info about the current page:
 };
 
 const llm = new LLM();
+window.browseBotFindabrLLM = llm
 export { LLM, llm };
