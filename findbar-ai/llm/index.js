@@ -39,12 +39,21 @@ class LLM {
       openai: openai,
       perplexity: perplexity,
     };
-    this.godMode = PREFS.godMode;
-    this.streamEnabled = PREFS.streamEnabled;
-    this.citationsEnabled = PREFS.citationsEnabled;
-    this.persistChat = PREFS.persistChat;
-    this.maxToolCalls = PREFS.maxToolCalls;
-    this.llmProvider = PREFS.llmProvider;
+  }
+  get godMode() {
+    return PREFS.godMode
+  }
+  get streamEnabled() {
+    return PREFS.streamEnabled
+  }
+  get citationsEnabled() {
+    return PREFS.citationsEnabled
+  }
+  get maxToolCalls() {
+    return PREFS.maxToolCalls
+  }
+  get llmProvider() {
+    return PREFS.llmProvider
   }
 
   get currentProvider() {

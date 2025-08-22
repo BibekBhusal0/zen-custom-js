@@ -2,13 +2,21 @@ import { LLM } from "./llm/index.js";
 import { debugLog } from "./utils/prefs.js";
 import { getToolSystemPrompt } from "./llm/tools.js";
 
-const urlBarLLM = new LLM();
-urlBarLLM.godMode = true
-urlBarLLM.streamEnabled = false
-urlBarLLM.citationsEnabled = false
-urlBarLLM.persistChat = false
-urlBarLLM.getSystemPrompt = async function() {
-  let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
+class urlBarLLM extends LLM {
+  get godMode() {
+    return true
+  }
+  get streamEnabled() {
+    return false
+  }
+  get citationsEnabled() {
+    return false
+  }
+  get persistChat() {
+    return false
+  }
+  async getSystemPrompt() {
+    let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
 
 Your primary responsibilities include:
 1. Making tool calls in each response based on user input.
@@ -16,15 +24,16 @@ Your primary responsibilities include:
 3. If a URL is provided, open it directly.
 
 Your goal is to ensure a seamless and user-friendly browsing experience.`;
-  systemPrompt += await getToolSystemPrompt();
-  return systemPrompt
-}
+    systemPrompt += await getToolSystemPrompt();
+    return systemPrompt
+  }
 
-urlBarLLM.send = function(prompt) {
-  debugLog(`urlBarLLM: Sending prompt: "${prompt}"`)
-  urlBarLLM.sendMessage(prompt).then(() =>
-    urlBarLLM.clearData()
-  )
+  send(prompt) {
+    debugLog(`urlBarLLM: Sending prompt: "${prompt}"`)
+    urlBarLLM.sendMessage(prompt).then(() =>
+      urlBarLLM.clearData()
+    )
+  }
 }
 
 window.browseBotURLBarLLM = urlBarLLM
