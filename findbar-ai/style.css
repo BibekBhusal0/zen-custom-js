@@ -101,26 +101,46 @@ browser {
   @media -moz-pref("extension.pseudo-bg.enabled") {
     :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])) {
       .browserSidebarContainer.deck-selected > .browserContainer::before{
-    position: absolute !important;
-    align-self: center !important;
-    z-index: 1 !important;
-    content: "" !important;
-    background-color: var(--acrylic-bg) !important;
-    top: calc(var(--findbar-y) - 10px) !important;
-    left: calc(var(--findbar-x) - 10px) !important;
-    width: var(--findbar-width)!important;
-    height: var(--findbar-height)!important;
-    opacity: 1 !important;
+        position: absolute !important;
+        align-self: center !important;
+        z-index: 1 !important;
+        content: "" !important;
+        background-color: var(--acrylic-bg) !important;
+        top: calc(var(--findbar-y) - 38px) !important;
+        left: calc(var(--findbar-x) - 8px - var(--zen-sidebar-width)) !important;
+        width: var(--findbar-width)!important;
+        height: var(--findbar-height)!important;
+        opacity: 1 !important;
 
-    margin-top: 0px !important;
-    margin-bottom: 0px !important;
 
-    border-radius: 12px;
-    visibility: visible;
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
 
-    transition: none  !important;
-  }
+        border-radius: 12px;
+        visibility: visible;
 
+        transition: none  !important;
+      }
+    }
+    :root[zen-compact-mode="true"]{
+        :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])) {
+          .browserSidebarContainer.deck-selected > .browserContainer::before{
+             @media  -moz-pref("zen.view.compact.hide-tabbar"){
+            left: calc(var(--findbar-x) - 10px) !important;
+          }
+              @media  -moz-pref("zen.view.compact.hide-toolbar"){
+               top: calc(var(--findbar-y) - 10px) !important;
+            }
+      }
+    }
+    }
+
+    @media -moz-pref("zen.tabs.vertical.right-side"){
+      :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])) {
+        .browserSidebarContainer.deck-selected > .browserContainer::before{
+          left: calc(var(--findbar-x) - 10px) !important;
+        }
+      }
     }
 
     #ai-settings-modal-overlay,
@@ -209,7 +229,7 @@ browser {
           in srgb,
           var(--browse-bot-primary-bg) 80%,
           black 20%
-        ) !important;
+          ) !important;
       }
 
       &:active {
@@ -790,7 +810,7 @@ browser {
             transparent,
             color-mix(in srgb, var(--browse-bot-primary-bg) 20%, transparent 80%),
             transparent
-          );
+            );
           background-size: 200% 100%;
           animation: shimmer 2s infinite;
         }
@@ -1163,7 +1183,7 @@ browser {
     }
 
     &:has(#pref-extension\.browse-bot\.citations-enabled:checked)
-      :has(#pref-extension\.browse-bot\.god-mode:checked) {
+    :has(#pref-extension\.browse-bot\.god-mode:checked) {
       #citations-god-mode-warning {
         display: block !important;
       }
@@ -1187,7 +1207,7 @@ browser {
     text-align: center;
     position: relative;
     width: 300px;
-     height: 100px;
+    height: 100px;
     min-width: 200px;
     max-width: 90vw;
     border-radius: var(--acrylic-radius) !important;
