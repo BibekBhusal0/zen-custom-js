@@ -41,23 +41,25 @@ class LLM {
     };
   }
   get godMode() {
-    return PREFS.godMode
+    return PREFS.godMode;
   }
   get streamEnabled() {
-    return PREFS.streamEnabled
+    return PREFS.streamEnabled;
   }
   get citationsEnabled() {
-    return PREFS.citationsEnabled
+    return PREFS.citationsEnabled;
   }
   get maxToolCalls() {
-    return PREFS.maxToolCalls
+    return PREFS.maxToolCalls;
   }
   get llmProvider() {
-    return PREFS.llmProvider
+    return PREFS.llmProvider;
   }
 
   get currentProvider() {
-    return this.AVAILABLE_PROVIDERS[this.llmProvider || "gemini"] || this.AVAILABLE_PROVIDERS["gemini"];
+    return (
+      this.AVAILABLE_PROVIDERS[this.llmProvider || "gemini"] || this.AVAILABLE_PROVIDERS["gemini"]
+    );
   }
   setProvider(providerName) {
     if (this.AVAILABLE_PROVIDERS[providerName]) {
@@ -303,7 +305,7 @@ Here is the initial info about the current page:
 
     // Non-Citation Mode (Streaming or Non-Streaming)
     if (this.streamEnabled) {
-      const self = this
+      const self = this;
       return streamText({
         ...commonConfig,
         async onFinish({ response }) {
@@ -333,8 +335,8 @@ Here is the initial info about the current page:
   getLastMessage() {
     return this.history.length > 0 ? this.history[this.history.length - 1] : null;
   }
-};
+}
 
 const llm = new LLM();
-window.browseBotFindabrLLM = llm
+window.browseBotFindabrLLM = llm;
 export { LLM, llm };

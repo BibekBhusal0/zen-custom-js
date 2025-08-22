@@ -4,16 +4,16 @@ import { getToolSystemPrompt } from "./llm/tools.js";
 
 class urlBarLLM extends LLM {
   get godMode() {
-    return true
+    return true;
   }
   get streamEnabled() {
-    return false
+    return false;
   }
   get citationsEnabled() {
-    return false
+    return false;
   }
   get persistChat() {
-    return false
+    return false;
   }
   async getSystemPrompt() {
     let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
@@ -25,18 +25,16 @@ Your primary responsibilities include:
 
 Your goal is to ensure a seamless and user-friendly browsing experience.`;
     systemPrompt += await getToolSystemPrompt();
-    return systemPrompt
+    return systemPrompt;
   }
 
   send(prompt) {
-    debugLog(`urlBarLLM: Sending prompt: "${prompt}"`)
-    urlBarLLM.sendMessage(prompt).then(() =>
-      urlBarLLM.clearData()
-    )
+    debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
+    urlBarLLM.sendMessage(prompt).then(() => urlBarLLM.clearData());
   }
 }
 
-window.browseBotURLBarLLM = urlBarLLM
+window.browseBotURLBarLLM = urlBarLLM;
 
 const urlbarAI = {
   _isAIMode: false,
@@ -192,4 +190,3 @@ if (typeof UC_API !== "undefined" && UC_API.Runtime) {
     observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 }
-
