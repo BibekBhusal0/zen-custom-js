@@ -111,7 +111,7 @@ export const browseBotFindbar = {
   _toolConfirmationDialog: null,
 
   _updateFindbarDimensions() {
-    if (!this.findbar ) {
+    if (!this.findbar) {
       document.documentElement.style.removeProperty("--findbar-width");
       document.documentElement.style.removeProperty("--findbar-height");
       document.documentElement.style.removeProperty("--findbar-x");
@@ -121,14 +121,8 @@ export const browseBotFindbar = {
     const rect = this.findbar.getBoundingClientRect();
     const _findbarDimension = { width: rect.width, height: rect.height };
     const _findbarCoors = { x: rect.left, y: rect.top };
-    document.documentElement.style.setProperty(
-      "--findbar-width",
-      `${_findbarDimension.width}px`
-    );
-    document.documentElement.style.setProperty(
-      "--findbar-height",
-      `${_findbarDimension.height}px`
-    );
+    document.documentElement.style.setProperty("--findbar-width", `${_findbarDimension.width}px`);
+    document.documentElement.style.setProperty("--findbar-height", `${_findbarDimension.height}px`);
     document.documentElement.style.setProperty("--findbar-x", `${_findbarCoors.x}px`);
     document.documentElement.style.setProperty("--findbar-y", `${_findbarCoors.y}px`);
   },
@@ -511,7 +505,7 @@ export const browseBotFindbar = {
         for await (const delta of result.textStream) {
           fullText += delta;
           contentDiv.innerHTML = parseMD(fullText).innerHTML;
-          this._updateFindbarDimensions()
+          this._updateFindbarDimensions();
           if (messagesContainer) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
           }
@@ -1061,7 +1055,7 @@ export const browseBotFindbar = {
 
   stopDrag() {
     this._isDragging = false;
-    this.findbar.style.setProperty("transition","all 0.3s ease", "important");
+    this.findbar.style.setProperty("transition", "all 0.3s ease", "important");
     this.snapToClosestCorner();
     this._initialMouseCoor = { x: null, y: null };
     this._initialContainerCoor = { x: null, y: null };
@@ -1296,4 +1290,3 @@ UC_API.Runtime.startupFinished().then(() => {
   );
   window.browseBotFindbar = browseBotFindbar;
 });
-
