@@ -516,6 +516,7 @@ export const browseBotFindbar = {
         for await (const delta of result.textStream) {
           fullText += delta;
           contentDiv.innerHTML = parseMD(fullText).innerHTML;
+          this._updateFindbarDimensions()
           if (messagesContainer) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
           }
