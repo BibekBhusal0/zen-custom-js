@@ -19,29 +19,25 @@ const injectMarkdownStyles = async () => {
   }
 };
 
-
 const sidebarWidthUpdate = function () {
-  const mainWindow = document.getElementById('main-window');
-  const toolbox = document.getElementById('navigator-toolbox');
+  const mainWindow = document.getElementById("main-window");
+  const toolbox = document.getElementById("navigator-toolbox");
 
   function updateSidebarWidthIfCompact() {
-    const isCompact = mainWindow.getAttribute('zen-compact-mode') === 'true';
+    const isCompact = mainWindow.getAttribute("zen-compact-mode") === "true";
     if (!isCompact) return;
 
-    const value = getComputedStyle(toolbox).getPropertyValue('--zen-sidebar-width');
+    const value = getComputedStyle(toolbox).getPropertyValue("--zen-sidebar-width");
     if (value) {
-      mainWindow.style.setProperty('--zen-sidebar-width', value.trim());
-      console.log('[userChrome] Synced --zen-sidebar-width to #main-window:', value.trim());
+      mainWindow.style.setProperty("--zen-sidebar-width", value.trim());
+      console.log("[userChrome] Synced --zen-sidebar-width to #main-window:", value.trim());
     }
   }
 
   // Set up a MutationObserver to watch attribute changes on #main-window
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
-      if (
-        mutation.type === 'attributes' &&
-        mutation.attributeName === 'zen-compact-mode'
-      ) {
+      if (mutation.type === "attributes" && mutation.attributeName === "zen-compact-mode") {
         updateSidebarWidthIfCompact();
       }
     }
@@ -50,23 +46,23 @@ const sidebarWidthUpdate = function () {
   // Observe attribute changes
   observer.observe(mainWindow, {
     attributes: true,
-    attributeFilter: ['zen-compact-mode']
+    attributeFilter: ["zen-compact-mode"],
   });
 
   // Optional: run it once in case the attribute is already set at load
   updateSidebarWidthIfCompact();
-}
+};
 
-sidebarWidthUpdate()
-const getSidebarWidth = ()=>{
-    if (
-      gZenCompactModeManager &&
-      !gZenCompactModeManager?.preference &&
-      !gZenCompactModeManager.sidebarIsOnRight
-    ) {
-      return gZenCompactModeManager.getAndApplySidebarWidth(); 
-    }else return 0
-}
+sidebarWidthUpdate();
+const getSidebarWidth = () => {
+  if (
+    gZenCompactModeManager &&
+    !gZenCompactModeManager?.preference &&
+    !gZenCompactModeManager.sidebarIsOnRight
+  ) {
+    return gZenCompactModeManager.getAndApplySidebarWidth();
+  } else return 0;
+};
 
 function parseMD(markdown) {
   const markedOptions = { breaks: true, gfm: true };
@@ -113,8 +109,8 @@ export const browseBotFindbar = {
   _handleResize: null,
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
-  _findbarDimension: {width: null, height: null},
-  _findbarCoors : {x: null, y: null},
+  _findbarDimension: { width: null, height: null },
+  _findbarCoors: { x: null, y: null },
 
   _updateFindbarDimensions() {
     if (!this.findbar) {
@@ -130,8 +126,14 @@ export const browseBotFindbar = {
     this._findbarDimension = { width: rect.width, height: rect.height };
     this._findbarCoors = { x: rect.left, y: rect.top };
     // this._findbarCoors.x -= getSidebarWidth();
-    document.documentElement.style.setProperty("--findbar-width", `${this._findbarDimension.width}px`);
-    document.documentElement.style.setProperty("--findbar-height", `${this._findbarDimension.height}px`);
+    document.documentElement.style.setProperty(
+      "--findbar-width",
+      `${this._findbarDimension.width}px`
+    );
+    document.documentElement.style.setProperty(
+      "--findbar-height",
+      `${this._findbarDimension.height}px`
+    );
     document.documentElement.style.setProperty("--findbar-x", `${this._findbarCoors.x}px`);
     document.documentElement.style.setProperty("--findbar-y", `${this._findbarCoors.y}px`);
   },
@@ -303,7 +305,7 @@ export const browseBotFindbar = {
               () => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"),
               100
             );
-            this._updateFindbarDimensions()
+            this._updateFindbarDimensions();
           }
         };
         findbar.browser.finder.onFindbarClose = (...args) => {
@@ -1008,7 +1010,7 @@ export const browseBotFindbar = {
     let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
-    this._updateFindbarDimensions()
+    this._updateFindbarDimensions();
   },
 
   stopResize() {
@@ -1050,10 +1052,10 @@ export const browseBotFindbar = {
       y: this._initialContainerCoor.y + (e.clientY - this._initialMouseCoor.y),
     };
 
-    newCoors.x -= getSidebarWidth(); 
+    newCoors.x -= getSidebarWidth();
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
-    this._updateFindbarDimensions()
+    this._updateFindbarDimensions();
 
     this.findbar.style.setProperty("left", `${newCoors.x}px`, "important");
     this.findbar.style.setProperty("top", `${newCoors.y}px`, "important");
@@ -1071,7 +1073,7 @@ export const browseBotFindbar = {
     this._handleDrag = null;
     this._stopDrag = null;
     setTimeout(() => this._updateFindbarDimensions(), 0);
-    this._updateFindbarDimensions()
+    this._updateFindbarDimensions();
   },
 
   snapToClosestCorner() {
@@ -1298,4 +1300,4 @@ UC_API.Runtime.startupFinished().then(() => {
   window.browseBotFindbar = browseBotFindbar;
 });
 
-export {browseBotFindbar}
+export { browseBotFindbar };
