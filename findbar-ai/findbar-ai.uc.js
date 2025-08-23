@@ -111,7 +111,7 @@ export const browseBotFindbar = {
   _toolConfirmationDialog: null,
 
   _updateFindbarDimensions() {
-    if (!this.findbar || !PREFS.pseudoBg) {
+    if (!this.findbar ) {
       document.documentElement.style.removeProperty("--findbar-width");
       document.documentElement.style.removeProperty("--findbar-height");
       document.documentElement.style.removeProperty("--findbar-x");
@@ -1061,6 +1061,7 @@ export const browseBotFindbar = {
 
   stopDrag() {
     this._isDragging = false;
+    this.findbar.style.setProperty("transition","all 0.3s ease", "important");
     this.snapToClosestCorner();
     this._initialMouseCoor = { x: null, y: null };
     this._initialContainerCoor = { x: null, y: null };
@@ -1069,7 +1070,7 @@ export const browseBotFindbar = {
     this._handleDrag = null;
     this._stopDrag = null;
     setTimeout(() => this._updateFindbarDimensions(), 0);
-    this._updateFindbarDimensions();
+    setTimeout(() => this.findbar.style.removeProperty("transition"), 400);
   },
 
   snapToClosestCorner() {
