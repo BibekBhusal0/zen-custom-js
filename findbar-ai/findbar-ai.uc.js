@@ -30,7 +30,6 @@ const sidebarWidthUpdate = function () {
     const value = getComputedStyle(toolbox).getPropertyValue("--zen-sidebar-width");
     if (value) {
       mainWindow.style.setProperty("--zen-sidebar-width", value.trim());
-      console.log("[userChrome] Synced --zen-sidebar-width to #main-window:", value.trim());
     }
   }
 
@@ -119,7 +118,6 @@ export const browseBotFindbar = {
       document.documentElement.style.removeProperty("--findbar-y");
       return;
     }
-    console.log("updating findbar dimensions")
     const rect = this.findbar.getBoundingClientRect();
     const _findbarDimension = { width: rect.width, height: rect.height };
     const _findbarCoors = { x: rect.left, y: rect.top };
