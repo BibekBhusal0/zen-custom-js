@@ -2,7 +2,7 @@ import { LLM } from "./llm/index.js";
 import { debugLog } from "./utils/prefs.js";
 import { getToolSystemPrompt } from "./llm/tools.js";
 
-class urlBarLLM extends LLM {
+class UrlBarLLM extends LLM {
   get godMode() {
     return true;
   }
@@ -30,11 +30,12 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
 
   send(prompt) {
     debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
-    urlBarLLM.sendMessage(prompt).then(() => urlBarLLM.clearData());
+    this.sendMessage(prompt).then(() => this.clearData());
   }
 }
 
-window.browseBotURLBarLLM = urlBarLLM;
+const urlBarLLM = new UrlBarLLM;
+window.browseBotURLBarLLM = urlBarLLM
 
 const urlbarAI = {
   _isAIMode: false,
