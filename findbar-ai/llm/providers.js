@@ -120,6 +120,10 @@ const openai = Object.assign(Object.create(providerPrototype), {
     "o3-mini",
     "o3",
     "o4-mini",
+    "gpt-5"	,
+"gpt-5-mini"	,
+"gpt-5-nano"	,
+"gpt-5-chat-latest"
   ],
   AVAILABLE_MODELS_LABELS: {
     "gpt-4.1": "GPT 4.1",
@@ -134,6 +138,10 @@ const openai = Object.assign(Object.create(providerPrototype), {
     "o3-mini": "O3 Mini",
     o3: "O3",
     "o4-mini": "O4 Mini",
+    "gpt-5": "GTP 5",
+    "gpt-5-mini": "GPT 5 mini",
+    "gpt-5-mini": "GPT 5 mini",
+    "gpt-5-chat-latest": "GPT 5 latest",
   },
   modelPref: PREFS.OPENAI_MODEL,
   apiPref: PREFS.OPENAI_API_KEY,
