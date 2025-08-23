@@ -1176,9 +1176,8 @@ browser {
   }
 }
 
-
-#urlbar{
-  &[ai-mode-active="true"]{
+#urlbar {
+  &[ai-mode-active="true"] {
     #urlbar-ask-ai-button {
       display: none !important;
     }
@@ -1197,9 +1196,8 @@ browser {
         visibility: visible;
       }
     }
-
   }
-  &:not([open]) #urlbar-ask-ai-button{
+  &:not([open]) #urlbar-ask-ai-button {
     display: none !important;
   }
   #urlbar-ask-ai-button {
@@ -1220,6 +1218,5 @@ browser {
       background: var(--tab-hover-background-color) !important;
       border: none !important;
     }
-
   }
 }

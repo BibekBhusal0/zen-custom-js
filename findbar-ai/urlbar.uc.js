@@ -84,11 +84,11 @@ const urlbarAI = {
     if (this._isAIMode) {
       gURLBar.setAttribute("ai-mode-active", "true");
       gURLBar.inputField.setAttribute("placeholder", "Command to AI");
-      gURLBar.startQuery()
+      gURLBar.startQuery();
     } else {
       gURLBar.removeAttribute("ai-mode-active");
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
-      this._closeUrlBar()
+      this._closeUrlBar();
       gURLBar.value = "";
     }
     debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
@@ -122,7 +122,7 @@ const urlbarAI = {
 
       e.preventDefault();
       e.stopPropagation();
-      this.send()
+      this.send();
     }
   },
 
@@ -150,7 +150,7 @@ const urlbarAI = {
       urlBarLLM.send(prompt);
     }
     this.toggleAIMode(false);
-  }, 
+  },
 
   addAskButton() {
     debugLog("urlbarAI: Adding 'Ask' button");
@@ -165,7 +165,7 @@ const urlbarAI = {
     `;
     const button = parseElement(buttonString, "xul");
 
-    button.addEventListener("click",() => setTimeout(() =>this.send(), 100));
+    button.addEventListener("click", () => setTimeout(() => this.send(), 100));
 
     const insertButton = (retryCount = 0) => {
       const inputContainer = document.querySelector("#urlbar .urlbar-input-container");
@@ -180,7 +180,9 @@ const urlbarAI = {
         );
         setTimeout(() => insertButton(retryCount + 1), 500);
       } else {
-        debugError("Could not find #urlbar .urlbar-input-container after multiple attempts. Giving up.");
+        debugError(
+          "Could not find #urlbar .urlbar-input-container after multiple attempts. Giving up."
+        );
       }
     };
 
