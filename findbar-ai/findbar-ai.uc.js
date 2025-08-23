@@ -1300,4 +1300,3 @@ UC_API.Runtime.startupFinished().then(() => {
   window.browseBotFindbar = browseBotFindbar;
 });
 
-export { browseBotFindbar };
