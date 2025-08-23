@@ -113,7 +113,7 @@ export const browseBotFindbar = {
   _findbarCoors: { x: null, y: null },
 
   _updateFindbarDimensions() {
-    if (!this.findbar) {
+    if (!this.findbar || !PREFS.pseudoBg) {
       this._findbarDimension = { width: null, height: null };
       this._findbarCoors = { x: null, y: null };
       document.documentElement.style.removeProperty("--findbar-width");
@@ -125,7 +125,6 @@ export const browseBotFindbar = {
     const rect = this.findbar.getBoundingClientRect();
     this._findbarDimension = { width: rect.width, height: rect.height };
     this._findbarCoors = { x: rect.left, y: rect.top };
-    // this._findbarCoors.x -= getSidebarWidth();
     document.documentElement.style.setProperty(
       "--findbar-width",
       `${this._findbarDimension.width}px`
