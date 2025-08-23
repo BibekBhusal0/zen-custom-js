@@ -108,11 +108,9 @@ const urlbarAI = {
     if (e.key === "Enter" && this._isAIMode) {
       debugLog("urlbarAI: Enter key pressed in AI mode");
       let isNavigational = false;
-      if (gURLBar.view.isOpen && gURLBar.view.selectedItem) {
-        const { action } = gURLBar.view.selectedItem;
-        if (action && (action.startsWith("visiturl") || action.startsWith("switchtab"))) {
-          isNavigational = true;
-        }
+      if (gURLBar.view.isOpen && gURLBar.view.selectedResult) {
+        const type = gURLBar?.view?.selectedResult?.type
+        if (type !== 2) isNavigational = true;
       }
 
       if (isNavigational) {
