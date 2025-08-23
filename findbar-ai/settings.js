@@ -203,17 +203,23 @@ export const SettingsModal = {
     for (const prefKey in this._currentPrefValues) {
       if (Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)) {
         if (prefKey.endsWith("api-key")) {
-          const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
-          debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
+          if (this._currentPrefValues[prefKey]) {
+            const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
+            debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
+          }
         } else {
           debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
         }
-        PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
+        try {
+          PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
+        } catch (e) {
+          debugError(`Error Saving pref for ${prefKey} ${e}`);
+        }
       }
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
     if (!llm.currentProvider.apiKey) {
-      window.browserBotFindbar.expanded = false;
+      browseBotFindbar.expanded = false;
     }
   },
 
@@ -340,6 +346,7 @@ export const SettingsModal = {
 
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
+      { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
       { label: "God Mode (AI can use tool calls)", pref: PREFS.GOD_MODE },
       { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
     ];

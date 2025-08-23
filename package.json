@@ -1,0 +1,30 @@
+{
+  "name": "Zen Browser UserScripts",
+  "description": "Personal customization userscripts and css files for enhanceing browsing experience in Zen Browser",
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "dev": "rollup -c --bundleConfigAsCjs --watch",
+    "format": "prettier --write ."
+  },
+  "author": "Bibek Bhusal",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.6",
+    "@ai-sdk/google": "^2.0.8",
+    "@ai-sdk/mistral": "^2.0.8",
+    "@ai-sdk/openai": "^2.0.19",
+    "@ai-sdk/perplexity": "^2.0.5",
+    "@ai-sdk/xai": "^2.0.11",
+    "ai": "^5.0.21",
+    "ollama-ai-provider": "^1.2.0",
+    "zod": "^4.0.17"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "chokidar-cli": "^3.0.0",
+    "prettier": "^3.6.2",
+    "rollup": "^4.47.1",
+    "rollup-plugin-string": "^3.0.0"
+  }
+}

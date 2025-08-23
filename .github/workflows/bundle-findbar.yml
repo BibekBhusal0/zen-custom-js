@@ -15,45 +15,14 @@ jobs:
       uses: actions/setup-node@v3
       with:
         node-version: '16'
+        cache: 'npm'
 
     - name: Install dependencies
-      run: |
-        npm init -y
-        npm install --save-dev rollup @rollup/plugin-node-resolve @rollup/plugin-commonjs rollup-plugin-string
-
-    - name: Create Rollup Configuration
-      run: |
-        echo "import resolve from '@rollup/plugin-node-resolve';
-        import commonjs from '@rollup/plugin-commonjs';
-        import { string } from 'rollup-plugin-string';
-
-        const header = \`// ==UserScript==
-        // @name            BrowseBot
-        // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface.
-        // @author          BibekBhusal
-        // ==/UserScript==
-
-        \`;
-
-        export default {
-          input: 'findbar-ai/findbar-ai.uc.js',
-          output: [
-            {
-              file: 'dist/browse-bot.uc.js',
-              format: 'umd',
-              name: 'BrowseBot',
-              banner: header
-            }
-          ],
-          plugins: [
-            resolve(),
-            commonjs()
-          ]
-        }" > rollup.config.js
+      run: npm install --legacy-peer-deps
 
     - name: Bundle JavaScript
       run: |
-        npx rollup -c --bundleConfigAsCjs
+        npm run build
         mkdir -p dist
 
     - name: Upload bundled file
@@ -62,4 +31,3 @@ jobs:
         name: bundled-js
         path: |
           dist/browse-bot.uc.js
-

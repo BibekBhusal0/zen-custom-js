@@ -6,44 +6,6 @@
 const { Runtime, Hotkeys, Prefs } = UC_API;
 import { showToast } from "./utils/toast.mjs";
 
-const alternateSearch = (window, split) => {
-  try {
-    const currentURL = window.gBrowser.currentURI.spec;
-    let searchQuery = null;
-    let targetSearchEngine = null;
-    if (currentURL.includes("duckduckgo.com")) {
-      const urlParams = new URLSearchParams(new URL(currentURL).search);
-      searchQuery = urlParams.get("q");
-      targetSearchEngine = "Google";
-    } else if (currentURL.includes("google.com")) {
-      const urlParams = new URLSearchParams(new URL(currentURL).search);
-      searchQuery = urlParams.get("q");
-      targetSearchEngine = "DuckDuckGo";
-    }
-    if (searchQuery) {
-      let newURL;
-      const previousTab = window.gBrowser.selectedTab;
-      if (targetSearchEngine === "Google") {
-        newURL = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-        showToast("Searching in Google", "success");
-      } else if (targetSearchEngine === "DuckDuckGo") {
-        newURL = `https://duckduckgo.com/?q=${encodeURIComponent(searchQuery)}`;
-        showToast("Searching in DuckDuckGo", "success");
-      } else {
-        showToast("Failed to search.", "error");
-        return;
-      }
-      openTrustedLinkIn(newURL, "tab");
-      const currentTab = window.gBrowser.selectedTab;
-      if (previousTab && split) gZenViewSplitter.splitTabs([currentTab, previousTab], "vsep", 1);
-    } else {
-      showToast("Failed to search.", "error");
-    }
-  } catch (error) {
-    showToast("Failed to search.", "error");
-  }
-};
-
 const pasteAndGo = () => {
   navigator.clipboard.readText().then((text) => {
     if (text) {
@@ -178,6 +140,28 @@ const hotkeys = [
   },
 
   {
+    id: "closeAndGoNext",
+    modifiers: "alt",
+    key: "N",
+    command: (window) => {
+      const tabToClose = window.gBrowser.selectedTab;
+      window.gBrowser.tabContainer.advanceSelectedTab(1, true);
+      window.gBrowser.removeTab(tabToClose);
+    },
+  },
+
+  {
+    id: "closeAndGoPrev",
+    modifiers: "alt",
+    key: "P",
+    command: (window) => {
+      const tabToClose = window.gBrowser.selectedTab;
+      window.gBrowser.tabContainer.advanceSelectedTab(-1, true);
+      window.gBrowser.removeTab(tabToClose);
+    },
+  },
+
+  {
     id: "toggletabpin",
     modifiers: "alt",
     key: "o",
@@ -203,20 +187,6 @@ const hotkeys = [
     modifiers: "alt",
     key: "L",
     command: (window) => window.gBrowser.goForward(),
-  },
-
-  {
-    id: "alternateSearchSplit",
-    modifiers: "alt",
-    key: "Y",
-    command: (window) => alternateSearch(window, true),
-  },
-
-  {
-    id: "alternateSearch",
-    modifiers: "alt ctrl",
-    key: "Y",
-    command: (window) => alternateSearch(window, false),
   },
 
   {

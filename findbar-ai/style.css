@@ -774,16 +774,17 @@ browser {
           /* } */
         }
 
-        .send-btn {
+        .send-btn,
+        .stop-btn {
           margin-left: auto !important;
           border: none !important;
           background-color: var(--browse-bot-primary-bg) !important;
           padding: 3px !important;
-          display: inline-flex !important;
           color: var(--browse-bot-primary) !important;
           align-self: end !important;
           min-width: 30px !important;
           min-height: 30px !important;
+          display: flex;
 
           &:active:not(:disabled) {
             transform: translateY(0);
@@ -1017,7 +1018,8 @@ browser {
             position: relative !important;
           }
 
-          .send-btn {
+          .send-btn,
+          .stop-btn {
             padding: 1px !important;
             min-width: 24px !important;
             min-height: 24px !important;
@@ -1182,10 +1184,22 @@ browser {
       margin-bottom: 10px;
     }
 
+    &:has(#pref-extension\.browse-bot\.citations-enabled:checked) {
+      .setting-item:has(#pref-extension\.browse-bot\.stream-enabled) {
+        display: none !important;
+      }
+    }
+
     &:has(#pref-extension\.browse-bot\.citations-enabled:checked)
     :has(#pref-extension\.browse-bot\.god-mode:checked) {
       #citations-god-mode-warning {
         display: block !important;
+      }
+    }
+
+    label[for="pref-ollama-api-key"] {
+      &::after {
+        content: " (Set any value)";
       }
     }
 
@@ -1245,6 +1259,51 @@ browser {
           background-color: var(--browse-bot-error);
         }
       }
+    }
+  }
+}
+
+#urlbar {
+  &[ai-mode-active="true"] {
+    #urlbar-ask-ai-button {
+      display: none !important;
+    }
+
+    #identity-box {
+      visibility: hidden;
+      width: 15px !important;
+      &::before {
+        content: url("chrome://browser/skin/trending.svg") !important;
+        -moz-context-properties: fill !important;
+        padding-left: 5px !important;
+        padding-top: 3px !important;
+        fill: light-dark(black, white) !important;
+
+        display: block;
+        visibility: visible;
+      }
+    }
+  }
+  &:not([open]) #urlbar-ask-ai-button {
+    display: none !important;
+  }
+  #urlbar-ask-ai-button {
+    width: 24px !important;
+    height: 24px !important;
+    appearance: none !important;
+    outline: none !important;
+    border: none !important;
+    border-radius: 5px !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-content: center !important;
+    background-color: transparent !important;
+    -moz-context-properties: fill !important;
+    fill: light-dark(black, white) !important;
+    &:hover {
+      background: var(--tab-hover-background-color) !important;
+      border: none !important;
     }
   }
 }
