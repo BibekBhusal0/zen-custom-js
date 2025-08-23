@@ -109,7 +109,7 @@ const urlbarAI = {
       debugLog("urlbarAI: Enter key pressed in AI mode");
       let isNavigational = false;
       if (gURLBar.view.isOpen && gURLBar.view.selectedResult) {
-        const type = gURLBar?.view?.selectedResult?.type
+        const type = gURLBar?.view?.selectedResult?.type;
         if (type !== 2) isNavigational = true;
       }
 
