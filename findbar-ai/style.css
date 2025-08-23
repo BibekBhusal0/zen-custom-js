@@ -1181,7 +1181,23 @@ browser {
   &[ai-mode-active="true"]{
     #urlbar-ask-ai-button {
       display: none !important;
-    } 
+    }
+
+    #identity-box {
+      visibility: hidden;
+      width: 15px !important;
+      &::before {
+        content: url("chrome://browser/skin/trending.svg") !important;
+        -moz-context-properties: fill !important;
+        padding-left: 5px !important;
+        padding-top: 3px !important;
+        fill: light-dark(black, white) !important;
+
+        display: block;
+        visibility: visible;
+      }
+    }
+
   }
   &:not([open]) #urlbar-ask-ai-button{
     display: none !important;
