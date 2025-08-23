@@ -1,5 +1,5 @@
 import { LLM } from "./llm/index.js";
-import { debugLog,debugError } from "./utils/prefs.js";
+import { debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt } from "./llm/tools.js";
 
 class UrlBarLLM extends LLM {
@@ -34,8 +34,8 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
   }
 }
 
-const urlBarLLM = new UrlBarLLM;
-window.browseBotURLBarLLM = urlBarLLM
+const urlBarLLM = new UrlBarLLM();
+window.browseBotURLBarLLM = urlBarLLM;
 
 const urlbarAI = {
   _isAIMode: false,
@@ -57,6 +57,24 @@ const urlbarAI = {
     debugLog("urlbarAI: Initialization complete");
   },
 
+  _closeUrlBar() {
+    try {
+      if (window.gZenUIManager && typeof window.gZenUIManager.handleUrlbarClose === "function") {
+        window.gZenUIManager.handleUrlbarClose(false, false);
+        return;
+      }
+
+      gURLBar.selectionStart = gURLBar.selectionEnd = 0;
+      gURLBar.blur();
+
+      if (gURLBar.view.isOpen) {
+        gURLBar.view.close();
+      }
+    } catch (e) {
+      debugError("urlbarAI: Error in _closeUrlBar", e);
+    }
+  },
+
   toggleAIMode(forceState) {
     const newState = typeof forceState === "boolean" ? forceState : !this._isAIMode;
     if (newState === this._isAIMode) return;
@@ -67,9 +85,11 @@ const urlbarAI = {
     if (this._isAIMode) {
       gURLBar.setAttribute("ai-mode-active", "true");
       gURLBar.inputField.setAttribute("placeholder", "Command to AI");
+      gURLBar.setAttribute("open", "true");
     } else {
       gURLBar.removeAttribute("ai-mode-active");
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
+      gURLBar.removeAttribute("open");
     }
     debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
   },
@@ -109,6 +129,7 @@ const urlbarAI = {
         gURLBar.value = "";
       }
       this.toggleAIMode(false);
+      this._closeUrlBar();
     }
   },
 
@@ -129,8 +150,8 @@ const urlbarAI = {
     gURLBar.view.panel.addEventListener("popuphiding", this._boundDisableAIMode);
   },
 
-  addAskButton(retryCount = 0) {
-    debugLog(`urlbarAI: Adding 'Ask' button (attempt ${retryCount + 1})`);
+  addAskButton() {
+    debugLog("urlbarAI: Adding 'Ask' button");
     if (document.getElementById("urlbar-ask-ai-button")) {
       debugLog("urlbarAI: 'Ask' button already exists.");
       return;
@@ -149,22 +170,26 @@ const urlbarAI = {
         urlBarLLM.send(prompt);
         gURLBar.value = "";
       }
-      gURLBar.focus();
+      this._closeUrlBar();
     });
 
-    if (gURLBar.actionsBox) {
-      gURLBar.actionsBox.insertBefore(button, gURLBar.actionsBox.firstChild);
-      debugLog("urlbarAI: 'Ask' button added successfully");
-    } else {
-      if (retryCount < 10) {
-        debugError(`Could not find gURLBar.actionsBox to add the 'Ask' button. Retrying in 500ms...`);
-        setTimeout(() => {
-          this.addAskButton(retryCount + 1);
-        }, 500);
+    const insertButton = (retryCount = 0) => {
+      if (gURLBar.actionsBox) {
+        gURLBar.actionsBox.insertBefore(button, gURLBar.actionsBox.firstChild);
+        debugLog("urlbarAI: 'Ask' button added successfully");
+      } else if (retryCount < 20) {
+        debugError(
+          `Could not find gURLBar.actionsBox to add the 'Ask' button. Retrying in 500ms... (attempt ${
+            retryCount + 1
+          })`
+        );
+        setTimeout(() => insertButton(retryCount + 1), 500);
       } else {
         debugError("Could not find gURLBar.actionsBox after multiple attempts. Giving up.");
       }
-    }
+    };
+
+    insertButton();
   },
 
   addStyles() {
@@ -198,3 +223,4 @@ if (typeof UC_API !== "undefined" && UC_API.Runtime) {
     observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 }
+
