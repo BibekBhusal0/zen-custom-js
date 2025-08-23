@@ -5,6 +5,7 @@ export const PREFS = {
   DND_ENABLED: "extension.browse-bot.dnd-enabled",
   POSITION: "extension.browse-bot.position",
   DEBUG_MODE: "extension.browse-bot.debug-mode",
+  PSEUDO_BG: "extension.pseudo-bg.enabled",
   STREAM_ENABLED: "extension.browse-bot.stream-enabled",
 
   GOD_MODE: "extension.browse-bot.god-mode",
@@ -122,6 +123,13 @@ export const PREFS = {
     this.setPref(this.PERSIST, value);
   },
 
+  get pseudoBg() {
+    return this.getPref(this.PSEUDO_BG);
+  },
+  set maxToolCalls(value) {
+    this.setPref(this.PSEUDO_BG, value);
+  },
+
   get maxToolCalls() {
     return this.getPref(this.MAX_TOOL_CALLS);
   },
@@ -213,6 +221,7 @@ PREFS.defaultValues = {
   [PREFS.POSITION]: "top-right",
   [PREFS.MAX_TOOL_CALLS]: 5,
   [PREFS.CONFORMATION]: true,
+  [PREFS.PSEUDO_BG]: false,
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
   // [PREFS.SHOW_TOOL_CALL]: false,
