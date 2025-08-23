@@ -54,6 +54,7 @@ const sidebarWidthUpdate = function () {
 };
 
 sidebarWidthUpdate();
+
 const getSidebarWidth = () => {
   if (
     gZenCompactModeManager &&
@@ -109,32 +110,29 @@ export const browseBotFindbar = {
   _handleResize: null,
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
-  _findbarDimension: { width: null, height: null },
-  _findbarCoors: { x: null, y: null },
 
   _updateFindbarDimensions() {
     if (!this.findbar || !PREFS.pseudoBg) {
-      this._findbarDimension = { width: null, height: null };
-      this._findbarCoors = { x: null, y: null };
       document.documentElement.style.removeProperty("--findbar-width");
       document.documentElement.style.removeProperty("--findbar-height");
       document.documentElement.style.removeProperty("--findbar-x");
       document.documentElement.style.removeProperty("--findbar-y");
       return;
     }
+    console.log("updating findbar dimensions")
     const rect = this.findbar.getBoundingClientRect();
-    this._findbarDimension = { width: rect.width, height: rect.height };
-    this._findbarCoors = { x: rect.left, y: rect.top };
+    const _findbarDimension = { width: rect.width, height: rect.height };
+    const _findbarCoors = { x: rect.left, y: rect.top };
     document.documentElement.style.setProperty(
       "--findbar-width",
-      `${this._findbarDimension.width}px`
+      `${_findbarDimension.width}px`
     );
     document.documentElement.style.setProperty(
       "--findbar-height",
-      `${this._findbarDimension.height}px`
+      `${_findbarDimension.height}px`
     );
-    document.documentElement.style.setProperty("--findbar-x", `${this._findbarCoors.x}px`);
-    document.documentElement.style.setProperty("--findbar-y", `${this._findbarCoors.y}px`);
+    document.documentElement.style.setProperty("--findbar-x", `${_findbarCoors.x}px`);
+    document.documentElement.style.setProperty("--findbar-y", `${_findbarCoors.y}px`);
   },
   _isStreaming: false,
   _abortController: null,
