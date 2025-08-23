@@ -41,7 +41,6 @@ window.browseBotURLBarLLM = urlBarLLM;
 const urlbarAI = {
   _isAIMode: false,
   _originalPlaceholder: "",
-  _styleElement: null,
   _initialized: false,
 
   init() {
@@ -51,7 +50,6 @@ const urlbarAI = {
       return;
     }
     this._originalPlaceholder = gURLBar.inputField.getAttribute("placeholder");
-    this.addStyles();
     this.addAskButton();
     this.addListeners();
     this._initialized = true;
@@ -187,21 +185,6 @@ const urlbarAI = {
     };
 
     insertButton();
-  },
-
-  addStyles() {
-    debugLog("urlbarAI: Adding styles");
-    this._styleElement = document.createElement("style");
-    this._styleElement.id = "urlbar-ai-styles";
-    this._styleElement.textContent = `
-      #urlbar[ai-mode-active="true"] #urlbar-ask-ai-button {
-        display: none !important;
-      }
-      #urlbar-ask-ai-button {
-        margin-inline-end: 2px;
-      }
-    `;
-    document.head.appendChild(this._styleElement);
   },
 };
 
