@@ -1,5 +1,5 @@
 import { LLM } from "./llm/index.js";
-import { debugLog } from "./utils/prefs.js";
+import { debugLog,debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt } from "./llm/tools.js";
 
 class UrlBarLLM extends LLM {
@@ -129,8 +129,8 @@ const urlbarAI = {
     gURLBar.view.panel.addEventListener("popuphiding", this._boundDisableAIMode);
   },
 
-  addAskButton() {
-    debugLog("urlbarAI: Adding 'Ask' button");
+  addAskButton(retryCount = 0) {
+    debugLog(`urlbarAI: Adding 'Ask' button (attempt ${retryCount + 1})`);
     if (document.getElementById("urlbar-ask-ai-button")) {
       debugLog("urlbarAI: 'Ask' button already exists.");
       return;
@@ -156,7 +156,14 @@ const urlbarAI = {
       gURLBar.actionsBox.insertBefore(button, gURLBar.actionsBox.firstChild);
       debugLog("urlbarAI: 'Ask' button added successfully");
     } else {
-      debugLog("urlbarAI: ERROR - Could not find gURLBar.actionsBox to add the 'Ask' button");
+      if (retryCount < 10) {
+        debugError(`Could not find gURLBar.actionsBox to add the 'Ask' button. Retrying in 500ms...`);
+        setTimeout(() => {
+          this.addAskButton(retryCount + 1);
+        }, 500);
+      } else {
+        debugError("Could not find gURLBar.actionsBox after multiple attempts. Giving up.");
+      }
     }
   },
 
