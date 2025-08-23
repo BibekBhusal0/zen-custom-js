@@ -1,6 +1,7 @@
 import { LLM } from "./llm/index.js";
 import { debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt } from "./llm/tools.js";
+import { parseElement } from "./utils/parse.js";
 
 class UrlBarLLM extends LLM {
   get godMode() {
@@ -85,22 +86,23 @@ const urlbarAI = {
     if (this._isAIMode) {
       gURLBar.setAttribute("ai-mode-active", "true");
       gURLBar.inputField.setAttribute("placeholder", "Command to AI");
-      gURLBar.setAttribute("open", "true");
+      gURLBar.startQuery()
     } else {
       gURLBar.removeAttribute("ai-mode-active");
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
-      gURLBar.removeAttribute("open");
+      this._closeUrlBar()
+      gURLBar.value = "";
     }
     debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
   },
 
   handleGlobalKeyDown(e) {
-    if (e.ctrlKey && e.code === "Space") {
+    if (e.ctrlKey && e.code === "Space" && !e.altKey && !e.shiftKey) {
       debugLog("urlbarAI: Ctrl+Space detected globally");
       e.preventDefault();
       e.stopPropagation();
       gURLBar.focus();
-      setTimeout(() => this.toggleAIMode(true), 0);
+      setTimeout(() => this.toggleAIMode(), 0);
     }
   },
 
@@ -122,14 +124,7 @@ const urlbarAI = {
 
       e.preventDefault();
       e.stopPropagation();
-      const prompt = gURLBar.value.trim();
-      if (prompt) {
-        debugLog(`urlbarAI: Sending prompt to AI: "${prompt}"`);
-        urlBarLLM.send(prompt);
-        gURLBar.value = "";
-      }
-      this.toggleAIMode(false);
-      this._closeUrlBar();
+      this.send()
     }
   },
 
@@ -150,6 +145,15 @@ const urlbarAI = {
     gURLBar.view.panel.addEventListener("popuphiding", this._boundDisableAIMode);
   },
 
+  send() {
+    const prompt = gURLBar.value.trim();
+    if (prompt) {
+      debugLog(`URLbar: Sending prompt: "${prompt}"`);
+      urlBarLLM.send(prompt);
+    }
+    this.toggleAIMode(false);
+  }, 
+
   addAskButton() {
     debugLog("urlbarAI: Adding 'Ask' button");
     if (document.getElementById("urlbar-ask-ai-button")) {
@@ -157,35 +161,28 @@ const urlbarAI = {
       return;
     }
 
-    const button = document.createXULElement("toolbarbutton");
-    button.id = "urlbar-ask-ai-button";
-    button.className = "urlbar-icon";
-    button.setAttribute("tooltiptext", "Ask AI");
-    button.style.listStyleImage = "url('chrome://global/skin/icons/search-glass.svg')";
+    const buttonString = `
+      <toolbarbutton id="urlbar-ask-ai-button" class="urlbar-icon"
+        image="chrome://global/skin/icons/highlights.svg" tooltiptext="Ask AI"/>
+    `;
+    const button = parseElement(buttonString, "xul");
 
-    button.addEventListener("click", () => {
-      const prompt = gURLBar.value.trim();
-      if (prompt) {
-        debugLog(`urlbarAI: 'Ask' button clicked. Sending prompt: "${prompt}"`);
-        urlBarLLM.send(prompt);
-        gURLBar.value = "";
-      }
-      this._closeUrlBar();
-    });
+    button.addEventListener("click",() => setTimeout(() =>this.send(), 100));
 
     const insertButton = (retryCount = 0) => {
-      if (gURLBar.actionsBox) {
-        gURLBar.actionsBox.insertBefore(button, gURLBar.actionsBox.firstChild);
-        debugLog("urlbarAI: 'Ask' button added successfully");
-      } else if (retryCount < 20) {
+      const inputContainer = document.querySelector("#urlbar .urlbar-input-container");
+      if (inputContainer) {
+        inputContainer.appendChild(button);
+        debugLog("urlbarAI: 'Ask' button added successfully to .urlbar-input-container");
+      } else if (retryCount < 10) {
         debugError(
-          `Could not find gURLBar.actionsBox to add the 'Ask' button. Retrying in 500ms... (attempt ${
+          `Could not find #urlbar .urlbar-input-container to add the 'Ask' button. Retrying in 500ms... (attempt ${
             retryCount + 1
           })`
         );
         setTimeout(() => insertButton(retryCount + 1), 500);
       } else {
-        debugError("Could not find gURLBar.actionsBox after multiple attempts. Giving up.");
+        debugError("Could not find #urlbar .urlbar-input-container after multiple attempts. Giving up.");
       }
     };
 
@@ -223,4 +220,3 @@ if (typeof UC_API !== "undefined" && UC_API.Runtime) {
     observer.observe(document.documentElement, { childList: true, subtree: true });
   }
 }
-
