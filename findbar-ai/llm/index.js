@@ -63,9 +63,7 @@ class LLM {
   }
   setProvider(providerName) {
     if (this.AVAILABLE_PROVIDERS[providerName]) {
-      this.llmProvider = providerName;
       PREFS.llmProvider = providerName;
-      this.clearData();
       debugLog(`Switched LLM provider to: ${providerName}`);
     } else {
       debugError(`Provider "${providerName}" not found.`);
