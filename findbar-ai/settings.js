@@ -1,5 +1,5 @@
 import { llm } from "./llm/index.js";
-import { PREFS, debugLog } from "./utils/prefs.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
 
