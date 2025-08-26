@@ -1,5 +1,5 @@
 import { LLM } from "./llm/index.js";
-import { generateText, } from "ai";
+import { generateText } from "ai";
 import { debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt, toolSet as originalToolSet } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
@@ -30,15 +30,13 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
   async sendMessage(prompt) {
     const model = this.currentProvider.getModel();
     debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
-    await generateText(
-      {
-        model,
-        system: this.systemInstruction,
-        prompt,
-        tools: urlBarToolSet ,
-        maxSteps: this.maxToolCalls,
-      }
-    );
+    await generateText({
+      model,
+      system: this.systemInstruction,
+      prompt,
+      tools: urlBarToolSet,
+      maxSteps: this.maxToolCalls,
+    });
   }
 }
 
