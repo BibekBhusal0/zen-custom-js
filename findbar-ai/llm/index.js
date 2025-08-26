@@ -273,7 +273,6 @@ Here is the initial info about the current page:
       const { object } = await generateObject({
         model,
         schema: citationSchema,
-        mode: "tool",
         system: this.systemInstruction,
         messages: this.history,
         abortSignal,

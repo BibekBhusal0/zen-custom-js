@@ -1,21 +1,10 @@
 import { LLM } from "./llm/index.js";
+import { generateText, } from "ai";
 import { debugLog, debugError } from "./utils/prefs.js";
-import { getToolSystemPrompt } from "./llm/tools.js";
+import { getToolSystemPrompt,toolSet } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
 
 class UrlBarLLM extends LLM {
-  get godMode() {
-    return true;
-  }
-  get streamEnabled() {
-    return false;
-  }
-  get citationsEnabled() {
-    return false;
-  }
-  get persistChat() {
-    return false;
-  }
   async getSystemPrompt() {
     let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
 
@@ -29,9 +18,19 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
     return systemPrompt;
   }
 
-  send(prompt) {
+  async sendMessage(prompt) {
+    const model = this.currentProvider.getModel();
+    await generateText(
+      {
+        model,
+        system: this.systemInstruction,
+        prompt,
+        tools: this.godMode ? toolSet : undefined,
+        maxSteps: this.maxToolCalls,
+      }
+    );
     debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
-    this.sendMessage(prompt).then(() => this.clearData());
+    // this.sendMessage(prompt).then(() => this.clearData());
   }
 }
 
@@ -145,7 +144,7 @@ const urlbarAI = {
     const prompt = gURLBar.value.trim();
     if (prompt) {
       debugLog(`URLbar: Sending prompt: "${prompt}"`);
-      urlBarLLM.send(prompt);
+      urlBarLLM.sendMessage(prompt);
     }
     this.toggleAIMode(false);
   },
