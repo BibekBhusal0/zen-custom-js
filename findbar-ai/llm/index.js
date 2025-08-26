@@ -230,9 +230,6 @@ Here is the initial info about the current page:
     // debugLog("Final System Prompt:", systemPrompt);
     return systemPrompt;
   }
-  setSystemPrompt(promptText) {
-    this.systemInstruction = promptText || "";
-  }
   parseModelResponseText(responseText) {
     let answer = responseText;
     let citations = [];
@@ -328,7 +325,7 @@ Here is the initial info about the current page:
   clearData() {
     debugLog("Clearing LLM history and system prompt.");
     this.history = [];
-    this.setSystemPrompt("");
+    this.systemInstruction = "";
   }
   getLastMessage() {
     return this.history.length > 0 ? this.history[this.history.length - 1] : null;
