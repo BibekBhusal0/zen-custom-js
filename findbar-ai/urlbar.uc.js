@@ -20,17 +20,16 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
 
   async sendMessage(prompt) {
     const model = this.currentProvider.getModel();
+    debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
     await generateText(
       {
         model,
         system: this.systemInstruction,
         prompt,
-        tools: this.godMode ? toolSet : undefined,
+        tools: toolSet ,
         maxSteps: this.maxToolCalls,
       }
     );
-    debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
-    // this.sendMessage(prompt).then(() => this.clearData());
   }
 }
 

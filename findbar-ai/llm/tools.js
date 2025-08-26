@@ -14,7 +14,7 @@ const createStringParameter = (description, isOptional = false) => {
 const createTool = (name, description, parameters, executeFn) => {
   return tool({
     description,
-    parameters: z.object(parameters),
+    inputSchema: z.object(parameters),
     execute: (args) => confirmAndExecute(name, executeFn, args),
   });
 };
