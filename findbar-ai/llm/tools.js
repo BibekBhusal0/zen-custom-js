@@ -12,11 +12,19 @@ const createStringParameter = (description, isOptional = false) => {
 
 // Helper function to create tools with consistent structure
 const createTool = (name, description, parameters, executeFn) => {
-  return tool({
+  const t = tool({
     description,
     inputSchema: z.object(parameters),
     execute: (args) => confirmAndExecute(name, executeFn, args),
   });
+  // Attach the original execute function so we can bypass confirmation later
+  Object.defineProperty(t, "executeFn", {
+    value: executeFn,
+    enumerable: false,
+    configurable: true,
+    writable: false,
+  });
+  return t;
 };
 
 // Confirmation wrapper

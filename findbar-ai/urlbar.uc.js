@@ -1,9 +1,18 @@
 import { LLM } from "./llm/index.js";
 import { generateText, } from "ai";
 import { debugLog, debugError } from "./utils/prefs.js";
-import { getToolSystemPrompt,toolSet } from "./llm/tools.js";
+import { getToolSystemPrompt, toolSet as originalToolSet } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
 
+const urlBarToolSet = Object.fromEntries(
+  Object.entries(originalToolSet).map(([name, tool]) => {
+    const newTool = { ...tool };
+    if (tool.executeFn) {
+      newTool.execute = tool.executeFn;
+    }
+    return [name, newTool];
+  })
+);
 class UrlBarLLM extends LLM {
   async getSystemPrompt() {
     let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
@@ -26,7 +35,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
         model,
         system: this.systemInstruction,
         prompt,
-        tools: toolSet ,
+        tools: urlBarToolSet ,
         maxSteps: this.maxToolCalls,
       }
     );
