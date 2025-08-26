@@ -14,10 +14,14 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '18'
         cache: 'npm'
 
     - name: Install dependencies
+      npm cache clean --force
+      rm -rf node_modules package-lock.json
+      npm config set registry https://registry.npmjs.org/
+      npm install --legacy-peer-deps
       run: npm install --legacy-peer-deps
 
     - name: Bundle JavaScript
