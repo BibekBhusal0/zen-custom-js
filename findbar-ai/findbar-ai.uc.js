@@ -109,6 +109,7 @@ export const browseBotFindbar = {
   _handleResize: null,
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
+  _highlightTimeout: null, 
 
   _updateFindbarDimensions() {
     if (!this.findbar) {
@@ -314,9 +315,15 @@ export const browseBotFindbar = {
 
   highlight(word) {
     if (!this.findbar) return;
+
+    // clear any existing timeout before starting a new one
+    if (this._highlightTimeout) clearTimeout(this._highlightTimeout);
+
     this.findbar._find(word);
-    setTimeout(() => {
+
+    this._highlightTimeout = setTimeout(() => {
       this.findbar.browser.finder.highlight(false);
+      this._highlightTimeout = null; // cleanup
     }, 2000);
   },
 
