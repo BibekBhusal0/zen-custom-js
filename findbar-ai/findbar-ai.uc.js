@@ -727,7 +727,7 @@ export const browseBotFindbar = {
         if (citations && citations.length > 0) {
           messageDiv.dataset.citations = JSON.stringify(citations);
         }
-        textToParse = answer.replace(
+        const textToParse = answer.replace(
           /\[(\d+)\]/g,
           `<button class="citation-link" data-citation-id="$1">[$1]</button>`
         );
