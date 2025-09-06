@@ -202,7 +202,7 @@ if (typeof UrlbarProvider !== "undefined" && typeof UrlbarProvidersManager !== "
     class ZenCommandProvider extends UrlbarProvider {
       get name() { return "ZenCommandPalette"; }
       get type() { return UrlbarUtils.PROVIDER_TYPE.PROFILE; }
-      getPriority(context) { return 900; } // high priority to appear on top
+      getPriority(context) { return 0; } // 0 is the highest priority(it still appears on second)
 
       // active only when matches exist to avoid interfering when no commands match
       async isActive(context) {
