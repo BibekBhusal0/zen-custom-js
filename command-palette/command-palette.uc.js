@@ -187,11 +187,11 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(row);
           if (cmd) {
             this.debugLog("Executing command from click, stopping further event propagation.");
+            gURLBar?.view?.close();
             this.executeCommandObject(cmd);
             // Stop the browser's default action (e.g., performing a search) for this event.
             e.stopImmediatePropagation();
             e.preventDefault();
-            if (typeof gURLBar !== "undefined" && gURLBar.view) gURLBar.view.close();
           }
         } catch (ee) {
           this.debugError("onPopupClick error:", ee);
@@ -214,10 +214,10 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(selectedRow);
           if (cmd) {
             this.debugLog("Executing command from Enter key, stopping further event propagation.");
+            gURLBar?.view?.close();
             this.executeCommandObject(cmd);
             e.stopImmediatePropagation();
             e.preventDefault();
-            if (typeof gURLBar !== "undefined" && gURLBar.view) gURLBar.view.close();
           }
         } catch (ee) {
           this.debugError("onUrlbarKeydown error:", ee);
