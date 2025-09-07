@@ -153,7 +153,7 @@ function attachUrlbarSelectionListeners(provider) {
           executeCommandObject(cmd);
           e.stopImmediatePropagation();
           e.preventDefault();
-          if (typeof gURLBar !== "undefined") gURLBar.closePopup();
+          if (typeof gURLBar !== "undefined" && gURLBar.view) gURLBar.view.close();
         }
       } catch (ee) {
         debugError("onPopupClick error:", ee);
@@ -172,8 +172,11 @@ function attachUrlbarSelectionListeners(provider) {
             return;
         }
         
-        // Use selectedElementIndex to reliably get the currently selected row element.
-        const selectedRow = view.results.children[view.selectedElementIndex];
+        if (!popup || !popup.children) {
+            debugError("Keydown handler cannot find popup or its children.");
+            return;
+        }
+        const selectedRow = popup.children[view.selectedElementIndex];
         debugLog("Found selected row using index:", view.selectedElementIndex, selectedRow);
 
         const cmd = findCommandFromDomRow(selectedRow, provider);
@@ -183,7 +186,7 @@ function attachUrlbarSelectionListeners(provider) {
           executeCommandObject(cmd);
           e.stopImmediatePropagation();
           e.preventDefault();
-          if (typeof gURLBar !== "undefined") gURLBar.closePopup();
+          if (typeof gURLBar !== "undefined" && gURLBar.view) gURLBar.view.close();
         } else {
           debugLog("No command found for selected row on Enter, allowing default action.");
         }
