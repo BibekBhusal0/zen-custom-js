@@ -1,3 +1,15 @@
+/* hiding the message to search */
 [data-l10n-args='{"engine":"zenCommand"}'] {
-    display: none;
+  display: none;
+}
+
+.urlbarView-favicon[src^="chrome://"] {}
+
+
+/* revert icon colors for custom svg */
+.urlbarView-favicon[src^="data:image/svg+xml"] {
+  @media (prefers-color-scheme: dark) {
+    filter: invert();
+  }
+
 }
