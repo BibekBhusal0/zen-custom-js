@@ -79,25 +79,47 @@ function executeCommandObject(cmd) {
 // Map DOM result element -> our command. Provider stores last results on _lastResults.
 function findCommandFromDomRow(row, provider) {
   try {
-    if (!row) return null;
-    // Many urlbar row elements have an aria-label / textContent containing the suggestion title.
-    const title = (row.querySelector && (row.querySelector(".urlbarView-title, .urlbarView-row-inner, .urlbarView-row")?.textContent)) || row.textContent || "";
-    const trimmed = safeStr(title).trim();
-    if (!trimmed && provider && provider._lastResults) {
-      // fallback: if there is a single result selected, return it
-      if (provider._lastResults.length === 1) return provider._lastResults[0] && provider._lastResults[0]._zenCmd;
+    if (!row) {
+      debugLog("findCommandFromDomRow: called with null row.");
       return null;
     }
-    // match by title / suggestion -> our payload.title or payload.suggestion
+    // Isolate the title element to avoid grabbing text from action buttons.
+    const titleEl = row.querySelector(".urlbarView-title");
+    // Use the title element's text first, falling back to aria-label.
+    const title = (titleEl && titleEl.textContent.trim()) || (row.getAttribute("aria-label") || "").trim();
+    const trimmed = safeStr(title).trim();
+
+    if (!trimmed) {
+      debugLog("findCommandFromDomRow: row has no specific title text", row);
+      if (provider && provider._lastResults && provider._lastResults.length === 1) {
+        debugLog("findCommandFromDomRow: falling back to single result.");
+        return provider._lastResults[0] && provider._lastResults[0]._zenCmd;
+      }
+      return null;
+    }
+    debugLog("findCommandFromDomRow: trying to match row title:", `"${trimmed}"`);
+
+    // Match by title by iterating through the last known results from the provider.
     if (provider && provider._lastResults) {
       for (const r of provider._lastResults) {
-        const payloadTitle = (r && r.payload && (r.payload.title || r.payload.suggestion || r.title)) || "";
-        if (payloadTitle && payloadTitle.trim() === trimmed) return r._zenCmd || null;
+        if (!r || !r.payload) continue;
+        const payloadTitle = (r.payload.title || r.payload.suggestion || "").trim();
+        if (payloadTitle && payloadTitle === trimmed) {
+          debugLog("findCommandFromDomRow: matched payload title.", r._zenCmd);
+          return r._zenCmd || null;
+        }
       }
     }
-    // best-effort: attempt to match visible text to command.label
-    const found = commands.find(c => c.label === trimmed || c.label === trimmed.replace(/\s*\(dummy\)$/, ""));
-    return found || null;
+
+    // Best-effort: attempt to match visible text to command.label as a fallback.
+    const found = commands.find(c => c.label === trimmed);
+    if (found) {
+      debugLog("findCommandFromDomRow: matched command label as fallback.", found);
+      return found;
+    }
+
+    debugLog("findCommandFromDomRow: failed to match row title to any command.");
+    return null;
   } catch (e) {
     debugError("findCommandFromDomRow error:", e);
     return null;
@@ -107,38 +129,32 @@ function findCommandFromDomRow(row, provider) {
 // Try to attach event listeners to URL-bar popup to detect clicks and selection via keyboard.
 function attachUrlbarSelectionListeners(provider) {
   try {
-    // try common popup access points
-    const possiblePopups = [
-      (typeof gURLBar !== "undefined" && gURLBar.popup) || null,
-      document.getElementById("urlbar-results"),
-      document.getElementById("PopupAutoComplete"),
-      document.getElementById("urlbar-popup"),
-    ].filter(Boolean);
+    debugLog("Attempting to attach URL bar listeners...");
+    const popup = (typeof gURLBar !== "undefined" && gURLBar.view?.results) || document.getElementById("urlbar-results");
 
-    if (!possiblePopups.length) {
-      debugLog("No urlbar popup element found for attaching selection listeners.");
+    if (!popup) {
+      debugError("Could not find urlbar popup element (gURLBar.view.results). Listeners not attached.");
       return;
     }
-
-    // pick the first workable popup element
-    const popup = possiblePopups[0];
 
     // click handler on popup (delegate)
     function onPopupClick(e) {
       try {
-        // find nearest row element
-        let node = e.target;
-        while (node && node !== popup && !node.classList?.contains?.("urlbarView-row") && node.getAttribute && !node.getAttribute("role")) {
-          node = node.parentNode;
+        debugLog("Popup click event triggered.", "Target:", e.target);
+        const row = e.target.closest(".urlbarView-row");
+        if (!row) {
+          debugLog("Click was not inside a urlbarView-row.");
+          return;
         }
-        // fallback: walk up until we hit something with 'urlbarView-row' in class or role=row
-        if (node === popup) node = null;
-        const cmd = findCommandFromDomRow(node, provider);
+        debugLog("Found row node from click:", row);
+        const cmd = findCommandFromDomRow(row, provider);
+        debugLog("Command from clicked row:", cmd);
         if (cmd) {
+          debugLog("Executing command from click, stopping further event propagation.");
           executeCommandObject(cmd);
-          // stop propagation so default Urlbar open may not attempt normal navigation
-          e.stopPropagation();
+          e.stopImmediatePropagation();
           e.preventDefault();
+          if (typeof gURLBar !== "undefined") gURLBar.closePopup();
         }
       } catch (ee) {
         debugError("onPopupClick error:", ee);
@@ -148,52 +164,57 @@ function attachUrlbarSelectionListeners(provider) {
     // key handler for Enter on urlbar (executes selected suggestion)
     function onUrlbarKeydown(e) {
       try {
-        if (e.key !== "Enter") return;
-        // attempt to find selected row from popup APIs
-        let selectedRow = null;
-        if (popup && typeof popup.getSelectedIndex === "function") {
-          const idx = popup.getSelectedIndex();
-          selectedRow = idx >= 0 && popup.getRowAt && popup.getRowAt(idx);
+        if (e.key !== "Enter" || e.defaultPrevented) return;
+        debugLog("Enter key pressed on urlbar.");
+
+        const view = typeof gURLBar !== "undefined" && gURLBar.view;
+        if (!view || !view.isOpen || view.selectedElementIndex < 0) {
+            debugLog("Enter pressed, but view is not open or no element is selected.");
+            return;
         }
-        // various implementations expose selectedIndex / selectedItem
-        if (!selectedRow) {
-          selectedRow = popup && (popup.selectedItem || popup.selected || popup.selectedRow || popup.querySelector && popup.querySelector(".urlbarView-row[selected]"));
+        
+        // Use selectedRow property, but fall back to finding the element by index if it's missing.
+        let selectedRow = view.selectedRow;
+        if (!selectedRow && view.results?.children[view.selectedElementIndex]) {
+            debugLog(`onUrlbarKeydown: view.selectedRow is falsy, falling back to index ${view.selectedElementIndex}`);
+            selectedRow = view.results.children[view.selectedElementIndex];
         }
-        // fallback: use focused element in popup
-        if (!selectedRow) {
-          const focused = document.activeElement;
-          if (popup && popup.contains && popup.contains(focused)) selectedRow = focused;
-        }
+        
+        debugLog("Found selected row:", selectedRow);
 
         const cmd = findCommandFromDomRow(selectedRow, provider);
+        debugLog("Found command from selected row:", cmd);
         if (cmd) {
+          debugLog("Executing command from Enter key, stopping further event propagation.");
           executeCommandObject(cmd);
-          e.stopPropagation();
+          e.stopImmediatePropagation();
           e.preventDefault();
+          if (typeof gURLBar !== "undefined") gURLBar.closePopup();
+        } else {
+          debugLog("No command found for selected row on Enter, allowing default action.");
         }
       } catch (ee) {
         debugError("onUrlbarKeydown error:", ee);
       }
     }
 
-    // Avoid attaching multiple times
     if (!popup._zenCmdListenersAttached) {
-      // attach click for mouse selection
       popup.addEventListener("click", onPopupClick, true);
-      // attach keydown on the URL bar input itself to catch Enter
+      debugLog("Successfully attached 'click' listener to popup:", popup);
+
       if (typeof gURLBar !== "undefined" && gURLBar.inputField) {
         gURLBar.inputField.addEventListener("keydown", onUrlbarKeydown, true);
-      } else if (typeof gURLBar !== "undefined") {
-        gURLBar.addEventListener("keydown", onUrlbarKeydown, true);
+        debugLog("Successfully attached 'keydown' listener to urlbar input:", gURLBar.inputField);
       } else {
-        // fallback: attach keydown at document-level when popup is present
-        document.addEventListener("keydown", onUrlbarKeydown, true);
+        debugError("Could not find gURLBar.inputField to attach keydown listener.");
       }
       popup._zenCmdListenersAttached = true;
-      debugLog("Attached urlbar popup selection listeners (click + Enter).");
+      debugLog("Finished attaching listeners.");
+    } else {
+      debugLog("Listeners already attached.");
     }
   } catch (e) {
-    debugError("attachUrlbarSelectionListeners error:", e);
+    debugError("attachUrlbarSelectionListeners setup error:", e);
   }
 }
 
@@ -202,7 +223,7 @@ if (typeof UrlbarProvider !== "undefined" && typeof UrlbarProvidersManager !== "
     class ZenCommandProvider extends UrlbarProvider {
       get name() { return "ZenCommandPalette"; }
       get type() { return UrlbarUtils.PROVIDER_TYPE.PROFILE; }
-      getPriority(context) { return 0; } // 0 is the highest priority(it still appears on second)
+      getPriority(context) { return 0; }
 
       // active only when matches exist to avoid interfering when no commands match
       async isActive(context) {
