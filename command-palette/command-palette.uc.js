@@ -50,9 +50,23 @@ function commandIsVisible(cmd) {
 }
 
 function filterCommandsByInput(input) {
-  input = safeStr(input).trim();
-  if (!input) return [];
-  const lower = input.toLowerCase();
+  let query = safeStr(input).trim();
+  const isCommandPrefix = query.startsWith(":");
+  if (isCommandPrefix) {
+    query = query.substring(1).trim()
+  }
+
+  // If the input was just the prefix, show all commands.
+  if (isCommandPrefix && !query) {
+    return commands.filter(commandIsVisible);
+  }
+
+  // If there's no query (e.g. empty input), return no results.
+  if (!query) {
+    return [];
+  }
+
+  const lower = query.toLowerCase();
   return commands.filter(cmd => {
     if (!commandIsVisible(cmd)) return false;
     if ((cmd.key || "").toLowerCase().includes(lower)) return true;
@@ -221,7 +235,13 @@ if (typeof UrlbarProvider !== "undefined" && typeof UrlbarProvidersManager !== "
     class ZenCommandProvider extends UrlbarProvider {
       get name() { return "ZenCommandPalette"; }
       get type() { return UrlbarUtils.PROVIDER_TYPE.PROFILE; }
-      getPriority(context) { return 0; }
+      getPriority(context) {
+        const input = (context.searchString || "").trim();
+        if (input.startsWith(":")) {
+          return 10000;
+        }
+        return 0;
+      }
 
       // active only when matches exist to avoid interfering when no commands match
       async isActive(context) {
