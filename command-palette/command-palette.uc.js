@@ -268,7 +268,7 @@ const ZenCommandPalette = {
               );
 
               result._zenCmd = cmd;
-              if (cmd.icon) result.payload.icon = cmd.icon;
+              result.payload.icon = cmd.icon || 'chrome://browser/skin/trending.svg';
               result.providerName = this.name;
               result.providerType = this.type;
               this._lastResults.push(result);
