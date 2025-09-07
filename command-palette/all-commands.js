@@ -57,44 +57,78 @@ const generatedAboutCommands = aboutPages.map((aboutPage) => ({
   icon: aboutPage.icon || "chrome://browser/skin/zen-icons/tab.svg",
 }));
 
-const svgToUrl = (iconSVG) =>{
-   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
-      iconSVG
-    )}`
-}
-const splitVz = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-horizontal-icon lucide-square-split-horizontal"><path d="M8 19H5c-1 0-2-1-2-2V7c0-1 1-2 2-2h3"/><path d="M16 5h3c1 0 2 1 2 2v10c0 1-1 2-2 2h-3"/><line x1="12" x2="12" y1="4" y2="20"/></svg>`
-const splitHz = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-vertical-icon lucide-square-split-vertical"><path d="M5 8V5c0-1 1-2 2-2h10c1 0 2 1 2 2v3"/><path d="M19 16v3c0 1-1 2-2 2H7c-1 0-2-1-2-2v-3"/><line x1="4" x2="20" y1="12" y2="12"/></svg>`
-const splitGrid = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid2x2-icon lucide-grid-2x2"><path d="M12 3v18"/><path d="M3 12h18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`
-const zoomIn = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-in-icon lucide-zoom-in"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`
-const zoomOut = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-out-icon lucide-zoom-out"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`
-const zoomReset = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="m21 21l-6-6M3.268 12.043A7.02 7.02 0 0 0 9.902 17a7.01 7.01 0 0 0 7.043-6.131a7 7 0 0 0-5.314-7.672A7.02 7.02 0 0 0 3.39 7.6"/><path d="M3 4v4h4"/></g></svg>`
+const svgToUrl = (iconSVG) => {
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconSVG)}`;
+};
+const splitVz = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-horizontal-icon lucide-square-split-horizontal"><path d="M8 19H5c-1 0-2-1-2-2V7c0-1 1-2 2-2h3"/><path d="M16 5h3c1 0 2 1 2 2v10c0 1-1 2-2 2h-3"/><line x1="12" x2="12" y1="4" y2="20"/></svg>`;
+const splitHz = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-vertical-icon lucide-square-split-vertical"><path d="M5 8V5c0-1 1-2 2-2h10c1 0 2 1 2 2v3"/><path d="M19 16v3c0 1-1 2-2 2H7c-1 0-2-1-2-2v-3"/><line x1="4" x2="20" y1="12" y2="12"/></svg>`;
+const splitGrid = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid2x2-icon lucide-grid-2x2"><path d="M12 3v18"/><path d="M3 12h18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
+const zoomIn = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-in-icon lucide-zoom-in"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`;
+const zoomOut = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-out-icon lucide-zoom-out"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`;
+const zoomReset = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="m21 21l-6-6M3.268 12.043A7.02 7.02 0 0 0 9.902 17a7.01 7.01 0 0 0 7.043-6.131a7 7 0 0 0-5.314-7.672A7.02 7.02 0 0 0 3.39 7.6"/><path d="M3 4v4h4"/></g></svg>`;
 
 export const commands = [
   // ----------- Zen Compact Mode -----------
-  { key: "cmd_zenCompactModeToggle", label: "Toggle Compact Mode", icon: "chrome://browser/skin/zen-icons/fullscreen.svg" },
-  { key: "cmd_zenCompactModeShowSidebar", label: "Show Sidebar", icon: "chrome://browser/skin/zen-icons/sidebar.svg" },
-  { key: "cmd_zenCompactModeShowToolbar", label: "Show Toolbar", },
-  { key: "cmd_zenCompactModeHideSidebar", label: "Hide Sidebar", icon: "chrome://browser/skin/zen-icons/expand-sidebar.svg"  },
+  {
+    key: "cmd_zenCompactModeToggle",
+    label: "Toggle Compact Mode",
+    icon: "chrome://browser/skin/zen-icons/fullscreen.svg",
+  },
+  {
+    key: "cmd_zenCompactModeShowSidebar",
+    label: "Show Sidebar",
+    icon: "chrome://browser/skin/zen-icons/sidebar.svg",
+  },
+  { key: "cmd_zenCompactModeShowToolbar", label: "Show Toolbar" },
+  {
+    key: "cmd_zenCompactModeHideSidebar",
+    label: "Hide Sidebar",
+    icon: "chrome://browser/skin/zen-icons/expand-sidebar.svg",
+  },
   { key: "cmd_zenCompactModeHideToolbar", label: "Hide Toolbar" },
-  { key: "cmd_zenCompactModeHideBoth", label: "Hide Sidebar and Toolbar", },
+  { key: "cmd_zenCompactModeHideBoth", label: "Hide Sidebar and Toolbar" },
 
   // ----------- Zen Workspace Management -----------
-  { key: "cmd_zenWorkspaceForward", label: "Next Workspace", icon: "chrome://browser/skin/zen-icons/arrow-right.svg" },
-  { key: "cmd_zenWorkspaceBackward", label: "Previous Workspace", icon: "chrome://browser/skin/zen-icons/arrow-right.svg" },
+  {
+    key: "cmd_zenWorkspaceForward",
+    label: "Next Workspace",
+    icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
+  },
+  {
+    key: "cmd_zenWorkspaceBackward",
+    label: "Previous Workspace",
+    icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
+  },
   { key: "cmd_zenChangeWorkspaceTab", label: "Change Workspace Tab" },
-  { key: "cmd_zenCtxDeleteWorkspace", label: "Delete Workspace", icon: "chrome://browser/skin/zen-icons/edit-delete.svg" },
-  { key: "cmd_zenChangeWorkspaceName", label: "Change Workspace Name", icon: "chrome://browser/skin/zen-icons/edit.svg" },
+  {
+    key: "cmd_zenCtxDeleteWorkspace",
+    label: "Delete Workspace",
+    icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
+  },
+  {
+    key: "cmd_zenChangeWorkspaceName",
+    label: "Change Workspace Name",
+    icon: "chrome://browser/skin/zen-icons/edit.svg",
+  },
   { key: "cmd_zenChangeWorkspaceIcon", label: "Change Workspace Icon" },
-  { key: "cmd_zenOpenWorkspaceCreation", label: "Create New Workspace", icon: "chrome://browser/skin/zen-icons/plus.svg" },
+  {
+    key: "cmd_zenOpenWorkspaceCreation",
+    label: "Create New Workspace",
+    icon: "chrome://browser/skin/zen-icons/plus.svg",
+  },
 
   // ----------- Zen Split View -----------
   { key: "cmd_zenSplitViewGrid", label: "Split View: Grid", icon: svgToUrl(splitGrid) },
-  { key: "cmd_zenSplitViewVertical", label: "Split View: Vertical" ,icon: svgToUrl(splitVz)  },
+  { key: "cmd_zenSplitViewVertical", label: "Split View: Vertical", icon: svgToUrl(splitVz) },
   { key: "cmd_zenSplitViewHorizontal", label: "Split View: Horizontal", icon: svgToUrl(splitHz) },
   { key: "cmd_zenSplitViewUnsplit", label: "Unsplit View" },
 
   // ----------- Tab Management -----------
-  { key: "cmd_newNavigatorTab", label: "New Tab", icon: "chrome://browser/skin/zen-icons/plus.svg" },
+  {
+    key: "cmd_newNavigatorTab",
+    label: "New Tab",
+    icon: "chrome://browser/skin/zen-icons/plus.svg",
+  },
   { key: "cmd_close", label: "Close Tab", icon: "chrome://browser/skin/zen-icons/close.svg" },
   {
     key: "cmd_toggleMute",
@@ -106,14 +140,14 @@ export const commands = [
     label: "Next Tab",
     command: () => gBrowser.tabContainer.advanceSelectedTab(1, true),
     condition: !!gBrowser?.tabContainer,
-icon: "chrome://browser/skin/zen-icons/arrow-right.svg" 
+    icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
   },
   {
     key: "Browser:PrevTab",
     label: "Previous Tab",
     command: () => gBrowser.tabContainer.advanceSelectedTab(-1, true),
     condition: !!gBrowser?.tabContainer,
-icon: "chrome://browser/skin/zen-icons/arrow-left.svg" 
+    icon: "chrome://browser/skin/zen-icons/arrow-left.svg",
   },
   {
     key: "Browser:ShowAllTabs",
@@ -127,12 +161,16 @@ icon: "chrome://browser/skin/zen-icons/arrow-left.svg"
     command: () => openNewUserContextTab(),
     condition: !!window.openNewUserContextTab,
   },
-  { key: "cmd_contextZenAddToEssentials", label: "Add to Essentials", icon: "chrome://browser/skin/zen-icons/essential-add.svg", },
+  {
+    key: "cmd_contextZenAddToEssentials",
+    label: "Add to Essentials",
+    icon: "chrome://browser/skin/zen-icons/essential-add.svg",
+  },
   { key: "cmd_zenReplacePinnedUrlWithCurrent", label: "Replace Pinned Tab URL with Current" },
   {
     key: "cmd_zenPinnedTabReset",
     label: "Reset Pinned Tab",
-icon: "chrome://browser/skin/zen-icons/reload.svg" 
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
   },
   {
     key: "History:UndoCloseTab",
@@ -143,7 +181,11 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
   },
 
   // ----------- Window Management -----------
-  { key: "cmd_newNavigator", label: "New Window", icon: "chrome://browser/skin/zen-icons/window.svg", },
+  {
+    key: "cmd_newNavigator",
+    label: "New Window",
+    icon: "chrome://browser/skin/zen-icons/window.svg",
+  },
   { key: "cmd_closeWindow", label: "Close Window", icon: "chrome://browser/skin/close.svg" },
   {
     key: "cmd_minimizeWindow",
@@ -191,14 +233,14 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
     label: "Reload Page",
     command: () => gBrowser.reload(),
     condition: !!gBrowser?.reload,
-icon: "chrome://browser/skin/zen-icons/reload.svg" 
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
   },
   {
     key: "Browser:ReloadSkipCache",
     label: "Hard Reload (Skip Cache)",
     command: () => BrowserReloadSkipCache(),
     condition: !!window.BrowserReloadSkipCache,
-icon: "chrome://browser/skin/zen-icons/reload.svg" 
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
   },
 
   // ----------- Bookmarks & History -----------
@@ -246,10 +288,26 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
   },
 
   // ----------- Find & Search -----------
-  { key: "cmd_find", label: "Find in Page", icon: "chrome://browser/skin/zen-icons/search-page.svg" },
-  { key: "cmd_findAgain", label: "Find Next", icon: "chrome://browser/skin/zen-icons/search-glass.svg" },
-  { key: "cmd_findPrevious", label: "Find Previous", icon: "chrome://browser/skin/zen-icons/search-glass.svg" },
-  { key: "cmd_translate", label: "Translate Page" ,icon: "chrome://browser/skin/zen-icons/translations.svg"  },
+  {
+    key: "cmd_find",
+    label: "Find in Page",
+    icon: "chrome://browser/skin/zen-icons/search-page.svg",
+  },
+  {
+    key: "cmd_findAgain",
+    label: "Find Next",
+    icon: "chrome://browser/skin/zen-icons/search-glass.svg",
+  },
+  {
+    key: "cmd_findPrevious",
+    label: "Find Previous",
+    icon: "chrome://browser/skin/zen-icons/search-glass.svg",
+  },
+  {
+    key: "cmd_translate",
+    label: "Translate Page",
+    icon: "chrome://browser/skin/zen-icons/translations.svg",
+  },
 
   // ----------- View & Display -----------
   {
@@ -266,9 +324,9 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
     condition: !!window.ReaderParent,
     icon: "chrome://browser/skin/reader-mode.svg",
   },
-  { key: "cmd_fullZoomEnlarge", label: "Zoom In", icon : svgToUrl(zoomIn)},
-  { key: "cmd_fullZoomReduce", label: "Zoom Out", icon : svgToUrl(zoomOut)},
-  { key: "cmd_fullZoomReset", label: "Reset Zoom", icon : svgToUrl(zoomReset)},
+  { key: "cmd_fullZoomEnlarge", label: "Zoom In", icon: svgToUrl(zoomIn) },
+  { key: "cmd_fullZoomReduce", label: "Zoom Out", icon: svgToUrl(zoomOut) },
+  { key: "cmd_fullZoomReset", label: "Reset Zoom", icon: svgToUrl(zoomReset) },
 
   // ----------- Developer Tools -----------
   {
@@ -334,7 +392,11 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
     condition: !!window.BrowserAddonUI,
     icon: "chrome://mozapps/skin/extensions/extension.svg",
   },
-  { key: "cmd_CustomizeToolbars", label: "Customize Toolbar..." , icon : "chrome://browser/skin/zen-icons/edit-theme.svg" },
+  {
+    key: "cmd_CustomizeToolbars",
+    label: "Customize Toolbar...",
+    icon: "chrome://browser/skin/zen-icons/edit-theme.svg",
+  },
 
   // ----------- Privacy & Security -----------
   {
@@ -342,7 +404,7 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
     label: "Clear Recent History...",
     command: () => Sanitizer.showUI(window),
     condition: !!window.Sanitizer,
-icon: "chrome://browser/skin/zen-icons/edit-delete.svg" 
+    icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
   },
 
   // ----------- System & Application -----------
@@ -353,24 +415,48 @@ icon: "chrome://browser/skin/zen-icons/edit-delete.svg"
   {
     key: "cmd_quitApplication",
     label: "Quit Browser",
-icon: "chrome://browser/skin/zen-icons/close.svg" 
+    icon: "chrome://browser/skin/zen-icons/close.svg",
   },
   {
     key: "app:restart",
     label: "Restart Browser",
     command: () => Services.appUtils.restart(),
     condition: !!window.Services?.appUtils?.restart,
-icon: "chrome://browser/skin/zen-icons/reload.svg" 
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
   },
 
   // ----------- Additional Zen Commands -----------
-  { key: "cmd_zenOpenZenThemePicker", label: "Open Theme Picker" , icon: "chrome://browser/skin/zen-icons/palette.svg" },
-  { key: "cmd_zenToggleTabsOnRight", label: "Toggle Tabs on Right" , icon: "chrome://browser/skin/zen-icons/sidebars-right.svg" },
-  { key: "cmd_contextZenRemoveFromEssentials", label: "Remove from Essentials" , icon: "chrome://browser/skin/zen-icons/essential-remove.svg" },
-  { key: "cmd_zenReorderWorkspaces", label: "Reorder Workspaces" ,  },
-  { key: "cmd_zenToggleSidebar", label: "Toggle Sidebar",  icon: "chrome://browser/skin/zen-icons/sidebars.svg"  },
-  { key: "cmd_zenCopyCurrentURL", label: "Copy Current URL" ,  icon: "chrome://browser/skin/zen-icons/link.svg"  },
-  { key: "cmd_zenCopyCurrentURLMarkdown", label: "Copy Current URL as Markdown" ,  icon: "chrome://browser/skin/zen-icons/link.svg"  },
+  {
+    key: "cmd_zenOpenZenThemePicker",
+    label: "Open Theme Picker",
+    icon: "chrome://browser/skin/zen-icons/palette.svg",
+  },
+  {
+    key: "cmd_zenToggleTabsOnRight",
+    label: "Toggle Tabs on Right",
+    icon: "chrome://browser/skin/zen-icons/sidebars-right.svg",
+  },
+  {
+    key: "cmd_contextZenRemoveFromEssentials",
+    label: "Remove from Essentials",
+    icon: "chrome://browser/skin/zen-icons/essential-remove.svg",
+  },
+  { key: "cmd_zenReorderWorkspaces", label: "Reorder Workspaces" },
+  {
+    key: "cmd_zenToggleSidebar",
+    label: "Toggle Sidebar",
+    icon: "chrome://browser/skin/zen-icons/sidebars.svg",
+  },
+  {
+    key: "cmd_zenCopyCurrentURL",
+    label: "Copy Current URL",
+    icon: "chrome://browser/skin/zen-icons/link.svg",
+  },
+  {
+    key: "cmd_zenCopyCurrentURLMarkdown",
+    label: "Copy Current URL as Markdown",
+    icon: "chrome://browser/skin/zen-icons/link.svg",
+  },
 
   // ----------- About Pages -----------
   ...generatedAboutCommands,
