@@ -3,13 +3,13 @@
   display: none;
 }
 
-.urlbarView-favicon[src^="chrome://"] {}
-
+.urlbarView-favicon[src^="chrome://"]
+{
+}
 
 /* revert icon colors for custom svg */
 .urlbarView-favicon[src^="data:image/svg+xml"] {
   @media (prefers-color-scheme: dark) {
     filter: invert();
   }
-
 }

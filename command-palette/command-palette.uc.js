@@ -324,7 +324,7 @@ const ZenCommandPalette = {
 
               if (index === 0) {
                 result.heuristic = true;
-              };
+              }
 
               result._zenCmd = cmd;
               result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
