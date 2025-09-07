@@ -187,7 +187,8 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(row);
           if (cmd) {
             this.debugLog("Executing command from click, stopping further event propagation.");
-            gURLBar?.view?.close();
+            window?.gZenUIManager?.handleUrlbarClose(false, false);
+            window?.gURLBar?.view?.close();
             this.executeCommandObject(cmd);
             // Stop the browser's default action (e.g., performing a search) for this event.
             e.stopImmediatePropagation();
@@ -214,6 +215,7 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(selectedRow);
           if (cmd) {
             this.debugLog("Executing command from Enter key, stopping further event propagation.");
+            window?.gZenUIManager?.handleUrlbarClose(false, false);
             gURLBar?.view?.close();
             this.executeCommandObject(cmd);
             e.stopImmediatePropagation();
