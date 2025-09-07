@@ -24,7 +24,14 @@ const ZenCommandPalette = {
   commandIsVisible(cmd) {
     try {
       if (typeof cmd.condition === "function") return !!cmd.condition();
-      return cmd.condition !== false;
+      if (cmd.condition !== undefined) return cmd.condition !== false;
+
+      // Dynamically check if a cmd_ fallback command is available by looking for its element.
+      if (cmd.key.startsWith("cmd_") && !cmd.command) {
+        return !!document.getElementById(cmd.key);
+      }
+
+      return true; // Default to visible if no condition is set.
     } catch (e) {
       this.debugError("Error evaluating condition for", cmd && cmd.key, e);
       return false;
@@ -72,11 +79,26 @@ const ZenCommandPalette = {
       this.debugError("executeCommandObject: no command");
       return;
     }
+
     try {
-      this.debugLog("Executing command:", cmd.key || cmd.label);
-      const ret = cmd.command && cmd.command();
-      if (ret && typeof ret.then === "function") {
-        ret.catch((e) => this.debugError("Command promise rejected:", e));
+      // Prioritize explicit command function if it exists.
+      if (cmd.command && typeof cmd.command === "function") {
+        this.debugLog("Executing command via function:", cmd.key || cmd.label);
+        const ret = cmd.command();
+        if (ret && typeof ret.then === "function") {
+          ret.catch((e) => this.debugError("Command promise rejected:", e));
+        }
+        // Fallback for commands that rely on a DOM element with a doCommand method.
+      } else if (cmd.key.startsWith("cmd_")) {
+        const commandEl = document.getElementById(cmd.key);
+        if (commandEl && typeof commandEl.doCommand === "function") {
+          this.debugLog("Executing command via doCommand fallback:", cmd.key);
+          commandEl.doCommand();
+        } else {
+          this.debugError("Fallback command element not found or has no doCommand:", cmd.key);
+        }
+      } else {
+        this.debugError("Command has no executable action:", cmd.key);
       }
     } catch (e) {
       this.debugError("Command execution error:", e);
@@ -329,10 +351,9 @@ const ZenCommandPalette = {
    * @returns {object} The command object that was added.
    */
   addCommand(cmd) {
-    if (!cmd || !cmd.key || !cmd.label || typeof cmd.command !== "function") {
-      throw new Error("addCommand: command must have {key, label, command:function}");
+    if (!cmd || !cmd.key || !cmd.label) {
+      throw new Error("addCommand: command must have {key, label}");
     }
-    if (typeof cmd.condition === "undefined") cmd.condition = true;
     this.commands.push(cmd);
     this.debugLog("addCommand:", cmd.key);
     return cmd;
@@ -346,12 +367,7 @@ const ZenCommandPalette = {
   addCommands(arr) {
     if (!Array.isArray(arr)) throw new Error("addCommands expects an array");
     for (const c of arr) {
-      if (!c.key || !c.label || typeof c.command !== "function") {
-        this.debugError("addCommands: skipping invalid command", c);
-        continue;
-      }
-      if (typeof c.condition === "undefined") c.condition = true;
-      this.commands.push(c);
+      this.addCommand(c);
     }
     this.debugLog("addCommands: added", arr.length, "items. total commands:", this.commands.length);
     return this.commands;
