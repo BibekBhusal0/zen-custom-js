@@ -83,14 +83,13 @@ function findCommandFromDomRow(row, provider) {
       debugLog("findCommandFromDomRow: called with null row.");
       return null;
     }
-    // Isolate the title element to avoid grabbing text from action buttons.
+    // Prioritize the specific title element, which contains only our command label.
     const titleEl = row.querySelector(".urlbarView-title");
-    // Use the title element's text first, falling back to aria-label.
-    const title = (titleEl && titleEl.textContent.trim()) || (row.getAttribute("aria-label") || "").trim();
+    const title = titleEl?.textContent || row.getAttribute("aria-label") || row.textContent || "";
     const trimmed = safeStr(title).trim();
 
     if (!trimmed) {
-      debugLog("findCommandFromDomRow: row has no specific title text", row);
+      debugLog("findCommandFromDomRow: row has no title/text content", row);
       if (provider && provider._lastResults && provider._lastResults.length === 1) {
         debugLog("findCommandFromDomRow: falling back to single result.");
         return provider._lastResults[0] && provider._lastResults[0]._zenCmd;
@@ -99,20 +98,20 @@ function findCommandFromDomRow(row, provider) {
     }
     debugLog("findCommandFromDomRow: trying to match row title:", `"${trimmed}"`);
 
-    // Match by title by iterating through the last known results from the provider.
+    // Match the extracted text against the last known results to the provider.
     if (provider && provider._lastResults) {
       for (const r of provider._lastResults) {
         if (!r || !r.payload) continue;
         const payloadTitle = (r.payload.title || r.payload.suggestion || "").trim();
-        if (payloadTitle && payloadTitle === trimmed) {
-          debugLog("findCommandFromDomRow: matched payload title.", r._zenCmd);
+        if (payloadTitle && trimmed.startsWith(payloadTitle)) {
+          debugLog("findCommandFromDomRow: matched by startsWith payload title.", r._zenCmd);
           return r._zenCmd || null;
         }
       }
     }
 
-    // Best-effort: attempt to match visible text to command.label as a fallback.
-    const found = commands.find(c => c.label === trimmed);
+    // Best-effort fallback: if the above failed, try matching against the full commands list.
+    const found = commands.find(c => trimmed.startsWith(c.label));
     if (found) {
       debugLog("findCommandFromDomRow: matched command label as fallback.", found);
       return found;
@@ -173,14 +172,9 @@ function attachUrlbarSelectionListeners(provider) {
             return;
         }
         
-        // Use selectedRow property, but fall back to finding the element by index if it's missing.
-        let selectedRow = view.selectedRow;
-        if (!selectedRow && view.results?.children[view.selectedElementIndex]) {
-            debugLog(`onUrlbarKeydown: view.selectedRow is falsy, falling back to index ${view.selectedElementIndex}`);
-            selectedRow = view.results.children[view.selectedElementIndex];
-        }
-        
-        debugLog("Found selected row:", selectedRow);
+        // Use selectedElementIndex to reliably get the currently selected row element.
+        const selectedRow = view.results.children[view.selectedElementIndex];
+        debugLog("Found selected row using index:", view.selectedElementIndex, selectedRow);
 
         const cmd = findCommandFromDomRow(selectedRow, provider);
         debugLog("Found command from selected row:", cmd);
@@ -198,6 +192,7 @@ function attachUrlbarSelectionListeners(provider) {
       }
     }
 
+    // Avoid attaching multiple times by checking for our custom flag.
     if (!popup._zenCmdListenersAttached) {
       popup.addEventListener("click", onPopupClick, true);
       debugLog("Successfully attached 'click' listener to popup:", popup);
@@ -302,27 +297,6 @@ if (typeof UrlbarProvider !== "undefined" && typeof UrlbarProvidersManager !== "
 
       getResultCount() { return (this._lastResults && this._lastResults.length) || 0; }
       getResultAt(i) { return (this._lastResults && this._lastResults[i]) || null; }
-
-      // support multiple possible pick handler names
-      pickResult(result, event) { return this._handlePick(result, event); }
-      pick(result, event) { return this._handlePick(result, event); }
-      onResultAction(result, event) { return this._handlePick(result, event); }
-
-      _handlePick(result, event) {
-        try {
-          let cmd = result && (result._zenCmd || (result.payload && result.payload.query));
-          if (typeof cmd === "string") cmd = commands.find(c => c.key === cmd);
-          if (cmd && typeof cmd.command === "function") {
-            executeCommandObject(cmd);
-            return true;
-          }
-          debugError("pick: no runnable command found", result);
-          return false;
-        } catch (e) {
-          debugError("pick unexpected error:", e);
-          return false;
-        }
-      }
 
       dispose() { this._lastResults = []; }
     } // class
