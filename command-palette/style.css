@@ -1,15 +1,22 @@
-/* hiding the message to search */
-[data-l10n-args='{"engine":"zenCommand"}'] {
-  display: none;
-}
+.urlbarView-row {
 
-.urlbarView-favicon[src^="chrome://"]
-{
-}
+  /* hiding the message to search */
 
-/* revert icon colors for custom svg */
-.urlbarView-favicon[src^="data:image/svg+xml"] {
-  @media (prefers-color-scheme: dark) {
-    filter: invert();
+  .urlbarView-action[data-l10n-args='{"engine":"zenCommand"}'] {
+    display: none;
+  }
+
+  :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
+    .urlbarView-favicon {
+
+      /* &[src^="chrome://"] {} */
+
+      /* revert icon colors for custom svg */
+      &[src^="data:image/svg+xml"] {
+        @media (prefers-color-scheme: dark) {
+          filter: invert();
+        }
+      }
+    }
   }
 }
