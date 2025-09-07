@@ -306,7 +306,7 @@ const ZenCommandPalette = {
 
             if (!matches.length) return;
 
-            for (const cmd of matches) {
+            for (const [index, cmd] of matches.entries()) {
               const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
                 suggestion: cmd.label,
                 title: cmd.label,
@@ -320,6 +320,8 @@ const ZenCommandPalette = {
                 payload,
                 payloadHighlights
               );
+
+              if (index === 0) result.suggestedIndex = 0;
 
               result._zenCmd = cmd;
               result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
