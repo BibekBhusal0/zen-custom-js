@@ -273,10 +273,10 @@ const ZenCommandPalette = {
       const self = this;
       class ZenCommandProvider extends UrlbarProvider {
         get name() {
-          return "ZenCommandPalette";
+          return "TestProvider"; // setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
         }
         get type() {
-          return UrlbarUtils.PROVIDER_TYPE.PROFILE;
+          return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
         }
         getPriority(context) {
           const input = (context.searchString || "").trim();
@@ -322,7 +322,9 @@ const ZenCommandPalette = {
                 payloadHighlights
               );
 
-              if (index === 0) result.suggestedIndex = 0;
+              if (index === 0) {
+                result.heuristic = true;
+              };
 
               result._zenCmd = cmd;
               result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
