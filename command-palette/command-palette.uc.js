@@ -1,14 +1,20 @@
-import {commands} from './all-commands.js'
+import { commands } from "./all-commands.js";
 
 const ZenCommandPalette = {
   debugMode: true,
   commands,
   provider: null,
 
-  debugLog(...args) { if (this.debugMode) console.log("zen-command-palette:", ...args); },
-  debugError(...args) { if (this.debugMode) console.error("zen-command-palette:", ...args); },
+  debugLog(...args) {
+    if (this.debugMode) console.log("zen-command-palette:", ...args);
+  },
+  debugError(...args) {
+    if (this.debugMode) console.error("zen-command-palette:", ...args);
+  },
 
-  safeStr(x) { return (x || "").toString(); },
+  safeStr(x) {
+    return (x || "").toString();
+  },
 
   /**
    * Checks if a command should be visible based on its `condition` property.
@@ -48,7 +54,7 @@ const ZenCommandPalette = {
     }
 
     const lower = query.toLowerCase();
-    return this.commands.filter(cmd => {
+    return this.commands.filter((cmd) => {
       if (!this.commandIsVisible(cmd)) return false;
       if ((cmd.key || "").toLowerCase().includes(lower)) return true;
       if ((cmd.label || "").toLowerCase().includes(lower)) return true;
@@ -62,12 +68,15 @@ const ZenCommandPalette = {
    * @param {object} cmd - The command object to execute.
    */
   executeCommandObject(cmd) {
-    if (!cmd) { this.debugError("executeCommandObject: no command"); return; }
+    if (!cmd) {
+      this.debugError("executeCommandObject: no command");
+      return;
+    }
     try {
       this.debugLog("Executing command:", cmd.key || cmd.label);
       const ret = cmd.command && cmd.command();
       if (ret && typeof ret.then === "function") {
-        ret.catch(e => this.debugError("Command promise rejected:", e));
+        ret.catch((e) => this.debugError("Command promise rejected:", e));
       }
     } catch (e) {
       this.debugError("Command execution error:", e);
@@ -93,7 +102,11 @@ const ZenCommandPalette = {
 
       if (!trimmed) {
         this.debugLog("findCommandFromDomRow: row has no title/text content", row);
-        if (this.provider && this.provider._lastResults && this.provider._lastResults.length === 1) {
+        if (
+          this.provider &&
+          this.provider._lastResults &&
+          this.provider._lastResults.length === 1
+        ) {
           this.debugLog("findCommandFromDomRow: falling back to single result.");
           return this.provider._lastResults[0] && this.provider._lastResults[0]._zenCmd;
         }
@@ -115,7 +128,7 @@ const ZenCommandPalette = {
       }
 
       // As a fallback, check the full command list directly.
-      const found = this.commands.find(c => trimmed.startsWith(c.label));
+      const found = this.commands.find((c) => trimmed.startsWith(c.label));
       if (found) {
         this.debugLog("findCommandFromDomRow: matched command label as fallback.", found);
         return found;
@@ -135,7 +148,9 @@ const ZenCommandPalette = {
   attachUrlbarSelectionListeners() {
     try {
       this.debugLog("Attempting to attach URL bar listeners...");
-      const popup = (typeof gURLBar !== "undefined" && gURLBar.view?.results) || document.getElementById("urlbar-results");
+      const popup =
+        (typeof gURLBar !== "undefined" && gURLBar.view?.results) ||
+        document.getElementById("urlbar-results");
 
       if (!popup) {
         this.debugError("Could not find urlbar popup element. Listeners not attached.");
@@ -168,7 +183,7 @@ const ZenCommandPalette = {
 
           const view = typeof gURLBar !== "undefined" && gURLBar.view;
           if (!view || !view.isOpen || view.selectedElementIndex < 0) return;
-          
+
           if (!popup || !popup.children) {
             this.debugError("Keydown handler cannot find popup or its children.");
             return;
@@ -193,7 +208,10 @@ const ZenCommandPalette = {
 
         if (typeof gURLBar !== "undefined" && gURLBar.inputField) {
           gURLBar.inputField.addEventListener("keydown", onUrlbarKeydown, true);
-          this.debugLog("Successfully attached 'keydown' listener to urlbar input:", gURLBar.inputField);
+          this.debugLog(
+            "Successfully attached 'keydown' listener to urlbar input:",
+            gURLBar.inputField
+          );
         } else {
           this.debugError("Could not find gURLBar.inputField to attach keydown listener.");
         }
@@ -212,20 +230,30 @@ const ZenCommandPalette = {
    * This is the main entry point for the script.
    */
   init() {
-    const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule("resource:///modules/UrlbarUtils.sys.mjs");
-    const { UrlbarProvidersManager } = ChromeUtils.importESModule("resource:///modules/UrlbarProvidersManager.sys.mjs");
+    const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
+      "resource:///modules/UrlbarUtils.sys.mjs"
+    );
+    const { UrlbarProvidersManager } = ChromeUtils.importESModule(
+      "resource:///modules/UrlbarProvidersManager.sys.mjs"
+    );
     const { UrlbarResult } = ChromeUtils.importESModule("resource:///modules/UrlbarResult.sys.mjs");
 
     if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
-      this.debugError("UrlbarProvider or UrlbarProvidersManager not available; provider not registered.");
+      this.debugError(
+        "UrlbarProvider or UrlbarProvidersManager not available; provider not registered."
+      );
       return;
     }
 
     try {
       const self = this;
       class ZenCommandProvider extends UrlbarProvider {
-        get name() { return "ZenCommandPalette"; }
-        get type() { return UrlbarUtils.PROVIDER_TYPE.PROFILE; }
+        get name() {
+          return "ZenCommandPalette";
+        }
+        get type() {
+          return UrlbarUtils.PROVIDER_TYPE.PROFILE;
+        }
         getPriority(context) {
           const input = (context.searchString || "").trim();
           // Returning a high priority ensures this provider's results are shown exclusively
@@ -235,7 +263,8 @@ const ZenCommandPalette = {
 
         async isActive(context) {
           try {
-            const input = (context?.searchString || context?.text || context?.trimmed) || gURLBar?.value || "";
+            const input =
+              context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
             const matches = self.filterCommandsByInput(input);
             return matches.length > 0;
           } catch (e) {
@@ -246,7 +275,8 @@ const ZenCommandPalette = {
 
         async startQuery(context, add) {
           try {
-            const input = (context?.searchString || context?.text || context?.trimmed) || gURLBar?.value || "";
+            const input =
+              context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
             const matches = self.filterCommandsByInput(input);
             this._lastResults = [];
 
@@ -268,7 +298,7 @@ const ZenCommandPalette = {
               );
 
               result._zenCmd = cmd;
-              result.payload.icon = cmd.icon || 'chrome://browser/skin/trending.svg';
+              result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
               result.providerName = this.name;
               result.providerType = this.type;
               this._lastResults.push(result);
@@ -280,13 +310,14 @@ const ZenCommandPalette = {
             self.debugError("startQuery unexpected error:", e);
           }
         }
-        dispose() { this._lastResults = []; }
+        dispose() {
+          this._lastResults = [];
+        }
       }
 
       this.provider = new ZenCommandProvider();
       UrlbarProvidersManager.registerProvider(this.provider);
       this.debugLog("Zen Command Palette provider registered.");
-
     } catch (e) {
       this.debugError("Failed to create/register Urlbar provider:", e);
     }
@@ -332,9 +363,10 @@ const ZenCommandPalette = {
    * @returns {object|null} The removed command object, or null if not found.
    */
   removeCommand(keyOrPredicate) {
-    const idx = typeof keyOrPredicate === "function"
-      ? this.commands.findIndex(keyOrPredicate)
-      : this.commands.findIndex(c => c.key === keyOrPredicate);
+    const idx =
+      typeof keyOrPredicate === "function"
+        ? this.commands.findIndex(keyOrPredicate)
+        : this.commands.findIndex((c) => c.key === keyOrPredicate);
     if (idx >= 0) {
       const [removed] = this.commands.splice(idx, 1);
       this.debugLog("removeCommand:", removed && removed.key);
@@ -347,4 +379,7 @@ const ZenCommandPalette = {
 // Expose the object to the window and initialize it.
 window.ZenCommandPalette = ZenCommandPalette;
 window.ZenCommandPalette.init();
-window.ZenCommandPalette.debugLog("Zen Command Palette initialized. Commands count:", window.ZenCommandPalette.commands.length);
+window.ZenCommandPalette.debugLog(
+  "Zen Command Palette initialized. Commands count:",
+  window.ZenCommandPalette.commands.length
+);

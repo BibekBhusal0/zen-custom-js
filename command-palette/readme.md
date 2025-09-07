@@ -6,27 +6,27 @@ This project aims to be a modern and actively maintained alternative, building u
 
 ## Features
 
--   **Seamless URL Bar Integration**: No new UI elements. The command palette appears naturally as you type in the address bar.
--   **Exclusive Command Mode**: Start your query with a colon (`:`) to hide all other search suggestions and focus exclusively on commands.
--   **Rich Command Display**: Each command is shown with a clear label and a relevant icon, similar to Raycast.
--   **Extensible API**: Other user scripts and browser mods can easily add their own commands, making the palette a central hub for all your custom actions.
--   **Comprehensive Command Set**: Comes with a wide range of built-in commands for managing tabs, windows, developer tools, and navigating browser features.
+- **Seamless URL Bar Integration**: No new UI elements. The command palette appears naturally as you type in the address bar.
+- **Exclusive Command Mode**: Start your query with a colon (`:`) to hide all other search suggestions and focus exclusively on commands.
+- **Rich Command Display**: Each command is shown with a clear label and a relevant icon, similar to Raycast.
+- **Extensible API**: Other user scripts and browser mods can easily add their own commands, making the palette a central hub for all your custom actions.
+- **Comprehensive Command Set**: Comes with a wide range of built-in commands for managing tabs, windows, developer tools, and navigating browser features.
 
 ## Roadmap and Future Plans
 
 This project is in active development with many features planned for the future:
 
--   **Shortcut Key Display & Customization**:
-    -   Display associated keyboard shortcuts for commands directly in the results list.
-    -   Implement a settings panel (accessible via a command) to allow users to set and customize these shortcuts.
--   **Smart Commands**:
-    -   Integrate a built-in calculator for performing quick math operations.
-    -   Add a currency converter for easy financial translations.
--   **Expanded Browser Support**:
-    -   Once stable on Zen Browser, officially test and ensure compatibility with mainline Firefox and other popular forks.
--   **UI/UX Enhancements**:
-    -   Continue to refine the appearance and responsiveness of the command results.
-    -   Explore options for theming and further visual customization.
+- **Shortcut Key Display & Customization**:
+  - Display associated keyboard shortcuts for commands directly in the results list.
+  - Implement a settings panel (accessible via a command) to allow users to set and customize these shortcuts.
+- **Smart Commands**:
+  - Integrate a built-in calculator for performing quick math operations.
+  - Add a currency converter for easy financial translations.
+- **Expanded Browser Support**:
+  - Once stable on Zen Browser, officially test and ensure compatibility with mainline Firefox and other popular forks.
+- **UI/UX Enhancements**:
+  - Continue to refine the appearance and responsiveness of the command results.
+  - Explore options for theming and further visual customization.
 
 ## Browser Support
 
