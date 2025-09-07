@@ -33,6 +33,11 @@ const ZenCommandPalette = {
 
   safeStr(x) { return (x || "").toString(); },
 
+  /**
+   * Checks if a command should be visible based on its `condition` property.
+   * @param {object} cmd - The command object to check.
+   * @returns {boolean} True if the command should be visible, otherwise false.
+   */
   commandIsVisible(cmd) {
     try {
       if (typeof cmd.condition === "function") return !!cmd.condition();
@@ -43,6 +48,12 @@ const ZenCommandPalette = {
     }
   },
 
+  /**
+   * Filters the command list based on user input.
+   * Supports a ":" prefix to enter an exclusive command mode.
+   * @param {string} input - The user's search string from the URL bar.
+   * @returns {Array<object>} An array of command objects that match the input.
+   */
   filterCommandsByInput(input) {
     let query = this.safeStr(input).trim();
     const isCommandPrefix = query.startsWith(":");
@@ -50,6 +61,7 @@ const ZenCommandPalette = {
       query = query.substring(1).trim();
     }
 
+    // If the input was just the prefix, show all available commands.
     if (isCommandPrefix && !query) {
       return this.commands.filter(this.commandIsVisible.bind(this));
     }
@@ -68,6 +80,10 @@ const ZenCommandPalette = {
     });
   },
 
+  /**
+   * Safely executes a command's action within a try-catch block.
+   * @param {object} cmd - The command object to execute.
+   */
   executeCommandObject(cmd) {
     if (!cmd) { this.debugError("executeCommandObject: no command"); return; }
     try {
@@ -81,12 +97,19 @@ const ZenCommandPalette = {
     }
   },
 
+  /**
+   * Finds the corresponding command object from a DOM element in the URL bar results.
+   * @param {HTMLElement} row - The DOM element representing a result row.
+   * @returns {object|null} The matched command object, or null if no match is found.
+   */
   findCommandFromDomRow(row) {
     try {
       if (!row) {
         this.debugLog("findCommandFromDomRow: called with null row.");
         return null;
       }
+      // The title element is prioritized as it typically contains only the command label,
+      // avoiding extra text like "Search with...".
       const titleEl = row.querySelector(".urlbarView-title");
       const title = titleEl?.textContent || row.getAttribute("aria-label") || row.textContent || "";
       const trimmed = this.safeStr(title).trim();
@@ -101,6 +124,8 @@ const ZenCommandPalette = {
       }
       this.debugLog("findCommandFromDomRow: trying to match row title:", `"${trimmed}"`);
 
+      // Match by checking if the row's text starts with a known command's title.
+      // This is more robust than an exact match, as Firefox can append additional text to the row.
       if (this.provider && this.provider._lastResults) {
         for (const r of this.provider._lastResults) {
           if (!r || !r.payload) continue;
@@ -112,6 +137,7 @@ const ZenCommandPalette = {
         }
       }
 
+      // As a fallback, check the full command list directly.
       const found = this.commands.find(c => trimmed.startsWith(c.label));
       if (found) {
         this.debugLog("findCommandFromDomRow: matched command label as fallback.", found);
@@ -125,6 +151,10 @@ const ZenCommandPalette = {
     }
   },
 
+  /**
+   * Attaches 'click' and 'keydown' event listeners to the URL bar popup.
+   * These listeners are responsible for executing commands and preventing default browser actions.
+   */
   attachUrlbarSelectionListeners() {
     try {
       this.debugLog("Attempting to attach URL bar listeners...");
@@ -144,6 +174,7 @@ const ZenCommandPalette = {
           if (cmd) {
             this.debugLog("Executing command from click, stopping further event propagation.");
             this.executeCommandObject(cmd);
+            // Stop the browser's default action (e.g., performing a search) for this event.
             e.stopImmediatePropagation();
             e.preventDefault();
             if (typeof gURLBar !== "undefined" && gURLBar.view) gURLBar.view.close();
@@ -199,6 +230,10 @@ const ZenCommandPalette = {
     }
   },
 
+  /**
+   * Initializes the command palette by creating and registering the UrlbarProvider.
+   * This is the main entry point for the script.
+   */
   init() {
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule("resource:///modules/UrlbarUtils.sys.mjs");
     const { UrlbarProvidersManager } = ChromeUtils.importESModule("resource:///modules/UrlbarProvidersManager.sys.mjs");
@@ -216,6 +251,8 @@ const ZenCommandPalette = {
         get type() { return UrlbarUtils.PROVIDER_TYPE.PROFILE; }
         getPriority(context) {
           const input = (context.searchString || "").trim();
+          // Returning a high priority ensures this provider's results are shown exclusively
+          // when the ':' prefix is used, effectively creating a command-only mode.
           return input.startsWith(":") ? 10000 : 0;
         }
 
@@ -260,6 +297,7 @@ const ZenCommandPalette = {
               this._lastResults.push(result);
               add(this, result);
             }
+            // Listeners are attached here to ensure they are active whenever results are shown.
             self.attachUrlbarSelectionListeners();
           } catch (e) {
             self.debugError("startQuery unexpected error:", e);
@@ -277,6 +315,11 @@ const ZenCommandPalette = {
     }
   },
 
+  /**
+   * Adds a new command to the palette.
+   * @param {object} cmd - The command object to add. Must have key, label, and command properties.
+   * @returns {object} The command object that was added.
+   */
   addCommand(cmd) {
     if (!cmd || !cmd.key || !cmd.label || typeof cmd.command !== "function") {
       throw new Error("addCommand: command must have {key, label, command:function}");
@@ -287,6 +330,11 @@ const ZenCommandPalette = {
     return cmd;
   },
 
+  /**
+   * Adds multiple commands to the palette.
+   * @param {Array<object>} arr - An array of command objects to add.
+   * @returns {Array<object>} The full array of commands after addition.
+   */
   addCommands(arr) {
     if (!Array.isArray(arr)) throw new Error("addCommands expects an array");
     for (const c of arr) {
@@ -301,6 +349,11 @@ const ZenCommandPalette = {
     return this.commands;
   },
 
+  /**
+   * Removes a command from the palette by its key or a predicate function.
+   * @param {string|Function} keyOrPredicate - The key of the command to remove, or a function that returns true for the command to be removed.
+   * @returns {object|null} The removed command object, or null if not found.
+   */
   removeCommand(keyOrPredicate) {
     const idx = typeof keyOrPredicate === "function"
       ? this.commands.findIndex(keyOrPredicate)
@@ -314,6 +367,7 @@ const ZenCommandPalette = {
   },
 };
 
+// Expose the object to the window and initialize it.
 window.ZenCommandPalette = ZenCommandPalette;
 window.ZenCommandPalette.init();
 window.ZenCommandPalette.debugLog("Zen Command Palette initialized. Commands count:", window.ZenCommandPalette.commands.length);
