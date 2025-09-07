@@ -1,5 +1,4 @@
 .urlbarView-row {
-
   /* hiding the message to search */
 
   .urlbarView-action[data-l10n-args='{"engine":"zenCommand"}'] {
@@ -8,7 +7,6 @@
 
   :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
     .urlbarView-favicon {
-
       /* &[src^="chrome://"] {} */
 
       /* revert icon colors for custom svg */
