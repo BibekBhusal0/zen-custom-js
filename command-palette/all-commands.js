@@ -57,12 +57,24 @@ const generatedAboutCommands = aboutPages.map((aboutPage) => ({
   icon: aboutPage.icon || "chrome://browser/skin/zen-icons/tab.svg",
 }));
 
+const svgToUrl = (iconSVG) =>{
+   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      iconSVG
+    )}`
+}
+const splitVz = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-horizontal-icon lucide-square-split-horizontal"><path d="M8 19H5c-1 0-2-1-2-2V7c0-1 1-2 2-2h3"/><path d="M16 5h3c1 0 2 1 2 2v10c0 1-1 2-2 2h-3"/><line x1="12" x2="12" y1="4" y2="20"/></svg>`
+const splitHz = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-vertical-icon lucide-square-split-vertical"><path d="M5 8V5c0-1 1-2 2-2h10c1 0 2 1 2 2v3"/><path d="M19 16v3c0 1-1 2-2 2H7c-1 0-2-1-2-2v-3"/><line x1="4" x2="20" y1="12" y2="12"/></svg>`
+const splitGrid = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid2x2-icon lucide-grid-2x2"><path d="M12 3v18"/><path d="M3 12h18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`
+const zoomIn = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-in-icon lucide-zoom-in"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`
+const zoomOut = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-out-icon lucide-zoom-out"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`
+const zoomReset = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="m21 21l-6-6M3.268 12.043A7.02 7.02 0 0 0 9.902 17a7.01 7.01 0 0 0 7.043-6.131a7 7 0 0 0-5.314-7.672A7.02 7.02 0 0 0 3.39 7.6"/><path d="M3 4v4h4"/></g></svg>`
+
 export const commands = [
   // ----------- Zen Compact Mode -----------
   { key: "cmd_zenCompactModeToggle", label: "Toggle Compact Mode", icon: "chrome://browser/skin/zen-icons/fullscreen.svg" },
   { key: "cmd_zenCompactModeShowSidebar", label: "Show Sidebar", icon: "chrome://browser/skin/zen-icons/sidebar.svg" },
   { key: "cmd_zenCompactModeShowToolbar", label: "Show Toolbar", },
-  { key: "cmd_zenCompactModeHideSidebar", label: "Hide Sidebar" },
+  { key: "cmd_zenCompactModeHideSidebar", label: "Hide Sidebar", icon: "chrome://browser/skin/zen-icons/expand-sidebar.svg"  },
   { key: "cmd_zenCompactModeHideToolbar", label: "Hide Toolbar" },
   { key: "cmd_zenCompactModeHideBoth", label: "Hide Sidebar and Toolbar", },
 
@@ -76,9 +88,9 @@ export const commands = [
   { key: "cmd_zenOpenWorkspaceCreation", label: "Create New Workspace", icon: "chrome://browser/skin/zen-icons/plus.svg" },
 
   // ----------- Zen Split View -----------
-  { key: "cmd_zenSplitViewGrid", label: "Split View: Grid" },
-  { key: "cmd_zenSplitViewVertical", label: "Split View: Vertical" },
-  { key: "cmd_zenSplitViewHorizontal", label: "Split View: Horizontal", icon: "chrome://browser/skin/zen-icons/split.svg" },
+  { key: "cmd_zenSplitViewGrid", label: "Split View: Grid", icon: svgToUrl(splitGrid) },
+  { key: "cmd_zenSplitViewVertical", label: "Split View: Vertical" ,icon: svgToUrl(splitVz)  },
+  { key: "cmd_zenSplitViewHorizontal", label: "Split View: Horizontal", icon: svgToUrl(splitHz) },
   { key: "cmd_zenSplitViewUnsplit", label: "Unsplit View" },
 
   // ----------- Tab Management -----------
@@ -254,9 +266,9 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
     condition: !!window.ReaderParent,
     icon: "chrome://browser/skin/reader-mode.svg",
   },
-  { key: "cmd_fullZoomEnlarge", label: "Zoom In", icon: "chrome://global/skin/zen-icons/zoom-control.svg" },
-  { key: "cmd_fullZoomReduce", label: "Zoom Out", icon: "chrome://global/skin/zen-icons/zoom-out.svg" },
-  { key: "cmd_fullZoomReset", label: "Reset Zoom", },
+  { key: "cmd_fullZoomEnlarge", label: "Zoom In", icon : svgToUrl(zoomIn)},
+  { key: "cmd_fullZoomReduce", label: "Zoom Out", icon : svgToUrl(zoomOut)},
+  { key: "cmd_fullZoomReset", label: "Reset Zoom", icon : svgToUrl(zoomReset)},
 
   // ----------- Developer Tools -----------
   {
