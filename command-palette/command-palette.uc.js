@@ -312,6 +312,7 @@ const ZenCommandPalette = {
                 title: cmd.label,
                 url: "",
                 query: cmd.key,
+                engine: 'zenCommand'
               });
 
               const result = new UrlbarResult(
