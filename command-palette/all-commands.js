@@ -345,14 +345,6 @@ icon: "chrome://browser/skin/zen-icons/reload.svg"
 icon: "chrome://browser/skin/zen-icons/edit-delete.svg" 
   },
 
-  // ----------- Edit Commands -----------
-  { key: "cmd_undo", label: "Undo", icon: "chrome://browser/skin/zen-icons/edit-undo.svg" },
-  { key: "cmd_redo", label: "Redo", icon: "chrome://browser/skin/zen-icons/edit-redo.svg" },
-  { key: "cmd_cut", label: "Cut", icon: "chrome://browser/skin/zen-icons/edit-cut.svg" },
-  { key: "cmd_copy", label: "Copy", icon: "chrome://browser/skin/zen-icons/edit-copy.svg" },
-  { key: "cmd_paste", label: "Paste", icon: "chrome://browser/skin/zen-icons/edit-paste.svg" },
-  { key: "cmd_selectAll", label: "Select All",},
-
   // ----------- System & Application -----------
   {
     key: "cmd_toggleOfflineStatus",
