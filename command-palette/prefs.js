@@ -61,8 +61,8 @@ export const Prefs = {
 Prefs.defaultValues = {
   [Prefs.KEYS.DEBUG_MODE]: false,
   [Prefs.KEYS.MAX_COMMANDS]: 3,
-  [Prefs.KEYS.MIN_QUERY_LENGTH]: 4,
-  [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: true,
+  [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
+  [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
   [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
   [Prefs.KEYS.DYNAMIC_EXTENSIONS]: true,
   [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
