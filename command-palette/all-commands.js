@@ -678,11 +678,20 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/close.svg",
     tags: ["quit", "exit", "close", "application"],
   },
-  // {
-  //   key: "app:restart",
-  //   label: "Restart Browser",
-  //   command: () => Services.appUtils.restart(),
-  //   condition: !!window.Services?.appUtils?.restart,
-  //   icon: "chrome://browser/skin/zen-icons/reload.svg",
-  // },
+  {
+    key: "app:restart",
+    label: "Restart Browser",
+    command: () => UC_API.Runtime.restart(),
+    condition: ucAvailable,
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
+    tags : ['restart', 'reopen', 'close']
+  },
+  {
+    key: "app:clear-startupCache",
+    label: "Clear Startup Cache",
+    command: () => UC_API.Runtime.restart(true),
+    condition: ucAvailable,
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
+    tags : ['restart', 'reopen', 'close', 'clear', 'cache',]
+  },
 ];
