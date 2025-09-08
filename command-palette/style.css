@@ -12,7 +12,7 @@
       /* &[src^="chrome://"] {} */
 
       /* revert icon colors for custom svg */
-      &[src^="data:image/svg+xml"] {
+      &[src^="data:image/svg+xml"]:not([src*=";type=workspace-icon"]) {
         @media (prefers-color-scheme: dark) {
           filter: invert();
         }

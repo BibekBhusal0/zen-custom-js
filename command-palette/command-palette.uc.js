@@ -1,9 +1,17 @@
 import { commands } from "./all-commands.js";
+import { generateDynamicCommands } from "./dynamic-commands.js";
 
 const ZenCommandPalette = {
   debugMode: true,
   commands,
   provider: null,
+
+  dynamicCommandSettings: {
+    loadAboutPages: true,
+    loadSearchEngines: true,
+    loadExtensions: true,
+    loadWorkspaces: true,
+  },
 
   debugLog(...args) {
     if (this.debugMode) console.log("zen-command-palette:", ...args);
@@ -23,16 +31,16 @@ const ZenCommandPalette = {
    */
   commandIsVisible(cmd) {
     try {
-      let conditionPresent = false; 
-      let conditionResult = true;  
+      let conditionPresent = false;
+      let conditionResult = true;
 
       // Evaluate the primary condition (cmd.condition) if it exists.
       if (typeof cmd.condition === "function") {
         conditionPresent = true;
-        conditionResult = !!cmd.condition(); 
+        conditionResult = !!cmd.condition();
       } else if (cmd.condition !== undefined) {
         conditionPresent = true;
-        conditionResult = cmd.condition !== false; 
+        conditionResult = cmd.condition !== false;
       }
 
       // Check if it's a cmd_ fallback command (e.g., "cmd_newTab") and if its element exists.
@@ -86,6 +94,7 @@ const ZenCommandPalette = {
       if (!this.commandIsVisible(cmd)) return false;
       if ((cmd.key || "").toLowerCase().includes(lower)) return true;
       if ((cmd.label || "").toLowerCase().includes(lower)) return true;
+      if (cmd.tags && cmd.tags.some((tag) => tag.toLowerCase().includes(lower))) return true;
       const prefix = (cmd.key || "").split(":")[0];
       return prefix && prefix.toLowerCase().startsWith(lower);
     });
@@ -334,7 +343,7 @@ const ZenCommandPalette = {
                 url: "",
                 query: cmd.key,
                 engine: "zenCommand",
-                keywords: cmd?.tags
+                keywords: cmd?.tags,
               });
 
               const result = new UrlbarResult(
@@ -375,6 +384,22 @@ const ZenCommandPalette = {
   },
 
   /**
+   * Loads dynamic commands based on the settings.
+   * Can be called any time after init.
+   */
+  loadDynamicCommands() {
+    this.debugLog("Loading dynamic commands with settings:", this.dynamicCommandSettings);
+    generateDynamicCommands(this.dynamicCommandSettings)
+      .then((dynamicCmds) => {
+        this.addCommands(dynamicCmds);
+        this.debugLog(`Dynamic commands loaded. Total commands: ${this.commands.length}`);
+      })
+      .catch((e) => {
+        this.debugError("Failed to load dynamic commands:", e);
+      });
+  },
+
+  /**
    * Adds a new command to the palette.
    * @param {object} cmd - The command object to add. Must have key, label, and command properties.
    * @returns {object} The command object that was added.
@@ -384,7 +409,6 @@ const ZenCommandPalette = {
       throw new Error("addCommand: command must have {key, label}");
     }
     this.commands.push(cmd);
-    this.debugLog("addCommand:", cmd.key);
     return cmd;
   },
 
@@ -395,10 +419,15 @@ const ZenCommandPalette = {
    */
   addCommands(arr) {
     if (!Array.isArray(arr)) throw new Error("addCommands expects an array");
+    let addedCount = 0;
     for (const c of arr) {
-      this.addCommand(c);
+      // Avoid adding duplicates
+      if (!this.commands.some((existing) => existing.key === c.key)) {
+        this.addCommand(c);
+        addedCount++;
+      }
     }
-    this.debugLog("addCommands: added", arr.length, "items. total commands:", this.commands.length);
+    this.debugLog("addCommands: added", addedCount, "items. total commands:", this.commands.length);
     return this.commands;
   },
 
@@ -424,6 +453,8 @@ const ZenCommandPalette = {
 // Expose the object to the window and initialize it.
 window.ZenCommandPalette = ZenCommandPalette;
 window.ZenCommandPalette.init();
+window.ZenCommandPalette.loadDynamicCommands();
+
 window.ZenCommandPalette.debugLog(
   "Zen Command Palette initialized. Commands count:",
   window.ZenCommandPalette.commands.length
