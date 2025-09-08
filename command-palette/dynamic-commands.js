@@ -99,29 +99,34 @@ export async function generateAboutPageCommands() {
  */
 export async function generateSearchEngineCommands() {
   if (!Services.search) return [];
-  try {
-    const engines = await Services.search.getVisibleEngines();
-    return engines.map((engine) => ({
-      key: `search:${engine.name}`,
-      label: `Search with: ${engine.name}`,
+
+  const engines = await Services.search.getVisibleEngines();
+  return engines.map((engine) => {
+    const engineName = engine.name;
+    return {
+      key: `search:${engineName}`,
+      label: `Search with: ${engineName}`,
       command: () => {
-        if (window.gURLBar && typeof window.gURLBar.setSearchMode === "function") {
-          window.gURLBar.setSearchMode(engine);
-          window.gURLBar.focus(); // Keep the focus in the URL bar to start typing
+        if (window.gURLBar) {
+          // Clear the command text from the urlbar before changing mode. This is the key fix.
+          window.gURLBar.value = "";
+          window.gURLBar.searchMode = {
+            engineName,
+            // "oneoff" is the entry type used by urlbar one-off buttons.
+            entry: "oneoff",
+          };
+          window.gURLBar.focus();
         }
       },
       condition: () => {
         const currentEngineName =
           window.gURLBar.searchMode?.engineName || Services.search.defaultEngine?.name;
-        return currentEngineName !== engine.name;
+        return currentEngineName !== engineName;
       },
       icon: getSearchEngineFavicon(engine),
-      tags: ["search", "engine", engine.name.toLowerCase()],
-    }));
-  } catch (e) {
-    console.error("zen-command-palette: Could not generate search engine commands.", e);
-    return [];
-  }
+      tags: ["search", "engine", engineName.toLowerCase()],
+    };
+  });
 }
 
 /**
