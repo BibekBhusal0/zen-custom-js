@@ -15,9 +15,15 @@
     "margin": "25px 0 15px 0"
   },
   {
+    "type": "checkbox",
+    "property": "zen-command-palette.prefix-required",
+    "label": "Require `:` prefix to show commands",
+    "default": false
+  },
+  {
     "type": "dropdown",
     "property": "zen-command-palette.max-commands",
-    "label": "Maximum Results",
+    "label": "Maximum Results (without `:`)",
     "value": "number",
     "default": 3,
     "placeholder": false,
@@ -41,6 +47,20 @@
       { "label": "3 Characters", "value": 3 },
       { "label": "4 Characters", "value": 4 },
       { "label": "5 Characters", "value": 5 }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.min-score-threshold",
+    "label": "Fuzzy Search Sensitivity",
+    "value": "number",
+    "default": 20,
+    "placeholder": false,
+    "options": [
+      { "label": "Very Strict (40)", "value": 40 },
+      { "label": "Strict (30)", "value": 30 },
+      { "label": "Balanced (20)", "value": 20 },
+      { "label": "Loose (10)", "value": 10 }
     ]
   },
   {
