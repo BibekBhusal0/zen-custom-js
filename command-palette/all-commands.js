@@ -110,12 +110,12 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
     tags: ["workspace", "next", "forward", "navigate"]
   },
-  // {
-  //   key: "cmd_zenWorkspaceBackward",
-  //   label: "Previous Workspace",
-  //   icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
-  //   tags: ["workspace", "previous", "backward", "navigate"]
-  // },
+  {
+    key: "cmd_zenWorkspaceBackward",
+    label: "Previous Workspace",
+    icon: "chrome://browser/skin/zen-icons/arrow-left.svg",
+    tags: ["workspace", "previous", "backward", "navigate"]
+  },
   {
     key: "cmd_zenChangeWorkspaceTab",
     label: "Change Workspace Tab",
@@ -296,12 +296,12 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/window.svg",
     tags: ["window", "new", "create", "open"]
   },
-  // {
-  //   key: "cmd_closeWindow",
-  //   label: "Close Window",
-  //   icon: "chrome://browser/skin/close.svg",
-  //   tags: ["window", "close", "remove"]
-  // },
+  {
+    key: "cmd_closeWindow",
+    label: "Close Window",
+    icon: "chrome://browser/skin/zen-icons/close.svg",
+    tags: ["window", "close", "remove"]
+  },
   {
     key: "cmd_minimizeWindow",
     label: "Minimize Window",
@@ -357,24 +357,24 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["reload", "refresh", "page", "update"]
   },
-  // {
-  //   key: "Browser:ReloadSkipCache",
-  //   label: "Hard Reload (Skip Cache)",
-  //   command: () => BrowserReloadSkipCache(),
-  //   condition: !!window.BrowserReloadSkipCache,
-  //   icon: "chrome://browser/skin/zen-icons/reload.svg",
-  //   tags: ["reload", "hard", "cache", "refresh"]
-  // },
+  {
+    key: "Browser:ReloadSkipCache",
+    label: "Hard Reload (Skip Cache)",
+    command: () => BrowserCommands.reloadSkipCache(),
+    condition: !!window.BrowserCommands,
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
+    tags: ["reload", "hard", "cache", "refresh"]
+  },
 
   // ----------- Bookmarks & History -----------
-  // {
-  //   key: "Browser:AddBookmarkAs",
-  //   label: "Bookmark This Page",
-  //   command: () => PlacesCommandHook.bookmarkCurrentPage(),
-  //   condition: !!window.PlacesCommandHook,
-  //   icon: "chrome://browser/skin/bookmark.svg",
-  //   tags: ["bookmark", "save", "favorite", "add"]
-  // },
+  {
+    key: "Browser:AddBookmarkAs",
+    label: "Bookmark This Page",
+    command: () => PlacesCommandHook.bookmarkPage(),
+    condition: !!window.PlacesCommandHook,
+    icon: "chrome://browser/skin/bookmark.svg",
+    tags: ["bookmark", "save", "favorite", "add"]
+  },
   {
     key: "Browser:BookmarkAllTabs",
     label: "Bookmark All Tabs",
@@ -443,22 +443,14 @@ export const commands = [
   },
 
   // ----------- View & Display -----------
-  // {
-  //   key: "View:FullScreen",
-  //   label: "Toggle Fullscreen",
-  //   command: () => BrowserFullScreen(),
-  //   condition: !!window.BrowserFullScreen,
-  //   icon: "chrome://browser/skin/fullscreen.svg",
-  //   tags: ["fullscreen", "full", "screen", "toggle"]
-  // },
-  // {
-  //   key: "View:ReaderView",
-  //   label: "Toggle Reader Mode",
-  //   command: () => ReaderParent.toggleReaderMode(),
-  //   condition: !!window.ReaderParent,
-  //   icon: "chrome://browser/skin/reader-mode.svg",
-  //   tags: ["reader", "mode", "reading", "clean"]
-  // },
+  {
+    key: "View:FullScreen",
+    label: "Toggle Fullscreen",
+    command: () => BrowserCommands.fullScreen(),
+    condition: !!window?.BrowserCommands?.fullScreen,
+    icon: "chrome://browser/skin/fullscreen.svg",
+    tags: ["fullscreen", "full", "screen", "toggle"]
+  },
   {
     key: "cmd_fullZoomEnlarge",
     label: "Zoom In",
@@ -497,32 +489,32 @@ export const commands = [
   // },
 
   // ----------- Media & Screenshots -----------
-  // {
-  //   key: "View:PictureInPicture",
-  //   label: "Toggle Picture-in-Picture",
-  //   command: () => gBrowser.selectedBrowser.requestPictureInPicture(),
-  //   condition: () => !!gBrowser?.selectedBrowser?.requestPictureInPicture,
-  //   icon: "chrome://browser/skin/picture-in-picture-toggle.svg",
-  //   tags: ["picture", "pip", "video", "floating"]
-  // },
-  // {
-  //   key: "Browser:Screenshot",
-  //   label: "Take Screenshot",
-  //   command: () => Screenshots.action("copy"),
-  //   condition: !!window.Screenshots,
-  //   icon: "chrome://browser/skin/screenshot.svg",
-  //   tags: ["screenshot", "capture", "image", "snap"]
-  // },
+  {
+    key: "View:PictureInPicture",
+    label: "Toggle Picture-in-Picture",
+    command: () => PictureInPicture.onCommand(),
+    condition: () => typeof (PictureInPicture?.onCommand) === 'function' ,
+    icon: "chrome://browser/skin/zen-icons/media-pip.svg",
+    tags: ["picture", "pip", "video", "floating"]
+  },
+  {
+    key: "Browser:Screenshot",
+    label: "Take Screenshot",
+    command: () => ScreenshotsUtils.notify(window, "Shortcut"),
+    condition: !!window.ScreenshotsUtils,
+    icon: "chrome://browser/skin/screenshot.svg",
+    tags: ["screenshot", "capture", "image", "snap"]
+  },
 
   // ----------- Files & Downloads -----------
-  // {
-  //   key: "Tools:Downloads",
-  //   label: "View Downloads",
-  //   command: () => BrowserDownloadsUI.showUI(),
-  //   condition: !!window.BrowserDownloadsUI,
-  //   icon: "chrome://browser/skin/downloads/downloads.svg",
-  //   tags: ["downloads", "files", "download", "library"]
-  // },
+  {
+    key: "Tools:Downloads",
+    label: "View Downloads",
+    command: () => BrowserCommands.downloadsUI(),
+    condition: !!window.BrowserCommands,
+    icon: "chrome://browser/skin/downloads/downloads.svg",
+    tags: ["downloads", "files", "download", "library"]
+  },
   {
     key: "Browser:SavePage",
     label: "Save Page As...",
@@ -537,14 +529,14 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/print.svg",
     tags: ["print", "page", "printer", "document"]
   },
-  // {
-  //   key: "Browser:OpenFile",
-  //   label: "Open File",
-  //   command: () => BrowserOpenFileWindow(),
-  //   condition: !!window.BrowserOpenFileWindow,
-  //   icon: "chrome://browser/skin/open.svg",
-  //   tags: ["open", "file", "local", "browse"]
-  // },
+  {
+    key: "Browser:OpenFile",
+    label: "Open File",
+    command: () =>  BrowserCommands.openFileWindow(),
+    condition: !!window.BrowserCommands,
+    icon: "chrome://browser/skin/open.svg",
+    tags: ["open", "file", "local", "browse"]
+  },
 
   // ----------- Extensions & Customization -----------
   {
