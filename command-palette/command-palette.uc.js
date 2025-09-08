@@ -68,10 +68,9 @@ const ZenCommandPalette = {
   },
 
   /**
-   * Filters the command list based on user input.
-   * Supports a ":" prefix to enter an exclusive command mode.
+   * Filters and sorts the command list using a fuzzy-matching algorithm.
    * @param {string} input - The user's search string from the URL bar.
-   * @returns {Array<object>} An array of command objects that match the input.
+   * @returns {Array<object>} A sorted array of command objects that match the input.
    */
   filterCommandsByInput(input) {
     let query = this.safeStr(input).trim();
@@ -80,24 +79,68 @@ const ZenCommandPalette = {
       query = query.substring(1).trim();
     }
 
-    // If the input was just the prefix, show all available commands.
+    // If the input was just the prefix, show all available commands, unsorted.
     if (isCommandPrefix && !query) {
       return this.commands.filter(this.commandIsVisible.bind(this));
+    }
+
+    // For non-prefixed queries, only show results if the query is long enough.
+    if (!isCommandPrefix && query.length < 4) {
+      return [];
     }
 
     if (!query) {
       return [];
     }
 
-    const lower = query.toLowerCase();
-    return this.commands.filter((cmd) => {
-      if (!this.commandIsVisible(cmd)) return false;
-      if ((cmd.key || "").toLowerCase().includes(lower)) return true;
-      if ((cmd.label || "").toLowerCase().includes(lower)) return true;
-      if (cmd.tags && cmd.tags.some((tag) => tag.toLowerCase().includes(lower))) return true;
-      const prefix = (cmd.key || "").split(":")[0];
-      return prefix && prefix.toLowerCase().startsWith(lower);
-    });
+    const lowerQuery = query.toLowerCase();
+
+    const scoredCommands = this.commands
+      .filter(this.commandIsVisible.bind(this))
+      .map((cmd) => {
+        const label = (cmd.label || "").toLowerCase();
+        const key = (cmd.key || "").toLowerCase();
+        const tags = (cmd.tags || []).join(" ").toLowerCase();
+
+        let score = 0;
+
+        // Score based on match quality, with label/key being most important.
+        if (label.startsWith(lowerQuery)) {
+          score = Math.max(score, 100);
+        } else if (key.startsWith(lowerQuery)) {
+          score = Math.max(score, 90);
+        } else if (label.includes(lowerQuery)) {
+          score = Math.max(score, 80);
+        } else if (key.includes(lowerQuery)) {
+          score = Math.max(score, 70);
+        } else if (tags.includes(lowerQuery)) {
+          score = Math.max(score, 60);
+        }
+
+        // Simple fuzzy match as a fallback if no other score was found.
+        if (score === 0) {
+          const fuzzyTarget = `${label} ${key} ${tags}`;
+          let queryIndex = 0;
+          let fuzzyScore = 0;
+          for (let i = 0; i < fuzzyTarget.length && queryIndex < lowerQuery.length; i++) {
+            if (fuzzyTarget[i] === lowerQuery[queryIndex]) {
+              fuzzyScore++;
+              queryIndex++;
+            }
+          }
+          if (queryIndex === lowerQuery.length) {
+            score = fuzzyScore;
+          }
+        }
+
+        return { cmd, score };
+      })
+      .filter((item) => item.score > 0);
+
+    // Sort by score, descending
+    scoredCommands.sort((a, b) => b.score - a.score);
+
+    return scoredCommands.map((item) => item.cmd);
   },
 
   /**
@@ -317,10 +360,20 @@ const ZenCommandPalette = {
 
         async isActive(context) {
           try {
-            const input =
-              context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
-            const matches = self.filterCommandsByInput(input);
-            return matches.length > 0;
+            const input = (context.searchString || "").trim();
+            const inSearchMode = !!context.searchMode?.engineName;
+
+            // Always check for matches if ":" prefix is used.
+            if (input.startsWith(":")) {
+              return self.filterCommandsByInput(input).length > 0;
+            }
+
+            // Otherwise, only activate if not in search mode and query is long enough.
+            if (!inSearchMode && input.length >= 4) {
+              return self.filterCommandsByInput(input).length > 0;
+            }
+
+            return false;
           } catch (e) {
             self.debugError("isActive error:", e);
             return false;
