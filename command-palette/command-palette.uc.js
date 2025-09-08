@@ -23,12 +23,33 @@ const ZenCommandPalette = {
    */
   commandIsVisible(cmd) {
     try {
-      if (typeof cmd.condition === "function") return !!cmd.condition();
-      if (cmd.condition !== undefined) return cmd.condition !== false;
+      let conditionPresent = false; 
+      let conditionResult = true;  
 
-      // Dynamically check if a cmd_ fallback command is available by looking for its element.
-      if (cmd.key.startsWith("cmd_") && !cmd.command) {
-        return !!document.getElementById(cmd.key);
+      // Evaluate the primary condition (cmd.condition) if it exists.
+      if (typeof cmd.condition === "function") {
+        conditionPresent = true;
+        conditionResult = !!cmd.condition(); 
+      } else if (cmd.condition !== undefined) {
+        conditionPresent = true;
+        conditionResult = cmd.condition !== false; 
+      }
+
+      // Check if it's a cmd_ fallback command (e.g., "cmd_newTab") and if its element exists.
+      const isCmdFallback = cmd.key.startsWith("cmd_") && !cmd.command;
+      const cmdFallbackElementExists = isCmdFallback ? !!document.getElementById(cmd.key) : false;
+
+      // If both a `condition` and a `cmd_` fallback are present, join them with AND.
+      if (conditionPresent && isCmdFallback) {
+        return conditionResult && cmdFallbackElementExists;
+      }
+      // If only a `condition` is present, return its result.
+      else if (conditionPresent) {
+        return conditionResult;
+      }
+      // If only a `cmd_` fallback is present, return its element existence check.
+      else if (isCmdFallback) {
+        return cmdFallbackElementExists;
       }
 
       return true; // Default to visible if no condition is set.
