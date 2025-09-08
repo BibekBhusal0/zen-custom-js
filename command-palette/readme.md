@@ -41,6 +41,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 | `zen-command-palette.dynamic.search-engines` | Boolean | `true`  | Automatically generate commands for your installed search engines.        |
 | `zen-command-palette.dynamic.extensions`     | Boolean | `true`  | Automatically generate commands for extensions with an options page.      |
 | `zen-command-palette.dynamic.workspaces`     | Boolean | `true`  | Automatically generate commands for switching between Zen Workspaces.     |
+| `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`  | Automatically generate commands for Installing/uninstalling sine mods.     |
 
 ## Available Commands
 
