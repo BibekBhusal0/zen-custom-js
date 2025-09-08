@@ -20,7 +20,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 
 | Preference Key                                 | Type    | Default | Description                                                              |
 | ---------------------------------------------- | ------- | ------- | ------------------------------------------------------------------------ |
-| `zen-command-palette.debug-mode`               | Boolean | `true`  | Enables detailed logging in the Browser Console for troubleshooting.     |
+| `zen-command-palette.debug-mode`               | Boolean | `false`  | Enables detailed logging in the Browser Console for troubleshooting.     |
 | `zen-command-palette.max-commands`             | Integer | `3`     | The maximum number of command results to display at once.                |
 | `zen-command-palette.min-query-length`         | Integer | `4`     | Minimum characters needed to show commands (unless using the `:` prefix). |
 | `zen-command-palette.dynamic.about-pages`      | Boolean | `true`  | Automatically generate commands for `about:` pages.                      |

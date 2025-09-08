@@ -55,7 +55,7 @@ export const Prefs = {
 };
 
 Prefs.defaultValues = {
-  [Prefs.KEYS.DEBUG_MODE]: true,
+  [Prefs.KEYS.DEBUG_MODE]: false,
   [Prefs.KEYS.MAX_COMMANDS]: 3,
   [Prefs.KEYS.MIN_QUERY_LENGTH]: 4,
   [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: true,
