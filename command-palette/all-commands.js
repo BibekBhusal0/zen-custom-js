@@ -95,11 +95,6 @@ export const commands = [
     tags: ["workspace", "previous", "backward", "navigate"],
   },
   {
-    key: "cmd_zenChangeWorkspaceTab",
-    label: "Change Workspace Tab",
-    tags: ["workspace", "tab", "change", "switch"],
-  },
-  {
     key: "cmd_zenCtxDeleteWorkspace",
     label: "Delete Workspace",
     icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
