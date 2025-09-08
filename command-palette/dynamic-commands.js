@@ -1,3 +1,5 @@
+import { debugLog, } from "./prefs.js";
+
 /**
  * Creates an SVG data URL from a text string or emoji, suitable for use as an icon.
  * @param {string} text - The character or emoji to render.
@@ -186,24 +188,34 @@ export async function generateWorkspaceCommands() {
  * @returns {Promise<Array<object>>} A promise that resolves to an array of Sine mod commands.
  */
 export async function generateSineCommands() {
-  if (!window.SineAPI || !window.Sine) return [];
+  // SineAPI is required for both installing and uninstalling.
+  if (!window.SineAPI) {
+    debugLog("SineAPI not found, skipping Sine command generation.");
+    return [];
+  }
 
-  const installedMods = await SineAPI.utils.getMods();
-  const marketplaceMods = Sine.marketplace || {};
   const commands = [];
+  const installedMods = await SineAPI.utils.getMods();
 
-  // Generate "Install" commands for marketplace mods that aren't installed yet.
-  for (const modId in marketplaceMods) {
-    if (!installedMods[modId]) {
-      const mod = marketplaceMods[modId];
-      commands.push({
-        key: `sine:install:${modId}`,
-        label: `Install Sine Mod: ${mod.name}`,
-        command: () => Sine.installMod(mod.homepage),
-        icon: "chrome://browser/skin/zen-icons/downloads.svg",
-        tags: ["sine", "install", "mod", mod.name.toLowerCase()],
-      });
+  // Generate "Install" commands. This requires the main `Sine` object to be available.
+  if (window.Sine?.marketplace) {
+    const marketplaceMods = window.Sine.marketplace;
+    for (const modId in marketplaceMods) {
+      if (!installedMods[modId]) {
+        const mod = marketplaceMods[modId];
+        commands.push({
+          key: `sine:install:${modId}`,
+          label: `Install Sine Mod: ${mod.name}`,
+          command: () => Sine.installMod(mod.homepage),
+          icon: "chrome://browser/skin/zen-icons/downloads.svg",
+          tags: ["sine", "install", "mod", mod.name.toLowerCase()],
+        });
+      }
     }
+  } else {
+    console.log(
+      "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
+    );
   }
 
   // Generate "Uninstall" commands for installed mods.

@@ -68,3 +68,11 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
   [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
 };
+
+export const debugLog = (...args) => {
+  if (Prefs.debugMode) console.log("zen-command-palette:", ...args);
+};
+
+export const debugError = (...args) => {
+  if (Prefs.debugMode) console.error("zen-command-palette:", ...args);
+};

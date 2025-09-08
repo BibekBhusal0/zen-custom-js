@@ -1,17 +1,10 @@
 import { commands } from "./all-commands.js";
 import { generateDynamicCommands } from "./dynamic-commands.js";
-import { Prefs } from "./prefs.js";
+import { Prefs, debugLog, debugError } from "./prefs.js";
 
 const ZenCommandPalette = {
   commands,
   provider: null,
-
-  debugLog(...args) {
-    if (Prefs.debugMode) console.log("zen-command-palette:", ...args);
-  },
-  debugError(...args) {
-    if (Prefs.debugMode) console.error("zen-command-palette:", ...args);
-  },
 
   safeStr(x) {
     return (x || "").toString();
@@ -55,7 +48,7 @@ const ZenCommandPalette = {
 
       return true; // Default to visible if no condition is set.
     } catch (e) {
-      this.debugError("Error evaluating condition for", cmd && cmd.key, e);
+      debugError("Error evaluating condition for", cmd && cmd.key, e);
       return false;
     }
   },
@@ -144,32 +137,32 @@ const ZenCommandPalette = {
    */
   executeCommandObject(cmd) {
     if (!cmd) {
-      this.debugError("executeCommandObject: no command");
+      debugError("executeCommandObject: no command");
       return;
     }
 
     try {
       // Prioritize explicit command function if it exists.
       if (cmd.command && typeof cmd.command === "function") {
-        this.debugLog("Executing command via function:", cmd.key || cmd.label);
+        debugLog("Executing command via function:", cmd.key || cmd.label);
         const ret = cmd.command();
         if (ret && typeof ret.then === "function") {
-          ret.catch((e) => this.debugError("Command promise rejected:", e));
+          ret.catch((e) => debugError("Command promise rejected:", e));
         }
         // Fallback for commands that rely on a DOM element with a doCommand method.
       } else if (cmd.key.startsWith("cmd_")) {
         const commandEl = document.getElementById(cmd.key);
         if (commandEl && typeof commandEl.doCommand === "function") {
-          this.debugLog("Executing command via doCommand fallback:", cmd.key);
+          debugLog("Executing command via doCommand fallback:", cmd.key);
           commandEl.doCommand();
         } else {
-          this.debugError("Fallback command element not found or has no doCommand:", cmd.key);
+          debugError("Fallback command element not found or has no doCommand:", cmd.key);
         }
       } else {
-        this.debugError("Command has no executable action:", cmd.key);
+        debugError("Command has no executable action:", cmd.key);
       }
     } catch (e) {
-      this.debugError("Command execution error:", e);
+      debugError("Command execution error:", e);
     }
   },
 
@@ -181,7 +174,7 @@ const ZenCommandPalette = {
   findCommandFromDomRow(row) {
     try {
       if (!row) {
-        this.debugLog("findCommandFromDomRow: called with null row.");
+        debugLog("findCommandFromDomRow: called with null row.");
         return null;
       }
       // The title element is prioritized as it typically contains only the command label,
@@ -191,18 +184,18 @@ const ZenCommandPalette = {
       const trimmed = this.safeStr(title).trim();
 
       if (!trimmed) {
-        this.debugLog("findCommandFromDomRow: row has no title/text content", row);
+        debugLog("findCommandFromDomRow: row has no title/text content", row);
         if (
           this.provider &&
           this.provider._lastResults &&
           this.provider._lastResults.length === 1
         ) {
-          this.debugLog("findCommandFromDomRow: falling back to single result.");
+          debugLog("findCommandFromDomRow: falling back to single result.");
           return this.provider._lastResults[0] && this.provider._lastResults[0]._zenCmd;
         }
         return null;
       }
-      this.debugLog("findCommandFromDomRow: trying to match row title:", `"${trimmed}"`);
+      debugLog("findCommandFromDomRow: trying to match row title:", `"${trimmed}"`);
 
       // Match by checking if the row's text starts with a known command's title.
       // This is more robust than an exact match, as Firefox can append additional text to the row.
@@ -211,7 +204,7 @@ const ZenCommandPalette = {
           if (!r || !r.payload) continue;
           const payloadTitle = (r.payload.title || r.payload.suggestion || "").trim();
           if (payloadTitle && trimmed.startsWith(payloadTitle)) {
-            this.debugLog("findCommandFromDomRow: matched by startsWith payload title.", r._zenCmd);
+            debugLog("findCommandFromDomRow: matched by startsWith payload title.", r._zenCmd);
             return r._zenCmd || null;
           }
         }
@@ -220,14 +213,14 @@ const ZenCommandPalette = {
       // As a fallback, check the full command list directly.
       const found = this.commands.find((c) => trimmed.startsWith(c.label));
       if (found) {
-        this.debugLog("findCommandFromDomRow: matched command label as fallback.", found);
+        debugLog("findCommandFromDomRow: matched command label as fallback.", found);
         return found;
       }
 
-      this.debugLog("findCommandFromDomRow: failed to match row title to any command.");
+      debugLog("findCommandFromDomRow: failed to match row title to any command.");
       return null;
     } catch (e) {
-      this.debugError("findCommandFromDomRow error:", e);
+      debugError("findCommandFromDomRow error:", e);
     }
   },
 
@@ -237,24 +230,24 @@ const ZenCommandPalette = {
    */
   attachUrlbarSelectionListeners() {
     try {
-      this.debugLog("Attempting to attach URL bar listeners...");
+      debugLog("Attempting to attach URL bar listeners...");
       const popup =
         (typeof gURLBar !== "undefined" && gURLBar.view?.results) ||
         document.getElementById("urlbar-results");
 
       if (!popup) {
-        this.debugError("Could not find urlbar popup element. Listeners not attached.");
+        debugError("Could not find urlbar popup element. Listeners not attached.");
         return;
       }
 
       const onPopupClick = (e) => {
         try {
-          this.debugLog("Popup click event triggered.", "Target:", e.target);
+          debugLog("Popup click event triggered.", "Target:", e.target);
           const row = e.target.closest(".urlbarView-row");
           if (!row) return;
           const cmd = this.findCommandFromDomRow(row);
           if (cmd) {
-            this.debugLog("Executing command from click, stopping further event propagation.");
+            debugLog("Executing command from click, stopping further event propagation.");
             window?.gZenUIManager?.handleUrlbarClose(false, false);
             window?.gURLBar?.view?.close();
             this.executeCommandObject(cmd);
@@ -263,26 +256,26 @@ const ZenCommandPalette = {
             e.preventDefault();
           }
         } catch (ee) {
-          this.debugError("onPopupClick error:", ee);
+          debugError("onPopupClick error:", ee);
         }
       };
 
       const onUrlbarKeydown = (e) => {
         try {
           if (e.key !== "Enter" || e.defaultPrevented) return;
-          this.debugLog("Enter key pressed on urlbar.");
+          debugLog("Enter key pressed on urlbar.");
 
           const view = typeof gURLBar !== "undefined" && gURLBar.view;
           if (!view || !view.isOpen || view.selectedElementIndex < 0) return;
 
           if (!popup || !popup.children) {
-            this.debugError("Keydown handler cannot find popup or its children.");
+            debugError("Keydown handler cannot find popup or its children.");
             return;
           }
           const selectedRow = popup.children[view.selectedElementIndex];
           const cmd = this.findCommandFromDomRow(selectedRow);
           if (cmd) {
-            this.debugLog("Executing command from Enter key, stopping further event propagation.");
+            debugLog("Executing command from Enter key, stopping further event propagation.");
             window?.gZenUIManager?.handleUrlbarClose(false, false);
             gURLBar?.view?.close();
             this.executeCommandObject(cmd);
@@ -290,30 +283,30 @@ const ZenCommandPalette = {
             e.preventDefault();
           }
         } catch (ee) {
-          this.debugError("onUrlbarKeydown error:", ee);
+          debugError("onUrlbarKeydown error:", ee);
         }
       };
 
       if (!popup._zenCmdListenersAttached) {
         popup.addEventListener("click", onPopupClick, true);
-        this.debugLog("Successfully attached 'click' listener to popup:", popup);
+        debugLog("Successfully attached 'click' listener to popup:", popup);
 
         if (typeof gURLBar !== "undefined" && gURLBar.inputField) {
           gURLBar.inputField.addEventListener("keydown", onUrlbarKeydown, true);
-          this.debugLog(
+          debugLog(
             "Successfully attached 'keydown' listener to urlbar input:",
             gURLBar.inputField
           );
         } else {
-          this.debugError("Could not find gURLBar.inputField to attach keydown listener.");
+          debugError("Could not find gURLBar.inputField to attach keydown listener.");
         }
         popup._zenCmdListenersAttached = true;
-        this.debugLog("Finished attaching listeners.");
+        debugLog("Finished attaching listeners.");
       } else {
-        this.debugLog("Listeners already attached.");
+        debugLog("Listeners already attached.");
       }
     } catch (e) {
-      this.debugError("attachUrlbarSelectionListeners setup error:", e);
+      debugError("attachUrlbarSelectionListeners setup error:", e);
     }
   },
 
@@ -331,7 +324,7 @@ const ZenCommandPalette = {
     const { UrlbarResult } = ChromeUtils.importESModule("resource:///modules/UrlbarResult.sys.mjs");
 
     if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
-      this.debugError(
+      debugError(
         "UrlbarProvider or UrlbarProvidersManager not available; provider not registered."
       );
       return;
@@ -370,7 +363,7 @@ const ZenCommandPalette = {
 
             return false;
           } catch (e) {
-            self.debugError("isActive error:", e);
+            debugError("isActive error:", e);
             return false;
           }
         }
@@ -415,7 +408,7 @@ const ZenCommandPalette = {
             // Listeners are attached here to ensure they are active whenever results are shown.
             self.attachUrlbarSelectionListeners();
           } catch (e) {
-            self.debugError("startQuery unexpected error:", e);
+            debugError("startQuery unexpected error:", e);
           }
         }
         dispose() {
@@ -425,9 +418,9 @@ const ZenCommandPalette = {
 
       this.provider = new ZenCommandProvider();
       UrlbarProvidersManager.registerProvider(this.provider);
-      this.debugLog("Zen Command Palette provider registered.");
+      debugLog("Zen Command Palette provider registered.");
     } catch (e) {
-      this.debugError("Failed to create/register Urlbar provider:", e);
+      debugError("Failed to create/register Urlbar provider:", e);
     }
   },
 
@@ -443,14 +436,14 @@ const ZenCommandPalette = {
       loadWorkspaces: Prefs.loadWorkspaces,
       loadSineMods: Prefs.loadSineMods,
     };
-    this.debugLog("Loading dynamic commands with settings:", dynamicSettings);
+    debugLog("Loading dynamic commands with settings:", dynamicSettings);
     generateDynamicCommands(dynamicSettings)
       .then((dynamicCmds) => {
         this.addCommands(dynamicCmds);
-        this.debugLog(`Dynamic commands loaded. Total commands: ${this.commands.length}`);
+        debugLog(`Dynamic commands loaded. Total commands: ${this.commands.length}`);
       })
       .catch((e) => {
-        this.debugError("Failed to load dynamic commands:", e);
+        debugError("Failed to load dynamic commands:", e);
       });
   },
 
@@ -482,7 +475,7 @@ const ZenCommandPalette = {
         addedCount++;
       }
     }
-    this.debugLog("addCommands: added", addedCount, "items. total commands:", this.commands.length);
+    debugLog("addCommands: added", addedCount, "items. total commands:", this.commands.length);
     return this.commands;
   },
 
@@ -498,7 +491,7 @@ const ZenCommandPalette = {
         : this.commands.findIndex((c) => c.key === keyOrPredicate);
     if (idx >= 0) {
       const [removed] = this.commands.splice(idx, 1);
-      this.debugLog("removeCommand:", removed && removed.key);
+      debugLog("removeCommand:", removed && removed.key);
       return removed;
     }
     return null;
@@ -511,7 +504,7 @@ window.ZenCommandPalette = ZenCommandPalette;
 window.ZenCommandPalette.init();
 window.ZenCommandPalette.loadDynamicCommands();
 
-window.ZenCommandPalette.debugLog(
+debugLog(
   "Zen Command Palette initialized. Commands count:",
   window.ZenCommandPalette.commands.length
 );
