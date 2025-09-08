@@ -297,7 +297,9 @@ const ZenCommandPalette = {
           if (cmd) {
             debugLog("Executing command from click, stopping further event propagation.");
             this._closeUrlBar()
-            this.executeCommandObject(cmd);
+            setTimeout(() => {
+              this.executeCommandObject(cmd);
+            }, 0);
             // Stop the browser's default action (e.g., performing a search) for this event.
             e.stopImmediatePropagation();
             e.preventDefault();
@@ -324,7 +326,9 @@ const ZenCommandPalette = {
           if (cmd) {
             debugLog("Executing command from Enter key, stopping further event propagation.");
             this._closeUrlBar()
-            this.executeCommandObject(cmd);
+            setTimeout(() => {
+              this.executeCommandObject(cmd);
+            }, 0);
             e.stopImmediatePropagation();
             e.preventDefault();
           }
