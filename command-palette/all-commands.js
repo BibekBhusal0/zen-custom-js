@@ -1,4 +1,4 @@
-// This file is adapted from the command list in ZBar-Zen by Darsh-A:
+// This file is adapted from the command list in ZBar-Zen by Darsh-Aide
 // https://github.com/Darsh-A/ZBar-Zen/blob/main/command_bar.uc.js
 
 // A helper array of common "about:" pages to be programmatically added to the commands list.
@@ -67,6 +67,14 @@ const zoomIn = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" v
 const zoomOut = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-out-icon lucide-zoom-out"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`;
 const zoomReset = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="m21 21l-6-6M3.268 12.043A7.02 7.02 0 0 0 9.902 17a7.01 7.01 0 0 0 7.043-6.131a7 7 0 0 0-5.314-7.672A7.02 7.02 0 0 0 3.39 7.6"/><path d="M3 4v4h4"/></g></svg>`;
 
+const isCompactMode = () => gZenCompactModeManager?.preference 
+const ucAvailable = () => typeof UC_API !== "undefined"
+const togglePref = (prefName) => {
+  const pref = UC_API.Prefs.get(prefName);
+  if (!pref || pref.type !== "boolean") return;
+  pref.setTo(!pref.value);
+};
+
 export const commands = [
   // ----------- Zen Compact Mode -----------
   {
@@ -77,30 +85,31 @@ export const commands = [
   },
   {
     key: "cmd_zenCompactModeShowSidebar",
-    label: "Show Sidebar",
+    label: "Toggle Floating Sidebar",
     icon: "chrome://browser/skin/zen-icons/sidebar.svg",
+    condition : isCompactMode,
     tags: ["compact", "sidebar", "show", "ui"]
   },
   {
     key: "cmd_zenCompactModeShowToolbar",
-    label: "Show Toolbar",
+    label: "Toggle Floating Toolbar",
+    condition : isCompactMode,
     tags: ["compact", "toolbar", "show", "ui"]
   },
   {
-    key: "cmd_zenCompactModeHideSidebar",
-    label: "Hide Sidebar",
+    key: "toggle-sidebar",
+    label: "Toggle Sidebar",
+    command: () => togglePref("zen.view.compact.hide-tabbar"),
+    condition : () => isCompactMode() && ucAvailable(),
     icon: "chrome://browser/skin/zen-icons/expand-sidebar.svg",
     tags: ["compact", "sidebar", "hide", "ui"]
   },
   {
-    key: "cmd_zenCompactModeHideToolbar",
-    label: "Hide Toolbar",
+    key: "toggle-toolbar",
+    label: "Toggle Toolbar",
+    command: () => togglePref("zen.view.compact.hide-toolbar"),
+    condition : () => isCompactMode() && ucAvailable(),
     tags: ["compact", "toolbar", "hide", "ui"]
-  },
-  {
-    key: "cmd_zenCompactModeHideBoth",
-    label: "Hide Sidebar and Toolbar",
-    tags: ["compact", "sidebar", "toolbar", "hide", "ui", "minimal"]
   },
 
   // ----------- Zen Workspace Management -----------
@@ -197,8 +206,8 @@ export const commands = [
   },
   {
     key: "cmd_zenToggleSidebar",
-    label: "Toggle Sidebar",
-    icon: "chrome://browser/skin/zen-icons/sidebars.svg",
+    label: "Toggle Sidebar Width",
+    icon: "chrome://browser/skin/zen-icons/sidebar.svg",
     tags: ["sidebar", "toggle", "show", "hide"]
   },
   {
