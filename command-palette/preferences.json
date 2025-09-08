@@ -32,7 +32,7 @@
   {
     "type": "dropdown",
     "property": "zen-command-palette.min-query-length",
-    "label": "Activation Length (without ':')",
+    "label": "Activation Length (without `:`)",
     "value": "number",
     "default": 3,
     "placeholder": false,
@@ -41,6 +41,23 @@
       { "label": "3 Characters", "value": 3 },
       { "label": "4 Characters", "value": 4 },
       { "label": "5 Characters", "value": 5 }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "value": "number",
+    "property": "browser.urlbar.maxRichResults",
+    "label": "The number of search suggestions",
+    "default": 1,
+    "placeholder": false,
+    "options": [
+      { "label": "5", "value": 5 },
+      { "label": "6", "value": 6 },
+      { "label": "7(Zen browser Default)", "value": 7 },
+      { "label": "8", "value": 8 },
+      { "label": "9", "value": 9 },
+      { "label": "10(Firefox browser Default)", "value": 10 },
+      { "label": "12", "value": 12 }
     ]
   },
   {
@@ -75,7 +92,7 @@
   {
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.about-pages",
-    "label": "Enable 'about:' page commands",
+    "label": "Enable `about:` page commands",
     "default": false
   },
   {
