@@ -37,11 +37,11 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 | `zen-command-palette.debug-mode`             | Boolean | `false` | Enables detailed logging in the Browser Console for troubleshooting.      |
 | `zen-command-palette.max-commands`           | Integer | `3`     | The maximum number of command results to display at once.                 |
 | `zen-command-palette.min-query-length`       | Integer | `3`     | Minimum characters needed to show commands (unless using the `:` prefix). |
-| `zen-command-palette.dynamic.about-pages`    | Boolean | `false`  | Automatically generate commands for `about:` pages.                       |
+| `zen-command-palette.dynamic.about-pages`    | Boolean | `false` | Automatically generate commands for `about:` pages.                       |
 | `zen-command-palette.dynamic.search-engines` | Boolean | `true`  | Automatically generate commands for your installed search engines.        |
 | `zen-command-palette.dynamic.extensions`     | Boolean | `true`  | Automatically generate commands for extensions with an options page.      |
 | `zen-command-palette.dynamic.workspaces`     | Boolean | `true`  | Automatically generate commands for switching between Zen Workspaces.     |
-| `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`  | Automatically generate commands for Installing/uninstalling sine mods.     |
+| `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`  | Automatically generate commands for Installing/uninstalling sine mods.    |
 
 ## Available Commands
 
