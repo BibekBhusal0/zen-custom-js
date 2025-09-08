@@ -1,26 +1,16 @@
 import { commands } from "./all-commands.js";
 import { generateDynamicCommands } from "./dynamic-commands.js";
+import { Prefs } from "./prefs.js";
 
 const ZenCommandPalette = {
-  debugMode: true,
   commands,
   provider: null,
 
-  maxCommands: 3, // The maximum number of command results to show.
-  minQueryLength: 4, // The minimum number of characters required to show results (unless using the ':' prefix).
-
-  dynamicCommandSettings: {
-    loadAboutPages: true,
-    loadSearchEngines: true,
-    loadExtensions: true,
-    loadWorkspaces: true,
-  },
-
   debugLog(...args) {
-    if (this.debugMode) console.log("zen-command-palette:", ...args);
+    if (Prefs.debugMode) console.log("zen-command-palette:", ...args);
   },
   debugError(...args) {
-    if (this.debugMode) console.error("zen-command-palette:", ...args);
+    if (Prefs.debugMode) console.error("zen-command-palette:", ...args);
   },
 
   safeStr(x) {
@@ -85,11 +75,11 @@ const ZenCommandPalette = {
     // If the input was just the prefix, show all available commands, unsorted.
     if (isCommandPrefix && !query) {
       const visible = this.commands.filter(this.commandIsVisible.bind(this));
-      return visible.slice(0, this.maxCommands);
+      return visible.slice(0, Prefs.maxCommands);
     }
 
     // For non-prefixed queries, only show results if the query is long enough.
-    if (!isCommandPrefix && query.length < this.minQueryLength) {
+    if (!isCommandPrefix && query.length < Prefs.minQueryLength) {
       return [];
     }
 
@@ -145,7 +135,7 @@ const ZenCommandPalette = {
     scoredCommands.sort((a, b) => b.score - a.score);
 
     const finalCmds = scoredCommands.map((item) => item.cmd);
-    return finalCmds.slice(0, this.maxCommands);
+    return finalCmds.slice(0, Prefs.maxCommands);
   },
 
   /**
@@ -374,7 +364,7 @@ const ZenCommandPalette = {
             }
 
             // Otherwise, only activate if not in search mode and query is long enough.
-            if (!inSearchMode && input.length >= self.minQueryLength) {
+            if (!inSearchMode && input.length >= Prefs.minQueryLength) {
               return self.filterCommandsByInput(input).length > 0;
             }
 
@@ -446,8 +436,14 @@ const ZenCommandPalette = {
    * Can be called any time after init.
    */
   loadDynamicCommands() {
-    this.debugLog("Loading dynamic commands with settings:", this.dynamicCommandSettings);
-    generateDynamicCommands(this.dynamicCommandSettings)
+    const dynamicSettings = {
+      loadAboutPages: Prefs.loadAboutPages,
+      loadSearchEngines: Prefs.loadSearchEngines,
+      loadExtensions: Prefs.loadExtensions,
+      loadWorkspaces: Prefs.loadWorkspaces,
+    };
+    this.debugLog("Loading dynamic commands with settings:", dynamicSettings);
+    generateDynamicCommands(dynamicSettings)
       .then((dynamicCmds) => {
         this.addCommands(dynamicCmds);
         this.debugLog(`Dynamic commands loaded. Total commands: ${this.commands.length}`);
@@ -508,7 +504,8 @@ const ZenCommandPalette = {
   },
 };
 
-// Expose the object to the window and initialize it.
+// --- Initialization ---
+Prefs.setInitialPrefs();
 window.ZenCommandPalette = ZenCommandPalette;
 window.ZenCommandPalette.init();
 window.ZenCommandPalette.loadDynamicCommands();
