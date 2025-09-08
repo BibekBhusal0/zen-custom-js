@@ -153,9 +153,9 @@ const ZenCommandPalette = {
     if (Prefs.loadSearchEngines) commandPromises.push(generateSearchEngineCommands());
     if (Prefs.loadExtensions) commandPromises.push(generateExtensionCommands());
     if (Prefs.loadWorkspaces) {
-      commandPromises.push(generateWorkspaceCommands())
+      commandPromises.push(generateWorkspaceCommands());
       commandPromises.push(generateWorkspaceMoveCommands());
-    };
+    }
     if (Prefs.loadSineMods) commandPromises.push(generateSineCommands());
     if (Prefs.loadFolders) commandPromises.push(generateFolderCommands());
 

@@ -679,7 +679,7 @@ export const commands = [
     command: () => UC_API.Runtime.restart(),
     condition: ucAvailable,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
-    tags : ['restart', 'reopen', 'close']
+    tags: ["restart", "reopen", "close"],
   },
   {
     key: "app:clear-startupCache",
@@ -687,6 +687,6 @@ export const commands = [
     command: () => UC_API.Runtime.restart(true),
     condition: ucAvailable,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
-    tags : ['restart', 'reopen', 'close', 'clear', 'cache',]
+    tags: ["restart", "reopen", "close", "clear", "cache"],
   },
 ];
