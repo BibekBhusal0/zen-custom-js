@@ -334,6 +334,7 @@ const ZenCommandPalette = {
                 url: "",
                 query: cmd.key,
                 engine: "zenCommand",
+                keywords: cmd?.tags
               });
 
               const result = new UrlbarResult(
