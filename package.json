@@ -2,7 +2,9 @@
   "name": "Zen Browser UserScripts",
   "description": "Personal customization userscripts and css files for enhanceing browsing experience in Zen Browser",
   "scripts": {
-    "build": "rollup -c --bundleConfigAsCjs",
+    "build": "cross-env rollup -c --bundleConfigAsCjs",
+    "build:browsebot": "cross-env TARGET=browsebot rollup -c --bundleConfigAsCjs",
+    "build:palette": "cross-env TARGET=palette rollup -c --bundleConfigAsCjs",
     "format": "prettier --write ."
   },
   "author": "Bibek Bhusal",
@@ -11,6 +13,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.8",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "cross-env": "^7.0.3",
     "prettier": "^3.3.2",
     "rollup": "^4.18.0",
     "rollup-plugin-string": "^3.0.0"

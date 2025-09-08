@@ -2,7 +2,8 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import { string } from "rollup-plugin-string";
 
-const header = `// ==UserScript==
+// --- Headers ---
+const browseBotHeader = `// ==UserScript==
 // @name            BrowseBot
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface.
 // @author          BibekBhusal
@@ -10,21 +11,61 @@ const header = `// ==UserScript==
 
 `;
 
-export default {
+const commandPaletteHeader = `// ==UserScript==
+// @name            Zen Command Palette
+// @description     A powerful, extensible command interface for Zen Browser, seamlessly integrated into the URL bar.
+// @author          BibekBhusal
+// ==/UserScript==
+
+`;
+
+// --- Common Plugins ---
+const commonPlugins = [
+  resolve(),
+  commonjs(),
+  string({
+    include: "**/*.css",
+  }),
+];
+
+// --- Individual Configurations ---
+const browseBotConfig = {
   input: "findbar-ai/findbar-ai.uc.js",
   output: [
     {
       file: "dist/browse-bot.uc.js",
       format: "umd",
       name: "BrowseBot",
-      banner: header,
+      banner: browseBotHeader,
     },
   ],
-  plugins: [
-    resolve(),
-    commonjs(),
-    string({
-      include: "**/*.css",
-    }),
-  ],
+  plugins: commonPlugins,
 };
+
+const commandPaletteConfig = {
+  input: "command-palette/command-palette.uc.js",
+  output: [
+    {
+      file: "dist/zen-command-palette.uc.js",
+      format: "umd",
+      name: "ZenCommandPalette",
+      banner: commandPaletteHeader,
+    },
+  ],
+  plugins: commonPlugins,
+};
+
+// --- Export Logic ---
+const target = process.env.TARGET;
+let config;
+
+if (target === "browsebot") {
+  config = browseBotConfig;
+} else if (target === "palette") {
+  config = commandPaletteConfig;
+} else {
+  // If no target is specified, build all
+  config = [browseBotConfig, commandPaletteConfig];
+}
+
+export default config;
