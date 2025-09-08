@@ -14,6 +14,24 @@ const textToSvgDataUrl = (text, isWorkspace = false) => {
 };
 
 /**
+ * Gets a favicon for a search engine, with fallbacks.
+ * @param {object} engine - The search engine object.
+ * @returns {string} The URL of the favicon.
+ */
+const getSearchEngineFavicon = (engine) => {
+  if (engine.iconURI?.spec) {
+    return engine.iconURI.spec;
+  }
+  try {
+    const submissionUrl = engine.getSubmission("test_query").uri.spec;
+    const hostName = new URL(submissionUrl).hostname;
+    return `https://s2.googleusercontent.com/s2/favicons?domain_url=https://${hostName}&sz=32`;
+  } catch (e) {
+    return "chrome://browser/skin/search-glass.svg"; // Absolute fallback
+  }
+};
+
+/**
  * Generates commands for opening "about:" pages.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of about page commands.
  */
@@ -76,7 +94,7 @@ export async function generateAboutPageCommands() {
 }
 
 /**
- * Generates commands for switching the default search engine.
+ * Generates commands for changing the current search engine in the URL bar.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of search engine commands.
  */
 export async function generateSearchEngineCommands() {
@@ -85,13 +103,19 @@ export async function generateSearchEngineCommands() {
     const engines = await Services.search.getVisibleEngines();
     return engines.map((engine) => ({
       key: `search:${engine.name}`,
-      label: `Switch search to: ${engine.name}`,
+      label: `Search with: ${engine.name}`,
       command: () => {
-        Services.search.defaultEngine = engine;
+        if (window.gURLBar && typeof window.gURLBar.setSearchMode === "function") {
+          window.gURLBar.setSearchMode(engine);
+          window.gURLBar.focus(); // Keep the focus in the URL bar to start typing
+        }
       },
-      condition: () =>
-        !!Services.search.defaultEngine && Services.search.defaultEngine.name !== engine.name,
-      icon: engine.iconURI?.spec || "chrome://browser/skin/search-glass.svg",
+      condition: () => {
+        const currentEngineName =
+          window.gURLBar.searchMode?.engineName || Services.search.defaultEngine?.name;
+        return currentEngineName !== engine.name;
+      },
+      icon: getSearchEngineFavicon(engine),
       tags: ["search", "engine", engine.name.toLowerCase()],
     }));
   } catch (e) {
@@ -129,28 +153,27 @@ export async function generateWorkspaceCommands() {
   const workspacesData = await window.gZenWorkspaces._workspaces();
   if (!workspacesData || !workspacesData.workspaces) return [];
 
-  return workspacesData.workspaces
-    .filter((workspace) => workspace.uuid !== window.gZenWorkspaces.activeWorkspace)
-    .map((workspace) => {
-      const icon = window.gZenWorkspaces.getWorkspaceIcon(workspace);
-      let iconUrl = "chrome://browser/skin/zen-icons/workspace.svg"; // Default icon
+  return workspacesData.workspaces.map((workspace) => {
+    const icon = window.gZenWorkspaces.getWorkspaceIcon(workspace);
+    let iconUrl = "chrome://browser/skin/zen-icons/workspace.svg"; // Default icon
 
-      if (icon) {
-        if (icon.endsWith(".svg")) {
-          iconUrl = icon;
-        } else {
-          // Render emoji or character as an SVG icon
-          iconUrl = textToSvgDataUrl(icon, true);
-        }
+    if (icon) {
+      if (icon.endsWith(".svg")) {
+        iconUrl = icon;
+      } else {
+        // Render emoji or character as an SVG icon
+        iconUrl = textToSvgDataUrl(icon, true);
       }
-      return {
-        key: `workspace:${workspace.uuid}`,
-        label: `Switch to workspace: ${workspace.name}`,
-        command: () => window.gZenWorkspaces.changeWorkspaceWithID(workspace.uuid),
-        icon: iconUrl,
-        tags: ["workspace", "switch", workspace.name.toLowerCase()],
-      };
-    });
+    }
+    return {
+      key: `workspace:${workspace.uuid}`,
+      label: `Switch to workspace: ${workspace.name}`,
+      command: () => window.gZenWorkspaces.changeWorkspaceWithID(workspace.uuid),
+      condition: () => workspace.uuid !== window.gZenWorkspaces.activeWorkspace,
+      icon: iconUrl,
+      tags: ["workspace", "switch", workspace.name.toLowerCase()],
+    };
+  });
 }
 
 /**
