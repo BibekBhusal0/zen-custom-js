@@ -1,4 +1,4 @@
-import { debugLog, } from "./prefs.js";
+import { debugLog } from "./prefs.js";
 
 /**
  * Creates an SVG data URL from a text string or emoji, suitable for use as an icon.

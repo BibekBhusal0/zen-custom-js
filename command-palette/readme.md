@@ -11,7 +11,7 @@ This project aims to be a modern and actively maintained alternative, building u
 - **Exclusive Command Mode**: Start your query with a colon (`:`) to hide all other search suggestions and focus exclusively on commands.
 - **Fuzzy Search & Smart Sorting**: Quickly find what you're looking for with a powerful fuzzy search that scores and sorts results, prioritizing the best matches.
 - **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, and internal `about:` pages.
-- **Sine Mod Management**: Find and uninstall your installed Sine mods directly from the command palette. *Note: Installing new mods is not currently supported as the required API is not exposed by Sine.*
+- **Sine Mod Management**: Find and uninstall your installed Sine mods directly from the command palette. _Note: Installing new mods is not currently supported as the required API is not exposed by Sine._
 - **Extensible API**: Other user scripts and browser mods can easily add their own commands, making the palette a central hub for all your custom actions.
 - **Highly Customizable**: Use `about:config` to change the number of results, when the palette appears, and which dynamic commands are loaded.
 
@@ -108,10 +108,12 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Open File
 
 ### Sine Mod Management
-- **Install Sine Mod**: *Currently unavailable as the required API is not exposed by Sine.*
+
+- **Install Sine Mod**: _Currently unavailable as the required API is not exposed by Sine._
 - **Uninstall Sine Mod**: Uninstall any of your currently installed Sine mods.
 
 ### Dynamic Commands
+
 - **About Pages**: Automatically generated commands to open any of Firefox's internal `about:` pages (e.g., `about:config`, `about:addons`).
 - **Search Engines**: Automatically generated commands to switch the URL bar's current search engine to any of your installed engines (e.g., "Search with: Google").
 - **Extension Options**: Automatically generated commands to open the options page for any of your installed extensions that have one.

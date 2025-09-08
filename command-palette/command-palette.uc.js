@@ -322,10 +322,7 @@ const ZenCommandPalette = {
 
         if (typeof gURLBar !== "undefined" && gURLBar.inputField) {
           gURLBar.inputField.addEventListener("keydown", onUrlbarKeydown, true);
-          debugLog(
-            "Successfully attached 'keydown' listener to urlbar input:",
-            gURLBar.inputField
-          );
+          debugLog("Successfully attached 'keydown' listener to urlbar input:", gURLBar.inputField);
         } else {
           debugError("Could not find gURLBar.inputField to attach keydown listener.");
         }
@@ -485,7 +482,12 @@ const ZenCommandPalette = {
         addedCount++;
       }
     }
-    debugLog("addCommands: added", addedCount, "items. total commands:", this.staticCommands.length);
+    debugLog(
+      "addCommands: added",
+      addedCount,
+      "items. total commands:",
+      this.staticCommands.length
+    );
     return this.staticCommands;
   },
 
