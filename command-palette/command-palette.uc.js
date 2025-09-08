@@ -296,7 +296,7 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(row);
           if (cmd) {
             debugLog("Executing command from click, stopping further event propagation.");
-            this._closeUrlBar()
+            this._closeUrlBar();
             setTimeout(() => {
               this.executeCommandObject(cmd);
             }, 0);
@@ -325,7 +325,7 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(selectedRow);
           if (cmd) {
             debugLog("Executing command from Enter key, stopping further event propagation.");
-            this._closeUrlBar()
+            this._closeUrlBar();
             setTimeout(() => {
               this.executeCommandObject(cmd);
             }, 0);

@@ -1,5 +1,5 @@
 import { debugLog } from "./utils/prefs.js";
-import {textToSvgDataUrl, svgToUrl,icons} from './utils/icon.js'
+import { textToSvgDataUrl, svgToUrl, icons } from "./utils/icon.js";
 
 /**
  * Gets a favicon for a search engine, with fallbacks.
