@@ -79,6 +79,66 @@ const ZenCommandPalette = {
   },
 
   /**
+   * A VS Code-style fuzzy scoring algorithm.
+   * @param {string} target The string to score against.
+   * @param {string} query The user's search query.
+   * @returns {number} A score representing the match quality.
+   */
+  calculateFuzzyScore(target, query) {
+    if (!target || !query) return 0;
+
+    const targetLower = target.toLowerCase();
+    const queryLower = query.toLowerCase();
+    const targetLen = target.length;
+    const queryLen = query.length;
+
+    if (queryLen > targetLen) return 0;
+    if (queryLen === 0) return 0;
+
+    // Heavily prioritize exact prefix matches
+    if (targetLower.startsWith(queryLower)) {
+      return 100 + queryLen;
+    }
+
+    let score = 0;
+    let queryIndex = 0;
+    let lastMatchIndex = -1;
+    let consecutiveMatches = 0;
+
+    for (let targetIndex = 0; targetIndex < targetLen; targetIndex++) {
+      if (queryIndex < queryLen && targetLower[targetIndex] === queryLower[queryIndex]) {
+        let bonus = 10;
+
+        // Bonus for matching at the beginning of a word
+        if (targetIndex === 0 || [" ", "-", "_"].includes(targetLower[targetIndex - 1])) {
+          bonus += 15;
+        }
+
+        // Bonus for consecutive matches
+        if (lastMatchIndex === targetIndex - 1) {
+          consecutiveMatches++;
+          bonus += 20 * consecutiveMatches;
+        } else {
+          consecutiveMatches = 0;
+        }
+
+        // Penalty for distance from the last match
+        if (lastMatchIndex !== -1) {
+          const distance = targetIndex - lastMatchIndex;
+          bonus -= Math.min(distance - 1, 10); // Cap penalty to avoid negative scores for valid matches
+        }
+
+        score += bonus;
+        lastMatchIndex = targetIndex;
+        queryIndex++;
+      }
+    }
+
+    // If not all characters of the query were found, it's not a match.
+    return queryIndex === queryLen ? score : 0;
+  },
+
+  /**
    * Generates a complete, up-to-date list of commands by combining static commands
    * with dynamically generated ones based on current preferences.
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
@@ -132,44 +192,25 @@ const ZenCommandPalette = {
     const scoredCommands = allCommands
       .filter(this.commandIsVisible.bind(this))
       .map((cmd) => {
-        const label = (cmd.label || "").toLowerCase();
-        const key = (cmd.key || "").toLowerCase();
-        const tags = (cmd.tags || []).join(" ").toLowerCase();
+        const label = cmd.label || "";
+        const key = cmd.key || "";
+        const tags = (cmd.tags || []).join(" ");
 
-        let score = 0;
+        // Calculate scores for different fields
+        const labelScore = this.calculateFuzzyScore(label, lowerQuery);
+        const keyScore = this.calculateFuzzyScore(key, lowerQuery);
+        const tagsScore = this.calculateFuzzyScore(tags, lowerQuery);
 
-        // Score based on match quality, with label/key being most important.
-        if (label.startsWith(lowerQuery)) {
-          score = Math.max(score, 100);
-        } else if (key.startsWith(lowerQuery)) {
-          score = Math.max(score, 90);
-        } else if (label.includes(lowerQuery)) {
-          score = Math.max(score, 80);
-        } else if (key.includes(lowerQuery)) {
-          score = Math.max(score, 70);
-        } else if (tags.includes(lowerQuery)) {
-          score = Math.max(score, 60);
-        }
-
-        // Simple fuzzy match as a fallback if no other score was found.
-        if (score === 0) {
-          const fuzzyTarget = `${label} ${key} ${tags}`;
-          let queryIndex = 0;
-          let fuzzyScore = 0;
-          for (let i = 0; i < fuzzyTarget.length && queryIndex < lowerQuery.length; i++) {
-            if (fuzzyTarget[i] === lowerQuery[queryIndex]) {
-              fuzzyScore++;
-              queryIndex++;
-            }
-          }
-          if (queryIndex === lowerQuery.length) {
-            score = fuzzyScore;
-          }
-        }
+        // Combine scores, giving label the highest weight
+        const score = Math.max(
+          labelScore * 1.5, // Label is most important
+          keyScore,
+          tagsScore * 0.5 // Tags are least important
+        );
 
         return { cmd, score };
       })
-      .filter((item) => item.score > 0);
+      .filter((item) => item.score >= Prefs.minScoreThreshold);
 
     // Sort by score, descending
     scoredCommands.sort((a, b) => b.score - a.score);

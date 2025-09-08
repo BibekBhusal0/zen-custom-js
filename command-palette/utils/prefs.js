@@ -3,6 +3,7 @@ export const Prefs = {
     DEBUG_MODE: "zen-command-palette.debug-mode",
     MAX_COMMANDS: "zen-command-palette.max-commands",
     MIN_QUERY_LENGTH: "zen-command-palette.min-query-length",
+    MIN_SCORE_THRESHOLD: "zen-command-palette.min-score-threshold",
     DYNAMIC_ABOUT_PAGES: "zen-command-palette.dynamic.about-pages",
     DYNAMIC_SEARCH_ENGINES: "zen-command-palette.dynamic.search-engines",
     DYNAMIC_EXTENSIONS: "zen-command-palette.dynamic.extensions",
@@ -41,6 +42,9 @@ export const Prefs = {
   get minQueryLength() {
     return this.getPref(this.KEYS.MIN_QUERY_LENGTH);
   },
+  get minScoreThreshold() {
+    return this.getPref(this.KEYS.MIN_SCORE_THRESHOLD);
+  },
   get loadAboutPages() {
     return this.getPref(this.KEYS.DYNAMIC_ABOUT_PAGES);
   },
@@ -62,6 +66,7 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DEBUG_MODE]: false,
   [Prefs.KEYS.MAX_COMMANDS]: 3,
   [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
+  [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 20,
   [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
   [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
   [Prefs.KEYS.DYNAMIC_EXTENSIONS]: true,
