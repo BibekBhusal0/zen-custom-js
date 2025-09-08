@@ -383,10 +383,10 @@ export const commands = [
   {
     key: "History:UndoCloseTab",
     label: "Reopen Closed Tab",
-    command: () => undoCloseTab(),
-    condition: !!window.undoCloseTab,
+    command: () => SessionStore.undoCloseTab(window, 0),
+    condition: !!SessionStore?.undoCloseTab,
     icon: "chrome://browser/skin/zen-icons/edit-undo.svg",
-    tags: ["undo", "close", "tab", "reopen", "restore"]
+    tags: ["undo", "close", "tab", "reopen", "restore"],
   },
 
   // ----------- Window Management -----------
