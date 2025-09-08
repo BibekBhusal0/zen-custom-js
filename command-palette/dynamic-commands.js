@@ -1,5 +1,5 @@
 import { debugLog } from "./utils/prefs.js";
-import {textToSvgDataUrl} from './utils/icon.js'
+import {textToSvgDataUrl, svgToUrl,icons} from './utils/icon.js'
 
 /**
  * Gets a favicon for a search engine, with fallbacks.
@@ -192,7 +192,7 @@ export async function generateSineCommands() {
           key: `sine:install:${modId}`,
           label: `Install Sine Mod: ${mod.name}`,
           command: () => Sine.installMod(mod.homepage),
-          icon: "chrome://browser/skin/zen-icons/downloads.svg",
+          icon: svgToUrl(icons.sine),
           tags: ["sine", "install", "mod", mod.name.toLowerCase()],
         });
       }
@@ -222,7 +222,7 @@ export async function generateSineCommands() {
           });
         }
       },
-      icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
+      icon: svgToUrl(icons.sine),
       tags: ["sine", "uninstall", "mod", mod.name.toLowerCase()],
     });
   }
