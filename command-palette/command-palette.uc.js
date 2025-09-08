@@ -16,6 +16,25 @@ const ZenCommandPalette = {
     return (x || "").toString();
   },
 
+  _closeUrlBar() {
+    try {
+      gURLBar.value = "";
+      if (window.gZenUIManager && typeof window.gZenUIManager.handleUrlbarClose === "function") {
+        window.gZenUIManager.handleUrlbarClose(false, false);
+        return;
+      }
+
+      gURLBar.selectionStart = gURLBar.selectionEnd = 0;
+      gURLBar.blur();
+
+      if (gURLBar.view.isOpen) {
+        gURLBar.view.close();
+      }
+    } catch (e) {
+      debugError("urlbarAI: Error in _closeUrlBar", e);
+    }
+  },
+
   /**
    * Checks if a command should be visible based on its `condition` property.
    * @param {object} cmd - The command object to check.
@@ -277,8 +296,7 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(row);
           if (cmd) {
             debugLog("Executing command from click, stopping further event propagation.");
-            window?.gZenUIManager?.handleUrlbarClose(false, false);
-            window?.gURLBar?.view?.close();
+            this._closeUrlBar()
             this.executeCommandObject(cmd);
             // Stop the browser's default action (e.g., performing a search) for this event.
             e.stopImmediatePropagation();
@@ -305,8 +323,7 @@ const ZenCommandPalette = {
           const cmd = this.findCommandFromDomRow(selectedRow);
           if (cmd) {
             debugLog("Executing command from Enter key, stopping further event propagation.");
-            window?.gZenUIManager?.handleUrlbarClose(false, false);
-            gURLBar?.view?.close();
+            this._closeUrlBar()
             this.executeCommandObject(cmd);
             e.stopImmediatePropagation();
             e.preventDefault();
