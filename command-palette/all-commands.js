@@ -68,6 +68,7 @@ const zoomOut = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
 const zoomReset = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="m21 21l-6-6M3.268 12.043A7.02 7.02 0 0 0 9.902 17a7.01 7.01 0 0 0 7.043-6.131a7 7 0 0 0-5.314-7.672A7.02 7.02 0 0 0 3.39 7.6"/><path d="M3 4v4h4"/></g></svg>`;
 const pin = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-icon lucide-pin"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`
 const unpin = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-off-icon lucide-pin-off"><path d="M12 17v5"/><path d="M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89"/><path d="m2 2 20 20"/><path d="M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h11"/></svg>`
+const broom = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M5.185 31.954C6.529 26.914 10.638 23 15.854 23c4.895 0 8.164 4.425 8.056 9.32l-.057 2.569a7 7 0 0 0 2.097 5.154l1.106 1.086c1.586 1.557.66 4.224-1.555 4.408c-2.866.237-6.41.463-9.501.463c-3.982 0-7.963-.375-10.45-.666c-1.472-.172-2.558-1.428-2.417-2.902c.32-3.363 1.174-7.188 2.052-10.478"/><path d="M20 24.018c1.68-6.23 3.462-12.468 4.853-18.773c.219-.993-.048-2.01-1-2.365a8 8 0 0 0-.717-.226a8 8 0 0 0-.734-.162c-1.002-.17-1.742.578-2.048 1.547c-1.96 6.191-3.542 12.522-5.213 18.792M45 45H35m7-8H32m7-8H29m-18.951 8.75c-.167 1.5 0 5.2 2 8m5-7.75s0 5 2.951 7.5"/></g></svg>`
 
 const isCompactMode = () => gZenCompactModeManager?.preference 
 const ucAvailable = () => typeof UC_API !== "undefined"
@@ -76,6 +77,41 @@ const togglePref = (prefName) => {
   if (!pref || pref.type !== "boolean") return;
   pref.setTo(!pref.value);
 };
+
+// https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/blob/main/clear.uc.js
+const clearTabs = () => {
+  try {
+    const currentWorkspaceId = window.gZenWorkspaces?.activeWorkspace;
+    if (!currentWorkspaceId) return;
+    const groupSelector = `tab-group:has(tab[zen-workspace-id="${currentWorkspaceId}"])`;
+    const tabsToClose = [];
+    for (const tab of gBrowser.tabs) {
+      const isSameWorkSpace = tab.getAttribute("zen-workspace-id") === currentWorkspaceId;
+      const groupParent = tab.closest("tab-group");
+      const isInGroupInCorrectWorkspace = groupParent ? groupParent.matches(groupSelector) : false;
+      const isEmptyZenTab = tab.hasAttribute("zen-empty-tab");
+      if (
+        isSameWorkSpace &&
+        !tab.selected &&
+        !tab.pinned &&
+        !isInGroupInCorrectWorkspace &&
+        !isEmptyZenTab &&
+        tab.isConnected
+      ) {
+        tabsToClose.push(tab);
+      }
+    }
+    if (tabsToClose.length === 0) return;
+
+    gBrowser.removeTabs(tabsToClose, {
+      animate: true,
+      skipSessionStore: false,
+    });
+  } catch (error) {
+    console.error("zen-command-palette: Error clearing tabs:", error);
+  }
+};
+
 
 export const commands = [
   // ----------- Zen Compact Mode -----------
@@ -228,12 +264,41 @@ export const commands = [
   },
 
   // ----------- Tab Management -----------
-  // {
-  //   key: "cmd_newNavigatorTab",
-  //   label: "New Tab",
-  //   icon: "chrome://browser/skin/zen-icons/plus.svg",
-  //   tags: ["tab", "new", "create", "open"]
-  // },
+  {
+    key: "duplicate-tab",
+    label: "Duplicate Tab",
+    command: () => {
+      const newTab = window.gBrowser.duplicateTab(window.gBrowser.selectedTab);
+      window.gBrowser.selectedTab = newTab;
+    },
+    condition: !!window.gBrowser?.duplicateTab,
+    icon: "chrome://browser/skin/zen-icons/duplicate-tab.svg",
+    tags: ["duplicate", "tab", "copy", "clone"]
+  },
+  {
+    key: "clear-tabs",
+    label: "Clear Other Tabs",
+    command: clearTabs,
+    condition: () => !!window.gBrowser && !!window.gZenWorkspaces,
+    icon: svgToUrl(broom),
+    tags: ["clear", "tabs", "close", "other", "workspace"]
+  },
+  {
+    key: "move-tab-up",
+    label: "Move Tab Up",
+    command: () => window.gBrowser.moveTabBackward(),
+    condition: !!window.gBrowser?.moveTabBackward,
+    icon: "chrome://browser/skin/zen-icons/arrow-up.svg",
+    tags: ["move", "tab", "up", "backward", "reorder"]
+  },
+  {
+    key: "move-tab-down",
+    label: "Move Tab Down",
+    command: () => window.gBrowser.moveTabForward(),
+    condition: !!window.gBrowser?.moveTabForward,
+    icon: "chrome://browser/skin/zen-icons/arrow-down.svg",
+    tags: ["move", "tab", "down", "forward", "reorder"]
+  },
   {
     key: "cmd_close",
     label: "Close Tab",
