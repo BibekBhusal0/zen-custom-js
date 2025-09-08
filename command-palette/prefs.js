@@ -7,6 +7,7 @@ export const Prefs = {
     DYNAMIC_SEARCH_ENGINES: "zen-command-palette.dynamic.search-engines",
     DYNAMIC_EXTENSIONS: "zen-command-palette.dynamic.extensions",
     DYNAMIC_WORKSPACES: "zen-command-palette.dynamic.workspaces",
+    DYNAMIC_SINE_MODS: "zen-command-palette.dynamic.sine-mods",
   },
 
   defaultValues: {},
@@ -52,6 +53,9 @@ export const Prefs = {
   get loadWorkspaces() {
     return this.getPref(this.KEYS.DYNAMIC_WORKSPACES);
   },
+  get loadSineMods() {
+    return this.getPref(this.KEYS.DYNAMIC_SINE_MODS);
+  },
 };
 
 Prefs.defaultValues = {
@@ -62,4 +66,5 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
   [Prefs.KEYS.DYNAMIC_EXTENSIONS]: true,
   [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
+  [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
 };

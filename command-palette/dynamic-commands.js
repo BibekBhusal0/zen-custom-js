@@ -182,6 +182,58 @@ export async function generateWorkspaceCommands() {
 }
 
 /**
+ * Generates commands for installing and uninstalling Sine mods.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of Sine mod commands.
+ */
+export async function generateSineCommands() {
+  if (!window.SineAPI || !window.Sine) return [];
+
+  const installedMods = await SineAPI.utils.getMods();
+  const marketplaceMods = Sine.marketplace || {};
+  const commands = [];
+
+  // Generate "Install" commands for marketplace mods that aren't installed yet.
+  for (const modId in marketplaceMods) {
+    if (!installedMods[modId]) {
+      const mod = marketplaceMods[modId];
+      commands.push({
+        key: `sine:install:${modId}`,
+        label: `Install Sine Mod: ${mod.name}`,
+        command: () => Sine.installMod(mod.homepage),
+        icon: "chrome://browser/skin/zen-icons/downloads.svg",
+        tags: ["sine", "install", "mod", mod.name.toLowerCase()],
+      });
+    }
+  }
+
+  // Generate "Uninstall" commands for installed mods.
+  for (const modId in installedMods) {
+    const mod = installedMods[modId];
+    commands.push({
+      key: `sine:uninstall:${modId}`,
+      label: `Uninstall Sine Mod: ${mod.name}`,
+      command: () => {
+        if (window.confirm(`Are you sure you want to remove the Sine mod "${mod.name}"?`)) {
+          SineAPI.manager.removeMod(mod.id).then(() => {
+            SineAPI.manager.rebuildMods();
+            if (mod.js) {
+              ucAPI.showToast([
+                `"${mod.name}" has been removed.`,
+                "A restart is recommended to fully unload its scripts.",
+              ]);
+            }
+          });
+        }
+      },
+      icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
+      tags: ["sine", "uninstall", "mod", mod.name.toLowerCase()],
+    });
+  }
+
+  return commands;
+}
+
+/**
  * Asynchronously generates and collects all dynamic commands based on provided options.
  * @param {object} [options] - Determines which command sets to generate.
  * @returns {Promise<Array<object>>} A flat array of all generated commands.
@@ -192,6 +244,7 @@ export async function generateDynamicCommands(options = {}) {
     loadSearchEngines = true,
     loadExtensions = true,
     loadWorkspaces = true,
+    loadSineMods = true,
   } = options;
 
   const commandPromises = [];
@@ -199,6 +252,7 @@ export async function generateDynamicCommands(options = {}) {
   if (loadSearchEngines) commandPromises.push(generateSearchEngineCommands());
   if (loadExtensions) commandPromises.push(generateExtensionCommands());
   if (loadWorkspaces) commandPromises.push(generateWorkspaceCommands());
+  if (loadSineMods) commandPromises.push(generateSineCommands());
 
   const commandSets = await Promise.all(commandPromises);
   return commandSets.flat();

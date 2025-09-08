@@ -441,6 +441,7 @@ const ZenCommandPalette = {
       loadSearchEngines: Prefs.loadSearchEngines,
       loadExtensions: Prefs.loadExtensions,
       loadWorkspaces: Prefs.loadWorkspaces,
+      loadSineMods: Prefs.loadSineMods,
     };
     this.debugLog("Loading dynamic commands with settings:", dynamicSettings);
     generateDynamicCommands(dynamicSettings)

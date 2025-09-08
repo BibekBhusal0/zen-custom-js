@@ -14,6 +14,19 @@ This project aims to be a modern and actively maintained alternative, building u
 - **Extensible API**: Other user scripts and browser mods can easily add their own commands, making the palette a central hub for all your custom actions.
 - **Highly Customizable**: Use `about:config` to change the number of results, when the palette appears, and which dynamic commands are loaded.
 
+## Roadmap and Future Plans
+
+This project is in active development with many features planned for the future:
+
+- **Shortcut Key Display & Customization**:
+  - Display associated keyboard shortcuts for commands directly in the results list.
+  - Implement a settings panel (accessible via a command) to allow users to set and customize these shortcuts.
+- **Smart Commands**:
+  - Integrate a built-in calculator for performing quick math operations.
+  - Add a currency converter for easy financial translations.
+- **Expanded Browser Support**:
+  - Once stable on Zen Browser, officially test and ensure compatibility with mainline Firefox and other popular forks.
+
 ## Customization & Preferences
 
 The Zen Command Palette can be configured via `about:config`. Enter `about:config` in your URL bar, and then search for the preference keys listed below to change their values.
