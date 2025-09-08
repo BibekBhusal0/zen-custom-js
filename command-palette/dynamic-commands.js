@@ -1,13 +1,5 @@
 import { debugLog } from "./utils/prefs.js";
-
-const textToSvgDataUrl = (text, isWorkspace = false) => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="10" fill="currentColor">${text}</text>
-  </svg>`;
-  // Add a marker in the data URL if it's a workspace icon to allow for specific CSS targeting.
-  const marker = isWorkspace ? ";type=workspace-icon" : "";
-  return `data:image/svg+xml;charset=utf-8${marker},${encodeURIComponent(svg)}`;
-};
+import {textToSvgDataUrl} from './utils/icon.js'
 
 /**
  * Gets a favicon for a search engine, with fallbacks.
@@ -162,8 +154,7 @@ export async function generateWorkspaceCommands() {
       if (icon.endsWith(".svg")) {
         iconUrl = icon;
       } else {
-        // Render emoji or character as an SVG icon
-        iconUrl = textToSvgDataUrl(icon, true);
+        iconUrl = textToSvgDataUrl(icon);
       }
     }
     return {
