@@ -18,15 +18,15 @@ This project aims to be a modern and actively maintained alternative, building u
 
 The Zen Command Palette can be configured via `about:config`. Enter `about:config` in your URL bar, and then search for the preference keys listed below to change their values.
 
-| Preference Key                                 | Type    | Default | Description                                                              |
-| ---------------------------------------------- | ------- | ------- | ------------------------------------------------------------------------ |
-| `zen-command-palette.debug-mode`               | Boolean | `false`  | Enables detailed logging in the Browser Console for troubleshooting.     |
-| `zen-command-palette.max-commands`             | Integer | `3`     | The maximum number of command results to display at once.                |
-| `zen-command-palette.min-query-length`         | Integer | `4`     | Minimum characters needed to show commands (unless using the `:` prefix). |
-| `zen-command-palette.dynamic.about-pages`      | Boolean | `true`  | Automatically generate commands for `about:` pages.                      |
-| `zen-command-palette.dynamic.search-engines`   | Boolean | `true`  | Automatically generate commands for your installed search engines.       |
-| `zen-command-palette.dynamic.extensions`       | Boolean | `true`  | Automatically generate commands for extensions with an options page.     |
-| `zen-command-palette.dynamic.workspaces`       | Boolean | `true`  | Automatically generate commands for switching between Zen Workspaces.    |
+| Preference Key                               | Type    | Default | Description                                                               |
+| -------------------------------------------- | ------- | ------- | ------------------------------------------------------------------------- |
+| `zen-command-palette.debug-mode`             | Boolean | `false` | Enables detailed logging in the Browser Console for troubleshooting.      |
+| `zen-command-palette.max-commands`           | Integer | `3`     | The maximum number of command results to display at once.                 |
+| `zen-command-palette.min-query-length`       | Integer | `4`     | Minimum characters needed to show commands (unless using the `:` prefix). |
+| `zen-command-palette.dynamic.about-pages`    | Boolean | `true`  | Automatically generate commands for `about:` pages.                       |
+| `zen-command-palette.dynamic.search-engines` | Boolean | `true`  | Automatically generate commands for your installed search engines.        |
+| `zen-command-palette.dynamic.extensions`     | Boolean | `true`  | Automatically generate commands for extensions with an options page.      |
+| `zen-command-palette.dynamic.workspaces`     | Boolean | `true`  | Automatically generate commands for switching between Zen Workspaces.     |
 
 ## Available Commands
 
@@ -34,6 +34,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 <summary>Click to view the full list of commands</summary>
 
 ### Tab Management
+
 - Duplicate Tab
 - Clear Other Tabs
 - Move Tab Left / Right
@@ -48,6 +49,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Reopen Closed Tab
 
 ### Window Management
+
 - New Window
 - Close Window
 - Minimize Window
@@ -55,6 +57,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Reopen Closed Window
 
 ### Navigation & History
+
 - Go Back / Forward
 - Stop Loading
 - Reload Page / Hard Reload
@@ -63,6 +66,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Show All Bookmarks / History (Library)
 
 ### Zen Browser Features
+
 - **Compact Mode**: Toggle Compact Mode, Floating Sidebar, or Floating Toolbar
 - **Workspaces**: Next/Previous Workspace, Change Tab's Workspace, Delete Workspace, Change Icon, Create New Workspace, Reorder Workspaces
 - **Split View**: Set Grid, Vertical, or Horizontal Split; Unsplit View
@@ -70,15 +74,18 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - **UI**: Toggle Tabs on Right, Toggle Sidebar Width, Copy Current URL (and as Markdown)
 
 ### Find & Search
+
 - Find in Page
 - Find Next / Previous
 - Translate Page
 
 ### View & Display
+
 - Toggle Fullscreen
 - Zoom In / Out / Reset
 
 ### Media & Files
+
 - Toggle Picture-in-Picture
 - Take Screenshot
 - View Downloads
@@ -87,6 +94,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Open File
 
 ### Dynamic Commands
+
 - **About Pages**: Automatically generated commands to open any of Firefox's internal `about:` pages (e.g., `about:config`, `about:addons`).
 - **Search Engines**: Automatically generated commands to switch the URL bar's current search engine to any of your installed engines (e.g., "Search with: Google").
 - **Extension Options**: Automatically generated commands to open the options page for any of your installed extensions that have one.
@@ -111,7 +119,7 @@ if (window.ZenCommandPalette) {
       console.log("Reloading My Custom Mod!");
     },
     icon: "chrome://browser/skin/reload.svg", // Optional icon
-    tags: ["my mod", "custom", "reload"],   // Optional tags for fuzzy search
+    tags: ["my mod", "custom", "reload"], // Optional tags for fuzzy search
     condition: () => MyMod.isReady, // Optional, shows command only if true
   });
 }
@@ -124,6 +132,7 @@ if (window.ZenCommandPalette) {
 While the core functionality is solid, the command list was originally adapted from another project and has been progressively tested and fixed. There may still be commands that do not function as intended.
 
 If you encounter any bugs or commands that are not working, please first check if an issue already exists. If not, please report it here:
+
 - **[https://github.com/BibekBhusal0/zen-custom-js/issues/19](https://github.com/BibekBhusal0/zen-custom-js/issues/19)**
 
 ## Credits and Acknowledgements
