@@ -200,7 +200,7 @@ export const commands = [
     label: "Create New Folder",
     command: () => gZenFolders.createFolder([], { renameFolder: true }),
     condition: () => !!window.gZenFolders,
-    icon: "chrome://browser/skin/zen-icons/plus.svg",
+    icon: "chrome://browser/skin/zen-icons/folder.svg",
     tags: ["folder", "create", "new"],
   },
   {
