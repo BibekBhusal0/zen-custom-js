@@ -193,12 +193,14 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/sidebars-right.svg",
     tags: ["tabs", "right", "position", "layout"]
   },
-  // {
-  //   key: "cmd_contextZenRemoveFromEssentials",
-  //   label: "Remove from Essentials",
-  //   icon: "chrome://browser/skin/zen-icons/essential-remove.svg",
-  //   tags: ["essentials", "remove", "unpin"]
-  // },
+  {
+    key: "remove-from-essentials",
+    label: "Remove from Essentials",
+    command: () => gZenPinnedTabManager.removeEssentials(gBrowser.selectedTab),
+    condition: () => gBrowser?.selectedTab?.hasAttribute("zen-essential") && !!window.gZenPinnedTabManager,
+    icon: "chrome://browser/skin/zen-icons/essential-remove.svg",
+    tags: ["essentials", "remove", "unpin"]
+  },
   {
     key: "cmd_zenReorderWorkspaces",
     label: "Reorder Workspaces",
@@ -243,6 +245,22 @@ export const commands = [
     tags: ["tab", "mute", "audio", "sound", "toggle"]
   },
   {
+    key: "Browser:PinTab",
+    label: "Pin Tab",
+    command: () => gBrowser.pinTab(gBrowser.selectedTab),
+    condition: () => gBrowser?.selectedTab && !gBrowser.selectedTab.pinned,
+    icon: "chrome://browser/skin/zen-icons/pin.svg",
+    tags: ["pin", "tab", "stick", "affix"],
+  },
+  {
+    key: "Browser:UnpinTab",
+    label: "Unpin Tab",
+    command: () => gBrowser.unpinTab(gBrowser.selectedTab),
+    condition: () => gBrowser?.selectedTab?.pinned,
+    icon: "chrome://browser/skin/zen-icons/unpin.svg",
+    tags: ["unpin", "tab", "release", "detach"],
+  },
+  {
     key: "Browser:NextTab",
     label: "Next Tab",
     command: () => gBrowser.tabContainer.advanceSelectedTab(1, true),
@@ -272,23 +290,29 @@ export const commands = [
   //   condition: !!window.openNewUserContextTab,
   //   tags: ["container", "tab", "new", "context"]
   // },
-  // {
-  //   key: "cmd_contextZenAddToEssentials",
-  //   label: "Add to Essentials",
-  //   icon: "chrome://browser/skin/zen-icons/essential-add.svg",
-  //   tags: ["essentials", "add", "bookmark", "save"]
-  // },
-  // {
-  //   key: "cmd_zenReplacePinnedUrlWithCurrent",
-  //   label: "Replace Pinned Tab URL with Current",
-  //   tags: ["pinned", "tab", "url", "replace", "current"]
-  // },
-  // {
-  //   key: "cmd_zenPinnedTabReset",
-  //   label: "Reset Pinned Tab",
-  //   icon: "chrome://browser/skin/zen-icons/reload.svg",
-  //   tags: ["pinned", "tab", "reset", "restore"]
-  // },
+  {
+    key: "add-to-essentials",
+    label: "Add to Essentials",
+    command: () => gZenPinnedTabManager.addToEssentials(gBrowser.selectedTab),
+    condition: () => !!window.gZenPinnedTabManager && gZenPinnedTabManager.canEssentialBeAdded(gBrowser.selectedTab),
+    icon: "chrome://browser/skin/zen-icons/essential-add.svg",
+    tags: ["essentials", "add", "bookmark", "save"]
+  },
+  {
+    key: "replace-pinned-url",
+    label: "Replace Pinned Tab URL with Current",
+    command: () => gZenPinnedTabManager.replacePinnedUrlWithCurrent(gBrowser.selectedTab),
+    condition: () => gBrowser?.selectedTab?.pinned && !!window.gZenPinnedTabManager,
+    tags: ["pinned", "tab", "url", "replace", "current"]
+  },
+  {
+    key: "reset-pinned-tab",
+    label: "Reset Pinned Tab",
+    command: () => gZenPinnedTabManager.resetPinnedTab(gBrowser.selectedTab),
+    condition: () => gBrowser?.selectedTab?.pinned && !!window.gZenPinnedTabManager,
+    icon: "chrome://browser/skin/zen-icons/reload.svg",
+    tags: ["pinned", "tab", "reset", "restore"]
+  },
   {
     key: "History:UndoCloseTab",
     label: "Reopen Closed Tab",
@@ -595,4 +619,3 @@ export const commands = [
   // ----------- About Pages -----------
   ...generatedAboutCommands,
 ];
-
