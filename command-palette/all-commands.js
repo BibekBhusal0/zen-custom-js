@@ -195,6 +195,23 @@ export const commands = [
   },
 
   // ----------- Tab Management -----------
+    {
+    key: "rename-tab",
+    label: "Rename Tab",
+    command: () => {
+      const tab = gBrowser.selectedTab;
+      const dblClickEvent = new MouseEvent('dblclick', {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+        button: 0,
+      });
+      tab.dispatchEvent(dblClickEvent);
+    },
+    condition: () => gBrowser?.selectedTab?.pinned,
+    icon: "chrome://browser/skin/zen-icons/edit.svg",
+    tags: ["rename", "tab", "title", "edit", "pinned"],
+  },
   {
     key: "duplicate-tab",
     label: "Duplicate Tab",
