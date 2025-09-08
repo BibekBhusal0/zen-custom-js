@@ -353,7 +353,7 @@ export const commands = [
         window.gBrowser.discardBrowser(current);
       }, 500);
     },
-    icon : "chrome://browser/skin/zen-icons/edit-select-all.svg",
+    icon : "chrome://browser/skin/zen-icons/close-all.svg",
     tags: ['unload', 'sleep']
   },
   {
@@ -364,7 +364,7 @@ export const commands = [
         if (!tab.selected) window.gBrowser.discardBrowser(tab);
       }
     },
-    icon : "chrome://browser/skin/zen-icons/edit-select-all.svg",
+    icon : "chrome://browser/skin/zen-icons/close-all.svg",
     tags: ['unload', 'sleep']
   },
 
