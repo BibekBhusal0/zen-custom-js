@@ -5,16 +5,8 @@
     display: none;
   }
 
-  :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
+  /* :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
     .urlbarView-favicon {
-      /* &[src^="chrome://"] {} */
-
-      /* revert icon colors for custom svg */
-      &[src^="data:image/svg+xml"]:not([src*=";type=workspace-icon"]) {
-        @media (prefers-color-scheme: dark) {
-          filter: invert();
-        }
-      }
     }
-  }
+  } */
 }
