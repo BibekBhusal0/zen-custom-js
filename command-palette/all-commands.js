@@ -218,12 +218,12 @@ export const commands = [
   },
 
   // ----------- Tab Management -----------
-    {
+  {
     key: "rename-tab",
     label: "Rename Tab",
     command: () => {
       const tab = gBrowser.selectedTab;
-      const dblClickEvent = new MouseEvent('dblclick', {
+      const dblClickEvent = new MouseEvent("dblclick", {
         bubbles: true,
         cancelable: true,
         view: window,
