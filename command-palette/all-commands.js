@@ -170,6 +170,50 @@ export const commands = [
     tags: ["split", "view", "unsplit", "single", "restore"]
   },
 
+
+  // ----------- Additional Zen Commands -----------
+  {
+    key: "cmd_zenOpenZenThemePicker",
+    label: "Open Theme Picker",
+    icon: "chrome://browser/skin/zen-icons/palette.svg",
+    tags: ["theme", "picker", "customize", "appearance"]
+  },
+  {
+    key: "cmd_zenToggleTabsOnRight",
+    label: "Toggle Tabs on Right",
+    icon: "chrome://browser/skin/zen-icons/sidebars-right.svg",
+    tags: ["tabs", "right", "position", "layout"]
+  },
+  // {
+  //   key: "cmd_contextZenRemoveFromEssentials",
+  //   label: "Remove from Essentials",
+  //   icon: "chrome://browser/skin/zen-icons/essential-remove.svg",
+  //   tags: ["essentials", "remove", "unpin"]
+  // },
+  {
+    key: "cmd_zenReorderWorkspaces",
+    label: "Reorder Workspaces",
+    tags: ["workspace", "reorder", "organize", "sort"]
+  },
+  {
+    key: "cmd_zenToggleSidebar",
+    label: "Toggle Sidebar",
+    icon: "chrome://browser/skin/zen-icons/sidebars.svg",
+    tags: ["sidebar", "toggle", "show", "hide"]
+  },
+  {
+    key: "cmd_zenCopyCurrentURL",
+    label: "Copy Current URL",
+    icon: "chrome://browser/skin/zen-icons/link.svg",
+    tags: ["copy", "url", "current", "clipboard"]
+  },
+  {
+    key: "cmd_zenCopyCurrentURLMarkdown",
+    label: "Copy Current URL as Markdown",
+    icon: "chrome://browser/skin/zen-icons/link.svg",
+    tags: ["copy", "url", "markdown", "format"]
+  },
+
   // ----------- Tab Management -----------
   // {
   //   key: "cmd_newNavigatorTab",
@@ -547,50 +591,6 @@ export const commands = [
   //   condition: !!window.Services?.appUtils?.restart,
   //   icon: "chrome://browser/skin/zen-icons/reload.svg",
   // },
-
-  // ----------- Additional Zen Commands -----------
-  {
-    key: "cmd_zenOpenZenThemePicker",
-    label: "Open Theme Picker",
-    icon: "chrome://browser/skin/zen-icons/palette.svg",
-    tags: ["theme", "picker", "customize", "appearance"]
-  },
-  {
-    key: "cmd_zenToggleTabsOnRight",
-    label: "Toggle Tabs on Right",
-    icon: "chrome://browser/skin/zen-icons/sidebars-right.svg",
-    tags: ["tabs", "right", "position", "layout"]
-  },
-  // {
-  //   key: "cmd_contextZenRemoveFromEssentials",
-  //   label: "Remove from Essentials",
-  //   icon: "chrome://browser/skin/zen-icons/essential-remove.svg",
-  //   tags: ["essentials", "remove", "unpin"]
-  // },
-  {
-    key: "cmd_zenReorderWorkspaces",
-    label: "Reorder Workspaces",
-    tags: ["workspace", "reorder", "organize", "sort"]
-  },
-  {
-    key: "cmd_zenToggleSidebar",
-    label: "Toggle Sidebar",
-    icon: "chrome://browser/skin/zen-icons/sidebars.svg",
-    tags: ["sidebar", "toggle", "show", "hide"]
-  },
-  {
-    key: "cmd_zenCopyCurrentURL",
-    label: "Copy Current URL",
-    icon: "chrome://browser/skin/zen-icons/link.svg",
-    tags: ["copy", "url", "current", "clipboard"]
-  },
-  {
-    key: "cmd_zenCopyCurrentURLMarkdown",
-    label: "Copy Current URL as Markdown",
-    icon: "chrome://browser/skin/zen-icons/link.svg",
-    tags: ["copy", "url", "markdown", "format"]
-  },
-
   // ----------- About Pages -----------
   ...generatedAboutCommands,
 ];
