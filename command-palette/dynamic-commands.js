@@ -229,3 +229,69 @@ export async function generateSineCommands() {
 
   return commands;
 }
+
+/**
+ * Generates commands related to Zen Folders, like deleting or moving tabs to them.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of folder-related commands.
+ */
+export async function generateFolderCommands() {
+  if (!window.gZenFolders) return [];
+
+  const commands = [];
+  const folders = Array.from(gBrowser.tabContainer.querySelectorAll("zen-folder"));
+  if (!folders.length) return [];
+
+  // --- Generate "Delete Folder" commands ---
+  folders.forEach((folder) => {
+    commands.push({
+      key: `folder-delete:${folder.id}`,
+      label: `Delete Folder: ${folder.label}`,
+      command: () => {
+        if (
+          confirm(
+            `Are you sure you want to delete the folder "${folder.label}" and all its tabs? This cannot be undone.`
+          )
+        ) {
+          folder.delete();
+        }
+      },
+      icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
+      tags: ["folder", "delete", "remove", folder.label.toLowerCase()],
+    });
+  });
+
+  // --- Generate "Move Active Tab to Folder" commands ---
+  const activeTab = gBrowser.selectedTab;
+  // Only generate these commands if there is an active, non-essential tab to move.
+  if (activeTab && !activeTab.hasAttribute("zen-essential")) {
+    folders.forEach((folder) => {
+      // Don't show option to move a tab to its current folder.
+      if (activeTab.group === folder) {
+        return;
+      }
+
+      commands.push({
+        key: `folder-move-active-to:${folder.id}`,
+        label: `Move Tab to Folder: ${folder.label}`,
+        command: () => {
+          const tabToMove = gBrowser.selectedTab;
+          if (!tabToMove) return;
+          if (!tabToMove.pinned) {
+            gBrowser.pinTab(tabToMove);
+          }
+          folder.addTabs([tabToMove]);
+        },
+        condition: () => {
+          const currentTab = gBrowser.selectedTab;
+          return (
+            currentTab && !currentTab.hasAttribute("zen-essential") && currentTab.group !== folder
+          );
+        },
+        icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
+        tags: ["folder", "move", "tab", folder.label.toLowerCase()],
+      });
+    });
+  }
+
+  return commands;
+}

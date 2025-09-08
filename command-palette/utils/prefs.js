@@ -10,6 +10,7 @@ export const Prefs = {
     DYNAMIC_EXTENSIONS: "zen-command-palette.dynamic.extensions",
     DYNAMIC_WORKSPACES: "zen-command-palette.dynamic.workspaces",
     DYNAMIC_SINE_MODS: "zen-command-palette.dynamic.sine-mods",
+    DYNAMIC_FOLDERS: "zen-command-palette.dynamic.folders",
   },
 
   defaultValues: {},
@@ -64,6 +65,9 @@ export const Prefs = {
   get loadSineMods() {
     return this.getPref(this.KEYS.DYNAMIC_SINE_MODS);
   },
+  get loadFolders() {
+    return this.getPref(this.KEYS.DYNAMIC_FOLDERS);
+  },
 };
 
 Prefs.defaultValues = {
@@ -77,6 +81,7 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DYNAMIC_EXTENSIONS]: true,
   [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
   [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
+  [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
 };
 
 export const debugLog = (...args) => {

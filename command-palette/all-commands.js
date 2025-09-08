@@ -194,6 +194,29 @@ export const commands = [
     tags: ["copy", "url", "markdown", "format"],
   },
 
+  // ----------- Folder Management -----------
+  {
+    key: "folder-create",
+    label: "Create New Folder",
+    command: () => gZenFolders.createFolder([], { renameFolder: true }),
+    condition: () => !!window.gZenFolders,
+    icon: "chrome://browser/skin/zen-icons/plus.svg",
+    tags: ["folder", "create", "new"],
+  },
+  {
+    key: "folder-remove-active-tab",
+    label: "Remove Tab from Folder",
+    command: () => {
+      const tab = gBrowser.selectedTab;
+      if (tab?.group?.isZenFolder) {
+        gBrowser.ungroupTab(tab);
+      }
+    },
+    condition: () => gBrowser.selectedTab?.group?.isZenFolder,
+    icon: svgToUrl(icons["unpin"]),
+    tags: ["folder", "remove", "unparent", "tab"],
+  },
+
   // ----------- Tab Management -----------
     {
     key: "rename-tab",
@@ -353,8 +376,8 @@ export const commands = [
         window.gBrowser.discardBrowser(current);
       }, 500);
     },
-    icon : "chrome://browser/skin/zen-icons/close-all.svg",
-    tags: ['unload', 'sleep']
+    icon: "chrome://browser/skin/zen-icons/close-all.svg",
+    tags: ["unload", "sleep"],
   },
   {
     key: "unload-other-tabs",
@@ -364,8 +387,8 @@ export const commands = [
         if (!tab.selected) window.gBrowser.discardBrowser(tab);
       }
     },
-    icon : "chrome://browser/skin/zen-icons/close-all.svg",
-    tags: ['unload', 'sleep']
+    icon: "chrome://browser/skin/zen-icons/close-all.svg",
+    tags: ["unload", "sleep"],
   },
 
   // ----------- Window Management -----------

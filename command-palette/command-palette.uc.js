@@ -5,6 +5,7 @@ import {
   generateSearchEngineCommands,
   generateSineCommands,
   generateWorkspaceCommands,
+  generateFolderCommands,
 } from "./dynamic-commands.js";
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 
@@ -152,6 +153,7 @@ const ZenCommandPalette = {
     if (Prefs.loadExtensions) commandPromises.push(generateExtensionCommands());
     if (Prefs.loadWorkspaces) commandPromises.push(generateWorkspaceCommands());
     if (Prefs.loadSineMods) commandPromises.push(generateSineCommands());
+    if (Prefs.loadFolders) commandPromises.push(generateFolderCommands());
 
     const commandSets = await Promise.all(commandPromises);
     liveCommands.push(...commandSets.flat());
