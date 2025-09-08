@@ -321,6 +321,35 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/edit-undo.svg",
     tags: ["undo", "close", "tab", "reopen", "restore"],
   },
+  {
+    key: "unload-tab",
+    label: "Unload Tab",
+    command: () => {
+      const current = window.gBrowser.selectedTab;
+      const tabs = Array.from(window.gBrowser.tabs)
+        .filter((t) => t !== current && !t.hasAttribute("pending"))
+        .sort((a, b) => b._lastAccessed - a._lastAccessed);
+      const target = tabs[0];
+      if (target) window.gBrowser.selectedTab = target;
+      else openTrustedLinkIn("about:blank", "tab");
+      setTimeout(() => {
+        window.gBrowser.discardBrowser(current);
+      }, 500);
+    },
+    icon : "chrome://browser/skin/zen-icons/edit-select-all.svg",
+    tags: ['unload', 'sleep']
+  },
+  {
+    key: "unload-other-tabs",
+    label: "Unload other tabs",
+    command: () => {
+      for (let tab of window.gBrowser.tabs) {
+        if (!tab.selected) window.gBrowser.discardBrowser(tab);
+      }
+    },
+    icon : "chrome://browser/skin/zen-icons/edit-select-all.svg",
+    tags: ['unload', 'sleep']
+  },
 
   // ----------- Window Management -----------
   {
