@@ -1,0 +1,92 @@
+[
+  {
+    "type": "text",
+    "label": "**Zen Command Palette Settings**",
+    "margin": "10px 0 15px 0",
+    "size": "20px"
+  },
+  {
+    "type": "text",
+    "label": "Configure the behavior of the command palette."
+  },
+  {
+    "type": "separator",
+    "label": "General Behavior",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.max-commands",
+    "label": "Maximum Results",
+    "value": "number",
+    "default": 3,
+    "placeholder": false,
+    "options": [
+      { "label": "1 Command", "value": 1 },
+      { "label": "2 Commands", "value": 2 },
+      { "label": "3 Commands", "value": 3 },
+      { "label": "4 Commands", "value": 4 },
+      { "label": "5 Commands", "value": 5 }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.min-query-length",
+    "label": "Activation Length (without ':')",
+    "value": "number",
+    "default": 3,
+    "placeholder": false,
+    "options": [
+      { "label": "2 Characters", "value": 2 },
+      { "label": "3 Characters", "value": 3 },
+      { "label": "4 Characters", "value": 4 },
+      { "label": "5 Characters", "value": 5 }
+    ]
+  },
+  {
+    "type": "separator",
+    "label": "Dynamic Commands",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.search-engines",
+    "label": "Enable Search Engine commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extensions",
+    "label": "Enable Extension Options commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.workspaces",
+    "label": "Enable Workspace switching commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.sine-mods",
+    "label": "Enable Sine Mod Management commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.about-pages",
+    "label": "Enable 'about:' page commands",
+    "default": false
+  },
+  {
+    "type": "separator",
+    "label": "Development",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.debug-mode",
+    "label": "Enable debug logging in Browser Console",
+    "default": false
+  }
+]
