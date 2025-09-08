@@ -244,28 +244,3 @@ export async function generateSineCommands() {
 
   return commands;
 }
-
-/**
- * Asynchronously generates and collects all dynamic commands based on provided options.
- * @param {object} [options] - Determines which command sets to generate.
- * @returns {Promise<Array<object>>} A flat array of all generated commands.
- */
-export async function generateDynamicCommands(options = {}) {
-  const {
-    loadAboutPages = true,
-    loadSearchEngines = true,
-    loadExtensions = true,
-    loadWorkspaces = true,
-    loadSineMods = true,
-  } = options;
-
-  const commandPromises = [];
-  if (loadAboutPages) commandPromises.push(generateAboutPageCommands());
-  if (loadSearchEngines) commandPromises.push(generateSearchEngineCommands());
-  if (loadExtensions) commandPromises.push(generateExtensionCommands());
-  if (loadWorkspaces) commandPromises.push(generateWorkspaceCommands());
-  if (loadSineMods) commandPromises.push(generateSineCommands());
-
-  const commandSets = await Promise.all(commandPromises);
-  return commandSets.flat();
-}

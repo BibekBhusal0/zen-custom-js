@@ -1,9 +1,15 @@
-import { commands } from "./all-commands.js";
-import { generateDynamicCommands } from "./dynamic-commands.js";
+import { commands as staticCommands } from "./all-commands.js";
+import {
+  generateAboutPageCommands,
+  generateExtensionCommands,
+  generateSearchEngineCommands,
+  generateSineCommands,
+  generateWorkspaceCommands,
+} from "./dynamic-commands.js";
 import { Prefs, debugLog, debugError } from "./prefs.js";
 
 const ZenCommandPalette = {
-  commands,
+  staticCommands,
   provider: null,
 
   safeStr(x) {
@@ -54,11 +60,33 @@ const ZenCommandPalette = {
   },
 
   /**
+   * Generates a complete, up-to-date list of commands by combining static commands
+   * with dynamically generated ones based on current preferences.
+   * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
+   */
+  async generateLiveCommands() {
+    let liveCommands = [...staticCommands];
+
+    const commandPromises = [];
+    if (Prefs.loadAboutPages) commandPromises.push(generateAboutPageCommands());
+    if (Prefs.loadSearchEngines) commandPromises.push(generateSearchEngineCommands());
+    if (Prefs.loadExtensions) commandPromises.push(generateExtensionCommands());
+    if (Prefs.loadWorkspaces) commandPromises.push(generateWorkspaceCommands());
+    if (Prefs.loadSineMods) commandPromises.push(generateSineCommands());
+
+    const commandSets = await Promise.all(commandPromises);
+    liveCommands.push(...commandSets.flat());
+
+    return liveCommands;
+  },
+
+  /**
    * Filters and sorts the command list using a fuzzy-matching algorithm.
    * @param {string} input - The user's search string from the URL bar.
+   * @param {Array<object>} allCommands - The full list of commands to filter.
    * @returns {Array<object>} A sorted array of command objects that match the input.
    */
-  filterCommandsByInput(input) {
+  filterCommandsByInput(input, allCommands) {
     let query = this.safeStr(input).trim();
     const isCommandPrefix = query.startsWith(":");
     if (isCommandPrefix) {
@@ -67,7 +95,7 @@ const ZenCommandPalette = {
 
     // If the input was just the prefix, show all available commands, unsorted.
     if (isCommandPrefix && !query) {
-      const visible = this.commands.filter(this.commandIsVisible.bind(this));
+      const visible = allCommands.filter(this.commandIsVisible.bind(this));
       return visible.slice(0, Prefs.maxCommands);
     }
 
@@ -82,7 +110,7 @@ const ZenCommandPalette = {
 
     const lowerQuery = query.toLowerCase();
 
-    const scoredCommands = this.commands
+    const scoredCommands = allCommands
       .filter(this.commandIsVisible.bind(this))
       .map((cmd) => {
         const label = (cmd.label || "").toLowerCase();
@@ -211,7 +239,8 @@ const ZenCommandPalette = {
       }
 
       // As a fallback, check the full command list directly.
-      const found = this.commands.find((c) => trimmed.startsWith(c.label));
+      const commandList = this.provider?._currentCommandList || this.staticCommands;
+      const found = commandList.find((c) => trimmed.startsWith(c.label));
       if (found) {
         debugLog("findCommandFromDomRow: matched command label as fallback.", found);
         return found;
@@ -350,15 +379,16 @@ const ZenCommandPalette = {
           try {
             const input = (context.searchString || "").trim();
             const inSearchMode = !!context.searchMode?.engineName;
+            const liveCommands = await self.generateLiveCommands();
 
             // Always check for matches if ":" prefix is used.
             if (input.startsWith(":")) {
-              return self.filterCommandsByInput(input).length > 0;
+              return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
 
             // Otherwise, only activate if not in search mode and query is long enough.
             if (!inSearchMode && input.length >= Prefs.minQueryLength) {
-              return self.filterCommandsByInput(input).length > 0;
+              return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
 
             return false;
@@ -372,7 +402,9 @@ const ZenCommandPalette = {
           try {
             const input =
               context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
-            const matches = self.filterCommandsByInput(input);
+            const liveCommands = await self.generateLiveCommands();
+            this._currentCommandList = liveCommands; // Store for use in findCommandFromDomRow
+            const matches = self.filterCommandsByInput(input, liveCommands);
             this._lastResults = [];
 
             if (!matches.length) return;
@@ -413,6 +445,7 @@ const ZenCommandPalette = {
         }
         dispose() {
           this._lastResults = [];
+          this._currentCommandList = null;
         }
       }
 
@@ -425,29 +458,6 @@ const ZenCommandPalette = {
   },
 
   /**
-   * Loads dynamic commands based on the settings.
-   * Can be called any time after init.
-   */
-  loadDynamicCommands() {
-    const dynamicSettings = {
-      loadAboutPages: Prefs.loadAboutPages,
-      loadSearchEngines: Prefs.loadSearchEngines,
-      loadExtensions: Prefs.loadExtensions,
-      loadWorkspaces: Prefs.loadWorkspaces,
-      loadSineMods: Prefs.loadSineMods,
-    };
-    debugLog("Loading dynamic commands with settings:", dynamicSettings);
-    generateDynamicCommands(dynamicSettings)
-      .then((dynamicCmds) => {
-        this.addCommands(dynamicCmds);
-        debugLog(`Dynamic commands loaded. Total commands: ${this.commands.length}`);
-      })
-      .catch((e) => {
-        debugError("Failed to load dynamic commands:", e);
-      });
-  },
-
-  /**
    * Adds a new command to the palette.
    * @param {object} cmd - The command object to add. Must have key, label, and command properties.
    * @returns {object} The command object that was added.
@@ -456,7 +466,7 @@ const ZenCommandPalette = {
     if (!cmd || !cmd.key || !cmd.label) {
       throw new Error("addCommand: command must have {key, label}");
     }
-    this.commands.push(cmd);
+    this.staticCommands.push(cmd);
     return cmd;
   },
 
@@ -470,13 +480,13 @@ const ZenCommandPalette = {
     let addedCount = 0;
     for (const c of arr) {
       // Avoid adding duplicates
-      if (!this.commands.some((existing) => existing.key === c.key)) {
+      if (!this.staticCommands.some((existing) => existing.key === c.key)) {
         this.addCommand(c);
         addedCount++;
       }
     }
-    debugLog("addCommands: added", addedCount, "items. total commands:", this.commands.length);
-    return this.commands;
+    debugLog("addCommands: added", addedCount, "items. total commands:", this.staticCommands.length);
+    return this.staticCommands;
   },
 
   /**
@@ -487,10 +497,10 @@ const ZenCommandPalette = {
   removeCommand(keyOrPredicate) {
     const idx =
       typeof keyOrPredicate === "function"
-        ? this.commands.findIndex(keyOrPredicate)
-        : this.commands.findIndex((c) => c.key === keyOrPredicate);
+        ? this.staticCommands.findIndex(keyOrPredicate)
+        : this.staticCommands.findIndex((c) => c.key === keyOrPredicate);
     if (idx >= 0) {
-      const [removed] = this.commands.splice(idx, 1);
+      const [removed] = this.staticCommands.splice(idx, 1);
       debugLog("removeCommand:", removed && removed.key);
       return removed;
     }
@@ -502,9 +512,8 @@ const ZenCommandPalette = {
 Prefs.setInitialPrefs();
 window.ZenCommandPalette = ZenCommandPalette;
 window.ZenCommandPalette.init();
-window.ZenCommandPalette.loadDynamicCommands();
 
 debugLog(
-  "Zen Command Palette initialized. Commands count:",
-  window.ZenCommandPalette.commands.length
+  "Zen Command Palette initialized. Static commands count:",
+  window.ZenCommandPalette.staticCommands.length
 );
