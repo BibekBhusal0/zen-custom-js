@@ -6,7 +6,7 @@ import {
   generateSineCommands,
   generateWorkspaceCommands,
 } from "./dynamic-commands.js";
-import { Prefs, debugLog, debugError } from "./prefs.js";
+import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 
 const ZenCommandPalette = {
   staticCommands,

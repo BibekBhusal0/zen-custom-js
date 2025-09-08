@@ -1,11 +1,5 @@
-import { debugLog } from "./prefs.js";
+import { debugLog } from "./utils/prefs.js";
 
-/**
- * Creates an SVG data URL from a text string or emoji, suitable for use as an icon.
- * @param {string} text - The character or emoji to render.
- * @param {boolean} isWorkspace - If true, adds a marker to the data URL to identify it as a workspace icon.
- * @returns {string} A data URL for the generated SVG.
- */
 const textToSvgDataUrl = (text, isWorkspace = false) => {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
     <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="10" fill="currentColor">${text}</text>
