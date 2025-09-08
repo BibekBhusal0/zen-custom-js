@@ -175,7 +175,7 @@ const ZenCommandPalette = {
     // If the input was just the prefix, show all available commands, unsorted.
     if (isCommandPrefix && !query) {
       const visible = allCommands.filter(this.commandIsVisible.bind(this));
-      return visible.slice(0, Prefs.maxCommands);
+      return visible;
     }
 
     // For non-prefixed queries, only show results if the query is long enough.
@@ -216,6 +216,11 @@ const ZenCommandPalette = {
     scoredCommands.sort((a, b) => b.score - a.score);
 
     const finalCmds = scoredCommands.map((item) => item.cmd);
+
+    // When using the prefix, show all results. Otherwise, cap at maxCommands.
+    if (isCommandPrefix) {
+      return finalCmds;
+    }
     return finalCmds.slice(0, Prefs.maxCommands);
   },
 
@@ -439,13 +444,19 @@ const ZenCommandPalette = {
             const input = (context.searchString || "").trim();
             const inSearchMode = !!context.searchMode?.engineName;
             const liveCommands = await self.generateLiveCommands();
+            const isPrefixSearch = input.startsWith(":");
 
-            // Always check for matches if ":" prefix is used.
-            if (input.startsWith(":")) {
+            // Always activate if the prefix is used.
+            if (isPrefixSearch) {
               return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
 
-            // Otherwise, only activate if not in search mode and query is long enough.
+            // If prefix is required, don't proceed for non-prefix searches.
+            if (Prefs.prefixRequired) {
+              return false;
+            }
+
+            // Otherwise (if mixing is allowed), activate if not in search mode and query is long enough.
             if (!inSearchMode && input.length >= Prefs.minQueryLength) {
               return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
