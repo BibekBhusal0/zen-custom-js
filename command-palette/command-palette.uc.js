@@ -6,6 +6,9 @@ const ZenCommandPalette = {
   commands,
   provider: null,
 
+  maxCommands: 3, // The maximum number of command results to show.
+  minQueryLength: 4, // The minimum number of characters required to show results (unless using the ':' prefix).
+
   dynamicCommandSettings: {
     loadAboutPages: true,
     loadSearchEngines: true,
@@ -81,11 +84,12 @@ const ZenCommandPalette = {
 
     // If the input was just the prefix, show all available commands, unsorted.
     if (isCommandPrefix && !query) {
-      return this.commands.filter(this.commandIsVisible.bind(this));
+      const visible = this.commands.filter(this.commandIsVisible.bind(this));
+      return visible.slice(0, this.maxCommands);
     }
 
     // For non-prefixed queries, only show results if the query is long enough.
-    if (!isCommandPrefix && query.length < 4) {
+    if (!isCommandPrefix && query.length < this.minQueryLength) {
       return [];
     }
 
@@ -140,7 +144,8 @@ const ZenCommandPalette = {
     // Sort by score, descending
     scoredCommands.sort((a, b) => b.score - a.score);
 
-    return scoredCommands.map((item) => item.cmd);
+    const finalCmds = scoredCommands.map((item) => item.cmd);
+    return finalCmds.slice(0, this.maxCommands);
   },
 
   /**
@@ -369,7 +374,7 @@ const ZenCommandPalette = {
             }
 
             // Otherwise, only activate if not in search mode and query is long enough.
-            if (!inSearchMode && input.length >= 4) {
+            if (!inSearchMode && input.length >= self.minQueryLength) {
               return self.filterCommandsByInput(input).length > 0;
             }
 
