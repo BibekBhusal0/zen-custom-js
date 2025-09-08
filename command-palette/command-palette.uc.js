@@ -418,7 +418,7 @@ const ZenCommandPalette = {
 
               const result = new UrlbarResult(
                 UrlbarUtils.RESULT_TYPE.SEARCH,
-                UrlbarUtils.RESULT_SOURCE.ACTIONS,
+                UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
                 payload,
                 payloadHighlights
               );
