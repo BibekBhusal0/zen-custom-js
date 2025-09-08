@@ -276,10 +276,28 @@ export async function generateFolderCommands() {
         command: () => {
           const tabToMove = gBrowser.selectedTab;
           if (!tabToMove) return;
+          const targetFolder = document.getElementById(folder.id);
+          if (!targetFolder) return;
+
+          const targetWorkspaceId = targetFolder.getAttribute("zen-workspace-id");
+          const currentWorkspaceId =
+            tabToMove.getAttribute("zen-workspace-id") || gZenWorkspaces.activeWorkspace;
+
+          if (currentWorkspaceId !== targetWorkspaceId) {
+            gZenWorkspaces.moveTabToWorkspace(tabToMove, targetWorkspaceId);
+          }
+
           if (!tabToMove.pinned) {
             gBrowser.pinTab(tabToMove);
           }
-          folder.addTabs([tabToMove]);
+          targetFolder.addTabs([tabToMove]);
+
+          if (gZenWorkspaces.activeWorkspace !== targetWorkspaceId) {
+            gZenWorkspaces._lastSelectedWorkspaceTabs[targetWorkspaceId] = tabToMove;
+            gZenWorkspaces.changeWorkspaceWithID(targetWorkspaceId);
+          } else {
+            gBrowser.selectedTab = tabToMove;
+          }
         },
         condition: () => {
           const currentTab = gBrowser.selectedTab;
@@ -287,8 +305,54 @@ export async function generateFolderCommands() {
             currentTab && !currentTab.hasAttribute("zen-essential") && currentTab.group !== folder
           );
         },
-        icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
+        icon: "chrome://browser/skin/zen-icons/move-tab.svg",
         tags: ["folder", "move", "tab", folder.label.toLowerCase()],
+      });
+    });
+  }
+
+  return commands;
+}
+
+/**
+ * Generates commands for moving the active tab to a different workspace.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of workspace-move commands.
+ */
+export async function generateWorkspaceMoveCommands() {
+  if (!window.gZenWorkspaces?.workspaceEnabled) return [];
+
+  const commands = [];
+  const workspacesData = await window.gZenWorkspaces._workspaces();
+  if (!workspacesData || !workspacesData.workspaces) return [];
+
+  const activeTab = gBrowser.selectedTab;
+  if (activeTab && !activeTab.hasAttribute("zen-essential")) {
+    workspacesData.workspaces.forEach((workspace) => {
+      if (activeTab.getAttribute("zen-workspace-id") === workspace.uuid) {
+        return;
+      }
+
+      commands.push({
+        key: `workspace-move-active-to:${workspace.uuid}`,
+        label: `Move Tab to Workspace: ${workspace.name}`,
+        command: () => {
+          const tabToMove = gBrowser.selectedTab;
+          if (tabToMove) {
+            gZenWorkspaces.moveTabToWorkspace(tabToMove, workspace.uuid);
+            gZenWorkspaces._lastSelectedWorkspaceTabs[workspace.uuid] = tabToMove;
+            gZenWorkspaces.changeWorkspaceWithID(workspace.uuid);
+          }
+        },
+        condition: () => {
+          const currentTab = gBrowser.selectedTab;
+          return (
+            currentTab &&
+            !currentTab.hasAttribute("zen-essential") &&
+            currentTab.getAttribute("zen-workspace-id") !== workspace.uuid
+          );
+        },
+        icon: "chrome://browser/skin/zen-icons/move-tab.svg",
+        tags: ["workspace", "move", "tab", workspace.name.toLowerCase()],
       });
     });
   }
