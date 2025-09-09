@@ -551,12 +551,6 @@ export const commands = [
 
   // ----------- View & Display -----------
   {
-    key: "View:BookmarksToolbar",
-    label: "Toggle Bookmarks Toolbar",
-    icon: "chrome://browser/skin/bookmarks-toolbar.svg",
-    tags: ["bookmarks", "toolbar", "show", "hide", "view"],
-  },
-  {
     key: "View:FullScreen",
     label: "Toggle Fullscreen",
     command: () => BrowserCommands.fullScreen(),
