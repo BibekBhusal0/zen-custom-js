@@ -7,10 +7,10 @@ This project aims to be a modern and actively maintained alternative, building u
 ## Features
 
 - **Seamless URL Bar Integration**: No new UI elements. The command palette appears naturally as you type in the address bar.
-- **Smart Activation**: Appears when you type a query of 4+ characters, or immediately with the `:` prefix. It intelligently stays out of the way when you're using a search engine one-off.
+- **Smart Activation**: Appears when you type a query of sufficient length, or immediately with the `:` prefix. It intelligently stays out of the way when you're using a search engine one-off.
 - **Exclusive Command Mode**: Start your query with a colon (`:`) to hide all other search suggestions and focus exclusively on commands.
 - **Fuzzy Search & Smart Sorting**: Quickly find what you're looking for with a powerful fuzzy search that scores and sorts results, prioritizing the best matches.
-- **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, and internal `about:` pages.
+- **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, folders, and internal `about:` pages.
 - **Sine Mod Management**: Find and uninstall your installed Sine mods directly from the command palette. _Note: Installing new mods is not currently supported as the required API is not exposed by Sine._
 - **Extensible API**: Other user scripts and browser mods can easily add their own commands, making the palette a central hub for all your custom actions.
 - **Highly Customizable**: Use `about:config` to change the number of results, when the palette appears, and which dynamic commands are loaded.
@@ -34,13 +34,16 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 
 | Preference Key                               | Type    | Default | Description                                                               |
 | -------------------------------------------- | ------- | ------- | ------------------------------------------------------------------------- |
+| `zen-command-palette.prefix-required`        | Boolean | `false` | If `true`, commands only appear when the query starts with `:`.           |
 | `zen-command-palette.debug-mode`             | Boolean | `false` | Enables detailed logging in the Browser Console for troubleshooting.      |
-| `zen-command-palette.max-commands`           | Integer | `3`     | The maximum number of command results to display at once.                 |
+| `zen-command-palette.max-commands`           | Integer | `3`     | The maximum number of command results to display at once (without `:`).   |
 | `zen-command-palette.min-query-length`       | Integer | `3`     | Minimum characters needed to show commands (unless using the `:` prefix). |
+| `zen-command-palette.min-score-threshold`    | Integer | `20`    | The minimum fuzzy-search score required for a command to be shown.        |
 | `zen-command-palette.dynamic.about-pages`    | Boolean | `false` | Automatically generate commands for `about:` pages.                       |
 | `zen-command-palette.dynamic.search-engines` | Boolean | `true`  | Automatically generate commands for your installed search engines.        |
 | `zen-command-palette.dynamic.extensions`     | Boolean | `true`  | Automatically generate commands for extensions with an options page.      |
-| `zen-command-palette.dynamic.workspaces`     | Boolean | `true`  | Automatically generate commands for switching between Zen Workspaces.     |
+| `zen-command-palette.dynamic.workspaces`     | Boolean | `true`  | Automatically generate commands for switching/moving tabs to Workspaces.  |
+| `zen-command-palette.dynamic.folders`        | Boolean | `true`  | Automatically generate commands for managing Folders.                     |
 | `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`  | Automatically generate commands for Installing/uninstalling sine mods.    |
 
 ## Available Commands
@@ -52,10 +55,12 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 
 - Duplicate Tab
 - Clear Other Tabs
-- Move Tab Left / Right
+- Unload Tab / Unload Other Tabs
+- Move Tab Up / Down
 - Close Tab
 - Toggle Mute Tab
 - Pin / Unpin Tab
+- Rename Tab (for pinned tabs)
 - Next / Previous Tab
 - Show All Tabs Panel
 - Add to / Remove from Essentials
@@ -67,7 +72,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 
 - New Window
 - Close Window
-- Minimize Window
+- Minimize / Maximize Window
 - Open Private Window
 - Reopen Closed Window
 
@@ -77,13 +82,15 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Stop Loading
 - Reload Page / Hard Reload
 - Bookmark This Page / All Tabs
+- Toggle Bookmarks Toolbar
 - Search Bookmarks / History
 - Show All Bookmarks / History (Library)
 
 ### Zen Browser Features
 
 - **Compact Mode**: Toggle Compact Mode, Floating Sidebar, or Floating Toolbar
-- **Workspaces**: Next/Previous Workspace, Change Tab's Workspace, Delete Workspace, Change Icon, Create New Workspace, Reorder Workspaces
+- **Workspaces**: Next/Previous Workspace, Delete Workspace, Change Icon, Create New Workspace, Reorder Workspaces
+- **Folders**: Create New Folder, Remove Tab from Folder
 - **Split View**: Set Grid, Vertical, or Horizontal Split; Unsplit View
 - **Themes**: Open Theme Picker
 - **UI**: Toggle Tabs on Right, Toggle Sidebar Width, Copy Current URL (and as Markdown)
@@ -108,17 +115,19 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Print Page
 - Open File
 
-### Sine Mod Management
-
-- **Install Sine Mod**: _Currently unavailable as the required API is not exposed by Sine._
-- **Uninstall Sine Mod**: Uninstall any of your currently installed Sine mods.
+### System & Application
+- Toggle Work Offline
+- Quit Browser
+- Restart Browser / Restart & Clear Cache
 
 ### Dynamic Commands
 
 - **About Pages**: Automatically generated commands to open any of Firefox's internal `about:` pages (e.g., `about:config`, `about:addons`).
 - **Search Engines**: Automatically generated commands to switch the URL bar's current search engine to any of your installed engines (e.g., "Search with: Google").
 - **Extension Options**: Automatically generated commands to open the options page for any of your installed extensions that have one.
-- **Workspaces**: Automatically generated commands to switch to any of your other Zen Workspaces.
+- **Workspaces**: Automatically generated commands to switch to any of your other Zen Workspaces, or move the current tab to them.
+- **Folders**: Automatically generated commands to delete any of your folders or move the current tab into one.
+- **Sine Mod Management**: Uninstall any of your currently installed Sine mods.
 
 </details>
 
