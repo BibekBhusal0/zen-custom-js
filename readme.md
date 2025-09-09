@@ -34,12 +34,6 @@ Make sidebar floating also option to pin and unpin the sidebar.
 
 https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 
-### [Keyboard Shortcuts Search](/settings-shortcuts-search)
-
-Dynamic search and filter for browser settings shortcuts.
-
-https://github.com/user-attachments/assets/01b14b7b-04a7-49d8-a719-83ad7fc8c603
-
 ## Compatibility
 
 - Zen Browser (Primary Target)
