@@ -1,15 +1,15 @@
 .urlbarView-row :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
   /* hiding the message to search */
 
-  .urlbarView-action{
+  .urlbarView-action {
     display: none;
   }
 
-    .urlbarView-favicon {
-      &[src^="data:image/svg+xml"]:not([src*="#noinvert"]) {
-          @media (prefers-color-scheme: dark) {
-            filter: invert();
-          }
-        }
+  .urlbarView-favicon {
+    &[src^="data:image/svg+xml"]:not([src*="#noinvert"]) {
+      @media (prefers-color-scheme: dark) {
+        filter: invert();
+      }
     }
   }
+}
