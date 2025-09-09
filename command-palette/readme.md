@@ -2,6 +2,11 @@
 
 Zen Command Palette is a powerful, extensible command interface for Zen Browser, seamlessly integrated directly into the URL bar. Inspired by the command palettes in modern productivity tools like **Arc Browser**, **Raycast**, and **Vivaldi**, it provides a fast and efficient way to control your browser with just a few keystrokes.
 
+
+https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
+
+
+
 This project aims to be a modern and actively maintained alternative, building upon the ideas of existing modifications to create a more robust and user-friendly experience.
 
 ## Features
@@ -159,7 +164,7 @@ if (window.ZenCommandPalette) {
 
 **This project is in a very early stage of development.**
 
-While the core functionality is solid, the command list was originally adapted from another project and has been progressively tested and fixed. There may still be commands that do not function as intended.
+While the core functionality is solid, the command list was originally adapted from another project and has been progressively tested and fixed.
 
 If you encounter any bugs or commands that are not working, please first check if an issue already exists. If not, please report it here:
 
