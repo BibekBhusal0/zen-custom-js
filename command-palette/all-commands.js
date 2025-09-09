@@ -246,6 +246,22 @@ export const commands = [
     tags: ["duplicate", "tab", "copy", "clone"],
   },
   {
+    key: "new-tab",
+    label: "New Tab",
+    command: () => BrowserCommands.openTab(),
+    condition: !!window.BrowserCommands,
+    icon: "chrome://browser/skin/zen-icons/plus.svg",
+    tags: ["new", "home", "black", "tab"],
+  },
+  {
+    key: "home",
+    label: "Home",
+    command: () => BrowserCommands.home(),
+    condition: !!window.BrowserCommands,
+    icon: "chrome://browser/skin/zen-icons/home.svg",
+    tags: ["new", "home", "black", "tab"],
+  },
+  {
     key: "clear-tabs",
     label: "Clear Other Tabs",
     command: clearTabs,
@@ -578,22 +594,22 @@ export const commands = [
   },
 
   // ----------- Developer Tools -----------
-  // {
-  //   key: "View:PageSource",
-  //   label: "View Page Source",
-  //   command: () => BrowserViewSourceOfDocument(gBrowser.selectedBrowser.document),
-  //   condition: !!window.BrowserViewSourceOfDocument,
-  //   icon: "chrome://devtools/skin/images/command-viewsource.svg",
-  //   tags: ["source", "code", "html", "view"]
-  // },
-  // {
-  //   key: "View:PageInfo",
-  //   label: "View Page Info",
-  //   command: () => BrowserPageInfo(),
-  //   condition: !!window.BrowserPageInfo,
-  //   icon: "chrome://browser/skin/information.svg",
-  //   tags: ["info", "page", "details", "properties"]
-  // },
+  {
+    key: "View:PageSource",
+    label: "View Page Source",
+    command: () => BrowserCommands.viewSource(window.gBrowser.selectedBrowser),
+    condition: !!window.BrowserCommands,
+    icon: "chrome://devtools/skin/images/command-viewsource.svg",
+    tags: ["source", "code", "html", "view"]
+  },
+  {
+    key: "View:PageInfo",
+    label: "View Page Info",
+    command: () => BrowserCommands.pageInfo(),
+    condition: !!window.BrowserCommands,
+    icon: "chrome://browser/skin/information.svg",
+    tags: ["info", "page", "details", "properties"]
+  },
 
   // ----------- Media & Screenshots -----------
   {
