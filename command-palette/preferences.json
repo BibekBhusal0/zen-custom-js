@@ -1,13 +1,7 @@
 [
   {
     "type": "text",
-    "label": "**Zen Command Palette Settings**",
-    "margin": "10px 0 15px 0",
-    "size": "20px"
-  },
-  {
-    "type": "text",
-    "label": "Configure the behavior of the command palette."
+    "label": "Configure the behavior of the command palette. All changes real time (no need to restart)"
   },
   {
     "type": "separator",
@@ -17,13 +11,13 @@
   {
     "type": "checkbox",
     "property": "zen-command-palette.prefix-required",
-    "label": "Require `:` prefix to show commands",
+    "label": "Require \":\" prefix to show commands",
     "default": false
   },
   {
     "type": "dropdown",
     "property": "zen-command-palette.max-commands",
-    "label": "Maximum Results (without `:`)",
+    "label": "Maximum Results (without \":\")",
     "value": "number",
     "default": 3,
     "placeholder": false,
@@ -38,7 +32,7 @@
   {
     "type": "dropdown",
     "property": "zen-command-palette.min-query-length",
-    "label": "Activation Length (without `:`)",
+    "label": "Activation Length (without \":\")",
     "value": "number",
     "default": 3,
     "placeholder": false,
@@ -57,10 +51,12 @@
     "default": 20,
     "placeholder": false,
     "options": [
-      { "label": "Very Strict (40)", "value": 40 },
-      { "label": "Strict (30)", "value": 30 },
-      { "label": "Balanced (20)", "value": 20 },
-      { "label": "Loose (10)", "value": 10 }
+      { "label": "Super Strict (70)", "value": 70 },
+      { "label": "Very Strict (60)", "value": 60 },
+      { "label": "Strict (50)", "value": 50 },
+      { "label": "Balanced (40)", "value": 40 },
+      { "label": "Loose (30)", "value": 30 },
+      { "label": "Very Loose (20)", "value": 20 }
     ]
   },
   {
@@ -73,10 +69,10 @@
     "options": [
       { "label": "5", "value": 5 },
       { "label": "6", "value": 6 },
-      { "label": "7(Zen browser Default)", "value": 7 },
+      { "label": "7", "value": 7 },
       { "label": "8", "value": 8 },
       { "label": "9", "value": 9 },
-      { "label": "10(Firefox browser Default)", "value": 10 },
+      { "label": "10", "value": 10 },
       { "label": "12", "value": 12 }
     ]
   },
