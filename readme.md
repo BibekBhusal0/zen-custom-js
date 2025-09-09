@@ -4,6 +4,18 @@ Personal customization userscripts and css files for enhanceing browsing experie
 
 ## Scripts
 
+### [Findbar AI/BrowseBot](/findbar-ai)
+
+Advanced AI functionality inside browser builtin findbar.
+
+https://github.com/user-attachments/assets/258d2643-6135-4b2b-accc-c1d59f3f76fc
+
+### [Keyboard Shortcuts Search](/settings-shortcuts-search)
+
+Dynamic search and filter for browser settings shortcuts.
+
+https://github.com/user-attachments/assets/01b14b7b-04a7-49d8-a719-83ad7fc8c603
+
 ### [Search Engine Select](/search-engine-select)
 
 Quick search engine switching with advanced interaction modes
@@ -21,12 +33,6 @@ https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 Dynamic search and filter for browser settings shortcuts.
 
 https://github.com/user-attachments/assets/01b14b7b-04a7-49d8-a719-83ad7fc8c603
-
-### [Findbar AI](/findbar-ai)
-
-Advanced AI functionality inside browser builtin findbar.
-
-https://github.com/user-attachments/assets/258d2643-6135-4b2b-accc-c1d59f3f76fc
 
 ## Compatibility
 
