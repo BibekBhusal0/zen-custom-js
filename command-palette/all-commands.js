@@ -127,13 +127,13 @@ export const commands = [
   },
   {
     key: "cmd_zenSplitViewVertical",
-    label: "Split View: Vertical",
+    label: "Split Vertical",
     icon: svgToUrl(icons["splitVz"]),
     tags: ["split", "view", "vertical", "layout", "multitask"],
   },
   {
     key: "cmd_zenSplitViewHorizontal",
-    label: "Split View: Horizontal",
+    label: "Split Horizontal",
     icon: svgToUrl(icons["splitHz"]),
     tags: ["split", "view", "horizontal", "layout", "multitask"],
   },
@@ -404,6 +404,12 @@ export const commands = [
     label: "Minimize Window",
     icon: "chrome://browser/skin/zen-icons/unpin.svg",
     tags: ["window", "minimize", "hide"],
+  },
+  {
+    key: "cmd_maximizeWindow",
+    label: "Maximize Window",
+    icon: "chrome://browser/skin/zen-icons/window.svg",
+    tags: ["window", "Maximize", "fullscreen"],
   },
   {
     key: "Tools:PrivateBrowsing",
