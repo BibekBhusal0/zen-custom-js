@@ -123,23 +123,27 @@ export const commands = [
     key: "cmd_zenSplitViewGrid",
     label: "Split View: Grid",
     icon: svgToUrl(icons["splitGrid"]),
+    condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter.splitViewActive,
     tags: ["split", "view", "grid", "layout", "multitask"],
   },
   {
     key: "cmd_zenSplitViewVertical",
     label: "Split Vertical",
     icon: svgToUrl(icons["splitVz"]),
+    condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter.splitViewActive,
     tags: ["split", "view", "vertical", "layout", "multitask"],
   },
   {
     key: "cmd_zenSplitViewHorizontal",
     label: "Split Horizontal",
     icon: svgToUrl(icons["splitHz"]),
+    condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter.splitViewActive,
     tags: ["split", "view", "horizontal", "layout", "multitask"],
   },
   {
     key: "cmd_zenSplitViewUnsplit",
     label: "Unsplit View",
+    condition: () => gZenViewSplitter.splitViewActive,
     tags: ["split", "view", "unsplit", "single", "restore"],
   },
 
@@ -433,7 +437,7 @@ export const commands = [
     key: "Browser:Back",
     label: "Go Back",
     command: () => gBrowser.goBack(),
-    condition: !!gBrowser?.goBack,
+    condition: () => gBrowser.canGoBack,
     icon: "chrome://browser/skin/back.svg",
     tags: ["back", "navigate", "history", "previous"],
   },
@@ -441,7 +445,7 @@ export const commands = [
     key: "Browser:Forward",
     label: "Go Forward",
     command: () => gBrowser.goForward(),
-    condition: !!gBrowser?.goForward,
+    condition: () => gBrowser.canGoForward,
     icon: "chrome://browser/skin/forward.svg",
     tags: ["forward", "navigate", "history", "next"],
   },
@@ -546,6 +550,12 @@ export const commands = [
   },
 
   // ----------- View & Display -----------
+  {
+    key: "View:BookmarksToolbar",
+    label: "Toggle Bookmarks Toolbar",
+    icon: "chrome://browser/skin/bookmarks-toolbar.svg",
+    tags: ["bookmarks", "toolbar", "show", "hide", "view"],
+  },
   {
     key: "View:FullScreen",
     label: "Toggle Fullscreen",
