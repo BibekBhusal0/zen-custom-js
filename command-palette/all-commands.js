@@ -600,7 +600,7 @@ export const commands = [
     command: () => BrowserCommands.viewSource(window.gBrowser.selectedBrowser),
     condition: !!window.BrowserCommands,
     icon: "chrome://devtools/skin/images/command-viewsource.svg",
-    tags: ["source", "code", "html", "view"]
+    tags: ["source", "code", "html", "view"],
   },
   {
     key: "View:PageInfo",
@@ -608,7 +608,7 @@ export const commands = [
     command: () => BrowserCommands.pageInfo(),
     condition: !!window.BrowserCommands,
     icon: "chrome://browser/skin/information.svg",
-    tags: ["info", "page", "details", "properties"]
+    tags: ["info", "page", "details", "properties"],
   },
 
   // ----------- Media & Screenshots -----------
