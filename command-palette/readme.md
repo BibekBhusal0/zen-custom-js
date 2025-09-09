@@ -116,6 +116,7 @@ The Zen Command Palette can be configured via `about:config`. Enter `about:confi
 - Open File
 
 ### System & Application
+
 - Toggle Work Offline
 - Quit Browser
 - Restart Browser / Restart & Clear Cache
