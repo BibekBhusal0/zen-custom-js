@@ -100,7 +100,13 @@
   {
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.workspaces",
-    "label": "Enable Workspace switching commands",
+    "label": "Enable Workspace commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.folders",
+    "label": "Enable Folder Management commands",
     "default": true
   },
   {
