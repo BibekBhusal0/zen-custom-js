@@ -4,6 +4,7 @@
   "description": "A powerful, extensible command interface for Zen Browser, seamlessly integrated into the URL bar. Inspired by Raycast and Arc.",
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette",
   "preferences": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/command-palette/preferences.json",
+  "style": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/refs/heads/main/command-palette/style.css",
   "js": true,
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/command-palette/README.md",
   "author": "Bibek Bhusal",
