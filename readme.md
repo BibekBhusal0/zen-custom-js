@@ -4,6 +4,12 @@ Personal customization userscripts and css files for enhanceing browsing experie
 
 ## Scripts
 
+### [Zen Command Palette](/command-palette)
+
+Advanced command interface in browser built in URL bar.
+
+https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
+
 ### [Findbar AI/BrowseBot](/findbar-ai)
 
 Advanced AI functionality inside browser builtin findbar.
