@@ -1,12 +1,15 @@
-.urlbarView-row {
+.urlbarView-row :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
   /* hiding the message to search */
 
-  .urlbarView-action[data-l10n-args='{"engine":"zenCommand"}'] {
+  .urlbarView-action{
     display: none;
   }
 
-  /* :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
     .urlbarView-favicon {
+      &[src^="data:image/svg+xml"]:not([src*="#noinvert"]) {
+          @media (prefers-color-scheme: dark) {
+            filter: invert();
+          }
+        }
     }
-  } */
-}
+  }
