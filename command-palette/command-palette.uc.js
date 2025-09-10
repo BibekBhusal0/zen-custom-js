@@ -33,7 +33,7 @@ const ZenCommandPalette = {
         gURLBar.view.close();
       }
     } catch (e) {
-      debugError("urlbarAI: Error in _closeUrlBar", e);
+      debugError("Error in _closeUrlBar", e);
     }
   },
 
