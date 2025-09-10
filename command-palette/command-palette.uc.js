@@ -554,6 +554,13 @@ const ZenCommandPalette = {
 
         async isActive(context) {
           try {
+            // Do not activate if a one-off search engine is already active (e.g., @google).
+            // This check must come first to override all other logic.
+            const inSearchMode = !!context.searchMode?.engineName;
+            if (inSearchMode) {
+              return false;
+            }
+
             const input = (context.searchString || "").trim();
             const isPrefixSearch = input.startsWith(":");
 
@@ -565,12 +572,6 @@ const ZenCommandPalette = {
 
             // If user requires prefix for commands, don't activate without it.
             if (Prefs.prefixRequired) {
-              return false;
-            }
-
-            // Don't activate if a one-off search engine is already active (e.g., @google).
-            const inSearchMode = !!context.searchMode?.engineName;
-            if (inSearchMode) {
               return false;
             }
 
