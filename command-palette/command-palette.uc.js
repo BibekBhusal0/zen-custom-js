@@ -433,10 +433,11 @@ const ZenCommandPalette = {
     }
 
     const onUrlbarClose = () => {
+      const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
       if (this.provider) {
         this.provider.dispose();
       }
-      if (gURLBar.value.trim().startsWith(":")) {
+      if (isPrefixModeActive) {
         gURLBar.value = "";
       }
     };
