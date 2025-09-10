@@ -399,7 +399,6 @@ const ZenCommandPalette = {
     const urlbar = document.getElementById("urlbar");
     const results = document.getElementById("urlbar-results");
 
-
     const observer = new MutationObserver((mutations) => {
       // Use the provider's state flag instead of gURLBar.value
       const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
@@ -490,6 +489,14 @@ const ZenCommandPalette = {
 
         async isActive(context) {
           try {
+            const input = (context.searchString || "").trim();
+            const isPrefixSearch = input.startsWith(":");
+
+            if (this._isInPrefixMode && !isPrefixSearch) {
+              this._isInPrefixMode = false;
+              Prefs.resetTempMaxRichResults();
+            }
+
             // Do not activate if a one-off search engine is already active.
             const inSearchMode =
               !!context.searchMode?.engineName || !!gURLBar.searchMode?.engineName;
@@ -501,9 +508,6 @@ const ZenCommandPalette = {
               );
               return false;
             }
-
-            const input = (context.searchString || "").trim();
-            const isPrefixSearch = input.startsWith(":");
 
             if (isPrefixSearch) {
               return true;
