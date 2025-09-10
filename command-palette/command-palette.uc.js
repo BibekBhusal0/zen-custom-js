@@ -472,9 +472,6 @@ const ZenCommandPalette = {
 
     observer.observe(results, {
       childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["selected"],
     });
     observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
   },
@@ -538,6 +535,8 @@ const ZenCommandPalette = {
 
         async isActive(context) {
           try {
+            // Awaiting all commands here is less efficient but safer against race conditions.
+            const liveCommands = await self.generateLiveCommands();
             const input = (context.searchString || "").trim();
             const isPrefixSearch = input.startsWith(":");
 
@@ -552,10 +551,14 @@ const ZenCommandPalette = {
               return false;
             }
 
+            // Don't activate if a one-off search engine is already active (e.g., @google).
             const inSearchMode = !!context.searchMode?.engineName;
-            // Otherwise (if mixing is allowed), activate if not in search mode and query is long enough.
-            if (!inSearchMode && input.length >= Prefs.minQueryLength) {
-              const liveCommands = await self.generateLiveCommands();
+            if (inSearchMode) {
+              return false;
+            }
+
+            // For non-prefix mode, activate if query is long enough and there are have matches.
+            if (input.length >= Prefs.minQueryLength) {
               return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
 
@@ -574,6 +577,8 @@ const ZenCommandPalette = {
 
             if (isPrefixSearch) {
               Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
+            } else {
+              Prefs.resetTempMaxRichResults();
             }
 
             const liveCommands = await self.generateLiveCommands();
