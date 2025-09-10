@@ -688,11 +688,13 @@ const ZenCommandPalette = {
 };
 
 // --- Initialization ---
-Prefs.setInitialPrefs();
-window.ZenCommandPalette = ZenCommandPalette;
-window.ZenCommandPalette.init();
+UC_API.Runtime.startupFinished().then(() => {
+  Prefs.setInitialPrefs();
+  window.ZenCommandPalette = ZenCommandPalette;
+  window.ZenCommandPalette.init();
 
-debugLog(
-  "Zen Command Palette initialized. Static commands count:",
-  window.ZenCommandPalette.staticCommands.length
-);
+  debugLog(
+    "Zen Command Palette initialized. Static commands count:",
+    window.ZenCommandPalette.staticCommands.length
+  );
+})
