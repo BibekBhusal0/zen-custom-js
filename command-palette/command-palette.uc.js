@@ -697,4 +697,4 @@ UC_API.Runtime.startupFinished().then(() => {
     "Zen Command Palette initialized. Static commands count:",
     window.ZenCommandPalette.staticCommands.length
   );
-})
+});
