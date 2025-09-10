@@ -346,7 +346,7 @@ const ZenCommandPalette = {
           const row = e.target.closest(".urlbarView-row");
           if (!row) return;
           const cmd = this.findCommandFromDomRow(row);
-          if (cmd && cmd.key !== "no-results") {
+          if (cmd) {
             debugLog("Executing command from click, stopping further event propagation.");
             this._closeUrlBar();
             setTimeout(() => {
@@ -375,7 +375,7 @@ const ZenCommandPalette = {
           }
           const selectedRow = popup.children[view.selectedElementIndex];
           const cmd = this.findCommandFromDomRow(selectedRow);
-          if (cmd && cmd.key !== "no-results") {
+          if (cmd) {
             debugLog("Executing command from Enter key, stopping further event propagation.");
             this._closeUrlBar();
             setTimeout(() => {
@@ -438,16 +438,21 @@ const ZenCommandPalette = {
     input.addEventListener(
       "keydown",
       (event) => {
+        // This intervention is ONLY needed if nothing is currently selected (-1).
         if (gURLBar.view.selectedIndex !== -1 || !["ArrowUp", "ArrowDown"].includes(event.key)) {
+          // If something is already selected, let Firefox's native code handle it.
           return;
         }
 
+        // If here, it means nothing is selected. A new selection must be created
+        // in the current view instead of letting Firefox default to the top of the list.
         event.preventDefault();
         event.stopPropagation();
 
         const allRows = Array.from(results.querySelectorAll(".urlbarView-row"));
         if (!allRows.length) return;
 
+        // Find the topmost visible item to anchor the new selection.
         const containerRect = results.getBoundingClientRect();
         const firstVisibleRow = allRows.find(
           (row) => row.getBoundingClientRect().top >= containerRect.top
@@ -461,17 +466,28 @@ const ZenCommandPalette = {
       true
     );
 
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver((mutations) => {
+      // Sizing logic
       if (urlbar.hasAttribute("open")) {
         const isPrefixSearch = gURLBar.value.trim().startsWith(":");
         results.classList.toggle(SCROLLABLE_CLASS, isPrefixSearch);
       } else {
         results.classList.remove(SCROLLABLE_CLASS);
       }
+
+      // Auto-scrolling logic for subsequent arrow key presses
+      for (const mutation of mutations) {
+        if (mutation.attributeName === "selected" && mutation.target.hasAttribute("selected")) {
+          mutation.target.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
+      }
     });
 
     observer.observe(results, {
       childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["selected"],
     });
     observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
   },
@@ -486,6 +502,9 @@ const ZenCommandPalette = {
       if (this.provider) {
         debugLog("URL bar closed, disposing provider to reset state.");
         this.provider.dispose();
+      }
+      if (gURLBar.value.trim().startsWith(":")) {
+        gURLBar.value = "";
       }
     };
 
@@ -535,18 +554,16 @@ const ZenCommandPalette = {
 
         async isActive(context) {
           try {
-            // Awaiting all commands here is less efficient but safer against race conditions.
-            const liveCommands = await self.generateLiveCommands();
             const input = (context.searchString || "").trim();
             const isPrefixSearch = input.startsWith(":");
 
             if (isPrefixSearch) {
-              // When the prefix is used, we are always active, so we can show
-              // "no results" instead of falling back to other providers.
+              // In prefix mode, the provider is always active to suppress other providers
+              // and to show its "no results" message if applicable.
               return true;
             }
 
-            // If prefix is required, don't proceed for non-prefix searches.
+            // If user requires prefix for commands, don't activate without it.
             if (Prefs.prefixRequired) {
               return false;
             }
@@ -557,8 +574,9 @@ const ZenCommandPalette = {
               return false;
             }
 
-            // For non-prefix mode, activate if query is long enough and there are have matches.
+            // For non-prefix mode, activate if query is long enough and there are matches.
             if (input.length >= Prefs.minQueryLength) {
+              const liveCommands = await self.generateLiveCommands();
               return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
 
@@ -578,6 +596,7 @@ const ZenCommandPalette = {
             if (isPrefixSearch) {
               Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
             } else {
+              // Reset if the provider is active but no longer in prefix mode.
               Prefs.resetTempMaxRichResults();
             }
 
@@ -591,8 +610,8 @@ const ZenCommandPalette = {
                 const noResultsCmd = {
                   key: "no-results",
                   label: "No matching commands found",
-                  command: () => {}, // No-op
-                  icon: "chrome://browser/skin/search-glass.svg",
+                  command: self._closeUrlBar.bind(self),
+                  icon: "chrome://browser/skin/zen-icons/info.svg",
                 };
 
                 const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
