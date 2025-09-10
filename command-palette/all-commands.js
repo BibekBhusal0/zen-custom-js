@@ -599,7 +599,7 @@ export const commands = [
     label: "View Page Source",
     command: () => BrowserCommands.viewSource(window.gBrowser.selectedBrowser),
     condition: !!window.BrowserCommands,
-    icon: "chrome://devtools/skin/images/command-viewsource.svg",
+    icon: "chrome://browser/skin/zen-icons/source-code.svg",
     tags: ["source", "code", "html", "view"],
   },
   {
@@ -607,7 +607,7 @@ export const commands = [
     label: "View Page Info",
     command: () => BrowserCommands.pageInfo(),
     condition: !!window.BrowserCommands,
-    icon: "chrome://browser/skin/information.svg",
+    icon: "chrome://browser/skin/zen-icons/info.svg",
     tags: ["info", "page", "details", "properties"],
   },
 
