@@ -273,7 +273,6 @@ const ZenCommandPalette = {
   findCommandFromDomRow(row) {
     try {
       if (!row) {
-        debugLog("findCommandFromDomRow: called with null row.");
         return null;
       }
       // The title element is prioritized as it typically contains only the command label,
@@ -283,18 +282,15 @@ const ZenCommandPalette = {
       const trimmed = this.safeStr(title).trim();
 
       if (!trimmed) {
-        debugLog("findCommandFromDomRow: row has no title/text content", row);
         if (
           this.provider &&
           this.provider._lastResults &&
           this.provider._lastResults.length === 1
         ) {
-          debugLog("findCommandFromDomRow: falling back to single result.");
           return this.provider._lastResults[0] && this.provider._lastResults[0]._zenCmd;
         }
         return null;
       }
-      debugLog("findCommandFromDomRow: trying to match row title:", `"${trimmed}"`);
 
       // Match by checking if the row's text starts with a known command's title.
       // This is more robust than an exact match, as Firefox can append additional text to the row.
@@ -303,7 +299,6 @@ const ZenCommandPalette = {
           if (!r || !r.payload) continue;
           const payloadTitle = (r.payload.title || r.payload.suggestion || "").trim();
           if (payloadTitle && trimmed.startsWith(payloadTitle)) {
-            debugLog("findCommandFromDomRow: matched by startsWith payload title.", r._zenCmd);
             return r._zenCmd || null;
           }
         }
@@ -313,11 +308,9 @@ const ZenCommandPalette = {
       const commandList = this.provider?._currentCommandList || this.staticCommands;
       const found = commandList.find((c) => trimmed.startsWith(c.label));
       if (found) {
-        debugLog("findCommandFromDomRow: matched command label as fallback.", found);
         return found;
       }
 
-      debugLog("findCommandFromDomRow: failed to match row title to any command.");
       return null;
     } catch (e) {
       debugError("findCommandFromDomRow error:", e);
@@ -330,7 +323,6 @@ const ZenCommandPalette = {
    */
   attachUrlbarSelectionListeners() {
     try {
-      debugLog("Attempting to attach URL bar listeners...");
       const popup =
         (typeof gURLBar !== "undefined" && gURLBar.view?.results) ||
         document.getElementById("urlbar-results");
@@ -342,12 +334,11 @@ const ZenCommandPalette = {
 
       const onPopupClick = (e) => {
         try {
-          debugLog("Popup click event triggered.", "Target:", e.target);
           const row = e.target.closest(".urlbarView-row");
           if (!row) return;
           const cmd = this.findCommandFromDomRow(row);
           if (cmd) {
-            debugLog("Executing command from click, stopping further event propagation.");
+            debugLog("Executing command from click.");
             this._closeUrlBar();
             setTimeout(() => {
               this.executeCommandObject(cmd);
@@ -364,19 +355,17 @@ const ZenCommandPalette = {
       const onUrlbarKeydown = (e) => {
         try {
           if (e.key !== "Enter" || e.defaultPrevented) return;
-          debugLog("Enter key pressed on urlbar.");
 
           const view = typeof gURLBar !== "undefined" && gURLBar.view;
           if (!view || !view.isOpen || view.selectedElementIndex < 0) return;
 
           if (!popup || !popup.children) {
-            debugError("Keydown handler cannot find popup or its children.");
             return;
           }
           const selectedRow = popup.children[view.selectedElementIndex];
           const cmd = this.findCommandFromDomRow(selectedRow);
           if (cmd) {
-            debugLog("Executing command from Enter key, stopping further event propagation.");
+            debugLog("Executing command from Enter key.");
             this._closeUrlBar();
             setTimeout(() => {
               this.executeCommandObject(cmd);
@@ -391,18 +380,9 @@ const ZenCommandPalette = {
 
       if (!popup._zenCmdListenersAttached) {
         popup.addEventListener("click", onPopupClick, true);
-        debugLog("Successfully attached 'click' listener to popup:", popup);
-
-        if (typeof gURLBar !== "undefined" && gURLBar.inputField) {
-          gURLBar.inputField.addEventListener("keydown", onUrlbarKeydown, true);
-          debugLog("Successfully attached 'keydown' listener to urlbar input:", gURLBar.inputField);
-        } else {
-          debugError("Could not find gURLBar.inputField to attach keydown listener.");
-        }
+        gURLBar.inputField.addEventListener("keydown", onUrlbarKeydown, true);
         popup._zenCmdListenersAttached = true;
-        debugLog("Finished attaching listeners.");
-      } else {
-        debugLog("Listeners already attached.");
+        debugLog("URL bar selection listeners attached.");
       }
     } catch (e) {
       debugError("attachUrlbarSelectionListeners setup error:", e);
@@ -429,7 +409,6 @@ const ZenCommandPalette = {
       "wheel",
       () => {
         if (gURLBar.view.selectedIndex !== -1) {
-          debugLog("Scroll wheel used, resetting selectedIndex to -1.");
           gURLBar.view.selectedIndex = -1;
         }
       },
@@ -447,16 +426,11 @@ const ZenCommandPalette = {
         const isSelectionEmpty =
           gURLBar.view.selectedIndex === -1 || typeof gURLBar.view.selectedIndex === "undefined";
 
-        debugLog(
-          `Keydown: ${event.key}, selectedIndex: ${gURLBar.view.selectedIndex}, isSelectionEmpty: ${isSelectionEmpty}`
-        );
-
         // This intervention is ONLY needed if nothing is currently selected.
         if (!isSelectionEmpty || !["ArrowUp", "ArrowDown"].includes(event.key)) {
           return;
         }
 
-        debugLog("Custom keydown handler activated for lost selection.");
         event.preventDefault();
         event.stopPropagation();
 
@@ -515,11 +489,9 @@ const ZenCommandPalette = {
     if (this._closeListenersAttached) {
       return;
     }
-    debugLog("Attempting to attach URL bar close listeners...");
 
     const onUrlbarClose = () => {
       if (this.provider) {
-        debugLog("URL bar closed, disposing provider to reset state.");
         this.provider.dispose();
       }
       if (gURLBar.value.trim().startsWith(":")) {
@@ -530,7 +502,7 @@ const ZenCommandPalette = {
     gURLBar.inputField.addEventListener("blur", onUrlbarClose);
     gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
     this._closeListenersAttached = true;
-    debugLog("Successfully attached URL bar close listeners.");
+    debugLog("URL bar close listeners attached.");
   },
 
   /**
