@@ -346,7 +346,7 @@ const ZenCommandPalette = {
           const row = e.target.closest(".urlbarView-row");
           if (!row) return;
           const cmd = this.findCommandFromDomRow(row);
-          if (cmd) {
+          if (cmd && cmd.key !== "no-results") {
             debugLog("Executing command from click, stopping further event propagation.");
             this._closeUrlBar();
             setTimeout(() => {
@@ -375,7 +375,7 @@ const ZenCommandPalette = {
           }
           const selectedRow = popup.children[view.selectedElementIndex];
           const cmd = this.findCommandFromDomRow(selectedRow);
-          if (cmd) {
+          if (cmd && cmd.key !== "no-results") {
             debugLog("Executing command from Enter key, stopping further event propagation.");
             this._closeUrlBar();
             setTimeout(() => {
@@ -409,11 +409,102 @@ const ZenCommandPalette = {
     }
   },
 
+  initScrollHandling() {
+    if (location.href !== "chrome://browser/content/browser.xhtml") {
+      return;
+    }
+    debugLog("Initializing scroll handling for command palette...");
+
+    const SCROLLABLE_CLASS = "zen-command-scrollable";
+    const urlbar = document.getElementById("urlbar");
+    const input = document.getElementById("urlbar-input");
+    const results = document.getElementById("urlbar-results");
+
+    if (!urlbar || !input || !results) {
+      debugError("Scroll handling init failed: one or more urlbar elements not found.");
+      return;
+    }
+
+    results.addEventListener(
+      "wheel",
+      () => {
+        if (gURLBar.view.selectedIndex !== -1) {
+          gURLBar.view.selectedIndex = -1;
+        }
+      },
+      { passive: true }
+    );
+
+    input.addEventListener(
+      "keydown",
+      (event) => {
+        if (gURLBar.view.selectedIndex !== -1 || !["ArrowUp", "ArrowDown"].includes(event.key)) {
+          return;
+        }
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const allRows = Array.from(results.querySelectorAll(".urlbarView-row"));
+        if (!allRows.length) return;
+
+        const containerRect = results.getBoundingClientRect();
+        const firstVisibleRow = allRows.find(
+          (row) => row.getBoundingClientRect().top >= containerRect.top
+        );
+
+        if (firstVisibleRow) {
+          const targetIndex = allRows.indexOf(firstVisibleRow);
+          gURLBar.view.selectedIndex = targetIndex;
+        }
+      },
+      true
+    );
+
+    const observer = new MutationObserver(() => {
+      if (urlbar.hasAttribute("open")) {
+        const isPrefixSearch = gURLBar.value.trim().startsWith(":");
+        results.classList.toggle(SCROLLABLE_CLASS, isPrefixSearch);
+      } else {
+        results.classList.remove(SCROLLABLE_CLASS);
+      }
+    });
+
+    observer.observe(results, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["selected"],
+    });
+    observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
+  },
+
+  attachUrlbarCloseListeners() {
+    if (this._closeListenersAttached) {
+      return;
+    }
+    debugLog("Attempting to attach URL bar close listeners...");
+
+    const onUrlbarClose = () => {
+      if (this.provider) {
+        debugLog("URL bar closed, disposing provider to reset state.");
+        this.provider.dispose();
+      }
+    };
+
+    gURLBar.inputField.addEventListener("blur", onUrlbarClose);
+    gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
+    this._closeListenersAttached = true;
+    debugLog("Successfully attached URL bar close listeners.");
+  },
+
   /**
    * Initializes the command palette by creating and registering the UrlbarProvider.
    * This is the main entry point for the script.
    */
   init() {
+    this.initScrollHandling();
+    this.attachUrlbarCloseListeners();
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
       "resource:///modules/UrlbarUtils.sys.mjs"
     );
@@ -448,13 +539,12 @@ const ZenCommandPalette = {
         async isActive(context) {
           try {
             const input = (context.searchString || "").trim();
-            const inSearchMode = !!context.searchMode?.engineName;
-            const liveCommands = await self.generateLiveCommands();
             const isPrefixSearch = input.startsWith(":");
 
-            // Always activate if the prefix is used.
             if (isPrefixSearch) {
-              return self.filterCommandsByInput(input, liveCommands).length > 0;
+              // When the prefix is used, we are always active, so we can show
+              // "no results" instead of falling back to other providers.
+              return true;
             }
 
             // If prefix is required, don't proceed for non-prefix searches.
@@ -462,8 +552,10 @@ const ZenCommandPalette = {
               return false;
             }
 
+            const inSearchMode = !!context.searchMode?.engineName;
             // Otherwise (if mixing is allowed), activate if not in search mode and query is long enough.
             if (!inSearchMode && input.length >= Prefs.minQueryLength) {
+              const liveCommands = await self.generateLiveCommands();
               return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
 
@@ -478,12 +570,51 @@ const ZenCommandPalette = {
           try {
             const input =
               context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
+            const isPrefixSearch = input.trim().startsWith(":");
+
+            if (isPrefixSearch) {
+              Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
+            }
+
             const liveCommands = await self.generateLiveCommands();
             this._currentCommandList = liveCommands; // Store for use in findCommandFromDomRow
             const matches = self.filterCommandsByInput(input, liveCommands);
             this._lastResults = [];
 
-            if (!matches.length) return;
+            if (!matches.length) {
+              if (isPrefixSearch) {
+                const noResultsCmd = {
+                  key: "no-results",
+                  label: "No matching commands found",
+                  command: () => {}, // No-op
+                  icon: "chrome://browser/skin/search-glass.svg",
+                };
+
+                const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
+                  suggestion: noResultsCmd.label,
+                  title: noResultsCmd.label,
+                  url: "",
+                  query: noResultsCmd.key,
+                  engine: "zenCommand",
+                });
+
+                const result = new UrlbarResult(
+                  UrlbarUtils.RESULT_TYPE.SEARCH,
+                  UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
+                  payload,
+                  payloadHighlights
+                );
+
+                result.heuristic = true;
+                result._zenCmd = noResultsCmd;
+                result.payload.icon = noResultsCmd.icon;
+                result.providerName = this.name;
+                result.providerType = this.type;
+                this._lastResults.push(result);
+                add(this, result);
+              }
+              return;
+            }
 
             for (const [index, cmd] of matches.entries()) {
               const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
@@ -520,6 +651,7 @@ const ZenCommandPalette = {
           }
         }
         dispose() {
+          Prefs.resetTempMaxRichResults();
           this._lastResults = [];
           this._currentCommandList = null;
         }

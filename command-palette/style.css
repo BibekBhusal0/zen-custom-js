@@ -13,3 +13,17 @@
     }
   }
 }
+
+:root {
+  --zen-command-visible-results: 5.5;
+}
+
+#urlbar-results {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--zen-primary-color) transparent !important;
+  &.zen-command-scrollable {
+    overflow-y: auto !important;
+    max-height: calc(var(--zen-command-visible-results) * 52px) !important;
+  }
+}
+

@@ -31,6 +31,21 @@
   },
   {
     "type": "dropdown",
+    "property": "zen-command-palette.max-commands-prefix",
+    "label": "Maximum Results (with \":\")",
+    "value": "number",
+    "default": 50,
+    "placeholder": false,
+    "options": [
+      { "label": "10 Commands", "value": 10 },
+      { "label": "20 Commands", "value": 20 },
+      { "label": "30 Commands", "value": 30 },
+      { "label": "50 Commands", "value": 50 },
+      { "label": "100 Commands", "value": 100 }
+    ]
+  },
+  {
+    "type": "dropdown",
     "property": "zen-command-palette.min-query-length",
     "label": "Activation Length (without \":\")",
     "value": "number",

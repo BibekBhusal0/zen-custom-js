@@ -1,8 +1,11 @@
+let _originalMaxResults = null;
+
 export const Prefs = {
   KEYS: {
     PREFIX_REQUIRED: "zen-command-palette.prefix-required",
     DEBUG_MODE: "zen-command-palette.debug-mode",
     MAX_COMMANDS: "zen-command-palette.max-commands",
+    MAX_COMMANDS_PREFIX: "zen-command-palette.max-commands-prefix",
     MIN_QUERY_LENGTH: "zen-command-palette.min-query-length",
     MIN_SCORE_THRESHOLD: "zen-command-palette.min-score-threshold",
     DYNAMIC_ABOUT_PAGES: "zen-command-palette.dynamic.about-pages",
@@ -44,6 +47,9 @@ export const Prefs = {
   get maxCommands() {
     return this.getPref(this.KEYS.MAX_COMMANDS);
   },
+  get maxCommandsPrefix() {
+    return this.getPref(this.KEYS.MAX_COMMANDS_PREFIX);
+  },
   get minQueryLength() {
     return this.getPref(this.KEYS.MIN_QUERY_LENGTH);
   },
@@ -68,12 +74,27 @@ export const Prefs = {
   get loadFolders() {
     return this.getPref(this.KEYS.DYNAMIC_FOLDERS);
   },
+
+  setTempMaxRichResults(value) {
+    if (_originalMaxResults === null) {
+      _originalMaxResults = UC_API.Prefs.get("browser.urlbar.maxRichResults")?.value ?? 10;
+    }
+    UC_API.Prefs.set("browser.urlbar.maxRichResults", value);
+  },
+
+  resetTempMaxRichResults() {
+    if (_originalMaxResults !== null) {
+      UC_API.Prefs.set("browser.urlbar.maxRichResults", _originalMaxResults);
+      _originalMaxResults = null;
+    }
+  },
 };
 
 Prefs.defaultValues = {
   [Prefs.KEYS.PREFIX_REQUIRED]: false,
   [Prefs.KEYS.DEBUG_MODE]: false,
   [Prefs.KEYS.MAX_COMMANDS]: 3,
+  [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
   [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
   [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 20,
   [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
