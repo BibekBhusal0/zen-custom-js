@@ -429,6 +429,7 @@ const ZenCommandPalette = {
       "wheel",
       () => {
         if (gURLBar.view.selectedIndex !== -1) {
+          debugLog("Scroll wheel used, resetting selectedIndex to -1.");
           gURLBar.view.selectedIndex = -1;
         }
       },
@@ -438,44 +439,61 @@ const ZenCommandPalette = {
     input.addEventListener(
       "keydown",
       (event) => {
-        // This intervention is ONLY needed if nothing is currently selected (-1).
-        if (gURLBar.view.selectedIndex !== -1 || !["ArrowUp", "ArrowDown"].includes(event.key)) {
-          // If something is already selected, let Firefox's native code handle it.
+        // This logic should only apply when the command palette's provider is active in prefix mode.
+        if (!ZenCommandPalette.provider?._isInPrefixMode) {
           return;
         }
 
-        // If here, it means nothing is selected. A new selection must be created
-        // in the current view instead of letting Firefox default to the top of the list.
+        const isSelectionEmpty =
+          gURLBar.view.selectedIndex === -1 || typeof gURLBar.view.selectedIndex === "undefined";
+
+        debugLog(
+          `Keydown: ${event.key}, selectedIndex: ${gURLBar.view.selectedIndex}, isSelectionEmpty: ${isSelectionEmpty}`
+        );
+
+        // This intervention is ONLY needed if nothing is currently selected.
+        if (!isSelectionEmpty || !["ArrowUp", "ArrowDown"].includes(event.key)) {
+          return;
+        }
+
+        debugLog("Custom keydown handler activated for lost selection.");
         event.preventDefault();
         event.stopPropagation();
 
         const allRows = Array.from(results.querySelectorAll(".urlbarView-row"));
         if (!allRows.length) return;
 
-        // Find the topmost visible item to anchor the new selection.
         const containerRect = results.getBoundingClientRect();
-        const firstVisibleRow = allRows.find(
-          (row) => row.getBoundingClientRect().top >= containerRect.top
-        );
+        let targetRow = null;
 
-        if (firstVisibleRow) {
-          const targetIndex = allRows.indexOf(firstVisibleRow);
+        if (event.key === "ArrowDown") {
+          targetRow = allRows.find((row) => row.getBoundingClientRect().top >= containerRect.top);
+        } else if (event.key === "ArrowUp") {
+          targetRow = [...allRows]
+            .reverse()
+            .find((row) => row.getBoundingClientRect().bottom <= containerRect.bottom);
+        }
+
+        if (targetRow) {
+          const targetIndex = allRows.indexOf(targetRow);
           gURLBar.view.selectedIndex = targetIndex;
+        } else {
+          gURLBar.view.selectedIndex = event.key === "ArrowDown" ? 0 : allRows.length - 1;
         }
       },
       true
     );
 
     const observer = new MutationObserver((mutations) => {
-      // Sizing logic
+      // Use the provider's state flag instead of gURLBar.value
+      const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
+
       if (urlbar.hasAttribute("open")) {
-        const isPrefixSearch = gURLBar.value.trim().startsWith(":");
-        results.classList.toggle(SCROLLABLE_CLASS, isPrefixSearch);
+        results.classList.toggle(SCROLLABLE_CLASS, isPrefixModeActive);
       } else {
         results.classList.remove(SCROLLABLE_CLASS);
       }
 
-      // Auto-scrolling logic for subsequent arrow key presses
       for (const mutation of mutations) {
         if (mutation.attributeName === "selected" && mutation.target.hasAttribute("selected")) {
           mutation.target.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -490,6 +508,7 @@ const ZenCommandPalette = {
       attributeFilter: ["selected"],
     });
     observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
+    debugLog("Scroll handling and MutationObserver successfully initialized.");
   },
 
   attachUrlbarCloseListeners() {
@@ -539,6 +558,8 @@ const ZenCommandPalette = {
     try {
       const self = this;
       class ZenCommandProvider extends UrlbarProvider {
+        _isInPrefixMode = false;
+
         get name() {
           return "TestProvider"; // setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
         }
@@ -554,10 +575,15 @@ const ZenCommandPalette = {
 
         async isActive(context) {
           try {
-            // Do not activate if a one-off search engine is already active (e.g., @google).
-            // This check must come first to override all other logic.
-            const inSearchMode = !!context.searchMode?.engineName;
+            // Do not activate if a one-off search engine is already active.
+            const inSearchMode =
+              !!context.searchMode?.engineName || !!gURLBar.searchMode?.engineName;
             if (inSearchMode) {
+              debugLog(
+                `Provider inactivated by search mode: ${
+                  context.searchMode?.engineName || gURLBar.searchMode?.engineName
+                }`
+              );
               return false;
             }
 
@@ -565,17 +591,13 @@ const ZenCommandPalette = {
             const isPrefixSearch = input.startsWith(":");
 
             if (isPrefixSearch) {
-              // In prefix mode, the provider is always active to suppress other providers
-              // and to show its "no results" message if applicable.
               return true;
             }
 
-            // If user requires prefix for commands, don't activate without it.
             if (Prefs.prefixRequired) {
               return false;
             }
 
-            // For non-prefix mode, activate if query is long enough and there are matches.
             if (input.length >= Prefs.minQueryLength) {
               const liveCommands = await self.generateLiveCommands();
               return self.filterCommandsByInput(input, liveCommands).length > 0;
@@ -593,6 +615,9 @@ const ZenCommandPalette = {
             const input =
               context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
             const isPrefixSearch = input.trim().startsWith(":");
+
+            // Set the state flag based on the initial query.
+            this._isInPrefixMode = isPrefixSearch;
 
             if (isPrefixSearch) {
               Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
@@ -679,6 +704,7 @@ const ZenCommandPalette = {
           Prefs.resetTempMaxRichResults();
           this._lastResults = [];
           this._currentCommandList = null;
+          this._isInPrefixMode = false; // Reset the state flag.
         }
       }
 
