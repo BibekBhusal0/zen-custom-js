@@ -8,11 +8,20 @@ const urlBarToolSet = Object.fromEntries(
   Object.entries(originalToolSet).map(([name, tool]) => {
     const newTool = { ...tool };
     if (tool.executeFn) {
-      newTool.execute = tool.executeFn;
+      const originalExecute = tool.executeFn;
+      newTool.execute = async (...args) => {
+        gURLBar.inputField.setAttribute("placeholder", `AI calling ${name} tool...`);
+        try {
+          return await originalExecute(...args);
+        } finally {
+          gURLBar.inputField.setAttribute("placeholder", "AI thinking...");
+        }
+      };
     }
     return [name, newTool];
   })
 );
+
 class UrlBarLLM extends LLM {
   async getSystemPrompt() {
     let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
@@ -134,6 +143,7 @@ const urlbarAI = {
     this._boundHandleGlobalKeyDown = this.handleGlobalKeyDown.bind(this);
     this._boundHandleUrlbarKeyDown = this.handleUrlbarKeyDown.bind(this);
     this._boundDisableAIMode = () => {
+      gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
       if (this._isAIMode) {
         debugLog("urlbarAI: Disabling AI mode due to blur or popup hide");
         this.toggleAIMode(false);
@@ -150,9 +160,15 @@ const urlbarAI = {
     const prompt = gURLBar.value.trim();
     if (prompt) {
       debugLog(`URLbar: Sending prompt: "${prompt}"`);
-      urlBarLLM.sendMessage(prompt);
+      gURLBar.value = "";
+      gURLBar.inputField.setAttribute("placeholder", "AI thinking...");
+      urlBarLLM.sendMessage(prompt).finally(() => {
+        gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
+        this.toggleAIMode(false);
+      });
+    } else {
+      this.toggleAIMode(false);
     }
-    this.toggleAIMode(false);
   },
 
   addAskButton() {
