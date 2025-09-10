@@ -121,7 +121,7 @@ export const commands = [
   // ----------- Zen Split View -----------
   {
     key: "cmd_zenSplitViewGrid",
-    label: "Split View: Grid",
+    label: "Split Grid",
     icon: svgToUrl(icons["splitGrid"]),
     condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter.splitViewActive,
     tags: ["split", "view", "grid", "layout", "multitask"],
