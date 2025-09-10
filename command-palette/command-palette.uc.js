@@ -617,9 +617,11 @@ const ZenCommandPalette = {
         }
         dispose() {
           Prefs.resetTempMaxRichResults();
-          this._lastResults = [];
-          this._currentCommandList = null;
-          this._isInPrefixMode = false; // Reset the state flag.
+          this._isInPrefixMode = false;
+          setTimeout(() => {
+            this._lastResults = [];
+            this._currentCommandList = null;
+          }, 0);
         }
       }
 
