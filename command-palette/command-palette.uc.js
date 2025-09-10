@@ -397,66 +397,8 @@ const ZenCommandPalette = {
 
     const SCROLLABLE_CLASS = "zen-command-scrollable";
     const urlbar = document.getElementById("urlbar");
-    const input = document.getElementById("urlbar-input");
     const results = document.getElementById("urlbar-results");
 
-    if (!urlbar || !input || !results) {
-      debugError("Scroll handling init failed: one or more urlbar elements not found.");
-      return;
-    }
-
-    results.addEventListener(
-      "wheel",
-      () => {
-        if (gURLBar.view.selectedIndex !== -1) {
-          gURLBar.view.selectedIndex = -1;
-        }
-      },
-      { passive: true }
-    );
-
-    input.addEventListener(
-      "keydown",
-      (event) => {
-        // This logic should only apply when the command palette's provider is active in prefix mode.
-        if (!ZenCommandPalette.provider?._isInPrefixMode) {
-          return;
-        }
-
-        const isSelectionEmpty =
-          gURLBar.view.selectedIndex === -1 || typeof gURLBar.view.selectedIndex === "undefined";
-
-        // This intervention is ONLY needed if nothing is currently selected.
-        if (!isSelectionEmpty || !["ArrowUp", "ArrowDown"].includes(event.key)) {
-          return;
-        }
-
-        event.preventDefault();
-        event.stopPropagation();
-
-        const allRows = Array.from(results.querySelectorAll(".urlbarView-row"));
-        if (!allRows.length) return;
-
-        const containerRect = results.getBoundingClientRect();
-        let targetRow = null;
-
-        if (event.key === "ArrowDown") {
-          targetRow = allRows.find((row) => row.getBoundingClientRect().top >= containerRect.top);
-        } else if (event.key === "ArrowUp") {
-          targetRow = [...allRows]
-            .reverse()
-            .find((row) => row.getBoundingClientRect().bottom <= containerRect.bottom);
-        }
-
-        if (targetRow) {
-          const targetIndex = allRows.indexOf(targetRow);
-          gURLBar.view.selectedIndex = targetIndex;
-        } else {
-          gURLBar.view.selectedIndex = event.key === "ArrowDown" ? 0 : allRows.length - 1;
-        }
-      },
-      true
-    );
 
     const observer = new MutationObserver((mutations) => {
       // Use the provider's state flag instead of gURLBar.value
