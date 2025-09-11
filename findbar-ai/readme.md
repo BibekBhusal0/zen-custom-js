@@ -7,11 +7,11 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 ## Features
 
 - **Modern, Floating UI**: Replaces the default findbar with a sleek, draggable, resizable, and collapsible interface.
-- **Multi-Provider AI Chat**: Integrates with Google's Gemini and Mistral models for a conversational experience.
+- **Multi-Provider AI Chat**: Integrates with Google's Gemini, Mistral, OpenAI, Anthropic, and other models for a conversational experience.
 - **Page Content Awareness**: The AI can read the text content, HTML, and even YouTube transcripts of the current webpage to answer your questions accurately.
 - **Built-in Keyboard Shortcuts**: Use `Ctrl+Shift+F` and `Alt+Enter` for quick AI access.
 - **Highly Customizable**: Fine-tune your experience through an extensive in-app settings or `about:config`.
-- **AI Browser Control (God Mode)**: Allow the AI to perform actions like searching, opening links, managing bookmarks, and interacting with page elements.
+- **AI Browser Control (God Mode)**: Allow the AI to perform actions like searching, opening links, managing bookmarks, tabs, workspaces and interacting with page elements.
 - **Context Menu Integration**: Right-click to quickly ask the AI about selected text or the current page.
 - **Citation Support**: (Experimental) Get direct quotes from the page text that support the AI's answer.
 
@@ -81,30 +81,44 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 You can customize the BrowseBot through the settings modal (found in the chat header) or via `about:config`.
 
-### Preferences (`about:config`)
+<details>
+<summary><h3>Preferences (`about:config`)</h3></summary>
 
 | Preference                                      | Type    | Default                   | Description                                                                                               |
 | ----------------------------------------------- | ------- | ------------------------- | --------------------------------------------------------------------------------------------------------- |
-| `extension.browse-bot.enabled`                  | Boolean | `true`                    | Toggles the entire feature on or off.                                                                     |
-| `extension.browse-bot.minimal`                  | Boolean | `true`                    | Toggles a simpler, more compact UI.                                                                       |
-| `extension.browse-bot.persist-chat`             | Boolean | `false`                   | Persists chat history across tab switches (but not browser restarts).                                     |
-| `extension.browse-bot.dnd-enabled`              | Boolean | `true`                    | Enables dragging to move and resizing of the findbar window.                                              |
-| `extension.browse-bot.position`                 | String  | `"top-right"`             | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`. |
-| `extension.browse-bot.llm-provider`             | String  | `"gemini"`                | Which AI provider to use. Options: `gemini`, `mistral`.                                                   |
+| `extension.browse-bot.findbar-ai.enabled`                  | Boolean | `true`                    | Toggles the findbar AI feature on or off.                                                                     |
+| `extension.browse-bot.urlbar-ai-enabled`                  | Boolean | `true`                    | Toggles the URL bar AI feature on or off.                                                                     |
+| `extension.browse-bot.findbar-ai.minimal`                  | Boolean | `true`                    | Toggles a simpler, more compact UI.                                                                       |
+| `extension.browse-bot.findbar-ai.persist-chat`             | Boolean | `false`                   | Persists chat history across tab switches (but not browser restarts).                                     |
+| `extension.browse-bot.findbar-ai.dnd-enabled`              | Boolean | `true`                    | Enables dragging to move and resizing of the findbar window.                                              |
+| `extension.browse-bot.findbar-ai.position`                 | String  | `"top-right"`             | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`. |
+| `extension.browse-bot.llm-provider`             | String  | `"gemini"`                | Which AI provider to use. Options: `gemini`, `mistral`, `openai`, `claude`, `grok`, `perplexity`, `ollama`.                                                   |
 | `extension.browse-bot.gemini-api-key`           | String  | _(empty)_                 | Your API key for Google Gemini.                                                                           |
 | `extension.browse-bot.gemini-model`             | String  | `"gemini-2.0-flash"`      | The specific Gemini model to use.                                                                         |
 | `extension.browse-bot.mistral-api-key`          | String  | _(empty)_                 | Your API key for Mistral AI.                                                                              |
 | `extension.browse-bot.mistral-model`            | String  | `"mistral-medium-latest"` | The specific Mistral model to use.                                                                        |
-| `extension.browse-bot.context-menu-enabled`     | Boolean | `true`                    | Toggles the "Ask AI" item in the right-click context menu.                                                |
-| `extension.browse-bot.context-menu-autosend`    | Boolean | `true`                    | If true, clicking the context menu item sends the request to the AI immediately.                          |
-| `extension.browse-bot.god-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                         |
-| `extension.browse-bot.max-tool-calls`           | Number  | `5`                       | The maximum number of consecutive tool calls the AI can make in one turn.                                 |
-| `extension.browse-bot.conform-before-tool-call` | Boolean | `true`                    | If true, prompts you for confirmation before the AI executes any tools.                                   |
-| `extension.browse-bot.citations-enabled`        | Boolean | `false`                   | (Experimental) If true, the AI will try to cite its sources from the page content.                        |
+| `extension.browse-bot.openai-api-key`           | String  | _(empty)_                 | Your API key for OpenAI.                                                                           |
+| `extension.browse-bot.openai-model`             | String  | `"gpt-4o"` | The specific OpenAI model to use.                                                                        |
+| `extension.browse-bot.claude-api-key`           | String  | _(empty)_                 | Your API key for Anthropic Claude.                                                                           |
+| `extension.browse-bot.claude-model`             | String  | `"claude-4-opus"` | The specific Claude model to use.                                                                        |
+| `extension.browse-bot.grok-api-key`           | String  | _(empty)_                 | Your API key for xAI Grok.                                                                           |
+| `extension.browse-bot.grok-model`             | String  | `"grok-4"` | The specific Grok model to use.                                                                        |
+| `extension.browse-bot.perplexity-api-key`           | String  | _(empty)_                 | Your API key for Perplexity AI.                                                                           |
+| `extension.browse-bot.perplexity-model`             | String  | `"sonar"` | The specific Perplexity model to use.                                                                        |
+| `extension.browse-bot.ollama-api-key`           | String  | _(empty)_                 | Your API key for Ollama (if required).                                                                           |
+| `extension.browse-bot.ollama-model`             | String  | `"mixtral:8x7b"` | The specific Ollama model to use.                                                                        |
+| `extension.browse-bot.findbar-ai.context-menu-enabled`     | Boolean | `true`                    | Toggles the "Ask AI" item in the right-click context menu.                                                |
+| `extension.browse-bot.findbar-ai.context-menu-autosend`    | Boolean | `true`                    | If true, clicking the context menu item sends the request to the AI immediately.                          |
+| `extension.browse-bot.findbar-ai.god-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                         |
+| `extension.browse-bot.findbar-ai.max-tool-calls`           | Number  | `5`                       | The maximum number of consecutive tool calls the AI can make in one turn.                                 |
+| `extension.browse-bot.findbar-ai.conform-before-tool-call` | Boolean | `true`                    | If true, prompts you for confirmation before the AI executes any tools.                                   |
+| `extension.browse-bot.findbar-ai.stream-enabled`           | Boolean | `true`                    | AI response will be smooth.                                                                               |
+| `extension.browse-bot.findbar-ai.citations-enabled`        | Boolean | `false`                   | (Experimental) If true, the AI will try to cite its sources from the page content.                        |
 | `extension.browse-bot.debug-mode`               | Boolean | `false`                   | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                       |
 
 > [!WARNING]
 > Don't turn both god-mode and citation at the same time. AI might not function properly.
+</details>
 
 ### ⌨️ Keymaps
 
@@ -116,17 +130,17 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 
 ## 🔨 Tool-calls
 
-AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.browse-bot.god-mode` to `true`.
+AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.browse-bot.findbar-ai.god-mode` to `true`.
 
 Currently available tool calls are:
 
 - **Search**: Searches a term on your default or a specified search engine.
-- **Open Link**: Opens a URL in the current tab, new tab, new window, private window, or special Zen Browser views like Glance, vertical split, or horizontal split.
-- **New Split**: Creates a vertical or horizontal split view with two new URLs.
-- **Get Page Text Content**: Reads the plain text content of the current page.
-- **Get HTML Content**: Reads the full HTML source of the current page.
-- **Get YouTube Transcript**: Retrieves the transcript for the current YouTube video.
+- **Navigation**: `openLink` in various locations (current/new tab, window, private, glance, splits), `newSplit` with multiple URLs, and `splitExistingTabs`.
+- **Tab Management**: A full suite of tools to `getAllTabs`, `searchTabs`, `closeTabs`, `reorderTab`, `addTabsToFolder`, `removeTabsFromFolder`, `addTabsToEssentials`, and `removeTabsFromEssentials`.
+- **Page Content**: `getPageTextContent` to read text, `getHTMLContent` for the full source.
+- **YouTube**: `getYoutubeTranscript`, `getYoutubeDescription`, and `getYoutubeComments` for the current video.
 - **Bookmark Management**: A full suite of tools to `searchBookmarks`, `getAllBookmarks`, `createBookmark`, `addBookmarkFolder`, `updateBookmark`, and `deleteBookmark`.
+- **Workspace Management**: Tools to `getAllWorkspaces`, `createWorkspace`, `updateWorkspace`, `deleteWorkspace`, `moveTabsToWorkspace`, and `reorderWorkspace`.
 - **Page Interaction**: Tools to `clickElement` using a CSS selector and `fillForm` inputs.
 
 More tools will be comming soon. [More tools](./llm/more-tools.js) are currently in test.
@@ -148,7 +162,7 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [x] AI interacting with page content (filling forms, clicking buttons)
 - [x] Conformation before calling tools
 - [x] Tool calls (opening links, search)
-- [ ] Add support for other AI models (Open AI, Claude, Deepseek)
+- [x] Add support for other AI models (Open AI, Claude, Deepseek)
 - [x] Drag-and-drop to resize and move the findbar (optional)
 - [ ] Pin/unpin the findbar (optional)
 - [x] Context Menu integration
@@ -159,7 +173,7 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - [ ] Copy Button
 - [ ] Markdown Formatting toggle
 - [ ] Slash Command and variables
-- [ ] Adding more tools (tab groups, workspaces, background search)
+- [x] Adding more tools (tab groups, workspaces, background search)
 - [x] Giving AI YouTube transcript
 - [ ] Tagging multiple tabs
 
