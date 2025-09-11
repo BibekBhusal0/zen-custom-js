@@ -77,6 +77,7 @@ function mapTabToObject(tab) {
     workspaceId: tab.getAttribute("zen-workspace-id"),
     pinned: tab.pinned,
     isGroup: gBrowser.isTabGroup(tab),
+    isEssential: tab.hasAttribute("zen-essential"),
   };
 }
 
@@ -192,9 +193,15 @@ async function newSplit(args) {
       tabs.push(gBrowser.selectedTab);
     }
 
-    let gridType = "grid";
-    if (tabs.length === 2) {
-      gridType = type.toLowerCase() === "vertical" ? "vsep" : "hsep";
+    let gridType;
+    const lowerType = type.toLowerCase();
+    if (lowerType === "grid") {
+      gridType = "grid";
+    } else if (lowerType === "horizontal") {
+      gridType = "hsep";
+    } else {
+      // "vertical" or default
+      gridType = "vsep";
     }
 
     gZenViewSplitter.splitTabs(tabs, gridType);
@@ -246,7 +253,7 @@ async function closeTabs(args) {
  * Splits existing tabs into a view.
  * @param {object} args - The arguments object.
  * @param {string[]} args.tabIds - An array of session IDs for the tabs to split.
- * @param {string} [args.type="vertical"] - The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.
+ * @param {string} [args.type="vertical"] - The split type: 'horizontal', 'vertical', or 'grid'. Defaults to 'vertical'.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
 async function splitExistingTabs(args) {
@@ -259,9 +266,15 @@ async function splitExistingTabs(args) {
     const tabs = getTabsBySessionIds(tabIds);
     if (tabs.length < 2) return { error: "Could not find at least two tabs to split." };
 
-    let gridType = "grid";
-    if (tabs.length === 2) {
-      gridType = type.toLowerCase() === "vertical" ? "vsep" : "hsep";
+    let gridType;
+    const lowerType = type.toLowerCase();
+    if (lowerType === "grid") {
+      gridType = "grid";
+    } else if (lowerType === "horizontal") {
+      gridType = "hsep";
+    } else {
+      // "vertical" or default
+      gridType = "vsep";
     }
 
     gZenViewSplitter.splitTabs(tabs, gridType);
@@ -377,6 +390,56 @@ async function reorderTab(args) {
   } catch (e) {
     debugError("Failed to reorder tab:", e);
     return { error: "Failed to reorder tab." };
+  }
+}
+
+/**
+ * Adds one or more tabs to the essentials bar.
+ * @param {object} args - The arguments object.
+ * @param {string[]} args.tabIds - An array of session IDs for the tabs to add to essentials.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function addTabsToEssentials(args) {
+  const { tabIds } = args;
+  if (!tabIds || tabIds.length === 0)
+    return { error: "addTabsToEssentials requires at least one tabId." };
+  try {
+    const tabs = getTabsBySessionIds(tabIds);
+    if (tabs.length === 0) return { error: "No matching tabs found." };
+    if (window.gZenPinnedTabManager) {
+      gZenPinnedTabManager.addToEssentials(tabs);
+      return { result: `Successfully added ${tabs.length} tab(s) to essentials.` };
+    } else {
+      return { error: "Essentials manager is not available." };
+    }
+  } catch (e) {
+    debugError("Failed to add tabs to essentials:", e);
+    return { error: "An error occurred while adding tabs to essentials." };
+  }
+}
+
+/**
+ * Removes one or more tabs from the essentials bar.
+ * @param {object} args - The arguments object.
+ * @param {string[]} args.tabIds - An array of session IDs for the tabs to remove from essentials.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function removeTabsFromEssentials(args) {
+  const { tabIds } = args;
+  if (!tabIds || tabIds.length === 0)
+    return { error: "removeTabsFromEssentials requires at least one tabId." };
+  try {
+    const tabs = getTabsBySessionIds(tabIds);
+    if (tabs.length === 0) return { error: "No matching tabs found." };
+    if (window.gZenPinnedTabManager) {
+      tabs.forEach((tab) => gZenPinnedTabManager.removeFromEssentials(tab));
+      return { result: `Successfully removed ${tabs.length} tab(s) from essentials.` };
+    } else {
+      return { error: "Essentials manager is not available." };
+    }
+  } catch (e) {
+    debugError("Failed to remove tabs from essentials:", e);
+    return { error: "An error occurred while removing tabs from essentials." };
   }
 }
 
@@ -747,8 +810,8 @@ const toolGroups = {
   },
   navigation: {
     description: async () => `- \`openLink(link, where)\`: Opens a URL. Use this to open a single link or to create a split view with the *current* tab.
-- \`newSplit(links, type)\`: Use this specifically for creating a split view with two or more new tabs.
-- \`splitExistingTabs(tabIds, type)\`: Creates a split view from currently open tabs.`,
+- \`newSplit(links, type)\`: Use this specifically for creating a split view with *two or more new tabs*. The type can be 'vertical', 'horizontal', or 'grid'.
+- \`splitExistingTabs(tabIds, type)\`: Creates a split view from currently open tabs. The type can be 'vertical', 'horizontal', or 'grid'.`,
     tools: {
       openLink: createTool(
         "openLink",
@@ -768,7 +831,7 @@ const toolGroups = {
         {
           links: createStringArrayParameter("An array of URLs for the new tabs."),
           type: createStringParameter(
-            "The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
+            "The split type: 'vertical', 'horizontal', or 'grid'. Defaults to 'vertical'.",
             true
           ),
         },
@@ -780,7 +843,7 @@ const toolGroups = {
         {
           tabIds: createStringArrayParameter("An array of tab session IDs to split."),
           type: createStringParameter(
-            "The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
+            "The split type: 'vertical', 'horizontal', or 'grid'. Defaults to 'vertical'.",
             true
           ),
         },
@@ -793,7 +856,7 @@ const toolGroups = {
 
 #### Creating a Split View with New Pages:
 -   **User Prompt:** "show me youtube and twitch side by side"
--   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"links": ["https://youtube.com", "https://twitch.tv"]}}}\`
+-   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"links": ["https://youtube.com", "https://twitch.tv"], "type": "vertical"}}}\`
 
 #### Splitting Existing Tabs:
 -   **User Prompt:** "split my first two tabs"
@@ -806,7 +869,9 @@ const toolGroups = {
 - \`closeTabs(tabIds)\`: Closes one or more tabs.
 - \`reorderTab(tabId, newIndex)\`: Moves a single tab to a new position in the tab list.
 - \`addTabsToFolder(tabIds, folderId)\`: Groups tabs into a folder.
-- \`removeTabsFromFolder(tabIds)\`: Ungroups tabs from their folder.`,
+- \`removeTabsFromFolder(tabIds)\`: Ungroups tabs from their folder.
+- \`addTabsToEssentials(tabIds)\`: Adds tabs to the essentials bar (pinned to the top of the sidebar).
+- \`removeTabsFromEssentials(tabIds)\`: Removes tabs from the essentials bar.`,
     tools: {
       getAllTabs: createTool("getAllTabs", "Retrieves all open tabs.", {}, getAllTabs),
       searchTabs: createTool(
@@ -849,11 +914,30 @@ const toolGroups = {
         },
         removeTabsFromFolder
       ),
+      addTabsToEssentials: createTool(
+        "addTabsToEssentials",
+        "Adds one or more tabs to the essentials bar.",
+        { tabIds: createStringArrayParameter("An array of session IDs to add to essentials.") },
+        addTabsToEssentials
+      ),
+      removeTabsFromEssentials: createTool(
+        "removeTabsFromEssentials",
+        "Removes one or more tabs from the essentials bar.",
+        {
+          tabIds: createStringArrayParameter("An array of session IDs to remove from essentials."),
+        },
+        removeTabsFromEssentials
+      ),
     },
     example: async () => `#### Finding and Closing Tabs:
 -   **User Prompt:** "close all youtube tabs"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "searchTabs", "args": {"query": "youtube.com"}}}\`
--   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["17123456789", "17123456999"]}}}\``,
+-   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["17123456789", "17123456999"]}}}\`
+
+#### Making a Tab Essential:
+-   **User Prompt:** "make my current tab essential"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
+-   **Your Second Tool Call (after finding the current tab ID):** \`{"functionCall": {"name": "addTabsToEssentials", "args": {"tabIds": ["17123456789"]}}}\``,
   },
   pageInteraction: {
     description: async () => `- \`getPageTextContent()\` / \`getHTMLContent()\`: Use these to get updated page information if context is missing. Prefer \`getPageTextContent\`.
