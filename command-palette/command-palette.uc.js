@@ -13,6 +13,8 @@ import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 const ZenCommandPalette = {
   staticCommands,
   provider: null,
+  _recentCommands: [],
+  MAX_RECENT_COMMANDS: 20,
 
   safeStr(x) {
     return (x || "").toString();
@@ -34,6 +36,28 @@ const ZenCommandPalette = {
       }
     } catch (e) {
       debugError("Error in _closeUrlBar", e);
+    }
+  },
+
+  /**
+   * Adds a command to the list of recently used commands.
+   * @param {object} cmd - The command object that was executed.
+   */
+  addRecentCommand(cmd) {
+    if (!cmd || !cmd.key) return;
+
+    // Remove if it already exists to move it to the front.
+    const existingIndex = this._recentCommands.indexOf(cmd.key);
+    if (existingIndex > -1) {
+      this._recentCommands.splice(existingIndex, 1);
+    }
+
+    // Add to the front of the list.
+    this._recentCommands.unshift(cmd.key);
+
+    // Trim the list to the maximum allowed size.
+    if (this._recentCommands.length > this.MAX_RECENT_COMMANDS) {
+      this._recentCommands.length = this.MAX_RECENT_COMMANDS;
     }
   },
 
@@ -97,9 +121,23 @@ const ZenCommandPalette = {
     if (queryLen > targetLen) return 0;
     if (queryLen === 0) return 0;
 
-    // Heavily prioritize exact prefix matches
+    // 1. Exact match gets the highest score.
+    if (targetLower === queryLower) {
+      return 200;
+    }
+
+    // 2. Exact prefix matches are heavily prioritized.
     if (targetLower.startsWith(queryLower)) {
       return 100 + queryLen;
+    }
+
+    // 3. Exact abbreviation (e.g., 'tcm' for 'Toggle Compact Mode')
+    const initials = targetLower
+      .split(/[\s-_]+/)
+      .map((word) => word[0])
+      .join("");
+    if (initials === queryLower) {
+      return 90 + queryLen;
     }
 
     let score = 0;
@@ -127,7 +165,7 @@ const ZenCommandPalette = {
         // Penalty for distance from the last match
         if (lastMatchIndex !== -1) {
           const distance = targetIndex - lastMatchIndex;
-          bonus -= Math.min(distance - 1, 10); // Cap penalty to avoid negative scores for valid matches
+          bonus -= Math.min(distance - 1, 10); // Cap penalty
         }
 
         score += bonus;
@@ -136,7 +174,6 @@ const ZenCommandPalette = {
       }
     }
 
-    // If not all characters of the query were found, it's not a match.
     return queryIndex === queryLen ? score : 0;
   },
 
@@ -207,12 +244,21 @@ const ZenCommandPalette = {
         const keyScore = this.calculateFuzzyScore(key, lowerQuery);
         const tagsScore = this.calculateFuzzyScore(tags, lowerQuery);
 
-        // Combine scores, giving label the highest weight
-        const score = Math.max(
-          labelScore * 1.5, // Label is most important
-          keyScore,
-          tagsScore * 0.5 // Tags are least important
-        );
+        // Add a bonus for recently used commands.
+        let recencyBonus = 0;
+        const recentIndex = this._recentCommands.indexOf(cmd.key);
+        if (recentIndex > -1) {
+          // More recent commands (lower index) get a higher bonus.
+          recencyBonus = (this.MAX_RECENT_COMMANDS - recentIndex) * 5;
+        }
+
+        // Combine scores, giving label the highest weight, and add recency bonus.
+        const score =
+          Math.max(
+            labelScore * 1.5, // Label is most important
+            keyScore,
+            tagsScore * 0.5 // Tags are least important
+          ) + recencyBonus;
 
         return { cmd, score };
       })
@@ -239,6 +285,8 @@ const ZenCommandPalette = {
       debugError("executeCommandObject: no command");
       return;
     }
+
+    this.addRecentCommand(cmd);
 
     try {
       // Prioritize explicit command function if it exists.
