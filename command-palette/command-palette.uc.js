@@ -320,48 +320,13 @@ const ZenCommandPalette = {
    */
   findCommandFromDomRow(row) {
     try {
-      if (!row) {
-        return null;
+      if (row?.result?._zenCmd) {
+        return row.result._zenCmd;
       }
-      // The title element is prioritized as it typically contains only the command label,
-      // avoiding extra text like "Search with...".
-      const titleEl = row.querySelector(".urlbarView-title");
-      const title = titleEl?.textContent || row.getAttribute("aria-label") || row.textContent || "";
-      const trimmed = this.safeStr(title).trim();
-
-      if (!trimmed) {
-        if (
-          this.provider &&
-          this.provider._lastResults &&
-          this.provider._lastResults.length === 1
-        ) {
-          return this.provider._lastResults[0] && this.provider._lastResults[0]._zenCmd;
-        }
-        return null;
-      }
-
-      // Match by checking if the row's text starts with a known command's title.
-      // This is more robust than an exact match, as Firefox can append additional text to the row.
-      if (this.provider && this.provider._lastResults) {
-        for (const r of this.provider._lastResults) {
-          if (!r || !r.payload) continue;
-          const payloadTitle = (r.payload.title || r.payload.suggestion || "").trim();
-          if (payloadTitle && trimmed.startsWith(payloadTitle)) {
-            return r._zenCmd || null;
-          }
-        }
-      }
-
-      // As a fallback, check the full command list directly.
-      const commandList = this.provider?._currentCommandList || this.staticCommands;
-      const found = commandList.find((c) => trimmed.startsWith(c.label));
-      if (found) {
-        return found;
-      }
-
       return null;
     } catch (e) {
       debugError("findCommandFromDomRow error:", e);
+      return null;
     }
   },
 
