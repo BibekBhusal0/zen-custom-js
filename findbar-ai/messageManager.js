@@ -118,6 +118,21 @@ function frameScript() {
     }
   }
 
+  const getYoutubeDescription = () => {
+    const desc = content.document.querySelector(
+      "#description-inline-expander .yt-core-attributed-string, #description .content, .ytd-expandable-video-description-body-renderer .yt-core-attributed-string"
+    );
+    return desc ? desc.textContent.trim() : "Description not found.";
+  };
+
+  const getYoutubeComments = () => {
+    const comments = Array.from(
+      content.document.querySelectorAll("ytd-comment-thread-renderer #content-text")
+    ).slice(0, 10); // Limit to 10 to save tokens
+    if (comments.length === 0) return ["No comments found or they are not loaded yet."];
+    return comments.map((c) => c.textContent.trim());
+  };
+
   const handlers = {
     GetPageHTMLContent: () => {
       return {
@@ -167,6 +182,14 @@ function frameScript() {
     GetYoutubeTranscript: async () => {
       const transcript = await getYouTubeTranscript();
       return { transcript };
+    },
+
+    GetYoutubeDescription: () => {
+      return { description: getYoutubeDescription() };
+    },
+
+    GetYoutubeComments: () => {
+      return { comments: getYoutubeComments() };
     },
   };
 
@@ -287,6 +310,24 @@ export const messageManagerAPI = {
     } catch (error) {
       debugError("Failed to get youtube transcript:", error);
       return { error: `Failed to get youtube transcript: ${error.message}` };
+    }
+  },
+
+  async getYoutubeDescription() {
+    try {
+      return await this.send("GetYoutubeDescription");
+    } catch (error) {
+      debugError("Failed to get youtube description:", error);
+      return { error: `Failed to get youtube description: ${error.message}` };
+    }
+  },
+
+  async getYoutubeComments() {
+    try {
+      return await this.send("GetYoutubeComments");
+    } catch (error) {
+      debugError("Failed to get youtube comments:", error);
+      return { error: `Failed to get youtube comments: ${error.message}` };
     }
   },
 };

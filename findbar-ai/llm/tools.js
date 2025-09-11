@@ -10,6 +10,12 @@ const createStringParameter = (description, isOptional = false) => {
   return isOptional ? schema.optional() : schema;
 };
 
+// Helper function for array of strings parameter
+const createStringArrayParameter = (description, isOptional = false) => {
+  let schema = z.array(z.string()).describe(description);
+  return isOptional ? schema.optional() : schema;
+};
+
 // Helper function to create tools with consistent structure
 const createTool = (name, description, parameters, executeFn) => {
   const t = tool({
@@ -37,6 +43,41 @@ async function confirmAndExecute(toolName, executeFn, args) {
     }
   }
   return executeFn(args);
+}
+
+// ╭─────────────────────────────────────────────────────────╮
+// │                      HELPERS                            │
+// ╰─────────────────────────────────────────────────────────╯
+/**
+ * Retrieves tab objects based on their session IDs.
+ * @param {string[]} sessionIds - An array of session IDs for the tabs to retrieve.
+ * @returns {Array<object>} An array of tab browser elements.
+ */
+function getTabsBySessionIds(sessionIds) {
+  if (!Array.isArray(sessionIds)) sessionIds = [sessionIds];
+  const allTabs = gZenWorkspaces.allStoredTabs;
+  return sessionIds
+    .map((sessionId) =>
+      allTabs.find((t) => t.linkedBrowser && String(t.linkedBrowser.sessionId) === String(sessionId))
+    )
+    .filter(Boolean);
+}
+
+/**
+ * Maps a tab element to a simplified object for AI consumption.
+ * @param {object} tab - The tab browser element.
+ * @returns {object} A simplified tab object.
+ */
+function mapTabToObject(tab) {
+  if (!tab) return null;
+  return {
+    id: tab.linkedBrowser?.sessionId,
+    title: tab.label,
+    url: tab.linkedBrowser?.currentURI?.spec,
+    workspaceId: tab.getAttribute("zen-workspace-id"),
+    pinned: tab.pinned,
+    isGroup: gBrowser.isTabGroup(tab),
+  };
 }
 
 // ╭─────────────────────────────────────────────────────────╮
@@ -138,22 +179,204 @@ async function openLink(args) {
 }
 
 async function newSplit(args) {
-  const { link1, link2, type = "vertical" } = args;
+  const { links, type = "vertical" } = args;
   if (!window.gZenViewSplitter) return { error: "Split view function is not available." };
-  if (!link1 || !link2) return { error: "newSplit requires two links." };
+  if (!links || !Array.isArray(links) || links.length < 2)
+    return { error: "newSplit requires an array of at least two links." };
+
   try {
-    const sep = type.toLowerCase() === "vertical" ? "vsep" : "hsep";
-    await openTrustedLinkIn(link1, "tab");
-    const tab1 = gBrowser.selectedTab;
-    await openTrustedLinkIn(link2, "tab");
-    const tab2 = gBrowser.selectedTab;
-    gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
+    const tabs = [];
+    for (const link of links) {
+      // openTrustedLinkIn seems to always select the new tab
+      await openTrustedLinkIn(link, "tab");
+      tabs.push(gBrowser.selectedTab);
+    }
+
+    let gridType = "grid";
+    if (tabs.length === 2) {
+      gridType = type.toLowerCase() === "vertical" ? "vsep" : "hsep";
+    }
+
+    gZenViewSplitter.splitTabs(tabs, gridType);
     return {
-      result: `Successfully created ${type} split view with the provided links.`,
+      result: `Successfully created split view with ${links.length} tabs.`,
     };
   } catch (e) {
     debugError("Failed to create split view.", e);
     return { error: "Failed to create split view." };
+  }
+}
+
+/**
+ * Retrieves all open tabs across all workspaces.
+ * @returns {Promise<object>} A promise that resolves with an object containing an array of all tabs.
+ */
+async function getAllTabs() {
+  try {
+    const allTabs = gZenWorkspaces.allStoredTabs.map(mapTabToObject).filter(Boolean);
+    return { tabs: allTabs };
+  } catch (e) {
+    debugError("Failed to get all tabs:", e);
+    return { error: "Failed to retrieve tabs." };
+  }
+}
+
+/**
+ * Closes specified tabs.
+ * @param {object} args - The arguments object.
+ * @param {string[]} args.tabIds - An array of session IDs for the tabs to close.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function closeTabs(args) {
+  const { tabIds } = args;
+  if (!tabIds || tabIds.length === 0) return { error: "closeTabs requires an array of tabIds." };
+  try {
+    const tabsToClose = getTabsBySessionIds(tabIds);
+    if (tabsToClose.length === 0) return { error: "No matching tabs found to close." };
+
+    gBrowser.removeTabs(tabsToClose);
+    return { result: `Successfully closed ${tabsToClose.length} tab(s).` };
+  } catch (e) {
+    debugError("Failed to close tabs:", e);
+    return { error: "An error occurred while closing tabs." };
+  }
+}
+
+/**
+ * Splits existing tabs into a view.
+ * @param {object} args - The arguments object.
+ * @param {string[]} args.tabIds - An array of session IDs for the tabs to split.
+ * @param {string} [args.type="vertical"] - The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function splitExistingTabs(args) {
+  const { tabIds, type = "vertical" } = args;
+  if (!window.gZenViewSplitter) return { error: "Split view function is not available." };
+  if (!tabIds || tabIds.length < 2)
+    return { error: "splitExistingTabs requires at least two tabIds." };
+
+  try {
+    const tabs = getTabsBySessionIds(tabIds);
+    if (tabs.length < 2) return { error: "Could not find at least two tabs to split." };
+
+    let gridType = "grid";
+    if (tabs.length === 2) {
+      gridType = type.toLowerCase() === "vertical" ? "vsep" : "hsep";
+    }
+
+    gZenViewSplitter.splitTabs(tabs, gridType);
+    return { result: `Successfully created split view with ${tabs.length} tabs.` };
+  } catch (e) {
+    debugError("Failed to split existing tabs.", e);
+    return { error: "Failed to create split view." };
+  }
+}
+
+/**
+ * Searches tabs based on a query.
+ * @param {object} args - The arguments object.
+ * @param {string} args.query - The search term for tabs.
+ * @returns {Promise<object>} A promise that resolves with an object containing an array of tab results or an error.
+ */
+async function searchTabs(args) {
+  const { query } = args;
+  if (!query) return { error: "searchTabs requires a query." };
+  const lowerCaseQuery = query.toLowerCase();
+
+  try {
+    const allTabs = gZenWorkspaces.allStoredTabs;
+    const results = allTabs
+      .filter((tab) => {
+        const title = tab.label?.toLowerCase() || "";
+        const url = tab.linkedBrowser?.currentURI?.spec?.toLowerCase() || "";
+        return title.includes(lowerCaseQuery) || url.includes(lowerCaseQuery);
+      })
+      .map(mapTabToObject)
+      .filter(Boolean);
+
+    return { tabs: results };
+  } catch (e) {
+    debugError(`Error searching tabs for query "${query}":`, e);
+    return { error: `Failed to search tabs.` };
+  }
+}
+
+/**
+ * Adds tabs to a folder (tab group).
+ * @param {object} args - The arguments object.
+ * @param {string[]} args.tabIds - The session IDs of the tabs to add.
+ * @param {string} args.folderId - The ID of the folder to add the tabs to.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function addTabsToFolder(args) {
+  const { tabIds, folderId } = args;
+  if (!tabIds || !folderId) return { error: "addTabsToFolder requires tabIds and a folderId." };
+
+  try {
+    const tabs = getTabsBySessionIds(tabIds);
+    const folder = document.getElementById(folderId);
+
+    if (!folder || !folder.isZenFolder) {
+      return { error: `Folder with ID "${folderId}" not found or is not a valid folder.` };
+    }
+    if (tabs.length === 0) return { error: "No valid tabs found to add to the folder." };
+
+    folder.addTabs(tabs);
+    return { result: `Successfully added ${tabs.length} tab(s) to folder "${folder.label}".` };
+  } catch (e) {
+    debugError("Failed to add tabs to folder:", e);
+    return { error: "Failed to add tabs to folder." };
+  }
+}
+
+/**
+ * Removes tabs from their current folder.
+ * @param {object} args - The arguments object.
+ * @param {string[]} args.tabIds - The session IDs of the tabs to remove from their folder.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function removeTabsFromFolder(args) {
+  const { tabIds } = args;
+  if (!tabIds) return { error: "removeTabsFromFolder requires tabIds." };
+
+  try {
+    const tabs = getTabsBySessionIds(tabIds);
+    if (tabs.length === 0) return { error: "No valid tabs found." };
+
+    let ungroupedCount = 0;
+    tabs.forEach((tab) => {
+      if (tab.group) {
+        gBrowser.ungroupTab(tab);
+        ungroupedCount++;
+      }
+    });
+    return { result: `Successfully ungrouped ${ungroupedCount} tab(s).` };
+  } catch (e) {
+    debugError("Failed to remove tabs from folder:", e);
+    return { error: "Failed to remove tabs from folder." };
+  }
+}
+
+/**
+ * Reorders a tab to a new index.
+ * @param {object} args - The arguments object.
+ * @param {string} args.tabId - The session ID of the tab to reorder.
+ * @param {number} args.newIndex - The new index for the tab.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function reorderTab(args) {
+  const { tabId, newIndex } = args;
+  if (!tabId || typeof newIndex !== "number") {
+    return { error: "reorderTab requires a tabId and a newIndex." };
+  }
+  try {
+    const [tab] = getTabsBySessionIds([tabId]);
+    if (!tab) return { error: `Tab with id ${tabId} not found.` };
+    gBrowser.moveTabTo(tab, { tabIndex: newIndex });
+    return { result: `Successfully moved tab to index ${newIndex}.` };
+  } catch (e) {
+    debugError("Failed to reorder tab:", e);
+    return { error: "Failed to reorder tab." };
   }
 }
 
@@ -332,6 +555,137 @@ async function deleteBookmark(args) {
 }
 
 // ╭─────────────────────────────────────────────────────────╮
+// │                        WORKSPACES                       │
+// ╰─────────────────────────────────────────────────────────╯
+/**
+ * Retrieves all workspaces.
+ * @returns {Promise<object>} A promise that resolves with an object containing an array of all workspaces.
+ */
+async function getAllWorkspaces() {
+  try {
+    const { workspaces } = await gZenWorkspaces._workspaces();
+    const result = workspaces.map((ws) => ({
+      id: ws.uuid,
+      name: ws.name,
+      icon: ws.icon,
+      position: ws.position,
+    }));
+    return { workspaces: result };
+  } catch (e) {
+    debugError("Failed to get all workspaces:", e);
+    return { error: "Failed to retrieve workspaces." };
+  }
+}
+
+/**
+ * Creates a new workspace.
+ * @param {object} args - The arguments object.
+ * @param {string} args.name - The name for the new workspace.
+ * @param {string} [args.icon] - The icon (emoji or URL) for the new workspace.
+ * @returns {Promise<object>} A promise that resolves with the new workspace information.
+ */
+async function createWorkspace(args) {
+  const { name, icon } = args;
+  if (!name) return { error: "createWorkspace requires a name." };
+  try {
+    const ws = await gZenWorkspaces.createAndSaveWorkspace(name, icon, false);
+    return {
+      result: `Successfully created workspace "${name}".`,
+      workspace: { id: ws.uuid, name: ws.name, icon: ws.icon },
+    };
+  } catch (e) {
+    debugError("Failed to create workspace:", e);
+    return { error: "Failed to create workspace." };
+  }
+}
+
+/**
+ * Updates an existing workspace.
+ * @param {object} args - The arguments object.
+ * @param {string} args.id - The ID of the workspace to update.
+ * @param {string} [args.name] - The new name for the workspace.
+ * @param {string} [args.icon] - The new icon for the workspace.
+ * @returns {Promise<object>} A promise that resolves with a success message.
+ */
+async function updateWorkspace(args) {
+  const { id, name, icon } = args;
+  if (!id) return { error: "updateWorkspace requires a workspace id." };
+  if (!name && !icon) return { error: "updateWorkspace requires a new name or icon." };
+  try {
+    const workspace = gZenWorkspaces.getWorkspaceFromId(id);
+    if (!workspace) return { error: `Workspace with id ${id} not found.` };
+    if (name) workspace.name = name;
+    if (icon) workspace.icon = icon;
+    await gZenWorkspaces.saveWorkspace(workspace);
+    return { result: `Successfully updated workspace.` };
+  } catch (e) {
+    debugError("Failed to update workspace:", e);
+    return { error: "Failed to update workspace." };
+  }
+}
+
+/**
+ * Deletes a workspace.
+ * @param {object} args - The arguments object.
+ * @param {string} args.id - The ID of the workspace to delete.
+ * @returns {Promise<object>} A promise that resolves with a success message.
+ */
+async function deleteWorkspace(args) {
+  const { id } = args;
+  if (!id) return { error: "deleteWorkspace requires a workspace id." };
+  try {
+    await gZenWorkspaces.removeWorkspace(id);
+    return { result: "Successfully deleted workspace." };
+  } catch (e) {
+    debugError("Failed to delete workspace:", e);
+    return { error: "Failed to delete workspace." };
+  }
+}
+
+/**
+ * Moves tabs to a specified workspace.
+ * @param {object} args - The arguments object.
+ * @param {string[]} args.tabIds - The session IDs of the tabs to move.
+ * @param {string} args.workspaceId - The ID of the target workspace.
+ * @returns {Promise<object>} A promise that resolves with a success message.
+ */
+async function moveTabsToWorkspace(args) {
+  const { tabIds, workspaceId } = args;
+  if (!tabIds || !workspaceId)
+    return { error: "moveTabsToWorkspace requires tabIds and a workspaceId." };
+  try {
+    const tabs = getTabsBySessionIds(tabIds);
+    if (tabs.length === 0) return { error: "No valid tabs found to move." };
+    gZenWorkspaces.moveTabsToWorkspace(tabs, workspaceId);
+    return { result: `Successfully moved ${tabs.length} tab(s) to workspace.` };
+  } catch (e) {
+    debugError("Failed to move tabs to workspace:", e);
+    return { error: "Failed to move tabs to workspace." };
+  }
+}
+
+/**
+ * Reorders a workspace to a new position.
+ * @param {object} args - The arguments object.
+ * @param {string} args.id - The ID of the workspace to reorder.
+ * @param {number} args.newPosition - The new zero-based index for the workspace.
+ * @returns {Promise<object>} A promise that resolves with a success message.
+ */
+async function reorderWorkspace(args) {
+  const { id, newPosition } = args;
+  if (!id || typeof newPosition !== "number") {
+    return { error: "reorderWorkspace requires a workspace id and a newPosition." };
+  }
+  try {
+    await gZenWorkspaces.reorderWorkspace(id, newPosition);
+    return { result: "Successfully reordered workspace." };
+  } catch (e) {
+    debugError("Failed to reorder workspace:", e);
+    return { error: "Failed to reorder workspace." };
+  }
+}
+
+// ╭─────────────────────────────────────────────────────────╮
 // │                         ELEMENTS                        │
 // ╰─────────────────────────────────────────────────────────╯
 
@@ -393,7 +747,8 @@ const toolGroups = {
   },
   navigation: {
     description: async () => `- \`openLink(link, where)\`: Opens a URL. Use this to open a single link or to create a split view with the *current* tab.
-- \`newSplit(link1, link2, type)\`: Use this specifically for creating a split view with *two new tabs*.`,
+- \`newSplit(links, type)\`: Use this specifically for creating a split view with two or more new tabs.
+- \`splitExistingTabs(tabIds, type)\`: Creates a split view from currently open tabs.`,
     tools: {
       openLink: createTool(
         "openLink",
@@ -409,10 +764,9 @@ const toolGroups = {
       ),
       newSplit: createTool(
         "newSplit",
-        "Creates a split view by opening two new URLs in two new tabs, then arranging them side-by-side.",
+        "Creates a split view by opening multiple new URLs in new tabs, then arranging them side-by-side.",
         {
-          link1: createStringParameter("The URL for the first new tab."),
-          link2: createStringParameter("The URL for the second new tab."),
+          links: createStringArrayParameter("An array of URLs for the new tabs."),
           type: createStringParameter(
             "The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
             true
@@ -420,18 +774,89 @@ const toolGroups = {
         },
         newSplit
       ),
+      splitExistingTabs: createTool(
+        "splitExistingTabs",
+        "Creates a split view from existing open tabs.",
+        {
+          tabIds: createStringArrayParameter("An array of tab session IDs to split."),
+          type: createStringParameter(
+            "The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
+            true
+          ),
+        },
+        splitExistingTabs
+      ),
     },
     example: async () => `#### Opening a Single Link:
 -   **User Prompt:** "open github"
 -   **Your Tool Call:** \`{"functionCall": {"name": "openLink", "args": {"link": "https://github.com", "where": "new tab"}}}\`
 
-#### Creating a Split View with Two New Pages:
+#### Creating a Split View with New Pages:
 -   **User Prompt:** "show me youtube and twitch side by side"
--   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"link1": "https://youtube.com", "link2": "https://twitch.tv"}}}\``,
+-   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"links": ["https://youtube.com", "https://twitch.tv"]}}}\`
+
+#### Splitting Existing Tabs:
+-   **User Prompt:** "split my first two tabs"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
+-   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["17123456789", "17123456999"]}}}\``,
+  },
+  tabs: {
+    description: async () => `- \`getAllTabs()\`: Get a list of all open tabs across all workspaces.
+- \`searchTabs(query)\`: Searches through your open tabs.
+- \`closeTabs(tabIds)\`: Closes one or more tabs.
+- \`reorderTab(tabId, newIndex)\`: Moves a single tab to a new position in the tab list.
+- \`addTabsToFolder(tabIds, folderId)\`: Groups tabs into a folder.
+- \`removeTabsFromFolder(tabIds)\`: Ungroups tabs from their folder.`,
+    tools: {
+      getAllTabs: createTool("getAllTabs", "Retrieves all open tabs.", {}, getAllTabs),
+      searchTabs: createTool(
+        "searchTabs",
+        "Searches open tabs by title or URL.",
+        { query: createStringParameter("The search term for tabs.") },
+        searchTabs
+      ),
+      closeTabs: createTool(
+        "closeTabs",
+        "Closes one or more tabs.",
+        { tabIds: createStringArrayParameter("An array of tab session IDs to close.") },
+        closeTabs
+      ),
+      reorderTab: createTool(
+        "reorderTab",
+        "Reorders a tab to a new index.",
+        {
+          tabId: createStringParameter("The session ID of the tab to reorder."),
+          newIndex: z.number().describe("The new index for the tab."),
+        },
+        reorderTab
+      ),
+      addTabsToFolder: createTool(
+        "addTabsToFolder",
+        "Adds one or more tabs to a folder.",
+        {
+          tabIds: createStringArrayParameter("The session IDs of the tabs to add."),
+          folderId: createStringParameter("The ID of the folder to add the tabs to."),
+        },
+        addTabsToFolder
+      ),
+      removeTabsFromFolder: createTool(
+        "removeTabsFromFolder",
+        "Removes one or more tabs from their folder.",
+        {
+          tabIds: createStringArrayParameter(
+            "The session IDs of the tabs to remove from their folder."
+          ),
+        },
+        removeTabsFromFolder
+      ),
+    },
+    example: async () => `#### Finding and Closing Tabs:
+-   **User Prompt:** "close all youtube tabs"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "searchTabs", "args": {"query": "youtube.com"}}}\`
+-   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["17123456789", "17123456999"]}}}\``,
   },
   pageInteraction: {
     description: async () => `- \`getPageTextContent()\` / \`getHTMLContent()\`: Use these to get updated page information if context is missing. Prefer \`getPageTextContent\`.
-- \`getYoutubeTranscript()\`: Retrives the transcript of the current youtube video. Only use if current page is a youtube video.
 - \`clickElement(selector)\`: Clicks an element on the page.
 - \`fillForm(selector, value)\`: Fills a form input on the page.`,
     tools: {
@@ -446,12 +871,6 @@ const toolGroups = {
         "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
         {},
         messageManagerAPI.getHTMLContent.bind(messageManagerAPI)
-      ),
-      getYoutubeTranscript: createTool(
-        "getYoutubeTranscript",
-        "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
-        {},
-        messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
       ),
       clickElement: createTool(
         "clickElement",
@@ -485,6 +904,37 @@ const toolGroups = {
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
 -   **Your Second Tool Call:** \`{"functionCall": {"name": "fillForm", "args": {"selector": "#name", "value": "John"}}}\`
 -   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\``,
+  },
+  youtube: {
+    description: async () =>
+      `- \`getYoutubeTranscript()\`: Retrieves the transcript of the current YouTube video.
+- \`getYoutubeDescription()\`: Retrieves the description of the current YouTube video.
+- \`getYoutubeComments()\`: Retrieves the top-level comments from the current YouTube video.`,
+    tools: {
+      getYoutubeTranscript: createTool(
+        "getYoutubeTranscript",
+        "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video.",
+        {},
+        messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
+      ),
+      getYoutubeDescription: createTool(
+        "getYoutubeDescription",
+        "Retrieves the description of the current YouTube video. Only use if the current page is a YouTube video.",
+        {},
+        messageManagerAPI.getYoutubeDescription.bind(messageManagerAPI)
+      ),
+      getYoutubeComments: createTool(
+        "getYoutubeComments",
+        "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video.",
+        {},
+        messageManagerAPI.getYoutubeComments.bind(messageManagerAPI)
+      ),
+    },
+    example: async () => `#### Getting YouTube Video Details:
+-   **User Prompt:** "give me the transcript and description of this video"
+-   **Your Tool Calls (parallel):** 
+    \`{"functionCall": {"name": "getYoutubeTranscript", "args": {}}}\`
+    \`{"functionCall": {"name": "getYoutubeDescription", "args": {}}}\``,
   },
   bookmarks: {
     description: async () => `- \`searchBookmarks(query)\`: Searches your bookmarks for a specific query.
@@ -553,6 +1003,64 @@ const toolGroups = {
 -   **Your Second Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "MyFolder"}}}\`
 -   **Your Third Tool Call (after receiving the bookmark and folder ids):** \`{"functionCall": {"name": "updateBookmark", "args": {"id": "xxxxxxxxxxxx", "parentID": "yyyyyyyyyyyy"}}}\`
 Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.`,
+  },
+  workspaces: {
+    description: async () => `- \`getAllWorkspaces()\`: Get a list of all your workspaces.
+- \`createWorkspace(name, icon)\`: Creates a new workspace.
+- \`updateWorkspace(id, name, icon)\`: Updates a workspace's name or icon.
+- \`deleteWorkspace(id)\`: Deletes a workspace and all its tabs.
+- \`moveTabsToWorkspace(tabIds, workspaceId)\`: Moves tabs to a different workspace.
+- \`reorderWorkspace(id, newPosition)\`: Changes the order of a workspace.`,
+    tools: {
+      getAllWorkspaces: createTool("getAllWorkspaces", "Retrieves all workspaces.", {}, getAllWorkspaces),
+      createWorkspace: createTool(
+        "createWorkspace",
+        "Creates a new workspace.",
+        {
+          name: createStringParameter("The name for the new workspace."),
+          icon: createStringParameter("The icon (emoji or URL) for the new workspace.", true),
+        },
+        createWorkspace
+      ),
+      updateWorkspace: createTool(
+        "updateWorkspace",
+        "Updates an existing workspace.",
+        {
+          id: createStringParameter("The ID of the workspace to update."),
+          name: createStringParameter("The new name for the workspace.", true),
+          icon: createStringParameter("The new icon for the workspace.", true),
+        },
+        updateWorkspace
+      ),
+      deleteWorkspace: createTool(
+        "deleteWorkspace",
+        "Deletes a workspace.",
+        { id: createStringParameter("The ID of the workspace to delete.") },
+        deleteWorkspace
+      ),
+      moveTabsToWorkspace: createTool(
+        "moveTabsToWorkspace",
+        "Moves tabs to a specified workspace.",
+        {
+          tabIds: createStringArrayParameter("The session IDs of the tabs to move."),
+          workspaceId: createStringParameter("The ID of the target workspace."),
+        },
+        moveTabsToWorkspace
+      ),
+      reorderWorkspace: createTool(
+        "reorderWorkspace",
+        "Reorders a workspace to a new position.",
+        {
+          id: createStringParameter("The ID of the workspace to reorder."),
+          newPosition: z.number().describe("The new zero-based index for the workspace."),
+        },
+        reorderWorkspace
+      ),
+    },
+    example: async () => `#### Creating and Managing a Workspace:
+-   **User Prompt:** "make a new workspace called 'Research', then move my currently open tab to it."
+-   **Your First Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
+-   **Your Second Tool Call (after getting the new workspace ID and current tab ID):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["17123456789"], "workspaceId": "e1f2a3b4-c5d6..."}}}\``,
   },
   misc: {
     example: async (activeGroups) => {
