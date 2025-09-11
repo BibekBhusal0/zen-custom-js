@@ -324,6 +324,7 @@ export const SettingsModal = {
   _generateSettingsHtml() {
     const generalSettings = [
       { label: "Enable AI Findbar", pref: PREFS.ENABLED },
+      { label: "Enable URLBar AI", pref: PREFS.URLBAR_AI_ENABLED },
       { label: "Minimal Mode (similar to arc)", pref: PREFS.MINIMAL },
       { label: "Persist Chat (don't persist when browser closes)", pref: PREFS.PERSIST },
       { label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE },

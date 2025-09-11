@@ -1,5 +1,6 @@
 export const PREFS = {
   ENABLED: "extension.browse-bot.enabled",
+  URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
   MINIMAL: "extension.browse-bot.minimal",
   PERSIST: "extension.browse-bot.persist-chat",
   DND_ENABLED: "extension.browse-bot.dnd-enabled",
@@ -194,6 +195,7 @@ export const debugError = (...args) => {
 
 PREFS.defaultValues = {
   [PREFS.ENABLED]: true,
+  [PREFS.URLBAR_AI_ENABLED]: true,
   [PREFS.MINIMAL]: true,
   [PREFS.GOD_MODE]: false,
   [PREFS.DEBUG_MODE]: false,

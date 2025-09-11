@@ -1,6 +1,6 @@
 import { LLM } from "./llm/index.js";
 import { generateText } from "ai";
-import { debugLog, debugError } from "./utils/prefs.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
 
@@ -59,8 +59,18 @@ const urlbarAI = {
   _isAIMode: false,
   _originalPlaceholder: "",
   _initialized: false,
+  _enabled: false,
+  _prefListener: null,
+
+  get enabled() {
+    return PREFS.getPref(PREFS.URLBAR_AI_ENABLED);
+  },
 
   init() {
+    if (!this.enabled) {
+      debugLog("urlbarAI: Disabled by preference.");
+      return;
+    }
     debugLog("urlbarAI: Initializing");
     if (this._initialized) {
       debugLog("urlbarAI: Already initialized.");
@@ -71,6 +81,19 @@ const urlbarAI = {
     this.addListeners();
     this._initialized = true;
     debugLog("urlbarAI: Initialization complete");
+  },
+
+  destroy() {
+    debugLog("urlbarAI: Destroying");
+    this.removeAskButton();
+    this.removeListeners();
+    if (this._isAIMode) {
+      this.toggleAIMode(false);
+    }
+    gURLBar.removeAttribute("ai-mode-active");
+    gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
+    this._initialized = false;
+    debugLog("urlbarAI: Destruction complete");
   },
 
   _closeUrlBar() {
@@ -159,6 +182,23 @@ const urlbarAI = {
     gURLBar.view.panel.addEventListener("popuphiding", this._boundDisableAIMode);
   },
 
+  removeListeners() {
+    debugLog("urlbarAI: Removing event listeners");
+    if (this._boundHandleGlobalKeyDown) {
+      document.removeEventListener("keydown", this._boundHandleGlobalKeyDown, true);
+      this._boundHandleGlobalKeyDown = null;
+    }
+    if (this._boundHandleUrlbarKeyDown) {
+      gURLBar.inputField.removeEventListener("keydown", this._boundHandleUrlbarKeyDown, true);
+      this._boundHandleUrlbarKeyDown = null;
+    }
+    if (this._boundDisableAIMode) {
+      gURLBar.inputField.removeEventListener("blur", this._boundDisableAIMode);
+      gURLBar.view.panel.removeEventListener("popuphiding", this._boundDisableAIMode);
+      this._boundDisableAIMode = null;
+    }
+  },
+
   send() {
     const prompt = gURLBar.value.trim();
     if (prompt) {
@@ -210,17 +250,42 @@ const urlbarAI = {
 
     insertButton();
   },
+
+  removeAskButton() {
+    debugLog("urlbarAI: Removing 'Ask' button");
+    const button = document.getElementById("urlbar-ask-ai-button");
+    if (button) {
+      button.remove();
+      debugLog("urlbarAI: 'Ask' button removed.");
+    }
+  },
+
+  handlePrefChange(pref) {
+    if (pref.value) {
+      this.init();
+    } else {
+      this.destroy();
+    }
+  },
 };
 
+function startup() {
+  urlbarAI.init();
+  urlbarAI._prefListener = UC_API.Prefs.addListener(
+    PREFS.URLBAR_AI_ENABLED,
+    urlbarAI.handlePrefChange.bind(urlbarAI)
+  );
+}
+
 if (typeof UC_API !== "undefined" && UC_API.Runtime) {
-  UC_API.Runtime.startupFinished().then(() => urlbarAI.init());
+  UC_API.Runtime.startupFinished().then(startup);
 } else {
   if (gBrowserInit.delayedStartupFinished) {
-    urlbarAI.init();
+    startup();
   } else {
     let observer = new MutationObserver(() => {
       if (gBrowserInit.delayedStartupFinished) {
-        urlbarAI.init();
+        startup();
         observer.disconnect();
       }
     });
