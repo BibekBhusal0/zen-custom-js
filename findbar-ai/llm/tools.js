@@ -780,6 +780,38 @@ async function fillForm(args) {
   return messageManagerAPI.fillForm(selector, value);
 }
 
+// ╭─────────────────────────────────────────────────────────╮
+// │                        UI FEEDBACK                      │
+// ╰─────────────────────────────────────────────────────────╯
+
+/**
+ * Shows a temporary toast message to the user.
+ * @param {object} args - The arguments object.
+ * @param {string} args.title - The main title of the toast message.
+ * @param {string} [args.description] - Optional secondary text for the toast.
+ * @returns {Promise<object>} A promise that resolves with a success message or an error.
+ */
+async function showToast(args) {
+  const { title, description } = args;
+  if (!title) return { error: "showToast requires a title." };
+
+  try {
+    if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
+      // ucAPI.showToast takes an array [title, description] and a preset.
+      // Preset 0 means no button will be shown.
+      // https://github.com/CosmoCreeper/Sine/blob/main/engine/utils/uc_api.js#L102
+      window.ucAPI.showToast([title, description], 0);
+      return { result: "Toast displayed successfully." };
+    } else {
+      debugError("ucAPI.showToast is not available.");
+      return { error: "Toast functionality is not available." };
+    }
+  } catch (e) {
+    debugError("Failed to show toast:", e);
+    return { error: "An error occurred while displaying the toast." };
+  }
+}
+
 const toolGroups = {
   search: {
     description: async () => {
@@ -1155,6 +1187,24 @@ Note that first and second tool clls can be made in parallel, but the third tool
 -   **User Prompt:** "make a new workspace called 'Research', then move my currently open tab to it."
 -   **Your First Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
 -   **Your Second Tool Call (after getting the new workspace ID and current tab ID):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["17123456789"], "workspaceId": "e1f2a3b4-c5d6..."}}}\``,
+  },
+  uiFeedback: {
+    description: async () =>
+      `- \`showToast(title, description)\`: Shows a temporary notification message (a "toast") to the user. Use this to provide quick, non-blocking feedback.`,
+    tools: {
+      showToast: createTool(
+        "showToast",
+        "Shows a temporary toast message to the user.",
+        {
+          title: createStringParameter("The main title of the toast message."),
+          description: createStringParameter("Optional secondary text for the toast.", true),
+        },
+        showToast
+      ),
+    },
+    example: async () => `#### Showing a Toast Notification:
+-   **User Prompt:** "let me know when the download is complete"
+-   **Your Tool Call (after a long-running task):** \`{"functionCall": {"name": "showToast", "args": {"title": "Download Complete", "description": "The file has been saved to your downloads folder."}}}\``,
   },
   misc: {
     example: async (activeGroups) => {
