@@ -306,6 +306,8 @@ Here is the initial info about the current page:
       model,
       system: this.systemInstruction,
       messages: this.history,
+      // FIX: Can't Calling multiple tools back to back don't work
+      // TODO: Better feedback is required when LLM is using tool
       tools: this.godMode ? toolSet : undefined,
       maxSteps: this.godMode ? this.maxToolCalls : 1,
       abortSignal,
@@ -314,6 +316,7 @@ Here is the initial info about the current page:
     // Non-Citation Mode (Streaming or Non-Streaming)
     if (this.streamEnabled) {
       const self = this;
+      // FIX: gives error while streaming sometimes
       return streamText({
         ...commonConfig,
         async onFinish({ response }) {
