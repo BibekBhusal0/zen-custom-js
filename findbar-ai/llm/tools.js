@@ -58,7 +58,9 @@ function getTabsBySessionIds(sessionIds) {
   const allTabs = gZenWorkspaces.allStoredTabs;
   return sessionIds
     .map((sessionId) =>
-      allTabs.find((t) => t.linkedBrowser && String(t.linkedBrowser.sessionId) === String(sessionId))
+      allTabs.find(
+        (t) => t.linkedBrowser && String(t.linkedBrowser.sessionId) === String(sessionId)
+      )
     )
     .filter(Boolean);
 }
@@ -809,7 +811,8 @@ const toolGroups = {
     },
   },
   navigation: {
-    description: async () => `- \`openLink(link, where)\`: Opens a URL. Use this to open a single link or to create a split view with the *current* tab.
+    description:
+      async () => `- \`openLink(link, where)\`: Opens a URL. Use this to open a single link or to create a split view with the *current* tab.
 - \`newSplit(links, type)\`: Use this specifically for creating a split view with *two or more new tabs*. The type can be 'vertical', 'horizontal', or 'grid'.
 - \`splitExistingTabs(tabIds, type)\`: Creates a split view from currently open tabs. The type can be 'vertical', 'horizontal', or 'grid'.`,
     tools: {
@@ -940,7 +943,8 @@ const toolGroups = {
 -   **Your Second Tool Call (after finding the current tab ID):** \`{"functionCall": {"name": "addTabsToEssentials", "args": {"tabIds": ["17123456789"]}}}\``,
   },
   pageInteraction: {
-    description: async () => `- \`getPageTextContent()\` / \`getHTMLContent()\`: Use these to get updated page information if context is missing. Prefer \`getPageTextContent\`.
+    description:
+      async () => `- \`getPageTextContent()\` / \`getHTMLContent()\`: Use these to get updated page information if context is missing. Prefer \`getPageTextContent\`.
 - \`clickElement(selector)\`: Clicks an element on the page.
 - \`fillForm(selector, value)\`: Fills a form input on the page.`,
     tools: {
@@ -1021,7 +1025,8 @@ const toolGroups = {
     \`{"functionCall": {"name": "getYoutubeDescription", "args": {}}}\``,
   },
   bookmarks: {
-    description: async () => `- \`searchBookmarks(query)\`: Searches your bookmarks for a specific query.
+    description:
+      async () => `- \`searchBookmarks(query)\`: Searches your bookmarks for a specific query.
 - \`getAllBookmarks()\`: Retrieves all of your bookmarks.
 - \`createBookmark(url, title, parentID)\`: Creates a new bookmark.  The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
 - \`addBookmarkFolder(title, parentID)\`: Creates a new bookmark folder. The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
@@ -1096,7 +1101,12 @@ Note that first and second tool clls can be made in parallel, but the third tool
 - \`moveTabsToWorkspace(tabIds, workspaceId)\`: Moves tabs to a different workspace.
 - \`reorderWorkspace(id, newPosition)\`: Changes the order of a workspace.`,
     tools: {
-      getAllWorkspaces: createTool("getAllWorkspaces", "Retrieves all workspaces.", {}, getAllWorkspaces),
+      getAllWorkspaces: createTool(
+        "getAllWorkspaces",
+        "Retrieves all workspaces.",
+        {},
+        getAllWorkspaces
+      ),
       createWorkspace: createTool(
         "createWorkspace",
         "Creates a new workspace.",
