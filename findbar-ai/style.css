@@ -91,14 +91,14 @@ browser {
   }
 }
 
-@media -moz-pref("extension.browse-bot.enabled") {
-  @media -moz-pref("extension.browse-bot.context-menu-enabled") {
+@media -moz-pref("extension.browse-bot.findbar-ai.enabled") {
+  @media -moz-pref("extension.browse-bot.findbar-ai.context-menu-enabled") {
     #browse-bot-context-menu-item {
       --menu-image: url("chrome://browser/skin/trending.svg");
     }
   }
 
-  @media -moz-pref("extension.pseudo-bg.enabled") {
+  @media -moz-pref("extension.browse-bot.findbar-ai.pseudo-bg") {
     :has(
       .browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])
     ) {
@@ -290,12 +290,12 @@ browser {
       position: absolute;
       right: 0;
 
-      @media not -moz-pref("extension.browse-bot.dnd-enabled") {
+      @media not -moz-pref("extension.browse-bot.findbar-ai.dnd-enabled") {
         display: none !important;
       }
     }
 
-    @media -moz-pref("extension.browse-bot.position", "top-right") {
+    @media -moz-pref("extension.browse-bot.findbar-ai.position", "top-right") {
       top: 35px;
       left: calc(100% - 15px - var(--findbar-width));
 
@@ -305,7 +305,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.browse-bot.position", "top-left") {
+    @media -moz-pref("extension.browse-bot.findbar-ai.position", "top-left") {
       top: 35px;
       left: 15px;
 
@@ -315,7 +315,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.browse-bot.position", "bottom-right") {
+    @media -moz-pref("extension.browse-bot.findbar-ai.position", "bottom-right") {
       top: calc(100% - 15px - var(--findbar-height));
       left: calc(100% - 15px - var(--findbar-width));
 
@@ -325,7 +325,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.browse-bot.position", "bottom-left") {
+    @media -moz-pref("extension.browse-bot.findbar-ai.position", "bottom-left") {
       top: calc(100% - 15px - var(--findbar-height));
       left: 15px;
 
@@ -380,7 +380,7 @@ browser {
         display: none !important;
       }
 
-      @media not -moz-pref("extension.browse-bot.minimal") {
+      @media not -moz-pref("extension.browse-bot.findbar-ai.minimal") {
         .findbar-closebutton {
           top: 0px !important;
         }
@@ -559,7 +559,7 @@ browser {
         /* background-color: green !important; */
         z-index: 1 !important;
 
-        @media not -moz-pref("extension.browse-bot.dnd-enabled") {
+        @media not -moz-pref("extension.browse-bot.findbar-ai.dnd-enabled") {
           display: none !important;
         }
       }
@@ -741,7 +741,7 @@ browser {
           position: absolute !important;
           bottom: 57px !important;
 
-          @media -moz-pref("extension.browse-bot.minimal") {
+          @media -moz-pref("extension.browse-bot.findbar-ai.minimal") {
             bottom: 32px !important;
           }
 
@@ -850,7 +850,7 @@ browser {
       }
     }
 
-    @media -moz-pref("extension.browse-bot.minimal") {
+    @media -moz-pref("extension.browse-bot.findbar-ai.minimal") {
       width: 420px;
       min-height: 36px !important;
       align-items: center !important;
@@ -947,7 +947,7 @@ browser {
             padding-top: 6px !important;
           }
 
-          @media not -moz-pref("extension.browse-bot.dnd-enabled") {
+          @media not -moz-pref("extension.browse-bot.findbar-ai.dnd-enabled") {
             display: none !important;
           }
         }
