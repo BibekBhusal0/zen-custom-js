@@ -1,22 +1,24 @@
 export const PREFS = {
-  ENABLED: "extension.browse-bot.enabled",
+  // Findbar AI specific prefs
+  ENABLED: "extension.browse-bot.findbar-ai.enabled",
+  MINIMAL: "extension.browse-bot.findbar-ai.minimal",
+  PERSIST: "extension.browse-bot.findbar-ai.persist-chat",
+  DND_ENABLED: "extension.browse-bot.findbar-ai.dnd-enabled",
+  POSITION: "extension.browse-bot.findbar-ai.position",
+  STREAM_ENABLED: "extension.browse-bot.findbar-ai.stream-enabled",
+  GOD_MODE: "extension.browse-bot.findbar-ai.god-mode",
+  CITATIONS_ENABLED: "extension.browse-bot.findbar-ai.citations-enabled",
+  MAX_TOOL_CALLS: "extension.browse-bot.findbar-ai.max-tool-calls",
+  CONFORMATION: "extension.browse-bot.findbar-ai.conform-before-tool-call",
+  CONTEXT_MENU_ENABLED: "extension.browse-bot.findbar-ai.context-menu-enabled",
+  CONTEXT_MENU_AUTOSEND: "extension.browse-bot.findbar-ai.context-menu-autosend",
+
+  // Other prefs
   URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
-  MINIMAL: "extension.browse-bot.minimal",
-  PERSIST: "extension.browse-bot.persist-chat",
-  DND_ENABLED: "extension.browse-bot.dnd-enabled",
-  POSITION: "extension.browse-bot.position",
   DEBUG_MODE: "extension.browse-bot.debug-mode",
   PSEUDO_BG: "extension.pseudo-bg.enabled",
-  STREAM_ENABLED: "extension.browse-bot.stream-enabled",
 
-  GOD_MODE: "extension.browse-bot.god-mode",
-  CITATIONS_ENABLED: "extension.browse-bot.citations-enabled",
-  MAX_TOOL_CALLS: "extension.browse-bot.max-tool-calls",
-  CONFORMATION: "extension.browse-bot.conform-before-tool-call",
-
-  CONTEXT_MENU_ENABLED: "extension.browse-bot.context-menu-enabled",
-  CONTEXT_MENU_AUTOSEND: "extension.browse-bot.context-menu-autosend",
-
+  // Shared LLM prefs
   LLM_PROVIDER: "extension.browse-bot.llm-provider",
   MISTRAL_API_KEY: "extension.browse-bot.mistral-api-key",
   MISTRAL_MODEL: "extension.browse-bot.mistral-model",
@@ -34,9 +36,9 @@ export const PREFS = {
   OLLAMA_API_KEY: "extension.browse-bot.ollama-api-key",
 
   //TODO: Not yet implimented
-  COPY_BTN_ENABLED: "extension.browse-bot.copy-btn-enabled",
-  MARKDOWN_ENABLED: "extension.browse-bot.markdown-enabled",
-  SHOW_TOOL_CALL: "extension.browse-bot.show-tool-call",
+  COPY_BTN_ENABLED: "extension.browse-bot.findbar-ai.copy-btn-enabled",
+  MARKDOWN_ENABLED: "extension.browse-bot.findbar-ai.markdown-enabled",
+  SHOW_TOOL_CALL: "extension.browse-bot.findbar-ai.show-tool-call",
 
   defaultValues: {},
 
@@ -55,7 +57,40 @@ export const PREFS = {
     UC_API.Prefs.set(prefKey, value);
   },
 
+  migratePrefs() {
+    const migrationMap = {
+      "extension.browse-bot.enabled": PREFS.ENABLED,
+      "extension.browse-bot.minimal": PREFS.MINIMAL,
+      "extension.browse-bot.persist-chat": PREFS.PERSIST,
+      "extension.browse-bot.dnd-enabled": PREFS.DND_ENABLED,
+      "extension.browse-bot.position": PREFS.POSITION,
+      "extension.browse-bot.stream-enabled": PREFS.STREAM_ENABLED,
+      "extension.browse-bot.god-mode": PREFS.GOD_MODE,
+      "extension.browse-bot.citations-enabled": PREFS.CITATIONS_ENABLED,
+      "extension.browse-bot.max-tool-calls": PREFS.MAX_TOOL_CALLS,
+      "extension.browse-bot.conform-before-tool-call": PREFS.CONFORMATION,
+      "extension.browse-bot.context-menu-enabled": PREFS.CONTEXT_MENU_ENABLED,
+      "extension.browse-bot.context-menu-autosend": PREFS.CONTEXT_MENU_AUTOSEND,
+    };
+
+    for (const [oldKey, newKey] of Object.entries(migrationMap)) {
+      try {
+        const oldPref = UC_API.Prefs.get(oldKey);
+        if (oldPref && oldPref.exists()) {
+          const value = oldPref.value;
+          debugLog(`Migrating pref ${oldKey} to ${newKey} with value: ${value}`);
+          UC_API.Prefs.set(newKey, value);
+          oldPref.reset();
+        }
+      } catch (e) {
+        // It's fine if it fails, just log it in debug mode
+        debugError(`Could not migrate pref ${oldKey}:`, e);
+      }
+    }
+  },
+
   setInitialPrefs() {
+    this.migratePrefs();
     for (const [key, value] of Object.entries(PREFS.defaultValues)) {
       UC_API.Prefs.setIfUnset(key, value);
     }
