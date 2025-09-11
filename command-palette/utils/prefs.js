@@ -14,6 +14,8 @@ export const Prefs = {
     DYNAMIC_WORKSPACES: "zen-command-palette.dynamic.workspaces",
     DYNAMIC_SINE_MODS: "zen-command-palette.dynamic.sine-mods",
     DYNAMIC_FOLDERS: "zen-command-palette.dynamic.folders",
+    DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
+    DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
   },
 
   defaultValues: {},
@@ -74,6 +76,12 @@ export const Prefs = {
   get loadFolders() {
     return this.getPref(this.KEYS.DYNAMIC_FOLDERS);
   },
+  get loadContainerTabs() {
+    return this.getPref(this.KEYS.DYNAMIC_CONTAINER_TABS);
+  },
+  get loadActiveTabs() {
+    return this.getPref(this.KEYS.DYNAMIC_ACTIVE_TABS);
+  },
 
   setTempMaxRichResults(value) {
     if (_originalMaxResults === null) {
@@ -103,6 +111,8 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
   [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
   [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
+  [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: true,
+  [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: true,
 };
 
 export const debugLog = (...args) => {

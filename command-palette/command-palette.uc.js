@@ -7,6 +7,8 @@ import {
   generateWorkspaceCommands,
   generateFolderCommands,
   generateWorkspaceMoveCommands,
+  generateContainerTabCommands,
+  generateActiveTabCommands,
 } from "./dynamic-commands.js";
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 
@@ -195,6 +197,8 @@ const ZenCommandPalette = {
     }
     if (Prefs.loadSineMods) commandPromises.push(generateSineCommands());
     if (Prefs.loadFolders) commandPromises.push(generateFolderCommands());
+    if (Prefs.loadContainerTabs) commandPromises.push(generateContainerTabCommands());
+    if (Prefs.loadActiveTabs) commandPromises.push(generateActiveTabCommands());
 
     const commandSets = await Promise.all(commandPromises);
     liveCommands.push(...commandSets.flat());
