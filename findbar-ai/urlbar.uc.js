@@ -1,8 +1,11 @@
 import { LLM } from "./llm/index.js";
 import { generateText } from "ai";
 import { debugLog, debugError } from "./utils/prefs.js";
-import { getToolSystemPrompt, toolSet as originalToolSet } from "./llm/tools.js";
+import { getToolSystemPrompt, getTools } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
+
+const urlBarGroups = ["search", "navigation", "bookmarks"];
+const originalToolSet = getTools(urlBarGroups);
 
 const urlBarToolSet = Object.fromEntries(
   Object.entries(originalToolSet).map(([name, tool]) => {
@@ -32,7 +35,7 @@ Your primary responsibilities include:
 3. If a URL is provided, open it directly.
 
 Your goal is to ensure a seamless and user-friendly browsing experience.`;
-    systemPrompt += await getToolSystemPrompt();
+    systemPrompt += await getToolSystemPrompt(urlBarGroups);
     return systemPrompt;
   }
 

@@ -81,7 +81,21 @@ class LLM {
 - Be concise, accurate, and helpful.`;
 
     if (this.godMode) {
+      systemPrompt += `
+
+## GOD MODE ENABLED - TOOL USAGE:
+You have access to browser functions. The user knows you have these abilities.
+- **CRITICAL**: When you decide to call a tool, give short summary of what tool are you calling and why?
+- Use tools when the user explicitly asks, or when it is the only logical way to fulfill their request (e.g., "search for...").
+- When asked about your own abilities, describe the functions you can perform based on the tools listed below.
+`;
       systemPrompt += await getToolSystemPrompt();
+      systemPrompt += `
+## More instructions for Running tools
+- While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
+- User will provide URL and title of current of webpage. If you need more context, use the \`getPageTextContent\` or \`getHTMLContent\` tools.
+- When the user asks you to "read the current page", use the \`getPageTextContent()\` or \`getHTMLContent\` tool.
+- If the user asks you to open a link by its text (e.g., "click the 'About Us' link"), you must first use \`getHTMLContent()\` to find the link's full URL, then use \`openLink()\` to open it.`;
     }
 
     if (this.citationsEnabled) {

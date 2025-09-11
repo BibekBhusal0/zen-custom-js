@@ -361,215 +361,276 @@ async function fillForm(args) {
   return messageManagerAPI.fillForm(selector, value);
 }
 
-const toolSet = {
-  search: createTool(
-    "search",
-    "Performs a web search using a specified search engine and opens the results.",
-    {
-      searchTerm: createStringParameter("The term to search for."),
-      engineName: createStringParameter("The name of the search engine to use.", true),
-      where: createStringParameter(
-        "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
-        true
+const toolGroups = {
+  search: {
+    description: async () => {
+      const searchEngines = await Services.search.getVisibleEngines();
+      const engineNames = searchEngines.map((e) => e.name).join(", ");
+      const defaultEngineName = Services.search.defaultEngine.name;
+      return `- \`search(searchTerm, engineName, where)\`: Performs a web search. Available engines: ${engineNames}. The default is '${defaultEngineName}'.`;
+    },
+    tools: {
+      search: createTool(
+        "search",
+        "Performs a web search using a specified search engine and opens the results.",
+        {
+          searchTerm: createStringParameter("The term to search for."),
+          engineName: createStringParameter("The name of the search engine to use.", true),
+          where: createStringParameter(
+            "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
+            true
+          ),
+        },
+        search
       ),
     },
-    search
-  ),
-  openLink: createTool(
-    "openLink",
-    "Opens a given URL in a specified location. Can also create a split view with the current tab.",
-    {
-      link: createStringParameter("The URL to open."),
-      where: createStringParameter(
-        "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
-        true
-      ),
-    },
-    openLink
-  ),
-  newSplit: createTool(
-    "newSplit",
-    "Creates a split view by opening two new URLs in two new tabs, then arranging them side-by-side.",
-    {
-      link1: createStringParameter("The URL for the first new tab."),
-      link2: createStringParameter("The URL for the second new tab."),
-      type: createStringParameter(
-        "The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
-        true
-      ),
-    },
-    newSplit
-  ),
-  getPageTextContent: createTool(
-    "getPageTextContent",
-    "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
-    {},
-    messageManagerAPI.getPageTextContent.bind(messageManagerAPI)
-  ),
-  getHTMLContent: createTool(
-    "getHTMLContent",
-    "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
-    {},
-    messageManagerAPI.getHTMLContent.bind(messageManagerAPI)
-  ),
-  getYoutubeTranscript: createTool(
-    "getYoutubeTranscript",
-    "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
-    {},
-    messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
-  ),
-  searchBookmarks: createTool(
-    "searchBookmarks",
-    "Searches bookmarks based on a query.",
-    {
-      query: createStringParameter("The search term for bookmarks."),
-    },
-    searchBookmarks
-  ),
-  getAllBookmarks: createTool("getAllBookmarks", "Retrieves all bookmarks.", {}, getAllBookmarks),
-  createBookmark: createTool(
-    "createBookmark",
-    "Creates a new bookmark.",
-    {
-      url: createStringParameter("The URL to bookmark."),
-      title: createStringParameter("The title for the bookmark.", true),
-      parentID: createStringParameter("The GUID of the parent folder.", true),
-    },
-    createBookmark
-  ),
-  addBookmarkFolder: createTool(
-    "addBookmarkFolder",
-    "Creates a new bookmark folder.",
-    {
-      title: createStringParameter("The title for the new folder."),
-      parentID: createStringParameter("The GUID of the parent folder.", true),
-    },
-    addBookmarkFolder
-  ),
-  updateBookmark: createTool(
-    "updateBookmark",
-    "Updates an existing bookmark.",
-    {
-      id: createStringParameter("The GUID of the bookmark to update."),
-      url: createStringParameter("The new URL for the bookmark.", true),
-      title: createStringParameter("The new title for the bookmark.", true),
-      parentID: createStringParameter("The GUID of the parent folder.", true),
-    },
-    updateBookmark
-  ),
-  deleteBookmark: createTool(
-    "deleteBookmark",
-    "Deletes a bookmark.",
-    {
-      id: createStringParameter("The GUID of the bookmark to delete."),
-    },
-    deleteBookmark
-  ),
-  clickElement: createTool(
-    "clickElement",
-    "Clicks an element on the page.",
-    {
-      selector: createStringParameter("The CSS selector of the element to click."),
-    },
-    clickElement
-  ),
-  fillForm: createTool(
-    "fillForm",
-    "Fills a form input on the page.",
-    {
-      selector: createStringParameter("The CSS selector of the input element to fill."),
-      value: createStringParameter("The value to fill the input with."),
-    },
-    fillForm
-  ),
-};
-
-const getToolSystemPrompt = async () => {
-  try {
-    const searchEngines = await Services.search.getVisibleEngines();
-    const engineNames = searchEngines.map((e) => e.name).join(", ");
-    const defaultEngineName = Services.search.defaultEngine.name;
-    return `
-- When asked about your own abilities, describe the functions you can perform based on the tools listed below.
-
-## GOD MODE ENABLED - TOOL USAGE:
-You have access to browser functions. The user knows you have these abilities.
-- **CRITICAL**: When you decide to call a tool, give short summary of what tool are you calling and why?
-- Use tools when the user explicitly asks, or when it is the only logical way to fulfill their request (e.g., "search for...").
-
-## Available Tools:
-- \`search(searchTerm, engineName, where)\`: Performs a web search. Available engines: ${engineNames}. The default is '${defaultEngineName}'.
-- \`openLink(link, where)\`: Opens a URL. Use this to open a single link or to create a split view with the *current* tab.
-- \`newSplit(link1, link2, type)\`: Use this specifically for creating a split view with *two new tabs*.
-- \`getPageTextContent()\` / \`getHTMLContent()\`: Use these to get updated page information if context is missing. Prefer \`getPageTextContent\`.
-- \`searchBookmarks(query)\`: Searches your bookmarks for a specific query.
-- \`getAllBookmarks()\`: Retrieves all of your bookmarks.
-- \`createBookmark(url, title, parentID)\`: Creates a new bookmark.  The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
-- \`addBookmarkFolder(title, parentID)\`: Creates a new bookmark folder. The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
-- \`updateBookmark(id, url, title, parentID)\`: Updates an existing bookmark.  The \`id\` is the GUID of the bookmark.  You must provide the ID and either a new URL or a new title or new parentID (or any one or two).
-- \`deleteBookmark(id)\`: Deletes a bookmark.  The \`id\` is the GUID of the bookmark.
-- \`clickElement(selector)\`: Clicks an element on the page.
-- \`fillForm(selector, value)\`: Fills a form input on the page.
-
-## More instructions for Running tools
-- While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
-- User will provide URL and title of current of webpage. If you need more context, use the \`getPageTextContent\` or \`getHTMLContent\` tools.
-- When the user asks you to "read the current page", use the \`getPageTextContent()\` or \`getHTMLContent\` tool.
-- If the user asks you to open a link by its text (e.g., "click the 'About Us' link"), you must first use \`getHTMLContent()\` to find the link's full URL, then use \`openLink()\` to open it.
-
-## Tool Call Examples:
-Therse are just examples for you on how you can use tools calls, each example give you some concept, the concept is not specific to single tool.
-
-### Use default value when user don't provides full information, If user don't provide default value you may ask and even give options if possible
-#### Searching the Web: 
+    example: async () => {
+      const defaultEngineName = Services.search.defaultEngine.name;
+      return `#### Searching the Web: 
 -   **User Prompt:** "search for firefox themes"
--   **Your Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "firefox themes", "engineName": "${defaultEngineName}"}}}\`
-
-### Make sure you are calling tools with correct parameters.
-#### Opening a Single Link:
+-   **Your Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "firefox themes", "engineName": "${defaultEngineName}"}}}\``;
+    },
+  },
+  navigation: {
+    description: async () => `- \`openLink(link, where)\`: Opens a URL. Use this to open a single link or to create a split view with the *current* tab.
+- \`newSplit(link1, link2, type)\`: Use this specifically for creating a split view with *two new tabs*.`,
+    tools: {
+      openLink: createTool(
+        "openLink",
+        "Opens a given URL in a specified location. Can also create a split view with the current tab.",
+        {
+          link: createStringParameter("The URL to open."),
+          where: createStringParameter(
+            "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
+            true
+          ),
+        },
+        openLink
+      ),
+      newSplit: createTool(
+        "newSplit",
+        "Creates a split view by opening two new URLs in two new tabs, then arranging them side-by-side.",
+        {
+          link1: createStringParameter("The URL for the first new tab."),
+          link2: createStringParameter("The URL for the second new tab."),
+          type: createStringParameter(
+            "The split type: 'horizontal' or 'vertical'. Defaults to 'vertical'.",
+            true
+          ),
+        },
+        newSplit
+      ),
+    },
+    example: async () => `#### Opening a Single Link:
 -   **User Prompt:** "open github"
 -   **Your Tool Call:** \`{"functionCall": {"name": "openLink", "args": {"link": "https://github.com", "where": "new tab"}}}\`
 
 #### Creating a Split View with Two New Pages:
 -   **User Prompt:** "show me youtube and twitch side by side"
--   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"link1": "https://youtube.com", "link2": "https://twitch.tv"}}}\`
-
-### Use tools to get more context: If user ask anything whose answer is unknown to you and it can be obtained via tool call use it.
-#### Reading the Current Page for Context
+-   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"link1": "https://youtube.com", "link2": "https://twitch.tv"}}}\``,
+  },
+  pageInteraction: {
+    description: async () => `- \`getPageTextContent()\` / \`getHTMLContent()\`: Use these to get updated page information if context is missing. Prefer \`getPageTextContent\`.
+- \`getYoutubeTranscript()\`: Retrives the transcript of the current youtube video. Only use if current page is a youtube video.
+- \`clickElement(selector)\`: Clicks an element on the page.
+- \`fillForm(selector, value)\`: Fills a form input on the page.`,
+    tools: {
+      getPageTextContent: createTool(
+        "getPageTextContent",
+        "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
+        {},
+        messageManagerAPI.getPageTextContent.bind(messageManagerAPI)
+      ),
+      getHTMLContent: createTool(
+        "getHTMLContent",
+        "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
+        {},
+        messageManagerAPI.getHTMLContent.bind(messageManagerAPI)
+      ),
+      getYoutubeTranscript: createTool(
+        "getYoutubeTranscript",
+        "Retrives the transcript of the current youtube video. Only use if current page is a youtube video.",
+        {},
+        messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
+      ),
+      clickElement: createTool(
+        "clickElement",
+        "Clicks an element on the page.",
+        {
+          selector: createStringParameter("The CSS selector of the element to click."),
+        },
+        clickElement
+      ),
+      fillForm: createTool(
+        "fillForm",
+        "Fills a form input on the page.",
+        {
+          selector: createStringParameter("The CSS selector of the input element to fill."),
+          value: createStringParameter("The value to fill the input with."),
+        },
+        fillForm
+      ),
+    },
+    example: async () => `#### Reading the Current Page for Context
 -   **User Prompt:** "summarize this page for me"
 -   **Your Tool Call:** \`{"functionCall": {"name": "getPageTextContent", "args": {}}}\`
 
-### Taking multiple steps; you might need for previous tool to compete and give you output before calling next tool
 #### Finding and Clicking a Link on the Current Page
 -   **User Prompt:** "click on the contact link"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
 -   **Your Second Tool Call (after receiving HTML and finding the link):** \`{"functionCall": {"name": "openLink", "args": {"link": "https://example.com/contact-us"}}}\`
 
-#### Finding and Editing a bookmark by folder name:
--   **User Prompt:** "Move bookmark titled 'Example' to folder 'MyFolder'"
--   **Your First Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "Example"}}}\`
--   **Your Second Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "MyFolder"}}}\`
--   **Your Third Tool Call (after receiving the bookmark and folder ids):** \`{"functionCall": {"name": "updateBookmark", "args": {"id": "xxxxxxxxxxxx", "parentID": "yyyyyyyyyyyy"}}}\`
-Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.
-
 #### Filling a form:
 -   **User Prompt:** "Fill the name with John and submit"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
 -   **Your Second Tool Call:** \`{"functionCall": {"name": "fillForm", "args": {"selector": "#name", "value": "John"}}}\`
--   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\`
-
-### Calling multiple tools at once.
+-   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\``,
+  },
+  bookmarks: {
+    description: async () => `- \`searchBookmarks(query)\`: Searches your bookmarks for a specific query.
+- \`getAllBookmarks()\`: Retrieves all of your bookmarks.
+- \`createBookmark(url, title, parentID)\`: Creates a new bookmark.  The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
+- \`addBookmarkFolder(title, parentID)\`: Creates a new bookmark folder. The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
+- \`updateBookmark(id, url, title, parentID)\`: Updates an existing bookmark.  The \`id\` is the GUID of the bookmark.  You must provide the ID and either a new URL or a new title or new parentID (or any one or two).
+- \`deleteBookmark(id)\`: Deletes a bookmark.  The \`id\` is the GUID of the bookmark.`,
+    tools: {
+      searchBookmarks: createTool(
+        "searchBookmarks",
+        "Searches bookmarks based on a query.",
+        {
+          query: createStringParameter("The search term for bookmarks."),
+        },
+        searchBookmarks
+      ),
+      getAllBookmarks: createTool(
+        "getAllBookmarks",
+        "Retrieves all bookmarks.",
+        {},
+        getAllBookmarks
+      ),
+      createBookmark: createTool(
+        "createBookmark",
+        "Creates a new bookmark.",
+        {
+          url: createStringParameter("The URL to bookmark."),
+          title: createStringParameter("The title for the bookmark.", true),
+          parentID: createStringParameter("The GUID of the parent folder.", true),
+        },
+        createBookmark
+      ),
+      addBookmarkFolder: createTool(
+        "addBookmarkFolder",
+        "Creates a new bookmark folder.",
+        {
+          title: createStringParameter("The title for the new folder."),
+          parentID: createStringParameter("The GUID of the parent folder.", true),
+        },
+        addBookmarkFolder
+      ),
+      updateBookmark: createTool(
+        "updateBookmark",
+        "Updates an existing bookmark.",
+        {
+          id: createStringParameter("The GUID of the bookmark to update."),
+          url: createStringParameter("The new URL for the bookmark.", true),
+          title: createStringParameter("The new title for the bookmark.", true),
+          parentID: createStringParameter("The GUID of the parent folder.", true),
+        },
+        updateBookmark
+      ),
+      deleteBookmark: createTool(
+        "deleteBookmark",
+        "Deletes a bookmark.",
+        {
+          id: createStringParameter("The GUID of the bookmark to delete."),
+        },
+        deleteBookmark
+      ),
+    },
+    example: async () => `#### Finding and Editing a bookmark by folder name:
+-   **User Prompt:** "Move bookmark titled 'Example' to folder 'MyFolder'"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "Example"}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "MyFolder"}}}\`
+-   **Your Third Tool Call (after receiving the bookmark and folder ids):** \`{"functionCall": {"name": "updateBookmark", "args": {"id": "xxxxxxxxxxxx", "parentID": "yyyyyyyyyyyy"}}}\`
+Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.`,
+  },
+  misc: {
+    example: async (activeGroups) => {
+      if (activeGroups.has("search") && activeGroups.has("navigation")) {
+        return `### Calling multiple tools at once.
 #### Making 2 searches in split 
 -   **User Prompt:** "Search for Japan in google and search for America in Youtube. Open them in vertical split."
 -   **Your First Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "Japan", "engineName": "Google", "where": "new tab"}}}\`
--   **Your Second Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "America", "engineName": "Youtube", "where": "vsplit"}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "America", "engineName": "Youtube", "where": "vsplit"}}}\``;
+      }
+      return "";
+    },
+  },
+};
 
-*(Available search engines: ${engineNames}. Default is '${defaultEngineName}'.)*
+const getTools = (groups) => {
+  if (!groups || !Array.isArray(groups) || groups.length === 0) {
+    // get all tools from all groups except 'misc'
+    return Object.entries(toolGroups).reduce((acc, [name, group]) => {
+      if (name !== "misc" && group.tools) {
+        return { ...acc, ...group.tools };
+      }
+      return acc;
+    }, {});
+  }
+  return groups.reduce((acc, groupName) => {
+    if (toolGroups[groupName] && toolGroups[groupName].tools) {
+      return { ...acc, ...toolGroups[groupName].tools };
+    }
+    return acc;
+  }, {});
+};
+
+const toolSet = getTools();
+
+const getToolSystemPrompt = async (groups) => {
+  try {
+    const activeGroupNames =
+      groups && Array.isArray(groups) && groups.length > 0
+        ? groups
+        : Object.keys(toolGroups).filter((g) => g !== "misc");
+    const activeGroups = new Set(activeGroupNames);
+
+    let availableTools = [];
+    let toolExamples = [];
+
+    for (const groupName of activeGroupNames) {
+      const group = toolGroups[groupName];
+      if (group) {
+        if (group.description) availableTools.push(await group.description());
+        if (group.example) toolExamples.push(await group.example(activeGroups));
+      }
+    }
+
+    if (toolGroups.misc && toolGroups.misc.example) {
+      const miscExample = await toolGroups.misc.example(activeGroups);
+      if (miscExample) toolExamples.push(miscExample);
+    }
+
+    let systemPrompt = `
+## Available Tools:
+${availableTools.join("\n")}
 `;
+
+    if (toolExamples.length > 0) {
+      systemPrompt += `
+## Tool Call Examples:
+These are just examples for you on how you can use tools calls, each example gives you some concept, the concept is not specific to single tool.
+
+${toolExamples.join("\n\n")}
+`;
+    }
+
+    return systemPrompt;
   } catch (error) {
     debugError("Error in getToolSystemPrompt:", error);
     return "";
   }
 };
 
-export { toolSet, getToolSystemPrompt };
+export { toolSet, getToolSystemPrompt, getTools };
