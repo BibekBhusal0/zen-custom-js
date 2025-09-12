@@ -64,42 +64,33 @@ const ZenCommandPalette = {
   },
 
   /**
-   * Checks if a command should be visible based on its `condition` property.
+   * Checks if a command should be visible based on its `condition` property
+   * and the state of its corresponding native <command> element.
    * @param {object} cmd - The command object to check.
    * @returns {boolean} True if the command should be visible, otherwise false.
    */
   commandIsVisible(cmd) {
     try {
-      let conditionPresent = false;
-      let conditionResult = true;
+      let isVisible = true;
 
-      // Evaluate the primary condition (cmd.condition) if it exists.
+      // First, evaluate an explicit `condition` if it exists.
       if (typeof cmd.condition === "function") {
-        conditionPresent = true;
-        conditionResult = !!cmd.condition();
+        isVisible = !!cmd.condition();
       } else if (cmd.condition !== undefined) {
-        conditionPresent = true;
-        conditionResult = cmd.condition !== false;
+        isVisible = cmd.condition !== false;
       }
 
-      // Check if it's a cmd_ fallback command (e.g., "cmd_newTab") and if its element exists.
-      const isCmdFallback = cmd.key.startsWith("cmd_") && !cmd.command;
-      const cmdFallbackElementExists = isCmdFallback ? !!document.getElementById(cmd.key) : false;
-
-      // If both a `condition` and a `cmd_` fallback are present, join them with AND.
-      if (conditionPresent && isCmdFallback) {
-        return conditionResult && cmdFallbackElementExists;
-      }
-      // If only a `condition` is present, return its result.
-      else if (conditionPresent) {
-        return conditionResult;
-      }
-      // If only a `cmd_` fallback is present, return its element existence check.
-      else if (isCmdFallback) {
-        return cmdFallbackElementExists;
+      // If the command relies on a native <command> element (has no custom function),
+      // its visibility is also determined by the element's state.
+      if (isVisible && !cmd.command) {
+        const commandEl = document.getElementById(cmd.key);
+        // The command is only visible if its element exists and is not disabled.
+        if (!commandEl || commandEl.disabled) {
+          isVisible = false;
+        }
       }
 
-      return true; // Default to visible if no condition is set.
+      return isVisible;
     } catch (e) {
       debugError("Error evaluating condition for", cmd && cmd.key, e);
       return false;
@@ -300,15 +291,14 @@ const ZenCommandPalette = {
         if (ret && typeof ret.then === "function") {
           ret.catch((e) => debugError("Command promise rejected:", e));
         }
-        // Fallback for commands that rely on a DOM element with a doCommand method.
-      } else if (cmd.key.startsWith("cmd_")) {
-        const commandEl = document.getElementById(cmd.key);
-        if (commandEl && typeof commandEl.doCommand === "function") {
-          debugLog("Executing command via doCommand fallback:", cmd.key);
-          commandEl.doCommand();
-        } else {
-          debugError("Fallback command element not found or has no doCommand:", cmd.key);
-        }
+        return; // Execution handled.
+      }
+
+      // Fallback for commands that rely on a DOM element.
+      const commandEl = document.getElementById(cmd.key);
+      if (commandEl && typeof commandEl.doCommand === "function") {
+        debugLog("Executing command via doCommand fallback:", cmd.key);
+        commandEl.doCommand();
       } else {
         debugError("Command has no executable action:", cmd.key);
       }
@@ -336,15 +326,19 @@ const ZenCommandPalette = {
 
   /**
    * Retrieves the keyboard shortcut string for a given command key.
-   * @param {string} commandKey - The key of the command (matches shortcut action).
+   * @param {string} commandKey - The key of the command (matches shortcut action or id).
    * @returns {string|null} The formatted shortcut string or null if not found.
    */
   getShortcutForCommand(commandKey) {
-    if (!window.gZenKeyboardShortcutsManager || !window.gZenKeyboardShortcutsManager._currentShortcutList) {
+    if (
+      !window.gZenKeyboardShortcutsManager ||
+      !window.gZenKeyboardShortcutsManager._currentShortcutList
+    ) {
       return null;
     }
+    // A command's key can map to a shortcut's action OR its id.
     const shortcut = window.gZenKeyboardShortcutsManager._currentShortcutList.find(
-      (s) => s.getAction() === commandKey && !s.isEmpty()
+      (s) => (s.getAction() === commandKey || s.getID() === commandKey) && !s.isEmpty()
     );
     return shortcut ? shortcut.toUserString() : null;
   },
