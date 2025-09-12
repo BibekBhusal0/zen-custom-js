@@ -128,6 +128,18 @@
   },
   {
     "type": "checkbox",
+    "property": "zen-command-palette.dynamic.container-tabs",
+    "label": "Enable Container Tab commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.active-tabs",
+    "label": "Enable Active Tab switching commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
     "property": "zen-command-palette.dynamic.about-pages",
     "label": "Enable `about:` page commands",
     "default": false

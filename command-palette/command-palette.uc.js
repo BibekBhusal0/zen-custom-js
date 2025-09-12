@@ -13,6 +13,24 @@ import {
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 
 const ZenCommandPalette = {
+  /**
+   * An array of dynamic command providers. Each provider is an object
+   * containing a function to generate commands and an optional preference for enabling/disabling.
+   * If `pref` is null, the commands will always be included.
+   * If `pref` is a string, commands will only be included if the corresponding value in `Prefs` is true.
+   * @type {Array<{func: Function, pref: string|null}>}
+   */
+  _dynamicCommandProviders: [
+    { func: generateAboutPageCommands, pref: Prefs.KEYS.DYNAMIC_ABOUT_PAGES },
+    { func: generateSearchEngineCommands, pref: Prefs.KEYS.DYNAMIC_SEARCH_ENGINES },
+    { func: generateExtensionCommands, pref: Prefs.KEYS.DYNAMIC_EXTENSIONS },
+    { func: generateWorkspaceCommands, pref: Prefs.KEYS.DYNAMIC_WORKSPACES },
+    { func: generateWorkspaceMoveCommands, pref: Prefs.KEYS.DYNAMIC_WORKSPACES },
+    { func: generateSineCommands, pref: Prefs.KEYS.DYNAMIC_SINE_MODS },
+    { func: generateFolderCommands, pref: Prefs.KEYS.DYNAMIC_FOLDERS },
+    { func: generateContainerTabCommands, pref: Prefs.KEYS.DYNAMIC_CONTAINER_TABS },
+    { func: generateActiveTabCommands, pref: Prefs.KEYS.DYNAMIC_ACTIVE_TABS },
+  ],
   staticCommands,
   provider: null,
   _recentCommands: [],
@@ -179,17 +197,17 @@ const ZenCommandPalette = {
     let liveCommands = [...staticCommands];
 
     const commandPromises = [];
-    if (Prefs.loadAboutPages) commandPromises.push(generateAboutPageCommands());
-    if (Prefs.loadSearchEngines) commandPromises.push(generateSearchEngineCommands());
-    if (Prefs.loadExtensions) commandPromises.push(generateExtensionCommands());
-    if (Prefs.loadWorkspaces) {
-      commandPromises.push(generateWorkspaceCommands());
-      commandPromises.push(generateWorkspaceMoveCommands());
+    for (const provider of this._dynamicCommandProviders) {
+      const shouldLoad =
+        provider.pref === null
+          ? true
+          : provider.pref
+          ? Prefs.getPref(provider.pref)
+          : false;
+      if (shouldLoad) {
+        commandPromises.push(provider.func());
+      }
     }
-    if (Prefs.loadSineMods) commandPromises.push(generateSineCommands());
-    if (Prefs.loadFolders) commandPromises.push(generateFolderCommands());
-    if (Prefs.loadContainerTabs) commandPromises.push(generateContainerTabCommands());
-    if (Prefs.loadActiveTabs) commandPromises.push(generateActiveTabCommands());
 
     const commandSets = await Promise.all(commandPromises);
     liveCommands.push(...commandSets.flat());
@@ -736,6 +754,19 @@ const ZenCommandPalette = {
       return removed;
     }
     return null;
+  },
+
+  /**
+   * Adds a new dynamic command provider to the palette.
+   * @param {Function} func - A function that returns a promise resolving to an array of command objects.
+   * @param {string|null} [pref=null] - The preference key that controls if this provider is active.
+   */
+  addDynamicCommandsProvider(func, pref) {
+    if (typeof func !== "function") {
+      debugError("addDynamicCommandsProvider: func must be a function.");
+      return;
+    }
+    this._dynamicCommandProviders.push({ func, pref: pref === undefined ? null : pref });
   },
 };
 
