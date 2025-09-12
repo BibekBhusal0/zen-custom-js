@@ -156,7 +156,15 @@
 
     #commands-tab-content {
       .search-bar-wrapper {
-        margin-bottom: 15px;
+        position: sticky;
+        top: -20px;
+        background: var(--modal-bg);
+        padding-bottom: 15px;
+        margin: -20px -20px 15px -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 20px;
+        z-index: 1;
       }
       .restart-note {
         font-size: 12px;
