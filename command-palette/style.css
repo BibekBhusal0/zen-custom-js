@@ -158,6 +158,15 @@
       .search-bar-wrapper {
         margin-bottom: 15px;
       }
+      .restart-note {
+        font-size: 12px;
+        opacity: 0.8;
+        text-align: center;
+        margin-bottom: 15px;
+        padding: 8px;
+        background-color: rgba(127, 127, 127, 0.1);
+        border-radius: 6px;
+      }
       #command-search-input {
         width: 100%;
         padding: 8px 12px;

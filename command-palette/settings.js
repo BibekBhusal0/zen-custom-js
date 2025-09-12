@@ -6,6 +6,7 @@ const SettingsModal = {
   _modalElement: null,
   _mainModule: null,
   _currentSettings: {},
+  _initialShortcuts: null,
   _currentShortcutTarget: null,
   _boundHandleShortcutKeyDown: null,
   _boundCloseOnEscape: null,
@@ -22,6 +23,7 @@ const SettingsModal = {
     }
 
     this._currentSettings = await Storage.loadSettings();
+    this._initialShortcuts = JSON.parse(JSON.stringify(this._currentSettings.customShortcuts || {}));
 
     this._modalElement = this._generateHtml();
     document.documentElement.appendChild(this._modalElement);
@@ -64,7 +66,7 @@ const SettingsModal = {
     modal.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
   },
 
-  async saveAndClose() {
+  async saveSettings() {
     // Collect settings from UI
     const newSettings = {
       hiddenCommands: [],
@@ -95,24 +97,32 @@ const SettingsModal = {
       Prefs.setPref(prefKey, value);
     });
 
+    const shortcutsChanged =
+      JSON.stringify(this._initialShortcuts) !== JSON.stringify(newSettings.customShortcuts);
+
     await Storage.saveSettings(newSettings);
+    await this._mainModule.loadUserConfig();
     this.hide();
 
-    // TODO: Figure out how to apply changes real time (without restart)
-    if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
-      window.ucAPI.showToast(
-        ["Settings Saved", "A restart is required for shortcut changes to take effect."],
-        1 // Restart preset
-      );
+    if (shortcutsChanged) {
+      // TODO: Figure out how to apply changes real time (without restart)
+      if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
+        window.ucAPI.showToast(
+          ["Keyboard Shortcuts Changed", "A restart is required for changes to take effect."],
+          1 // Restart preset
+        );
+      } else {
+        alert("Keyboard shortcuts changed. Please restart Zen for changes to take effect.");
+      }
     } else {
-      alert("Settings saved. Please restart Zen for changes to take effect.");
+      // this._mainModule.applyUserConfig();
     }
   },
 
   _attachEventListeners() {
     const modal = this._modalElement;
     modal.querySelector("#cmd-settings-close").addEventListener("click", () => this.hide());
-    modal.querySelector("#cmd-settings-save").addEventListener("click", () => this.saveAndClose());
+    modal.querySelector("#cmd-settings-save").addEventListener("click", () => this.saveSettings());
     modal.addEventListener("click", (e) => {
       if (e.target === modal) this.hide();
     });
@@ -418,7 +428,7 @@ const SettingsModal = {
             <h3>Command Palette Settings</h3>
             <div>
               <button id="cmd-settings-close" class="settings-close-btn">Close</button>
-              <button id="cmd-settings-save" class="settings-save-btn">Save & Close</button>
+              <button id="cmd-settings-save" class="settings-save-btn">Save Settings</button>
             </div>
           </div>
           <div class="cmd-settings-tabs">
@@ -431,6 +441,7 @@ const SettingsModal = {
               <div class="search-bar-wrapper">
                 <input type="text" id="command-search-input" placeholder="Search commands..." />
               </div>
+              <p class="restart-note">Changes to keyboard shortcuts require a browser restart to take effect.</p>
               <div id="commands-list"></div>
             </div>
             <div id="settings-tab-content" class="cmd-settings-tab-content" hidden>

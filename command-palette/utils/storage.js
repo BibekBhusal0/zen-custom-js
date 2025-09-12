@@ -63,9 +63,11 @@ export const Storage = {
     }
 
     try {
-      const formattedJson = JSON.stringify(newSettings, null, 2);
-      await IOUtils.write(path, formattedJson, { encoding: "utf-8", tmpPath: path + ".tmp" });
-      _settings = newSettings; 
+      const encoder = new TextEncoder();
+      const data = encoder.encode(JSON.stringify(newSettings, null, 2));
+      await IOUtils.write(path, data, { tmpPath: path + ".tmp" });
+
+      _settings = newSettings;
       debugLog("Command palette settings saved to", path);
     } catch (e) {
       debugError("Error saving command palette settings:", e);
