@@ -84,7 +84,7 @@ const ZenCommandPalette = {
   _recentCommands: [],
   MAX_RECENT_COMMANDS: 20,
   _userConfig: {},
-  _allCommandsCache: null,
+  _scrollObserver: null,
 
   safeStr(x) {
     return (x || "").toString();
@@ -561,7 +561,7 @@ const ZenCommandPalette = {
   },
 
   initScrollHandling() {
-    if (location.href !== "chrome://browser/content/browser.xhtml") {
+    if (location.href !== "chrome://browser/content/browser.xhtml" || this._scrollObserver) {
       return;
     }
     debugLog("Initializing scroll handling for command palette...");
@@ -570,47 +570,37 @@ const ZenCommandPalette = {
     const urlbar = document.getElementById("urlbar");
     const results = document.getElementById("urlbar-results");
 
-    const observer = new MutationObserver((mutations) => {
-      // Use the provider's state flag instead of gURLBar.value
-      const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
+    const observer = new MutationObserver(() => {
+      // Rescan all rows on any mutation to ensure shortcuts are always up-to-date.
+      for (const row of results.querySelectorAll(".urlbarView-row")) {
+        const shortcut = row.result?._zenShortcut;
+        const currentShortcut = row.getAttribute("data-zen-shortcut");
 
+        if (shortcut && shortcut !== currentShortcut) {
+          row.setAttribute("data-zen-shortcut", shortcut);
+        } else if (!shortcut && currentShortcut) {
+          row.removeAttribute("data-zen-shortcut");
+        }
+      }
+
+      // Handle scrolling to the selected item.
+      const selectedRow = results.querySelector(".urlbarView-row[selected]");
+      if (selectedRow) {
+        selectedRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+
+      // Toggle the scrollable container class based on provider state.
+      const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
       if (urlbar.hasAttribute("open")) {
         results.classList.toggle(SCROLLABLE_CLASS, isPrefixModeActive);
       } else {
         results.classList.remove(SCROLLABLE_CLASS);
       }
-
-      for (const mutation of mutations) {
-        if (mutation.type === "childList") {
-          for (const node of mutation.addedNodes) {
-            if (node.nodeType === Node.ELEMENT_NODE) {
-              const rows = node.classList.contains("urlbarView-row")
-                ? [node]
-                : node.querySelectorAll(".urlbarView-row");
-              for (const row of rows) {
-                const result = row.result;
-                if (result && result._zenShortcut) {
-                  row.setAttribute("data-zen-shortcut", result._zenShortcut);
-                }
-              }
-            }
-          }
-        }
-
-        if (mutation.attributeName === "selected" && mutation.target.hasAttribute("selected")) {
-          mutation.target.scrollIntoView({ block: "nearest", behavior: "smooth" });
-        }
-      }
     });
 
-    observer.observe(results, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["selected"],
-    });
-    observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
-    debugLog("Scroll handling and MutationObserver successfully initialized.");
+    observer.observe(results, { childList: true, subtree: true, attributes: true });
+    this._scrollObserver = observer;
+    debugLog("Unified MutationObserver successfully initialized.");
   },
 
   attachUrlbarCloseListeners() {
@@ -728,7 +718,7 @@ const ZenCommandPalette = {
     let keyset = document.getElementById(KEYSET_ID);
 
     if (keyset && keyset._zenCmdListenerAttached) {
-      keyset.removeEventListener("command", this._handleKeysetCommand);
+      keyset.removeEventListener("command", this._boundHandleKeysetCommand);
     } else if (!keyset) {
       keyset = document.createXULElement("keyset");
       keyset.id = KEYSET_ID;
@@ -755,7 +745,7 @@ const ZenCommandPalette = {
       keyset.appendChild(keyEl);
     }
 
-    keyset.addEventListener("command", this._handleKeysetCommand);
+    keyset.addEventListener("command", this._boundHandleKeysetCommand);
     keyset._zenCmdListenerAttached = true;
     debugLog("Applied custom shortcuts.");
   },
@@ -767,11 +757,21 @@ const ZenCommandPalette = {
     }
   },
 
+  destroy() {
+    if (this._scrollObserver) {
+      this._scrollObserver.disconnect();
+      this._scrollObserver = null;
+      debugLog("MutationObserver disconnected for window.");
+    }
+  },
+
   /**
    * Initializes the command palette by creating and registering the UrlbarProvider.
    * This is the main entry point for the script.
    */
   async init() {
+    this._boundHandleKeysetCommand = this._handleKeysetCommand.bind(this);
+
     this.Settings = SettingsModal;
     this.Settings.init(this);
 
@@ -780,6 +780,9 @@ const ZenCommandPalette = {
 
     this.initScrollHandling();
     this.attachUrlbarCloseListeners();
+
+    window.addEventListener("unload", () => this.destroy(), { once: true });
+
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
       "resource:///modules/UrlbarUtils.sys.mjs"
     );
