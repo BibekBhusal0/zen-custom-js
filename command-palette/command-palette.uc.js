@@ -11,6 +11,8 @@ import {
   generateActiveTabCommands,
 } from "./dynamic-commands.js";
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
+import { Storage } from "./utils/storage.js";
+import { SettingsModal } from "./settings.js";
 
 const ZenCommandPalette = {
   /**
@@ -21,20 +23,68 @@ const ZenCommandPalette = {
    * @type {Array<{func: Function, pref: string|null}>}
    */
   _dynamicCommandProviders: [
-    { func: generateAboutPageCommands, pref: Prefs.KEYS.DYNAMIC_ABOUT_PAGES },
-    { func: generateSearchEngineCommands, pref: Prefs.KEYS.DYNAMIC_SEARCH_ENGINES },
-    { func: generateExtensionCommands, pref: Prefs.KEYS.DYNAMIC_EXTENSIONS },
-    { func: generateWorkspaceCommands, pref: Prefs.KEYS.DYNAMIC_WORKSPACES },
-    { func: generateWorkspaceMoveCommands, pref: Prefs.KEYS.DYNAMIC_WORKSPACES },
-    { func: generateSineCommands, pref: Prefs.KEYS.DYNAMIC_SINE_MODS },
-    { func: generateFolderCommands, pref: Prefs.KEYS.DYNAMIC_FOLDERS },
-    { func: generateContainerTabCommands, pref: Prefs.KEYS.DYNAMIC_CONTAINER_TABS },
-    { func: generateActiveTabCommands, pref: Prefs.KEYS.DYNAMIC_ACTIVE_TABS },
+    {
+      func: generateAboutPageCommands,
+      pref: Prefs.KEYS.DYNAMIC_ABOUT_PAGES,
+      allowIcons: true,
+      allowShortcuts: true,
+    },
+    {
+      func: generateSearchEngineCommands,
+      pref: Prefs.KEYS.DYNAMIC_SEARCH_ENGINES,
+      allowIcons: false,
+      allowShortcuts: false,
+    },
+    {
+      func: generateExtensionCommands,
+      pref: Prefs.KEYS.DYNAMIC_EXTENSIONS,
+      allowIcons: false,
+      allowShortcuts: true,
+    },
+    {
+      func: generateWorkspaceCommands,
+      pref: Prefs.KEYS.DYNAMIC_WORKSPACES,
+      allowIcons: false,
+      allowShortcuts: true,
+    },
+    {
+      func: generateWorkspaceMoveCommands,
+      pref: Prefs.KEYS.DYNAMIC_WORKSPACES,
+      allowIcons: true,
+      allowShortcuts: true,
+    },
+    {
+      func: generateSineCommands,
+      pref: Prefs.KEYS.DYNAMIC_SINE_MODS,
+      allowIcons: false,
+      allowShortcuts: true,
+    },
+    {
+      func: generateFolderCommands,
+      pref: Prefs.KEYS.DYNAMIC_FOLDERS,
+      allowIcons: true,
+      allowShortcuts: true,
+    },
+    {
+      func: generateContainerTabCommands,
+      pref: Prefs.KEYS.DYNAMIC_CONTAINER_TABS,
+      allowIcons: false,
+      allowShortcuts: true,
+    },
+    {
+      func: generateActiveTabCommands,
+      pref: Prefs.KEYS.DYNAMIC_ACTIVE_TABS,
+      allowIcons: false,
+      allowShortcuts: false,
+    },
   ],
   staticCommands,
   provider: null,
+  Settings: null,
   _recentCommands: [],
   MAX_RECENT_COMMANDS: 20,
+  _userConfig: {},
+  _allCommandsCache: null,
 
   safeStr(x) {
     return (x || "").toString();
@@ -89,6 +139,9 @@ const ZenCommandPalette = {
    */
   commandIsVisible(cmd) {
     try {
+      if (this._userConfig.hiddenCommands?.includes(cmd.key)) {
+        return false;
+      }
       let isVisible = true;
 
       // First, evaluate an explicit `condition` if it exists.
@@ -194,7 +247,7 @@ const ZenCommandPalette = {
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
   async generateLiveCommands() {
-    let liveCommands = [...staticCommands];
+    let allCommands = [...staticCommands];
 
     const commandPromises = [];
     for (const provider of this._dynamicCommandProviders) {
@@ -210,7 +263,60 @@ const ZenCommandPalette = {
     }
 
     const commandSets = await Promise.all(commandPromises);
+    allCommands.push(...commandSets.flat());
+
+    // Apply custom icons from user config
+    for (const cmd of allCommands) {
+      if (this._userConfig.customIcons?.[cmd.key]) {
+        cmd.icon = this._userConfig.customIcons[cmd.key];
+      }
+    }
+
+    return allCommands;
+  },
+
+  _getProviderLabel(funcName) {
+    return (
+      funcName
+        .replace("generate", "")
+        .replace("Commands", "")
+        .replace(/([A-Z])/g, " $1")
+        .trim() + " Commands"
+    );
+  },
+
+  /**
+   * Generates a complete list of commands for configuration purposes,
+   * applying user customizations but not visibility conditions.
+   * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
+   */
+  async getAllCommandsForConfig() {
+    let liveCommands = [...staticCommands.map((c) => ({ ...c, isDynamic: false }))];
+
+    const commandPromises = [];
+    for (const provider of this._dynamicCommandProviders) {
+      const promise = provider.func().then((commands) => {
+        return commands.map((cmd) => ({
+          ...cmd,
+          isDynamic: true,
+          providerPref: provider.pref,
+          providerLabel: this._getProviderLabel(provider.func.name),
+          allowIcons: cmd.allowIcons ?? provider.allowIcons,
+          allowShortcuts: cmd.allowShortcuts ?? provider.allowShortcuts,
+        }));
+      });
+      commandPromises.push(promise);
+    }
+
+    const commandSets = await Promise.all(commandPromises);
     liveCommands.push(...commandSets.flat());
+
+    // Apply custom icons
+    for (const cmd of liveCommands) {
+      if (this._userConfig.customIcons?.[cmd.key]) {
+        cmd.icon = this._userConfig.customIcons[cmd.key];
+      }
+    }
 
     return liveCommands;
   },
@@ -326,6 +432,21 @@ const ZenCommandPalette = {
   },
 
   /**
+   * Finds a command by its key and executes it.
+   * @param {string} key - The key of the command to execute.
+   */
+  async executeCommandByKey(key) {
+    if (!key) return;
+    const allCommands = await this.generateLiveCommands();
+    const cmd = allCommands.find((c) => c.key === key);
+    if (cmd) {
+      this.executeCommandObject(cmd);
+    } else {
+      debugError(`executeCommandByKey: Command with key "${key}" not found.`);
+    }
+  },
+
+  /**
    * Finds the corresponding command object from a DOM element in the URL bar results.
    * @param {HTMLElement} row - The DOM element representing a result row.
    * @returns {object|null} The matched command object, or null if no match is found.
@@ -348,6 +469,12 @@ const ZenCommandPalette = {
    * @returns {string|null} The formatted shortcut string or null if not found.
    */
   getShortcutForCommand(commandKey) {
+    // First, check for user-defined custom shortcuts
+    if (this._userConfig.customShortcuts?.[commandKey]) {
+      return this._userConfig.customShortcuts[commandKey];
+    }
+
+    // Then, check Zen's native shortcut manager
     if (
       !window.gZenKeyboardShortcutsManager ||
       !window.gZenKeyboardShortcutsManager._currentShortcutList
@@ -508,10 +635,149 @@ const ZenCommandPalette = {
   },
 
   /**
+   * Loads user customizations from the settings file.
+   */
+  async loadUserConfig() {
+    Storage.reset();
+    this._userConfig = await Storage.loadSettings();
+    debugLog("User config loaded:", this._userConfig);
+  },
+
+  /**
+   * Applies user-configured settings, such as custom shortcuts.
+   */
+  applyUserConfig() {
+    this.applyCustomShortcuts();
+  },
+
+  /**
+   * Parses a shortcut string (e.g., "Ctrl+Shift+K") into an object for a <key> element.
+   * @param {string} str - The shortcut string.
+   * @returns {{key: string|null, keycode: string|null, modifiers: string}}
+   */
+  _parseShortcutString(str) {
+    const parts = str.split("+").map((p) => p.trim().toLowerCase());
+    const keyPart = parts.pop();
+
+    const modifiers = {
+      accel: false,
+      alt: false,
+      shift: false,
+      meta: false,
+    };
+
+    for (const part of parts) {
+      switch (part) {
+        case "ctrl":
+        case "control":
+          modifiers.accel = true;
+          break;
+        case "alt":
+        case "option":
+          modifiers.alt = true;
+          break;
+        case "shift":
+          modifiers.shift = true;
+          break;
+        case "cmd":
+        case "meta":
+        case "win":
+          modifiers.meta = true;
+          break;
+      }
+    }
+
+    // A rough mapping for special keys. Zen's `KEYCODE_MAP` is not exported.
+    const KEYCODE_MAP = {
+      f1: "VK_F1",
+      f2: "VK_F2",
+      f3: "VK_F3",
+      f4: "VK_F4",
+      f5: "VK_F5",
+      f6: "VK_F6",
+      f7: "VK_F7",
+      f8: "VK_F8",
+      f9: "VK_F9",
+      f10: "VK_F10",
+      f11: "VK_F11",
+      f12: "VK_F12",
+      enter: "VK_RETURN",
+      escape: "VK_ESCAPE",
+      delete: "VK_DELETE",
+      backspace: "VK_BACK",
+    };
+
+    const keycode = KEYCODE_MAP[keyPart] || null;
+    const key = keycode ? null : keyPart;
+
+    return {
+      key: key,
+      keycode: keycode,
+      modifiers: Object.entries(modifiers)
+        .filter(([, val]) => val)
+        .map(([mod]) => mod)
+        .join(","),
+    };
+  },
+
+  /**
+   * Creates <key> elements for custom shortcuts and adds them to the document.
+   */
+  applyCustomShortcuts() {
+    const KEYSET_ID = "zen-command-palette-keyset";
+    let keyset = document.getElementById(KEYSET_ID);
+
+    if (keyset && keyset._zenCmdListenerAttached) {
+      keyset.removeEventListener("command", this._handleKeysetCommand);
+    } else if (!keyset) {
+      keyset = document.createXULElement("keyset");
+      keyset.id = KEYSET_ID;
+      document.getElementById("mainKeyset").after(keyset);
+    }
+
+    keyset.replaceChildren();
+
+    if (!this._userConfig.customShortcuts) return;
+
+    for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
+      if (!shortcutStr) continue;
+
+      const { key, keycode, modifiers } = this._parseShortcutString(shortcutStr);
+      if (!key && !keycode) continue;
+
+      const keyEl = document.createXULElement("key");
+      keyEl.id = `zen-cmd-palette-shortcut-for-${commandKey}`;
+      if (key) keyEl.setAttribute("key", key);
+      if (keycode) keyEl.setAttribute("keycode", keycode);
+      if (modifiers) keyEl.setAttribute("modifiers", modifiers);
+      keyEl.setAttribute("data-command-key", commandKey);
+
+      keyset.appendChild(keyEl);
+    }
+
+    keyset.addEventListener("command", this._handleKeysetCommand);
+    keyset._zenCmdListenerAttached = true;
+    debugLog("Applied custom shortcuts.");
+  },
+
+  _handleKeysetCommand(event) {
+    const commandKey = event.target.getAttribute("data-command-key");
+    if (commandKey) {
+      ZenCommandPalette.executeCommandByKey(commandKey);
+    }
+  },
+
+  /**
    * Initializes the command palette by creating and registering the UrlbarProvider.
    * This is the main entry point for the script.
    */
-  init() {
+  async init() {
+    this.Settings = SettingsModal;
+    this.Settings.init(this);
+
+    await this.loadUserConfig();
+    this.applyUserConfig();
+
     this.initScrollHandling();
     this.attachUrlbarCloseListeners();
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
@@ -591,6 +857,7 @@ const ZenCommandPalette = {
 
         async startQuery(context, add) {
           try {
+            if (context.canceled) return;
             const input =
               context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
             const isPrefixSearch = input.trim().startsWith(":");
@@ -604,8 +871,10 @@ const ZenCommandPalette = {
               // Reset if the provider is active but no longer in prefix mode.
               Prefs.resetTempMaxRichResults();
             }
+            if (context.canceled) return;
 
             const liveCommands = await self.generateLiveCommands();
+            if (context.canceled) return;
             this._currentCommandList = liveCommands; // Store for use in findCommandFromDomRow
             const matches = self.filterCommandsByInput(input, liveCommands);
             this._lastResults = [];
@@ -646,6 +915,7 @@ const ZenCommandPalette = {
             }
 
             for (const [index, cmd] of matches.entries()) {
+              if (context.canceled) return;
               const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
                 suggestion: cmd.label,
                 title: cmd.label,
@@ -760,13 +1030,21 @@ const ZenCommandPalette = {
    * Adds a new dynamic command provider to the palette.
    * @param {Function} func - A function that returns a promise resolving to an array of command objects.
    * @param {string|null} [pref=null] - The preference key that controls if this provider is active.
+   * @param {object} [options] - Additional options.
+   * @param {boolean} [options.allowIcons=true] - Whether icons for these commands can be changed.
+   * @param {boolean} [options.allowShortcuts=true] - Whether shortcuts for these commands can be changed.
    */
-  addDynamicCommandsProvider(func, pref) {
+  addDynamicCommandsProvider(func, pref, { allowIcons = true, allowShortcuts = true } = {}) {
     if (typeof func !== "function") {
       debugError("addDynamicCommandsProvider: func must be a function.");
       return;
     }
-    this._dynamicCommandProviders.push({ func, pref: pref === undefined ? null : pref });
+    this._dynamicCommandProviders.push({
+      func,
+      pref: pref === undefined ? null : pref,
+      allowIcons,
+      allowShortcuts,
+    });
   },
 };
 

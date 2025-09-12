@@ -743,4 +743,27 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["restart", "reopen", "close", "clear", "cache"],
   },
+
+  // ----------- Command Palette Settings -----------
+  {
+    key: "command-palette:settings-commands",
+    label: "Command Palette: Configure Commands",
+    command: () => ZenCommandPalette.Settings.show("commands"),
+    icon: "chrome://browser/skin/zen-icons/settings.svg",
+    tags: ["command", "palette", "settings", "configure", "customize"],
+  },
+  {
+    key: "command-palette:settings-preferences",
+    label: "Command Palette: Preferences",
+    command: () => ZenCommandPalette.Settings.show("settings"),
+    icon: "chrome://browser/skin/zen-icons/settings.svg",
+    tags: ["command", "palette", "settings", "preferences", "options"],
+  },
+  {
+    key: "command-palette:settings-help",
+    label: "Command Palette: Help",
+    command: () => ZenCommandPalette.Settings.show("help"),
+    icon: "chrome://browser/skin/zen-icons/info.svg",
+    tags: ["command", "palette", "help", "documentation", "support"],
+  },
 ];

@@ -167,6 +167,7 @@ export async function generateContainerTabCommands() {
       const currentTab = gBrowser.selectedTab;
       return currentTab && (currentTab.userContextId || 0) !== 0;
     },
+    allowIcons: true, // Allow user to change the default tab icon
   });
 
   const identities = ContextualIdentityService.getPublicIdentities();

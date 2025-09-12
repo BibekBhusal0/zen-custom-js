@@ -16,6 +16,7 @@ export const Prefs = {
     DYNAMIC_FOLDERS: "zen-command-palette.dynamic.folders",
     DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
     DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
+    COMMAND_SETTINGS_FILE: "zen-command-palette.settings-file-path",
   },
 
   defaultValues: {},
@@ -82,6 +83,9 @@ export const Prefs = {
   get loadActiveTabs() {
     return this.getPref(this.KEYS.DYNAMIC_ACTIVE_TABS);
   },
+  get commandSettingsFile() {
+    return this.getPref(this.KEYS.COMMAND_SETTINGS_FILE);
+  },
 
   setTempMaxRichResults(value) {
     if (_originalMaxResults === null) {
@@ -113,6 +117,7 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
   [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: true,
   [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: true,
+  [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
 };
 
 export const debugLog = (...args) => {
