@@ -85,6 +85,7 @@ const ZenCommandPalette = {
   MAX_RECENT_COMMANDS: 20,
   _userConfig: {},
   _scrollObserver: null,
+  _boundHandleKeysetCommand: null,
 
   safeStr(x) {
     return (x || "").toString();
@@ -571,7 +572,8 @@ const ZenCommandPalette = {
     const results = document.getElementById("urlbar-results");
 
     const observer = new MutationObserver(() => {
-      // Rescan all rows on any mutation to ensure shortcuts are always up-to-date.
+      // On any mutation within the results panel, just rescan all rows.
+      // It's the most robust way to handle row reuse and rapid updates.
       for (const row of results.querySelectorAll(".urlbarView-row")) {
         const shortcut = row.result?._zenShortcut;
         const currentShortcut = row.getAttribute("data-zen-shortcut");
@@ -589,7 +591,7 @@ const ZenCommandPalette = {
         selectedRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
 
-      // Toggle the scrollable container class based on provider state.
+      // Handle the container class
       const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
       if (urlbar.hasAttribute("open")) {
         results.classList.toggle(SCROLLABLE_CLASS, isPrefixModeActive);
@@ -753,7 +755,7 @@ const ZenCommandPalette = {
   _handleKeysetCommand(event) {
     const commandKey = event.target.getAttribute("data-command-key");
     if (commandKey) {
-      ZenCommandPalette.executeCommandByKey(commandKey);
+      this.executeCommandByKey(commandKey);
     }
   },
 

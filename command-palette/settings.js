@@ -96,9 +96,17 @@ const SettingsModal = {
     });
 
     await Storage.saveSettings(newSettings);
-    await this._mainModule.loadUserConfig();
-    this._mainModule.applyUserConfig();
     this.hide();
+
+    // TODO: Figure out how to apply changes real time (without restart)
+    if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
+      window.ucAPI.showToast(
+        ["Settings Saved", "A restart is required for shortcut changes to take effect."],
+        1 // Restart preset
+      );
+    } else {
+      alert("Settings saved. Please restart Zen for changes to take effect.");
+    }
   },
 
   _attachEventListeners() {
