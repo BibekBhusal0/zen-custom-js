@@ -7,7 +7,7 @@
 
   /* Inverting color of favion */
   .urlbarView-favicon {
-    &[src^="data:image/svg+xml"]:not([src*="#noinvert"]) {
+    &[src^="data:image/svg+xml"][src*="#invert"] {
       @media (prefers-color-scheme: dark) {
         filter: invert();
       }
