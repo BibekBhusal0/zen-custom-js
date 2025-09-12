@@ -571,36 +571,45 @@ const ZenCommandPalette = {
     const urlbar = document.getElementById("urlbar");
     const results = document.getElementById("urlbar-results");
 
+    let isHandlingMutations = false;
     const observer = new MutationObserver(() => {
-      // On any mutation within the results panel, just rescan all rows.
-      // It's the most robust way to handle row reuse and rapid updates.
+      if (isHandlingMutations) return;
+      isHandlingMutations = true;
+
+      // Handle shortcut attributes
       for (const row of results.querySelectorAll(".urlbarView-row")) {
         const shortcut = row.result?._zenShortcut;
-        const currentShortcut = row.getAttribute("data-zen-shortcut");
-
-        if (shortcut && shortcut !== currentShortcut) {
-          row.setAttribute("data-zen-shortcut", shortcut);
-        } else if (!shortcut && currentShortcut) {
-          row.removeAttribute("data-zen-shortcut");
+        if (shortcut !== (row.dataset.zenShortcut || null)) {
+          if (shortcut) {
+            row.dataset.zenShortcut = shortcut;
+          } else {
+            delete row.dataset.zenShortcut;
+          }
         }
       }
 
-      // Handle scrolling to the selected item.
+      // Handle scrolling
       const selectedRow = results.querySelector(".urlbarView-row[selected]");
       if (selectedRow) {
         selectedRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
       }
 
-      // Handle the container class
-      const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
-      if (urlbar.hasAttribute("open")) {
-        results.classList.toggle(SCROLLABLE_CLASS, isPrefixModeActive);
-      } else {
-        results.classList.remove(SCROLLABLE_CLASS);
-      }
+      // Handle container class
+      const isPrefixModeActive = this.provider?._isInPrefixMode ?? false;
+      results.classList.toggle(SCROLLABLE_CLASS, urlbar.hasAttribute("open") && isPrefixModeActive);
+
+      // Use a microtask to reset the flag after the current mutation processing is complete.
+      queueMicrotask(() => {
+        isHandlingMutations = false;
+      });
     });
 
-    observer.observe(results, { childList: true, subtree: true, attributes: true });
+    observer.observe(results, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+    observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
     this._scrollObserver = observer;
     debugLog("Unified MutationObserver successfully initialized.");
   },
