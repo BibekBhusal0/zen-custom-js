@@ -5,6 +5,7 @@
     display: none;
   }
 
+  /* Inverting color of favion */
   .urlbarView-favicon {
     &[src^="data:image/svg+xml"]:not([src*="#noinvert"]) {
       @media (prefers-color-scheme: dark) {
@@ -18,11 +19,26 @@
   --zen-command-visible-results: 5.5;
 }
 
+/* Making URL bar scrollable */
 #urlbar-results {
   scrollbar-width: thin !important;
   scrollbar-color: var(--zen-primary-color) transparent !important;
+
   &.zen-command-scrollable {
     overflow-y: auto !important;
     max-height: calc(var(--zen-command-visible-results) * 52px) !important;
+  }
+}
+
+.urlbarView-row[data-zen-shortcut] {
+  position: relative !important;
+
+  &::after {
+    content: attr(data-zen-shortcut);
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
   }
 }

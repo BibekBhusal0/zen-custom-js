@@ -335,6 +335,21 @@ const ZenCommandPalette = {
   },
 
   /**
+   * Retrieves the keyboard shortcut string for a given command key.
+   * @param {string} commandKey - The key of the command (matches shortcut action).
+   * @returns {string|null} The formatted shortcut string or null if not found.
+   */
+  getShortcutForCommand(commandKey) {
+    if (!window.gZenKeyboardShortcutsManager || !window.gZenKeyboardShortcutsManager._currentShortcutList) {
+      return null;
+    }
+    const shortcut = window.gZenKeyboardShortcutsManager._currentShortcutList.find(
+      (s) => s.getAction() === commandKey && !s.isEmpty()
+    );
+    return shortcut ? shortcut.toUserString() : null;
+  },
+
+  /**
    * Attaches 'click' and 'keydown' event listeners to the URL bar popup.
    * These listeners are responsible for executing commands and preventing default browser actions.
    */
@@ -427,6 +442,22 @@ const ZenCommandPalette = {
       }
 
       for (const mutation of mutations) {
+        if (mutation.type === "childList") {
+          for (const node of mutation.addedNodes) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const rows = node.classList.contains("urlbarView-row")
+                ? [node]
+                : node.querySelectorAll(".urlbarView-row");
+              for (const row of rows) {
+                const result = row.result;
+                if (result && result._zenShortcut) {
+                  row.setAttribute("data-zen-shortcut", result._zenShortcut);
+                }
+              }
+            }
+          }
+        }
+
         if (mutation.attributeName === "selected" && mutation.target.hasAttribute("selected")) {
           mutation.target.scrollIntoView({ block: "nearest", behavior: "smooth" });
         }
@@ -624,6 +655,10 @@ const ZenCommandPalette = {
               }
 
               result._zenCmd = cmd;
+              const shortcut = self.getShortcutForCommand(cmd.key);
+              if (shortcut) {
+                result._zenShortcut = shortcut;
+              }
               result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
               result.providerName = this.name;
               result.providerType = this.type;
