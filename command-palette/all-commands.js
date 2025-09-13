@@ -420,7 +420,7 @@ export const commands = [
       }, 500);
     },
     icon: "chrome://browser/skin/zen-icons/close-all.svg",
-    tags: ["unload", "sleep"],
+    tags: ["unload", "sleep", "unload", "unload"], // include multiple tags so that this appears on top when typed `unload`
   },
   {
     key: "unload-other-tabs",
@@ -431,7 +431,7 @@ export const commands = [
       }
     },
     icon: "chrome://browser/skin/zen-icons/close-all.svg",
-    tags: ["unload", "sleep"],
+    tags: ["unload", "sleep" ],
   },
 
   // ----------- Window Management -----------
