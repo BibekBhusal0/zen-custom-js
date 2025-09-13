@@ -420,7 +420,8 @@ export const commands = [
       }, 500);
     },
     icon: "chrome://browser/skin/zen-icons/close-all.svg",
-    tags: ["unload", "sleep", "unload", "unload"], // include multiple tags so that this appears on top when typed `unload`
+    // HACK:  include multiple tags so that this appears on top when typed `unload`
+    tags: ["unload", "sleep", "unload", "unload"], 
   },
   {
     key: "unload-other-tabs",

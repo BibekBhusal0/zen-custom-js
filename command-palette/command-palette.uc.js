@@ -212,6 +212,7 @@ const ZenCommandPalette = {
       return 90 + queryLen;
     }
 
+    // 4. Calculate score based on character match
     let score = 0;
     let queryIndex = 0;
     let lastMatchIndex = -1;
@@ -856,7 +857,8 @@ const ZenCommandPalette = {
         _isInPrefixMode = false;
 
         get name() {
-          return "TestProvider"; // setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
+          // HACK: setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
+          return "TestProvider"; 
         }
         get type() {
           return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
