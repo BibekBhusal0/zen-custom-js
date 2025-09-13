@@ -9,15 +9,15 @@
   "author": "Bibek Bhusal",
   "license": "MIT",
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.15",
-    "@ai-sdk/google": "^2.0.13",
-    "@ai-sdk/mistral": "^2.0.13",
-    "@ai-sdk/openai": "^2.0.28",
-    "@ai-sdk/perplexity": "^2.0.8",
-    "@ai-sdk/xai": "^2.0.16",
-    "ai": "^5.0.40",
+    "@ai-sdk/anthropic": "^2.0.16",
+    "@ai-sdk/google": "^2.0.14",
+    "@ai-sdk/mistral": "^2.0.14",
+    "@ai-sdk/openai": "^2.0.30",
+    "@ai-sdk/perplexity": "^2.0.9",
+    "@ai-sdk/xai": "^2.0.18",
+    "ai": "^5.0.44",
     "ollama-ai-provider": "^1.2.0",
-    "zod": "^4.1.7"
+    "zod": "^4.1.8"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
