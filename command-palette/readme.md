@@ -18,7 +18,7 @@
 - 🛠️ **Extensible API**: User scripts and browser modifications can easily add their own commands, making the palette a central hub for all your custom actions.
 - 🎨 **Highly Customizable**: Offers customizable keyboard shortcuts, widgets, icons, dynamic commands, and more.
 
-## ⚙️ Instaillation Guide
+## ⚙️ Installation Guide
 
 1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).  
 2. Restart Zen Browser.  
@@ -34,22 +34,24 @@ The Zen Command Palette can be configured via its own settings. Simply type `: C
 
 Here are all Preferences which can be configured from `about:config` (also from settings UI)
 
-| Preference Key                               | Type    | Default | Description                                                               |
-| -------------------------------------------- | ------- | ------- | ------------------------------------------------------------------------- |
-| `zen-command-palette.prefix-required`        | Boolean | `false` | If `true`, commands only appear when the query starts with `:`.           |
-| `zen-command-palette.debug-mode`             | Boolean | `false` | Enables detailed logging in the Browser Console for troubleshooting.      |
-| `zen-command-palette.max-commands`           | Integer | `3`     | The maximum number of command results to display at once (without `:`).   |
-| `zen-command-palette.max-commands-prefix`    | Integer | `50`    | The maximum number of command results to display with the `:` prefix.     |
-| `zen-command-palette.min-query-length`       | Integer | `3`     | Minimum characters needed to show commands (unless using the `:` prefix). |
-| `zen-command-palette.min-score-threshold`    | Integer | `20`    | The minimum fuzzy-search score required for a command to be shown.        |
-| `zen-command-palette.dynamic.about-pages`    | Boolean | `false` | Automatically generate commands for `about:` pages.                       |
-| `zen-command-palette.dynamic.search-engines` | Boolean | `true`  | Automatically generate commands for your installed search engines.        |
-| `zen-command-palette.dynamic.extensions`     | Boolean | `true`  | Automatically generate commands for extensions with an options page.      |
-| `zen-command-palette.dynamic.workspaces`     | Boolean | `true`  | Automatically generate commands for switching/moving tabs to Workspaces.  |
-| `zen-command-palette.dynamic.folders`        | Boolean | `true`  | Automatically generate commands for managing Folders.                     |
-| `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`  | Automatically generate commands for uninstalling sine mods.    |
-| `zen-command-palette.dynamic.container-tabs` | Boolean | `true`  | Automatically generate commands for moving tabs between containers.       |
-| `zen-command-palette.dynamic.active-tabs`    | Boolean | `true`  | Automatically generate commands for switching between active tabs.        |
+| Preference Key                               | Type    | Default                             | Description                                                               |
+| -------------------------------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------- |
+| `zen-command-palette.prefix-required`        | Boolean | `false`                             | If `true`, commands only appear when the query starts with `:`.           |
+| `zen-command-palette.debug-mode`             | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.      |
+| `zen-command-palette.max-commands`           | Integer | `3`                                 | The maximum number of command results to display at once (without `:`).   |
+| `zen-command-palette.max-commands-prefix`    | Integer | `50`                                | The maximum number of command results to display with the `:` prefix.     |
+| `zen-command-palette.min-query-length`       | Integer | `3`                                 | Minimum characters needed to show commands (unless using the `:` prefix). |
+| `zen-command-palette.min-score-threshold`    | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.        |
+| `zen-command-palette.dynamic.about-pages`    | Boolean | `false`                             | Automatically generate commands for `about:` pages.                       |
+| `zen-command-palette.dynamic.search-engines` | Boolean | `true`                              | Automatically generate commands for your installed search engines.        |
+| `zen-command-palette.dynamic.extensions`     | Boolean | `false`                             | Automatically generate commands for extensions with an options page.      |
+| `zen-command-palette.dynamic.workspaces`     | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.  |
+| `zen-command-palette.dynamic.folders`        | Boolean | `true`                              | Automatically generate commands for managing Folders.                     |
+| `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`                              | Automatically generate commands for uninstalling sine mods.    |
+| `zen-command-palette.dynamic.container-tabs` | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.       |
+| `zen-command-palette.dynamic.active-tabs`    | Boolean | `false`                             | Automatically generate commands for switching between active tabs.        |
+| `zen-command-palette.settings-file-path`     | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
+
 
 ## 📋 Available Commands
 
@@ -189,7 +191,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 
 ## 🔧 Extensibility
 
-Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands. I encourage all mod creators to incorporate this into their own mods (espically ones with JS).
+Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands. I encourage all mod creators to incorporate this into their own mods (especially ones with JS).
 
 ### Adding a Static Command
 
@@ -200,10 +202,10 @@ Static commands are added once and are always available, unless their `condition
 if (window.ZenCommandPalette) {
   window.ZenCommandPalette.addCommand({
     key: "open-reddit",
-    label: "Open Redit",
+    label: "Open Reddit",
     command: () => {
       // Your mod's reload logic here. This function is executed when the command is selected.
-      // It can be synchronous or asyncronous
+      // It can be synchronous or asynchronous
       openTrustedLinkIn("https://reddit.com", "tab");
     },
     icon: "https://www.redditstatic.com/shreddit/assets/favicon/64x64.png", // Optional: URL to an icon.
@@ -252,10 +254,10 @@ I am not making up the questions. I have been asked these questions in reddit an
 </details>
 
 <details>
-<summary><h3>Will this feture be natively available in Zen browser.</h3></summary>
-    Depends on how zen team prioratize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
+<summary><h3>Will this feature be natively available in Zen browser.</h3></summary>
+    Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
 
-    This project has gotten enough attention that creator of zen has contacted me. Some functions from this projects used in Zen Browser which might mean command paletee will be available sooner than we think. I am absolutely greatful to be contributer of Zen Browser and would love to help any way I can to make Zen a better Browser.
+    This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
 </details>
 
 ## 🙏 Credits and Acknowledgements
