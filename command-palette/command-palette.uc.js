@@ -262,7 +262,9 @@ const ZenCommandPalette = {
       const shouldLoad =
         provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
       if (shouldLoad) {
+        try{
         commandPromises.push(provider.func());
+        }catch{}
       }
     }
 
