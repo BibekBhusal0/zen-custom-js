@@ -6,11 +6,10 @@
 // ==/UserScript==
 
 
-(function(factory) {
+(function (factory) {
   typeof define === 'function' && define.amd ? define(factory) :
-    factory();
-})((function() {
-  'use strict';
+  factory();
+})((function () { 'use strict';
 
   const svgToUrl = (iconSVG, invert = true) => {
     const marker = invert ? "#invert" : "";
@@ -1111,9 +1110,10 @@
     }
 
     identities.forEach((identity) => {
+      const name = identity.name || identity.l10nId;
       commands.push({
         key: `container-tab:open:${identity.userContextId}`,
-        label: `Open Tab in: ${identity.name}`,
+        label: `Open Tab in: ${name}`,
         command: () => {
           const tabToMove = gBrowser.selectedTab;
           if (tabToMove && tabToMove.linkedBrowser) {
@@ -1129,7 +1129,7 @@
         // TODO: figure out how to get container Icon
         // Generate a colored circle icon dynamically using the container's color.
         icon: svgToUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${identity.color}"><circle r="5" cx="8" cy="8" /></svg>`),
-        tags: ["container", "tab", "open", identity.name.toLowerCase()],
+        tags: ["container", "tab", "open", name.toLowerCase()],
         condition: () => {
           const currentTab = gBrowser.selectedTab;
           // Show command only if the tab is not already in this container.
@@ -1745,15 +1745,16 @@
         )}" readonly />`
         : "";
       const visibilityToggleHtml = !cmd.isDynamic
-        ? `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${!isHidden ? "checked" : ""
+        ? `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
+          !isHidden ? "checked" : ""
         } />`
         : "";
 
       const itemHtml = `
       <div class="command-item" data-key="${escapeXmlAttribute(cmd.key)}">
         <img src="${escapeXmlAttribute(
-        customIcon || cmd.icon || "chrome://browser/skin/trending.svg"
-      )}" class="command-icon ${allowIcons ? "editable" : ""}" />
+          customIcon || cmd.icon || "chrome://browser/skin/trending.svg"
+        )}" class="command-icon ${allowIcons ? "editable" : ""}" />
         <span class="command-label">${escapeXmlAttribute(cmd.label)}</span>
         <div class="command-controls">
             ${shortcutInputHtml}
@@ -1901,8 +1902,9 @@
             itemHtml = `
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
-              <input type="checkbox" id="${safeId}" data-pref="${item.key}" ${currentValue ? "checked" : ""
-              } />
+              <input type="checkbox" id="${safeId}" data-pref="${item.key}" ${
+            currentValue ? "checked" : ""
+          } />
             </div>
           `;
           } else if (item.type === "number") {
@@ -1910,8 +1912,8 @@
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
               <input type="number" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
-              currentValue
-            )}" />
+            currentValue
+          )}" />
             </div>
           `;
           }
@@ -2221,8 +2223,8 @@
           provider.pref === null
             ? true
             : provider.pref
-              ? Prefs.getPref(provider.pref)
-              : false;
+            ? Prefs.getPref(provider.pref)
+            : false;
         if (shouldLoad) {
           commandPromises.push(provider.func());
         }
@@ -2807,8 +2809,9 @@
                 !!context.searchMode?.engineName || !!gURLBar.searchMode?.engineName;
               if (inSearchMode) {
                 debugLog(
-                  `Provider inactivated by search mode: ${context.searchMode?.engineName || gURLBar.searchMode?.engineName
-                  }`
+                  `Provider inactivated by search mode: ${
+                  context.searchMode?.engineName || gURLBar.searchMode?.engineName
+                }`
                 );
                 return false;
               }
