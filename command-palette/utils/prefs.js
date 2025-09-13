@@ -16,6 +16,7 @@ export const Prefs = {
     DYNAMIC_FOLDERS: "zen-command-palette.dynamic.folders",
     DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
     DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
+    DYNAMIC_UNLOAD_TABS: "zen-command-palette.dynamic.unload-tab",
     COMMAND_SETTINGS_FILE: "zen-command-palette.settings-file-path",
   },
 
@@ -117,6 +118,7 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
   [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
   [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
+  [Prefs.KEYS.DYNAMIC_UNLOAD_TABS]: false,
   [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
 };
 

@@ -49,6 +49,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`                              | Automatically generate commands for uninstalling sine mods.    |
 | `zen-command-palette.dynamic.container-tabs` | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.       |
 | `zen-command-palette.dynamic.active-tabs`    | Boolean | `false`                             | Automatically generate commands for switching between active tabs.        |
+| `zen-command-palette.dynamic.unload-tab`    | Boolean | `false`                             | Automatically generate commands for unloading active tabs.        |
 | `zen-command-palette.settings-file-path`     | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
 
 
@@ -182,6 +183,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 - **Extension Options**: `Extension Options: [Addon Name]` to open the options page for an extension.
 - **Container Tabs**: `Open Tab in: [Container Name]` to move the current tab to a different container.
 - **Active Tabs**: `Switch to Tab: [Tab Title]` to quickly switch to any open tab, even across workspaces.
+- **Unload Tabs**: `Unload Tab: [Tab Title]` to quickly unload tab (to save memory).
 - **Workspaces**: `Switch to workspace: [Workspace Name]` and `Move Tab to Workspace: [Workspace Name]`.
 - **Sine Mods**: `Uninstall Sine Mod: [Mod Name]`.
 - **Folders**: `Delete Folder: [Folder Name]` and `Move Tab to Folder: [Folder Name]`.

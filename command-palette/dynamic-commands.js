@@ -253,6 +253,40 @@ export async function generateActiveTabCommands() {
 }
 
 /**
+ * Generates commands for unloading to tabs.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of active tab commands.
+ */
+export async function generateUnloadTabCommands() {
+  const commands = [];
+  // Use gZenWorkspaces.allStoredTabs to get tabs from all workspaces in the current window.
+  const tabs = window.gZenWorkspaces?.workspaceEnabled
+    ? window.gZenWorkspaces.allStoredTabs
+    : Array.from(gBrowser.tabs);
+
+  for (const tab of tabs) {
+    // Skip already unloaded tabs
+    if (tab.hasAttribute("pending")) {
+      continue;
+    }
+
+    // Skip the empty new tab placeholder used by Zen.
+    if (tab.hasAttribute("zen-empty-tab") || !tab.linkedBrowser ) {
+      continue;
+    }
+
+    commands.push({
+      key: `unload-tab:${tab.linkedBrowser.outerWindowID}-${tab.linkedBrowser.tabId}`,
+      label: `Unload tab: ${tab.label}`,
+      command: () => gBrowser.discardBrowser(tab),
+      condition: () => gBrowser.selectedTab !== tab,
+      icon: tab.image || "chrome://browser/skin/zen-icons/close-all.svg",
+      tags: ["unload", "sleep", tab.label.toLowerCase()],
+    });
+  }
+  return commands;
+}
+
+/**
  * Generates commands for switching between Zen Workspaces.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of workspace commands.
  */

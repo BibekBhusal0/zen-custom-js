@@ -434,6 +434,11 @@ const SettingsModal = {
             label: "Generate commands for active tabs",
             type: "bool",
           },
+          {
+            key: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
+            label: "Generate commands for unload tabs",
+            type: "bool",
+          },
         ],
       },
     ];

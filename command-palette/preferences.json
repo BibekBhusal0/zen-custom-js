@@ -140,6 +140,12 @@
   },
   {
     "type": "checkbox",
+    "property": "zen-command-palette.dynamic.unload-tab",
+    "label": "Enable Active Tab unloading commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
     "property": "zen-command-palette.dynamic.about-pages",
     "label": "Enable `about:` page commands",
     "default": false

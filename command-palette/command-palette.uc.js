@@ -9,6 +9,7 @@ import {
   generateWorkspaceMoveCommands,
   generateContainerTabCommands,
   generateActiveTabCommands,
+  generateUnloadTabCommands
 } from "./dynamic-commands.js";
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
@@ -74,6 +75,12 @@ const ZenCommandPalette = {
     {
       func: generateActiveTabCommands,
       pref: Prefs.KEYS.DYNAMIC_ACTIVE_TABS,
+      allowIcons: false,
+      allowShortcuts: false,
+    },
+    {
+      func: generateUnloadTabCommands,
+      pref: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
       allowIcons: false,
       allowShortcuts: false,
     },
