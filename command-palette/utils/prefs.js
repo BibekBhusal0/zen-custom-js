@@ -14,6 +14,10 @@ export const Prefs = {
     DYNAMIC_WORKSPACES: "zen-command-palette.dynamic.workspaces",
     DYNAMIC_SINE_MODS: "zen-command-palette.dynamic.sine-mods",
     DYNAMIC_FOLDERS: "zen-command-palette.dynamic.folders",
+    DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
+    DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
+    DYNAMIC_UNLOAD_TABS: "zen-command-palette.dynamic.unload-tab",
+    COMMAND_SETTINGS_FILE: "zen-command-palette.settings-file-path",
   },
 
   defaultValues: {},
@@ -74,6 +78,15 @@ export const Prefs = {
   get loadFolders() {
     return this.getPref(this.KEYS.DYNAMIC_FOLDERS);
   },
+  get loadContainerTabs() {
+    return this.getPref(this.KEYS.DYNAMIC_CONTAINER_TABS);
+  },
+  get loadActiveTabs() {
+    return this.getPref(this.KEYS.DYNAMIC_ACTIVE_TABS);
+  },
+  get commandSettingsFile() {
+    return this.getPref(this.KEYS.COMMAND_SETTINGS_FILE);
+  },
 
   setTempMaxRichResults(value) {
     if (_originalMaxResults === null) {
@@ -96,13 +109,17 @@ Prefs.defaultValues = {
   [Prefs.KEYS.MAX_COMMANDS]: 3,
   [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
   [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
-  [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 20,
+  [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 150,
   [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
   [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
-  [Prefs.KEYS.DYNAMIC_EXTENSIONS]: true,
+  [Prefs.KEYS.DYNAMIC_EXTENSIONS]: false,
   [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
   [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
   [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
+  [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
+  [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
+  [Prefs.KEYS.DYNAMIC_UNLOAD_TABS]: false,
+  [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
 };
 
 export const debugLog = (...args) => {

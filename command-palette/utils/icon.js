@@ -1,5 +1,5 @@
 export const svgToUrl = (iconSVG, invert = true) => {
-  const marker = invert ? "" : "#noinvert";
+  const marker = invert ? "#invert" : "";
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconSVG)}${marker}`;
 };
 
