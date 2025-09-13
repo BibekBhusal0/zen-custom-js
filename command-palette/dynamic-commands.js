@@ -313,7 +313,7 @@ export async function generateSineCommands() {
       }
     }
   } else {
-    console.log(
+    debugLog(
       "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
     );
   }
