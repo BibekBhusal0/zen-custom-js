@@ -154,14 +154,14 @@
       margin-bottom: 10px;
     }
 
-    &:has(#pref-extension\.browse-bot\.citations-enabled:checked) {
-      .setting-item:has(#pref-extension\.browse-bot\.stream-enabled) {
+    &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked) {
+      .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
         display: none !important;
       }
     }
 
-    &:has(#pref-extension\.browse-bot\.citations-enabled:checked)
-      :has(#pref-extension\.browse-bot\.god-mode:checked) {
+    &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked)
+      :has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:checked) {
       #citations-god-mode-warning {
         display: block !important;
       }
@@ -173,13 +173,13 @@
       }
     }
 
-    .setting-item:has(#pref-extension\.browse-bot\.conform-before-tool-call),
+    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
     .setting-item:has(#pref-max-tool-calls) {
       display: none;
     }
 
-    :has(#pref-extension\.browse-bot\.god-mode:checked) {
-      .setting-item:has(#pref-extension\.browse-bot\.conform-before-tool-call),
+    :has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:checked) {
+      .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
       .setting-item:has(#pref-max-tool-calls) {
         display: flex;
       }
