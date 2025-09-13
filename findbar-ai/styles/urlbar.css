@@ -1,0 +1,45 @@
+#urlbar {
+&:not([open]) #urlbar-ask-ai-button {
+    display: none !important;
+  }
+  #urlbar-ask-ai-button {
+    width: 24px !important;
+    height: 24px !important;
+    appearance: none !important;
+    outline: none !important;
+    border: none !important;
+    border-radius: 5px !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    justify-content: center !important;
+    align-content: center !important;
+    background-color: transparent !important;
+    -moz-context-properties: fill !important;
+    fill: light-dark(black, white) !important;
+    &:hover {
+      background: var(--tab-hover-background-color) !important;
+      border: none !important;
+    }
+  }
+  &[ai-mode-active="true"] {
+    #urlbar-ask-ai-button {
+      display: none !important;
+    }
+
+    #identity-box {
+      visibility: hidden;
+      width: 15px !important;
+      &::before {
+        content: url("chrome://browser/skin/trending.svg") !important;
+        -moz-context-properties: fill !important;
+        padding-left: 5px !important;
+        padding-top: 3px !important;
+        fill: light-dark(black, white) !important;
+
+        display: block;
+        visibility: visible;
+      }
+    }
+  }
+  
+}
