@@ -106,7 +106,7 @@
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.extensions",
     "label": "Enable Extension Options commands",
-    "default": true
+    "default": false
   },
   {
     "type": "checkbox",
@@ -130,13 +130,13 @@
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.container-tabs",
     "label": "Enable Container Tab commands",
-    "default": true
+    "default": false
   },
   {
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.active-tabs",
     "label": "Enable Active Tab switching commands",
-    "default": true
+    "default": false
   },
   {
     "type": "checkbox",

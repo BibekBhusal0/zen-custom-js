@@ -111,12 +111,12 @@ Prefs.defaultValues = {
   [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 20,
   [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
   [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
-  [Prefs.KEYS.DYNAMIC_EXTENSIONS]: true,
+  [Prefs.KEYS.DYNAMIC_EXTENSIONS]: false,
   [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
   [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
   [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
-  [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: true,
-  [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: true,
+  [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
+  [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
   [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
 };
 
