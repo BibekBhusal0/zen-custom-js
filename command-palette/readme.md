@@ -3,10 +3,9 @@
     <a href="https://zen-browser.app/">
         <img width="240" alt="zen-badge-dark" src="https://raw.githubusercontent.com/heyitszenithyt/zen-browser-badges/fb14dcd72694b7176d141c774629df76af87514e/light/zen-badge-light.png" />
     </a>
-    </br>
-    <iframe width="560" height="315" src="https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e" frameborder="0" allowfullscreen></iframe>
 </div>
 
+https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 **Zen Command Palette** is a powerful, extensible command interface for Zen Browser, seamlessly integrated directly into the URL bar. Inspired by the command palettes in modern productivity tools like **Arc Browser**, **Raycast**, and **Vivaldi**, it provides a fast and efficient way to control your browser with just a few keystrokes.
 
@@ -249,15 +248,15 @@ if (window.ZenCommandPalette) {
 I am not making up the questions. I have been asked these questions in reddit and discord muliple times.
 
 <details>
-    <summary><h3>Why did I made a mod, not contribute to the browser</h3></summary>
-    I tried building the browser multiple times, but I don't have proper resources to do it.
+<summary><h3>Why did I made a mod, not contribute to the browser</h3></summary>
+I tried building the browser multiple times, but I don't have proper resources to do it.
 </details>
 
 <details>
 <summary><h3>Will this feature be natively available in Zen browser.</h3></summary>
-    Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
+Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
 
-    This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
+This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
 </details>
 
 ## 🙏 Credits and Acknowledgements
