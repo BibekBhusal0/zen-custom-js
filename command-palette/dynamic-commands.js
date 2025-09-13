@@ -176,9 +176,10 @@ export async function generateContainerTabCommands() {
   }
 
   identities.forEach((identity) => {
+    const name = identity.name || identity.l10nId
     commands.push({
       key: `container-tab:open:${identity.userContextId}`,
-      label: `Open Tab in: ${identity.name}`,
+      label: `Open Tab in: ${name}`,
       command: () => {
         const tabToMove = gBrowser.selectedTab;
         if (tabToMove && tabToMove.linkedBrowser) {
@@ -194,7 +195,7 @@ export async function generateContainerTabCommands() {
       // TODO: figure out how to get container Icon
       // Generate a colored circle icon dynamically using the container's color.
       icon: svgToUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${identity.color}"><circle r="5" cx="8" cy="8" /></svg>`),
-      tags: ["container", "tab", "open", identity.name.toLowerCase()],
+      tags: ["container", "tab", "open", name.toLowerCase()],
       condition: () => {
         const currentTab = gBrowser.selectedTab;
         // Show command only if the tab is not already in this container.
