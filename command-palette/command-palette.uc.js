@@ -797,7 +797,7 @@ const ZenCommandPalette = {
           type: "toolbarbutton",
           label: cmd.label,
           tooltip: cmd.label,
-          class: "toolbarbutton-1 chromeclass-toolbar-additional",
+          class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
           image: cmd.icon || "chrome://browser/skin/trending.svg",
           callback: () => this.executeCommandByKey(key),
         });

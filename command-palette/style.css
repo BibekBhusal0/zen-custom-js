@@ -1,17 +1,14 @@
-.urlbarView-row :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
-  /* hiding the message to search */
+/* hiding the message to search */
+.urlbarView-row :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) .urlbarView-action {
+  display: none;
+}
 
-  .urlbarView-action {
-    display: none;
-  }
 
-  /* Inverting color of favion */
-  .urlbarView-favicon {
-    &[src^="data:image/svg+xml"][src*="#invert"] {
-      @media (prefers-color-scheme: dark) {
-        filter: invert();
-      }
-    }
+/* Inverting color of SVG icons */
+[src^="data:image/svg+xml"][src*="#invert"],
+[image^="data:image/svg+xml"][image*="#invert"] {
+  @media (prefers-color-scheme: dark) {
+    filter: invert();
   }
 }
 
