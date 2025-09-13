@@ -1,49 +1,65 @@
-# Zen Command Palette
-
-Zen Command Palette is a powerful, extensible command interface for Zen Browser, seamlessly integrated directly into the URL bar. Inspired by the command palettes in modern productivity tools like **Arc Browser**, **Raycast**, and **Vivaldi**, it provides a fast and efficient way to control your browser with just a few keystrokes.
+<h1 align="center">Zen Command Palette</h1>
+<div align="center">
+    <a href="https://zen-browser.app/">
+        <img width="240" alt="zen-badge-dark" src="https://raw.githubusercontent.com/heyitszenithyt/zen-browser-badges/fb14dcd72694b7176d141c774629df76af87514e/light/zen-badge-light.png" />
+    </a>
+</div>
 
 https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
-This project aims to be a modern and actively maintained alternative, building upon the ideas of existing modifications to create a more robust and user-friendly experience.
+**Zen Command Palette** is a powerful, extensible command interface for Zen Browser, seamlessly integrated directly into the URL bar. Inspired by the command palettes in modern productivity tools like **Arc Browser**, **Raycast**, and **Vivaldi**, it provides a fast and efficient way to control your browser with just a few keystrokes.
 
-## Features
+## 🌟 Features
 
-- **Seamless URL Bar Integration**: No new UI elements. The command palette appears naturally as you type in the address bar.
-- **Smart Activation**: Appears when you type a query of sufficient length, or immediately with the `:` prefix. It intelligently stays out of the way when you're using a search engine one-off.
-- **Exclusive Command Mode**: Start your query with a colon (`:`) to hide all other search suggestions and focus exclusively on commands.
-- **Fuzzy Search & Smart Sorting**: Quickly find what you're looking for with a powerful fuzzy search that scores and sorts results, prioritizing the best matches.
-- **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, folders, and internal `about:` pages.
-- **Sine Mod Management**: Find and uninstall your installed Sine mods directly from the command palette. _Note: Installing new mods is not currently supported as the required API is not exposed by Sine._
-- **Extensible API**: Other user scripts and browser mods can easily add their own commands, making the palette a central hub for all your custom actions.
-- **Highly Customizable**: Use the built-in settings page to change the number of results, when the palette appears, and which dynamic commands are loaded.
+- ⚡ **Feels Native**: Utilizes the browser's URL bar for a seamless experience.
+- 🔍 **Fuzzy Search & Smart Sorting**: Effortlessly locate what you need with a robust fuzzy search feature.
+- 🔄 **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, folders, and internal `about:` pages.
+- 🛠️ **Extensible API**: User scripts and browser modifications can easily add their own commands, making the palette a central hub for all your custom actions.
+- 🎨 **Highly Customizable**: Offers customizable keyboard shortcuts, widgets, icons, dynamic commands, and more.
 
-## Customization & Preferences
+## ⚙️ Installation Guide
 
-The Zen Command Palette can be configured via its own settings page. Simply type `:settings` in the command palette and select "Settings Shortcuts Search" to open it.
+1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).  
+2. Restart Zen Browser.  
+3. Open settings and go to the `Sine` tab.  
+4. Search for Zen Command Palette.
+5. Click Install.
+6. A toast for restart should appear — click on that to restart Zen.  
+7. Feel productive !  
 
-| Preference Key                               | Type    | Default | Description                                                               |
-| -------------------------------------------- | ------- | ------- | ------------------------------------------------------------------------- |
-| `zen-command-palette.prefix-required`        | Boolean | `false` | If `true`, commands only appear when the query starts with `:`.           |
-| `zen-command-palette.debug-mode`             | Boolean | `false` | Enables detailed logging in the Browser Console for troubleshooting.      |
-| `zen-command-palette.max-commands`           | Integer | `3`     | The maximum number of command results to display at once (without `:`).   |
-| `zen-command-palette.max-commands-prefix`    | Integer | `50`    | The maximum number of command results to display with the `:` prefix.     |
-| `zen-command-palette.min-query-length`       | Integer | `3`     | Minimum characters needed to show commands (unless using the `:` prefix). |
-| `zen-command-palette.min-score-threshold`    | Integer | `20`    | The minimum fuzzy-search score required for a command to be shown.        |
-| `zen-command-palette.dynamic.about-pages`    | Boolean | `false` | Automatically generate commands for `about:` pages.                       |
-| `zen-command-palette.dynamic.search-engines` | Boolean | `true`  | Automatically generate commands for your installed search engines.        |
-| `zen-command-palette.dynamic.extensions`     | Boolean | `true`  | Automatically generate commands for extensions with an options page.      |
-| `zen-command-palette.dynamic.workspaces`     | Boolean | `true`  | Automatically generate commands for switching/moving tabs to Workspaces.  |
-| `zen-command-palette.dynamic.folders`        | Boolean | `true`  | Automatically generate commands for managing Folders.                     |
-| `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`  | Automatically generate commands for Installing/uninstalling sine mods.    |
-| `zen-command-palette.dynamic.container-tabs` | Boolean | `true`  | Automatically generate commands for moving tabs between containers.       |
-| `zen-command-palette.dynamic.active-tabs`    | Boolean | `true`  | Automatically generate commands for switching between active tabs.        |
+## 🎨 Customization & Preferences
 
-## Available Commands
+The Zen Command Palette can be configured via its own settings. Simply type `: Command palette configure` in the command palette and you will see commands like `Command Palette: Configure Settings` run the command which will open settings Popup. Which will allow configuration like keyboard shortcut, icon, hiding commands and creating toolbar icon.
+
+Here are all Preferences which can be configured from `about:config` (also from settings UI)
+
+| Preference Key                               | Type    | Default                             | Description                                                               |
+| -------------------------------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------- |
+| `zen-command-palette.prefix-required`        | Boolean | `false`                             | If `true`, commands only appear when the query starts with `:`.           |
+| `zen-command-palette.debug-mode`             | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.      |
+| `zen-command-palette.max-commands`           | Integer | `3`                                 | The maximum number of command results to display at once (without `:`).   |
+| `zen-command-palette.max-commands-prefix`    | Integer | `50`                                | The maximum number of command results to display with the `:` prefix.     |
+| `zen-command-palette.min-query-length`       | Integer | `3`                                 | Minimum characters needed to show commands (unless using the `:` prefix). |
+| `zen-command-palette.min-score-threshold`    | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.        |
+| `zen-command-palette.dynamic.about-pages`    | Boolean | `false`                             | Automatically generate commands for `about:` pages.                       |
+| `zen-command-palette.dynamic.search-engines` | Boolean | `true`                              | Automatically generate commands for your installed search engines.        |
+| `zen-command-palette.dynamic.extensions`     | Boolean | `false`                             | Automatically generate commands for extensions with an options page.      |
+| `zen-command-palette.dynamic.workspaces`     | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.  |
+| `zen-command-palette.dynamic.folders`        | Boolean | `true`                              | Automatically generate commands for managing Folders.                     |
+| `zen-command-palette.dynamic.sine-mods`      | Boolean | `true`                              | Automatically generate commands for uninstalling sine mods.    |
+| `zen-command-palette.dynamic.container-tabs` | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.       |
+| `zen-command-palette.dynamic.active-tabs`    | Boolean | `false`                             | Automatically generate commands for switching between active tabs.        |
+| `zen-command-palette.dynamic.unload-tab`    | Boolean | `false`                             | Automatically generate commands for unloading active tabs.        |
+| `zen-command-palette.settings-file-path`     | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
+
+
+## 📋 Available Commands
 
 <details>
 <summary>Click to view the full list of commands</summary>
 
 ### Tab Management
+
 - Add to Essentials
 - Clear Other Tabs
 - Close Tab
@@ -66,6 +82,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Unpin Tab
 
 ### Window Management
+
 - Close Window
 - Maximize Window
 - Minimize Window
@@ -74,6 +91,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Reopen Closed Window
 
 ### Navigation & History
+
 - Go Back
 - Go Forward
 - Hard Reload (Skip Cache)
@@ -88,13 +106,14 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Show All History (Library)
 
 ### Zen Browser Features
-- **Compact Mode**: 
+
+- **Compact Mode**:
   - Toggle Compact Mode
   - Toggle Floating Sidebar
   - Toggle Floating Toolbar
   - Toggle Sidebar
   - Toggle Toolbar
-- **Workspaces**: 
+- **Workspaces**:
   - Change Workspace Icon
   - Change Workspace Name
   - Create New Workspace
@@ -102,10 +121,10 @@ The Zen Command Palette can be configured via its own settings page. Simply type
   - Next Workspace
   - Previous Workspace
   - Reorder Workspaces
-- **Folders**: 
+- **Folders**:
   - Create New Folder
   - Remove Tab from Folder
-- **Split View**: 
+- **Split View**:
   - Split Grid
   - Split Horizontal
   - Split Vertical
@@ -114,21 +133,23 @@ The Zen Command Palette can be configured via its own settings page. Simply type
   - Close Glance
   - Expand Glance
   - Split Glance
-- **Themes**: 
+- **Themes**:
   - Open Theme Picker
-- **UI**: 
+- **UI**:
   - Copy Current URL
   - Copy Current URL as Markdown
   - Toggle Sidebar Width
   - Toggle Tabs on Right
 
 ### Find & Search
+
 - Find in Page
 - Find Next
 - Find Previous
 - Translate Page
 
 ### View & Display
+
 - Toggle Fullscreen
 - Zoom In
 - Zoom Out
@@ -137,6 +158,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - View Page Source
 
 ### Media & Files
+
 - Open File
 - Print Page
 - Save Page As...
@@ -145,6 +167,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - View Downloads
 
 ### System & Application
+
 - Clear Recent History...
 - Clear Startup Cache
 - Customize Toolbar...
@@ -154,20 +177,22 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Toggle Work Offline
 
 ### Dynamic Commands
+
 - **About Pages**: `Open about:[page-name]` (e.g., "Open about:config").
 - **Search Engines**: `Search with: [Engine Name]` to change the default search engine for the next search.
 - **Extension Options**: `Extension Options: [Addon Name]` to open the options page for an extension.
 - **Container Tabs**: `Open Tab in: [Container Name]` to move the current tab to a different container.
 - **Active Tabs**: `Switch to Tab: [Tab Title]` to quickly switch to any open tab, even across workspaces.
+- **Unload Tabs**: `Unload Tab: [Tab Title]` to quickly unload tab (to save memory).
 - **Workspaces**: `Switch to workspace: [Workspace Name]` and `Move Tab to Workspace: [Workspace Name]`.
-- **Sine Mods**: `Install Sine Mod: [Mod Name]` and `Uninstall Sine Mod: [Mod Name]`.
+- **Sine Mods**: `Uninstall Sine Mod: [Mod Name]`.
 - **Folders**: `Delete Folder: [Folder Name]` and `Move Tab to Folder: [Folder Name]`.
 
 </details>
 
-## Extensibility
+## 🔧 Extensibility
 
-Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands.
+Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands. I encourage all mod creators to incorporate this into their own mods (especially ones with JS).
 
 ### Adding a Static Command
 
@@ -177,16 +202,16 @@ Static commands are added once and are always available, unless their `condition
 // Example from another .uc.js file
 if (window.ZenCommandPalette) {
   window.ZenCommandPalette.addCommand({
-    key: "my-mod:reload",
-    label: "Reload My Custom Mod",
+    key: "open-reddit",
+    label: "Open Reddit",
     command: () => {
       // Your mod's reload logic here. This function is executed when the command is selected.
-      // It can be synchronous or return a Promise.
-      console.log("Reloading My Custom Mod!");
+      // It can be synchronous or asynchronous
+      openTrustedLinkIn("https://reddit.com", "tab");
     },
-    icon: "chrome://browser/skin/reload.svg", // Optional: Path to an icon.
-    tags: ["my mod", "custom", "reload"],    // Optional: Extra keywords for fuzzy search.
-    condition: () => MyMod.isReady,          // Optional: A function that returns a boolean. The command only appears if it returns true.
+    icon: "https://www.redditstatic.com/shreddit/assets/favicon/64x64.png", // Optional: URL to an icon.
+    tags: ["reddit", "memes", "social"], // Optional: Extra keywords for fuzzy search.
+    condition: () => true, // Optional: A function that returns a boolean. The command only appears if it returns true.
   });
 }
 ```
@@ -203,7 +228,7 @@ if (window.ZenCommandPalette) {
   const generateMyDynamicCommands = async () => {
     // This function should return a Promise that resolves to an array of command objects.
     const items = getMyModItems(); // Get the current state
-    return items.map(item => ({
+    return items.map((item) => ({
       key: `my-mod:do-thing:${item.id}`,
       label: `Do Thing with ${item.name}`,
       command: () => doThingWith(item.id),
@@ -215,21 +240,35 @@ if (window.ZenCommandPalette) {
   // if that preference is set to true. If omitted, it will always run.
   window.ZenCommandPalette.addDynamicCommandsProvider(
     generateMyDynamicCommands,
-    "my-mod.commands.enabled" // Example preference key
+    "my-mod.commands.enabled", // Example preference key
   );
 }
 ```
 
-## Project Status & Disclaimer
+## ❓ FAQ
 
-**This project is in a very early stage of development.**
+I am not making up the questions. I have been asked these questions in reddit and discord muliple times.
 
-While the core functionality is solid, the command list was originally adapted from another project and has been progressively tested and fixed.
+<details>
+<summary><h3>Why did I made a mod, not contribute to the browser</h3></summary>
+I tried building the browser multiple times, but I don't have proper resources to do it.
+</details>
 
-If you encounter any bugs or commands that are not working, please first check if an issue already exists. If not, please report it here:
+<details>
+<summary><h3>Will this feature be natively available in Zen browser.</h3></summary>
+Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
 
-- **[https://github.com/BibekBhusal0/zen-custom-js/issues/19](https://github.com/BibekBhusal0/zen-custom-js/issues/19)**
+This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
+</details>
 
-## Credits and Acknowledgements
+## 🙏 Credits and Acknowledgements
 
-This project was heavily inspired by the work done on the **[ZBar-Zen](https://github.com/Darsh-A/ZBar-Zen)** command bar by **Darsh-A**. The initial comprehensive command list was adapted from that project, providing a fantastic foundation for this palette. The `clearTabs` function was also adapted from another one of her repositories, **[Ai-TabGroups-ZenBrowser](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/blob/main/clear.uc.js)**. Thank you for your original creators I am just a copy-cat.
+Thanks to [12th-devs](https://github.com/12th-devs/) and [CompTechGuy](https://github.com/Comp-Tech-Guy) for finding out issues and recommending new features.
+
+Special thanks to [ferrocyante](https://github.com/ferrocyante) that I don't have to go through pain of writing CSS.
+
+Special thanks to [Darsh-A](https://github.com/Darsh-A/) entire command list is adapted from her project **[ZBar-Zen](https://github.com/Darsh-A/ZBar-Zen)**. This will not have been possible without command list from [Darsh-A](https://github.com/Darsh-A/).
+
+## 📜 License
+
+This is licensed under MIT license. Check [License](../LICENSE) for more details.

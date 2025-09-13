@@ -457,7 +457,8 @@
         }, 500);
       },
       icon: "chrome://browser/skin/zen-icons/close-all.svg",
-      tags: ["unload", "sleep"],
+      // HACK:  include multiple tags so that this appears on top when typed `unload`
+      tags: ["unload", "sleep", "unload", "unload"], 
     },
     {
       key: "unload-other-tabs",
@@ -468,7 +469,7 @@
         }
       },
       icon: "chrome://browser/skin/zen-icons/close-all.svg",
-      tags: ["unload", "sleep"],
+      tags: ["unload", "sleep" ],
     },
 
     // ----------- Window Management -----------
@@ -780,6 +781,19 @@
       icon: "chrome://browser/skin/zen-icons/reload.svg",
       tags: ["restart", "reopen", "close", "clear", "cache"],
     },
+    {
+      key: "app:minimize-memory",
+      label: "Minimize Memory Usage",
+      command: () => {
+        const observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+        for (let i = 0; i < 3; i++) {
+          observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+        }
+      },
+      // condition: ucAvailable,
+      // icon: "chrome://browser/skin/zen-icons/reload.svg",
+      tags: ["memory", "free", "ram", "minimize", "space", "fast", "slow"],
+    },
 
     // ----------- Command Palette Settings -----------
     {
@@ -823,6 +837,7 @@
       DYNAMIC_FOLDERS: "zen-command-palette.dynamic.folders",
       DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
       DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
+      DYNAMIC_UNLOAD_TABS: "zen-command-palette.dynamic.unload-tab",
       COMMAND_SETTINGS_FILE: "zen-command-palette.settings-file-path",
     },
 
@@ -915,7 +930,7 @@
     [Prefs.KEYS.MAX_COMMANDS]: 3,
     [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
     [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
-    [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 20,
+    [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 150,
     [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
     [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
     [Prefs.KEYS.DYNAMIC_EXTENSIONS]: false,
@@ -924,6 +939,7 @@
     [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
     [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
     [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
+    [Prefs.KEYS.DYNAMIC_UNLOAD_TABS]: false,
     [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
   };
 
@@ -1187,6 +1203,40 @@
   }
 
   /**
+   * Generates commands for unloading to tabs.
+   * @returns {Promise<Array<object>>} A promise that resolves to an array of active tab commands.
+   */
+  async function generateUnloadTabCommands() {
+    const commands = [];
+    // Use gZenWorkspaces.allStoredTabs to get tabs from all workspaces in the current window.
+    const tabs = window.gZenWorkspaces?.workspaceEnabled
+      ? window.gZenWorkspaces.allStoredTabs
+      : Array.from(gBrowser.tabs);
+
+    for (const tab of tabs) {
+      // Skip already unloaded tabs
+      if (tab.hasAttribute("pending")) {
+        continue;
+      }
+
+      // Skip the empty new tab placeholder used by Zen.
+      if (tab.hasAttribute("zen-empty-tab") || !tab.linkedBrowser ) {
+        continue;
+      }
+
+      commands.push({
+        key: `unload-tab:${tab.linkedBrowser.outerWindowID}-${tab.linkedBrowser.tabId}`,
+        label: `Unload tab: ${tab.label}`,
+        command: () => gBrowser.discardBrowser(tab),
+        condition: () => gBrowser.selectedTab !== tab,
+        icon: tab.image || "chrome://browser/skin/zen-icons/close-all.svg",
+        tags: ["unload", "sleep", tab.label.toLowerCase()],
+      });
+    }
+    return commands;
+  }
+
+  /**
    * Generates commands for switching between Zen Workspaces.
    * @returns {Promise<Array<object>>} A promise that resolves to an array of workspace commands.
    */
@@ -1247,7 +1297,7 @@
         }
       }
     } else {
-      console.log(
+      debugLog(
         "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
       );
     }
@@ -1943,6 +1993,11 @@
               label: "Generate commands for active tabs",
               type: "bool",
             },
+            {
+              key: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
+              label: "Generate commands for unload tabs",
+              type: "bool",
+            },
           ],
         },
       ];
@@ -2102,6 +2157,12 @@
         allowIcons: false,
         allowShortcuts: false,
       },
+      {
+        func: generateUnloadTabCommands,
+        pref: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
+        allowIcons: false,
+        allowShortcuts: false,
+      },
     ],
     staticCommands: commands,
     provider: null,
@@ -2230,6 +2291,7 @@
         return 90 + queryLen;
       }
 
+      // 4. Calculate score based on character match
       let score = 0;
       let queryIndex = 0;
       let lastMatchIndex = -1;
@@ -2280,7 +2342,9 @@
         const shouldLoad =
           provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
         if (shouldLoad) {
+          try{
           commandPromises.push(provider.func());
+          }catch{}
         }
       }
 
@@ -2812,7 +2876,7 @@
             type: "toolbarbutton",
             label: cmd.label,
             tooltip: cmd.label,
-            class: "toolbarbutton-1 chromeclass-toolbar-additional",
+            class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
             image: cmd.icon || "chrome://browser/skin/trending.svg",
             callback: () => this.executeCommandByKey(key),
           });
@@ -2872,7 +2936,8 @@
           _isInPrefixMode = false;
 
           get name() {
-            return "TestProvider"; // setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
+            // HACK: setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
+            return "TestProvider"; 
           }
           get type() {
             return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
@@ -3132,4 +3197,3 @@
   });
 
 }));
-
