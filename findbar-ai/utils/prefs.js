@@ -12,11 +12,11 @@ export const PREFS = {
   CONFORMATION: "extension.browse-bot.findbar-ai.conform-before-tool-call",
   CONTEXT_MENU_ENABLED: "extension.browse-bot.findbar-ai.context-menu-enabled",
   CONTEXT_MENU_AUTOSEND: "extension.browse-bot.findbar-ai.context-menu-autosend",
+  PSEUDO_BG: "extension.browse-bot.findbar-ai.pseudo-bg.enabled",
 
   // Other prefs
   URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
   DEBUG_MODE: "extension.browse-bot.debug-mode",
-  PSEUDO_BG: "extension.pseudo-bg.enabled",
 
   // Shared LLM prefs
   LLM_PROVIDER: "extension.browse-bot.llm-provider",
