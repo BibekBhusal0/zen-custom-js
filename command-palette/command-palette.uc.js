@@ -190,21 +190,21 @@
       label: "Close Glance",
       tags: ["glance", "close"],
       icon: "chrome://browser/skin/zen-icons/close.svg",
-      condition: () => gBrowser.selectedTab.hasAttribute('glance-id')
+      condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
     },
     {
       key: "cmd_zenGlanceExpand",
       label: "Expand Glance",
       tags: ["glance", "expand"],
       icon: "chrome://browser/skin/fullscreen.svg",
-      condition: () => gBrowser.selectedTab.hasAttribute('glance-id')
+      condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
     },
     {
       key: "cmd_zenGlanceSplit",
       label: "Split Glance",
       tags: ["glance", "split"],
       icon: svgToUrl(icons["splitVz"]),
-      condition: () => gBrowser.selectedTab.hasAttribute('glance-id')
+      condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
     },
 
     // ----------- Additional Zen Commands -----------
@@ -918,12 +918,12 @@
     [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 20,
     [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
     [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
-    [Prefs.KEYS.DYNAMIC_EXTENSIONS]: true,
+    [Prefs.KEYS.DYNAMIC_EXTENSIONS]: false,
     [Prefs.KEYS.DYNAMIC_WORKSPACES]: true,
     [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
     [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
-    [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: true,
-    [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: true,
+    [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
+    [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
     [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
   };
 
@@ -1076,7 +1076,9 @@
    * @returns {Promise<Array<object>>} A promise that resolves to an array of container commands.
    */
   async function generateContainerTabCommands() {
-    if (!window.ContextualIdentityService) { return []; }
+    if (!window.ContextualIdentityService) {
+      return [];
+    }
 
     const commands = [];
 
@@ -1128,7 +1130,9 @@
         },
         // TODO: figure out how to get container Icon
         // Generate a colored circle icon dynamically using the container's color.
-        icon: svgToUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${identity.color}"><circle r="5" cx="8" cy="8" /></svg>`),
+        icon: svgToUrl(
+          `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${identity.color}"><circle r="5" cx="8" cy="8" /></svg>`
+        ),
         tags: ["container", "tab", "open", name.toLowerCase()],
         condition: () => {
           const currentTab = gBrowser.selectedTab;
@@ -1409,6 +1413,7 @@
     hiddenCommands: [],
     customIcons: {},
     customShortcuts: {},
+    toolbarButtons: [],
   };
 
   let _settings = null;
@@ -1513,7 +1518,7 @@
     _modalElement: null,
     _mainModule: null,
     _currentSettings: {},
-    _initialShortcuts: null,
+    _initialSettingsState: null,
     _currentShortcutTarget: null,
     _boundHandleShortcutKeyDown: null,
     _boundCloseOnEscape: null,
@@ -1530,7 +1535,7 @@
       }
 
       this._currentSettings = await Storage.loadSettings();
-      this._initialShortcuts = JSON.parse(JSON.stringify(this._currentSettings.customShortcuts || {}));
+      this._initialSettingsState = JSON.stringify(this._currentSettings);
 
       this._modalElement = this._generateHtml();
       document.documentElement.appendChild(this._modalElement);
@@ -1579,6 +1584,7 @@
         hiddenCommands: [],
         customIcons: { ...this._currentSettings.customIcons },
         customShortcuts: { ...this._currentSettings.customShortcuts },
+        toolbarButtons: [...(this._currentSettings.toolbarButtons || [])],
       };
 
       // Commands tab
@@ -1604,22 +1610,39 @@
         Prefs.setPref(prefKey, value);
       });
 
-      const shortcutsChanged =
-        JSON.stringify(this._initialShortcuts) !== JSON.stringify(newSettings.customShortcuts);
+      const somethingChanged = JSON.stringify(newSettings) !== this._initialSettingsState;
 
-      await Storage.saveSettings(newSettings);
-      await this._mainModule.loadUserConfig();
+      if (somethingChanged) {
+        await Storage.saveSettings(newSettings);
+        await this._mainModule.loadUserConfig();
+      }
+
       this.hide();
 
-      if (shortcutsChanged) {
+      const shortcutsChanged =
+        JSON.stringify(JSON.parse(this._initialSettingsState).customShortcuts) !==
+        JSON.stringify(newSettings.customShortcuts);
+      const toolbarButtonsChanged =
+        JSON.stringify(JSON.parse(this._initialSettingsState).toolbarButtons) !==
+        JSON.stringify(newSettings.toolbarButtons);
+
+      if (shortcutsChanged || toolbarButtonsChanged) {
+        let changedItem = shortcutsChanged
+          ? toolbarButtonsChanged
+            ? "Shortcuts and Toolbar buttons"
+            : "Shortcuts"
+          : "Toolbar buttons";
+
         // TODO: Figure out how to apply changes real time (without restart)
         if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
           window.ucAPI.showToast(
-            ["Keyboard Shortcuts Changed", "A restart is required for changes to take effect."],
+            [`${changedItem} Changed`, "A restart is required for changes to take effect."],
             1 // Restart preset
           );
         } else {
-          alert("Keyboard shortcuts changed. Please restart Zen for changes to take effect.");
+          alert(
+            "Settings changed. Please restart Zen for shortcut or toolbar changes to take effect."
+          );
         }
       }
     },
@@ -1738,6 +1761,7 @@
       const nativeShortcut = this._mainModule.getShortcutForCommand(cmd.key);
       const allowIcons = cmd.allowIcons !== false;
       const allowShortcuts = cmd.allowShortcuts !== false;
+      const isToolbarButton = this._currentSettings.toolbarButtons?.includes(cmd.key);
 
       const shortcutInputHtml = allowShortcuts
         ? `<input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
@@ -1749,6 +1773,11 @@
           !isHidden ? "checked" : ""
         } />`
         : "";
+      const toolbarButtonHtml = allowShortcuts
+        ? `<button class="toolbar-button-toggle ${isToolbarButton ? "active" : ""}" title="${
+          isToolbarButton ? "Remove from Toolbar" : "Add to Toolbar"
+        }">${icons.pin}</button>`
+        : "";
 
       const itemHtml = `
       <div class="command-item" data-key="${escapeXmlAttribute(cmd.key)}">
@@ -1758,6 +1787,7 @@
         <span class="command-label">${escapeXmlAttribute(cmd.label)}</span>
         <div class="command-controls">
             ${shortcutInputHtml}
+            ${toolbarButtonHtml}
             ${visibilityToggleHtml}
         </div>
       </div>
@@ -1768,12 +1798,9 @@
       if (allowIcons) {
         item.querySelector(".command-icon").addEventListener("click", (e) => {
           const newIcon = prompt("Enter new icon URL:", e.target.src);
-          if (newIcon) {
+          if (newIcon !== null) {
             e.target.src = newIcon;
             this._currentSettings.customIcons[cmd.key] = newIcon;
-          } else if (newIcon === "") {
-            delete this._currentSettings.customIcons[cmd.key];
-            e.target.src = cmd.icon || "chrome://browser/skin/trending.svg";
           }
         });
       }
@@ -1792,6 +1819,25 @@
             this._currentShortcutTarget = null;
           }
           window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+        });
+
+        const toolbarToggle = item.querySelector(".toolbar-button-toggle");
+        toolbarToggle.addEventListener("click", (e) => {
+          const button = e.currentTarget;
+          const commandKey = cmd.key;
+          if (!this._currentSettings.toolbarButtons) {
+            this._currentSettings.toolbarButtons = [];
+          }
+          const index = this._currentSettings.toolbarButtons.indexOf(commandKey);
+          if (index > -1) {
+            this._currentSettings.toolbarButtons.splice(index, 1);
+            button.classList.remove("active");
+            button.title = "Add to Toolbar";
+          } else {
+            this._currentSettings.toolbarButtons.push(commandKey);
+            button.classList.add("active");
+            button.title = "Remove from Toolbar";
+          }
         });
       }
     },
@@ -1838,14 +1884,22 @@
         {
           section: "General",
           items: [
-            { key: Prefs.KEYS.PREFIX_REQUIRED, label: "Require ':' prefix to activate", type: "bool" },
+            {
+              key: Prefs.KEYS.PREFIX_REQUIRED,
+              label: "Require ':' prefix to activate",
+              type: "bool",
+            },
             {
               key: Prefs.KEYS.MIN_QUERY_LENGTH,
               label: "Min query length (no prefix)",
               type: "number",
             },
             { key: Prefs.KEYS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
-            { key: Prefs.KEYS.MAX_COMMANDS_PREFIX, label: "Max results (with prefix)", type: "number" },
+            {
+              key: Prefs.KEYS.MAX_COMMANDS_PREFIX,
+              label: "Max results (with prefix)",
+              type: "number",
+            },
             { key: Prefs.KEYS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
             { key: Prefs.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
           ],
@@ -1873,7 +1927,11 @@
               label: "Generate commands for workspaces",
               type: "bool",
             },
-            { key: Prefs.KEYS.DYNAMIC_SINE_MODS, label: "Generate commands for Sine mods", type: "bool" },
+            {
+              key: Prefs.KEYS.DYNAMIC_SINE_MODS,
+              label: "Generate commands for Sine mods",
+              type: "bool",
+            },
             { key: Prefs.KEYS.DYNAMIC_FOLDERS, label: "Generate commands for folders", type: "bool" },
             {
               key: Prefs.KEYS.DYNAMIC_CONTAINER_TABS,
@@ -1903,8 +1961,8 @@
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
               <input type="checkbox" id="${safeId}" data-pref="${item.key}" ${
-            currentValue ? "checked" : ""
-          } />
+                currentValue ? "checked" : ""
+              } />
             </div>
           `;
           } else if (item.type === "number") {
@@ -1912,8 +1970,8 @@
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
               <input type="number" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
-            currentValue
-          )}" />
+                currentValue
+              )}" />
             </div>
           `;
           }
@@ -1946,7 +2004,7 @@
               <div class="search-bar-wrapper">
                 <input type="text" id="command-search-input" placeholder="Search commands..." />
               </div>
-              <p class="restart-note">Changes to keyboard shortcuts require a browser restart to take effect.</p>
+              <p class="restart-note">Changes to keyboard shortcuts or toolbar buttons require a browser restart to take effect.</p>
               <div id="commands-list"></div>
             </div>
             <div id="settings-tab-content" class="cmd-settings-tab-content" hidden>
@@ -2220,11 +2278,7 @@
       const commandPromises = [];
       for (const provider of this._dynamicCommandProviders) {
         const shouldLoad =
-          provider.pref === null
-            ? true
-            : provider.pref
-            ? Prefs.getPref(provider.pref)
-            : false;
+          provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
         if (shouldLoad) {
           commandPromises.push(provider.func());
         }
@@ -2575,8 +2629,8 @@
         childList: true,
         subtree: true,
         attributes: true,
+        attributeFilter: ["selected", "open", "data-zen-shortcut"],
       });
-      observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
       this._scrollObserver = observer;
       debugLog("Unified MutationObserver successfully initialized.");
     },
@@ -2616,6 +2670,7 @@
      */
     applyUserConfig() {
       this.applyCustomShortcuts();
+      this.applyToolbarButtons();
     },
 
     /**
@@ -2732,6 +2787,41 @@
       const commandKey = event.target.getAttribute("data-command-key");
       if (commandKey) {
         this.executeCommandByKey(commandKey);
+      }
+    },
+
+    async applyToolbarButtons() {
+      const WIDGET_PREFIX = "zen-cmd-palette-widget-";
+      const allCommands = await this.getAllCommandsForConfig();
+
+      // TODO: this is requiered for realtime changes
+      // First, remove all widgets created by this mod to handle removals cleanly.
+
+      if (!this._userConfig?.toolbarButtons) return;
+
+      for (const key of this._userConfig.toolbarButtons) {
+        const cmd = allCommands.find((c) => c.key === key);
+        if (!cmd) continue;
+
+        // Sanitize the command key to create a valid widget ID.
+        const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
+        const widgetId = `${WIDGET_PREFIX}${sanitizedKey}`;
+        try {
+          UC_API.Utils.createWidget({
+            id: widgetId,
+            type: "toolbarbutton",
+            label: cmd.label,
+            tooltip: cmd.label,
+            class: "toolbarbutton-1 chromeclass-toolbar-additional",
+            image: cmd.icon || "chrome://browser/skin/trending.svg",
+            callback: () => this.executeCommandByKey(key),
+          });
+          debugLog(`Created widget for command: ${key}`);
+        } catch (e) {
+          if (!e.message.includes("widget with same id already exists")) {
+            debugError(`Failed to create widget for ${key}:`, e);
+          }
+        }
       }
     },
 
@@ -3042,3 +3132,4 @@
   });
 
 }));
+
