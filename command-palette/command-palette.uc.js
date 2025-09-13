@@ -13,7 +13,6 @@ import {
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
-import { escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
 
 const ZenCommandPalette = {
   /**
@@ -783,7 +782,9 @@ const ZenCommandPalette = {
       const cmd = allCommands.find((c) => c.key === key);
       if (!cmd) continue;
 
-      const widgetId = escapeXmlAttribute(`${WIDGET_PREFIX}${key}`);
+      // Sanitize the command key to create a valid widget ID.
+      const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
+      const widgetId = `${WIDGET_PREFIX}${sanitizedKey}`;
       try {
         UC_API.Utils.createWidget({
           id: widgetId,
