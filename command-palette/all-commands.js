@@ -153,21 +153,21 @@ export const commands = [
     label: "Close Glance",
     tags: ["glance", "close"],
     icon: "chrome://browser/skin/zen-icons/close.svg",
-    condition: () => gBrowser.selectedTab.hasAttribute('glance-id')
+    condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
   },
   {
     key: "cmd_zenGlanceExpand",
     label: "Expand Glance",
     tags: ["glance", "expand"],
     icon: "chrome://browser/skin/fullscreen.svg",
-    condition: () => gBrowser.selectedTab.hasAttribute('glance-id')
+    condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
   },
   {
     key: "cmd_zenGlanceSplit",
     label: "Split Glance",
     tags: ["glance", "split"],
     icon: svgToUrl(icons["splitVz"]),
-    condition: () => gBrowser.selectedTab.hasAttribute('glance-id')
+    condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
   },
 
   // ----------- Additional Zen Commands -----------

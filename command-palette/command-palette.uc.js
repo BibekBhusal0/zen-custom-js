@@ -253,11 +253,7 @@ const ZenCommandPalette = {
     const commandPromises = [];
     for (const provider of this._dynamicCommandProviders) {
       const shouldLoad =
-        provider.pref === null
-          ? true
-          : provider.pref
-          ? Prefs.getPref(provider.pref)
-          : false;
+        provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
       if (shouldLoad) {
         commandPromises.push(provider.func());
       }

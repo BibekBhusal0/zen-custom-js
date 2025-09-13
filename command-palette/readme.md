@@ -44,6 +44,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 <summary>Click to view the full list of commands</summary>
 
 ### Tab Management
+
 - Add to Essentials
 - Clear Other Tabs
 - Close Tab
@@ -66,6 +67,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Unpin Tab
 
 ### Window Management
+
 - Close Window
 - Maximize Window
 - Minimize Window
@@ -74,6 +76,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Reopen Closed Window
 
 ### Navigation & History
+
 - Go Back
 - Go Forward
 - Hard Reload (Skip Cache)
@@ -88,13 +91,14 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Show All History (Library)
 
 ### Zen Browser Features
-- **Compact Mode**: 
+
+- **Compact Mode**:
   - Toggle Compact Mode
   - Toggle Floating Sidebar
   - Toggle Floating Toolbar
   - Toggle Sidebar
   - Toggle Toolbar
-- **Workspaces**: 
+- **Workspaces**:
   - Change Workspace Icon
   - Change Workspace Name
   - Create New Workspace
@@ -102,10 +106,10 @@ The Zen Command Palette can be configured via its own settings page. Simply type
   - Next Workspace
   - Previous Workspace
   - Reorder Workspaces
-- **Folders**: 
+- **Folders**:
   - Create New Folder
   - Remove Tab from Folder
-- **Split View**: 
+- **Split View**:
   - Split Grid
   - Split Horizontal
   - Split Vertical
@@ -114,21 +118,23 @@ The Zen Command Palette can be configured via its own settings page. Simply type
   - Close Glance
   - Expand Glance
   - Split Glance
-- **Themes**: 
+- **Themes**:
   - Open Theme Picker
-- **UI**: 
+- **UI**:
   - Copy Current URL
   - Copy Current URL as Markdown
   - Toggle Sidebar Width
   - Toggle Tabs on Right
 
 ### Find & Search
+
 - Find in Page
 - Find Next
 - Find Previous
 - Translate Page
 
 ### View & Display
+
 - Toggle Fullscreen
 - Zoom In
 - Zoom Out
@@ -137,6 +143,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - View Page Source
 
 ### Media & Files
+
 - Open File
 - Print Page
 - Save Page As...
@@ -145,6 +152,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - View Downloads
 
 ### System & Application
+
 - Clear Recent History...
 - Clear Startup Cache
 - Customize Toolbar...
@@ -154,6 +162,7 @@ The Zen Command Palette can be configured via its own settings page. Simply type
 - Toggle Work Offline
 
 ### Dynamic Commands
+
 - **About Pages**: `Open about:[page-name]` (e.g., "Open about:config").
 - **Search Engines**: `Search with: [Engine Name]` to change the default search engine for the next search.
 - **Extension Options**: `Extension Options: [Addon Name]` to open the options page for an extension.
@@ -185,8 +194,8 @@ if (window.ZenCommandPalette) {
       console.log("Reloading My Custom Mod!");
     },
     icon: "chrome://browser/skin/reload.svg", // Optional: Path to an icon.
-    tags: ["my mod", "custom", "reload"],    // Optional: Extra keywords for fuzzy search.
-    condition: () => MyMod.isReady,          // Optional: A function that returns a boolean. The command only appears if it returns true.
+    tags: ["my mod", "custom", "reload"], // Optional: Extra keywords for fuzzy search.
+    condition: () => MyMod.isReady, // Optional: A function that returns a boolean. The command only appears if it returns true.
   });
 }
 ```
@@ -203,7 +212,7 @@ if (window.ZenCommandPalette) {
   const generateMyDynamicCommands = async () => {
     // This function should return a Promise that resolves to an array of command objects.
     const items = getMyModItems(); // Get the current state
-    return items.map(item => ({
+    return items.map((item) => ({
       key: `my-mod:do-thing:${item.id}`,
       label: `Do Thing with ${item.name}`,
       command: () => doThingWith(item.id),

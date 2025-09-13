@@ -116,8 +116,12 @@ const SettingsModal = {
       JSON.stringify(newSettings.toolbarButtons);
 
     if (shortcutsChanged || toolbarButtonsChanged) {
-      let changedItem = shortcutsChanged? (toolbarButtonsChanged? "Shortcuts and Toolbar buttons" : "Shortcuts" ): "Toolbar buttons"
-      
+      let changedItem = shortcutsChanged
+        ? toolbarButtonsChanged
+          ? "Shortcuts and Toolbar buttons"
+          : "Shortcuts"
+        : "Toolbar buttons";
+
       // TODO: Figure out how to apply changes real time (without restart)
       if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
         window.ucAPI.showToast(
@@ -125,7 +129,9 @@ const SettingsModal = {
           1 // Restart preset
         );
       } else {
-        alert("Settings changed. Please restart Zen for shortcut or toolbar changes to take effect.");
+        alert(
+          "Settings changed. Please restart Zen for shortcut or toolbar changes to take effect."
+        );
       }
     } else {
       // this._mainModule.applyUserConfig();
@@ -259,11 +265,9 @@ const SettingsModal = {
         } />`
       : "";
     const toolbarButtonHtml = allowShortcuts
-      ? `<button class="toolbar-button-toggle ${
-          isToolbarButton ? "active" : ""
-        }" title="${
+      ? `<button class="toolbar-button-toggle ${isToolbarButton ? "active" : ""}" title="${
           isToolbarButton ? "Remove from Toolbar" : "Add to Toolbar"
-        }">${icons.pin }</button>`
+        }">${icons.pin}</button>`
       : "";
 
     const itemHtml = `
@@ -371,14 +375,22 @@ const SettingsModal = {
       {
         section: "General",
         items: [
-          { key: Prefs.KEYS.PREFIX_REQUIRED, label: "Require ':' prefix to activate", type: "bool" },
+          {
+            key: Prefs.KEYS.PREFIX_REQUIRED,
+            label: "Require ':' prefix to activate",
+            type: "bool",
+          },
           {
             key: Prefs.KEYS.MIN_QUERY_LENGTH,
             label: "Min query length (no prefix)",
             type: "number",
           },
           { key: Prefs.KEYS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
-          { key: Prefs.KEYS.MAX_COMMANDS_PREFIX, label: "Max results (with prefix)", type: "number" },
+          {
+            key: Prefs.KEYS.MAX_COMMANDS_PREFIX,
+            label: "Max results (with prefix)",
+            type: "number",
+          },
           { key: Prefs.KEYS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
           { key: Prefs.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
         ],
@@ -406,7 +418,11 @@ const SettingsModal = {
             label: "Generate commands for workspaces",
             type: "bool",
           },
-          { key: Prefs.KEYS.DYNAMIC_SINE_MODS, label: "Generate commands for Sine mods", type: "bool" },
+          {
+            key: Prefs.KEYS.DYNAMIC_SINE_MODS,
+            label: "Generate commands for Sine mods",
+            type: "bool",
+          },
           { key: Prefs.KEYS.DYNAMIC_FOLDERS, label: "Generate commands for folders", type: "bool" },
           {
             key: Prefs.KEYS.DYNAMIC_CONTAINER_TABS,
@@ -436,8 +452,8 @@ const SettingsModal = {
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
               <input type="checkbox" id="${safeId}" data-pref="${item.key}" ${
-            currentValue ? "checked" : ""
-          } />
+                currentValue ? "checked" : ""
+              } />
             </div>
           `;
         } else if (item.type === "number") {
@@ -445,8 +461,8 @@ const SettingsModal = {
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
               <input type="number" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
-            currentValue
-          )}" />
+                currentValue
+              )}" />
             </div>
           `;
         }
