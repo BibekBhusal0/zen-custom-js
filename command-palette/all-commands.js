@@ -146,6 +146,38 @@ export const commands = [
     condition: () => gZenViewSplitter?.splitViewActive,
     tags: ["split", "view", "unsplit", "single", "restore"],
   },
+  {
+    key: "cmd_zenSplitViewSwap",
+    label: "Swap Split Tabs",
+    icon: svgToUrl(icons['swap']),
+    command: () => {
+      if (!gZenViewSplitter.splitViewActive || gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length !== 2) return;
+
+      const viewData = gZenViewSplitter._data[gZenViewSplitter.currentView];
+      const node1 = gZenViewSplitter.getSplitNodeFromTab(viewData.tabs[0]);
+      const node2 = gZenViewSplitter.getSplitNodeFromTab(viewData.tabs[1]);
+
+      gZenViewSplitter.swapNodes(node1, node2);
+      gZenViewSplitter.applyGridLayout(viewData.layoutTree);
+    },
+    condition: () => gZenViewSplitter?.splitViewActive && gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length === 2,
+    tags: ["split", "view", "swap", "panes", "tabs"],
+  },
+  {
+    key: "cmd_zenSplitViewRotate",
+    label: "Rotate Split Orientation",
+    command: () => {
+      if (!gZenViewSplitter.splitViewActive || gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length !== 2) return;
+
+      const viewData = gZenViewSplitter._data[gZenViewSplitter.currentView];
+      const layoutTree = viewData.layoutTree;
+
+      layoutTree.direction = layoutTree.direction === 'row' ? 'column' : 'row';
+      gZenViewSplitter.activateSplitView(viewData, true);
+    },
+    condition: () => gZenViewSplitter?.splitViewActive && gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length === 2,
+    tags: ["split", "view", "rotate", "orientation", "layout"],
+  },
 
   // ----------- Zen Glance -----------
   {
