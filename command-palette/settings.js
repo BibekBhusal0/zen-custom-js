@@ -1,12 +1,13 @@
 import { Prefs } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
+import { icons } from "./utils/icon.js";
 
 const SettingsModal = {
   _modalElement: null,
   _mainModule: null,
   _currentSettings: {},
-  _initialShortcuts: null,
+  _initialSettingsState: null,
   _currentShortcutTarget: null,
   _boundHandleShortcutKeyDown: null,
   _boundCloseOnEscape: null,
@@ -23,7 +24,7 @@ const SettingsModal = {
     }
 
     this._currentSettings = await Storage.loadSettings();
-    this._initialShortcuts = JSON.parse(JSON.stringify(this._currentSettings.customShortcuts || {}));
+    this._initialSettingsState = JSON.stringify(this._currentSettings);
 
     this._modalElement = this._generateHtml();
     document.documentElement.appendChild(this._modalElement);
@@ -72,6 +73,7 @@ const SettingsModal = {
       hiddenCommands: [],
       customIcons: { ...this._currentSettings.customIcons },
       customShortcuts: { ...this._currentSettings.customShortcuts },
+      toolbarButtons: [...(this._currentSettings.toolbarButtons || [])],
     };
 
     // Commands tab
@@ -97,22 +99,33 @@ const SettingsModal = {
       Prefs.setPref(prefKey, value);
     });
 
-    const shortcutsChanged =
-      JSON.stringify(this._initialShortcuts) !== JSON.stringify(newSettings.customShortcuts);
+    const somethingChanged = JSON.stringify(newSettings) !== this._initialSettingsState;
 
-    await Storage.saveSettings(newSettings);
-    await this._mainModule.loadUserConfig();
+    if (somethingChanged) {
+      await Storage.saveSettings(newSettings);
+      await this._mainModule.loadUserConfig();
+    }
+
     this.hide();
 
-    if (shortcutsChanged) {
+    const shortcutsChanged =
+      JSON.stringify(JSON.parse(this._initialSettingsState).customShortcuts) !==
+      JSON.stringify(newSettings.customShortcuts);
+    const toolbarButtonsChanged =
+      JSON.stringify(JSON.parse(this._initialSettingsState).toolbarButtons) !==
+      JSON.stringify(newSettings.toolbarButtons);
+
+    if (shortcutsChanged || toolbarButtonsChanged) {
+      let changedItem = shortcutsChanged? (toolbarButtonsChanged? "Shortcuts and Toolbar buttons" : "Shortcuts" ): "Toolbar buttons"
+      
       // TODO: Figure out how to apply changes real time (without restart)
       if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
         window.ucAPI.showToast(
-          ["Keyboard Shortcuts Changed", "A restart is required for changes to take effect."],
+          [`${changedItem} Changed`, "A restart is required for changes to take effect."],
           1 // Restart preset
         );
       } else {
-        alert("Keyboard shortcuts changed. Please restart Zen for changes to take effect.");
+        alert("Settings changed. Please restart Zen for shortcut or toolbar changes to take effect.");
       }
     } else {
       // this._mainModule.applyUserConfig();
@@ -233,6 +246,7 @@ const SettingsModal = {
     const nativeShortcut = this._mainModule.getShortcutForCommand(cmd.key);
     const allowIcons = cmd.allowIcons !== false;
     const allowShortcuts = cmd.allowShortcuts !== false;
+    const isToolbarButton = this._currentSettings.toolbarButtons?.includes(cmd.key);
 
     const shortcutInputHtml = allowShortcuts
       ? `<input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
@@ -244,6 +258,13 @@ const SettingsModal = {
           !isHidden ? "checked" : ""
         } />`
       : "";
+    const toolbarButtonHtml = allowShortcuts
+      ? `<button class="toolbar-button-toggle ${
+          isToolbarButton ? "active" : ""
+        }" title="${
+          isToolbarButton ? "Remove from Toolbar" : "Add to Toolbar"
+        }">${icons.pin }</button>`
+      : "";
 
     const itemHtml = `
       <div class="command-item" data-key="${escapeXmlAttribute(cmd.key)}">
@@ -253,6 +274,7 @@ const SettingsModal = {
         <span class="command-label">${escapeXmlAttribute(cmd.label)}</span>
         <div class="command-controls">
             ${shortcutInputHtml}
+            ${toolbarButtonHtml}
             ${visibilityToggleHtml}
         </div>
       </div>
@@ -263,12 +285,9 @@ const SettingsModal = {
     if (allowIcons) {
       item.querySelector(".command-icon").addEventListener("click", (e) => {
         const newIcon = prompt("Enter new icon URL:", e.target.src);
-        if (newIcon) {
+        if (newIcon !== null) {
           e.target.src = newIcon;
           this._currentSettings.customIcons[cmd.key] = newIcon;
-        } else if (newIcon === "") {
-          delete this._currentSettings.customIcons[cmd.key];
-          e.target.src = cmd.icon || "chrome://browser/skin/trending.svg";
         }
       });
     }
@@ -287,6 +306,25 @@ const SettingsModal = {
           this._currentShortcutTarget = null;
         }
         window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      });
+
+      const toolbarToggle = item.querySelector(".toolbar-button-toggle");
+      toolbarToggle.addEventListener("click", (e) => {
+        const button = e.currentTarget;
+        const commandKey = cmd.key;
+        if (!this._currentSettings.toolbarButtons) {
+          this._currentSettings.toolbarButtons = [];
+        }
+        const index = this._currentSettings.toolbarButtons.indexOf(commandKey);
+        if (index > -1) {
+          this._currentSettings.toolbarButtons.splice(index, 1);
+          button.classList.remove("active");
+          button.title = "Add to Toolbar";
+        } else {
+          this._currentSettings.toolbarButtons.push(commandKey);
+          button.classList.add("active");
+          button.title = "Remove from Toolbar";
+        }
       });
     }
   },
@@ -441,7 +479,7 @@ const SettingsModal = {
               <div class="search-bar-wrapper">
                 <input type="text" id="command-search-input" placeholder="Search commands..." />
               </div>
-              <p class="restart-note">Changes to keyboard shortcuts require a browser restart to take effect.</p>
+              <p class="restart-note">Changes to keyboard shortcuts or toolbar buttons require a browser restart to take effect.</p>
               <div id="commands-list"></div>
             </div>
             <div id="settings-tab-content" class="cmd-settings-tab-content" hidden>

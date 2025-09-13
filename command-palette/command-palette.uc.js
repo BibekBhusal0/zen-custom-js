@@ -13,6 +13,7 @@ import {
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
+import { escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
 
 const ZenCommandPalette = {
   /**
@@ -608,8 +609,8 @@ const ZenCommandPalette = {
       childList: true,
       subtree: true,
       attributes: true,
+      attributeFilter: ["selected", "open", "data-zen-shortcut"],
     });
-    observer.observe(urlbar, { attributes: true, attributeFilter: ["open"] });
     this._scrollObserver = observer;
     debugLog("Unified MutationObserver successfully initialized.");
   },
@@ -649,6 +650,7 @@ const ZenCommandPalette = {
    */
   applyUserConfig() {
     this.applyCustomShortcuts();
+    this.applyToolbarButtons();
   },
 
   /**
@@ -765,6 +767,39 @@ const ZenCommandPalette = {
     const commandKey = event.target.getAttribute("data-command-key");
     if (commandKey) {
       this.executeCommandByKey(commandKey);
+    }
+  },
+
+  async applyToolbarButtons() {
+    const WIDGET_PREFIX = "zen-cmd-palette-widget-";
+    const allCommands = await this.getAllCommandsForConfig();
+
+    // TODO: this is requiered for realtime changes
+    // First, remove all widgets created by this mod to handle removals cleanly.
+
+    if (!this._userConfig?.toolbarButtons) return;
+
+    for (const key of this._userConfig.toolbarButtons) {
+      const cmd = allCommands.find((c) => c.key === key);
+      if (!cmd) continue;
+
+      const widgetId = escapeXmlAttribute(`${WIDGET_PREFIX}${key}`);
+      try {
+        UC_API.Utils.createWidget({
+          id: widgetId,
+          type: "toolbarbutton",
+          label: cmd.label,
+          tooltip: cmd.label,
+          class: "toolbarbutton-1 chromeclass-toolbar-additional",
+          image: cmd.icon || "chrome://browser/skin/trending.svg",
+          callback: () => this.executeCommandByKey(key),
+        });
+        debugLog(`Created widget for command: ${key}`);
+      } catch (e) {
+        if (!e.message.includes("widget with same id already exists")) {
+          debugError(`Failed to create widget for ${key}:`, e);
+        }
+      }
     }
   },
 

@@ -261,6 +261,22 @@
           cursor: not-allowed;
         }
       }
+      .toolbar-button-toggle {
+        padding: 3px;
+        opacity: 0.6;
+        img {
+          width: 16px;
+          height: 16px;
+          filter: invert(0.8);
+        }
+        &.active {
+          opacity: 1;
+          background-color: var(--primary-bg);
+          img {
+            filter: invert(0.2);
+          }
+        }
+      }
       .visibility-toggle {
         transform: scale(1.2);
       }
