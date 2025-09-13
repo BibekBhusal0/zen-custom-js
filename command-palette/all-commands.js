@@ -743,6 +743,19 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["restart", "reopen", "close", "clear", "cache"],
   },
+  {
+    key: "app:minimize-memory",
+    label: "Minimize Memory Usage",
+    command: () => {
+      const observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+      for (let i = 0; i < 3; i++) {
+        observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
+      }
+    },
+    // condition: ucAvailable,
+    // icon: "chrome://browser/skin/zen-icons/reload.svg",
+    tags: ["memory", "free", "ram", "minimize", "space", "fast", "slow"],
+  },
 
   // ----------- Command Palette Settings -----------
   {
