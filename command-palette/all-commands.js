@@ -301,7 +301,8 @@ export const commands = [
       const newTab = window.gBrowser.duplicateTab(window.gBrowser.selectedTab);
       window.gBrowser.selectedTab = newTab;
     },
-    condition: !!window.gBrowser?.duplicateTab,
+    // disabling the temporarely to test
+    // condition: !!window.gBrowser?.duplicateTab,
     icon: "chrome://browser/skin/zen-icons/duplicate-tab.svg",
     tags: ["duplicate", "tab", "copy", "clone"],
   },
