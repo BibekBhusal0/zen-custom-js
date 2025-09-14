@@ -272,6 +272,8 @@
         width: 16px;
         height: 16px;
         justify-self: center;
+        fill: light-dark(black, white) !important;
+        -moz-context-properties: fill !important;
 
         &.editable {
           cursor: pointer;
