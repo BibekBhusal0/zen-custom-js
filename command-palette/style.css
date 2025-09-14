@@ -5,14 +5,6 @@
   display: none;
 }
 
-/* Inverting color of SVG icons */
-[src^="data:image/svg+xml"][src*="#invert"],
-[image^="data:image/svg+xml"][image*="#invert"] {
-  @media (prefers-color-scheme: dark) {
-    filter: invert();
-  }
-}
-
 :root {
   --zen-command-visible-results: 5.5;
 }

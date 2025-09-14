@@ -299,7 +299,7 @@ const SettingsModal = {
           let finalIconSrc = newIconInput.trim();
           // Check if the input is likely SVG code
           if (finalIconSrc.startsWith("<svg") && finalIconSrc.endsWith("</svg>")) {
-            finalIconSrc = svgToUrl(finalIconSrc, false);
+            finalIconSrc = svgToUrl(finalIconSrc);
           }
           e.target.src = finalIconSrc;
           this._currentSettings.customIcons[cmd.key] = finalIconSrc;
