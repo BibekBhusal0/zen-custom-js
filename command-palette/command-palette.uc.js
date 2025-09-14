@@ -89,7 +89,7 @@
         skipSessionStore: false,
       });
     } catch (error) {
-      console.error("zen-command-palette: Error clearing tabs:", error);
+      debugError("Error clearing tabs:", error);
     }
   };
 
@@ -616,48 +616,36 @@
     {
       key: "Browser:AddBookmarkAs",
       label: "Bookmark This Page",
-      command: () => PlacesCommandHook.bookmarkPage(),
-      condition: !!window.PlacesCommandHook,
       icon: "chrome://browser/skin/bookmark.svg",
       tags: ["bookmark", "save", "favorite", "add"],
     },
     {
       key: "Browser:BookmarkAllTabs",
       label: "Bookmark All Tabs",
-      command: () => PlacesCommandHook.bookmarkTabs(),
-      condition: !!window.PlacesCommandHook,
       icon: "chrome://browser/skin/bookmarks-toolbar.svg",
       tags: ["bookmark", "all", "tabs", "save"],
     },
     {
       key: "Browser:SearchBookmarks",
       label: "Search Bookmarks",
-      command: () => PlacesCommandHook.searchBookmarks(),
-      condition: !!window.PlacesCommandHook,
       icon: "chrome://browser/skin/zen-icons/search-glass.svg",
       tags: ["search", "bookmarks", "find", "filter"],
     },
     {
       key: "History:SearchHistory",
       label: "Search History",
-      command: () => PlacesCommandHook.searchHistory(),
-      condition: !!window.PlacesCommandHook,
       icon: "chrome://browser/skin/zen-icons/search-glass.svg",
       tags: ["search", "history", "find", "browse"],
     },
     {
       key: "Browser:ShowAllBookmarks",
       label: "Show All Bookmarks (Library)",
-      command: () => PlacesCommandHook.showPlacesOrganizer("AllBookmarks"),
-      condition: !!window.PlacesCommandHook,
       icon: "chrome://browser/skin/zen-icons/library.svg",
       tags: ["bookmarks", "show", "all", "library"],
     },
     {
       key: "Browser:ShowAllHistory",
       label: "Show All History (Library)",
-      command: () => PlacesCommandHook.showPlacesOrganizer("History"),
-      condition: !!window.PlacesCommandHook,
       icon: "chrome://browser/skin/history.svg",
       tags: ["history", "show", "all", "library"],
     },
@@ -692,8 +680,8 @@
     {
       key: "View:FullScreen",
       label: "Toggle Fullscreen",
-      command: () => BrowserCommands.fullScreen(),
-      condition: !!window?.BrowserCommands?.fullScreen,
+      // command: () => BrowserCommands.fullScreen(),
+      // condition: !!window?.BrowserCommands?.fullScreen,
       icon: "chrome://browser/skin/fullscreen.svg",
       tags: ["fullscreen", "full", "screen", "toggle"],
     },
@@ -734,38 +722,35 @@
       tags: ["info", "page", "details", "properties"],
     },
 
+    // FIX: both commands not working
     // ----------- Media & Screenshots -----------
-    {
-      key: "View:PictureInPicture",
-      label: "Toggle Picture-in-Picture",
-      command: () => PictureInPicture.onCommand(),
-      condition: () => typeof PictureInPicture?.onCommand === "function",
-      icon: "chrome://browser/skin/zen-icons/media-pip.svg",
-      tags: ["picture", "pip", "video", "floating"],
-    },
-    {
-      key: "Browser:Screenshot",
-      label: "Take Screenshot",
-      command: () => ScreenshotsUtils.notify(window, "Shortcut"),
-      condition: !!window.ScreenshotsUtils,
-      icon: "chrome://browser/skin/screenshot.svg",
-      tags: ["screenshot", "capture", "image", "snap"],
-    },
+    // {
+    //   key: "View:PictureInPicture",
+    //   label: "Toggle Picture-in-Picture",
+    //   command: () => PictureInPicture.onCommand(),
+    //   condition: () => typeof PictureInPicture?.onCommand === "function",
+    //   icon: "chrome://browser/skin/zen-icons/media-pip.svg",
+    //   tags: ["picture", "pip", "video", "floating"],
+    // },
+    // {
+    //   key: "Browser:Screenshot",
+    //   label: "Take Screenshot",
+    //   command: () => ScreenshotsUtils.notify(window, "Shortcut"),
+    //   condition: !!window.ScreenshotsUtils,
+    //   icon: "chrome://browser/skin/screenshot.svg",
+    //   tags: ["screenshot", "capture", "image", "snap"],
+    // },
 
     // ----------- Files & Downloads -----------
     {
       key: "Tools:Downloads",
       label: "View Downloads",
-      command: () => BrowserCommands.downloadsUI(),
-      condition: !!window.BrowserCommands,
       icon: "chrome://browser/skin/downloads/downloads.svg",
       tags: ["downloads", "files", "download", "library"],
     },
     {
       key: "Browser:SavePage",
       label: "Save Page As...",
-      command: () => saveBrowser(gBrowser.selectedBrowser),
-      condition: !!window.saveBrowser,
       icon: "chrome://browser/skin/save.svg",
       tags: ["save", "page", "download", "file"],
     },
@@ -778,8 +763,6 @@
     {
       key: "Browser:OpenFile",
       label: "Open File",
-      command: () => BrowserCommands.openFileWindow(),
-      condition: !!window.BrowserCommands,
       icon: "chrome://browser/skin/open.svg",
       tags: ["open", "file", "local", "browse"],
     },
@@ -788,8 +771,6 @@
     {
       key: "Tools:Addons",
       label: "Manage Extensions",
-      command: () => BrowserAddonUI.openAddonsMgr(),
-      condition: !!window.BrowserAddonUI,
       icon: "chrome://mozapps/skin/extensions/extension.svg",
       tags: ["addons", "extensions", "themes", "manage"],
     },
@@ -859,6 +840,7 @@
       key: "command-palette:settings-commands",
       label: "Command Palette: Configure Commands",
       command: () => ZenCommandPalette.Settings.show("commands"),
+      condition : () => !!window.ZenCommandPalette,
       icon: "chrome://browser/skin/zen-icons/settings.svg",
       tags: ["command", "palette", "settings", "configure", "customize"],
     },
@@ -866,6 +848,7 @@
       key: "command-palette:settings-preferences",
       label: "Command Palette: Preferences",
       command: () => ZenCommandPalette.Settings.show("settings"),
+      condition : () => !!window.ZenCommandPalette,
       icon: "chrome://browser/skin/zen-icons/settings.svg",
       tags: ["command", "palette", "settings", "preferences", "options"],
     },
@@ -873,6 +856,7 @@
       key: "command-palette:settings-help",
       label: "Command Palette: Help",
       command: () => ZenCommandPalette.Settings.show("help"),
+      condition : () => !!window.ZenCommandPalette,
       icon: "chrome://browser/skin/zen-icons/info.svg",
       tags: ["command", "palette", "help", "documentation", "support"],
     },
@@ -1010,7 +994,7 @@
     if (Prefs.debugMode) console.log("zen-command-palette:", ...args);
   };
 
-  const debugError = (...args) => {
+  const debugError$1 = (...args) => {
     if (Prefs.debugMode) console.error("zen-command-palette:", ...args);
   };
 
@@ -1600,7 +1584,7 @@
     _getFilePath() {
       const relativePath = Prefs.commandSettingsFile;
       if (!relativePath) {
-        debugError("Settings file path preference is not set.");
+        debugError$1("Settings file path preference is not set.");
         return null;
       }
       try {
@@ -1613,7 +1597,7 @@
         }
         return file.path;
       } catch (e) {
-        debugError("Could not construct file path:", e);
+        debugError$1("Could not construct file path:", e);
         return null;
       }
     },
@@ -1637,7 +1621,7 @@
           _settings = { ...DEFAULTS };
         }
       } catch (e) {
-        debugError("Error loading command palette settings:", e);
+        debugError$1("Error loading command palette settings:", e);
         _settings = { ...DEFAULTS };
       }
       return _settings;
@@ -1646,7 +1630,7 @@
     async saveSettings(newSettings) {
       const path = this._getFilePath();
       if (!path) {
-        debugError("Settings file path preference is not set. Cannot save.");
+        debugError$1("Settings file path preference is not set. Cannot save.");
         return;
       }
 
@@ -1658,7 +1642,7 @@
         _settings = newSettings;
         debugLog("Command palette settings saved to", path);
       } catch (e) {
-        debugError("Error saving command palette settings:", e);
+        debugError$1("Error saving command palette settings:", e);
       }
     },
 
@@ -2327,17 +2311,12 @@
     Settings: null,
     _recentCommands: [],
     MAX_RECENT_COMMANDS: 20,
-    _dynamicCommandsCache: null,
     _userConfig: {},
     _scrollObserver: null,
     _boundHandleKeysetCommand: null,
 
     safeStr(x) {
       return (x || "").toString();
-    },
-
-    clearDynamicCommandsCache() {
-      this._dynamicCommandsCache = null;
     },
 
     _closeUrlBar() {
@@ -2355,7 +2334,7 @@
           gURLBar.view.close();
         }
       } catch (e) {
-        debugError("Error in _closeUrlBar", e);
+        debugError$1("Error in _closeUrlBar", e);
       }
     },
 
@@ -2413,7 +2392,7 @@
 
         return isVisible;
       } catch (e) {
-        debugError("Error evaluating condition for", cmd && cmd.key, e);
+        debugError$1("Error evaluating condition for", cmd && cmd.key, e);
         return false;
       }
     },
@@ -2497,27 +2476,22 @@
      * with dynamically generated ones based on current preferences.
      * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
      */
-    async generateLiveCommands(createCache = true) {
-      let dynamicCommands;
-      if (this._dynamicCommandsCache) {
-        dynamicCommands = this._dynamicCommandsCache;
-      } else {
-        const commandPromises = [];
-        for (const provider of this._dynamicCommandProviders) {
-          const shouldLoad =
-            provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
-          if (shouldLoad) {
-            try {
-              commandPromises.push(provider.func());
-            } catch {}
-          }
+    async generateLiveCommands() {
+      let allCommands = [...commands];
+
+      const commandPromises = [];
+      for (const provider of this._dynamicCommandProviders) {
+        const shouldLoad =
+          provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
+        if (shouldLoad) {
+          try{
+          commandPromises.push(provider.func());
+          }catch{}
         }
-        const commandSets = await Promise.all(commandPromises);
-        dynamicCommands = commandSets.flat();
-        if ( createCache ) this._dynamicCommandsCache = dynamicCommands;
       }
 
-      let allCommands = [...commands, ...dynamicCommands];
+      const commandSets = await Promise.all(commandPromises);
+      allCommands.push(...commandSets.flat());
 
       // Apply custom icons from user config
       for (const cmd of allCommands) {
@@ -2588,10 +2562,10 @@
         query = query.substring(1).trim();
       }
 
-      // If the input was just the prefix, show a capped number of available commands.
-      // now handled asynchronously in startQuery
+      // If the input was just the prefix, show all available commands, unsorted.
       if (isCommandPrefix && !query) {
-        return [];
+        const visible = allCommands.filter(this.commandIsVisible.bind(this));
+        return visible;
       }
 
       // For non-prefixed queries, only show results if the query is long enough.
@@ -2606,6 +2580,7 @@
       const lowerQuery = query.toLowerCase();
 
       const scoredCommands = allCommands
+        .filter(this.commandIsVisible.bind(this))
         .map((cmd) => {
           const label = cmd.label || "";
           const key = cmd.key || "";
@@ -2634,16 +2609,16 @@
 
           return { cmd, score };
         })
-        .filter((item) => item.score >= Prefs.minScoreThreshold)
-        .filter((item) => this.commandIsVisible(item.cmd));
+        .filter((item) => item.score >= Prefs.minScoreThreshold);
 
       // Sort by score, descending
       scoredCommands.sort((a, b) => b.score - a.score);
 
       const finalCmds = scoredCommands.map((item) => item.cmd);
 
+      // When using the prefix, show all results. Otherwise, cap at maxCommands.
       if (isCommandPrefix) {
-        return finalCmds.slice(0, Prefs.maxCommandsPrefix);
+        return finalCmds;
       }
       return finalCmds.slice(0, Prefs.maxCommands);
     },
@@ -2654,7 +2629,7 @@
      */
     executeCommandObject(cmd) {
       if (!cmd) {
-        debugError("executeCommandObject: no command");
+        debugError$1("executeCommandObject: no command");
         return;
       }
 
@@ -2666,7 +2641,7 @@
           debugLog("Executing command via function:", cmd.key || cmd.label);
           const ret = cmd.command();
           if (ret && typeof ret.then === "function") {
-            ret.catch((e) => debugError("Command promise rejected:", e));
+            ret.catch((e) => debugError$1("Command promise rejected:", e));
           }
           return; // Execution handled.
         }
@@ -2677,10 +2652,10 @@
           debugLog("Executing command via doCommand fallback:", cmd.key);
           commandEl.doCommand();
         } else {
-          debugError("Command has no executable action:", cmd.key);
+          debugError$1("Command has no executable action:", cmd.key);
         }
       } catch (e) {
-        debugError("Command execution error:", e);
+        debugError$1("Command execution error:", e);
       }
     },
 
@@ -2690,12 +2665,12 @@
      */
     async executeCommandByKey(key) {
       if (!key) return;
-      const allCommands = await this.generateLiveCommands(false);
+      const allCommands = await this.generateLiveCommands();
       const cmd = allCommands.find((c) => c.key === key);
       if (cmd) {
         this.executeCommandObject(cmd);
       } else {
-        debugError(`executeCommandByKey: Command with key "${key}" not found.`);
+        debugError$1(`executeCommandByKey: Command with key "${key}" not found.`);
       }
     },
 
@@ -2711,7 +2686,7 @@
         }
         return null;
       } catch (e) {
-        debugError("findCommandFromDomRow error:", e);
+        debugError$1("findCommandFromDomRow error:", e);
         return null;
       }
     },
@@ -2752,7 +2727,7 @@
           document.getElementById("urlbar-results");
 
         if (!popup) {
-          debugError("Could not find urlbar popup element. Listeners not attached.");
+          debugError$1("Could not find urlbar popup element. Listeners not attached.");
           return;
         }
 
@@ -2772,7 +2747,7 @@
               e.preventDefault();
             }
           } catch (ee) {
-            debugError("onPopupClick error:", ee);
+            debugError$1("onPopupClick error:", ee);
           }
         };
 
@@ -2798,7 +2773,7 @@
               e.preventDefault();
             }
           } catch (ee) {
-            debugError("onUrlbarKeydown error:", ee);
+            debugError$1("onUrlbarKeydown error:", ee);
           }
         };
 
@@ -2809,7 +2784,7 @@
           debugLog("URL bar selection listeners attached.");
         }
       } catch (e) {
-        debugError("attachUrlbarSelectionListeners setup error:", e);
+        debugError$1("attachUrlbarSelectionListeners setup error:", e);
       }
     },
 
@@ -2873,8 +2848,12 @@
 
       const onUrlbarClose = () => {
         const isPrefixModeActive = ZenCommandPalette$1.provider?._isInPrefixMode ?? false;
-        if (this.provider) this.provider.dispose();
-        if (isPrefixModeActive) gURLBar.value = "";
+        if (this.provider) {
+          this.provider.dispose();
+        }
+        if (isPrefixModeActive) {
+          gURLBar.value = "";
+        }
       };
 
       gURLBar.inputField.addEventListener("blur", onUrlbarClose);
@@ -2889,7 +2868,6 @@
     async loadUserConfig() {
       Storage.reset();
       this._userConfig = await Storage.loadSettings();
-      this.clearDynamicCommandsCache();
       debugLog("User config loaded:", this._userConfig);
     },
 
@@ -2975,7 +2953,6 @@
      * Creates <key> elements for custom shortcuts and adds them to the document.
      */
     applyCustomShortcuts() {
-      if (!this._userConfig.customShortcuts) return;
       const KEYSET_ID = "zen-command-palette-keyset";
       let keyset = document.getElementById(KEYSET_ID);
 
@@ -2988,6 +2965,8 @@
       }
 
       keyset.replaceChildren();
+
+      if (!this._userConfig.customShortcuts) return;
 
       for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
         if (!shortcutStr) continue;
@@ -3046,7 +3025,7 @@
           debugLog(`Created widget for command: ${key}`);
         } catch (e) {
           if (!e.message.includes("widget with same id already exists")) {
-            debugError(`Failed to create widget for ${key}:`, e);
+            debugError$1(`Failed to create widget for ${key}:`, e);
           }
         }
       }
@@ -3087,7 +3066,7 @@
       const { UrlbarResult } = ChromeUtils.importESModule("resource:///modules/UrlbarResult.sys.mjs");
 
       if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
-        debugError(
+        debugError$1(
           "UrlbarProvider or UrlbarProvidersManager not available; provider not registered."
         );
         return;
@@ -3100,7 +3079,7 @@
 
           get name() {
             // HACK: setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
-            return "TestProvider";
+            return "TestProvider"; 
           }
           get type() {
             return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
@@ -3149,7 +3128,7 @@
 
               return false;
             } catch (e) {
-              debugError("isActive error:", e);
+              debugError$1("isActive error:", e);
               return false;
             }
           }
@@ -3160,7 +3139,6 @@
               const input =
                 context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
               const isPrefixSearch = input.trim().startsWith(":");
-              const query = isPrefixSearch ? input.trim().substring(1).trim() : input.trim();
 
               // Set the state flag based on the initial query.
               this._isInPrefixMode = isPrefixSearch;
@@ -3171,16 +3149,51 @@
                 // Reset if the provider is active but no longer in prefix mode.
                 Prefs.resetTempMaxRichResults();
               }
-
               if (context.canceled) return;
 
               const liveCommands = await self.generateLiveCommands();
               if (context.canceled) return;
-              this._currentCommandList = liveCommands;
+              this._currentCommandList = liveCommands; // Store for use in findCommandFromDomRow
+              const matches = self.filterCommandsByInput(input, liveCommands);
               this._lastResults = [];
 
-              const addResult = (cmd, isHeuristic = false) => {
-                if (!cmd) return;
+              if (!matches.length) {
+                if (isPrefixSearch) {
+                  const noResultsCmd = {
+                    key: "no-results",
+                    label: "No matching commands found",
+                    command: self._closeUrlBar.bind(self),
+                    icon: "chrome://browser/skin/zen-icons/info.svg",
+                  };
+
+                  const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
+                    suggestion: noResultsCmd.label,
+                    title: noResultsCmd.label,
+                    url: "",
+                    query: noResultsCmd.key,
+                    engine: "zenCommand",
+                  });
+
+                  const result = new UrlbarResult(
+                    UrlbarUtils.RESULT_TYPE.SEARCH,
+                    UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
+                    payload,
+                    payloadHighlights
+                  );
+
+                  result.heuristic = true;
+                  result._zenCmd = noResultsCmd;
+                  result.payload.icon = noResultsCmd.icon;
+                  result.providerName = this.name;
+                  result.providerType = this.type;
+                  this._lastResults.push(result);
+                  add(this, result);
+                }
+                return;
+              }
+
+              for (const [index, cmd] of matches.entries()) {
+                if (context.canceled) return;
                 const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
                   suggestion: cmd.label,
                   title: cmd.label,
@@ -3189,96 +3202,39 @@
                   engine: "zenCommand",
                   keywords: cmd?.tags,
                 });
+
                 const result = new UrlbarResult(
                   UrlbarUtils.RESULT_TYPE.SEARCH,
                   UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
                   payload,
                   payloadHighlights
                 );
-                if (isHeuristic) result.heuristic = true;
+
+                if (index === 0) {
+                  result.heuristic = true;
+                }
+
                 result._zenCmd = cmd;
                 const shortcut = self.getShortcutForCommand(cmd.key);
-                if (shortcut) result._zenShortcut = shortcut;
+                if (shortcut) {
+                  result._zenShortcut = shortcut;
+                }
                 result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
                 result.providerName = this.name;
                 result.providerType = this.type;
                 this._lastResults.push(result);
                 add(this, result);
-                return true;
-              };
-
-              if (isPrefixSearch && !query) {
-                let count = 0;
-                const maxResults = Prefs.maxCommandsPrefix;
-
-                const processCommands = async () => {
-                  const recentKeys = new Set(self._recentCommands);
-                  const recentCmds = self._recentCommands
-                    .map((key) => liveCommands.find((c) => c.key === key))
-                    .filter(Boolean);
-
-                  for (const cmd of recentCmds) {
-                    if (context.canceled || count >= maxResults) return;
-                    if (self.commandIsVisible(cmd)) {
-                      addResult(cmd, count === 0);
-                      count++;
-                    }
-                  }
-
-                  const otherCommands = liveCommands.filter((c) => !recentKeys.has(c.key));
-                  const chunkSize = 50;
-                  for (let i = 0; i < otherCommands.length; i += chunkSize) {
-                    if (context.canceled || count >= maxResults) return;
-                    const chunk = otherCommands.slice(i, i + chunkSize);
-                    for (const cmd of chunk) {
-                      if (context.canceled || count >= maxResults) break;
-                      if (self.commandIsVisible(cmd)) {
-                        addResult(cmd, count === 0);
-                        count++;
-                      }
-                    }
-                    // await new Promise((resolve) => setTimeout(resolve, 0));
-                  }
-                };
-
-                processCommands().then(() => {
-                  if (context.canceled) return;
-                  if (count === 0) {
-                    addResult({
-                      key: "no-results",
-                      label: "No matching commands found",
-                      command: self._closeUrlBar.bind(self),
-                      icon: "chrome://browser/skin/zen-icons/info.svg",
-                    });
-                  }
-                  self.attachUrlbarSelectionListeners();
-                });
-                return;
               }
-
-              const matches = self.filterCommandsByInput(input, liveCommands);
-
-              if (!matches.length && isPrefixSearch) {
-                addResult({
-                  key: "no-results",
-                  label: "No matching commands found",
-                  command: self._closeUrlBar.bind(self),
-                  icon: "chrome://browser/skin/zen-icons/info.svg",
-                });
-                return;
-              }
-
-              matches.forEach((cmd, index) => addResult(cmd, index === 0));
+              // Listeners are attached here to ensure they are active whenever results are shown.
               self.attachUrlbarSelectionListeners();
             } catch (e) {
-              debugError("startQuery unexpected error:", e);
+              debugError$1("startQuery unexpected error:", e);
             }
           }
           dispose() {
             Prefs.resetTempMaxRichResults();
             this._isInPrefixMode = false;
             setTimeout(() => {
-              self.clearDynamicCommandsCache();
               this._lastResults = [];
               this._currentCommandList = null;
             }, 0);
@@ -3289,7 +3245,7 @@
         UrlbarProvidersManager.registerProvider(this.provider);
         debugLog("Zen Command Palette provider registered.");
       } catch (e) {
-        debugError("Failed to create/register Urlbar provider:", e);
+        debugError$1("Failed to create/register Urlbar provider:", e);
       }
     },
 
@@ -3358,7 +3314,7 @@
      */
     addDynamicCommandsProvider(func, pref, { allowIcons = true, allowShortcuts = true } = {}) {
       if (typeof func !== "function") {
-        debugError("addDynamicCommandsProvider: func must be a function.");
+        debugError$1("addDynamicCommandsProvider: func must be a function.");
         return;
       }
       this._dynamicCommandProviders.push({
