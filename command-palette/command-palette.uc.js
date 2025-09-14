@@ -274,7 +274,7 @@ const ZenCommandPalette = {
    * with dynamically generated ones based on current preferences.
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
-  async generateLiveCommands() {
+  async generateLiveCommands(createCache = true) {
     let dynamicCommands;
     if (this._dynamicCommandsCache) {
       dynamicCommands = this._dynamicCommandsCache;
@@ -291,7 +291,7 @@ const ZenCommandPalette = {
       }
       const commandSets = await Promise.all(commandPromises);
       dynamicCommands = commandSets.flat();
-      this._dynamicCommandsCache = dynamicCommands;
+      if ( createCache ) this._dynamicCommandsCache = dynamicCommands;
     }
 
     let allCommands = [...staticCommands, ...dynamicCommands];
@@ -467,7 +467,7 @@ const ZenCommandPalette = {
    */
   async executeCommandByKey(key) {
     if (!key) return;
-    const allCommands = await this.generateLiveCommands();
+    const allCommands = await this.generateLiveCommands(false);
     const cmd = allCommands.find((c) => c.key === key);
     if (cmd) {
       this.executeCommandObject(cmd);
