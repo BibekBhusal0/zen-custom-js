@@ -516,7 +516,6 @@ const SettingsModal = {
               <div class="search-bar-wrapper">
                 <input type="text" id="command-search-input" placeholder="Search commands..." />
               </div>
-              <p class="restart-note">Changes to keyboard shortcuts or toolbar buttons require a browser restart to take effect.</p>
               <div id="commands-list"></div>
             </div>
             <div id="settings-tab-content" class="cmd-settings-tab-content" hidden>
