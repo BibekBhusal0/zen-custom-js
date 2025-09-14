@@ -365,10 +365,10 @@ const ZenCommandPalette = {
       query = query.substring(1).trim();
     }
 
-    // If the input was just the prefix, show all available commands, unsorted.
+    // If the input was just the prefix, show a capped number of available commands.
     if (isCommandPrefix && !query) {
       const visible = allCommands.filter(this.commandIsVisible.bind(this));
-      return visible;
+      return visible.slice(0, Prefs.maxCommandsPrefix);
     }
 
     // For non-prefixed queries, only show results if the query is long enough.
@@ -419,9 +419,8 @@ const ZenCommandPalette = {
 
     const finalCmds = scoredCommands.map((item) => item.cmd);
 
-    // When using the prefix, show all results. Otherwise, cap at maxCommands.
     if (isCommandPrefix) {
-      return finalCmds;
+      return finalCmds.slice(0, Prefs.maxCommandsPrefix);
     }
     return finalCmds.slice(0, Prefs.maxCommands);
   },
