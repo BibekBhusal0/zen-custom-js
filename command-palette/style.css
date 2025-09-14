@@ -82,9 +82,9 @@
     --modal-bg: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));
     --primary-color: var(--zen-primary-color, #8ae3be);
     --primary-bg: light-dark(color-mix(in srgb, var(--primary-color) 90%, white 10%),
-        color-mix(in srgb, var(--primary-color) 70%, black 30%));
+      color-mix(in srgb, var(--primary-color) 70%, black 30%));
     --primary-text-color: light-dark(color-mix(in srgb, var(--primary-color) 50%, black 50%),
-        color-mix(in srgb, var(--primary-color) 50%, white 50%));
+      color-mix(in srgb, var(--primary-color) 50%, white 50%));
 
     width: 600px;
     max-width: 90vw;
@@ -386,18 +386,51 @@
 
     }
 
-    #help-tab-content .link-button {
-      color: var(--primary-color);
-      text-decoration: none;
-      border: none;
-      background: none;
-      padding: 0;
-      text-align: left;
+    #help-tab-content {
 
-      &:hover {
-        text-decoration: underline;
-        background: none;
-        border: none;
+      .help-buttons-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 10px;
+
+        .help-button {
+          display: grid;
+          grid-template-areas: "icon title" "icon description";
+          grid-template-columns: auto 1fr;
+          gap: 0 15px;
+          padding: 20px;
+          text-align: left;
+          border: 1px solid rgba(127, 127, 127, 0.3);
+          border-radius: 8px;
+          background-color: rgba(127, 127, 127, 0.05);
+          transition: all 0.2s ease;
+          &:hover {
+            background-color: rgba(127, 127, 127, 0.1);
+            border-color: var(--primary-color);
+          }
+          img {
+            grid-area: icon;
+            width: 32px;
+            height: 32px;
+            align-self: center;
+            fill: currentColor;
+          }
+
+          span {
+            grid-area: title;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-text-color);
+          }
+
+          p {
+            grid-area: description;
+            font-size: 13px;
+            opacity: 0.8;
+            margin: 0;
+          }
+        }
       }
     }
   }

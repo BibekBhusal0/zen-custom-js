@@ -157,7 +157,7 @@ const SettingsModal = {
       .addEventListener("input", (e) => this._filterCommands(e.target.value));
 
     // Help tab links
-    modal.querySelectorAll(".link-button").forEach((button) => {
+    modal.querySelectorAll(".help-button").forEach((button) => {
       button.addEventListener("click", (e) => {
         const url = e.currentTarget.dataset.url;
         if (url) {
@@ -527,21 +527,23 @@ const SettingsModal = {
               <!-- Content will be populated by _populateSettingsTab -->
             </div>
             <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
-              <section class="settings-section">
-                <h4>Custom Icons</h4>
-                <p>To use custom SVG icons, they must be converted to a Base64 data URL first. You can use an online tool for this.</p>
-                <button class="link-button" data-url="https://svgencoder.com/">Open SVG Encoder</button>
-              </section>
-              <section class="settings-section">
-                <h4>Documentation</h4>
-                <p>For detailed information on how to use and configure the Command Palette, please refer to the official documentation.</p>
-                <button class="link-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette">View Documentation on GitHub</button>
-              </section>
-              <section class="settings-section">
-                <h4>Report a Bug</h4>
-                <p>If you encounter any issues or have a feature request, please open an issue on our GitHub repository.</p>
-                <button class="link-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/new">Open a New Issue</button>
-              </section>
+              <div class="help-buttons-container">
+                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette">
+                  <img src="chrome://browser/skin/zen-icons/info.svg" />
+                  <span>View Documentation</span>
+                  <p>Read the full guide on GitHub.</p>
+                </button>
+                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js">
+                  <img src="chrome://browser/skin/zen-icons/bookmark-star-on-tray.svg" />
+                  <span>Star on GitHub</span>
+                  <p>Enjoying the mod? Leave a star!</p>
+                </button>
+                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/new">
+                  <img src="chrome://browser/skin/zen-icons/info.svg" />
+                  <span>Report a Bug</span>
+                  <p>Found an issue? Let us know.</p>
+                </button>
+              </div>
             </div>
           </div>
         </div>
