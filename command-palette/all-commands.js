@@ -40,7 +40,7 @@ const clearTabs = () => {
       skipSessionStore: false,
     });
   } catch (error) {
-    console.error("zen-command-palette: Error clearing tabs:", error);
+    debugError("Error clearing tabs:", error);
   }
 };
 
