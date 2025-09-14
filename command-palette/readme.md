@@ -19,13 +19,13 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 ## ⚙️ Installation Guide
 
-1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).  
-2. Restart Zen Browser.  
-3. Open settings and go to the `Sine` tab.  
+1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).
+2. Restart Zen Browser.
+3. Open settings and go to the `Sine` tab.
 4. Search for Zen Command Palette.
 5. Click Install.
-6. A toast for restart should appear — click on that to restart Zen.  
-7. Feel productive !  
+6. A toast for restart should appear — click on that to restart Zen.
+7. Feel productive !
 
 ## 🎨 Customization & Preferences
 
@@ -33,27 +33,26 @@ The Zen Command Palette can be configured via its own settings. Simply type `: C
 
 Here are all Preferences which can be configured from `about:config` (also from settings UI)
 
-| Preference Key                                       | Type    | Default                             | Description                                                               |
-| ---------------------------------------------------- | ------- | ----------------------------------- | ------------------------------------------------------------------------- |
-| `zen-command-palette.prefix-required`                | Boolean | `false`                             | If `true`, commands only appear when the query starts with `:`.           |
-| `zen-command-palette.debug-mode`                     | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.      |
-| `zen-command-palette.max-commands`                   | Integer | `3`                                 | The maximum number of command results to display at once (without `:`).   |
-| `zen-command-palette.max-commands-prefix`            | Integer | `50`                                | The maximum number of command results to display with the `:` prefix.     |
-| `zen-command-palette.min-query-length`               | Integer | `3`                                 | Minimum characters needed to show commands (unless using the `:` prefix). |
-| `zen-command-palette.min-score-threshold`            | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.        |
-| `zen-command-palette.dynamic.about-pages`            | Boolean | `false`                             | Automatically generate commands for `about:` pages.                       |
-| `zen-command-palette.dynamic.search-engines`         | Boolean | `true`                              | Automatically generate commands for your installed search engines.        |
-| `zen-command-palette.dynamic.extensions`             | Boolean | `false`                             | Automatically generate commands for extensions with an options page.      |
-| `zen-command-palette.dynamic.extension-uninstall`             | Boolean | `false`                             | Automatically generate commands for uninstalling extension |
-| `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                              | Automatically generate commands for enabling/disabling extensions.      |
-| `zen-command-palette.dynamic.workspaces`             | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.  |
-| `zen-command-palette.dynamic.folders`                | Boolean | `true`                              | Automatically generate commands for managing Folders.                     |
-| `zen-command-palette.dynamic.sine-mods`              | Boolean | `true`                              | Automatically generate commands for uninstalling sine mods.    |
-| `zen-command-palette.dynamic.container-tabs`         | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.       |
-| `zen-command-palette.dynamic.active-tabs`            | Boolean | `false`                             | Automatically generate commands for switching between active tabs.        |
-| `zen-command-palette.dynamic.unload-tab`             | Boolean | `false`                             | Automatically generate commands for unloading active tabs.        |
-| `zen-command-palette.settings-file-path`             | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
-
+| Preference Key                                         | Type    | Default                             | Description                                                                  |
+| ------------------------------------------------------ | ------- | ----------------------------------- | ---------------------------------------------------------------------------- |
+| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with `:`.              |
+| `zen-command-palette.debug-mode`                       | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.         |
+| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without `:`).      |
+| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the `:` prefix.        |
+| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the `:` prefix).    |
+| `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.           |
+| `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                          |
+| `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.           |
+| `zen-command-palette.dynamic.extensions`               | Boolean | `false`                             | Automatically generate commands for extensions with an options page.         |
+| `zen-command-palette.dynamic.extension-uninstall`      | Boolean | `false`                             | Automatically generate commands for uninstalling extension                   |
+| `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.           |
+| `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.     |
+| `zen-command-palette.dynamic.folders`                  | Boolean | `true`                              | Automatically generate commands for managing Folders.                        |
+| `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for uninstalling sine mods.                  |
+| `zen-command-palette.dynamic.container-tabs`           | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.          |
+| `zen-command-palette.dynamic.active-tabs`              | Boolean | `false`                             | Automatically generate commands for switching between active tabs.           |
+| `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |
+| `zen-command-palette.settings-file-path`               | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
 
 ## 📋 Available Commands
 
@@ -252,7 +251,7 @@ if (window.ZenCommandPalette) {
   // if that preference is set to true. If omitted, it will always run.
   window.ZenCommandPalette.addDynamicCommandsProvider(
     generateMyDynamicCommands,
-    "my-mod.commands.enabled", // Example preference key
+    "my-mod.commands.enabled" // Example preference key
   );
 }
 ```
@@ -271,6 +270,7 @@ I tried building the browser multiple times, but I don't have proper resources t
 Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
 
 This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
+
 </details>
 
 ## 🙏 Credits and Acknowledgements

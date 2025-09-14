@@ -125,7 +125,7 @@ export async function generateExtensionEnableDisableCommands() {
   const addons = await AddonManager.getAddonsByTypes(["extension"]);
   const commands = [];
   for (const addon of addons) {
-    if (addon.isSystem ) continue;
+    if (addon.isSystem) continue;
 
     if (addon.isActive) {
       commands.push({
@@ -156,7 +156,7 @@ export async function generateExtensionUninstallCommands() {
   const addons = await AddonManager.getAddonsByTypes(["extension"]);
   const commands = [];
   for (const addon of addons) {
-    if (addon.isSystem ) continue;
+    if (addon.isSystem) continue;
 
     commands.push({
       key: `addon:uninstall:${addon.id}`,
@@ -172,7 +172,6 @@ export async function generateExtensionUninstallCommands() {
   }
   return commands;
 }
-
 
 /**
  * Generates commands for opening extension options pages.
@@ -191,7 +190,14 @@ export async function generateExtensionCommands() {
         ),
       icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
       // HACK: adding tags 3 times so that this appears in top
-      tags: ["extension", "addon", "options", addon.name.toLowerCase() ,addon.name.toLowerCase(), addon.name.toLowerCase()],
+      tags: [
+        "extension",
+        "addon",
+        "options",
+        addon.name.toLowerCase(),
+        addon.name.toLowerCase(),
+        addon.name.toLowerCase(),
+      ],
     }));
 }
 
@@ -328,7 +334,7 @@ export async function generateUnloadTabCommands() {
     }
 
     // Skip the empty new tab placeholder used by Zen.
-    if (tab.hasAttribute("zen-empty-tab") || !tab.linkedBrowser ) {
+    if (tab.hasAttribute("zen-empty-tab") || !tab.linkedBrowser) {
       continue;
     }
 

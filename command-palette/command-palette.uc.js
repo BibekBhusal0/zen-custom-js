@@ -881,7 +881,7 @@ const ZenCommandPalette = {
 
         get name() {
           // HACK: setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
-          return "TestProvider"; 
+          return "TestProvider";
         }
         get type() {
           return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;

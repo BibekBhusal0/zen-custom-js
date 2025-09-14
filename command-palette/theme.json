@@ -9,19 +9,8 @@
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/command-palette/README.md",
   "author": "Bibek Bhusal",
   "version": "1.4.0",
-  "tags": [
-    "command",
-    "palette",
-    "raycast",
-    "arc",
-    "productivity",
-    "zen browser",
-    "sine",
-    "urlbar"
-  ],
+  "tags": ["command", "palette", "raycast", "arc", "productivity", "zen browser", "sine", "urlbar"],
   "createdAt": "2024-09-07",
   "updatedAt": "2025-09-14",
-  "fork": [
-    "zen"
-  ]
+  "fork": ["zen"]
 }

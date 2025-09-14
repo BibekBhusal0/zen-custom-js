@@ -529,17 +529,17 @@ const SettingsModal = {
             <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
               <div class="help-buttons-container">
                 <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette">
-                  <img src="${escapeXmlAttribute(svgToUrl ( icons['book'] ))}" />
+                  <img src="${escapeXmlAttribute(svgToUrl(icons["book"]))}" />
                   <span>View Documentation</span>
                   <p>Read the full guide on GitHub.</p>
                 </button>
                 <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js">
-                  <img src="${escapeXmlAttribute(svgToUrl ( icons['star'] ))}" />
+                  <img src="${escapeXmlAttribute(svgToUrl(icons["star"]))}" />
                   <span>Star on GitHub</span>
                   <p>Enjoying the mod? Leave a star!</p>
                 </button>
                 <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/new">
-                  <img src="${escapeXmlAttribute(svgToUrl( icons['bug'] ))}" />
+                  <img src="${escapeXmlAttribute(svgToUrl(icons["bug"]))}" />
                   <span>Report a Bug</span>
                   <p>Found an issue? Let us know.</p>
                 </button>

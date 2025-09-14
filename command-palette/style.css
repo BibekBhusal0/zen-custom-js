@@ -1,8 +1,9 @@
 /* hiding the message to search */
-.urlbarView-row :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) .urlbarView-action {
+.urlbarView-row
+  :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}'])
+  .urlbarView-action {
   display: none;
 }
-
 
 /* Inverting color of SVG icons */
 [src^="data:image/svg+xml"][src*="#invert"],
@@ -54,7 +55,6 @@
       display: none !important;
     }
   }
-
 }
 
 /* --- Settings Modal Styles --- */
@@ -85,10 +85,14 @@
   .command-palette-settings-modal {
     --modal-bg: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));
     --primary-color: var(--zen-primary-color, #8ae3be);
-    --primary-bg: light-dark(color-mix(in srgb, var(--primary-color) 90%, white 10%),
-      color-mix(in srgb, var(--primary-color) 70%, black 30%));
-    --primary-text-color: light-dark(color-mix(in srgb, var(--primary-color) 50%, black 50%),
-      color-mix(in srgb, var(--primary-color) 50%, white 50%));
+    --primary-bg: light-dark(
+      color-mix(in srgb, var(--primary-color) 90%, white 10%),
+      color-mix(in srgb, var(--primary-color) 70%, black 30%)
+    );
+    --primary-text-color: light-dark(
+      color-mix(in srgb, var(--primary-color) 50%, black 50%),
+      color-mix(in srgb, var(--primary-color) 50%, white 50%)
+    );
 
     width: 600px;
     max-width: 90vw;
@@ -153,18 +157,14 @@
         border-radius: 999px;
         padding: 6px 16px;
 
-
-
         font-weight: 700;
         text-transform: uppercase;
         font-size: 0.75rem;
         letter-spacing: 0.5px;
         line-height: 1;
 
-
         cursor: pointer;
         transition: all 150ms ease-in-out;
-
 
         &:hover {
           transform: scale(1.03);
@@ -176,12 +176,10 @@
           transform: scale(1.05);
 
           &:hover {
-
             background-color: var(--zen-primary-color);
 
             transform: scale(1.05);
           }
-
         }
       }
     }
@@ -208,7 +206,7 @@
 
         #command-search-input {
           width: calc(100% - 24px);
-          padding: 8px 12px unset!important;
+          padding: 8px 12px unset !important;
           font-size: 14px !important;
           border: 1px solid rgba(127, 127, 127, 0.3) !important;
           border-radius: 6px !important;
@@ -216,15 +214,12 @@
           color: inherit !important;
           position: relative;
 
-
           &:focus {
             outline: none !important;
             border-color: var(--primary-color) !important;
           }
         }
-
       }
-
 
       #commands-list {
         display: flex;
@@ -310,14 +305,14 @@
 
       .toolbar-button-toggle {
         padding: 0px;
-        display :flex;
+        display: flex;
         align-content: center;
         justify-content: center;
-        width: 24px; 
+        width: 24px;
         height: 24px;
 
         svg {
-          scale: 0.75
+          scale: 0.75;
         }
 
         &.active {
@@ -387,11 +382,9 @@
           display: none !important;
         }
       }
-
     }
 
     #help-tab-content {
-
       .help-buttons-container {
         display: grid;
         grid-template-columns: 1fr;
