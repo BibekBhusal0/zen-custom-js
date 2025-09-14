@@ -1,7 +1,7 @@
 import { Prefs } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
-import { icons } from "./utils/icon.js";
+import { icons, svgToUrl } from "./utils/icon.js";
 
 const SettingsModal = {
   _modalElement: null,
@@ -294,10 +294,15 @@ const SettingsModal = {
 
     if (allowIcons) {
       item.querySelector(".command-icon").addEventListener("click", (e) => {
-        const newIcon = prompt("Enter new icon URL:", e.target.src);
-        if (newIcon !== null) {
-          e.target.src = newIcon;
-          this._currentSettings.customIcons[cmd.key] = newIcon;
+        const newIconInput = prompt("Enter new icon URL or paste SVG code:", e.target.src);
+        if (newIconInput !== null) {
+          let finalIconSrc = newIconInput.trim();
+          // Check if the input is likely SVG code
+          if (finalIconSrc.startsWith("<svg") && finalIconSrc.endsWith("</svg>")) {
+            finalIconSrc = svgToUrl(finalIconSrc, false);
+          }
+          e.target.src = finalIconSrc;
+          this._currentSettings.customIcons[cmd.key] = finalIconSrc;
         }
       });
     }
