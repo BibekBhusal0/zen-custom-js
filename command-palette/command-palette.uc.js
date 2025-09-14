@@ -746,6 +746,7 @@ const ZenCommandPalette = {
    * Creates <key> elements for custom shortcuts and adds them to the document.
    */
   applyCustomShortcuts() {
+    if (!this._userConfig.customShortcuts) return;
     const KEYSET_ID = "zen-command-palette-keyset";
     let keyset = document.getElementById(KEYSET_ID);
 
@@ -758,8 +759,6 @@ const ZenCommandPalette = {
     }
 
     keyset.replaceChildren();
-
-    if (!this._userConfig.customShortcuts) return;
 
     for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
       if (!shortcutStr) continue;
