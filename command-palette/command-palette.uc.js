@@ -24,15 +24,27 @@
   };
 
   const icons = {
-    splitVz: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-horizontal-icon lucide-square-split-horizontal"><path d="M8 19H5c-1 0-2-1-2-2V7c0-1 1-2 2-2h3"/><path d="M16 5h3c1 0 2 1 2 2v10c0 1-1 2-2 2h-3"/><line x1="12" x2="12" y1="4" y2="20"/></svg>`,
-    splitHz: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-split-vertical-icon lucide-square-split-vertical"><path d="M5 8V5c0-1 1-2 2-2h10c1 0 2 1 2 2v3"/><path d="M19 16v3c0 1-1 2-2 2H7c-1 0-2-1-2-2v-3"/><line x1="4" x2="20" y1="12" y2="12"/></svg>`,
-    splitGrid: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid2x2-icon lucide-grid-2x2"><path d="M12 3v18"/><path d="M3 12h18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`,
-    zoomIn: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-in-icon lucide-zoom-in"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`,
-    zoomOut: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zoom-out-icon lucide-zoom-out"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>`,
+    // ICON CREDITS: Lucide Icons[ISC License]
+    splitVz: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 19H5c-1 0-2-1-2-2V7c0-1 1-2 2-2h3m8 0h3c1 0 2 1 2 2v10c0 1-1 2-2 2h-3M12 4v16"/></svg>`,
+    splitHz: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8V5c0-1 1-2 2-2h10c1 0 2 1 2 2v3m0 8v3c0 1-1 2-2 2H7c-1 0-2-1-2-2v-3m-1-4h16"/></svg>`,
+    splitGrid: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 3v18m-9-9h18"/><rect width="18" height="18" x="3" y="3" rx="2"/></g></svg>`,
+    zoomIn: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21l-4.35-4.35M11 8v6m-3-3h6"/></g></svg>`,
+    zoomOut: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21l-4.35-4.35M8 11h6"/></g></svg>`,
+    pin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17v5M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4a1 1 0 0 1 1 1z"/></svg>`,
+    unpin: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 17v5m3-12.66V7a1 1 0 0 1 1-1a2 2 0 0 0 0-4H7.89M2 2l20 20M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h11"/></svg>`,
+    swap: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-repeat-icon lucide-repeat"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>`,
+    bug: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M12 20v-9m2-4a4 4 0 0 1 4 4v3a6 6 0 0 1-12 0v-3a4 4 0 0 1 4-4zm.12-3.12L16 2"/><path d="M21 21a4 4 0 0 0-3.81-4M21 5a4 4 0 0 1-3.55 3.97M22 13h-4M3 21a4 4 0 0 1 3.81-4M3 5a4 4 0 0 0 3.55 3.97M6 13H2M8 2l1.88 1.88M9 7.13V6a3 3 0 1 1 6 0v1.13"/></g></svg>`,
+    book: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 7v14m-9-3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4a4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3a3 3 0 0 0-3-3z"/></svg>`,
+    star: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z"/></svg>`,
+
+    // ICON CREDITS: Lucide Labs[ISC License]
+    broom: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 11l9-9m-7.4 10.6c.8.8.9 2.1.2 3L10 22l-8-8l6.4-4.8c.9-.7 2.2-.6 3 .2Zm-7.8-2.2l6.8 6.8M5 17l1.4-1.4"/></svg>`,
+
+    // ICON CREDITS: Tabler Icons[MIT License]
     zoomReset: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="m21 21l-6-6M3.268 12.043A7.02 7.02 0 0 0 9.902 17a7.01 7.01 0 0 0 7.043-6.131a7 7 0 0 0-5.314-7.672A7.02 7.02 0 0 0 3.39 7.6"/><path d="M3 4v4h4"/></g></svg>`,
-    pin: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-icon lucide-pin"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`,
-    unpin: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-off-icon lucide-pin-off"><path d="M12 17v5"/><path d="M15 9.34V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H7.89"/><path d="m2 2 20 20"/><path d="M9 9v1.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h11"/></svg>`,
-    broom: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"><path d="M5.185 31.954C6.529 26.914 10.638 23 15.854 23c4.895 0 8.164 4.425 8.056 9.32l-.057 2.569a7 7 0 0 0 2.097 5.154l1.106 1.086c1.586 1.557.66 4.224-1.555 4.408c-2.866.237-6.41.463-9.501.463c-3.982 0-7.963-.375-10.45-.666c-1.472-.172-2.558-1.428-2.417-2.902c.32-3.363 1.174-7.188 2.052-10.478"/><path d="M20 24.018c1.68-6.23 3.462-12.468 4.853-18.773c.219-.993-.048-2.01-1-2.365a8 8 0 0 0-.717-.226a8 8 0 0 0-.734-.162c-1.002-.17-1.742.578-2.048 1.547c-1.96 6.191-3.542 12.522-5.213 18.792M45 45H35m7-8H32m7-8H29m-18.951 8.75c-.167 1.5 0 5.2 2 8m5-7.75s0 5 2.951 7.5"/></g></svg>`,
+
+    // ICON CREDITS: Sine Github repo [GNU General Public License v3.0.]
+    // https://github.com/CosmoCreeper/Sine/blob/main/engine/assets/images/saturn.svg
     sine: `<svg fill-opacity="context-fill-opacity" fill="currentColor" height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 502.688 502.688" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <g> <g> <path d="M491.401,12.059c-23.467-23.467-70.4-9.6-145.067,42.667c-30.933-16-65.067-25.6-101.333-25.6 c-57.6,0-112,22.4-152.533,62.933c-68.267,68.267-81.067,170.667-38.4,252.8c-69.333,99.2-57.6,131.2-42.667,145.067 c7.467,7.467,18.133,11.733,29.867,11.733c23.467,0,54.4-13.867,98.133-40.533c7.467-5.333,16-10.667,24.533-17.067 c25.6,10.667,53.333,16,81.067,16c57.6,0,112-22.4,152.533-62.933c62.933-62.933,78.933-155.733,46.933-233.6 c6.4-8.533,11.733-17.067,18.133-25.6C504.201,73.925,512.734,33.392,491.401,12.059z M41.267,458.992 c1.067-8.533,7.467-32,37.333-77.867c4.267,5.333,8.533,10.667,13.867,16c8.533,8.533,18.133,16,27.733,23.467 C81.801,446.192,53.001,458.992,41.267,458.992z M156.467,394.992c-11.733-7.467-23.467-16-34.133-26.667 c-68.267-68.267-68.267-178.133,0-246.4c32-33.067,75.733-51.2,122.667-51.2s90.667,18.133,123.733,50.133 c10.667,10.667,20.267,22.4,26.667,35.2c-27.733,36.267-66.133,80-113.067,126.933 C235.401,329.925,192.734,367.259,156.467,394.992z M368.734,367.259c-33.067,33.067-77.867,52.267-123.733,52.267 c-13.867,0-27.733-2.133-41.6-5.333c36.267-28.8,74.667-62.933,112-100.267c37.333-37.333,70.4-74.667,99.2-110.933 C428.467,260.592,413.534,322.459,368.734,367.259z M422.067,120.858c-7.467-10.667-14.933-20.267-24.533-28.8 c-4.267-4.267-9.6-8.533-13.867-12.8c44.8-29.867,68.267-37.333,76.8-37.333C460.467,53.659,448.734,81.392,422.067,120.858z"></path></g></g></g></svg>`,
   };
 
@@ -183,6 +195,50 @@
       condition: () => gZenViewSplitter?.splitViewActive,
       tags: ["split", "view", "unsplit", "single", "restore"],
     },
+    {
+      key: "cmd_zenSplitViewSwap",
+      label: "Swap Split Tabs",
+      icon: svgToUrl(icons["swap"]),
+      command: () => {
+        if (
+          !gZenViewSplitter.splitViewActive ||
+          gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length !== 2
+        )
+          return;
+
+        const viewData = gZenViewSplitter._data[gZenViewSplitter.currentView];
+        const node1 = gZenViewSplitter.getSplitNodeFromTab(viewData.tabs[0]);
+        const node2 = gZenViewSplitter.getSplitNodeFromTab(viewData.tabs[1]);
+
+        gZenViewSplitter.swapNodes(node1, node2);
+        gZenViewSplitter.applyGridLayout(viewData.layoutTree);
+      },
+      condition: () =>
+        gZenViewSplitter?.splitViewActive &&
+        gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length === 2,
+      tags: ["split", "view", "swap", "panes", "tabs"],
+    },
+    {
+      key: "cmd_zenSplitViewRotate",
+      label: "Rotate Split Orientation",
+      command: () => {
+        if (
+          !gZenViewSplitter.splitViewActive ||
+          gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length !== 2
+        )
+          return;
+
+        const viewData = gZenViewSplitter._data[gZenViewSplitter.currentView];
+        const layoutTree = viewData.layoutTree;
+
+        layoutTree.direction = layoutTree.direction === "row" ? "column" : "row";
+        gZenViewSplitter.activateSplitView(viewData, true);
+      },
+      condition: () =>
+        gZenViewSplitter?.splitViewActive &&
+        gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length === 2,
+      tags: ["split", "view", "rotate", "orientation", "layout"],
+    },
 
     // ----------- Zen Glance -----------
     {
@@ -306,7 +362,8 @@
         const newTab = window.gBrowser.duplicateTab(window.gBrowser.selectedTab);
         window.gBrowser.selectedTab = newTab;
       },
-      condition: !!window.gBrowser?.duplicateTab,
+      // disabling the temporarely to test
+      // condition: !!window.gBrowser?.duplicateTab,
       icon: "chrome://browser/skin/zen-icons/duplicate-tab.svg",
       tags: ["duplicate", "tab", "copy", "clone"],
     },
@@ -458,7 +515,7 @@
       },
       icon: "chrome://browser/skin/zen-icons/close-all.svg",
       // HACK:  include multiple tags so that this appears on top when typed `unload`
-      tags: ["unload", "sleep", "unload", "unload"], 
+      tags: ["unload", "sleep", "unload", "unload"],
     },
     {
       key: "unload-other-tabs",
@@ -469,7 +526,7 @@
         }
       },
       icon: "chrome://browser/skin/zen-icons/close-all.svg",
-      tags: ["unload", "sleep" ],
+      tags: ["unload", "sleep"],
     },
 
     // ----------- Window Management -----------
@@ -785,7 +842,9 @@
       key: "app:minimize-memory",
       label: "Minimize Memory Usage",
       command: () => {
-        const observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+        const observerService = Cc["@mozilla.org/observer-service;1"].getService(
+          Ci.nsIObserverService
+        );
         for (let i = 0; i < 3; i++) {
           observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
         }
@@ -838,6 +897,8 @@
       DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
       DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
       DYNAMIC_UNLOAD_TABS: "zen-command-palette.dynamic.unload-tab",
+      DYNAMIC_EXTENSION_ENABLE_DISABLE: "zen-command-palette.dynamic.extension-enable-disable",
+      DYNAMIC_EXTENSION_UNINSTALL: "zen-command-palette.dynamic.extension-uninstall",
       COMMAND_SETTINGS_FILE: "zen-command-palette.settings-file-path",
     },
 
@@ -940,6 +1001,8 @@
     [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
     [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
     [Prefs.KEYS.DYNAMIC_UNLOAD_TABS]: false,
+    [Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
+    [Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL]: false,
     [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
   };
 
@@ -1068,6 +1131,62 @@
   }
 
   /**
+   * Generates commands for enabling or disabling extensions.
+   * @returns {Promise<Array<object>>} A promise that resolves to an array of addon state commands.
+   */
+  async function generateExtensionEnableDisableCommands() {
+    const addons = await AddonManager.getAddonsByTypes(["extension"]);
+    const commands = [];
+    for (const addon of addons) {
+      if (addon.isSystem) continue;
+
+      if (addon.isActive) {
+        commands.push({
+          key: `addon:disable:${addon.id}`,
+          label: `Disable Extension: ${addon.name}`,
+          command: () => addon.disable(),
+          icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+          tags: ["extension", "addon", "disable", addon.name.toLowerCase()],
+        });
+      } else {
+        commands.push({
+          key: `addon:enable:${addon.id}`,
+          label: `Enable Extension: ${addon.name}`,
+          command: () => addon.enable(),
+          icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+          tags: ["extension", "addon", "enable", addon.name.toLowerCase()],
+        });
+      }
+    }
+    return commands;
+  }
+
+  /**
+   * Generates commands for uninstalling extensions.
+   * @returns {Promise<Array<object>>} A promise that resolves to an array of addon uninstall commands.
+   */
+  async function generateExtensionUninstallCommands() {
+    const addons = await AddonManager.getAddonsByTypes(["extension"]);
+    const commands = [];
+    for (const addon of addons) {
+      if (addon.isSystem) continue;
+
+      commands.push({
+        key: `addon:uninstall:${addon.id}`,
+        label: `Uninstall Extension: ${addon.name}`,
+        command: () => {
+          if (confirm(`Are you sure you want to uninstall "${addon.name}"?`)) {
+            addon.uninstall();
+          }
+        },
+        icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
+        tags: ["extension", "addon", "uninstall", "remove", addon.name.toLowerCase()],
+      });
+    }
+    return commands;
+  }
+
+  /**
    * Generates commands for opening extension options pages.
    * @returns {Promise<Array<object>>} A promise that resolves to an array of extension commands.
    */
@@ -1083,7 +1202,15 @@
             "addons://detail/" + encodeURIComponent(addon.id) + "/preferences"
           ),
         icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
-        tags: ["extension", "addon", "options", addon.name.toLowerCase()],
+        // HACK: adding tags 3 times so that this appears in top
+        tags: [
+          "extension",
+          "addon",
+          "options",
+          addon.name.toLowerCase(),
+          addon.name.toLowerCase(),
+          addon.name.toLowerCase(),
+        ],
       }));
   }
 
@@ -1220,7 +1347,7 @@
       }
 
       // Skip the empty new tab placeholder used by Zen.
-      if (tab.hasAttribute("zen-empty-tab") || !tab.linkedBrowser ) {
+      if (tab.hasAttribute("zen-empty-tab") || !tab.linkedBrowser) {
         continue;
       }
 
@@ -1281,8 +1408,9 @@
     const commands = [];
     const installedMods = await SineAPI.utils.getMods();
 
+    // TODO: complete this when Sine api will be globally available
     // Generate "Install" commands. This requires the main `Sine` object to be available.
-    if (window.Sine?.marketplace) {
+    /* if (window.Sine?.marketplace) {
       const marketplaceMods = window.Sine.marketplace;
       for (const modId in marketplaceMods) {
         if (!installedMods[modId]) {
@@ -1300,7 +1428,7 @@
       debugLog(
         "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
       );
-    }
+    } */
 
     // Generate "Uninstall" commands for installed mods.
     for (const modId in installedMods) {
@@ -1716,7 +1844,7 @@
         .addEventListener("input", (e) => this._filterCommands(e.target.value));
 
       // Help tab links
-      modal.querySelectorAll(".link-button").forEach((button) => {
+      modal.querySelectorAll(".help-button").forEach((button) => {
         button.addEventListener("click", (e) => {
           const url = e.currentTarget.dataset.url;
           if (url) {
@@ -1845,12 +1973,23 @@
       const item = parseElement(itemHtml);
       container.appendChild(item);
 
+      // Fallback for failed icon loads
+      item.querySelector(".command-icon").onerror = function () {
+        this.src = "chrome://browser/skin/trending.svg";
+        this.onerror = null;
+      };
+
       if (allowIcons) {
         item.querySelector(".command-icon").addEventListener("click", (e) => {
-          const newIcon = prompt("Enter new icon URL:", e.target.src);
-          if (newIcon !== null) {
-            e.target.src = newIcon;
-            this._currentSettings.customIcons[cmd.key] = newIcon;
+          const newIconInput = prompt("Enter new icon URL or paste SVG code:", e.target.src);
+          if (newIconInput !== null) {
+            let finalIconSrc = newIconInput.trim();
+            // Check if the input is likely SVG code
+            if (finalIconSrc.startsWith("<svg") && finalIconSrc.endsWith("</svg>")) {
+              finalIconSrc = svgToUrl(finalIconSrc, false);
+            }
+            e.target.src = finalIconSrc;
+            this._currentSettings.customIcons[cmd.key] = finalIconSrc;
           }
         });
       }
@@ -1998,6 +2137,16 @@
               label: "Generate commands for unload tabs",
               type: "bool",
             },
+            {
+              key: Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
+              label: "Generate commands for enabling/disabling extensions",
+              type: "bool",
+            },
+            {
+              key: Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
+              label: "Generate commands for uninstalling extensions",
+              type: "bool",
+            },
           ],
         },
       ];
@@ -2059,32 +2208,29 @@
               <div class="search-bar-wrapper">
                 <input type="text" id="command-search-input" placeholder="Search commands..." />
               </div>
-              <p class="restart-note">Changes to keyboard shortcuts or toolbar buttons require a browser restart to take effect.</p>
               <div id="commands-list"></div>
             </div>
             <div id="settings-tab-content" class="cmd-settings-tab-content" hidden>
               <!-- Content will be populated by _populateSettingsTab -->
             </div>
             <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
-              <section class="settings-section">
-                <h4>Under Construction</h4>
-                <p>This settings panel is currently under construction. More features and customizations will be added in the future.</p>
-              </section>
-              <section class="settings-section">
-                <h4>Custom Icons</h4>
-                <p>To use custom SVG icons, they must be converted to a Base64 data URL first. You can use an online tool for this.</p>
-                <button class="link-button" data-url="https://svgencoder.com/">Open SVG Encoder</button>
-              </section>
-              <section class="settings-section">
-                <h4>Documentation</h4>
-                <p>For detailed information on how to use and configure the Command Palette, please refer to the official documentation.</p>
-                <button class="link-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette">View Documentation on GitHub</button>
-              </section>
-              <section class="settings-section">
-                <h4>Report a Bug</h4>
-                <p>If you encounter any issues or have a feature request, please open an issue on our GitHub repository.</p>
-                <button class="link-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/new">Open a New Issue</button>
-              </section>
+              <div class="help-buttons-container">
+                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette">
+                  <img src="${escapeXmlAttribute(svgToUrl(icons["book"]))}" />
+                  <span>View Documentation</span>
+                  <p>Read the full guide on GitHub.</p>
+                </button>
+                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js">
+                  <img src="${escapeXmlAttribute(svgToUrl(icons["star"]))}" />
+                  <span>Star on GitHub</span>
+                  <p>Enjoying the mod? Leave a star!</p>
+                </button>
+                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/new">
+                  <img src="${escapeXmlAttribute(svgToUrl(icons["bug"]))}" />
+                  <span>Report a Bug</span>
+                  <p>Found an issue? Let us know.</p>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2163,18 +2309,35 @@
         allowIcons: false,
         allowShortcuts: false,
       },
+      {
+        func: generateExtensionEnableDisableCommands,
+        pref: Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
+        allowIcons: false,
+        allowShortcuts: false,
+      },
+      {
+        func: generateExtensionUninstallCommands,
+        pref: Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
+        allowIcons: false,
+        allowShortcuts: false,
+      },
     ],
     staticCommands: commands,
     provider: null,
     Settings: null,
     _recentCommands: [],
     MAX_RECENT_COMMANDS: 20,
+    _dynamicCommandsCache: null,
     _userConfig: {},
     _scrollObserver: null,
     _boundHandleKeysetCommand: null,
 
     safeStr(x) {
       return (x || "").toString();
+    },
+
+    clearDynamicCommandsCache() {
+      this._dynamicCommandsCache = null;
     },
 
     _closeUrlBar() {
@@ -2335,21 +2498,26 @@
      * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
      */
     async generateLiveCommands() {
-      let allCommands = [...commands];
-
-      const commandPromises = [];
-      for (const provider of this._dynamicCommandProviders) {
-        const shouldLoad =
-          provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
-        if (shouldLoad) {
-          try{
-          commandPromises.push(provider.func());
-          }catch{}
+      let dynamicCommands;
+      if (this._dynamicCommandsCache) {
+        dynamicCommands = this._dynamicCommandsCache;
+      } else {
+        const commandPromises = [];
+        for (const provider of this._dynamicCommandProviders) {
+          const shouldLoad =
+            provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
+          if (shouldLoad) {
+            try {
+              commandPromises.push(provider.func());
+            } catch {}
+          }
         }
+        const commandSets = await Promise.all(commandPromises);
+        dynamicCommands = commandSets.flat();
+        this._dynamicCommandsCache = dynamicCommands;
       }
 
-      const commandSets = await Promise.all(commandPromises);
-      allCommands.push(...commandSets.flat());
+      let allCommands = [...commands, ...dynamicCommands];
 
       // Apply custom icons from user config
       for (const cmd of allCommands) {
@@ -2811,6 +2979,7 @@
      * Creates <key> elements for custom shortcuts and adds them to the document.
      */
     applyCustomShortcuts() {
+      if (!this._userConfig.customShortcuts) return;
       const KEYSET_ID = "zen-command-palette-keyset";
       let keyset = document.getElementById(KEYSET_ID);
 
@@ -2823,8 +2992,6 @@
       }
 
       keyset.replaceChildren();
-
-      if (!this._userConfig.customShortcuts) return;
 
       for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
         if (!shortcutStr) continue;
@@ -2937,7 +3104,7 @@
 
           get name() {
             // HACK: setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
-            return "TestProvider"; 
+            return "TestProvider";
           }
           get type() {
             return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
@@ -3092,6 +3259,7 @@
           dispose() {
             Prefs.resetTempMaxRichResults();
             this._isInPrefixMode = false;
+            self.clearDynamicCommandsCache();
             setTimeout(() => {
               this._lastResults = [];
               this._currentCommandList = null;
