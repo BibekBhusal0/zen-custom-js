@@ -524,10 +524,6 @@ const SettingsModal = {
             </div>
             <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
               <section class="settings-section">
-                <h4>Under Construction</h4>
-                <p>This settings panel is currently under construction. More features and customizations will be added in the future.</p>
-              </section>
-              <section class="settings-section">
                 <h4>Custom Icons</h4>
                 <p>To use custom SVG icons, they must be converted to a Base64 data URL first. You can use an online tool for this.</p>
                 <button class="link-button" data-url="https://svgencoder.com/">Open SVG Encoder</button>
