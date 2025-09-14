@@ -118,6 +118,63 @@ export async function generateSearchEngineCommands() {
 }
 
 /**
+ * Generates commands for enabling or disabling extensions.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of addon state commands.
+ */
+export async function generateExtensionEnableDisableCommands() {
+  const addons = await AddonManager.getAddonsByTypes(["extension"]);
+  const commands = [];
+  for (const addon of addons) {
+    if (addon.isSystem ) continue;
+
+    if (addon.isActive) {
+      commands.push({
+        key: `addon:disable:${addon.id}`,
+        label: `Disable Extension: ${addon.name}`,
+        command: () => addon.disable(),
+        icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+        tags: ["extension", "addon", "disable", addon.name.toLowerCase()],
+      });
+    } else {
+      commands.push({
+        key: `addon:enable:${addon.id}`,
+        label: `Enable Extension: ${addon.name}`,
+        command: () => addon.enable(),
+        icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+        tags: ["extension", "addon", "enable", addon.name.toLowerCase()],
+      });
+    }
+  }
+  return commands;
+}
+
+/**
+ * Generates commands for uninstalling extensions.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of addon uninstall commands.
+ */
+export async function generateExtensionUninstallCommands() {
+  const addons = await AddonManager.getAddonsByTypes(["extension"]);
+  const commands = [];
+  for (const addon of addons) {
+    if (addon.isSystem ) continue;
+
+    commands.push({
+      key: `addon:uninstall:${addon.id}`,
+      label: `Uninstall Extension: ${addon.name}`,
+      command: () => {
+        if (confirm(`Are you sure you want to uninstall "${addon.name}"?`)) {
+          addon.uninstall();
+        }
+      },
+      icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
+      tags: ["extension", "addon", "uninstall", "remove", addon.name.toLowerCase()],
+    });
+  }
+  return commands;
+}
+
+
+/**
  * Generates commands for opening extension options pages.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of extension commands.
  */
@@ -133,7 +190,8 @@ export async function generateExtensionCommands() {
           "addons://detail/" + encodeURIComponent(addon.id) + "/preferences"
         ),
       icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
-      tags: ["extension", "addon", "options", addon.name.toLowerCase()],
+      // HACK: adding tags 3 times so that this appears in top
+      tags: ["extension", "addon", "options", addon.name.toLowerCase() ,addon.name.toLowerCase(), addon.name.toLowerCase()],
     }));
 }
 

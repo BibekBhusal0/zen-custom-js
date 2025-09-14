@@ -439,6 +439,16 @@ const SettingsModal = {
             label: "Generate commands for unload tabs",
             type: "bool",
           },
+          {
+            key: Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
+            label: "Generate commands for enabling/disabling extensions",
+            type: "bool",
+          },
+          {
+            key: Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
+            label: "Generate commands for uninstalling extensions",
+            type: "bool",
+          },
         ],
       },
     ];

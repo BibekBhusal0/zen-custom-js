@@ -9,7 +9,9 @@ import {
   generateWorkspaceMoveCommands,
   generateContainerTabCommands,
   generateActiveTabCommands,
-  generateUnloadTabCommands
+  generateUnloadTabCommands,
+  generateExtensionEnableDisableCommands,
+  generateExtensionUninstallCommands,
 } from "./dynamic-commands.js";
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
@@ -81,6 +83,18 @@ const ZenCommandPalette = {
     {
       func: generateUnloadTabCommands,
       pref: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
+      allowIcons: false,
+      allowShortcuts: false,
+    },
+    {
+      func: generateExtensionEnableDisableCommands,
+      pref: Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
+      allowIcons: false,
+      allowShortcuts: false,
+    },
+    {
+      func: generateExtensionUninstallCommands,
+      pref: Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
       allowIcons: false,
       allowShortcuts: false,
     },

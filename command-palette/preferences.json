@@ -146,6 +146,18 @@
   },
   {
     "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-enable-disable",
+    "label": "Enable Extension Enable/Disable commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-uninstall",
+    "label": "Enable Extension Uninstall commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
     "property": "zen-command-palette.dynamic.about-pages",
     "label": "Enable `about:` page commands",
     "default": false

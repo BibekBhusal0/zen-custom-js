@@ -17,6 +17,8 @@ export const Prefs = {
     DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
     DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
     DYNAMIC_UNLOAD_TABS: "zen-command-palette.dynamic.unload-tab",
+    DYNAMIC_EXTENSION_ENABLE_DISABLE: "zen-command-palette.dynamic.extension-enable-disable",
+    DYNAMIC_EXTENSION_UNINSTALL: "zen-command-palette.dynamic.extension-uninstall",
     COMMAND_SETTINGS_FILE: "zen-command-palette.settings-file-path",
   },
 
@@ -119,6 +121,8 @@ Prefs.defaultValues = {
   [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
   [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
   [Prefs.KEYS.DYNAMIC_UNLOAD_TABS]: false,
+  [Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
+  [Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL]: false,
   [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
 };
 
