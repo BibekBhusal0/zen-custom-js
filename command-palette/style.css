@@ -415,15 +415,16 @@
           }
           img {
             grid-area: icon;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             align-self: center;
             fill: currentColor;
+            -moz-context-properties: fill !important;
           }
 
           span {
             grid-area: title;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
             color: var(--primary-text-color);
           }
