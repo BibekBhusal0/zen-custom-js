@@ -315,13 +315,15 @@
       }
 
       .toolbar-button-toggle {
-        padding: 3px;
-        opacity: 0.6;
+        padding: 0px;
+        display :flex;
+        align-content: center;
+        justify-content: center;
+        width: 24px; 
+        height: 24px;
 
-        img {
-          width: 16px;
-          height: 16px;
-          filter: invert(0.8);
+        svg {
+          scale: 0.75
         }
 
         &.active {
