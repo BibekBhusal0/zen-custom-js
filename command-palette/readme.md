@@ -127,9 +127,11 @@ Here are all Preferences which can be configured from `about:config` (also from 
   - Create New Folder
   - Remove Tab from Folder
 - **Split View**:
+  - Rotate Split Orientation
   - Split Grid
   - Split Horizontal
   - Split Vertical
+  - Swap Split Tabs
   - Unsplit View
 - **Glance**:
   - Close Glance
@@ -174,9 +176,16 @@ Here are all Preferences which can be configured from `about:config` (also from 
 - Clear Startup Cache
 - Customize Toolbar...
 - Manage Extensions
+- Minimize Memory Usage
 - Quit Browser
 - Restart Browser
 - Toggle Work Offline
+
+### Command Palette
+
+- Command Palette: Configure Commands
+- Command Palette: Help
+- Command Palette: Preferences
 
 ### Dynamic Commands
 
@@ -223,7 +232,7 @@ If you omit the `command` function, the palette will attempt to execute a built-
 
 ### Adding a Dynamic Command Provider
 
-For commands that change based on application state (e.g., a list of open tabs), you can add a dynamic provider. This is a function that gets called each time the palette is opened.
+For commands that change based on application state (e.g., a list of open tabs), you can add a dynamic provider. This is a function that gets called when the palette is opened for the first time. The results are cached for performance and the cache is cleared when the URL bar is closed.
 
 ```javascript
 // Example from another .uc.js file
@@ -272,9 +281,6 @@ Special thanks to [ferrocyante](https://github.com/ferrocyante) that I don't hav
 
 Special thanks to [Darsh-A](https://github.com/Darsh-A/) entire command list is adapted from her project **[ZBar-Zen](https://github.com/Darsh-A/ZBar-Zen)**. This will not have been possible without command list from [Darsh-A](https://github.com/Darsh-A/).
 
-## 📜 License
-
-This is licensed under MIT license. Check [License](../LICENSE) for more details.
 ## 📜 License
 
 This is licensed under MIT license. Check [License](../LICENSE) for more details.
