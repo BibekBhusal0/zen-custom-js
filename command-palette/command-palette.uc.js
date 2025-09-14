@@ -104,12 +104,17 @@ const ZenCommandPalette = {
   Settings: null,
   _recentCommands: [],
   MAX_RECENT_COMMANDS: 20,
+  _dynamicCommandsCache: null,
   _userConfig: {},
   _scrollObserver: null,
   _boundHandleKeysetCommand: null,
 
   safeStr(x) {
     return (x || "").toString();
+  },
+
+  clearDynamicCommandsCache() {
+    this._dynamicCommandsCache = null;
   },
 
   _closeUrlBar() {
@@ -270,21 +275,26 @@ const ZenCommandPalette = {
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
   async generateLiveCommands() {
-    let allCommands = [...staticCommands];
-
-    const commandPromises = [];
-    for (const provider of this._dynamicCommandProviders) {
-      const shouldLoad =
-        provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
-      if (shouldLoad) {
-        try{
-        commandPromises.push(provider.func());
-        }catch{}
+    let dynamicCommands;
+    if (this._dynamicCommandsCache) {
+      dynamicCommands = this._dynamicCommandsCache;
+    } else {
+      const commandPromises = [];
+      for (const provider of this._dynamicCommandProviders) {
+        const shouldLoad =
+          provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
+        if (shouldLoad) {
+          try {
+            commandPromises.push(provider.func());
+          } catch {}
+        }
       }
+      const commandSets = await Promise.all(commandPromises);
+      dynamicCommands = commandSets.flat();
+      this._dynamicCommandsCache = dynamicCommands;
     }
 
-    const commandSets = await Promise.all(commandPromises);
-    allCommands.push(...commandSets.flat());
+    let allCommands = [...staticCommands, ...dynamicCommands];
 
     // Apply custom icons from user config
     for (const cmd of allCommands) {
@@ -1026,6 +1036,7 @@ const ZenCommandPalette = {
         dispose() {
           Prefs.resetTempMaxRichResults();
           this._isInPrefixMode = false;
+          self.clearDynamicCommandsCache();
           setTimeout(() => {
             this._lastResults = [];
             this._currentCommandList = null;
