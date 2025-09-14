@@ -389,8 +389,9 @@ export async function generateSineCommands() {
   const commands = [];
   const installedMods = await SineAPI.utils.getMods();
 
+  // TODO: complete this when Sine api will be globally available
   // Generate "Install" commands. This requires the main `Sine` object to be available.
-  if (window.Sine?.marketplace) {
+  /* if (window.Sine?.marketplace) {
     const marketplaceMods = window.Sine.marketplace;
     for (const modId in marketplaceMods) {
       if (!installedMods[modId]) {
@@ -408,7 +409,7 @@ export async function generateSineCommands() {
     debugLog(
       "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
     );
-  }
+  } */
 
   // Generate "Uninstall" commands for installed mods.
   for (const modId in installedMods) {
