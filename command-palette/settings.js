@@ -286,6 +286,12 @@ const SettingsModal = {
     const item = parseElement(itemHtml);
     container.appendChild(item);
 
+    // Fallback for failed icon loads
+    item.querySelector(".command-icon").onerror = function () {
+      this.src = "chrome://browser/skin/trending.svg";
+      this.onerror = null;
+    };
+
     if (allowIcons) {
       item.querySelector(".command-icon").addEventListener("click", (e) => {
         const newIcon = prompt("Enter new icon URL:", e.target.src);
