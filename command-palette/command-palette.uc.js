@@ -105,6 +105,7 @@ const ZenCommandPalette = {
   _recentCommands: [],
   MAX_RECENT_COMMANDS: 20,
   _dynamicCommandsCache: null,
+  _commandVisibilityCache: {},
   _userConfig: {},
   _scrollObserver: null,
   _boundHandleKeysetCommand: null,
@@ -166,7 +167,12 @@ const ZenCommandPalette = {
    */
   commandIsVisible(cmd) {
     try {
+      if (cmd && cmd.key && this._commandVisibilityCache[cmd.key] !== undefined) {
+        return this._commandVisibilityCache[cmd.key];
+      }
+
       if (this._userConfig.hiddenCommands?.includes(cmd.key)) {
+        if (cmd && cmd.key) this._commandVisibilityCache[cmd.key] = false;
         return false;
       }
       let isVisible = true;
@@ -188,6 +194,7 @@ const ZenCommandPalette = {
         }
       }
 
+      if (cmd && cmd.key) this._commandVisibilityCache[cmd.key] = isVisible;
       return isVisible;
     } catch (e) {
       debugError("Error evaluating condition for", cmd && cmd.key, e);
@@ -1056,6 +1063,7 @@ const ZenCommandPalette = {
           this._isInPrefixMode = false;
           setTimeout(() => {
             self.clearDynamicCommandsCache();
+            self._commandVisibilityCache = {};
             this._lastResults = [];
             this._currentCommandList = null;
           }, 0);
