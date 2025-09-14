@@ -284,7 +284,7 @@ export const commands = [
       }
     },
     condition: () => gBrowser.selectedTab?.group?.isZenFolder,
-    icon: svgToUrl(icons["unpin"]),
+    icon: svgToUrl(icons["folderOut"]),
     tags: ["folder", "remove", "unparent", "tab"],
   },
 
