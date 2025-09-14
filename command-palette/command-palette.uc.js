@@ -2497,7 +2497,7 @@
      * with dynamically generated ones based on current preferences.
      * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
      */
-    async generateLiveCommands() {
+    async generateLiveCommands(createCache = true) {
       let dynamicCommands;
       if (this._dynamicCommandsCache) {
         dynamicCommands = this._dynamicCommandsCache;
@@ -2514,7 +2514,7 @@
         }
         const commandSets = await Promise.all(commandPromises);
         dynamicCommands = commandSets.flat();
-        this._dynamicCommandsCache = dynamicCommands;
+        if ( createCache ) this._dynamicCommandsCache = dynamicCommands;
       }
 
       let allCommands = [...commands, ...dynamicCommands];
@@ -2589,9 +2589,9 @@
       }
 
       // If the input was just the prefix, show a capped number of available commands.
+      // now handled asynchronously in startQuery
       if (isCommandPrefix && !query) {
-        const visible = allCommands.filter(this.commandIsVisible.bind(this));
-        return visible.slice(0, Prefs.maxCommandsPrefix);
+        return [];
       }
 
       // For non-prefixed queries, only show results if the query is long enough.
@@ -2606,7 +2606,6 @@
       const lowerQuery = query.toLowerCase();
 
       const scoredCommands = allCommands
-        .filter(this.commandIsVisible.bind(this))
         .map((cmd) => {
           const label = cmd.label || "";
           const key = cmd.key || "";
@@ -2635,7 +2634,8 @@
 
           return { cmd, score };
         })
-        .filter((item) => item.score >= Prefs.minScoreThreshold);
+        .filter((item) => item.score >= Prefs.minScoreThreshold)
+        .filter((item) => this.commandIsVisible(item.cmd));
 
       // Sort by score, descending
       scoredCommands.sort((a, b) => b.score - a.score);
@@ -2690,7 +2690,7 @@
      */
     async executeCommandByKey(key) {
       if (!key) return;
-      const allCommands = await this.generateLiveCommands();
+      const allCommands = await this.generateLiveCommands(false);
       const cmd = allCommands.find((c) => c.key === key);
       if (cmd) {
         this.executeCommandObject(cmd);
@@ -2873,12 +2873,8 @@
 
       const onUrlbarClose = () => {
         const isPrefixModeActive = ZenCommandPalette$1.provider?._isInPrefixMode ?? false;
-        if (this.provider) {
-          this.provider.dispose();
-        }
-        if (isPrefixModeActive) {
-          gURLBar.value = "";
-        }
+        if (this.provider) this.provider.dispose();
+        if (isPrefixModeActive) gURLBar.value = "";
       };
 
       gURLBar.inputField.addEventListener("blur", onUrlbarClose);
@@ -2893,6 +2889,7 @@
     async loadUserConfig() {
       Storage.reset();
       this._userConfig = await Storage.loadSettings();
+      this.clearDynamicCommandsCache();
       debugLog("User config loaded:", this._userConfig);
     },
 
@@ -3163,6 +3160,7 @@
               const input =
                 context?.searchString || context?.text || context?.trimmed || gURLBar?.value || "";
               const isPrefixSearch = input.trim().startsWith(":");
+              const query = isPrefixSearch ? input.trim().substring(1).trim() : input.trim();
 
               // Set the state flag based on the initial query.
               this._isInPrefixMode = isPrefixSearch;
@@ -3173,51 +3171,16 @@
                 // Reset if the provider is active but no longer in prefix mode.
                 Prefs.resetTempMaxRichResults();
               }
+
               if (context.canceled) return;
 
               const liveCommands = await self.generateLiveCommands();
               if (context.canceled) return;
-              this._currentCommandList = liveCommands; // Store for use in findCommandFromDomRow
-              const matches = self.filterCommandsByInput(input, liveCommands);
+              this._currentCommandList = liveCommands;
               this._lastResults = [];
 
-              if (!matches.length) {
-                if (isPrefixSearch) {
-                  const noResultsCmd = {
-                    key: "no-results",
-                    label: "No matching commands found",
-                    command: self._closeUrlBar.bind(self),
-                    icon: "chrome://browser/skin/zen-icons/info.svg",
-                  };
-
-                  const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
-                    suggestion: noResultsCmd.label,
-                    title: noResultsCmd.label,
-                    url: "",
-                    query: noResultsCmd.key,
-                    engine: "zenCommand",
-                  });
-
-                  const result = new UrlbarResult(
-                    UrlbarUtils.RESULT_TYPE.SEARCH,
-                    UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
-                    payload,
-                    payloadHighlights
-                  );
-
-                  result.heuristic = true;
-                  result._zenCmd = noResultsCmd;
-                  result.payload.icon = noResultsCmd.icon;
-                  result.providerName = this.name;
-                  result.providerType = this.type;
-                  this._lastResults.push(result);
-                  add(this, result);
-                }
-                return;
-              }
-
-              for (const [index, cmd] of matches.entries()) {
-                if (context.canceled) return;
+              const addResult = (cmd, isHeuristic = false) => {
+                if (!cmd) return;
                 const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
                   suggestion: cmd.label,
                   title: cmd.label,
@@ -3226,30 +3189,86 @@
                   engine: "zenCommand",
                   keywords: cmd?.tags,
                 });
-
                 const result = new UrlbarResult(
                   UrlbarUtils.RESULT_TYPE.SEARCH,
                   UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
                   payload,
                   payloadHighlights
                 );
-
-                if (index === 0) {
-                  result.heuristic = true;
-                }
-
+                if (isHeuristic) result.heuristic = true;
                 result._zenCmd = cmd;
                 const shortcut = self.getShortcutForCommand(cmd.key);
-                if (shortcut) {
-                  result._zenShortcut = shortcut;
-                }
+                if (shortcut) result._zenShortcut = shortcut;
                 result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
                 result.providerName = this.name;
                 result.providerType = this.type;
                 this._lastResults.push(result);
                 add(this, result);
+                return true;
+              };
+
+              if (isPrefixSearch && !query) {
+                let count = 0;
+                const maxResults = Prefs.maxCommandsPrefix;
+
+                const processCommands = async () => {
+                  const recentKeys = new Set(self._recentCommands);
+                  const recentCmds = self._recentCommands
+                    .map((key) => liveCommands.find((c) => c.key === key))
+                    .filter(Boolean);
+
+                  for (const cmd of recentCmds) {
+                    if (context.canceled || count >= maxResults) return;
+                    if (self.commandIsVisible(cmd)) {
+                      addResult(cmd, count === 0);
+                      count++;
+                    }
+                  }
+
+                  const otherCommands = liveCommands.filter((c) => !recentKeys.has(c.key));
+                  const chunkSize = 50;
+                  for (let i = 0; i < otherCommands.length; i += chunkSize) {
+                    if (context.canceled || count >= maxResults) return;
+                    const chunk = otherCommands.slice(i, i + chunkSize);
+                    for (const cmd of chunk) {
+                      if (context.canceled || count >= maxResults) break;
+                      if (self.commandIsVisible(cmd)) {
+                        addResult(cmd, count === 0);
+                        count++;
+                      }
+                    }
+                    // await new Promise((resolve) => setTimeout(resolve, 0));
+                  }
+                };
+
+                processCommands().then(() => {
+                  if (context.canceled) return;
+                  if (count === 0) {
+                    addResult({
+                      key: "no-results",
+                      label: "No matching commands found",
+                      command: self._closeUrlBar.bind(self),
+                      icon: "chrome://browser/skin/zen-icons/info.svg",
+                    });
+                  }
+                  self.attachUrlbarSelectionListeners();
+                });
+                return;
               }
-              // Listeners are attached here to ensure they are active whenever results are shown.
+
+              const matches = self.filterCommandsByInput(input, liveCommands);
+
+              if (!matches.length && isPrefixSearch) {
+                addResult({
+                  key: "no-results",
+                  label: "No matching commands found",
+                  command: self._closeUrlBar.bind(self),
+                  icon: "chrome://browser/skin/zen-icons/info.svg",
+                });
+                return;
+              }
+
+              matches.forEach((cmd, index) => addResult(cmd, index === 0));
               self.attachUrlbarSelectionListeners();
             } catch (e) {
               debugError("startQuery unexpected error:", e);
@@ -3258,8 +3277,8 @@
           dispose() {
             Prefs.resetTempMaxRichResults();
             this._isInPrefixMode = false;
-            self.clearDynamicCommandsCache();
             setTimeout(() => {
+              self.clearDynamicCommandsCache();
               this._lastResults = [];
               this._currentCommandList = null;
             }, 0);
