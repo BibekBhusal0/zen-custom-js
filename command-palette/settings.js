@@ -543,6 +543,11 @@ const SettingsModal = {
                   <span>Report a Bug</span>
                   <p>Found an issue? Let us know.</p>
                 </button>
+                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/22">
+                  <img src= "chrome://browser/skin/trending.svg"/>
+                  <span>More Commands</span>
+                  <p>Want more commands? Share your ideas here.</p>
+                </button>
               </div>
             </div>
           </div>
