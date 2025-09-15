@@ -40,12 +40,8 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
   }
 
   async sendMessage(prompt) {
-    const model = this.currentProvider.getModel();
-    const system = await this.getSystemPrompt();
     debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
     await super.generateText({
-      model,
-      system,
       prompt,
       tools: urlBarToolSet,
       maxSteps: PREFS.maxToolCalls,

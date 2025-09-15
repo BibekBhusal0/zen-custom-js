@@ -64,47 +64,76 @@ class LLM {
     }
   }
 
-  async generateText({ model, system, prompt, tools, maxSteps, abortSignal }) {
-    this.history.push({ role: "user", content: prompt });
-    const result = await generateText({
-      model,
-      system,
+  async getSystemPrompt() {
+    // Base implementation. Should be overridden by extending classes.
+    return "";
+  }
+
+  async generateText(options) {
+    const { prompt, ...rest } = options;
+    if (prompt) {
+      this.history.push({ role: "user", content: prompt });
+    }
+
+    const config = {
+      model: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
       messages: this.history,
-      tools,
-      maxSteps,
-      abortSignal,
-    });
-    this.history.push(...result.response.messages);
+      ...rest,
+    };
+
+    const result = await generateText(config);
+
+    // Only update history if it wasn't overridden in the options
+    if (!rest.messages) {
+      this.history.push(...result.response.messages);
+    }
     return result;
   }
 
-  streamText({ model, system, prompt, tools, maxSteps, abortSignal, onFinish }) {
-    this.history.push({ role: "user", content: prompt });
+  async streamText(options) {
+    const { prompt, onFinish, ...rest } = options;
+    if (prompt) {
+      this.history.push({ role: "user", content: prompt });
+    }
+
     const self = this;
-    return streamText({
-      model,
-      system,
+    const config = {
+      model: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
       messages: this.history,
-      tools,
-      maxSteps,
-      abortSignal,
+      ...rest,
       async onFinish(result) {
-        self.history.push(...result.response.messages);
+        // Only update history if it wasn't overridden in the options
+        if (!rest.messages) {
+          self.history.push(...result.response.messages);
+        }
         if (onFinish) onFinish(result);
       },
-    });
+    };
+    return streamText(config);
   }
 
-  async generateTextWithCitations({ model, schema, system, prompt, abortSignal }) {
-    this.history.push({ role: "user", content: prompt });
-    const { object } = await generateObject({
-      model,
-      schema,
-      system,
+  async generateTextWithCitations(options) {
+    const { prompt, ...rest } = options;
+    if (prompt) {
+      this.history.push({ role: "user", content: prompt });
+    }
+
+    const config = {
+      model: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
       messages: this.history,
-      abortSignal,
-    });
-    this.history.push({ role: "assistant", content: JSON.stringify(object) });
+      schema: citationSchema,
+      ...rest,
+    };
+
+    const { object } = await generateObject(config);
+
+    // Only update history if it wasn't overridden in the options
+    if (!rest.messages) {
+      this.history.push({ role: "assistant", content: JSON.stringify(object) });
+    }
     return object;
   }
 
@@ -350,19 +379,10 @@ Here is the initial info about the current page:
   }
 
   async sendMessage(prompt, abortSignal) {
-    await this.updateSystemPrompt();
     debugLog("Current history before sending:", this.history);
 
-    const model = this.currentProvider.getModel();
-    debugLog(`Using provider: ${this.currentProvider.name}, model: ${this.currentProvider.model}`);
-    // debugLog("System instruction for this call:", this.systemInstruction);
-
-    // Citation Mode using generateObject (non-streaming)
     if (this.citationsEnabled) {
       const object = await super.generateTextWithCitations({
-        model,
-        schema: citationSchema,
-        system: this.systemInstruction,
         prompt,
         abortSignal,
       });
@@ -374,8 +394,6 @@ Here is the initial info about the current page:
     }
 
     const commonConfig = {
-      model,
-      system: this.systemInstruction,
       prompt,
       // FIX: Can't Calling multiple tools back to back don't work
       // TODO: Better feedback is required when LLM is using tool
@@ -384,7 +402,6 @@ Here is the initial info about the current page:
       abortSignal,
     };
 
-    // Non-Citation Mode (Streaming or Non-Streaming)
     if (this.streamEnabled) {
       const self = this;
       // FIX: gives error while streaming sometimes

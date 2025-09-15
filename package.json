@@ -9,7 +9,7 @@
   "author": "Bibek Bhusal",
   "license": "MIT",
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.16",
+    "@ai-sdk/anthropic": "^2.0.17",
     "@ai-sdk/google": "^2.0.14",
     "@ai-sdk/mistral": "^2.0.14",
     "@ai-sdk/openai": "^2.0.30",
