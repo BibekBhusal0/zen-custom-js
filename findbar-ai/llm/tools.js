@@ -4,6 +4,63 @@ import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
 import { debugLog, debugError, PREFS } from "../utils/prefs.js";
 
+// ╭─────────────────────────────────────────────────────────╮
+// │                 TAB ID MANAGEMENT                       │
+// ╰─────────────────────────────────────────────────────────╯
+/**
+ * Manages unique, session-only IDs for tab objects.
+ * This is necessary because no built-in tab property is consistently
+ * available and unique for all tabs (e.g., background/unloaded tabs).
+ */
+const TabIdManager = new (class {
+  #tabIdMap = new WeakMap();
+  #idTabMap = new Map();
+  #nextId = 1;
+
+  _getOrCreateId(tab) {
+    if (!this.#tabIdMap.has(tab)) {
+      const id = this.#nextId++;
+      this.#tabIdMap.set(tab, id);
+      this.#idTabMap.set(id, tab);
+    }
+    return this.#tabIdMap.get(tab);
+  }
+
+  getTabById(id) {
+    const numericId = Number(id);
+    const tab = this.#idTabMap.get(numericId);
+    // Ensure the tab still exists in the browser before returning it.
+    if (tab && tab.ownerGlobal && !tab.ownerGlobal.closed && gBrowser.tabs.includes(tab)) {
+      return tab;
+    }
+    // Clean up the map if the tab is gone.
+    this.#idTabMap.delete(numericId);
+    return null;
+  }
+
+  mapTab(tab) {
+    if (!tab) return null;
+
+    const id = this._getOrCreateId(tab);
+    const splitGroup = tab.group?.hasAttribute("split-view-group") ? tab.group : null;
+
+    return {
+      id: String(id),
+      title: tab.label,
+      url: tab.linkedBrowser?.currentURI?.spec,
+      isCurrent: tab === gBrowser.selectedTab,
+      workspaceId: tab.getAttribute("zen-workspace-id"),
+      pinned: tab.pinned,
+      isGroup: gBrowser.isTabGroup(tab),
+      isEssential: tab.hasAttribute("zen-essential"),
+      parentFolderId: tab.group && !splitGroup ? tab.group.id : null,
+      parentFolderName: tab.group && !splitGroup ? tab.group.label : null,
+      isSplitView: !!splitGroup,
+      splitViewId: splitGroup ? splitGroup.id : null,
+    };
+  }
+})();
+
 // Helper function to create Zod string parameters
 const createStringParameter = (description, isOptional = false) => {
   let schema = z.string().describe(description);
@@ -50,40 +107,22 @@ async function confirmAndExecute(toolName, executeFn, args) {
 // ╰─────────────────────────────────────────────────────────╯
 /**
  * Retrieves tab objects based on their session IDs.
- * @param {string[]} sessionIds - An array of session IDs for the tabs to retrieve.
+ * @param {string[]} tabIds - An array of session IDs for the tabs to retrieve.
  * @returns {Array<object>} An array of tab browser elements.
  */
-function getTabsBySessionIds(sessionIds) {
-  if (!Array.isArray(sessionIds)) sessionIds = [sessionIds];
-  const allTabs = gZenWorkspaces.allStoredTabs;
-  return sessionIds
-    .map((sessionId) =>
-      allTabs.find(
-        (t) => t.linkedBrowser && String(t.linkedBrowser.sessionId) === String(sessionId)
-      )
-    )
-    .filter(Boolean);
+function getTabsByIds(tabIds) {
+  if (!Array.isArray(tabIds)) tabIds = [tabIds];
+  return tabIds.map((id) => TabIdManager.getTabById(id)).filter(Boolean);
 }
 
 /**
  * Maps a tab element to a simplified object for AI consumption.
  * @param {object} tab - The tab browser element.
- * @returns {object} A simplified tab object.
+ * @returns {object|null} A simplified tab object, or null if the tab is invalid.
  */
 function mapTabToObject(tab) {
-  if (!tab) return null;
-  return {
-    id: tab.linkedBrowser?.sessionId,
-    title: tab.label,
-    url: tab.linkedBrowser?.currentURI?.spec,
-    workspaceId: tab.getAttribute("zen-workspace-id"),
-    pinned: tab.pinned,
-    isGroup: gBrowser.isTabGroup(tab),
-    isEssential: tab.hasAttribute("zen-essential"),
-  };
+  return TabIdManager.mapTab(tab);
 }
-
-// TODO: Test Each Function
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                         SEARCH                          │
@@ -242,7 +281,7 @@ async function closeTabs(args) {
   const { tabIds } = args;
   if (!tabIds || tabIds.length === 0) return { error: "closeTabs requires an array of tabIds." };
   try {
-    const tabsToClose = getTabsBySessionIds(tabIds);
+    const tabsToClose = getTabsByIds(tabIds);
     if (tabsToClose.length === 0) return { error: "No matching tabs found to close." };
 
     gBrowser.removeTabs(tabsToClose);
@@ -267,7 +306,7 @@ async function splitExistingTabs(args) {
     return { error: "splitExistingTabs requires at least two tabIds." };
 
   try {
-    const tabs = getTabsBySessionIds(tabIds);
+    const tabs = getTabsByIds(tabIds);
     if (tabs.length < 2) return { error: "Could not find at least two tabs to split." };
 
     let gridType;
@@ -330,7 +369,7 @@ async function addTabsToFolder(args) {
   if (!tabIds || !folderId) return { error: "addTabsToFolder requires tabIds and a folderId." };
 
   try {
-    const tabs = getTabsBySessionIds(tabIds);
+    const tabs = getTabsByIds(tabIds);
     const folder = document.getElementById(folderId);
 
     if (!folder || !folder.isZenFolder) {
@@ -357,7 +396,7 @@ async function removeTabsFromFolder(args) {
   if (!tabIds) return { error: "removeTabsFromFolder requires tabIds." };
 
   try {
-    const tabs = getTabsBySessionIds(tabIds);
+    const tabs = getTabsByIds(tabIds);
     if (tabs.length === 0) return { error: "No valid tabs found." };
 
     let ungroupedCount = 0;
@@ -387,7 +426,7 @@ async function reorderTab(args) {
     return { error: "reorderTab requires a tabId and a newIndex." };
   }
   try {
-    const [tab] = getTabsBySessionIds([tabId]);
+    const tab = TabIdManager.getTabById(tabId);
     if (!tab) return { error: `Tab with id ${tabId} not found.` };
     gBrowser.moveTabTo(tab, { tabIndex: newIndex });
     return { result: `Successfully moved tab to index ${newIndex}.` };
@@ -408,7 +447,7 @@ async function addTabsToEssentials(args) {
   if (!tabIds || tabIds.length === 0)
     return { error: "addTabsToEssentials requires at least one tabId." };
   try {
-    const tabs = getTabsBySessionIds(tabIds);
+    const tabs = getTabsByIds(tabIds);
     if (tabs.length === 0) return { error: "No matching tabs found." };
     if (window.gZenPinnedTabManager) {
       gZenPinnedTabManager.addToEssentials(tabs);
@@ -433,7 +472,7 @@ async function removeTabsFromEssentials(args) {
   if (!tabIds || tabIds.length === 0)
     return { error: "removeTabsFromEssentials requires at least one tabId." };
   try {
-    const tabs = getTabsBySessionIds(tabIds);
+    const tabs = getTabsByIds(tabIds);
     if (tabs.length === 0) return { error: "No matching tabs found." };
     if (window.gZenPinnedTabManager) {
       tabs.forEach((tab) => gZenPinnedTabManager.removeFromEssentials(tab));
@@ -631,11 +670,13 @@ async function deleteBookmark(args) {
 async function getAllWorkspaces() {
   try {
     const { workspaces } = await gZenWorkspaces._workspaces();
+    const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
     const result = workspaces.map((ws) => ({
       id: ws.uuid,
       name: ws.name,
       icon: ws.icon,
       position: ws.position,
+      isActive: ws.uuid === activeWorkspaceId,
     }));
     return { workspaces: result };
   } catch (e) {
@@ -721,7 +762,7 @@ async function moveTabsToWorkspace(args) {
   if (!tabIds || !workspaceId)
     return { error: "moveTabsToWorkspace requires tabIds and a workspaceId." };
   try {
-    const tabs = getTabsBySessionIds(tabIds);
+    const tabs = getTabsByIds(tabIds);
     if (tabs.length === 0) return { error: "No valid tabs found to move." };
     gZenWorkspaces.moveTabsToWorkspace(tabs, workspaceId);
     return { result: `Successfully moved ${tabs.length} tab(s) to workspace.` };
@@ -814,6 +855,19 @@ async function showToast(args) {
   }
 }
 
+// ╭─────────────────────────────────────────────────────────╮
+// │                         YOUTUBE                         │
+// ╰─────────────────────────────────────────────────────────╯
+/**
+ * Wrapper for messageManagerAPI.getYoutubeComments to handle arguments.
+ * @param {object} args - The arguments object.
+ * @param {number} [args.count] - The number of comments to retrieve.
+ * @returns {Promise<object>} A promise that resolves with the comments.
+ */
+async function getYoutubeComments(args) {
+  return messageManagerAPI.getYoutubeComments(args.count);
+}
+
 const toolGroups = {
   search: {
     description: async () => {
@@ -898,7 +952,7 @@ const toolGroups = {
 #### Splitting Existing Tabs:
 -   **User Prompt:** "split my first two tabs"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
--   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["17123456789", "17123456999"]}}}\``,
+-   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["1", "2"]}}}\``,
   },
   tabs: {
     description: async () => `- \`getAllTabs()\`: Get a list of all open tabs across all workspaces.
@@ -969,12 +1023,12 @@ const toolGroups = {
     example: async () => `#### Finding and Closing Tabs:
 -   **User Prompt:** "close all youtube tabs"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "searchTabs", "args": {"query": "youtube.com"}}}\`
--   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["17123456789", "17123456999"]}}}\`
+-   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["1", "2"]}}}\`
 
 #### Making a Tab Essential:
 -   **User Prompt:** "make my current tab essential"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
--   **Your Second Tool Call (after finding the current tab ID):** \`{"functionCall": {"name": "addTabsToEssentials", "args": {"tabIds": ["17123456789"]}}}\``,
+-   **Your Second Tool Call (after finding the current tab ID):** \`{"functionCall": {"name": "addTabsToEssentials", "args": {"tabIds": ["5"]}}}\``,
   },
   pageInteraction: {
     description:
@@ -1031,7 +1085,7 @@ const toolGroups = {
     description: async () =>
       `- \`getYoutubeTranscript()\`: Retrieves the transcript of the current YouTube video.
 - \`getYoutubeDescription()\`: Retrieves the description of the current YouTube video.
-- \`getYoutubeComments()\`: Retrieves the top-level comments from the current YouTube video.`,
+- \`getYoutubeComments(count)\`: Retrieves top-level comments from the current YouTube video. 'count' is optional and defaults to 10.`,
     tools: {
       getYoutubeTranscript: createTool(
         "getYoutubeTranscript",
@@ -1048,15 +1102,18 @@ const toolGroups = {
       getYoutubeComments: createTool(
         "getYoutubeComments",
         "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video.",
-        {},
-        messageManagerAPI.getYoutubeComments.bind(messageManagerAPI)
+        {
+          count: z
+            .number()
+            .optional()
+            .describe("The maximum number of comments to retrieve. Defaults to 10."),
+        },
+        getYoutubeComments
       ),
     },
     example: async () => `#### Getting YouTube Video Details:
--   **User Prompt:** "give me the transcript and description of this video"
--   **Your Tool Calls (parallel):** 
-    \`{"functionCall": {"name": "getYoutubeTranscript", "args": {}}}\`
-    \`{"functionCall": {"name": "getYoutubeDescription", "args": {}}}\``,
+-   **User Prompt:** "get me the top 5 comments"
+-   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", "args": {"count": 5}}}\``,
   },
   bookmarks: {
     description:
@@ -1135,12 +1192,7 @@ Note that first and second tool clls can be made in parallel, but the third tool
 - \`moveTabsToWorkspace(tabIds, workspaceId)\`: Moves tabs to a different workspace.
 - \`reorderWorkspace(id, newPosition)\`: Changes the order of a workspace.`,
     tools: {
-      getAllWorkspaces: createTool(
-        "getAllWorkspaces",
-        "Retrieves all workspaces.",
-        {},
-        getAllWorkspaces
-      ),
+      getAllWorkspaces: createTool("getAllWorkspaces", "Retrieves all workspaces.", {}, getAllWorkspaces),
       createWorkspace: createTool(
         "createWorkspace",
         "Creates a new workspace.",
@@ -1188,7 +1240,7 @@ Note that first and second tool clls can be made in parallel, but the third tool
     example: async () => `#### Creating and Managing a Workspace:
 -   **User Prompt:** "make a new workspace called 'Research', then move my currently open tab to it."
 -   **Your First Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
--   **Your Second Tool Call (after getting the new workspace ID and current tab ID):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["17123456789"], "workspaceId": "e1f2a3b4-c5d6..."}}}\``,
+-   **Your Second Tool Call (after getting the new workspace ID and current tab ID):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["5"], "workspaceId": "e1f2a3b4-c5d6..."}}}\``,
   },
   uiFeedback: {
     description: async () =>
@@ -1241,6 +1293,8 @@ const getTools = (groups) => {
 };
 
 const toolSet = getTools();
+// NOTE: For testing only
+window.toolSet = toolSet;
 
 const getToolSystemPrompt = async (groups) => {
   try {
