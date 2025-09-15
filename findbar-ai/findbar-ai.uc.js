@@ -722,7 +722,7 @@ export const browseBotFindbar = {
       }
       const textToParse = answer.replace(
         /\[(\d+)\]/g,
-        `<button class="citation-link" data-citation-id="$1">[$1]</button>`
+        `<span class="citation-link" data-citation-id="$1">[$1]</span>`
       );
       contentDiv.appendChild(parseMD(textToParse));
     } else {
@@ -738,7 +738,7 @@ export const browseBotFindbar = {
         }
         const textToParse = answer.replace(
           /\[(\d+)\]/g,
-          `<button class="citation-link" data-citation-id="$1">[$1]</button>`
+          `<span class="citation-link" data-citation-id="$1">[$1]</span>`
         );
         contentDiv.appendChild(parseMD(textToParse));
       } else {
