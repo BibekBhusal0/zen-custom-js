@@ -298,7 +298,7 @@ const ZenCommandPalette = {
       }
       const commandSets = await Promise.all(commandPromises);
       dynamicCommands = commandSets.flat();
-      if ( createCache ) this._dynamicCommandsCache = dynamicCommands;
+      if (createCache) this._dynamicCommandsCache = dynamicCommands;
     }
 
     let allCommands = [...staticCommands, ...dynamicCommands];
