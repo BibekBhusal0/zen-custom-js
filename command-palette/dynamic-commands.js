@@ -118,6 +118,62 @@ export async function generateSearchEngineCommands() {
 }
 
 /**
+ * Generates commands for enabling or disabling extensions.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of addon state commands.
+ */
+export async function generateExtensionEnableDisableCommands() {
+  const addons = await AddonManager.getAddonsByTypes(["extension"]);
+  const commands = [];
+  for (const addon of addons) {
+    if (addon.isSystem) continue;
+
+    if (addon.isActive) {
+      commands.push({
+        key: `addon:disable:${addon.id}`,
+        label: `Disable Extension: ${addon.name}`,
+        command: () => addon.disable(),
+        icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+        tags: ["extension", "addon", "disable", addon.name.toLowerCase()],
+      });
+    } else {
+      commands.push({
+        key: `addon:enable:${addon.id}`,
+        label: `Enable Extension: ${addon.name}`,
+        command: () => addon.enable(),
+        icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+        tags: ["extension", "addon", "enable", addon.name.toLowerCase()],
+      });
+    }
+  }
+  return commands;
+}
+
+/**
+ * Generates commands for uninstalling extensions.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of addon uninstall commands.
+ */
+export async function generateExtensionUninstallCommands() {
+  const addons = await AddonManager.getAddonsByTypes(["extension"]);
+  const commands = [];
+  for (const addon of addons) {
+    if (addon.isSystem) continue;
+
+    commands.push({
+      key: `addon:uninstall:${addon.id}`,
+      label: `Uninstall Extension: ${addon.name}`,
+      command: () => {
+        if (confirm(`Are you sure you want to uninstall "${addon.name}"?`)) {
+          addon.uninstall();
+        }
+      },
+      icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
+      tags: ["extension", "addon", "uninstall", "remove", addon.name.toLowerCase()],
+    });
+  }
+  return commands;
+}
+
+/**
  * Generates commands for opening extension options pages.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of extension commands.
  */
@@ -133,8 +189,165 @@ export async function generateExtensionCommands() {
           "addons://detail/" + encodeURIComponent(addon.id) + "/preferences"
         ),
       icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
-      tags: ["extension", "addon", "options", addon.name.toLowerCase()],
+      // HACK: adding tags 3 times so that this appears in top
+      tags: [
+        "extension",
+        "addon",
+        "options",
+        addon.name.toLowerCase(),
+        addon.name.toLowerCase(),
+        addon.name.toLowerCase(),
+      ],
     }));
+}
+
+/**
+ * Generates commands for opening the current tab in different containers.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of container commands.
+ */
+export async function generateContainerTabCommands() {
+  if (!window.ContextualIdentityService) {
+    return [];
+  }
+
+  const commands = [];
+
+  commands.push({
+    key: `container-tab:open-default`,
+    label: `Open Tab without Container`,
+    command: () => {
+      const tabToMove = gBrowser.selectedTab;
+      if (tabToMove && tabToMove.linkedBrowser) {
+        const url = tabToMove.linkedBrowser.currentURI.spec;
+        window.openTrustedLinkIn(url, "tab", {
+          userContextId: 0,
+          relatedToCurrent: true,
+          triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+        });
+        gBrowser.removeTab(tabToMove);
+      }
+    },
+    icon: "chrome://browser/skin/zen-icons/tab.svg",
+    tags: ["container", "tab", "open", "default", "no container"],
+    condition: () => {
+      const currentTab = gBrowser.selectedTab;
+      return currentTab && (currentTab.userContextId || 0) !== 0;
+    },
+    allowIcons: true, // Allow user to change the default tab icon
+  });
+
+  const identities = ContextualIdentityService.getPublicIdentities();
+  if (!identities || identities.length === 0) {
+    return commands;
+  }
+
+  identities.forEach((identity) => {
+    const name = identity.name || identity.l10nId;
+    commands.push({
+      key: `container-tab:open:${identity.userContextId}`,
+      label: `Open Tab in: ${name}`,
+      command: () => {
+        const tabToMove = gBrowser.selectedTab;
+        if (tabToMove && tabToMove.linkedBrowser) {
+          const url = tabToMove.linkedBrowser.currentURI.spec;
+          window.openTrustedLinkIn(url, "tab", {
+            userContextId: identity.userContextId,
+            relatedToCurrent: true,
+            triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+          });
+          gBrowser.removeTab(tabToMove);
+        }
+      },
+      // TODO: figure out how to get container Icon
+      // Generate a colored circle icon dynamically using the container's color.
+      icon: svgToUrl(
+        `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="${identity.color}"><circle r="5" cx="8" cy="8" /></svg>`
+      ),
+      tags: ["container", "tab", "open", name.toLowerCase()],
+      condition: () => {
+        const currentTab = gBrowser.selectedTab;
+        // Show command only if the tab is not already in this container.
+        return currentTab && (currentTab.userContextId || 0) !== identity.userContextId;
+      },
+    });
+  });
+
+  return commands;
+}
+
+/**
+ * Generates commands for switching to active tabs.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of active tab commands.
+ */
+export async function generateActiveTabCommands() {
+  const commands = [];
+  // Use gZenWorkspaces.allStoredTabs to get tabs from all workspaces in the current window.
+  const tabs = window.gZenWorkspaces?.workspaceEnabled
+    ? window.gZenWorkspaces.allStoredTabs
+    : Array.from(gBrowser.tabs);
+
+  for (const tab of tabs) {
+    // Some tabs might be placeholders or internal, linkedBrowser can be null.
+    if (!tab.linkedBrowser) {
+      continue;
+    }
+
+    // Skip the empty new tab placeholder used by Zen.
+    if (tab.hasAttribute("zen-empty-tab")) {
+      continue;
+    }
+
+    commands.push({
+      key: `switch-tab:${tab.linkedBrowser.outerWindowID}-${tab.linkedBrowser.tabId}`,
+      label: `Switch to Tab: ${tab.label}`,
+      command: () => {
+        if (window.gZenWorkspaces?.workspaceEnabled) {
+          // This function handles switching workspace if necessary.
+          window.gZenWorkspaces.switchTabIfNeeded(tab);
+        } else {
+          gBrowser.selectedTab = tab;
+        }
+      },
+      condition: () => gBrowser.selectedTab !== tab,
+      icon: tab.image || "chrome://browser/skin/zen-icons/tab.svg",
+      tags: ["tab", "switch", "active", tab.label.toLowerCase()],
+    });
+  }
+  return commands;
+}
+
+/**
+ * Generates commands for unloading to tabs.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of active tab commands.
+ */
+export async function generateUnloadTabCommands() {
+  const commands = [];
+  // Use gZenWorkspaces.allStoredTabs to get tabs from all workspaces in the current window.
+  const tabs = window.gZenWorkspaces?.workspaceEnabled
+    ? window.gZenWorkspaces.allStoredTabs
+    : Array.from(gBrowser.tabs);
+
+  for (const tab of tabs) {
+    // Skip already unloaded tabs
+    if (tab.hasAttribute("pending")) {
+      continue;
+    }
+
+    // Skip the empty new tab placeholder used by Zen.
+    if (tab.hasAttribute("zen-empty-tab") || !tab.linkedBrowser) {
+      continue;
+    }
+
+    commands.push({
+      key: `unload-tab:${tab.linkedBrowser.outerWindowID}-${tab.linkedBrowser.tabId}`,
+      label: `Unload tab: ${tab.label}`,
+      command: () => gBrowser.discardBrowser(tab),
+      condition: () => gBrowser.selectedTab !== tab,
+      icon: tab.image || "chrome://browser/skin/zen-icons/close-all.svg",
+      tags: ["unload", "sleep", tab.label.toLowerCase()],
+    });
+  }
+  return commands;
 }
 
 /**
@@ -182,8 +395,9 @@ export async function generateSineCommands() {
   const commands = [];
   const installedMods = await SineAPI.utils.getMods();
 
+  // TODO: complete this when Sine api will be globally available
   // Generate "Install" commands. This requires the main `Sine` object to be available.
-  if (window.Sine?.marketplace) {
+  /* if (window.Sine?.marketplace) {
     const marketplaceMods = window.Sine.marketplace;
     for (const modId in marketplaceMods) {
       if (!installedMods[modId]) {
@@ -198,10 +412,10 @@ export async function generateSineCommands() {
       }
     }
   } else {
-    console.log(
+    debugLog(
       "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
     );
-  }
+  } */
 
   // Generate "Uninstall" commands for installed mods.
   for (const modId in installedMods) {

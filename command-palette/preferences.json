@@ -63,15 +63,15 @@
     "property": "zen-command-palette.min-score-threshold",
     "label": "Fuzzy Search Sensitivity",
     "value": "number",
-    "default": 20,
+    "default": 150,
     "placeholder": false,
     "options": [
-      { "label": "Super Strict (70)", "value": 70 },
-      { "label": "Very Strict (60)", "value": 60 },
-      { "label": "Strict (50)", "value": 50 },
-      { "label": "Balanced (40)", "value": 40 },
-      { "label": "Loose (30)", "value": 30 },
-      { "label": "Very Loose (20)", "value": 20 }
+      { "label": "Super Strict (350)", "value": 350 },
+      { "label": "Very Strict (300)", "value": 300 },
+      { "label": "Strict (250)", "value": 250 },
+      { "label": "Balanced (200)", "value": 200 },
+      { "label": "Loose (150)", "value": 150 },
+      { "label": "Very Loose (100)", "value": 100 }
     ]
   },
   {
@@ -106,7 +106,7 @@
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.extensions",
     "label": "Enable Extension Options commands",
-    "default": true
+    "default": false
   },
   {
     "type": "checkbox",
@@ -125,6 +125,36 @@
     "property": "zen-command-palette.dynamic.sine-mods",
     "label": "Enable Sine Mod Management commands",
     "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.container-tabs",
+    "label": "Enable Container Tab commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.active-tabs",
+    "label": "Enable Active Tab switching commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.unload-tab",
+    "label": "Enable Active Tab unloading commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-enable-disable",
+    "label": "Enable Extension Enable/Disable commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-uninstall",
+    "label": "Enable Extension Uninstall commands",
+    "default": false
   },
   {
     "type": "checkbox",

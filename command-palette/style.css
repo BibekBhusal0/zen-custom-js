@@ -1,28 +1,427 @@
-.urlbarView-row :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}']) {
-  /* hiding the message to search */
-
+/* hiding the message to search */
+.urlbarView-row
+  :has(.urlbarView-action[data-l10n-args='{"engine":"zenCommand"}'])
   .urlbarView-action {
-    display: none;
-  }
-
-  .urlbarView-favicon {
-    &[src^="data:image/svg+xml"]:not([src*="#noinvert"]) {
-      @media (prefers-color-scheme: dark) {
-        filter: invert();
-      }
-    }
-  }
+  display: none;
 }
 
 :root {
   --zen-command-visible-results: 5.5;
 }
 
+/* Making URL bar scrollable */
 #urlbar-results {
   scrollbar-width: thin !important;
   scrollbar-color: var(--zen-primary-color) transparent !important;
+
   &.zen-command-scrollable {
     overflow-y: auto !important;
     max-height: calc(var(--zen-command-visible-results) * 52px) !important;
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+    padding-top: 0px !important;
+    padding-bottom: 2px !important;
+  }
+}
+
+.urlbarView-row[data-zen-shortcut] {
+  position: relative !important;
+
+  &::after {
+    content: attr(data-zen-shortcut);
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-left: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
+
+    &:empty {
+      display: none !important;
+    }
+  }
+}
+
+/* --- Settings Modal Styles --- */
+#zen-cmd-settings-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+
+  .command-palette-settings-modal {
+    --modal-bg: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));
+    --primary-color: var(--zen-primary-color, #8ae3be);
+    --primary-bg: light-dark(
+      color-mix(in srgb, var(--primary-color) 90%, white 10%),
+      color-mix(in srgb, var(--primary-color) 70%, black 30%)
+    );
+    --primary-text-color: light-dark(
+      color-mix(in srgb, var(--primary-color) 50%, black 50%),
+      color-mix(in srgb, var(--primary-color) 50%, white 50%)
+    );
+
+    width: 600px;
+    max-width: 90vw;
+    height: 80vh;
+    background-color: var(--modal-bg);
+    border-radius: 8px;
+    border: 1px solid rgba(127, 127, 127, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+
+    .cmd-settings-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      div {
+        display: flex;
+        gap: 10px;
+      }
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      background-color: transparent;
+      border: 1px solid rgba(127, 127, 127, 0.3);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+
+      &:hover {
+        background-color: rgba(127, 127, 127, 0.1);
+        border-color: var(--primary-color);
+      }
+    }
+
+    .settings-save-btn {
+      background-color: var(--primary-bg) !important;
+      border-color: transparent !important;
+      color: var(--primary-text-color) !important;
+    }
+
+    .cmd-settings-tabs {
+      display: flex;
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+      gap: 10px;
+
+      .cmd-settings-tab {
+        border: none;
+
+        border-radius: 999px;
+        padding: 6px 16px;
+
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        line-height: 1;
+
+        cursor: pointer;
+        transition: all 150ms ease-in-out;
+
+        &:hover {
+          transform: scale(1.03);
+        }
+
+        &.active {
+          background-color: var(--zen-primary-color);
+
+          transform: scale(1.05);
+
+          &:hover {
+            background-color: var(--zen-primary-color);
+
+            transform: scale(1.05);
+          }
+        }
+      }
+    }
+
+    .cmd-settings-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 20px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(127, 127, 127, 0.3) transparent;
+    }
+
+    #commands-tab-content {
+      .search-bar-wrapper {
+        position: sticky;
+        top: -20px;
+        background: var(--modal-bg);
+        padding-bottom: 15px;
+        margin: -20px -20px 15px -20px;
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 20px;
+        z-index: 1;
+
+        #command-search-input {
+          width: calc(100% - 24px);
+          padding: 8px 12px unset !important;
+          font-size: 14px !important;
+          border: 1px solid rgba(127, 127, 127, 0.3) !important;
+          border-radius: 6px !important;
+          background: rgba(0, 0, 0, 0.2) !important;
+          color: inherit !important;
+          position: relative;
+
+          &:focus {
+            outline: none !important;
+            border-color: var(--primary-color) !important;
+          }
+        }
+      }
+
+      #commands-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .commands-group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 16px 0 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+
+        h4 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--primary-text-color);
+        }
+      }
+
+      .command-item {
+        display: grid;
+        grid-template-columns: 24px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 8px;
+        border-radius: 6px;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: rgba(127, 127, 127, 0.05);
+        }
+      }
+
+      .command-icon {
+        width: 16px;
+        height: 16px;
+        justify-self: center;
+        fill: light-dark(black, white) !important;
+        -moz-context-properties: fill !important;
+
+        &.editable {
+          cursor: pointer;
+          border-radius: 4px;
+          padding: 4px;
+
+          &:hover {
+            background-color: rgba(127, 127, 127, 0.1);
+          }
+        }
+      }
+
+      .command-label {
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .command-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .shortcut-input {
+        width: 120px;
+        padding: 6px 10px !important;
+        font-size: 13px !important;
+        text-align: center !important;
+        border-radius: 4px !important;
+        border: 1px solid rgba(127, 127, 127, 0.3) !important;
+        background-color: rgba(0, 0, 0, 0.2) !important;
+
+        &:disabled {
+          opacity: 0.5 !important;
+          cursor: not-allowed !important;
+        }
+      }
+
+      .toolbar-button-toggle {
+        padding: 0px;
+        display: flex;
+        align-content: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+
+        svg {
+          scale: 0.75;
+        }
+
+        &.active {
+          opacity: 1;
+          background-color: var(--primary-bg);
+
+          img {
+            filter: invert(0.2);
+          }
+        }
+      }
+
+      .visibility-toggle {
+        transform: scale(1.2);
+      }
+    }
+
+    .settings-section {
+      background: rgba(127, 127, 127, 0.05);
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid rgba(127, 127, 127, 0.3);
+      margin-bottom: 15px;
+
+      h4 {
+        margin: 0 0 10px 0;
+        font-size: 16px;
+        color: var(--primary-text-color);
+        border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+        padding-bottom: 8px;
+      }
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      label {
+        font-size: 14px;
+        flex-grow: 1;
+        margin-right: 10px;
+      }
+
+      input[type="checkbox"] {
+        transform: scale(1.2);
+        margin-right: 5px;
+      }
+
+      input[type="number"] {
+        width: 30px !important;
+        padding: 6px 10px !important;
+        font-size: 14px !important;
+        background: rgba(0, 0, 0, 0.2) !important;
+        border: 1px solid rgba(127, 127, 127, 0.3) !important;
+        border-radius: 4px !important;
+        text-align: right !important;
+        &::-moz-number-spin-box,
+        &::-moz-number-spin-up,
+        &::-moz-number-spin-down {
+          display: none !important;
+        }
+      }
+    }
+
+    #help-tab-content {
+      .help-buttons-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 10px;
+
+        .help-button {
+          display: grid;
+          grid-template-areas: "icon title" "icon description";
+          grid-template-columns: auto 1fr;
+          gap: 0 15px;
+          padding: 20px;
+          text-align: left;
+          border: 1px solid rgba(127, 127, 127, 0.3);
+          border-radius: 8px;
+          background-color: rgba(127, 127, 127, 0.05);
+          transition: all 0.2s ease;
+          &:hover {
+            background-color: rgba(127, 127, 127, 0.1);
+            border-color: var(--primary-color);
+          }
+          img {
+            grid-area: icon;
+            width: 34px;
+            height: 34px;
+            align-self: center;
+            fill: currentColor;
+            -moz-context-properties: fill !important;
+          }
+
+          span {
+            grid-area: title;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-text-color);
+          }
+
+          p {
+            grid-area: description;
+            font-size: 13px;
+            opacity: 0.8;
+            margin: 0;
+          }
+        }
+      }
+    }
   }
 }
