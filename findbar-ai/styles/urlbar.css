@@ -1,5 +1,5 @@
 #urlbar {
-&:not([open]) #urlbar-ask-ai-button {
+  &:not([open]) #urlbar-ask-ai-button {
     display: none !important;
   }
   #urlbar-ask-ai-button {
@@ -41,5 +41,4 @@
       }
     }
   }
-  
 }

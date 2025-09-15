@@ -198,7 +198,7 @@ function frameScript() {
     },
 
     GetYoutubeDescription: async () => {
-      const description = await  getYoutubeDescription()
+      const description = await getYoutubeDescription();
       return { description };
     },
 
@@ -345,4 +345,3 @@ export const messageManagerAPI = {
     }
   },
 };
-

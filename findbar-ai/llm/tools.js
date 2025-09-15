@@ -1192,7 +1192,12 @@ Note that first and second tool clls can be made in parallel, but the third tool
 - \`moveTabsToWorkspace(tabIds, workspaceId)\`: Moves tabs to a different workspace.
 - \`reorderWorkspace(id, newPosition)\`: Changes the order of a workspace.`,
     tools: {
-      getAllWorkspaces: createTool("getAllWorkspaces", "Retrieves all workspaces.", {}, getAllWorkspaces),
+      getAllWorkspaces: createTool(
+        "getAllWorkspaces",
+        "Retrieves all workspaces.",
+        {},
+        getAllWorkspaces
+      ),
       createWorkspace: createTool(
         "createWorkspace",
         "Creates a new workspace.",
