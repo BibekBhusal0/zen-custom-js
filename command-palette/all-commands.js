@@ -529,23 +529,17 @@ export const commands = [
   {
     key: "Browser:Stop",
     label: "Stop Loading",
-    // command: () => gBrowser.stop(),
-    // condition: !!gBrowser?.stop,
     tags: ["stop", "loading", "cancel", "halt"],
   },
   {
     key: "Browser:Reload",
     label: "Reload Page",
-    // command: () => gBrowser.reload(),
-    // condition: !!gBrowser?.reload,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["reload", "refresh", "page", "update"],
   },
   {
     key: "Browser:ReloadSkipCache",
     label: "Hard Reload (Skip Cache)",
-    // command: () => BrowserCommands.reloadSkipCache(),
-    // condition: !!window.BrowserCommands,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["reload", "hard", "cache", "refresh"],
   },
@@ -761,8 +755,6 @@ export const commands = [
         observerService.notifyObservers(null, "memory-pressure", "heap-minimize");
       }
     },
-    // condition: ucAvailable,
-    // icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["memory", "free", "ram", "minimize", "space", "fast", "slow"],
   },
 
