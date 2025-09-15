@@ -1,5 +1,5 @@
 import { messageManagerAPI } from "./messageManager.js";
-import { llm } from "./llm/index.js";
+import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
@@ -253,15 +253,15 @@ export const browseBotFindbar = {
       this.addExpandButton();
       if (PREFS.persistChat) {
         if (this?.findbar?.history) {
-          llm.history = this.findbar.history;
+          browseBotFindbarLLM.history = this.findbar.history;
           if (
             this?.findbar?.aiStatus &&
             JSON.stringify(this.aiStatus) !== JSON.stringify(this.findbar.aiStatus)
           ) {
-            llm.history = [];
+            browseBotFindbarLLM.history = [];
             this.findbar.history = [];
           }
-        } else llm.history = [];
+        } else browseBotFindbarLLM.history = [];
         if (this?.findbar?.expanded && !this?.findbar?.hidden) {
           setTimeout(() => (this.expanded = true), 200);
         } else {
@@ -350,7 +350,7 @@ export const browseBotFindbar = {
   },
 
   clear() {
-    llm.clearData();
+    browseBotFindbarLLM.clearData();
     if (this.findbar) {
       this.findbar.history = null;
     }
@@ -372,8 +372,8 @@ export const browseBotFindbar = {
   },
 
   createAPIKeyInterface() {
-    const currentProviderName = llm.currentProvider.name;
-    const menuItems = Object.entries(llm.AVAILABLE_PROVIDERS)
+    const currentProviderName = browseBotFindbarLLM.currentProvider.name;
+    const menuItems = Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
       .map(
         ([name, provider]) => `
                   <menuitem
@@ -424,31 +424,31 @@ export const browseBotFindbar = {
     const getApiKeyLink = container.querySelector("#get-api-key-link");
 
     // Initialize the input and link based on the currently selected provider
-    input.value = llm.currentProvider.apiKey || "";
-    getApiKeyLink.disabled = !llm.currentProvider.apiKeyUrl;
-    getApiKeyLink.title = llm.currentProvider.apiKeyUrl
+    input.value = browseBotFindbarLLM.currentProvider.apiKey || "";
+    getApiKeyLink.disabled = !browseBotFindbarLLM.currentProvider.apiKeyUrl;
+    getApiKeyLink.title = browseBotFindbarLLM.currentProvider.apiKeyUrl
       ? "Get API Key"
       : "No API key link available for this provider.";
 
     // Use 'command' event for XUL menulist
     providerSelector.addEventListener("command", (e) => {
       const selectedProviderName = e.target.value;
-      llm.setProvider(selectedProviderName); // This also updates PREFS.llmProvider internally
-      input.value = llm.currentProvider.apiKey || "";
-      getApiKeyLink.disabled = !llm.currentProvider.apiKeyUrl;
-      getApiKeyLink.title = llm.currentProvider.apiKeyUrl
+      browseBotFindbarLLM.setProvider(selectedProviderName); // This also updates PREFS.llmProvider internally
+      input.value = browseBotFindbarLLM.currentProvider.apiKey || "";
+      getApiKeyLink.disabled = !browseBotFindbarLLM.currentProvider.apiKeyUrl;
+      getApiKeyLink.title = browseBotFindbarLLM.currentProvider.apiKeyUrl
         ? "Get API Key"
         : "No API key link available for this provider.";
     });
 
     getApiKeyLink.addEventListener("click", () => {
-      openTrustedLinkIn(llm.currentProvider.apiKeyUrl, "tab");
+      openTrustedLinkIn(browseBotFindbarLLM.currentProvider.apiKeyUrl, "tab");
     });
 
     saveBtn.addEventListener("click", () => {
       const key = input.value.trim();
       if (key) {
-        llm.currentProvider.apiKey = key; // This also updates PREFS.mistralApiKey/geminiApiKey internally
+        browseBotFindbarLLM.currentProvider.apiKey = key; // This also updates PREFS.mistralApiKey/geminiApiKey internally
         this.showAIInterface(); // Refresh UI after saving key
       }
     });
@@ -474,7 +474,7 @@ export const browseBotFindbar = {
     let aiMessageDiv;
 
     try {
-      const resultPromise = llm.sendMessage(prompt, this._abortController.signal);
+      const resultPromise = browseBotFindbarLLM.sendMessage(prompt, this._abortController.signal);
 
       if (PREFS.citationsEnabled || !PREFS.streamEnabled) {
         const loadingIndicator = this.createLoadingIndicator();
@@ -732,7 +732,7 @@ export const browseBotFindbar = {
       if (role === "assistant" && PREFS.citationsEnabled) {
         // Sub-case: Rendering historical assistant message in citation mode.
         // It's a string that needs to be parsed into answer/citations.
-        const { answer, citations } = llm.parseModelResponseText(textContent);
+        const { answer, citations } = browseBotFindbarLLM.parseModelResponseText(textContent);
         if (citations && citations.length > 0) {
           messageDiv.dataset.citations = JSON.stringify(citations);
         }
@@ -759,7 +759,7 @@ export const browseBotFindbar = {
 
     this.findbar.classList.remove("ai-settings-active");
 
-    if (!llm.currentProvider.apiKey) {
+    if (!browseBotFindbarLLM.currentProvider.apiKey) {
       this.apiKeyContainer = this.createAPIKeyInterface();
       this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     } else {
@@ -767,7 +767,7 @@ export const browseBotFindbar = {
       if (PREFS.dndEnabled) this.enableDND();
 
       // Re-render history using the new message format
-      const history = llm.getHistory();
+      const history = browseBotFindbarLLM.getHistory();
       for (const message of history) {
         this.addChatMessage(message);
       }
@@ -1186,7 +1186,7 @@ export const browseBotFindbar = {
     );
     this._persistListener = UC_API.Prefs.addListener(PREFS.PERSIST, (pref) => {
       if (!this.findbar) return;
-      if (pref.value) this.findbar.history = llm.history;
+      if (pref.value) this.findbar.history = browseBotFindbarLLM.history;
       else this.findbar.history = null;
     });
     this._dndListener = UC_API.Prefs.addListener(PREFS.DND_ENABLED, (pref) => {

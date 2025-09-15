@@ -1,4 +1,4 @@
-import { llm } from "./llm/index.js";
+import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
@@ -16,7 +16,7 @@ export const SettingsModal = {
     const container = parseElement(settingsHtml);
     this._modalElement = container;
 
-    const providerOptionsXUL = Object.entries(llm.AVAILABLE_PROVIDERS)
+    const providerOptionsXUL = Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
       .map(
         ([name, provider]) =>
           `<menuitem
@@ -71,7 +71,7 @@ export const SettingsModal = {
       positionPlaceholder.replaceWith(positionSelectorXulElement);
     }
 
-    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
+    for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = provider.modelPref;
       const currentModel = provider.model;
 
@@ -218,7 +218,7 @@ export const SettingsModal = {
       }
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
-    if (!llm.currentProvider.apiKey) {
+    if (!browseBotFindbarLLM.currentProvider.apiKey) {
       browseBotFindbar.expanded = false;
     }
   },
@@ -275,7 +275,7 @@ export const SettingsModal = {
         }
       }
       // Update the "Get API Key" link's state for the active provider
-      const provider = llm.AVAILABLE_PROVIDERS[selectedProviderName];
+      const provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[selectedProviderName];
       const getApiKeyLink = activeGroup.querySelector(".get-api-key-link");
       if (getApiKeyLink) {
         if (provider.apiKeyUrl) {
@@ -400,7 +400,7 @@ export const SettingsModal = {
     );
 
     let llmProviderSettingsHtml = "";
-    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
+    for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
       const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
 

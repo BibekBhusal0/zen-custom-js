@@ -26,10 +26,14 @@ const citationSchema = z.object({
     .describe("An array of citation objects from the source text."),
 });
 
+/**
+ * A base class for interacting with language models.
+ * It handles provider management, history, and provides generic methods
+ * for text generation, streaming, and object generation.
+ */
 class LLM {
   constructor() {
     this.history = [];
-    this.systemInstruction = "";
     this.AVAILABLE_PROVIDERS = {
       claude: claude,
       gemini: gemini,
@@ -40,6 +44,95 @@ class LLM {
       perplexity: perplexity,
     };
   }
+
+  get llmProvider() {
+    return PREFS.llmProvider;
+  }
+
+  get currentProvider() {
+    return (
+      this.AVAILABLE_PROVIDERS[this.llmProvider || "gemini"] || this.AVAILABLE_PROVIDERS["gemini"]
+    );
+  }
+
+  setProvider(providerName) {
+    if (this.AVAILABLE_PROVIDERS[providerName]) {
+      PREFS.llmProvider = providerName;
+      debugLog(`Switched LLM provider to: ${providerName}`);
+    } else {
+      debugError(`Provider "${providerName}" not found.`);
+    }
+  }
+
+  async generateText({ model, system, prompt, tools, maxSteps, abortSignal }) {
+    this.history.push({ role: "user", content: prompt });
+    const result = await generateText({
+      model,
+      system,
+      messages: this.history,
+      tools,
+      maxSteps,
+      abortSignal,
+    });
+    this.history.push(...result.response.messages);
+    return result;
+  }
+
+  streamText({ model, system, prompt, tools, maxSteps, abortSignal, onFinish }) {
+    this.history.push({ role: "user", content: prompt });
+    const self = this;
+    return streamText({
+      model,
+      system,
+      messages: this.history,
+      tools,
+      maxSteps,
+      abortSignal,
+      async onFinish(result) {
+        self.history.push(...result.response.messages);
+        if (onFinish) onFinish(result);
+      },
+    });
+  }
+
+  async generateTextWithCitations({ model, schema, system, prompt, abortSignal }) {
+    this.history.push({ role: "user", content: prompt });
+    const { object } = await generateObject({
+      model,
+      schema,
+      system,
+      messages: this.history,
+      abortSignal,
+    });
+    this.history.push({ role: "assistant", content: JSON.stringify(object) });
+    return object;
+  }
+
+  getHistory() {
+    return [...this.history];
+  }
+
+  clearData() {
+    debugLog("Clearing LLM history and system prompt.");
+    this.history = [];
+  }
+
+  getLastMessage() {
+    return this.history.length > 0 ? this.history[this.history.length - 1] : null;
+  }
+}
+
+/**
+ * An extended LLM class specifically for the BrowseBot Findbar.
+ * It manages application-specific states like godMode, streaming, citations,
+ * and constructs the appropriate system prompts.
+ */
+class BrowseBotLLM extends LLM {
+  constructor() {
+    super();
+    this.systemInstruction = "";
+  }
+
   get godMode() {
     return PREFS.godMode;
   }
@@ -52,28 +145,12 @@ class LLM {
   get maxToolCalls() {
     return PREFS.maxToolCalls;
   }
-  get llmProvider() {
-    return PREFS.llmProvider;
-  }
 
-  get currentProvider() {
-    return (
-      this.AVAILABLE_PROVIDERS[this.llmProvider || "gemini"] || this.AVAILABLE_PROVIDERS["gemini"]
-    );
-  }
-  setProvider(providerName) {
-    if (this.AVAILABLE_PROVIDERS[providerName]) {
-      PREFS.llmProvider = providerName;
-      debugLog(`Switched LLM provider to: ${providerName}`);
-    } else {
-      debugError(`Provider "${providerName}" not found.`);
-    }
-  }
   async updateSystemPrompt() {
     debugLog("Updating system prompt...");
-    const promptText = await this.getSystemPrompt();
-    this.systemInstruction = promptText;
+    this.systemInstruction = await this.getSystemPrompt();
   }
+
   async getSystemPrompt() {
     let systemPrompt = `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
 
@@ -241,9 +318,9 @@ Here is the initial info about the current page:
       const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
-    // debugLog("Final System Prompt:", systemPrompt);
     return systemPrompt;
   }
+
   parseModelResponseText(responseText) {
     let answer = responseText;
     let citations = [];
@@ -274,8 +351,6 @@ Here is the initial info about the current page:
 
   async sendMessage(prompt, abortSignal) {
     await this.updateSystemPrompt();
-
-    this.history.push({ role: "user", content: prompt });
     debugLog("Current history before sending:", this.history);
 
     const model = this.currentProvider.getModel();
@@ -284,28 +359,24 @@ Here is the initial info about the current page:
 
     // Citation Mode using generateObject (non-streaming)
     if (this.citationsEnabled) {
-      const { object } = await generateObject({
+      const object = await super.generateTextWithCitations({
         model,
         schema: citationSchema,
         system: this.systemInstruction,
-        messages: this.history,
+        prompt,
         abortSignal,
       });
 
-      // Manually add the assistant's structured response to the history
-      this.history.push({ role: "assistant", content: JSON.stringify(object) });
-
-      if (browseBotFindbar?.findbar && this.persistChat) {
+      if (browseBotFindbar?.findbar) {
         browseBotFindbar.findbar.history = this.getHistory();
       }
-
       return object;
     }
 
     const commonConfig = {
       model,
       system: this.systemInstruction,
-      messages: this.history,
+      prompt,
       // FIX: Can't Calling multiple tools back to back don't work
       // TODO: Better feedback is required when LLM is using tool
       tools: this.godMode ? toolSet : undefined,
@@ -317,37 +388,29 @@ Here is the initial info about the current page:
     if (this.streamEnabled) {
       const self = this;
       // FIX: gives error while streaming sometimes
-      return streamText({
+      return super.streamText({
         ...commonConfig,
-        async onFinish({ response }) {
-          llm.history.push(...response.messages);
-          if (browseBotFindbar?.findbar && self.persistChat) {
-            browseBotFindbar.findbar.history = llm.getHistory();
+        onFinish() {
+          if (browseBotFindbar?.findbar) {
+            browseBotFindbar.findbar.history = self.getHistory();
           }
         },
       });
     } else {
-      const result = await generateText(commonConfig);
-      this.history.push(...result.response.messages);
-      if (browseBotFindbar?.findbar && this.persistChat) {
+      const result = await super.generateText(commonConfig);
+      if (browseBotFindbar?.findbar) {
         browseBotFindbar.findbar.history = this.getHistory();
       }
       return result;
     }
   }
-  getHistory() {
-    return [...this.history];
-  }
+
   clearData() {
-    debugLog("Clearing LLM history and system prompt.");
-    this.history = [];
+    super.clearData();
     this.systemInstruction = "";
-  }
-  getLastMessage() {
-    return this.history.length > 0 ? this.history[this.history.length - 1] : null;
   }
 }
 
-const llm = new LLM();
-window.browseBotFindabrLLM = llm;
-export { LLM, llm };
+const browseBotFindbarLLM = new BrowseBotLLM();
+window.browseBotFindabrLLM = browseBotFindbarLLM;
+export { LLM, browseBotFindbarLLM };
