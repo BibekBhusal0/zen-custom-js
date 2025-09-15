@@ -50,7 +50,7 @@ export const commands = [
     key: "cmd_zenCompactModeToggle",
     label: "Toggle Compact Mode",
     icon: "chrome://browser/skin/zen-icons/fullscreen.svg",
-    tags: ["compact", "mode", "toggle", "ui", "layout"],
+    tags: ["compact", "mode", "toggle", "ui", "layout", "hide", "sidebar"],
   },
   {
     key: "cmd_zenCompactModeShowSidebar",
@@ -98,7 +98,7 @@ export const commands = [
     key: "cmd_zenCtxDeleteWorkspace",
     label: "Delete Workspace",
     icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
-    tags: ["workspace", "delete", "remove", "management"],
+    tags: ["workspace", "delete", "remove", "management", "trash"],
   },
   {
     key: "cmd_zenChangeWorkspaceName",
@@ -144,7 +144,7 @@ export const commands = [
     key: "cmd_zenSplitViewUnsplit",
     label: "Unsplit View",
     condition: () => gZenViewSplitter?.splitViewActive,
-    tags: ["split", "view", "unsplit", "single", "restore"],
+    tags: ["split", "view", "unsplit", "single", "restore", "remove"],
   },
   {
     key: "cmd_zenSplitViewSwap",
@@ -167,7 +167,7 @@ export const commands = [
     condition: () =>
       gZenViewSplitter?.splitViewActive &&
       gZenViewSplitter._data[gZenViewSplitter.currentView]?.tabs.length === 2,
-    tags: ["split", "view", "swap", "panes", "tabs"],
+    tags: ["split", "view", "swap", "panes", "tabs", "rotate"],
   },
   {
     key: "cmd_zenSplitViewRotate",
@@ -195,21 +195,21 @@ export const commands = [
   {
     key: "cmd_zenGlanceClose",
     label: "Close Glance",
-    tags: ["glance", "close"],
+    tags: ["glance", "close", "peak"],
     icon: "chrome://browser/skin/zen-icons/close.svg",
     condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
   },
   {
     key: "cmd_zenGlanceExpand",
     label: "Expand Glance",
-    tags: ["glance", "expand"],
+    tags: ["glance", "expand", "peak", "full"],
     icon: "chrome://browser/skin/fullscreen.svg",
     condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
   },
   {
     key: "cmd_zenGlanceSplit",
     label: "Split Glance",
-    tags: ["glance", "split"],
+    tags: ["glance", "split", "multitask", "peak", "horizontal", "vertical"],
     icon: svgToUrl(icons["splitVz"]),
     condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
   },
@@ -219,7 +219,7 @@ export const commands = [
     key: "cmd_zenOpenZenThemePicker",
     label: "Open Theme Picker",
     icon: "chrome://browser/skin/zen-icons/palette.svg",
-    tags: ["theme", "picker", "customize", "appearance"],
+    tags: ["theme", "picker", "customize", "appearance", "color"],
   },
   {
     key: "cmd_zenToggleTabsOnRight",
@@ -257,13 +257,8 @@ export const commands = [
     key: "cmd_zenCopyCurrentURLMarkdown",
     label: "Copy Current URL as Markdown",
     icon: "chrome://browser/skin/zen-icons/link.svg",
-    tags: ["copy", "url", "markdown", "format"],
+    tags: ["copy", "url", "markdown", "format", "clipboard"],
   },
-  // {
-  //   key: "cmd_zenReplacePinnedUrlWithCurrent",
-  //   label: "Replace Pinned URL with Current",
-  //   tags: ["pinned", "tab", "url", "replace"],
-  // },
 
   // ----------- Folder Management -----------
   {
@@ -272,7 +267,7 @@ export const commands = [
     command: () => gZenFolders.createFolder([], { renameFolder: true }),
     condition: () => !!window.gZenFolders,
     icon: "chrome://browser/skin/zen-icons/folder.svg",
-    tags: ["folder", "create", "new"],
+    tags: ["folder", "create", "new", "group", "tabs"],
   },
   {
     key: "folder-remove-active-tab",
@@ -285,7 +280,7 @@ export const commands = [
     },
     condition: () => gBrowser.selectedTab?.group?.isZenFolder,
     icon: svgToUrl(icons["folderOut"]),
-    tags: ["folder", "remove", "unparent", "tab"],
+    tags: ["folder", "remove", "unparent", "tab", "group"],
   },
 
   // ----------- Tab Management -----------
@@ -313,8 +308,7 @@ export const commands = [
       const newTab = window.gBrowser.duplicateTab(window.gBrowser.selectedTab);
       window.gBrowser.selectedTab = newTab;
     },
-    // disabling the temporarely to test
-    // condition: !!window.gBrowser?.duplicateTab,
+    condition: !!window.gBrowser?.duplicateTab,
     icon: "chrome://browser/skin/zen-icons/duplicate-tab.svg",
     tags: ["duplicate", "tab", "copy", "clone"],
   },
@@ -340,7 +334,7 @@ export const commands = [
     command: clearTabs,
     condition: () => !!window.gBrowser && !!window.gZenWorkspaces,
     icon: svgToUrl(icons["broom"]),
-    tags: ["clear", "tabs", "close", "other", "workspace"],
+    tags: ["clear", "tabs", "close", "other", "workspace", "clean"],
   },
   {
     key: "move-tab-up",
@@ -348,7 +342,7 @@ export const commands = [
     command: () => window.gBrowser.moveTabBackward(),
     condition: !!window.gBrowser?.moveTabBackward,
     icon: "chrome://browser/skin/zen-icons/arrow-up.svg",
-    tags: ["move", "tab", "up", "backward", "reorder"],
+    tags: ["move", "tab", "up", "backward", "reorder", "next"],
   },
   {
     key: "move-tab-down",
@@ -356,7 +350,7 @@ export const commands = [
     command: () => window.gBrowser.moveTabForward(),
     condition: !!window.gBrowser?.moveTabForward,
     icon: "chrome://browser/skin/zen-icons/arrow-down.svg",
-    tags: ["move", "tab", "down", "forward", "reorder"],
+    tags: ["move", "tab", "down", "forward", "reorder", "next"],
   },
   {
     key: "cmd_close",
@@ -409,13 +403,6 @@ export const commands = [
     condition: !!window.gTabsPanel,
     tags: ["show", "all", "tabs", "panel", "overview"],
   },
-  // {
-  //   key: "Browser:NewUserContextTab",
-  //   label: "New Container Tab",
-  //   command: () => openNewUserContextTab(),
-  //   condition: !!window.openNewUserContextTab,
-  //   tags: ["container", "tab", "new", "context"]
-  // },
   {
     key: "add-to-essentials",
     label: "Add to Essentials",
@@ -491,7 +478,7 @@ export const commands = [
     key: "cmd_closeWindow",
     label: "Close Window",
     icon: "chrome://browser/skin/zen-icons/close.svg",
-    tags: ["window", "close", "remove"],
+    tags: ["window", "close", "remove", "exit", "quit"],
   },
   {
     key: "cmd_minimizeWindow",
@@ -542,23 +529,23 @@ export const commands = [
   {
     key: "Browser:Stop",
     label: "Stop Loading",
-    command: () => gBrowser.stop(),
-    condition: !!gBrowser?.stop,
+    // command: () => gBrowser.stop(),
+    // condition: !!gBrowser?.stop,
     tags: ["stop", "loading", "cancel", "halt"],
   },
   {
     key: "Browser:Reload",
     label: "Reload Page",
-    command: () => gBrowser.reload(),
-    condition: !!gBrowser?.reload,
+    // command: () => gBrowser.reload(),
+    // condition: !!gBrowser?.reload,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["reload", "refresh", "page", "update"],
   },
   {
     key: "Browser:ReloadSkipCache",
     label: "Hard Reload (Skip Cache)",
-    command: () => BrowserCommands.reloadSkipCache(),
-    condition: !!window.BrowserCommands,
+    // command: () => BrowserCommands.reloadSkipCache(),
+    // condition: !!window.BrowserCommands,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["reload", "hard", "cache", "refresh"],
   },
@@ -568,19 +555,19 @@ export const commands = [
     key: "Browser:AddBookmarkAs",
     label: "Bookmark This Page",
     icon: "chrome://browser/skin/bookmark.svg",
-    tags: ["bookmark", "save", "favorite", "add"],
+    tags: ["bookmark", "save", "favorite", "add", "library"],
   },
   {
     key: "Browser:BookmarkAllTabs",
     label: "Bookmark All Tabs",
     icon: "chrome://browser/skin/bookmarks-toolbar.svg",
-    tags: ["bookmark", "all", "tabs", "save"],
+    tags: ["bookmark", "all", "tabs", "save", "favorite", "library"],
   },
   {
     key: "Browser:SearchBookmarks",
     label: "Search Bookmarks",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
-    tags: ["search", "bookmarks", "find", "filter"],
+    tags: ["search", "bookmarks", "find", "filter" ],
   },
   {
     key: "History:SearchHistory",
@@ -592,13 +579,13 @@ export const commands = [
     key: "Browser:ShowAllBookmarks",
     label: "Show All Bookmarks (Library)",
     icon: "chrome://browser/skin/zen-icons/library.svg",
-    tags: ["bookmarks", "show", "all", "library"],
+    tags: ["bookmarks", "show", "all", "library", "folders"],
   },
   {
     key: "Browser:ShowAllHistory",
     label: "Show All History (Library)",
     icon: "chrome://browser/skin/history.svg",
-    tags: ["history", "show", "all", "library"],
+    tags: ["history", "show", "all", "library", "folders"],
   },
 
   // ----------- Find & Search -----------
@@ -631,8 +618,6 @@ export const commands = [
   {
     key: "View:FullScreen",
     label: "Toggle Fullscreen",
-    // command: () => BrowserCommands.fullScreen(),
-    // condition: !!window?.BrowserCommands?.fullScreen,
     icon: "chrome://browser/skin/fullscreen.svg",
     tags: ["fullscreen", "full", "screen", "toggle"],
   },
@@ -659,38 +644,29 @@ export const commands = [
   {
     key: "View:PageSource",
     label: "View Page Source",
-    command: () => BrowserCommands.viewSource(window.gBrowser.selectedBrowser),
-    condition: !!window.BrowserCommands,
     icon: "chrome://browser/skin/zen-icons/source-code.svg",
     tags: ["source", "code", "html", "view"],
   },
   {
     key: "View:PageInfo",
     label: "View Page Info",
-    command: () => BrowserCommands.pageInfo(),
-    condition: !!window.BrowserCommands,
     icon: "chrome://browser/skin/zen-icons/info.svg",
     tags: ["info", "page", "details", "properties"],
   },
 
-  // FIX: both commands not working
   // ----------- Media & Screenshots -----------
-  // {
-  //   key: "View:PictureInPicture",
-  //   label: "Toggle Picture-in-Picture",
-  //   command: () => PictureInPicture.onCommand(),
-  //   condition: () => typeof PictureInPicture?.onCommand === "function",
-  //   icon: "chrome://browser/skin/zen-icons/media-pip.svg",
-  //   tags: ["picture", "pip", "video", "floating"],
-  // },
-  // {
-  //   key: "Browser:Screenshot",
-  //   label: "Take Screenshot",
-  //   command: () => ScreenshotsUtils.notify(window, "Shortcut"),
-  //   condition: !!window.ScreenshotsUtils,
-  //   icon: "chrome://browser/skin/screenshot.svg",
-  //   tags: ["screenshot", "capture", "image", "snap"],
-  // },
+  {
+    key: "View:PictureInPicture",
+    label: "Toggle Picture-in-Picture",
+    icon: "chrome://browser/skin/zen-icons/media-pip.svg",
+    tags: ["picture", "pip", "video", "floating"],
+  },
+  {
+    key: "Browser:Screenshot",
+    label: "Take Screenshot",
+    icon: "chrome://browser/skin/screenshot.svg",
+    tags: ["screenshot", "capture", "image", "snap"],
+  },
 
   // ----------- Files & Downloads -----------
   {
@@ -729,17 +705,15 @@ export const commands = [
     key: "cmd_CustomizeToolbars",
     label: "Customize Toolbar...",
     icon: "chrome://browser/skin/zen-icons/edit-theme.svg",
-    tags: ["customize", "toolbar", "ui", "layout"],
+    tags: ["customize", "toolbar", "ui", "layout", "icon", "configure"],
   },
 
   // ----------- Privacy & Security -----------
   {
     key: "Tools:Sanitize",
     label: "Clear Recent History...",
-    command: () => Sanitizer.showUI(window),
-    condition: !!window.Sanitizer,
     icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
-    tags: ["clear", "history", "sanitize", "clean", "privacy"],
+    tags: ["clear", "history", "sanitize", "clean", "privacy", "delete", "browsing", "data"],
   },
 
   // ----------- System & Application -----------
