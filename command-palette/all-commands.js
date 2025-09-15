@@ -622,6 +622,12 @@ export const commands = [
     tags: ["fullscreen", "full", "screen", "toggle"],
   },
   {
+    key: "View:ReaderView",
+    label: "Toggle Reader Mode",
+    icon: "chrome://browser/skin/reader-mode.svg",
+    tags: ["Read", "Glass", "Mode", "Focus" ],
+  },
+  {
     key: "cmd_fullZoomEnlarge",
     label: "Zoom In",
     icon: svgToUrl(icons["zoomIn"]),
