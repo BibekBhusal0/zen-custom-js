@@ -384,24 +384,18 @@ export const commands = [
   {
     key: "Browser:NextTab",
     label: "Next Tab",
-    command: () => gBrowser.tabContainer.advanceSelectedTab(1, true),
-    condition: !!gBrowser?.tabContainer,
     icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
     tags: ["next", "tab", "switch", "navigate"],
   },
   {
     key: "Browser:PrevTab",
     label: "Previous Tab",
-    command: () => gBrowser.tabContainer.advanceSelectedTab(-1, true),
-    condition: !!gBrowser?.tabContainer,
     icon: "chrome://browser/skin/zen-icons/arrow-left.svg",
     tags: ["previous", "tab", "switch", "navigate"],
   },
   {
     key: "Browser:ShowAllTabs",
     label: "Show All Tabs Panel",
-    command: () => gTabsPanel.showAllTabsPanel(),
-    condition: !!window.gTabsPanel,
     tags: ["show", "all", "tabs", "panel", "overview"],
   },
   {
@@ -432,8 +426,6 @@ export const commands = [
   {
     key: "History:UndoCloseTab",
     label: "Reopen Closed Tab",
-    command: () => SessionStore.undoCloseTab(window, 0),
-    condition: !!SessionStore?.undoCloseTab,
     icon: "chrome://browser/skin/zen-icons/edit-undo.svg",
     tags: ["undo", "close", "tab", "reopen", "restore"],
   },
@@ -496,16 +488,12 @@ export const commands = [
   {
     key: "Tools:PrivateBrowsing",
     label: "Open Private Window",
-    command: () => OpenBrowserWindow({ private: true }),
-    condition: !!window.OpenBrowserWindow,
     icon: "chrome://browser/skin/zen-icons/private-window.svg",
     tags: ["private", "browsing", "incognito", "window"],
   },
   {
     key: "History:UndoCloseWindow",
     label: "Reopen Closed Window",
-    command: () => SessionWindowUI.undoCloseWindow(),
-    condition: !!window.SessionWindowUI,
     icon: "chrome://browser/skin/zen-icons/edit-undo.svg",
     tags: ["undo", "close", "window", "reopen", "restore"],
   },
@@ -514,16 +502,12 @@ export const commands = [
   {
     key: "Browser:Back",
     label: "Go Back",
-    command: () => gBrowser.goBack(),
-    condition: () => gBrowser.canGoBack,
     icon: "chrome://browser/skin/back.svg",
     tags: ["back", "navigate", "history", "previous"],
   },
   {
     key: "Browser:Forward",
     label: "Go Forward",
-    command: () => gBrowser.goForward(),
-    condition: () => gBrowser.canGoForward,
     icon: "chrome://browser/skin/forward.svg",
     tags: ["forward", "navigate", "history", "next"],
   },
