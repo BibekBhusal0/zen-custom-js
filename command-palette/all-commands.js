@@ -488,7 +488,7 @@ export const commands = [
   {
     key: "Tools:PrivateBrowsing",
     label: "Open Private Window",
-    icon: "chrome://browser/skin/zen-icons/private-window.svg",
+    icon:svgToUrl(icons['incognito']),
     tags: ["private", "browsing", "incognito", "window"],
   },
   {
@@ -609,7 +609,7 @@ export const commands = [
   {
     key: "View:ReaderView",
     label: "Toggle Reader Mode",
-    icon: "chrome://browser/skin/reader-mode.svg",
+    icon:svgToUrl(icons['glass']),
     tags: ["Read", "Glass", "Mode", "Focus"],
   },
   {
