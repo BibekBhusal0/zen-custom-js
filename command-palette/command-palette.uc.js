@@ -405,7 +405,7 @@ const ZenCommandPalette = {
         const recentIndex = this._recentCommands.indexOf(cmd.key);
         if (recentIndex > -1) {
           // More recent commands (lower index) get a higher bonus.
-          recencyBonus = (this.MAX_RECENT_COMMANDS - recentIndex) * 5;
+          recencyBonus = (this.MAX_RECENT_COMMANDS - recentIndex) * 2;
         }
 
         // Combine scores, giving label the highest weight, and add recency bonus.
