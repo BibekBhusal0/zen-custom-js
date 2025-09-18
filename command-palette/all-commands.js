@@ -543,6 +543,12 @@ export const commands = [
     tags: ["bookmark", "all", "tabs", "save", "favorite", "library"],
   },
   {
+    key: "viewBookmarksToolbarKb",
+    label: "Toggle Bookmark Bar",
+    icon: "chrome://browser/skin/bookmarks-toolbar.svg",
+    tags: ["bookmark", "favorite", "library", "toolbar"],
+  },
+  {
     key: "Browser:SearchBookmarks",
     label: "Search Bookmarks",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
