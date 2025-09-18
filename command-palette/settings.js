@@ -382,6 +382,16 @@ const SettingsModal = {
 
   _populateSettingsTab() {
     const container = this._modalElement.querySelector("#settings-tab-content");
+    container.innerHTML = "";
+
+    const dynamicCommandItems = this._mainModule._dynamicCommandProviders
+      .filter((provider) => provider.pref)
+      .map((provider) => ({
+        key: provider.pref,
+        label: this._mainModule._getProviderLabel(provider.func.name),
+        type: "bool",
+      }));
+
     const prefs = [
       {
         section: "General",
@@ -408,59 +418,7 @@ const SettingsModal = {
       },
       {
         section: "Dynamic Commands",
-        items: [
-          {
-            key: Prefs.KEYS.DYNAMIC_ABOUT_PAGES,
-            label: "Generate commands for about: pages",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_SEARCH_ENGINES,
-            label: "Generate commands for search engines",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_EXTENSIONS,
-            label: "Generate commands for extension options",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_WORKSPACES,
-            label: "Generate commands for workspaces",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_SINE_MODS,
-            label: "Generate commands for Sine mods",
-            type: "bool",
-          },
-          { key: Prefs.KEYS.DYNAMIC_FOLDERS, label: "Generate commands for folders", type: "bool" },
-          {
-            key: Prefs.KEYS.DYNAMIC_CONTAINER_TABS,
-            label: "Generate commands for container tabs",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_ACTIVE_TABS,
-            label: "Generate commands for active tabs",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
-            label: "Generate commands for unload tabs",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
-            label: "Generate commands for enabling/disabling extensions",
-            type: "bool",
-          },
-          {
-            key: Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
-            label: "Generate commands for uninstalling extensions",
-            type: "bool",
-          },
-        ],
+        items: dynamicCommandItems,
       },
     ];
 
