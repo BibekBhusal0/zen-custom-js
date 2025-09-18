@@ -210,6 +210,9 @@ Here are all Preferences which can be configured from `about:config` (also from 
 
 Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands. I encourage all mod creators to incorporate this into their own mods (especially ones with JS).
 
+### Other mods which support Command Palette
+- [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/) 
+
 ### Adding a Static Command
 
 Static commands are added once and are always available, unless their `condition` evaluates to false.
@@ -275,6 +278,8 @@ I tried building the browser multiple times, but I don't have proper resources t
 Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
 
 This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
+
+UPDATE: it is now available in beta version but it has limited number of commands whereas my project has 100 commands.
 
 </details>
 
