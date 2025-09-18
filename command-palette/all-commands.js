@@ -639,6 +639,74 @@ export const commands = [
     tags: ["info", "page", "details", "properties"],
   },
 
+  {
+    key: "key_toggleToolboxF12",
+    label: "Toggle web toolbox",
+    tags : ["devtools", "toolbox"],
+    icon : 'chrome://devtools/skin/images/tool-webconsole.svg',
+  },
+  {
+    key: "key_browserToolbox",
+    label: "Open Browser Toolbox",
+    tags : ["devtools", "toolbox"],
+    icon : 'chrome://devtools/skin/images/tool-webconsole.svg',
+  },
+  {
+    key: "key_browserConsole",
+    label: "Open Browser Console",
+    tags : ["devtools", "console"],
+    icon : 'chrome://devtools/skin/images/tool-webconsole.svg',
+  },
+  {
+    key: "key_responsiveDesignMode",
+    label: "Toggle Responsive Design Mode",
+    tags : ["devtools", "responsive", "design", "mobile"],
+      icon: "chrome://devtools/skin/images/command-responsivemode.svg"
+  },
+  {
+    key: "key_inspector",
+    label: "Open web inspector",
+    tags : ["devtools", "inspector", "elements", "html"],
+    icon : "chrome://devtools/skin/images/tool-inspector.svg",
+  },
+  {
+    key: "key_webconsole",
+    label: "Open web console",
+    tags : ["devtools", "console", "web" , "logs"],
+    icon : 'chrome://devtools/skin/images/tool-webconsole.svg',
+  },
+  {
+    key: "key_jsdebugger",
+    label: "Open js debugger",
+    tags : ["devtools", "debugger", "js", "javascript"],
+    icon : "chrome://devtools/skin/images/tool-debugger.svg"
+  },
+  {
+    key: "key_netmonitor",
+    label: "Open network monitor",
+    tags : ["devtools", "network", "monitor"],
+    icon : "chrome://devtools/skin/images/tool-network.svg"
+  },
+  {
+    key: "key_styleeditor",
+    label: "Open style editor",
+    tags : ["devtools", "style", "editor", "css"],
+    icon : "chrome://devtools/skin/images/tool-styleeditor.svg"
+  },
+  {
+    key: "key_performance",
+    label: "Open performance panel",
+    tags : ["devtools", "performance", "panel"],
+    icon :"chrome://devtools/skin/images/tool-profiler.svg"
+  },
+  {
+    key: "key_storage",
+    label: "Open storage panel",
+    tags : ["devtools", "storage", "panel"],
+    icon : 'chrome://devtools/skin/images/tool-storage.svg'
+  },
+  
+
   // ----------- Media & Screenshots -----------
   {
     key: "View:PictureInPicture",
@@ -741,6 +809,14 @@ export const commands = [
       }
     },
     tags: ["memory", "free", "ram", "minimize", "space", "fast", "slow"],
+  },
+
+  // ----------- Profiles -----------
+  {
+    key: "Profiles:CreateProfile",
+    label: "Create New Profile",
+    icon: "chrome://browser/skin/zen-icons/container-tab.svg",
+    tags: ["profile", "new", "create", ],
   },
 
   // ----------- Command Palette Settings -----------
