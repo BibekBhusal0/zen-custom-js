@@ -27,20 +27,14 @@ const ZenCommandPalette = {
    */
   _dynamicCommandProviders: [
     {
-      func: generateAboutPageCommands,
-      pref: Prefs.KEYS.DYNAMIC_ABOUT_PAGES,
-      allowIcons: true,
-      allowShortcuts: true,
-    },
-    {
       func: generateSearchEngineCommands,
       pref: Prefs.KEYS.DYNAMIC_SEARCH_ENGINES,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
-      func: generateExtensionCommands,
-      pref: Prefs.KEYS.DYNAMIC_EXTENSIONS,
+      func: generateSineCommands,
+      pref: Prefs.KEYS.DYNAMIC_SINE_MODS,
       allowIcons: false,
       allowShortcuts: true,
     },
@@ -57,21 +51,9 @@ const ZenCommandPalette = {
       allowShortcuts: true,
     },
     {
-      func: generateSineCommands,
-      pref: Prefs.KEYS.DYNAMIC_SINE_MODS,
-      allowIcons: false,
-      allowShortcuts: true,
-    },
-    {
       func: generateFolderCommands,
       pref: Prefs.KEYS.DYNAMIC_FOLDERS,
       allowIcons: true,
-      allowShortcuts: true,
-    },
-    {
-      func: generateContainerTabCommands,
-      pref: Prefs.KEYS.DYNAMIC_CONTAINER_TABS,
-      allowIcons: false,
       allowShortcuts: true,
     },
     {
@@ -81,10 +63,28 @@ const ZenCommandPalette = {
       allowShortcuts: false,
     },
     {
+      func: generateContainerTabCommands,
+      pref: Prefs.KEYS.DYNAMIC_CONTAINER_TABS,
+      allowIcons: false,
+      allowShortcuts: true,
+    },
+    {
       func: generateUnloadTabCommands,
       pref: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
       allowIcons: false,
       allowShortcuts: false,
+    },
+    {
+      func: generateAboutPageCommands,
+      pref: Prefs.KEYS.DYNAMIC_ABOUT_PAGES,
+      allowIcons: true,
+      allowShortcuts: true,
+    },
+    {
+      func: generateExtensionCommands,
+      pref: Prefs.KEYS.DYNAMIC_EXTENSIONS,
+      allowIcons: false,
+      allowShortcuts: true,
     },
     {
       func: generateExtensionEnableDisableCommands,
