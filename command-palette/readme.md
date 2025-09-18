@@ -211,7 +211,8 @@ Here are all Preferences which can be configured from `about:config` (also from 
 Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands. I encourage all mod creators to incorporate this into their own mods (especially ones with JS).
 
 ### Other mods which support Command Palette
-- [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/) 
+
+- [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
 
 ### Adding a Static Command
 
