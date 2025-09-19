@@ -2,7 +2,7 @@ import { streamText, generateText, generateObject } from "ai";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import { claude, gemini, grok, mistral, ollamaProvider, openai, perplexity } from "./providers.js";
-import { toolSet, getToolSystemPrompt } from "./tools.js";
+import { getTools, getToolSystemPrompt } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
 
@@ -393,11 +393,22 @@ Here is the initial info about the current page:
       return object;
     }
 
+    const shouldToolBeCalled = async (toolName) => {
+      if (PREFS.conformation) {
+        const confirmed = await browseBotFindbar.createToolConfirmationDialog([toolName]);
+        if (!confirmed) {
+          debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+          return false;
+        }
+      }
+      return true;
+    };
+
     const commonConfig = {
       prompt,
       // FIX: Can't Calling multiple tools back to back don't work
       // TODO: Better feedback is required when LLM is using tool
-      tools: this.godMode ? toolSet : undefined,
+      tools: this.godMode ? getTools(undefined, shouldToolBeCalled) : undefined,
       maxSteps: this.godMode ? this.maxToolCalls : 1,
       abortSignal,
     };

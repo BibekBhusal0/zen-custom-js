@@ -4,25 +4,6 @@ import { getToolSystemPrompt, getTools } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
 
 const urlBarGroups = ["search", "navigation", "bookmarks"];
-const originalToolSet = getTools(urlBarGroups);
-
-const urlBarToolSet = Object.fromEntries(
-  Object.entries(originalToolSet).map(([name, tool]) => {
-    const newTool = { ...tool };
-    if (tool.executeFn) {
-      const originalExecute = tool.executeFn;
-      newTool.execute = async (...args) => {
-        gURLBar.inputField.setAttribute("placeholder", `AI calling ${name} tool...`);
-        try {
-          return await originalExecute(...args);
-        } finally {
-          gURLBar.inputField.setAttribute("placeholder", "AI thinking...");
-        }
-      };
-    }
-    return [name, newTool];
-  })
-);
 
 class UrlBarLLM extends LLM {
   // TODO: Improve system prompt, should use Toast as feedback
@@ -41,6 +22,14 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
 
   async sendMessage(prompt) {
     debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
+
+    const shouldToolBeCalled = async (toolName) => {
+      gURLBar.inputField.setAttribute("placeholder", `AI calling ${toolName} tool...`);
+      return true;
+    };
+
+    const urlBarToolSet = getTools(urlBarGroups, shouldToolBeCalled);
+
     await super.generateText({
       prompt,
       tools: urlBarToolSet,

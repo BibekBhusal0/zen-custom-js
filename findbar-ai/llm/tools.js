@@ -1,8 +1,7 @@
 import { tool } from "ai";
-import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
-import { debugLog, debugError, PREFS } from "../utils/prefs.js";
+import { debugLog, debugError } from "../utils/prefs.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
@@ -75,32 +74,12 @@ const createStringArrayParameter = (description, isOptional = false) => {
 
 // Helper function to create tools with consistent structure
 const createTool = (name, description, parameters, executeFn) => {
-  const t = tool({
+  return tool({
     description,
     inputSchema: z.object(parameters),
-    execute: (args) => confirmAndExecute(name, executeFn, args),
+    execute: executeFn,
   });
-  // Attach the original execute function so we can bypass confirmation later
-  Object.defineProperty(t, "executeFn", {
-    value: executeFn,
-    enumerable: false,
-    configurable: true,
-    writable: false,
-  });
-  return t;
 };
-
-// Confirmation wrapper
-async function confirmAndExecute(toolName, executeFn, args) {
-  if (PREFS.conformation) {
-    const confirmed = await browseBotFindbar.createToolConfirmationDialog([toolName]);
-    if (!confirmed) {
-      debugLog(`Tool execution for '${toolName}' cancelled by user.`);
-      return { error: `Tool execution for '${toolName}' was cancelled by the user.` };
-    }
-  }
-  return executeFn(args);
-}
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                      HELPERS                            │
@@ -1279,27 +1258,63 @@ Note that first and second tool clls can be made in parallel, but the third tool
   },
 };
 
-const getTools = (groups) => {
-  if (!groups || !Array.isArray(groups) || groups.length === 0) {
-    // get all tools from all groups except 'misc'
-    return Object.entries(toolGroups).reduce((acc, [name, group]) => {
-      if (name !== "misc" && group.tools) {
-        return { ...acc, ...group.tools };
+const getTools = (groups, shouldToolBeCalled) => {
+  const selectedTools = (() => {
+    if (!groups || !Array.isArray(groups) || groups.length === 0) {
+      // get all tools from all groups except 'misc'
+      return Object.entries(toolGroups).reduce((acc, [name, group]) => {
+        if (name !== "misc" && group.tools) {
+          return { ...acc, ...group.tools };
+        }
+        return acc;
+      }, {});
+    }
+    return groups.reduce((acc, groupName) => {
+      if (toolGroups[groupName] && toolGroups[groupName].tools) {
+        return { ...acc, ...toolGroups[groupName].tools };
       }
       return acc;
     }, {});
-  }
-  return groups.reduce((acc, groupName) => {
-    if (toolGroups[groupName] && toolGroups[groupName].tools) {
-      return { ...acc, ...toolGroups[groupName].tools };
-    }
-    return acc;
-  }, {});
-};
+  })();
 
-const toolSet = getTools();
-// NOTE: For testing only
-window.toolSet = toolSet;
+  if (!shouldToolBeCalled) {
+    return selectedTools;
+  }
+
+  const wrappedTools = {};
+  for (const toolName in selectedTools) {
+    const originalTool = selectedTools[toolName];
+    const newTool = { ...originalTool };
+
+    const originalExecute = originalTool.execute;
+    newTool.execute = async (args) => {
+      if (!(await shouldToolBeCalled(toolName))) {
+        debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
+        return { error: `Tool execution for '${toolName}' was denied.` };
+      }
+      return originalExecute(args);
+    };
+
+    if (Object.prototype.hasOwnProperty.call(originalTool, "executeFn")) {
+      const originalExecuteFn = originalTool.executeFn;
+      Object.defineProperty(newTool, "executeFn", {
+        value: async (args) => {
+          if (!(await shouldToolBeCalled(toolName))) {
+            debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
+            return { error: `Tool execution for '${toolName}' was denied.` };
+          }
+          return originalExecuteFn(args);
+        },
+        enumerable: false,
+        configurable: true,
+        writable: false,
+      });
+    }
+    wrappedTools[toolName] = newTool;
+  }
+
+  return wrappedTools;
+};
 
 const getToolSystemPrompt = async (groups) => {
   try {
@@ -1346,4 +1361,4 @@ ${toolExamples.join("\n\n")}
   }
 };
 
-export { toolSet, getToolSystemPrompt, getTools };
+export { getToolSystemPrompt, getTools };
