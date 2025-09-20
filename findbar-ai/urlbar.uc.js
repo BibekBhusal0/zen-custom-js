@@ -31,10 +31,10 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
 
     const urlBarToolSet = getTools(urlBarGroups, shouldToolBeCalled);
 
-    await super.sendMessageAndToolCalls({
+    await super.generateText({
       prompt,
       tools: urlBarToolSet,
-      maxCalls: PREFS.maxToolCalls,
+      maxSteps: PREFS.maxToolCalls,
     });
   }
 }
