@@ -77,7 +77,7 @@ const createStringArrayParameter = (description, isOptional = false) => {
 };
 
 // Helper function to create tools with consistent structure
-const createTool = (name, description, parameters, executeFn) => {
+const createTool = (description, parameters, executeFn) => {
   return tool({
     description,
     inputSchema: z.object(parameters),
@@ -921,7 +921,6 @@ const toolGroups = {
     },
     tools: {
       search: createTool(
-        "search",
         "Performs a web search using a specified search engine and opens the results.",
         {
           searchTerm: createStringParameter("The term to search for."),
@@ -948,7 +947,6 @@ const toolGroups = {
 - \`splitExistingTabs(tabIds, type)\`: Creates a split view from currently open tabs. The type can be 'vertical', 'horizontal', or 'grid'.`,
     tools: {
       openLink: createTool(
-        "openLink",
         "Opens a given URL in a specified location. Can also create a split view with the current tab.",
         {
           link: createStringParameter("The URL to open."),
@@ -960,7 +958,6 @@ const toolGroups = {
         openLink
       ),
       newSplit: createTool(
-        "newSplit",
         "Creates a split view by opening multiple new URLs in new tabs, then arranging them side-by-side.",
         {
           links: createStringArrayParameter("An array of URLs for the new tabs."),
@@ -972,7 +969,6 @@ const toolGroups = {
         newSplit
       ),
       splitExistingTabs: createTool(
-        "splitExistingTabs",
         "Creates a split view from existing open tabs.",
         {
           tabIds: createStringArrayParameter("An array of tab session IDs to split."),
@@ -1008,21 +1004,18 @@ const toolGroups = {
 - \`addTabsToEssentials(tabIds)\`: Adds tabs to the essentials bar (pinned to the top of the sidebar).
 - \`removeTabsFromEssentials(tabIds)\`: Removes tabs from the essentials bar.`,
     tools: {
-      getAllTabs: createTool("getAllTabs", "Retrieves all open tabs.", {}, getAllTabs),
+      getAllTabs: createTool("Retrieves all open tabs.", {}, getAllTabs),
       searchTabs: createTool(
-        "searchTabs",
         "Searches open tabs by title or URL.",
         { query: createStringParameter("The search term for tabs.") },
         searchTabs
       ),
       closeTabs: createTool(
-        "closeTabs",
         "Closes one or more tabs.",
         { tabIds: createStringArrayParameter("An array of tab session IDs to close.") },
         closeTabs
       ),
       reorderTab: createTool(
-        "reorderTab",
         "Reorders a tab to a new index.",
         {
           tabId: createStringParameter("The session ID of the tab to reorder."),
@@ -1031,7 +1024,6 @@ const toolGroups = {
         reorderTab
       ),
       addTabsToFolder: createTool(
-        "addTabsToFolder",
         "Adds one or more tabs to a folder.",
         {
           tabIds: createStringArrayParameter("The session IDs of the tabs to add."),
@@ -1040,7 +1032,6 @@ const toolGroups = {
         addTabsToFolder
       ),
       removeTabsFromFolder: createTool(
-        "removeTabsFromFolder",
         "Removes one or more tabs from their folder.",
         {
           tabIds: createStringArrayParameter(
@@ -1050,7 +1041,6 @@ const toolGroups = {
         removeTabsFromFolder
       ),
       createTabFolder: createTool(
-        "createTabFolder",
         "Creates a new, empty tab folder.",
         {
           name: createStringParameter("The name for the new folder."),
@@ -1058,13 +1048,11 @@ const toolGroups = {
         createTabFolder
       ),
       addTabsToEssentials: createTool(
-        "addTabsToEssentials",
         "Adds one or more tabs to the essentials bar.",
         { tabIds: createStringArrayParameter("An array of session IDs to add to essentials.") },
         addTabsToEssentials
       ),
       removeTabsFromEssentials: createTool(
-        "removeTabsFromEssentials",
         "Removes one or more tabs from the essentials bar.",
         {
           tabIds: createStringArrayParameter("An array of session IDs to remove from essentials."),
@@ -1095,19 +1083,16 @@ const toolGroups = {
 - \`fillForm(selector, value)\`: Fills a form input on the page.`,
     tools: {
       getPageTextContent: createTool(
-        "getPageTextContent",
         "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
         {},
         messageManagerAPI.getPageTextContent.bind(messageManagerAPI)
       ),
       getHTMLContent: createTool(
-        "getHTMLContent",
         "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
         {},
         messageManagerAPI.getHTMLContent.bind(messageManagerAPI)
       ),
       clickElement: createTool(
-        "clickElement",
         "Clicks an element on the page.",
         {
           selector: createStringParameter("The CSS selector of the element to click."),
@@ -1115,7 +1100,6 @@ const toolGroups = {
         clickElement
       ),
       fillForm: createTool(
-        "fillForm",
         "Fills a form input on the page.",
         {
           selector: createStringParameter("The CSS selector of the input element to fill."),
@@ -1146,19 +1130,16 @@ const toolGroups = {
 - \`getYoutubeComments(count)\`: Retrieves top-level comments from the current YouTube video. 'count' is optional and defaults to 10.`,
     tools: {
       getYoutubeTranscript: createTool(
-        "getYoutubeTranscript",
         "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video.",
         {},
         messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
       ),
       getYoutubeDescription: createTool(
-        "getYoutubeDescription",
         "Retrieves the description of the current YouTube video. Only use if the current page is a YouTube video.",
         {},
         messageManagerAPI.getYoutubeDescription.bind(messageManagerAPI)
       ),
       getYoutubeComments: createTool(
-        "getYoutubeComments",
         "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video.",
         {
           count: z
@@ -1183,7 +1164,6 @@ const toolGroups = {
 - \`deleteBookmark(id)\`: Deletes a bookmark.  The \`id\` is the GUID of the bookmark.`,
     tools: {
       searchBookmarks: createTool(
-        "searchBookmarks",
         "Searches bookmarks based on a query.",
         {
           query: createStringParameter("The search term for bookmarks."),
@@ -1191,13 +1171,11 @@ const toolGroups = {
         searchBookmarks
       ),
       getAllBookmarks: createTool(
-        "getAllBookmarks",
         "Retrieves all bookmarks.",
         {},
         getAllBookmarks
       ),
       createBookmark: createTool(
-        "createBookmark",
         "Creates a new bookmark.",
         {
           url: createStringParameter("The URL to bookmark."),
@@ -1207,7 +1185,6 @@ const toolGroups = {
         createBookmark
       ),
       addBookmarkFolder: createTool(
-        "addBookmarkFolder",
         "Creates a new bookmark folder.",
         {
           title: createStringParameter("The title for the new folder."),
@@ -1216,7 +1193,6 @@ const toolGroups = {
         addBookmarkFolder
       ),
       updateBookmark: createTool(
-        "updateBookmark",
         "Updates an existing bookmark.",
         {
           id: createStringParameter("The GUID of the bookmark to update."),
@@ -1227,7 +1203,6 @@ const toolGroups = {
         updateBookmark
       ),
       deleteBookmark: createTool(
-        "deleteBookmark",
         "Deletes a bookmark.",
         {
           id: createStringParameter("The GUID of the bookmark to delete."),
@@ -1251,13 +1226,11 @@ Note that first and second tool clls can be made in parallel, but the third tool
 - \`reorderWorkspace(id, newPosition)\`: Changes the order of a workspace.`,
     tools: {
       getAllWorkspaces: createTool(
-        "getAllWorkspaces",
         "Retrieves all workspaces.",
         {},
         getAllWorkspaces
       ),
       createWorkspace: createTool(
-        "createWorkspace",
         "Creates a new workspace.",
         {
           name: createStringParameter("The name for the new workspace."),
@@ -1266,7 +1239,6 @@ Note that first and second tool clls can be made in parallel, but the third tool
         createWorkspace
       ),
       updateWorkspace: createTool(
-        "updateWorkspace",
         "Updates an existing workspace.",
         {
           id: createStringParameter("The ID of the workspace to update."),
@@ -1276,13 +1248,11 @@ Note that first and second tool clls can be made in parallel, but the third tool
         updateWorkspace
       ),
       deleteWorkspace: createTool(
-        "deleteWorkspace",
         "Deletes a workspace.",
         { id: createStringParameter("The ID of the workspace to delete.") },
         deleteWorkspace
       ),
       moveTabsToWorkspace: createTool(
-        "moveTabsToWorkspace",
         "Moves tabs to a specified workspace.",
         {
           tabIds: createStringArrayParameter("The session IDs of the tabs to move."),
@@ -1291,7 +1261,6 @@ Note that first and second tool clls can be made in parallel, but the third tool
         moveTabsToWorkspace
       ),
       reorderWorkspace: createTool(
-        "reorderWorkspace",
         "Reorders a workspace to a new position.",
         {
           id: createStringParameter("The ID of the workspace to reorder."),
@@ -1310,7 +1279,6 @@ Note that first and second tool clls can be made in parallel, but the third tool
       `- \`showToast(title, description)\`: Shows a temporary notification message (a "toast") to the user. Use this to provide quick, non-blocking feedback.`,
     tools: {
       showToast: createTool(
-        "showToast",
         "Shows a temporary toast message to the user.",
         {
           title: createStringParameter("The main title of the toast message."),
