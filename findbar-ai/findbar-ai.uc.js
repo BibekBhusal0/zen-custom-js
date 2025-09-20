@@ -67,7 +67,7 @@ const getSidebarWidth = () => {
 };
 
 function parseMD(markdown) {
-  const markedOptions = { breaks: true, gfm: true };
+  const markedOptions = { breaks: true, gfm: true, xhtml: true };
   if (!markdownStylesInjected) {
     injectMarkdownStyles();
   }
@@ -502,7 +502,6 @@ export const browseBotFindbar = {
 </div>`
         );
         const contentDiv = aiMessageDiv.querySelector(".markdown-body");
-        aiMessageDiv.appendChild(contentDiv);
 
         if (messagesContainer) {
           messagesContainer.appendChild(aiMessageDiv);
