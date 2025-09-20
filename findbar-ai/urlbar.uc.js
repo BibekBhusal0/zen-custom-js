@@ -3,7 +3,7 @@ import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
 
-const urlBarGroups = ["search", "navigation", "bookmarks"];
+const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
 
 class UrlBarLLM extends LLM {
   // TODO: Improve system prompt, should use Toast as feedback

@@ -1408,4 +1408,4 @@ ${toolExamples.join("\n\n")}
   }
 };
 
-export { getToolSystemPrompt, getTools, toolNameMapping };
+export { getToolSystemPrompt, getTools, toolNameMapping, toolGroups };

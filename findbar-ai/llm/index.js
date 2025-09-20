@@ -2,7 +2,7 @@ import { streamText, generateText, generateObject } from "ai";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import { claude, gemini, grok, mistral, ollamaProvider, openai, perplexity } from "./providers.js";
-import { getTools, getToolSystemPrompt, toolNameMapping } from "./tools.js";
+import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
 
@@ -557,7 +557,10 @@ Here is the initial info about the current page:
       }
       return true;
     };
-    const tools = getTools(undefined, shouldToolBeCalled);
+    const findbarToolGroups = Object.keys(toolGroups).filter(
+      (group) => group !== "bookmarks" && group !== "misc"
+    );
+    const tools = getTools(findbarToolGroups, shouldToolBeCalled);
 
     const result = await super.sendMessageAndToolCalls({
       prompt,
