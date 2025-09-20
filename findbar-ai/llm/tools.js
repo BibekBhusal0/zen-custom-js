@@ -875,6 +875,42 @@ async function getYoutubeComments(args) {
   return messageManagerAPI.getYoutubeComments(args.count);
 }
 
+const toolNameMapping = {
+  search: "Searching the web",
+  openLink: "Opening a link",
+  newSplit: "Creating a split view",
+  splitExistingTabs: "Splitting existing tabs",
+  getAllTabs: "Getting all open tabs",
+  searchTabs: "Searching tabs",
+  closeTabs: "Closing tabs",
+  reorderTab: "Reordering a tab",
+  addTabsToFolder: "Adding tabs to a folder",
+  removeTabsFromFolder: "Removing tabs from a folder",
+  createTabFolder: "Creating a tab folder",
+  addTabsToEssentials: "Adding tabs to Essentials",
+  removeTabsFromEssentials: "Removing tabs from Essentials",
+  getPageTextContent: "Reading page content",
+  getHTMLContent: "Reading page source code",
+  clickElement: "Clicking an element",
+  fillForm: "Filling a form",
+  getYoutubeTranscript: "Getting YouTube transcript",
+  getYoutubeDescription: "Getting YouTube description",
+  getYoutubeComments: "Getting YouTube comments",
+  searchBookmarks: "Searching bookmarks",
+  getAllBookmarks: "Getting all bookmarks",
+  createBookmark: "Creating a bookmark",
+  addBookmarkFolder: "Creating a bookmark folder",
+  updateBookmark: "Updating a bookmark",
+  deleteBookmark: "Deleting a bookmark",
+  getAllWorkspaces: "Getting all workspaces",
+  createWorkspace: "Creating a workspace",
+  updateWorkspace: "Updating a workspace",
+  deleteWorkspace: "Deleting a workspace",
+  moveTabsToWorkspace: "Moving tabs to a workspace",
+  reorderWorkspace: "Reordering a workspace",
+  showToast: "Showing a notification",
+};
+
 const toolGroups = {
   search: {
     description: async () => {
@@ -1404,4 +1440,4 @@ ${toolExamples.join("\n\n")}
   }
 };
 
-export { getToolSystemPrompt, getTools };
+export { getToolSystemPrompt, getTools, toolNameMapping };

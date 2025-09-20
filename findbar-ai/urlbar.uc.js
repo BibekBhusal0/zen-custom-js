@@ -1,6 +1,6 @@
 import { LLM } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
-import { getToolSystemPrompt, getTools } from "./llm/tools.js";
+import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
 import { parseElement } from "./utils/parse.js";
 
 const urlBarGroups = ["search", "navigation", "bookmarks"];
@@ -24,7 +24,8 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
     debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
 
     const shouldToolBeCalled = async (toolName) => {
-      gURLBar.inputField.setAttribute("placeholder", `AI calling ${toolName} tool...`);
+      const friendlyName = toolNameMapping[toolName] || toolName;
+      gURLBar.inputField.setAttribute("placeholder", `AI: ${friendlyName}...`);
       return true;
     };
 
