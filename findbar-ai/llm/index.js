@@ -168,7 +168,7 @@ class LLM {
         if (toolCalls && toolCalls.length > 0) {
           const toolResults = await Promise.all(
             toolCalls.map(async (toolCall) => {
-              const output = await tools[toolCall.toolName].execute(toolCall.args);
+              const output = await tools[toolCall.toolName].execute(toolCall.args || {});
               return {
                 role: "tool",
                 toolCallId: toolCall.toolCallId,
@@ -209,7 +209,7 @@ class LLM {
 
         let textContent = "";
         const toolCalls = [];
-        for await (const part of result.stream) {
+        for await (const part of result.fullStream) {
           yield part;
           if (part.type === "text-delta") {
             textContent += part.textDelta;
@@ -221,11 +221,10 @@ class LLM {
         const assistantMessage = {
           role: "assistant",
           content: textContent,
-          toolCalls: toolCalls.map((tc) => ({
-            id: tc.toolCallId,
-            type: "tool-call",
-            toolName: tc.toolName,
-            args: tc.args,
+          toolCalls: toolCalls.map(({ toolCallId, toolName, args }) => ({
+            toolCallId,
+            toolName,
+            args,
           })),
         };
         currentHistory.push(assistantMessage);
@@ -240,7 +239,7 @@ class LLM {
 
         const toolResults = await Promise.all(
           toolCalls.map(async (toolCall) => {
-            const output = await tools[toolCall.toolName].execute(toolCall.args);
+            const output = await tools[toolCall.toolName].execute(toolCall.args || {});
             return {
               role: "tool",
               toolCallId: toolCall.toolCallId,
@@ -267,7 +266,7 @@ class LLM {
       },
     });
 
-    return { stream: streamResult };
+    return { ...streamText, stream: streamResult };
   }
 
   getHistory() {

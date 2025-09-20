@@ -913,11 +913,11 @@ const toolNameMapping = {
 
 const toolGroups = {
   search: {
-    description: async () => {
+    moreInstructions: async () => {
       const searchEngines = await Services.search.getVisibleEngines();
       const engineNames = searchEngines.map((e) => e.name).join(", ");
       const defaultEngineName = Services.search.defaultEngine.name;
-      return `- \`search(searchTerm, engineName, where)\`: Performs a web search. Available engines: ${engineNames}. The default is '${defaultEngineName}'.`;
+      return `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.`;
     },
     tools: {
       search: createTool(
@@ -941,10 +941,6 @@ const toolGroups = {
     },
   },
   navigation: {
-    description:
-      async () => `- \`openLink(link, where)\`: Opens a URL. Use this to open a single link or to create a split view with the *current* tab.
-- \`newSplit(links, type)\`: Use this specifically for creating a split view with *two or more new tabs*. The type can be 'vertical', 'horizontal', or 'grid'.
-- \`splitExistingTabs(tabIds, type)\`: Creates a split view from currently open tabs. The type can be 'vertical', 'horizontal', or 'grid'.`,
     tools: {
       openLink: createTool(
         "Opens a given URL in a specified location. Can also create a split view with the current tab.",
@@ -994,15 +990,6 @@ const toolGroups = {
 -   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["1", "2"]}}}\``,
   },
   tabs: {
-    description: async () => `- \`getAllTabs()\`: Get a list of all open tabs across all workspaces.
-- \`searchTabs(query)\`: Searches through your open tabs.
-- \`closeTabs(tabIds)\`: Closes one or more tabs.
-- \`reorderTab(tabId, newIndex)\`: Moves a single tab to a new position in the tab list.
-- \`createTabFolder(name)\`: Creates a new, empty tab folder.
-- \`addTabsToFolder(tabIds, folderId)\`: Groups tabs into a folder.
-- \`removeTabsFromFolder(tabIds)\`: Ungroups tabs from their folder.
-- \`addTabsToEssentials(tabIds)\`: Adds tabs to the essentials bar (pinned to the top of the sidebar).
-- \`removeTabsFromEssentials(tabIds)\`: Removes tabs from the essentials bar.`,
     tools: {
       getAllTabs: createTool("Retrieves all open tabs.", {}, getAllTabs),
       searchTabs: createTool(
@@ -1077,10 +1064,6 @@ const toolGroups = {
 -   **Your Second Tool Call (after finding the current tab ID):** \`{"functionCall": {"name": "addTabsToEssentials", "args": {"tabIds": ["5"]}}}\``,
   },
   pageInteraction: {
-    description:
-      async () => `- \`getPageTextContent()\` / \`getHTMLContent()\`: Use these to get updated page information if context is missing. Prefer \`getPageTextContent\`.
-- \`clickElement(selector)\`: Clicks an element on the page.
-- \`fillForm(selector, value)\`: Fills a form input on the page.`,
     tools: {
       getPageTextContent: createTool(
         "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
@@ -1124,10 +1107,6 @@ const toolGroups = {
 -   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\``,
   },
   youtube: {
-    description: async () =>
-      `- \`getYoutubeTranscript()\`: Retrieves the transcript of the current YouTube video.
-- \`getYoutubeDescription()\`: Retrieves the description of the current YouTube video.
-- \`getYoutubeComments(count)\`: Retrieves top-level comments from the current YouTube video. 'count' is optional and defaults to 10.`,
     tools: {
       getYoutubeTranscript: createTool(
         "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video.",
@@ -1155,13 +1134,6 @@ const toolGroups = {
 -   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", "args": {"count": 5}}}\``,
   },
   bookmarks: {
-    description:
-      async () => `- \`searchBookmarks(query)\`: Searches your bookmarks for a specific query.
-- \`getAllBookmarks()\`: Retrieves all of your bookmarks.
-- \`createBookmark(url, title, parentID)\`: Creates a new bookmark.  The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
-- \`addBookmarkFolder(title, parentID)\`: Creates a new bookmark folder. The \`parentID\` is optional and should be the GUID of the parent folder. Defaults to the "Bookmarks Toolbar" folder which has GUID: \`PlacesUtils.bookmarks.toolbarGuid\`.
-- \`updateBookmark(id, url, title, parentID)\`: Updates an existing bookmark.  The \`id\` is the GUID of the bookmark.  You must provide the ID and either a new URL or a new title or new parentID (or any one or two).
-- \`deleteBookmark(id)\`: Deletes a bookmark.  The \`id\` is the GUID of the bookmark.`,
     tools: {
       searchBookmarks: createTool(
         "Searches bookmarks based on a query.",
@@ -1218,12 +1190,6 @@ const toolGroups = {
 Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.`,
   },
   workspaces: {
-    description: async () => `- \`getAllWorkspaces()\`: Get a list of all your workspaces.
-- \`createWorkspace(name, icon)\`: Creates a new workspace.
-- \`updateWorkspace(id, name, icon)\`: Updates a workspace's name or icon.
-- \`deleteWorkspace(id)\`: Deletes a workspace and all its tabs.
-- \`moveTabsToWorkspace(tabIds, workspaceId)\`: Moves tabs to a different workspace.
-- \`reorderWorkspace(id, newPosition)\`: Changes the order of a workspace.`,
     tools: {
       getAllWorkspaces: createTool(
         "Retrieves all workspaces.",
@@ -1275,8 +1241,6 @@ Note that first and second tool clls can be made in parallel, but the third tool
 -   **Your Second Tool Call (after getting the new workspace ID and current tab ID):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["5"], "workspaceId": "e1f2a3b4-c5d6..."}}}\``,
   },
   uiFeedback: {
-    description: async () =>
-      `- \`showToast(title, description)\`: Shows a temporary notification message (a "toast") to the user. Use this to provide quick, non-blocking feedback.`,
     tools: {
       showToast: createTool(
         "Shows a temporary toast message to the user.",
@@ -1363,7 +1327,7 @@ const getTools = (groups, shouldToolBeCalled) => {
   return wrappedTools;
 };
 
-const getToolSystemPrompt = async (groups) => {
+const getToolSystemPrompt = async (groups, includeExamples = true) => {
   try {
     const activeGroupNames =
       groups && Array.isArray(groups) && groups.length > 0
@@ -1377,12 +1341,27 @@ const getToolSystemPrompt = async (groups) => {
     for (const groupName of activeGroupNames) {
       const group = toolGroups[groupName];
       if (group) {
-        if (group.description) availableTools.push(await group.description());
-        if (group.example) toolExamples.push(await group.example(activeGroups));
+        if (group.tools) {
+          for (const toolName in group.tools) {
+            const tool = group.tools[toolName];
+            const params = Object.keys(tool.inputSchema.shape).join(", ");
+            availableTools.push(`- \`${toolName}(${params})\`: ${tool.description}`);
+          }
+        }
+        if (group.moreInstructions) {
+          const instructions =
+            typeof group.moreInstructions === "function"
+              ? await group.moreInstructions()
+              : group.moreInstructions;
+          availableTools.push(instructions);
+        }
+        if (includeExamples && group.example) {
+          toolExamples.push(await group.example(activeGroups));
+        }
       }
     }
 
-    if (toolGroups.misc && toolGroups.misc.example) {
+    if (includeExamples && toolGroups.misc && toolGroups.misc.example) {
       const miscExample = await toolGroups.misc.example(activeGroups);
       if (miscExample) toolExamples.push(miscExample);
     }
@@ -1392,7 +1371,7 @@ const getToolSystemPrompt = async (groups) => {
 ${availableTools.join("\n")}
 `;
 
-    if (toolExamples.length > 0) {
+    if (includeExamples && toolExamples.length > 0) {
       systemPrompt += `
 ## Tool Call Examples:
 These are just examples for you on how you can use tools calls, each example gives you some concept, the concept is not specific to single tool.
