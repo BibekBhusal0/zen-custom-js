@@ -137,138 +137,6 @@ class LLM {
     return object;
   }
 
-  async sendMessageAndToolCalls({
-    prompt,
-    maxCalls = 5,
-    tools,
-    onNewMessage,
-    abortSignal,
-    stream = false,
-  }) {
-    let history = [...this.history];
-    if (prompt) {
-      history.push({ role: "user", content: prompt });
-    }
-    const self = this;
-
-    if (!stream) {
-      for (let i = 0; i < maxCalls; i++) {
-        const result = await generateText({
-          model: self.currentProvider.getModel(),
-          system: await self.getSystemPrompt(),
-          messages: history,
-          tools,
-          abortSignal,
-        });
-
-        history.push(...result.response.messages);
-        if (onNewMessage) result.response.messages.forEach(onNewMessage);
-
-        const toolCalls = result.toolCalls;
-        if (toolCalls && toolCalls.length > 0) {
-          const toolResults = await Promise.all(
-            toolCalls.map(async (toolCall) => {
-              const output = await tools[toolCall.toolName].execute(toolCall.args || {});
-              return {
-                role: "tool",
-                toolCallId: toolCall.toolCallId,
-                toolName: toolCall.toolName,
-                content: JSON.stringify(output),
-              };
-            })
-          );
-          history.push(...toolResults);
-          if (onNewMessage) toolResults.forEach(onNewMessage);
-        } else {
-          self.history = history;
-          return result;
-        }
-      }
-
-      const finalResult = await generateText({
-        model: self.currentProvider.getModel(),
-        system: await self.getSystemPrompt(),
-        messages: history,
-        abortSignal,
-      });
-      history.push(...finalResult.response.messages);
-      self.history = history;
-      return finalResult;
-    }
-
-    const iterator = (async function* () {
-      let currentHistory = [...history];
-      for (let i = 0; i < maxCalls; i++) {
-        const result = streamText({
-          model: self.currentProvider.getModel(),
-          system: await self.getSystemPrompt(),
-          messages: currentHistory,
-          tools,
-          abortSignal,
-        });
-
-        let textContent = "";
-        const toolCalls = [];
-        for await (const part of result.fullStream) {
-          yield part;
-          if (part.type === "text-delta") {
-            textContent += part.textDelta;
-          } else if (part.type === "tool-call") {
-            toolCalls.push(part);
-          }
-        }
-
-        const assistantMessage = {
-          role: "assistant",
-          content: textContent,
-          toolCalls: toolCalls.map(({ toolCallId, toolName, args }) => ({
-            toolCallId,
-            toolName,
-            args,
-          })),
-        };
-        currentHistory.push(assistantMessage);
-        if (onNewMessage) onNewMessage(assistantMessage);
-
-        if (toolCalls.length === 0) {
-          self.history = currentHistory;
-          return;
-        }
-
-        yield { type: "tool-calls", toolCalls };
-
-        const toolResults = await Promise.all(
-          toolCalls.map(async (toolCall) => {
-            const output = await tools[toolCall.toolName].execute(toolCall.args || {});
-            return {
-              role: "tool",
-              toolCallId: toolCall.toolCallId,
-              toolName: toolCall.toolName,
-              content: JSON.stringify(output),
-            };
-          })
-        );
-        currentHistory.push(...toolResults);
-        if (onNewMessage) toolResults.forEach(onNewMessage);
-        yield { type: "tool-results", toolResults };
-      }
-      self.history = currentHistory;
-    })();
-
-    const streamResult = new ReadableStream({
-      async pull(controller) {
-        const { value, done } = await iterator.next();
-        if (done) {
-          controller.close();
-        } else {
-          controller.enqueue(value);
-        }
-      },
-    });
-
-    return { ...streamText, stream: streamResult };
-  }
-
   getHistory() {
     return [...this.history];
   }
@@ -561,26 +429,30 @@ Here is the initial info about the current page:
     );
     const tools = getTools(findbarToolGroups, shouldToolBeCalled);
 
-    const result = await super.sendMessageAndToolCalls({
+    const commonConfig = {
       prompt,
       tools,
-      stream: this.streamEnabled,
-      maxCalls: this.maxToolCalls,
+      maxSteps: this.maxToolCalls,
       abortSignal,
-    });
+    };
 
-    (async () => {
-      if (result.stream) {
-        for await (const _ of result.stream) {
-          // Drain the stream to ensure history is updated
-        }
-      }
+    if (this.streamEnabled) {
+      const self = this;
+      return super.streamText({
+        ...commonConfig,
+        onFinish: () => {
+          if (browseBotFindbar?.findbar) {
+            browseBotFindbar.findbar.history = self.getHistory();
+          }
+        },
+      });
+    } else {
+      const result = await super.generateText(commonConfig);
       if (browseBotFindbar?.findbar) {
         browseBotFindbar.findbar.history = this.getHistory();
       }
-    })();
-
-    return result;
+      return result;
+    }
   }
 
   clearData() {
