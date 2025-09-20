@@ -42,13 +42,17 @@ const TabIdManager = new (class {
 
     const id = this._getOrCreateId(tab);
     const splitGroup = tab.group?.hasAttribute("split-view-group") ? tab.group : null;
+    const workspaceId = tab.getAttribute("zen-workspace-id");
+    const workspace = workspaceId ? gZenWorkspaces.getWorkspaceFromId(workspaceId) : null;
 
     return {
       id: String(id),
       title: tab.label,
       url: tab.linkedBrowser?.currentURI?.spec,
       isCurrent: tab === gBrowser.selectedTab,
-      workspaceId: tab.getAttribute("zen-workspace-id"),
+      workspaceId,
+      workspaceName: workspace?.name || null,
+      workspaceIcon: workspace?.icon || null,
       pinned: tab.pinned,
       isGroup: gBrowser.isTabGroup(tab),
       isEssential: tab.hasAttribute("zen-essential"),
