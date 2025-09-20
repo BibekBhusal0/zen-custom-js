@@ -137,6 +137,69 @@ class LLM {
     return object;
   }
 
+  async sendMessageAndToolCalls({ prompt, maxCalls = 5, tools, onNewMessage, _currentCall = 1 }) {
+    if (_currentCall === 1 && prompt) {
+      const userMessage = { role: "user", content: prompt };
+      this.history.push(userMessage);
+      if (onNewMessage) onNewMessage(userMessage);
+    }
+
+    if (_currentCall > maxCalls) {
+      const { text } = await generateText({
+        model: this.currentProvider.getModel(),
+        system: await this.getSystemPrompt(),
+        messages: this.history,
+      });
+      const assistantMessage = { role: "assistant", content: text || "" };
+      this.history.push(assistantMessage);
+      if (onNewMessage) onNewMessage(assistantMessage);
+      return { text };
+    }
+
+    const result = await generateText({
+      model: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
+      messages: this.history,
+      tools,
+    });
+
+    // The Vercel AI SDK adds the assistant's response to result.response.messages
+    const assistantResponseMessage = result.response.messages[0];
+    this.history.push(assistantResponseMessage);
+    if (onNewMessage) onNewMessage(assistantResponseMessage);
+
+    // For convenience, tool calls are also on the top-level result object
+    if (result.toolCalls && result.toolCalls.length > 0) {
+      const toolResults = await Promise.all(
+        result.toolCalls.map(async (toolCall) => {
+          const matchingTool = tools[toolCall.toolName];
+          const output = await matchingTool.execute(toolCall.args);
+          return {
+            role: "tool",
+            toolCallId: toolCall.toolCallId,
+            toolName: toolCall.toolName,
+            content: JSON.stringify(output),
+          };
+        })
+      );
+
+      this.history.push(...toolResults);
+      if (onNewMessage) toolResults.forEach(onNewMessage);
+
+      // Recursive call to continue the conversation
+      return this.sendMessageAndToolCalls({
+        prompt: null,
+        maxCalls,
+        tools,
+        onNewMessage,
+        _currentCall: _currentCall + 1,
+      });
+    } else {
+      // No more tool calls, so we're done
+      return result;
+    }
+  }
+
   getHistory() {
     return [...this.history];
   }
