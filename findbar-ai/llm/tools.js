@@ -397,6 +397,30 @@ async function removeTabsFromFolder(args) {
 }
 
 /**
+ * Creates a new, empty tab folder.
+ * @param {object} args - The arguments object.
+ * @param {string} args.name - The name for the new folder.
+ * @returns {Promise<object>} A promise that resolves with the new folder's information or an error.
+ */
+async function createTabFolder(args) {
+  const { name } = args;
+  if (!name) return { error: "createTabFolder requires a name." };
+  try {
+    const folder = gZenFolders.createFolder([], { label: name, renameFolder: false });
+    return {
+      result: `Successfully created folder "${folder.label}".`,
+      folder: {
+        id: folder.id,
+        name: folder.label,
+      },
+    };
+  } catch (e) {
+    debugError("Failed to create tab folder:", e);
+    return { error: "Failed to create tab folder." };
+  }
+}
+
+/**
  * Reorders a tab to a new index.
  * @param {object} args - The arguments object.
  * @param {string} args.tabId - The session ID of the tab to reorder.
@@ -942,6 +966,7 @@ const toolGroups = {
 - \`searchTabs(query)\`: Searches through your open tabs.
 - \`closeTabs(tabIds)\`: Closes one or more tabs.
 - \`reorderTab(tabId, newIndex)\`: Moves a single tab to a new position in the tab list.
+- \`createTabFolder(name)\`: Creates a new, empty tab folder.
 - \`addTabsToFolder(tabIds, folderId)\`: Groups tabs into a folder.
 - \`removeTabsFromFolder(tabIds)\`: Ungroups tabs from their folder.
 - \`addTabsToEssentials(tabIds)\`: Adds tabs to the essentials bar (pinned to the top of the sidebar).
@@ -988,6 +1013,14 @@ const toolGroups = {
         },
         removeTabsFromFolder
       ),
+      createTabFolder: createTool(
+        "createTabFolder",
+        "Creates a new, empty tab folder.",
+        {
+          name: createStringParameter("The name for the new folder."),
+        },
+        createTabFolder
+      ),
       addTabsToEssentials: createTool(
         "addTabsToEssentials",
         "Adds one or more tabs to the essentials bar.",
@@ -1007,6 +1040,12 @@ const toolGroups = {
 -   **User Prompt:** "close all youtube tabs"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "searchTabs", "args": {"query": "youtube.com"}}}\`
 -   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["1", "2"]}}}\`
+
+#### Creating a Folder and Adding Tabs:
+-   **User Prompt:** "create a new folder called 'Social Media' and add my twitter tab to it"
+-   **Your First Tool Call (to get tab ID):** \`{"functionCall": {"name": "searchTabs", "args": {"query": "twitter.com"}}}\`
+-   **Your Second Tool Call (to create folder):** \`{"functionCall": {"name": "createTabFolder", "args": {"name": "Social Media"}}}\`
+-   **Your Third Tool Call (after getting IDs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["3"], "folderId": "folder-123"}}}\`
 
 #### Making a Tab Essential:
 -   **User Prompt:** "make my current tab essential"
