@@ -137,67 +137,137 @@ class LLM {
     return object;
   }
 
-  async sendMessageAndToolCalls({ prompt, maxCalls = 5, tools, onNewMessage, _currentCall = 1 }) {
-    if (_currentCall === 1 && prompt) {
-      const userMessage = { role: "user", content: prompt };
-      this.history.push(userMessage);
-      if (onNewMessage) onNewMessage(userMessage);
+  async sendMessageAndToolCalls({
+    prompt,
+    maxCalls = 5,
+    tools,
+    onNewMessage,
+    abortSignal,
+    stream = false,
+  }) {
+    let history = [...this.history];
+    if (prompt) {
+      history.push({ role: "user", content: prompt });
     }
+    const self = this;
 
-    if (_currentCall > maxCalls) {
-      const { text } = await generateText({
-        model: this.currentProvider.getModel(),
-        system: await this.getSystemPrompt(),
-        messages: this.history,
+    if (!stream) {
+      for (let i = 0; i < maxCalls; i++) {
+        const result = await generateText({
+          model: self.currentProvider.getModel(),
+          system: await self.getSystemPrompt(),
+          messages: history,
+          tools,
+          abortSignal,
+        });
+
+        history.push(...result.response.messages);
+        if (onNewMessage) result.response.messages.forEach(onNewMessage);
+
+        const toolCalls = result.toolCalls;
+        if (toolCalls && toolCalls.length > 0) {
+          const toolResults = await Promise.all(
+            toolCalls.map(async (toolCall) => {
+              const output = await tools[toolCall.toolName].execute(toolCall.args);
+              return {
+                role: "tool",
+                toolCallId: toolCall.toolCallId,
+                toolName: toolCall.toolName,
+                content: JSON.stringify(output),
+              };
+            })
+          );
+          history.push(...toolResults);
+          if (onNewMessage) toolResults.forEach(onNewMessage);
+        } else {
+          self.history = history;
+          return result;
+        }
+      }
+
+      const finalResult = await generateText({
+        model: self.currentProvider.getModel(),
+        system: await self.getSystemPrompt(),
+        messages: history,
+        abortSignal,
       });
-      const assistantMessage = { role: "assistant", content: text || "" };
-      this.history.push(assistantMessage);
-      if (onNewMessage) onNewMessage(assistantMessage);
-      return { text };
+      history.push(...finalResult.response.messages);
+      self.history = history;
+      return finalResult;
     }
 
-    const result = await generateText({
-      model: this.currentProvider.getModel(),
-      system: await this.getSystemPrompt(),
-      messages: this.history,
-      tools,
+    const iterator = (async function* () {
+      let currentHistory = [...history];
+      for (let i = 0; i < maxCalls; i++) {
+        const result = streamText({
+          model: self.currentProvider.getModel(),
+          system: await self.getSystemPrompt(),
+          messages: currentHistory,
+          tools,
+          abortSignal,
+        });
+
+        let textContent = "";
+        const toolCalls = [];
+        for await (const part of result.stream) {
+          yield part;
+          if (part.type === "text-delta") {
+            textContent += part.textDelta;
+          } else if (part.type === "tool-call") {
+            toolCalls.push(part);
+          }
+        }
+
+        const assistantMessage = {
+          role: "assistant",
+          content: textContent,
+          toolCalls: toolCalls.map((tc) => ({
+            id: tc.toolCallId,
+            type: "tool-call",
+            toolName: tc.toolName,
+            args: tc.args,
+          })),
+        };
+        currentHistory.push(assistantMessage);
+        if (onNewMessage) onNewMessage(assistantMessage);
+
+        if (toolCalls.length === 0) {
+          self.history = currentHistory;
+          return;
+        }
+
+        yield { type: "tool-calls", toolCalls };
+
+        const toolResults = await Promise.all(
+          toolCalls.map(async (toolCall) => {
+            const output = await tools[toolCall.toolName].execute(toolCall.args);
+            return {
+              role: "tool",
+              toolCallId: toolCall.toolCallId,
+              toolName: toolCall.toolName,
+              content: JSON.stringify(output),
+            };
+          })
+        );
+        currentHistory.push(...toolResults);
+        if (onNewMessage) toolResults.forEach(onNewMessage);
+        yield { type: "tool-results", toolResults };
+      }
+      self.history = currentHistory;
+    })();
+
+    const streamResult = new ReadableStream({
+      async pull(controller) {
+        const { value, done } = await iterator.next();
+        if (done) {
+          controller.close();
+        } else {
+          controller.enqueue(value);
+        }
+      },
     });
 
-    // The Vercel AI SDK adds the assistant's response to result.response.messages
-    const assistantResponseMessage = result.response.messages[0];
-    this.history.push(assistantResponseMessage);
-    if (onNewMessage) onNewMessage(assistantResponseMessage);
-
-    // For convenience, tool calls are also on the top-level result object
-    if (result.toolCalls && result.toolCalls.length > 0) {
-      const toolResults = await Promise.all(
-        result.toolCalls.map(async (toolCall) => {
-          const matchingTool = tools[toolCall.toolName];
-          const output = await matchingTool.execute(toolCall.args);
-          return {
-            role: "tool",
-            toolCallId: toolCall.toolCallId,
-            toolName: toolCall.toolName,
-            content: JSON.stringify(output),
-          };
-        })
-      );
-
-      this.history.push(...toolResults);
-      if (onNewMessage) toolResults.forEach(onNewMessage);
-
-      // Recursive call to continue the conversation
-      return this.sendMessageAndToolCalls({
-        prompt: null,
-        maxCalls,
-        tools,
-        onNewMessage,
-        _currentCall: _currentCall + 1,
-      });
-    } else {
-      // No more tool calls, so we're done
-      return result;
-    }
+    return { stream: streamResult };
   }
 
   getHistory() {
@@ -456,6 +526,26 @@ Here is the initial info about the current page:
       return object;
     }
 
+    if (!this.godMode) {
+      if (this.streamEnabled) {
+        const self = this;
+        const streamResult = await super.streamText({ prompt, abortSignal });
+        (async () => {
+          await streamResult.text;
+          if (browseBotFindbar?.findbar) {
+            browseBotFindbar.findbar.history = self.getHistory();
+          }
+        })();
+        return streamResult;
+      } else {
+        const result = await super.generateText({ prompt, abortSignal });
+        if (browseBotFindbar?.findbar) {
+          browseBotFindbar.findbar.history = this.getHistory();
+        }
+        return result;
+      }
+    }
+
     const shouldToolBeCalled = async (toolName) => {
       if (PREFS.conformation) {
         const confirmed = await browseBotFindbar.createToolConfirmationDialog([toolName]);
@@ -466,34 +556,28 @@ Here is the initial info about the current page:
       }
       return true;
     };
+    const tools = getTools(undefined, shouldToolBeCalled);
 
-    const commonConfig = {
+    const result = await super.sendMessageAndToolCalls({
       prompt,
-      // FIX: Can't Calling multiple tools back to back don't work
-      // TODO: Better feedback is required when LLM is using tool
-      tools: this.godMode ? getTools(undefined, shouldToolBeCalled) : undefined,
-      maxSteps: this.godMode ? this.maxToolCalls : 1,
+      tools,
+      stream: this.streamEnabled,
+      maxCalls: this.maxToolCalls,
       abortSignal,
-    };
+    });
 
-    if (this.streamEnabled) {
-      const self = this;
-      // FIX: gives error while streaming sometimes
-      return super.streamText({
-        ...commonConfig,
-        onFinish() {
-          if (browseBotFindbar?.findbar) {
-            browseBotFindbar.findbar.history = self.getHistory();
-          }
-        },
-      });
-    } else {
-      const result = await super.generateText(commonConfig);
+    (async () => {
+      if (result.stream) {
+        for await (const _ of result.stream) {
+          // Drain the stream to ensure history is updated
+        }
+      }
       if (browseBotFindbar?.findbar) {
         browseBotFindbar.findbar.history = this.getHistory();
       }
-      return result;
-    }
+    })();
+
+    return result;
   }
 
   clearData() {
