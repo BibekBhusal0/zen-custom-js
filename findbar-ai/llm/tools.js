@@ -1142,11 +1142,7 @@ const toolGroups = {
         },
         searchBookmarks
       ),
-      getAllBookmarks: createTool(
-        "Retrieves all bookmarks.",
-        {},
-        getAllBookmarks
-      ),
+      getAllBookmarks: createTool("Retrieves all bookmarks.", {}, getAllBookmarks),
       createBookmark: createTool(
         "Creates a new bookmark.",
         {
@@ -1191,11 +1187,7 @@ Note that first and second tool clls can be made in parallel, but the third tool
   },
   workspaces: {
     tools: {
-      getAllWorkspaces: createTool(
-        "Retrieves all workspaces.",
-        {},
-        getAllWorkspaces
-      ),
+      getAllWorkspaces: createTool("Retrieves all workspaces.", {}, getAllWorkspaces),
       createWorkspace: createTool(
         "Creates a new workspace.",
         {
