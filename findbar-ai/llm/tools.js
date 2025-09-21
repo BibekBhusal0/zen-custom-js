@@ -44,12 +44,14 @@ const TabIdManager = new (class {
     const splitGroup = tab.group?.hasAttribute("split-view-group") ? tab.group : null;
     const workspaceId = tab.getAttribute("zen-workspace-id");
     const workspace = workspaceId ? gZenWorkspaces.getWorkspaceFromId(workspaceId) : null;
+    const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
 
     return {
       id: String(id),
       title: tab.label,
       url: tab.linkedBrowser?.currentURI?.spec,
       isCurrent: tab === gBrowser.selectedTab,
+      inCurrentWorkspace: workspaceId === activeWorkspaceId,
       workspaceId,
       workspaceName: workspace?.name || null,
       workspaceIcon: workspace?.icon || null,
@@ -1001,7 +1003,7 @@ Note: Only second search is open in split (vertial by default), this will make i
 - Split tabs: Zen allows to view multiple tabs at same time by splitting.
 `,
     tools: {
-      getAllTabs: createTool("Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.", {}, getAllTabs),
+      getAllTabs: createTool("Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.", {}, getAllTabs),
       searchTabs: createTool(
         "Searches open tabs by title or URL. Similar to `getAllTabs` this will also provide more information about tab.",
         { query: createStringParameter("The search term for tabs.") },
