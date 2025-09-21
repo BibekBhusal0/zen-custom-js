@@ -187,9 +187,10 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 - AI can't make multiple tool calls in row
 - Styles in glance
 
-## 🙏 Credits
+## 🙏 Credits and Acknowledgements
 
-- **[natsumi-browser](https://github.com/greeeen-dev/natsumi-browser)**: For inspiration on the modern, floating UI styles.
+- **[natsumi-browser](https://github.com/greeeen-dev/natsumi-browser)**: For inspiration on the modern, floating UI styles in Findbar.
+- **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement.
 
 ## 📄 License
 
