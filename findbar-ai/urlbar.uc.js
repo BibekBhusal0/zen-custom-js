@@ -8,12 +8,14 @@ const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"
 export class UrlBarLLM extends LLM {
   // TODO: Improve system prompt, should use Toast as feedback
   async getSystemPrompt() {
-    let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
+    let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively and organizing their workspace in better way.
 
 Your primary responsibilities include:
 1. Making tool calls in each response based on user input.
 2. If the user does not provide specific commands, perform a search using the provided terms. You are permitted to correct any grammar or spelling mistakes and refine user queries for better accuracy.
 3. If a URL is provided, open it directly.
+4. Update user about your action with Toast Notification (not default action like searching or opening URL. But if you fix spelling mistake in search term update user with toast.)
+5. Managing tabs, if user ask you to manage the tabs (grouping, closing, spliting) you will do it with tools you have access to.
 
 Your goal is to ensure a seamless and user-friendly browsing experience.`;
     systemPrompt += await getToolSystemPrompt(urlBarGroups);

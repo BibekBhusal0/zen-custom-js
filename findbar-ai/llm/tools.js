@@ -444,7 +444,7 @@ async function reorderTab(args) {
 }
 
 /**
- * Adds one or more tabs to the essentials bar.
+ * Adds one or more tabs to the essentials.
  * @param {object} args - The arguments object.
  * @param {string[]} args.tabIds - An array of session IDs for the tabs to add to essentials.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
@@ -469,7 +469,7 @@ async function addTabsToEssentials(args) {
 }
 
 /**
- * Removes one or more tabs from the essentials bar.
+ * Removes one or more tabs from the essentials.
  * @param {object} args - The arguments object.
  * @param {string[]} args.tabIds - An array of session IDs for the tabs to remove from essentials.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
@@ -880,7 +880,7 @@ const toolNameMapping = {
   openLink: "Opening a link",
   newSplit: "Creating a split view",
   splitExistingTabs: "Splitting existing tabs",
-  getAllTabs: "Getting all open tabs",
+  getAllTabs: "Reading tabs",
   searchTabs: "Searching tabs",
   closeTabs: "Closing tabs",
   reorderTab: "Reordering a tab",
@@ -897,12 +897,12 @@ const toolNameMapping = {
   getYoutubeDescription: "Getting YouTube description",
   getYoutubeComments: "Getting YouTube comments",
   searchBookmarks: "Searching bookmarks",
-  getAllBookmarks: "Getting all bookmarks",
+  getAllBookmarks: "Reading bookmarks",
   createBookmark: "Creating a bookmark",
   addBookmarkFolder: "Creating a bookmark folder",
   updateBookmark: "Updating a bookmark",
   deleteBookmark: "Deleting a bookmark",
-  getAllWorkspaces: "Getting all workspaces",
+  getAllWorkspaces: "Reading workspaces",
   createWorkspace: "Creating a workspace",
   updateWorkspace: "Updating a workspace",
   deleteWorkspace: "Deleting a workspace",
@@ -911,13 +911,14 @@ const toolNameMapping = {
   showToast: "Showing a notification",
 };
 
+const tabsInstructions = `If you open tab in glace it will create new small popup window to show the tab, vsplit and hsplit means it will open new tab in vertical and horizontal split with current tab respectively.`;
 const toolGroups = {
   search: {
     moreInstructions: async () => {
       const searchEngines = await Services.search.getVisibleEngines();
       const engineNames = searchEngines.map((e) => e.name).join(", ");
       const defaultEngineName = Services.search.defaultEngine.name;
-      return `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.`;
+      return `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.` + "\n" + tabsInstructions
     },
     tools: {
       search: createTool(
@@ -934,13 +935,16 @@ const toolGroups = {
       ),
     },
     example: async () => {
-      const defaultEngineName = Services.search.defaultEngine.name;
-      return `#### Searching the Web: 
--   **User Prompt:** "search for firefox themes"
--   **Your Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "firefox themes", "engineName": "${defaultEngineName}"}}}\``;
+      return `#### Searching and Spliting: 
+-   **User Prompt:** "search cat in google and dog in youtube open them in vertical split"
+-   **Your first Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "cat", "engineName": "google", where: "new tab"}}}\`
+-   **Your second Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "dog", "engineName": "youtube", where: "vsplit"}}}\`
+Note: Only second search is open in split (vertial by default), this will make it split with first search.
+`;
     },
   },
   navigation: {
+    moreInstructions : tabsInstructions + "While opening tab make sure it has valid URL.",
     tools: {
       openLink: createTool(
         "Opens a given URL in a specified location. Can also create a split view with the current tab.",
@@ -985,15 +989,21 @@ const toolGroups = {
 -   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"links": ["https://youtube.com", "https://twitch.tv"], "type": "vertical"}}}\`
 
 #### Splitting Existing Tabs:
--   **User Prompt:** "split my first two tabs"
+-   **User Prompt:** "Make all my open youtube tabs in grid"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
--   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["1", "2"]}}}\``,
+-   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["x", "y", ...]}, "type": "grid"}}\``,
   },
   tabs: {
+    moreInstructions: `Zen browser has advanced tab management features they are:
+- Workspaces: Different workspace can contain different tabs (pinned and unpinned).
+- Essential: Essential tabs are not workspace specific, they are most important tabs and they are always shown dispite of current workspace.
+- Tab groups: Similar tabs can be made in group to organize it in better way.
+- Split tabs: Zen allows to view multiple tabs at same time by splitting.
+`,
     tools: {
-      getAllTabs: createTool("Retrieves all open tabs.", {}, getAllTabs),
+      getAllTabs: createTool("Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.", {}, getAllTabs),
       searchTabs: createTool(
-        "Searches open tabs by title or URL.",
+        "Searches open tabs by title or URL. Similar to `getAllTabs` this will also provide more information about tab.",
         { query: createStringParameter("The search term for tabs.") },
         searchTabs
       ),
@@ -1035,12 +1045,12 @@ const toolGroups = {
         createTabFolder
       ),
       addTabsToEssentials: createTool(
-        "Adds one or more tabs to the essentials bar.",
+        "Adds one or more tabs to the essentials.",
         { tabIds: createStringArrayParameter("An array of session IDs to add to essentials.") },
         addTabsToEssentials
       ),
       removeTabsFromEssentials: createTool(
-        "Removes one or more tabs from the essentials bar.",
+        "Removes one or more tabs from the essentials.",
         {
           tabIds: createStringArrayParameter("An array of session IDs to remove from essentials."),
         },
@@ -1053,10 +1063,10 @@ const toolGroups = {
 -   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["1", "2"]}}}\`
 
 #### Creating a Folder and Adding Tabs:
--   **User Prompt:** "create a new folder called 'Social Media' and add my twitter tab to it"
--   **Your First Tool Call (to get tab ID):** \`{"functionCall": {"name": "searchTabs", "args": {"query": "twitter.com"}}}\`
+-   **User Prompt:** "create a new folder called 'Social Media' and add all my facebook tab to it"
+-   **Your First Tool Call (to get tab ID):** \`{"functionCall": {"name": "searchTabs", "args": {"query": "facebook.com"}}}\`
 -   **Your Second Tool Call (to create folder):** \`{"functionCall": {"name": "createTabFolder", "args": {"name": "Social Media"}}}\`
--   **Your Third Tool Call (after getting IDs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["3"], "folderId": "folder-123"}}}\`
+-   **Your Third Tool Call (after getting IDs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["3", ...], "folderId": "folder-123"}}}\`
 
 #### Making a Tab Essential:
 -   **User Prompt:** "make my current tab essential"
@@ -1066,7 +1076,7 @@ const toolGroups = {
   pageInteraction: {
     tools: {
       getPageTextContent: createTool(
-        "Retrieves the text content of the current web page to answer questions if the initial context is insufficient.",
+        "Retrieves the text content of the current web page to answer questions. Only use if the initial context is insufficient to answer user's question or fulfill user's command.",
         {},
         messageManagerAPI.getPageTextContent.bind(messageManagerAPI)
       ),
@@ -1094,17 +1104,20 @@ const toolGroups = {
     example: async () => `#### Reading the Current Page for Context
 -   **User Prompt:** "summarize this page for me"
 -   **Your Tool Call:** \`{"functionCall": {"name": "getPageTextContent", "args": {}}}\`
+-   And you summarize the page as per user's requirements.
 
 #### Finding and Clicking a Link on the Current Page
 -   **User Prompt:** "click on the contact link"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
--   **Your Second Tool Call (after receiving HTML and finding the link):** \`{"functionCall": {"name": "openLink", "args": {"link": "https://example.com/contact-us"}}}\`
+-   **Your Second Tool Call (after receiving HTML and finding the link):** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#contact-link"}}}\`
 
 #### Filling a form:
 -   **User Prompt:** "Fill the name with John and submit"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
 -   **Your Second Tool Call:** \`{"functionCall": {"name": "fillForm", "args": {"selector": "#name", "value": "John"}}}\`
--   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\``,
+-   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\`
+Note: you must run tool getHTMLContent before clicking button or filling form to make sure element exists.
+`,
   },
   youtube: {
     tools: {
@@ -1130,8 +1143,16 @@ const toolGroups = {
       ),
     },
     example: async () => `#### Getting YouTube Video Details:
--   **User Prompt:** "get me the top 5 comments"
--   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", "args": {"count": 5}}}\``,
+-   **User Prompt:** "Summarize this Youtube Video in 5 bullet points"
+-   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeTranscript"}}\`
+-   And you summarize the video as per user's requirements.
+
+#### Reading Youtube Comments:
+-   **User Prompt:** "What are the user's feedback on this video"
+-   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", count: 20}}\`
+-   And Based on comments you tell user about the user's feedback on video.
+`,
+
   },
   bookmarks: {
     tools: {
@@ -1186,6 +1207,9 @@ const toolGroups = {
 Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.`,
   },
   workspaces: {
+    moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
+Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find.
+`,
     tools: {
       getAllWorkspaces: createTool("Retrieves all workspaces.", {}, getAllWorkspaces),
       createWorkspace: createTool(
@@ -1227,10 +1251,7 @@ Note that first and second tool clls can be made in parallel, but the third tool
         reorderWorkspace
       ),
     },
-    example: async () => `#### Creating and Managing a Workspace:
--   **User Prompt:** "make a new workspace called 'Research', then move my currently open tab to it."
--   **Your First Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
--   **Your Second Tool Call (after getting the new workspace ID and current tab ID):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["5"], "workspaceId": "e1f2a3b4-c5d6..."}}}\``,
+    // example: async () => 
   },
   uiFeedback: {
     tools: {
@@ -1249,14 +1270,15 @@ Note that first and second tool clls can be made in parallel, but the third tool
   },
   misc: {
     example: async (activeGroups) => {
-      if (activeGroups.has("search") && activeGroups.has("navigation")) {
-        return `### Calling multiple tools at once.
-#### Making 2 searches in split 
--   **User Prompt:** "Search for Japan in google and search for America in Youtube. Open them in vertical split."
--   **Your First Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "Japan", "engineName": "Google", "where": "new tab"}}}\`
--   **Your Second Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "America", "engineName": "Youtube", "where": "vsplit"}}}\``;
+      let example = ""
+      if (activeGroups.has("workspaces") && activeGroups.has("tabs")) {
+        example +=`#### Creating and Managing a Workspace:
+-   **User Prompt:** "make a new workspace called 'Research', then move all tabs related to animals in that workspace."
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
+-   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\``
       }
-      return "";
+      return example;
     },
   },
 };
