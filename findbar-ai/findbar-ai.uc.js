@@ -66,12 +66,13 @@ const getSidebarWidth = () => {
   } else return 0;
 };
 
-function parseMD(markdown) {
+function parseMD(markdown, convertHTML = true) {
   const markedOptions = { breaks: true, gfm: true, xhtml: true };
   if (!markdownStylesInjected) {
     injectMarkdownStyles();
   }
   const content = window.marked ? window.marked.parse(markdown, markedOptions) : markdown;
+  if (!convertHTML) return content;
   let htmlContent = parseElement(`<div class="markdown-body">${content}</div>`);
 
   return htmlContent;
@@ -512,7 +513,11 @@ export const browseBotFindbar = {
         let fullText = "";
         for await (const delta of result.textStream) {
           fullText += delta;
-          contentDiv.innerHTML = parseMD(fullText).innerHTML;
+          try {
+            contentDiv.innerHTML = parseMD(fullText, false);
+          } catch (e) {
+            debugError("innerHTML assignment failed:", e.message);
+          }
           this._updateFindbarDimensions();
           if (messagesContainer) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
