@@ -11,7 +11,7 @@ const header = `// ==UserScript==
 `;
 
 export default {
-  input: "findbar-ai/findbar-ai.uc.js",
+  input: "findbar-ai/browse-bot.uc.js",
   output: [
     {
       file: "dist/browse-bot.uc.js",

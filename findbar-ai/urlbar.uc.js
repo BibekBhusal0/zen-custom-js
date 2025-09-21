@@ -5,7 +5,7 @@ import { parseElement } from "./utils/parse.js";
 
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
 
-class UrlBarLLM extends LLM {
+export class UrlBarLLM extends LLM {
   // TODO: Improve system prompt, should use Toast as feedback
   async getSystemPrompt() {
     let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively. 
@@ -39,10 +39,10 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
   }
 }
 
-const urlBarLLM = new UrlBarLLM();
+export const urlBarLLM = new UrlBarLLM();
 window.browseBotURLBarLLM = urlBarLLM;
 
-const urlbarAI = {
+export const urlbarAI = {
   _isAIMode: false,
   _originalPlaceholder: "",
   _initialized: false,
@@ -256,27 +256,3 @@ const urlbarAI = {
     }
   },
 };
-
-function startup() {
-  urlbarAI.init();
-  urlbarAI._prefListener = UC_API.Prefs.addListener(
-    PREFS.URLBAR_AI_ENABLED,
-    urlbarAI.handlePrefChange.bind(urlbarAI)
-  );
-}
-
-if (typeof UC_API !== "undefined" && UC_API.Runtime) {
-  UC_API.Runtime.startupFinished().then(startup);
-} else {
-  if (gBrowserInit.delayedStartupFinished) {
-    startup();
-  } else {
-    let observer = new MutationObserver(() => {
-      if (gBrowserInit.delayedStartupFinished) {
-        startup();
-        observer.disconnect();
-      }
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
-  }
-}

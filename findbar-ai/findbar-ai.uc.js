@@ -1289,12 +1289,3 @@ export const browseBotFindbar = {
     }
   },
 };
-
-UC_API.Runtime.startupFinished().then(() => {
-  browseBotFindbar.init();
-  UC_API.Prefs.addListener(
-    PREFS.ENABLED,
-    browseBotFindbar.handleEnabledChange.bind(browseBotFindbar)
-  );
-  window.browseBotFindbar = browseBotFindbar;
-});
