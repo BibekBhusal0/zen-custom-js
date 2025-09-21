@@ -523,7 +523,7 @@ export const browseBotFindbar = {
       if (e.name !== "AbortError") {
         debugError("Error sending message:", e);
         if (aiMessageDiv) aiMessageDiv.remove();
-        this.addChatMessage({ role: "error", content: `Error: ${e.message}` });
+        this.addChatMessage({ role: "error", content: `**Error**: ${e.message}` });
       } else {
         debugLog("Streaming aborted by user.");
         if (aiMessageDiv) aiMessageDiv.remove();
