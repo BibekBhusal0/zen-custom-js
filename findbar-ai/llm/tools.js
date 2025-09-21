@@ -920,7 +920,11 @@ const toolGroups = {
       const searchEngines = await Services.search.getVisibleEngines();
       const engineNames = searchEngines.map((e) => e.name).join(", ");
       const defaultEngineName = Services.search.defaultEngine.name;
-      return `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.` + "\n" + tabsInstructions
+      return (
+        `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.` +
+        "\n" +
+        tabsInstructions
+      );
     },
     tools: {
       search: createTool(
@@ -946,7 +950,7 @@ Note: Only second search is open in split (vertial by default), this will make i
     },
   },
   navigation: {
-    moreInstructions : tabsInstructions + "While opening tab make sure it has valid URL.",
+    moreInstructions: tabsInstructions + "While opening tab make sure it has valid URL.",
     tools: {
       openLink: createTool(
         "Opens a given URL in a specified location. Can also create a split view with the current tab.",
@@ -1003,7 +1007,11 @@ Note: Only second search is open in split (vertial by default), this will make i
 - Split tabs: Zen allows to view multiple tabs at same time by splitting.
 `,
     tools: {
-      getAllTabs: createTool("Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.", {}, getAllTabs),
+      getAllTabs: createTool(
+        "Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.",
+        {},
+        getAllTabs
+      ),
       searchTabs: createTool(
         "Searches open tabs by title or URL. Similar to `getAllTabs` this will also provide more information about tab.",
         { query: createStringParameter("The search term for tabs.") },
@@ -1154,7 +1162,6 @@ Note: you must run tool getHTMLContent before clicking button or filling form to
 -   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", count: 20}}\`
 -   And Based on comments you tell user about the user's feedback on video.
 `,
-
   },
   bookmarks: {
     tools: {
@@ -1253,7 +1260,7 @@ Different workspace can contain different tabs (pinned and unpinned). A workspac
         reorderWorkspace
       ),
     },
-    // example: async () => 
+    // example: async () =>
   },
   uiFeedback: {
     tools: {
@@ -1272,13 +1279,13 @@ Different workspace can contain different tabs (pinned and unpinned). A workspac
   },
   misc: {
     example: async (activeGroups) => {
-      let example = ""
+      let example = "";
       if (activeGroups.has("workspaces") && activeGroups.has("tabs")) {
-        example +=`#### Creating and Managing a Workspace:
+        example += `#### Creating and Managing a Workspace:
 -   **User Prompt:** "make a new workspace called 'Research', then move all tabs related to animals in that workspace."
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
 -   **Your Second Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
--   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\``
+-   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\``;
       }
       return example;
     },

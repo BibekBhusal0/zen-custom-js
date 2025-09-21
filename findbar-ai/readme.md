@@ -5,7 +5,6 @@
     </a>
 </div>
 
-
 Inspired by Arc Browser, this script transforms the standard findbar and URL bar in **Zen Browser** into modern, AI-powered command interfaces. The findbar becomes a floating chat panel for deep interaction with page content, while the URL bar offers quick AI-powered actions and searches.
 
 https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
@@ -55,7 +54,6 @@ For advanced users or those not using Sine or who are willing to contribute:
 
 3.  **Bundle the Script**: This script uses modern JavaScript that needs to be bundled. Navigate into the new directory and run the build command:
 
-
     ```bash
     cd custom
     npm install
@@ -101,38 +99,38 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 <details>
 <summary><h3>Preferences (`about:config`)</h3></summary>
 
-| Preference | Type | Default | Description |
-|---|---|---|---|
-| `extension.browse-bot.findbar-ai.enabled` | Boolean | `true` | Toggles the findbar AI feature on or off. |
-| `extension.browse-bot.urlbar-ai-enabled` | Boolean | `true` | Toggles the URL bar AI feature on or off. |
-| `extension.browse-bot.findbar-ai.minimal` | Boolean | `true` | Toggles a simpler, more compact UI. |
-| `extension.browse-bot.findbar-ai.persist-chat` | Boolean | `false` | Persists chat history across tab switches (but not browser restarts). |
-| `extension.browse-bot.findbar-ai.dnd-enabled` | Boolean | `true` | Enables dragging to move and resizing of the findbar window. |
-| `extension.browse-bot.findbar-ai.position` | String | `"top-right"` | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`. |
-| `extension.browse-bot.findbar-ai.pseudo-bg.enabled` | Boolean | `false` | Enables a pseudo-background for use with transparent browser themes. |
-| `extension.browse-bot.llm-provider` | String | `"gemini"` | Which AI provider to use. Options: `gemini`, `mistral`, `openai`, `claude`, `grok`, `perplexity`, `ollama`. |
-| `extension.browse-bot.gemini-api-key` | String | _(empty)_ | Your API key for Google Gemini. |
-| `extension.browse-bot.gemini-model` | String | `"gemini-2.0-flash"` | The specific Gemini model to use. |
-| `extension.browse-bot.mistral-api-key` | String | _(empty)_ | Your API key for Mistral AI. |
-| `extension.browse-bot.mistral-model` | String | `"mistral-medium-latest"` | The specific Mistral model to use. |
-| `extension.browse-bot.openai-api-key` | String | _(empty)_ | Your API key for OpenAI. |
-| `extension.browse-bot.openai-model` | String | `"gpt-4o"` | The specific OpenAI model to use. |
-| `extension.browse-bot.claude-api-key` | String | _(empty)_ | Your API key for Anthropic Claude. |
-| `extension.browse-bot.claude-model` | String | `"claude-4-opus"` | The specific Claude model to use. |
-| `extension.browse-bot.grok-api-key` | String | _(empty)_ | Your API key for xAI Grok. |
-| `extension.browse-bot.grok-model` | String | `"grok-4"` | The specific Grok model to use. |
-| `extension.browse-bot.perplexity-api-key` | String | _(empty)_ | Your API key for Perplexity AI. |
-| `extension.browse-bot.perplexity-model` | String | `"sonar"` | The specific Perplexity model to use. |
-| `extension.browse-bot.ollama-api-key` | String | _(empty)_ | Your API key for Ollama (if required). |
-| `extension.browse-bot.ollama-model` | String | `"llama2"` | The specific Ollama model to use. |
-| `extension.browse-bot.findbar-ai.context-menu-enabled` | Boolean | `true` | Toggles the "Ask AI" item in the right-click context menu. |
-| `extension.browse-bot.findbar-ai.context-menu-autosend` | Boolean | `true` | If true, clicking the context menu item sends the request to the AI immediately. |
-| `extension.browse-bot.findbar-ai.god-mode` | Boolean | `false` | If true, allows the AI to use tools to interact with the browser. |
-| `extension.browse-bot.findbar-ai.max-tool-calls` | Number | `5` | The maximum number of consecutive tool calls the AI can make in one turn. |
-| `extension.browse-bot.findbar-ai.conform-before-tool-call` | Boolean | `true` | If true, prompts you for confirmation before the AI executes any tools. |
-| `extension.browse-bot.findbar-ai.stream-enabled` | Boolean | `true` | AI response will be smooth. |
-| `extension.browse-bot.findbar-ai.citations-enabled` | Boolean | `false` | If true, the AI will try to cite its sources from the page content. |
-| `extension.browse-bot.debug-mode` | Boolean | `false` | Set to `true` to enable verbose logging in the Browser Console for troubleshooting. |
+| Preference                                                 | Type    | Default                   | Description                                                                                                 |
+| ---------------------------------------------------------- | ------- | ------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `extension.browse-bot.findbar-ai.enabled`                  | Boolean | `true`                    | Toggles the findbar AI feature on or off.                                                                   |
+| `extension.browse-bot.urlbar-ai-enabled`                   | Boolean | `true`                    | Toggles the URL bar AI feature on or off.                                                                   |
+| `extension.browse-bot.findbar-ai.minimal`                  | Boolean | `true`                    | Toggles a simpler, more compact UI.                                                                         |
+| `extension.browse-bot.findbar-ai.persist-chat`             | Boolean | `false`                   | Persists chat history across tab switches (but not browser restarts).                                       |
+| `extension.browse-bot.findbar-ai.dnd-enabled`              | Boolean | `true`                    | Enables dragging to move and resizing of the findbar window.                                                |
+| `extension.browse-bot.findbar-ai.position`                 | String  | `"top-right"`             | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`.   |
+| `extension.browse-bot.findbar-ai.pseudo-bg.enabled`        | Boolean | `false`                   | Enables a pseudo-background for use with transparent browser themes.                                        |
+| `extension.browse-bot.llm-provider`                        | String  | `"gemini"`                | Which AI provider to use. Options: `gemini`, `mistral`, `openai`, `claude`, `grok`, `perplexity`, `ollama`. |
+| `extension.browse-bot.gemini-api-key`                      | String  | _(empty)_                 | Your API key for Google Gemini.                                                                             |
+| `extension.browse-bot.gemini-model`                        | String  | `"gemini-2.0-flash"`      | The specific Gemini model to use.                                                                           |
+| `extension.browse-bot.mistral-api-key`                     | String  | _(empty)_                 | Your API key for Mistral AI.                                                                                |
+| `extension.browse-bot.mistral-model`                       | String  | `"mistral-medium-latest"` | The specific Mistral model to use.                                                                          |
+| `extension.browse-bot.openai-api-key`                      | String  | _(empty)_                 | Your API key for OpenAI.                                                                                    |
+| `extension.browse-bot.openai-model`                        | String  | `"gpt-4o"`                | The specific OpenAI model to use.                                                                           |
+| `extension.browse-bot.claude-api-key`                      | String  | _(empty)_                 | Your API key for Anthropic Claude.                                                                          |
+| `extension.browse-bot.claude-model`                        | String  | `"claude-4-opus"`         | The specific Claude model to use.                                                                           |
+| `extension.browse-bot.grok-api-key`                        | String  | _(empty)_                 | Your API key for xAI Grok.                                                                                  |
+| `extension.browse-bot.grok-model`                          | String  | `"grok-4"`                | The specific Grok model to use.                                                                             |
+| `extension.browse-bot.perplexity-api-key`                  | String  | _(empty)_                 | Your API key for Perplexity AI.                                                                             |
+| `extension.browse-bot.perplexity-model`                    | String  | `"sonar"`                 | The specific Perplexity model to use.                                                                       |
+| `extension.browse-bot.ollama-api-key`                      | String  | _(empty)_                 | Your API key for Ollama (if required).                                                                      |
+| `extension.browse-bot.ollama-model`                        | String  | `"llama2"`                | The specific Ollama model to use.                                                                           |
+| `extension.browse-bot.findbar-ai.context-menu-enabled`     | Boolean | `true`                    | Toggles the "Ask AI" item in the right-click context menu.                                                  |
+| `extension.browse-bot.findbar-ai.context-menu-autosend`    | Boolean | `true`                    | If true, clicking the context menu item sends the request to the AI immediately.                            |
+| `extension.browse-bot.findbar-ai.god-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                           |
+| `extension.browse-bot.findbar-ai.max-tool-calls`           | Number  | `5`                       | The maximum number of consecutive tool calls the AI can make in one turn.                                   |
+| `extension.browse-bot.findbar-ai.conform-before-tool-call` | Boolean | `true`                    | If true, prompts you for confirmation before the AI executes any tools.                                     |
+| `extension.browse-bot.findbar-ai.stream-enabled`           | Boolean | `true`                    | AI response will be smooth.                                                                                 |
+| `extension.browse-bot.findbar-ai.citations-enabled`        | Boolean | `false`                   | If true, the AI will try to cite its sources from the page content.                                         |
+| `extension.browse-bot.debug-mode`                          | Boolean | `false`                   | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                         |
 
 > [!WARNING]
 > Don't turn on both God Mode and Citations at the same time. The AI might not function properly.
@@ -141,12 +139,12 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 
 ### ⌨️ Keymaps
 
-| Shortcut | Action |
-|---|---|
-| `Ctrl+Shift+F` | Opens the findbar directly into the expanded AI mode. |
-| `Ctrl+Space` | Toggles the URL bar into AI command mode. |
-| `Escape` | If the AI interface is expanded, it collapses to the standard findbar. If not expanded, closes the findbar. |
-| `Alt + Enter` | Sends the text from the standard findbar to the AI, expanding the view. |
+| Shortcut       | Action                                                                                                      |
+| -------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Ctrl+Shift+F` | Opens the findbar directly into the expanded AI mode.                                                       |
+| `Ctrl+Space`   | Toggles the URL bar into AI command mode.                                                                   |
+| `Escape`       | If the AI interface is expanded, it collapses to the standard findbar. If not expanded, closes the findbar. |
+| `Alt + Enter`  | Sends the text from the standard findbar to the AI, expanding the view.                                     |
 
 ## 🔨 Tool-calls
 
