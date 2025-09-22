@@ -38,21 +38,10 @@ export function parseShortcutString(str) {
 
   // A rough mapping for special keys.
   const KEYCODE_MAP = {
-    f1: "VK_F1",
-    f2: "VK_F2",
-    f3: "VK_F3",
-    f4: "VK_F4",
-    f5: "VK_F5",
-    f6: "VK_F6",
-    f7: "VK_F7",
-    f8: "VK_F8",
-    f9: "VK_F9",
-    f10: "VK_F10",
-    f11: "VK_F11",
-    f12: "VK_F12",
-    enter: "VK_RETURN",
-    escape: "VK_ESCAPE",
-    delete: "VK_DELETE",
+    f1: "VK_F1", f2: "VK_F2", f3: "VK_F3", f4: "VK_F4",
+    f5: "VK_F5", f6: "VK_F6", f7: "VK_F7", f8: "VK_F8",
+    f9: "VK_F9", f10: "VK_F10", f11: "VK_F11", f12: "VK_F12",
+    enter: "VK_RETURN", escape: "VK_ESCAPE", delete: "VK_DELETE",
     backspace: "VK_BACK",
   };
 
@@ -79,7 +68,7 @@ export function shortcutToString(shortcutObject) {
 
   const parts = [];
 
-  // Modifiers
+  // Modifiers are added in a consistent order for display.
   const modifierMap = {
     accel: "Ctrl",
     alt: "Alt",
@@ -89,7 +78,6 @@ export function shortcutToString(shortcutObject) {
 
   if (shortcutObject.modifiers) {
     const mods = shortcutObject.modifiers.split(",").map(m => m.trim());
-    // Ensure consistent order for display
     for (const mod of ["accel", "shift", "alt", "meta"]) {
       if (mods.includes(mod)) {
         parts.push(modifierMap[mod]);
@@ -97,7 +85,7 @@ export function shortcutToString(shortcutObject) {
     }
   }
 
-  // Key or Keycode
+  // Key or Keycode is added.
   const REVERSE_KEYCODE_MAP = {
     "VK_F1": "F1", "VK_F2": "F2", "VK_F3": "F3", "VK_F4": "F4",
     "VK_F5": "F5", "VK_F6": "F6", "VK_F7": "F7", "VK_F8": "F8",
