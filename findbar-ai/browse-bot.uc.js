@@ -17,7 +17,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
           browseBotFindbar.focusPrompt();
         },
         icon: "chrome://global/skin/icons/highlights.svg",
-        tags: ["AI", "Summarize", "BrowseBot"],
+        tags: ["AI", "Summarize", "BrowseBot", "findbar"],
       },
       {
         key: "browsebot:settings",
@@ -26,6 +26,21 @@ function setupCommandPaletteIntegration(retryCount = 0) {
         icon: "chrome://global/skin/icons/settings.svg",
         tags: ["AI", "BrowseBot", "Settings"],
       },
+      {
+        key: "browsebot:urlbarAi",
+        label: "Toggle URL bar AI mode",
+        command: () => urlbarAI.toggleAIMode(),
+        icon: "chrome://global/skin/icons/highlights.svg",
+        tags: ["AI", "BrowseBot", "URL", "Command"],
+      },
+      {
+        key: "browsebot:expand-findbar",
+        label: "Expand findbar AI",
+        command: () => browseBotFindbar.expanded = true,
+        icon: "chrome://global/skin/icons/highlights.svg",
+        tags: ["AI", "BrowseBot", "findbar"],
+      },
+
     ]);
 
     debugLog("Zen Command Palette integration successful.");
