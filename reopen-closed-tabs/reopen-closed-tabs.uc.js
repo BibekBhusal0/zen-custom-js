@@ -75,7 +75,7 @@ const ReopenClosedTabs = {
         id: buttonId,
         label: "Reopen Closed Tabs",
         tooltip: "View and reopen recently closed tabs",
-        image: "chrome://browser/skin/history.svg",
+        image: "chrome://browser/skin/zen-icons/history.svg",
         type: "toolbarbutton",
         callback: this.toggleMenu.bind(this),
       });
