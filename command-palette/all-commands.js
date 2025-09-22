@@ -1,7 +1,6 @@
 // This file is adapted from the command list in ZBar-Zen by Darsh-A
 // https://github.com/Darsh-A/ZBar-Zen/blob/main/command_bar.uc.js
 import { svgToUrl, icons } from "./utils/icon.js";
-import { debugError } from "./utils/prefs.js";
 
 const isCompactMode = () => gZenCompactModeManager?.preference;
 const ucAvailable = () => typeof UC_API !== "undefined";
@@ -25,39 +24,6 @@ function isPinnedTabDifferent () {
   return pin.url == currentTab.linkedBrowser.currentURI.spec
 }
 
-// https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/blob/main/clear.uc.js
-const clearTabs = () => {
-  try {
-    const currentWorkspaceId = window.gZenWorkspaces?.activeWorkspace;
-    if (!currentWorkspaceId) return;
-    const groupSelector = `tab-group:has(tab[zen-workspace-id="${currentWorkspaceId}"])`;
-    const tabsToClose = [];
-    for (const tab of gBrowser.tabs) {
-      const isSameWorkSpace = tab.getAttribute("zen-workspace-id") === currentWorkspaceId;
-      const groupParent = tab.closest("tab-group");
-      const isInGroupInCorrectWorkspace = groupParent ? groupParent.matches(groupSelector) : false;
-      const isEmptyZenTab = tab.hasAttribute("zen-empty-tab");
-      if (
-        isSameWorkSpace &&
-        !tab.selected &&
-        !tab.pinned &&
-        !isInGroupInCorrectWorkspace &&
-        !isEmptyZenTab &&
-        tab.isConnected
-      ) {
-        tabsToClose.push(tab);
-      }
-    }
-    if (tabsToClose.length === 0) return;
-
-    gBrowser.removeTabs(tabsToClose, {
-      animate: true,
-      skipSessionStore: false,
-    });
-  } catch (error) {
-    debugError("Error clearing tabs:", error);
-  }
-};
 
 export const commands = [
   // ----------- Zen Compact Mode -----------
@@ -342,14 +308,6 @@ export const commands = [
     condition: !!window.BrowserCommands,
     icon: "chrome://browser/skin/zen-icons/home.svg",
     tags: ["new", "home", "black", "tab"],
-  },
-  {
-    key: "clear-tabs",
-    label: "Clear Other Tabs",
-    command: clearTabs,
-    condition: () => !!window.gBrowser && !!window.gZenWorkspaces,
-    icon: svgToUrl(icons["broom"]),
-    tags: ["clear", "tabs", "close", "other", "workspace", "clean"],
   },
   {
     key: "move-tab-up",
@@ -886,5 +844,19 @@ export const commands = [
     condition: () => !!window.ZenCommandPalette,
     icon: "chrome://browser/skin/zen-icons/info.svg",
     tags: ["command", "palette", "help", "documentation", "support"],
+  },
+
+  // ----------- Tidy Tabs --------
+  {
+    key: "cmd_zenClearTabs",
+    label: "Clear Other Tabs",
+    icon: svgToUrl(icons["broom"]),
+    tags: ["clear", "tabs", "close", "other", "workspace", "clean"],
+  },
+  {
+    key: "cmd_zenSortTabs",
+    label: "Sort Tabs",
+    icon: "chrome://global/skin/icons/highlights.svg",
+    tags: ["sort", "manage", "group", "folder", "AI", "auto"],
   },
 ];
