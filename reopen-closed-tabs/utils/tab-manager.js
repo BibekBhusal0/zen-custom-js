@@ -76,6 +76,7 @@ const TabManager = {
 
       for (const tab of allTabs) {
         if (tab.hasAttribute("zen-empty-tab") || tab.closing) continue;
+        const isEssential= tab.hasAttribute('zen-essential')
 
         const browser = tab.linkedBrowser;
         const win = tab.ownerGlobal;
@@ -88,9 +89,9 @@ const TabManager = {
           url: browser.currentURI.spec,
           title: browser.contentTitle || tab.label,
           isPinned: tab.pinned,
-          isEssential: tab.hasAttribute('zen-essential'),
+          isEssential,
           folder: folder,
-          workspace: workspace?.name,
+          workspace: isEssential? undefined : workspace?.name,
           isClosed: false,
           faviconUrl: tab.image,
           tabElement: tab,
