@@ -92,7 +92,7 @@ const TabManager = {
    * If the tab is already open, it switches to it. Otherwise, it opens a new tab.
    * @param {object} tabData - The data of the tab to reopen.
    */
-  reopenTab(tabData) {
+  async reopenTab(tabData) {
     debugLog("Reopening tab:", tabData);
     try {
       // If the tab is already open, switch to it.
@@ -117,18 +117,29 @@ const TabManager = {
             userContextId: tabState.userContextId || 0,
             skipAnimation: true
         });
-
         gBrowser.selectedTab = newTab;
 
-        // Set workspace
-        if (tabState.zenWorkspace) {
-            gZenWorkspaces.moveTabToWorkspace(newTab, tabState.zenWorkspace);
+        const workspaceId = tabState.zenWorkspace;
+        const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
+
+        // Switch workspace if necessary
+        if (workspaceId && workspaceId !== activeWorkspaceId) {
+            await gZenWorkspaces.changeWorkspaceWithID(workspaceId);
+            gZenWorkspaces.moveTabToWorkspace(newTab, workspaceId);
         }
 
-        // Pin if necessary
-        if (tabState.pinned) {
-            gBrowser.pinTab(newTab);
+        // Pin if it was previously pinned
+        if (tabState.pinned) gBrowser.pinTab(newTab);
+
+        // Restore to folder state
+        const groupId = tabData.sessionData.closedInTabGroupId;
+        if (groupId) {
+            const folder = document.getElementById(groupId);
+            if (folder && typeof folder.addTabs === 'function') {
+                folder.addTabs([newTab]);
+            }
         }
+        gBrowser.selectedTab = newTab;
         return;
       }
 
