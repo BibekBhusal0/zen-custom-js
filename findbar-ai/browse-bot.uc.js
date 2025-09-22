@@ -16,6 +16,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
           browseBotFindbar.sendMessage("Summarize the current page");
           browseBotFindbar.focusPrompt();
         },
+        condition: ()=> PREFS.enabled ,
         icon: "chrome://global/skin/icons/highlights.svg",
         tags: ["AI", "Summarize", "BrowseBot", "findbar"],
       },
@@ -30,6 +31,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
         key: "browsebot:urlbarAi",
         label: "Toggle URL bar AI mode",
         command: () => urlbarAI.toggleAIMode(),
+        condition: ()=> urlbarAI.enabled,
         icon: "chrome://global/skin/icons/highlights.svg",
         tags: ["AI", "BrowseBot", "URL", "Command"],
       },
@@ -37,6 +39,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
         key: "browsebot:expand-findbar",
         label: "Expand findbar AI",
         command: () => browseBotFindbar.expanded = true,
+        condition: ()=> PREFS.enabled ,
         icon: "chrome://global/skin/icons/highlights.svg",
         tags: ["AI", "BrowseBot", "findbar"],
       },
