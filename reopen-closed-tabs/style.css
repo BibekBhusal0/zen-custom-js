@@ -18,6 +18,13 @@
   }
 
   .reopen-closed-tab-item {
+    padding: 4px 8px;
+    cursor: default;
+
+    &:hover {
+      background-color: var(--arrowpanel-hover-background);
+    }
+
     .tab-item-content {
       display: flex;
       align-items: center;

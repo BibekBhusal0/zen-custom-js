@@ -33,6 +33,16 @@ const TabManager = {
     }
   },
 
+  _getFolderBreadcrumbs(group) {
+    const path = [];
+    let currentGroup = group;
+    while (currentGroup && currentGroup.isZenFolder) {
+        path.unshift(currentGroup.label);
+        currentGroup = currentGroup.group;
+    }
+    return path.join(' / ');
+  },
+
   /**
    * Fetches a list of currently open tabs across all browser windows and workspaces.
    * @returns {Promise<Array<object>>} A promise resolving to an array of open tab data.
@@ -41,8 +51,10 @@ const TabManager = {
     debugLog("Fetching open tabs.");
     const openTabs = [];
     try {
-      // Use gZenWorkspaces.allStoredTabs to get tabs from all workspaces
-      const allTabs = gZenWorkspaces.allStoredTabs;
+      const workspaceTabs = gZenWorkspaces.allStoredTabs;
+      const essentialTabs = Array.from(document.querySelectorAll('tab[zen-essential="true"]'));
+      const allTabs = [...new Set([...workspaceTabs, ...essentialTabs])];
+
       for (const tab of allTabs) {
         if (tab.hasAttribute("zen-empty-tab") || tab.closing) continue;
 
@@ -50,7 +62,7 @@ const TabManager = {
         const win = tab.ownerGlobal;
         const workspaceId = tab.getAttribute('zen-workspace-id');
         const workspace = workspaceId && win.gZenWorkspaces.getWorkspaceFromId(workspaceId);
-        const folder = tab.group?.isZenFolder ? tab.group.label : null;
+        const folder = tab.group?.isZenFolder ? this._getFolderBreadcrumbs(tab.group) : null;
 
         const tabInfo = {
           id: tab.id,
@@ -91,14 +103,36 @@ const TabManager = {
         return;
       }
 
-      // If it's a closed tab, restore it using its session index.
-      if (tabData.isClosed && tabData.sessionIndex !== undefined) {
-        const browserWin = Services.wm.getMostRecentNormalWindow();
-        browserWin.undoCloseTab(tabData.sessionIndex);
+      // If it's a closed tab, manually restore it.
+      if (tabData.isClosed && tabData.sessionData) {
+        const tabState = tabData.sessionData.state;
+        const url = tabState.entries[0]?.url;
+        if (!url) {
+            debugError("Cannot reopen tab: URL not found in session data.", tabData);
+            return;
+        }
+
+        const newTab = gBrowser.addTab(url, {
+            triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+            userContextId: tabState.userContextId || 0,
+            skipAnimation: true
+        });
+
+        gBrowser.selectedTab = newTab;
+
+        // Set workspace
+        if (tabState.zenWorkspace) {
+            gZenWorkspaces.moveTabToWorkspace(newTab, tabState.zenWorkspace);
+        }
+
+        // Pin if necessary
+        if (tabState.pinned) {
+            gBrowser.pinTab(newTab);
+        }
         return;
       }
 
-      // Fallback to open a new tab if other methods fail.
+      // Fallback for any other case.
       if (tabData.url) {
         const newTab = gBrowser.addTab(tabData.url, {
             triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()

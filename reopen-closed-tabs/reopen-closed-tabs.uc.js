@@ -2,8 +2,6 @@ import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { parseShortcutString } from "../utils/keyboard.js";
 import { parseElement, escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
 import TabManager from "./utils/tab-manager.js";
-import { icons } from "./utils/icon.js";
-import { svgToUrl } from "../command-palette/utils/icon.js";
 
 const ReopenClosedTabs = {
   _boundToggleMenu: null,
@@ -173,10 +171,10 @@ const ReopenClosedTabs = {
 
     let statusIcons = [];
     if (tab.isPinned) {
-      statusIcons.push(`<image class="tab-status-icon" src="${svgToUrl(icons.pinned)}" />`);
+      statusIcons.push(`<image class="tab-status-icon" src="chrome://browser/skin/zen-icons/pin.svg" />`);
     }
     if (tab.isEssential) {
-      statusIcons.push(`<image class="tab-status-icon" src="${svgToUrl(icons.essential)}" />`);
+      statusIcons.push(`<image class="tab-status-icon" src="chrome://browser/skin/zen-icons/essential-add.svg" />`);
     }
     const iconHtml = statusIcons.join('');
 
