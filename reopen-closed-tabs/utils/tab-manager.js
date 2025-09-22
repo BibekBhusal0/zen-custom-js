@@ -34,43 +34,38 @@ const TabManager = {
   },
 
   /**
-   * Fetches a list of currently open tabs across all browser windows.
-   * Includes information about pinned, essential, and folder status.
+   * Fetches a list of currently open tabs across all browser windows and workspaces.
    * @returns {Promise<Array<object>>} A promise resolving to an array of open tab data.
    */
   async getOpenTabs() {
     debugLog("Fetching open tabs.");
     const openTabs = [];
     try {
-      const enumerator = Services.wm.getEnumerator("navigator:browser");
-      while (enumerator.hasMoreElements()) {
-        const win = enumerator.getNext();
-        const gBrowser = win.gBrowser;
+      // Use gZenWorkspaces.allStoredTabs to get tabs from all workspaces
+      const allTabs = gZenWorkspaces.allStoredTabs;
+      for (const tab of allTabs) {
+        if (tab.hasAttribute("zen-empty-tab") || tab.closing) continue;
 
-        for (let i = 0; i < gBrowser.tabs.length; i++) {
-          const tab = gBrowser.tabs[i];
-          if (tab.hasAttribute("zen-empty-tab")) continue;
+        const browser = tab.linkedBrowser;
+        const win = tab.ownerGlobal;
+        const workspaceId = tab.getAttribute('zen-workspace-id');
+        const workspace = workspaceId && win.gZenWorkspaces.getWorkspaceFromId(workspaceId);
+        const folder = tab.group?.isZenFolder ? tab.group.label : null;
 
-          const browser = tab.linkedBrowser;
-          const workspaceId = tab.getAttribute('zen-workspace-id');
-          const workspace = workspaceId && gZenWorkspaces.getWorkspaceFromId(workspaceId);
-          const folder = tab.group?.isZenFolder ? tab.group.label : null;
+        const tabInfo = {
+          id: tab.id,
+          url: browser.currentURI.spec,
+          title: browser.contentTitle || tab.label,
+          isPinned: tab.pinned,
+          isEssential: tab.hasAttribute('zen-essential'),
+          folder: folder,
+          workspace: workspace?.name,
+          isClosed: false,
+          faviconUrl: tab.image,
+          tabElement: tab
+        };
 
-          const tabInfo = {
-            id: tab.id,
-            url: browser.currentURI.spec,
-            title: browser.contentTitle || tab.label,
-            isPinned: tab.pinned,
-            isEssential: tab.hasAttribute('zen-essential'),
-            folder: folder,
-            workspace: workspace?.name,
-            isClosed: false,
-            faviconUrl: tab.image,
-            tabElement: tab
-          };
-
-          openTabs.push(tabInfo);
-        }
+        openTabs.push(tabInfo);
       }
       debugLog("Open tabs fetched:", openTabs);
       return openTabs;
@@ -98,7 +93,8 @@ const TabManager = {
 
       // If it's a closed tab, restore it using its session index.
       if (tabData.isClosed && tabData.sessionIndex !== undefined) {
-        undoCloseTab(window, tabData.sessionIndex);
+        const browserWin = Services.wm.getMostRecentNormalWindow();
+        browserWin.undoCloseTab(tabData.sessionIndex);
         return;
       }
 

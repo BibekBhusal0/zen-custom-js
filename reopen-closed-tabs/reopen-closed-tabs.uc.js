@@ -114,9 +114,9 @@ const ReopenClosedTabs = {
 
     // Search bar
     const searchBox = parseElement(`
-      <vbox id="reopen-closed-tabs-search-container">
+      <hbox id="reopen-closed-tabs-search-container" align="center">
          <textbox id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..." flex="1"/>
-      </vbox>
+      </hbox>
     `, "xul");
     this._menuPopup.appendChild(searchBox);
     this._menuPopup.appendChild(parseElement(`<menuseparator />`, "xul"));
@@ -189,24 +189,22 @@ const ReopenClosedTabs = {
     }
     const contextLabel = contextParts.join(' / ');
 
-    const menuItem = parseElement(`
-      <menuitem class="reopen-closed-tab-item" label="${label}" tooltiptext="${url}">
-        <hbox class="tab-item-content" align="center">
-          <image class="tab-favicon" src="${faviconSrc}" />
-          <vbox class="tab-item-labels" flex="1">
-            <label class="tab-item-label">${label}</label>
-            ${contextLabel ? `<label class="tab-item-context">${contextLabel}</label>` : ''}
-          </vbox>
-          <hbox class="tab-item-status-icons">
-            ${iconHtml}
-          </hbox>
+    const tabItem = parseElement(`
+      <hbox class="reopen-closed-tab-item" tooltiptext="${url}">
+        <image class="tab-favicon" src="${faviconSrc}" />
+        <vbox class="tab-item-labels" flex="1">
+          <label class="tab-item-label" value="${label}"/>
+          ${contextLabel ? `<label class="tab-item-context" value="${contextLabel}"/>` : ''}
+        </vbox>
+        <hbox class="tab-item-status-icons">
+          ${iconHtml}
         </hbox>
-      </menuitem>
+      </hbox>
     `, "xul");
 
-    menuItem.tabData = tab;
-    menuItem.addEventListener("command", this._boundHandleMenuItemClick);
-    container.appendChild(menuItem);
+    tabItem.tabData = tab;
+    tabItem.addEventListener("click", this._boundHandleMenuItemClick);
+    container.appendChild(tabItem);
   },
 
   _filterTabs(query) {
@@ -288,14 +286,13 @@ const ReopenClosedTabs = {
   },
 
   _handleMenuItemClick(event) {
-    // Find the menuitem element by traversing up from the event target
-    let menuItem = event.target;
-    while (menuItem && !menuItem.classList.contains('reopen-closed-tab-item')) {
-      menuItem = menuItem.parentElement;
+    let tabItem = event.target;
+    while (tabItem && !tabItem.classList.contains('reopen-closed-tab-item')) {
+      tabItem = tabItem.parentElement;
     }
 
-    if (menuItem && menuItem.tabData) {
-      TabManager.reopenTab(menuItem.tabData);
+    if (tabItem && tabItem.tabData) {
+      TabManager.reopenTab(tabItem.tabData);
       this._menuPopup.hidePopup();
     } else {
       debugError("Cannot reopen tab: Tab data not found on menu item.", event.target);
