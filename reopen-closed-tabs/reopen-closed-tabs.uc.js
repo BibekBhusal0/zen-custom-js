@@ -216,13 +216,28 @@ const ReopenClosedTabs = {
         </vbox>
         <hbox class="tab-item-status-icons" align="center">
           ${iconHtml}
+          ${tab.isClosed ? `<image class="close-button" src="chrome://global/skin/icons/close.svg" tooltiptext="Remove from list" />` : ''}
         </hbox>
       </hbox>
     `, "xul");
 
     tabItem.tabData = tab;
     tabItem.addEventListener("click", this._boundHandleItemClick);
+    const closeButton = tabItem.querySelector(".close-button");
+    if (closeButton) {
+      closeButton.addEventListener("click", (event) => this._handleRemoveTabClick(event, tabItem));
+    }
     container.appendChild(tabItem);
+  },
+
+  _handleRemoveTabClick(event, tabItem) {
+    event.stopPropagation();
+    if (tabItem && tabItem.tabData && tabItem.tabData.isClosed) {
+      TabManager.removeClosedTab(tabItem.tabData);
+      this._populatePanel();
+    } else {
+      debugError("Cannot remove tab: Tab data not found or tab is not closed.", tabItem);
+    }
   },
 
   _filterTabs(query) {

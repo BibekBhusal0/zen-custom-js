@@ -34,6 +34,24 @@ const TabManager = {
     }
   },
 
+  /**
+   * Removes a closed tab from the session store.
+   * @param {object} tabData - The data of the closed tab to remove, specifically containing sessionIndex.
+   */
+  removeClosedTab(tabData) {
+    debugLog("Removing closed tab from session store:", tabData);
+    try {
+      if (typeof SessionStore !== 'undefined' && SessionStore.forgetClosedTab) {
+        SessionStore.forgetClosedTab(window, tabData.sessionIndex);
+        debugLog("Closed tab removed successfully.");
+      } else {
+        debugError("SessionStore.forgetClosedTab not available.");
+      }
+    } catch (e) {
+      debugError("Error removing closed tab:", e);
+    }
+  },
+
   _getFolderBreadcrumbs(group) {
     const path = [];
     let currentGroup = group;
@@ -119,6 +137,9 @@ const TabManager = {
             skipAnimation: true
         });
         gBrowser.selectedTab = newTab;
+
+        // Remove the tab from the closed tabs list after successful reopening
+        this.removeClosedTab(tabData);
 
         const workspaceId = tabState.zenWorkspace;
         const activeWorkspaceId = gZenWorkspaces.activeWorkspace;

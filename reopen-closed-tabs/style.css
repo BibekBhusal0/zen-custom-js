@@ -92,6 +92,20 @@
       -moz-context-properties: fill !important;
       flex-shrink: 0;
     }
+
+    .close-button {
+      width: 16px;
+      height: 16px;
+      margin-inline-start: 4px;
+      fill: light-dark(black, white) !important;
+      -moz-context-properties: fill !important;
+      opacity: 0.6;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
   }
 
   .reopen-closed-tab-item-disabled {
