@@ -323,6 +323,17 @@ const ReopenClosedTabs = {
     if (nextSelected) {
       nextSelected.setAttribute("selected", "true");
       nextSelected.scrollIntoView({ block: "nearest" });
+
+      // Adjust scroll position to prevent selected item from being hidden behind sticky group label
+      const stickyHeader = tabItemsContainer.querySelector(".reopen-closed-tabs-group-header");
+      if (stickyHeader) {
+        const stickyHeaderHeight = stickyHeader.offsetHeight;
+        const selectedItemRect = nextSelected.getBoundingClientRect();
+        const containerRect = tabItemsContainer.getBoundingClientRect();
+        if (selectedItemRect.top < containerRect.top + stickyHeaderHeight) {
+          tabItemsContainer.scrollTop -= (containerRect.top + stickyHeaderHeight - selectedItemRect.top);
+        }
+      }
     }
   },
 
