@@ -39,15 +39,16 @@
     z-index: 1;
     background-color: var(--panel-background);
     & label {
-      font-size: 14px;
+      font-size: 16px;
       padding-bottom: 4px;
     }
   }
 
   .reopen-closed-tab-item {
-    padding: 4px;
+    padding: 5px;
     cursor: default;
     border-radius: 4px;
+    margin-bottom:2px;
 
     &:hover,
     &[selected="true"] {
@@ -55,27 +56,32 @@
     }
 
     .tab-favicon {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
       margin-inline-end: 8px;
     }
 
     .tab-item-labels {
-      display: -moz-box;
+      display: flex;
       flex-direction: column;
-      flex: 1;
       min-width: 0;
+      gap: 0 !important;
     }
 
     .tab-item-label {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      font-size: 14px;
+      margin-block: 0;
+      margin-inline: 0;
     }
 
     .tab-item-context {
       font-size: 0.9em;
       opacity: 0.7;
+      margin-block: 0;
+      margin-inline: 0;
     }
 
     .tab-status-icon {
