@@ -213,6 +213,8 @@ Adding your own commands from other scripts is straightforward. The `ZenCommandP
 ### Other mods which support Command Palette
 
 - [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
+- [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
+- [Browse Bot (beta)](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
 
 ### Adding a Static Command
 
