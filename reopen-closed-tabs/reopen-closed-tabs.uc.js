@@ -23,7 +23,7 @@ const ReopenClosedTabs = {
     debugLog("Mod initialized.");
   },
 
-  _registerKeyboardShortcut() {
+  async _registerKeyboardShortcut() {
     const shortcutString = Prefs.shortcutKey;
     if (!shortcutString) {
       debugLog("No shortcut key defined.");
@@ -37,16 +37,19 @@ const ReopenClosedTabs = {
     }
 
     try {
-      const translatedModifiers = modifiers.replace(/accel/g, 'ctrl');
-      
+      const translatedModifiers = modifiers.replace(/accel/g, 'ctrl').replace(","," ")
+
       const hotkey = {
         id: "reopen-closed-tabs-hotkey",
         modifiers: translatedModifiers,
         key: key,
         command: this._boundToggleMenu,
       };
-      this._registeredHotkey = UC_API.Hotkeys.define(hotkey).autoAttach({ suppressOriginal: false });
-      debugLog(`Registered shortcut: ${shortcutString}`);
+      this._registeredHotkey = await UC_API.Hotkeys.define(hotkey)
+      if (this._registeredHotkey){
+        this._registeredHotkey.autoAttach({ suppressOriginal: true });
+        debugLog(`Registered shortcut: ${shortcutString}`);
+      }
     } catch (e) {
       debugError("Failed to register keyboard shortcut:", e);
     }
