@@ -20,6 +20,7 @@ const ReopenClosedTabs = {
     this._boundHandleItemClick = this._handleItemClick.bind(this);
     this._registerKeyboardShortcut();
     this._registerToolbarButton();
+    UC_API.Prefs.addListener(Prefs.SHORTCUT_KEY, this.onHotkeyChange.bind(this));
     debugLog("Mod initialized.");
   },
 
@@ -53,6 +54,16 @@ const ReopenClosedTabs = {
     } catch (e) {
       debugError("Failed to register keyboard shortcut:", e);
     }
+  },
+
+  onHotkeyChange() {
+      // TODO: Figure out how to apply changes real time (without restart)
+      if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
+        window.ucAPI.showToast(
+          ["Hotkey Changed", "A restart is required for changes to take effect."],
+          1 // Restart button preset
+        );
+      } 
   },
 
   _registerToolbarButton() {
