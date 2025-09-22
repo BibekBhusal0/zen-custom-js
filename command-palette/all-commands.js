@@ -21,7 +21,7 @@ function isPinnedTabDifferent () {
   if ( !currentTab.pinned ) return false
   const pin = gZenPinnedTabManager._pinsCache.find(pin=> pin.uuid === currentTab.getAttribute('zen-pin-id') )
   if (!pin) return false 
-  return pin.url == currentTab.linkedBrowser.currentURI.spec
+  return pin.url !== currentTab.linkedBrowser.currentURI.spec
 }
 
 
