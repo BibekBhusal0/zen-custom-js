@@ -16,6 +16,7 @@ import {
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
+import { parseShortcutString } from "../utils/keyboard.js";
 
 const ZenCommandPalette = {
   /**
@@ -686,76 +687,6 @@ const ZenCommandPalette = {
   },
 
   /**
-   * Parses a shortcut string (e.g., "Ctrl+Shift+K") into an object for a <key> element.
-   * @param {string} str - The shortcut string.
-   * @returns {{key: string|null, keycode: string|null, modifiers: string}}
-   */
-  _parseShortcutString(str) {
-    const parts = str.split("+").map((p) => p.trim().toLowerCase());
-    const keyPart = parts.pop();
-
-    const modifiers = {
-      accel: false,
-      alt: false,
-      shift: false,
-      meta: false,
-    };
-
-    for (const part of parts) {
-      switch (part) {
-        case "ctrl":
-        case "control":
-          modifiers.accel = true;
-          break;
-        case "alt":
-        case "option":
-          modifiers.alt = true;
-          break;
-        case "shift":
-          modifiers.shift = true;
-          break;
-        case "cmd":
-        case "meta":
-        case "win":
-          modifiers.meta = true;
-          break;
-      }
-    }
-
-    // A rough mapping for special keys. Zen's `KEYCODE_MAP` is not exported.
-    const KEYCODE_MAP = {
-      f1: "VK_F1",
-      f2: "VK_F2",
-      f3: "VK_F3",
-      f4: "VK_F4",
-      f5: "VK_F5",
-      f6: "VK_F6",
-      f7: "VK_F7",
-      f8: "VK_F8",
-      f9: "VK_F9",
-      f10: "VK_F10",
-      f11: "VK_F11",
-      f12: "VK_F12",
-      enter: "VK_RETURN",
-      escape: "VK_ESCAPE",
-      delete: "VK_DELETE",
-      backspace: "VK_BACK",
-    };
-
-    const keycode = KEYCODE_MAP[keyPart] || null;
-    const key = keycode ? null : keyPart;
-
-    return {
-      key: key,
-      keycode: keycode,
-      modifiers: Object.entries(modifiers)
-        .filter(([, val]) => val)
-        .map(([mod]) => mod)
-        .join(","),
-    };
-  },
-
-  /**
    * Creates <key> elements for custom shortcuts and adds them to the document.
    */
   applyCustomShortcuts() {
@@ -776,7 +707,7 @@ const ZenCommandPalette = {
     for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
       if (!shortcutStr) continue;
 
-      const { key, keycode, modifiers } = this._parseShortcutString(shortcutStr);
+      const { key, keycode, modifiers } = parseShortcutString(shortcutStr);
       if (!key && !keycode) continue;
 
       const keyEl = document.createXULElement("key");
