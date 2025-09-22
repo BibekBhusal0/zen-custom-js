@@ -1,28 +1,46 @@
 #reopen-closed-tabs-panel {
-  max-width: 400px;
-  max-height: 500px;
-  padding: 8px;
+  width: 400px !important;
+  max-height: 500px !important;
+  position: relative !important;
+  padding: 0 !important;
 
   #reopen-closed-tabs-search-container {
+    position: relative;
     padding-bottom: 8px;
 
+    .search-icon {
+      position: absolute;
+      left: 8px;
+      top: 10px;
+      width: 16px;
+      height: 16px;
+      fill: light-dark(black, white) !important;
+      -moz-context-properties: fill !important;
+      opacity: 0.6;
+    }
+
     #reopen-closed-tabs-search-input {
-      width: 100%;
+      width: calc(100% - 16px) !important;
+      box-sizing: border-box !important;
+      padding: 8px 12px 8px 30px !important;
+      border-radius: 6px !important;
     }
   }
 
   #reopen-closed-tabs-list-container {
     overflow-y: auto;
     max-height: 420px;
+    width: 350px !important;
   }
 
   .reopen-closed-tabs-group-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--panel-background);
     & label {
-      font-weight: bold;
-      text-transform: uppercase;
-      font-size: 0.8em;
-      padding: 4px;
-      color: var(--panel-secondary-text-color);
+      font-size: 14px;
+      padding-bottom: 4px;
     }
   }
 
@@ -33,7 +51,7 @@
 
     &:hover,
     &[selected="true"] {
-      background-color: var(--arrowpanel-hover-background);
+      background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
     }
 
     .tab-favicon {
@@ -45,6 +63,8 @@
     .tab-item-labels {
       display: -moz-box;
       flex-direction: column;
+      flex: 1;
+      min-width: 0;
     }
 
     .tab-item-label {
@@ -62,6 +82,9 @@
       width: 16px;
       height: 16px;
       margin-inline-start: 4px;
+      fill: light-dark(black, white) !important;
+      -moz-context-properties: fill !important;
+      flex-shrink: 0;
     }
   }
 

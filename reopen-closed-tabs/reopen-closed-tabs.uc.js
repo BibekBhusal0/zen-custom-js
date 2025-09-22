@@ -109,9 +109,10 @@ const ReopenClosedTabs = {
 
     // Search bar
     const searchBox = parseElement(`
-      <hbox id="reopen-closed-tabs-search-container" align="center">
-        <input id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..." xmlns="http://www.w3.org/1999/xhtml" flex="1"/>
-      </hbox>
+      <div id="reopen-closed-tabs-search-container">
+        <img src="chrome://global/skin/icons/search-glass.svg" class="search-icon"/>
+        <input id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..."/>
+      </div>
     `, "html");
     mainVbox.appendChild(searchBox);
 
@@ -167,14 +168,12 @@ const ReopenClosedTabs = {
     const url = escapeXmlAttribute(tab.url || "");
     const faviconSrc = escapeXmlAttribute(tab.faviconUrl || "chrome://branding/content/icon32.png");
 
-    let statusIcons = [];
-    if (tab.isPinned) {
-      statusIcons.push(`<image class="tab-status-icon" src="chrome://browser/skin/zen-icons/pin.svg" />`);
-    }
+    let iconHtml = '';
     if (tab.isEssential) {
-      statusIcons.push(`<image class="tab-status-icon" src="chrome://browser/skin/zen-icons/essential-add.svg" />`);
+      iconHtml = `<image class="tab-status-icon" src="chrome://browser/skin/zen-icons/essential-add.svg" />`;
+    } else if (tab.isPinned) {
+      iconHtml = `<image class="tab-status-icon" src="chrome://browser/skin/zen-icons/pin.svg" />`;
     }
-    const iconHtml = statusIcons.join('');
 
     let contextParts = [];
     if (tab.workspace) {
