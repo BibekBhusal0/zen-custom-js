@@ -263,6 +263,20 @@ export const commands = [
     icon: svgToUrl(icons["folderOut"]),
     tags: ["folder", "remove", "unparent", "tab", "group"],
   },
+  {
+    key: "folder-rename",
+    label: "Rename Current Folder",
+    command: () => {
+      const tab = gBrowser.selectedTab;
+      if (tab?.group?.isZenFolder) {
+        gBrowser.selectedTab.group.rename() 
+        gBrowser.selectedTab.group.focus()
+      }
+    },
+    condition: () => gBrowser.selectedTab?.group?.isZenFolder,
+    icon: "chrome://browser/skin/zen-icons/edit.svg",
+    tags: ["folder", "rename", "change", "tab", "group"],
+  },
 
   // ----------- Tab Management -----------
   {
