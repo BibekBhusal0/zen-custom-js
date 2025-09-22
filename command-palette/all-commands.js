@@ -502,12 +502,14 @@ export const commands = [
   {
     key: "Browser:Back",
     label: "Go Back",
+    condition: () => gBrowser.canGoBack,
     icon: "chrome://browser/skin/back.svg",
     tags: ["back", "navigate", "history", "previous"],
   },
   {
     key: "Browser:Forward",
     label: "Go Forward",
+    condition: () => gBrowser.canGoForward,
     icon: "chrome://browser/skin/forward.svg",
     tags: ["forward", "navigate", "history", "next"],
   },
