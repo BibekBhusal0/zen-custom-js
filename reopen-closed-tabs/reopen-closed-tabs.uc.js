@@ -202,16 +202,16 @@ const ReopenClosedTabs = {
     }
 
     let contextParts = [];
-    if (tab.workspace) {
-      contextParts.push(escapeXmlAttribute(tab.workspace));
+    if (tab.isClosed){
+      if (tab.closedAt){
+        contextParts = [ ("Closed " + timeAgo(tab.closedAt)) ];
+      }
+    }else{
+      if (tab.lastAccessed) contextParts.push(timeAgo(tab.lastAccessed));
+      if (tab.workspace) contextParts.push(escapeXmlAttribute(tab.workspace));
+      if (tab.folder) contextParts.push(escapeXmlAttribute(tab.folder));
     }
-    if (tab.folder) {
-      contextParts.push(escapeXmlAttribute(tab.folder));
-    }
-    if (tab.closedAt){
-      contextParts = [ ("Closed " + timeAgo(tab.closedAt)) ];
-    }
-    const contextLabel = contextParts.join(' / ');
+    const contextLabel = contextParts.join(' ● ');
 
     const tabItem = parseElement(`
       <hbox class="reopen-closed-tab-item" align="center" tooltiptext="${url}">

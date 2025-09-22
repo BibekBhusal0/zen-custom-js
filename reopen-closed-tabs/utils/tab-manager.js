@@ -93,7 +93,8 @@ const TabManager = {
           workspace: workspace?.name,
           isClosed: false,
           faviconUrl: tab.image,
-          tabElement: tab
+          tabElement: tab,
+          lastAccessed: tab._lastAccessed
         };
 
         openTabs.push(tabInfo);
