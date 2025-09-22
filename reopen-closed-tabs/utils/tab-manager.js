@@ -1,7 +1,5 @@
 import { debugLog, debugError } from "./prefs.js";
 
-// ZenPinnedTabManager and ZenFolders are assumed to be globally available as gZenPinnedTabManager and gZenFolders.
-
 const TabManager = {
   /**
    * Fetches a list of recently closed tabs.
@@ -11,14 +9,18 @@ const TabManager = {
     debugLog("Fetching recently closed tabs.");
     try {
       if (typeof SessionStore !== 'undefined' && SessionStore.getClosedTabData) {
-        const closedTabsData = SessionStore.getClosedTabData(window); // window is the current browser window
-        const closedTabs = closedTabsData.map((tab, index) => ({
-            url: tab.url,
-            title: tab.title,
+        const closedTabsData = SessionStore.getClosedTabData(window);
+        const closedTabs = closedTabsData.map((tab, index) => {
+          const url = tab.state.entries[0]?.url;
+          return {
+            url: url,
+            title: tab.title || tab.state.entries[0]?.title,
             isClosed: true,
             sessionData: tab,
-            sessionIndex: index
-        }));
+            sessionIndex: index,
+            faviconUrl: tab.image
+          };
+        });
         debugLog("Recently closed tabs fetched:", closedTabs);
         return closedTabs;
       } else {
@@ -47,24 +49,26 @@ const TabManager = {
 
         for (let i = 0; i < gBrowser.tabs.length; i++) {
           const tab = gBrowser.tabs[i];
+          if (tab.hasAttribute("zen-empty-tab")) continue;
+
           const browser = tab.linkedBrowser;
+          const workspaceId = tab.getAttribute('zen-workspace-id');
+          const workspace = workspaceId && gZenWorkspaces.getWorkspaceFromId(workspaceId);
+          const folder = tab.group?.isZenFolder ? tab.group.label : null;
 
           const tabInfo = {
             id: tab.id,
             url: browser.currentURI.spec,
-            title: browser.contentTitle,
+            title: browser.contentTitle || tab.label,
             isPinned: tab.pinned,
             isEssential: tab.hasAttribute('zen-essential'),
-            folder: null,
+            folder: folder,
+            workspace: workspace?.name,
             isClosed: false,
+            faviconUrl: tab.image,
+            tabElement: tab
           };
 
-          // TODO: Consider if gZenPinnedTabManager offers additional relevant APIs for tab status.
-
-          // Check folder status using global gZenFolders
-          if (typeof gZenFolders !== 'undefined' && tab.group && tab.group.isZenFolder) {
-            tabInfo.folder = tab.group.name;
-          }
           openTabs.push(tabInfo);
         }
       }
@@ -80,51 +84,30 @@ const TabManager = {
    * Reopens a tab based on its data.
    * If the tab is already open, it switches to it. Otherwise, it opens a new tab.
    * @param {object} tabData - The data of the tab to reopen.
-   * @param {string} tabData.url - The URL of the tab.
-   * @param {string} [tabData.id] - The ID of the tab if it's currently open.
-   * @param {boolean} [tabData.isClosed] - True if the tab was recently closed.
    */
   reopenTab(tabData) {
     debugLog("Reopening tab:", tabData);
     try {
-      if (tabData && tabData.url) {
-        // If the tab is already open, switch to it and focus its window.
-        if (!tabData.isClosed && tabData.id) {
-            // Check if the tab is in the current window first
-            const targetTabInCurrentWindow = gBrowser.getTabForBrowser(gBrowser.getBrowserForTabId(tabData.id));
-            if (targetTabInCurrentWindow) {
-                gBrowser.selectedTab = targetTabInCurrentWindow;
-                window.focus(); // Focus the current window
-                return;
-            }
+      // If the tab is already open, switch to it.
+      if (!tabData.isClosed && tabData.tabElement) {
+        const tab = tabData.tabElement;
+        const win = tab.ownerGlobal;
+        win.gZenWorkspaces.switchTabIfNeeded(tab);
+        return;
+      }
 
-            // If not in current window, iterate through all other windows
-            const enumerator = Services.wm.getEnumerator("navigator:browser");
-            while (enumerator.hasMoreElements()) {
-                const win = enumerator.getNext();
-                // Skip the current window as it has already been checked.
-                if (win === window) continue;
+      // If it's a closed tab, restore it using its session index.
+      if (tabData.isClosed && tabData.sessionIndex !== undefined) {
+        undoCloseTab(window, tabData.sessionIndex);
+        return;
+      }
 
-                const winGBrowser = win.gBrowser;
-                const targetTab = winGBrowser.getTabForBrowser(winGBrowser.getBrowserForTabId(tabData.id));
-                if (targetTab) {
-                    winGBrowser.selectedTab = targetTab;
-                    win.focus(); // Focus the window where the tab is found.
-                    return;
-                }
-            }
-        }
-
-        // If it's a closed tab, try to restore it using undoCloseTab.
-        if (tabData.isClosed && tabData.sessionIndex !== undefined) {
-            undoCloseTab(window, tabData.sessionIndex); // window is the current browser window
-            return;
-        }
-
-        // If the tab is closed but no sessionIndex, or an open tab not found, open a new tab.
-        const newTab = gBrowser.addTab(tabData.url);
+      // Fallback to open a new tab if other methods fail.
+      if (tabData.url) {
+        const newTab = gBrowser.addTab(tabData.url, {
+            triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
+        });
         gBrowser.selectedTab = newTab;
-
       } else {
         debugError("Cannot reopen tab: missing URL or session data.", tabData);
       }

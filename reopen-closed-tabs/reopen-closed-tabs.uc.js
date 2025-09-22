@@ -32,8 +32,8 @@ const ReopenClosedTabs = {
       return;
     }
 
-    const { key, keycode, modifiers } = parseShortcutString(shortcutString);
-    if (!key && !keycode) {
+    const { key, modifiers } = parseShortcutString(shortcutString);
+    if (!key ) {
       debugError("Invalid shortcut string:", shortcutString);
       return;
     }
@@ -112,88 +112,101 @@ const ReopenClosedTabs = {
       this._menuPopup.removeChild(this._menuPopup.firstChild);
     }
 
-    const closedTabs = await TabManager.getRecentlyClosedTabs();
-    const showOpenTabs = Prefs.showOpenTabs;
-    let allTabs = [...closedTabs];
-
-    if (showOpenTabs) {
-      const openTabs = await TabManager.getOpenTabs();
-      allTabs = [...openTabs, ...closedTabs];
-    }
-
-    this._allTabsCache = allTabs;
-
-    if (allTabs.length === 0) {
-      const noTabsItem = parseElement(`<menuitem label="No tabs to display." />`, "xul");
-      this._menuPopup.appendChild(noTabsItem);
-      return;
-    }
-
-    const searchPanel = parseElement(`
-      <panel id="reopen-closed-tabs-search-panel" noautohide="true">
-        <vbox>
-          <textbox id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..." />
-        </vbox>
-      </panel>
+    // Search bar
+    const searchBox = parseElement(`
+      <vbox id="reopen-closed-tabs-search-container">
+         <textbox id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..." flex="1"/>
+      </vbox>
     `, "xul");
-    this._menuPopup.appendChild(searchPanel);
+    this._menuPopup.appendChild(searchBox);
     this._menuPopup.appendChild(parseElement(`<menuseparator />`, "xul"));
 
-    const tabItemsContainer = parseElement(`<vbox id="reopen-closed-tabs-list-container" />`, "xul");
-    this._menuPopup.appendChild(tabItemsContainer);
+    const allItemsContainer = parseElement(`<vbox id="reopen-closed-tabs-list-container" flex="1" />`, "xul");
+    this._menuPopup.appendChild(allItemsContainer);
 
-    this._renderTabItems(allTabs, tabItemsContainer);
+    const closedTabs = await TabManager.getRecentlyClosedTabs();
+    const showOpenTabs = Prefs.showOpenTabs;
+    let openTabs = [];
+
+    if (showOpenTabs) {
+      openTabs = await TabManager.getOpenTabs();
+    }
+
+    if (closedTabs.length > 0) {
+      this._renderGroup(allItemsContainer, "Recently Closed", closedTabs);
+    }
+
+    if (openTabs.length > 0) {
+      this._renderGroup(allItemsContainer, "Open Tabs", openTabs);
+    }
+
+    if (closedTabs.length === 0 && openTabs.length === 0) {
+      const noTabsItem = parseElement(`<menuitem label="No tabs to display." disabled="true"/>`, "xul");
+      allItemsContainer.appendChild(noTabsItem);
+    }
+
+    this._allTabsCache = [...closedTabs, ...openTabs];
 
     const searchInput = document.getElementById("reopen-closed-tabs-search-input");
     if (searchInput) {
       searchInput.addEventListener("input", (event) => this._filterTabs(event.target.value));
+      searchInput.addEventListener("keydown", (event) => this._handleSearchKeydown(event));
+      setTimeout(() => searchInput.focus(), 0);
     }
   },
 
-  _renderTabItems(tabsToRender, container) {
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
+  _renderGroup(container, groupTitle, tabs) {
+    const groupHeader = parseElement(`
+      <menuitem class="reopen-closed-tabs-group-header" label="${escapeXmlAttribute(groupTitle)}" disabled="true" />
+    `, "xul");
+    container.appendChild(groupHeader);
 
-    if (tabsToRender.length === 0) {
-      const noResultsItem = parseElement(`<menuitem label="No matching tabs." />`, "xul");
-      container.appendChild(noResultsItem);
-      return;
-    }
-
-    tabsToRender.forEach((tab) => {
-      const label = escapeXmlAttribute(tab.title || tab.url || "Untitled Tab");
-      const url = escapeXmlAttribute(tab.url || "");
-
-      let iconHtml = "";
-      if (tab.isPinned) {
-        iconHtml += `<image class="tab-status-icon" src="${svgToUrl(icons.pinned)}" />`;
-      }
-      if (tab.isEssential) {
-        iconHtml += `<image class="tab-status-icon" src="${svgToUrl(icons.essential)}" />`;
-      }
-      if (tab.folder) {
-        iconHtml += `<image class="tab-status-icon" src="${svgToUrl(icons.folder)}" />`;
-        iconHtml += `<label class="tab-folder-label">${escapeXmlAttribute(tab.folder)}</label>`;
-      }
-
-      const menuItem = parseElement(`
-        <menuitem class="reopen-closed-tab-item" label="${label}" tooltiptext="${url}">
-          <hbox class="tab-item-content">
-            <label class="tab-item-label">${label}</label>
-            <hbox class="tab-item-status-icons">
-              ${iconHtml}
-            </hbox>
-          </hbox>
-        </menuitem>
-      `, "xul");
-      menuItem.dataset.url = tab.url;
-      if (tab.sessionData) {
-          menuItem.dataset.sessionData = JSON.stringify(tab.sessionData);
-      }
-      menuItem.addEventListener("command", this._boundHandleMenuItemClick);
-      container.appendChild(menuItem);
+    tabs.forEach(tab => {
+      this._renderTabItem(container, tab);
     });
+  },
+
+  _renderTabItem(container, tab) {
+    const label = escapeXmlAttribute(tab.title || tab.url || "Untitled Tab");
+    const url = escapeXmlAttribute(tab.url || "");
+    const faviconSrc = escapeXmlAttribute(tab.faviconUrl || "chrome://branding/content/icon32.png");
+
+    let statusIcons = [];
+    if (tab.isPinned) {
+      statusIcons.push(`<image class="tab-status-icon" src="${svgToUrl(icons.pinned)}" />`);
+    }
+    if (tab.isEssential) {
+      statusIcons.push(`<image class="tab-status-icon" src="${svgToUrl(icons.essential)}" />`);
+    }
+    const iconHtml = statusIcons.join('');
+
+    let contextParts = [];
+    if (tab.workspace) {
+      contextParts.push(escapeXmlAttribute(tab.workspace));
+    }
+    if (tab.folder) {
+      contextParts.push(escapeXmlAttribute(tab.folder));
+    }
+    const contextLabel = contextParts.join(' / ');
+
+    const menuItem = parseElement(`
+      <menuitem class="reopen-closed-tab-item" label="${label}" tooltiptext="${url}">
+        <hbox class="tab-item-content" align="center">
+          <image class="tab-favicon" src="${faviconSrc}" />
+          <vbox class="tab-item-labels" flex="1">
+            <label class="tab-item-label">${label}</label>
+            ${contextLabel ? `<label class="tab-item-context">${contextLabel}</label>` : ''}
+          </vbox>
+          <hbox class="tab-item-status-icons">
+            ${iconHtml}
+          </hbox>
+        </hbox>
+      </menuitem>
+    `, "xul");
+
+    menuItem.tabData = tab;
+    menuItem.addEventListener("command", this._boundHandleMenuItemClick);
+    container.appendChild(menuItem);
   },
 
   _filterTabs(query) {
@@ -201,26 +214,91 @@ const ReopenClosedTabs = {
     const filteredTabs = this._allTabsCache.filter(tab => {
       const title = (tab.title || "").toLowerCase();
       const url = (tab.url || "").toLowerCase();
-      return title.includes(lowerQuery) || url.includes(lowerQuery);
+      const workspace = (tab.workspace || "").toLowerCase();
+      const folder = (tab.folder || "").toLowerCase();
+      return title.includes(lowerQuery) || url.includes(lowerQuery) || workspace.includes(lowerQuery) || folder.includes(lowerQuery);
     });
 
     const tabItemsContainer = document.getElementById("reopen-closed-tabs-list-container");
     if (tabItemsContainer) {
-      this._renderTabItems(filteredTabs, tabItemsContainer);
+      while (tabItemsContainer.firstChild) {
+        tabItemsContainer.removeChild(tabItemsContainer.firstChild);
+      }
+      if (filteredTabs.length === 0) {
+        const noResultsItem = parseElement(`<menuitem label="No matching tabs." disabled="true"/>`, "xul");
+        tabItemsContainer.appendChild(noResultsItem);
+      } else {
+        // Re-render groups with filtered tabs
+        const closedTabs = filteredTabs.filter(t => t.isClosed);
+        const openTabs = filteredTabs.filter(t => !t.isClosed);
+
+        if (closedTabs.length > 0) {
+          this._renderGroup(tabItemsContainer, "Recently Closed", closedTabs);
+        }
+        if (openTabs.length > 0) {
+          this._renderGroup(tabItemsContainer, "Open Tabs", openTabs);
+        }
+
+        const firstItem = tabItemsContainer.querySelector(".reopen-closed-tab-item");
+        if (firstItem) {
+          firstItem.setAttribute("selected", "true");
+        }
+      }
+    }
+  },
+
+  _handleSearchKeydown(event) {
+    const tabItemsContainer = document.getElementById("reopen-closed-tabs-list-container");
+    if (!tabItemsContainer) return;
+
+    const currentSelected = tabItemsContainer.querySelector(".reopen-closed-tab-item[selected]");
+    const allItems = Array.from(tabItemsContainer.querySelectorAll(".reopen-closed-tab-item"));
+    let nextSelected = null;
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (currentSelected) {
+        const currentIndex = allItems.indexOf(currentSelected);
+        nextSelected = allItems[currentIndex + 1] || allItems[0];
+      } else {
+        nextSelected = allItems[0];
+      }
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (currentSelected) {
+        const currentIndex = allItems.indexOf(currentSelected);
+        nextSelected = allItems[currentIndex - 1] || allItems[allItems.length - 1];
+      } else {
+        nextSelected = allItems[allItems.length - 1];
+      }
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (currentSelected) {
+        currentSelected.click();
+      }
+    }
+
+    if (currentSelected) {
+      currentSelected.removeAttribute("selected");
+    }
+    if (nextSelected) {
+      nextSelected.setAttribute("selected", "true");
+      nextSelected.scrollIntoView({ block: "nearest" });
     }
   },
 
   _handleMenuItemClick(event) {
-    const menuItem = event.target;
-    const url = menuItem.dataset.url;
-    const sessionData = menuItem.dataset.sessionData ? JSON.parse(menuItem.dataset.sessionData) : null;
-
-    if (url) {
-      TabManager.reopenTab({ url, sessionData });
-      this._menuPopup.hidePopup();
+    // Find the menuitem element by traversing up from the event target
+    let menuItem = event.target;
+    while (menuItem && !menuItem.classList.contains('reopen-closed-tab-item')) {
+      menuItem = menuItem.parentElement;
     }
-    else {
-      debugError("Cannot reopen tab: URL not found on menu item.", menuItem);
+
+    if (menuItem && menuItem.tabData) {
+      TabManager.reopenTab(menuItem.tabData);
+      this._menuPopup.hidePopup();
+    } else {
+      debugError("Cannot reopen tab: Tab data not found on menu item.", event.target);
     }
   },
 };

@@ -1,34 +1,67 @@
 #reopen-closed-tabs-menupopup {
+  max-width: 400px;
+  max-height: 500px;
 
-  .tab-item-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
+  #reopen-closed-tabs-search-container .textbox-input {
+    border-radius: 4px;
   }
 
-  .tab-item-label {
-    flex-grow: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  #reopen-closed-tabs-list-container {
+    overflow-y: auto;
   }
 
-  .tab-item-status-icons {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: 8px;
-  }
-
-  .tab-status-icon {
-    width: 16px;
-    height: 16px;
-    fill: currentColor;
-  }
-
-  .tab-folder-label {
+  .reopen-closed-tabs-group-header>.menu-text {
+    font-weight: bold;
+    text-transform: uppercase;
     font-size: 0.8em;
-    opacity: 0.7;
+    padding: 4px 8px;
+  }
+
+  .reopen-closed-tab-item {
+    .tab-item-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .tab-favicon {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+    }
+
+    .tab-item-labels {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-item-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-item-context {
+      font-size: 0.9em;
+      opacity: 0.7;
+    }
+
+    .tab-item-status-icons {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 8px;
+    }
+
+    .tab-status-icon {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
   }
 }
