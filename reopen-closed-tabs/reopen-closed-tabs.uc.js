@@ -166,7 +166,13 @@ const ReopenClosedTabs = {
     if (searchInput) {
       searchInput.addEventListener("input", (event) => this._filterTabs(event.target.value));
       searchInput.addEventListener("keydown", (event) => this._handleSearchKeydown(event));
-      this._panel.addEventListener("popupshown", () => searchInput.focus(), { once: true });
+      this._panel.addEventListener("popupshown", () => {
+        searchInput.focus();
+        const listContainer = this._panel.querySelector("#reopen-closed-tabs-list-container");
+        if (listContainer) {
+          listContainer.scrollTop = 0;
+        }
+      }, { once: true });
     }
   },
 
