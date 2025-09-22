@@ -57,7 +57,7 @@ export const Prefs = {
 
 Prefs.defaultValues = {
   [Prefs.DEBUG_MODE]: false,
-  [Prefs.SHORTCUT_KEY]: "Ctrl+Shift+A",
+  [Prefs.SHORTCUT_KEY]: "Alt+A",
   [Prefs.SHOW_OPEN_TABS]: false,
 };
 
