@@ -1,7 +1,7 @@
 {
   "id": "reopen-closed-tabs",
   "name": "Reopen Closed Tabs Menu",
-  "description": "A popup menu to view and restore recently closed tabs, similar to the history menu in other browsers. Includes a toolbar button and keyboard shortcut.",
+  "description": "A popup menu to view and restore recently closed tabs. Includes a toolbar button and keyboard shortcut.",
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js/tree/main/reopen-closed-tabs",
   "preferences": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/reopen-closed-tabs/preferences.json",
   "style": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/refs/heads/main/reopen-closed-tabs/style.css",

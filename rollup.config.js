@@ -20,6 +20,15 @@ const commandPaletteHeader = `// ==UserScript==
 
 `;
 
+const reopenClosedTabsHeader = `// ==UserScript==
+// @name            Reopen Closed Tabs
+// @description     A popup menu to view and restore recently closed tabs. Includes a toolbar button and keyboard shortcut.
+// @author          BibekBhusal
+// @onlyonce
+// ==/UserScript==
+
+`;
+
 // --- Common Plugins ---
 const commonPlugins = [
   resolve(),
@@ -38,6 +47,19 @@ const browseBotConfig = {
       format: "umd",
       name: "BrowseBot",
       banner: browseBotHeader,
+    },
+  ],
+  plugins: commonPlugins,
+};
+
+const reopenClosedTabsConfig = {
+  input: "reopen-closed-tabs/reopen-closed-tabs.uc.js",
+  output: [
+    {
+      file: "dist/reopen-closed-tabs.uc.js",
+      format: "umd",
+      name: "reopenClosedTabs",
+      banner: reopenClosedTabsHeader,
     },
   ],
   plugins: commonPlugins,
@@ -64,6 +86,8 @@ if (target === "browsebot") {
   config = browseBotConfig;
 } else if (target === "palette") {
   config = commandPaletteConfig;
+} else if (target === "reopen") {
+  config = reopenClosedTabsConfig;
 } else {
   // If no target is specified, build all
   config = [browseBotConfig, commandPaletteConfig];

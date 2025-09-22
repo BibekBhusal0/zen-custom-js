@@ -5,6 +5,7 @@
     "build": "cross-env rollup -c --bundleConfigAsCjs",
     "build:browsebot": "cross-env TARGET=browsebot rollup -c --bundleConfigAsCjs",
     "build:palette": "cross-env TARGET=palette rollup -c --bundleConfigAsCjs",
+    "build:ropen": "cross-env TARGET=reopen rollup -c --bundleConfigAsCjs",
     "format": "prettier --write ."
   },
   "author": "Bibek Bhusal",
