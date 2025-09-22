@@ -68,7 +68,7 @@ const ReopenClosedTabs = {
       debugLog(`Registered toolbar button: ${buttonId}`);
 
       this._panel = parseElement(`
-        <panel id="${panelId}" type="arrow" noautofocus="false">
+        <panel id="${panelId}" type="arrow">
         </panel>
       `, "xul");
 
@@ -142,11 +142,16 @@ const ReopenClosedTabs = {
 
     this._allTabsCache = [...closedTabs, ...openTabs];
 
+    const firstItem = allItemsContainer.querySelector(".reopen-closed-tab-item");
+    if (firstItem) {
+      firstItem.setAttribute("selected", "true");
+    }  
+
     const searchInput = this._panel.querySelector("#reopen-closed-tabs-search-input");
     if (searchInput) {
       searchInput.addEventListener("input", (event) => this._filterTabs(event.target.value));
       searchInput.addEventListener("keydown", (event) => this._handleSearchKeydown(event));
-      setTimeout(() => searchInput.focus(), 0);
+      this._panel.addEventListener("popupshown", () => searchInput.focus(), { once: true });
     }
   },
 

@@ -18,9 +18,10 @@ const TabManager = {
             isClosed: true,
             sessionData: tab,
             sessionIndex: index,
-            faviconUrl: tab.image
+            faviconUrl: tab.image,
+            closedAt: tab.closedAt
           };
-        });
+        }).sort((a, b) => b.closedAt - a.closedAt);
         debugLog("Recently closed tabs fetched:", closedTabs);
         return closedTabs;
       } else {
