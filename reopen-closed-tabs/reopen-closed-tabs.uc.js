@@ -234,7 +234,8 @@ const ReopenClosedTabs = {
     event.stopPropagation();
     if (tabItem && tabItem.tabData && tabItem.tabData.isClosed) {
       TabManager.removeClosedTab(tabItem.tabData);
-      this._populatePanel();
+      tabItem.remove();
+      this._allTabsCache = this._allTabsCache.filter(tab => tab !== tabItem.tabData);
     } else {
       debugError("Cannot remove tab: Tab data not found or tab is not closed.", tabItem);
     }
