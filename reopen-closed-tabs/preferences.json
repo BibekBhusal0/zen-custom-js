@@ -1,0 +1,34 @@
+[
+  {
+    "type": "text",
+    "label": "Configure the behavior of the Reopen Closed Tabs menu."
+  },
+  {
+    "type": "separator",
+    "label": "General Behavior",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "extensions.reopen-closed-tabs.show-open-tabs",
+    "label": "Show Open Tabs in Menu",
+    "default": false
+  },
+  {
+    "type": "text",
+    "property": "extensions.reopen-closed-tabs.shortcut-key",
+    "label": "Activation Shortcut",
+    "default": "Alt+A"
+  },
+  {
+    "type": "separator",
+    "label": "Development",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "extensions.reopen-closed-tabs.debug-mode",
+    "label": "Enable debug logging in Browser Console",
+    "default": false
+  }
+]
