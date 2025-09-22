@@ -1,6 +1,7 @@
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { parseShortcutString } from "../utils/keyboard.js";
 import { parseElement, escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
+import { timeAgo } from "../utils/timesAgo.js";
 import TabManager from "./utils/tab-manager.js";
 
 const ReopenClosedTabs = {
@@ -200,6 +201,9 @@ const ReopenClosedTabs = {
     }
     if (tab.folder) {
       contextParts.push(escapeXmlAttribute(tab.folder));
+    }
+    if (tab.closedAt){
+      contextParts = [ ("Closed " + timeAgo(tab.closedAt)) ];
     }
     const contextLabel = contextParts.join(' / ');
 
