@@ -1,50 +1,50 @@
-#reopen-closed-tabs-menupopup {
+#reopen-closed-tabs-panel {
   max-width: 400px;
   max-height: 500px;
+  padding: 8px;
 
-  #reopen-closed-tabs-search-container .textbox-input {
-    border-radius: 4px;
+  #reopen-closed-tabs-search-container {
+    padding-bottom: 8px;
+
+    #reopen-closed-tabs-search-input {
+      width: 100%;
+    }
   }
 
   #reopen-closed-tabs-list-container {
     overflow-y: auto;
+    max-height: 420px;
   }
 
-  .reopen-closed-tabs-group-header>.menu-text {
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: 0.8em;
-    padding: 4px 8px;
+  .reopen-closed-tabs-group-header {
+    & label {
+      font-weight: bold;
+      text-transform: uppercase;
+      font-size: 0.8em;
+      padding: 4px;
+      color: var(--panel-secondary-text-color);
+    }
   }
 
   .reopen-closed-tab-item {
-    padding: 4px 8px;
+    padding: 4px;
     cursor: default;
+    border-radius: 4px;
 
-    &:hover {
+    &:hover,
+    &[selected="true"] {
       background-color: var(--arrowpanel-hover-background);
-    }
-
-    .tab-item-content {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
     }
 
     .tab-favicon {
       width: 16px;
       height: 16px;
-      margin-right: 8px;
+      margin-inline-end: 8px;
     }
 
     .tab-item-labels {
-      display: flex;
+      display: -moz-box;
       flex-direction: column;
-      flex-grow: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .tab-item-label {
@@ -58,17 +58,15 @@
       opacity: 0.7;
     }
 
-    .tab-item-status-icons {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-left: 8px;
-    }
-
     .tab-status-icon {
       width: 16px;
       height: 16px;
-      fill: currentColor;
+      margin-inline-start: 4px;
     }
+  }
+
+  .reopen-closed-tab-item-disabled {
+    padding: 4px;
+    color: var(--panel-disabled-text-color);
   }
 }

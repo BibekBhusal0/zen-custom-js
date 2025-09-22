@@ -5,8 +5,8 @@ import TabManager from "./utils/tab-manager.js";
 
 const ReopenClosedTabs = {
   _boundToggleMenu: null,
-  _menuPopup: null,
-  _boundHandleMenuItemClick: null,
+  _panel: null,
+  _boundHandleItemClick: null,
   _allTabsCache: [],
   _registeredHotkey: null,
 
@@ -17,7 +17,7 @@ const ReopenClosedTabs = {
     debugLog("Initializing mod.");
     Prefs.setInitialPrefs();
     this._boundToggleMenu = this.toggleMenu.bind(this);
-    this._boundHandleMenuItemClick = this._handleMenuItemClick.bind(this);
+    this._boundHandleItemClick = this._handleItemClick.bind(this);
     this._registerKeyboardShortcut();
     this._registerToolbarButton();
     debugLog("Mod initialized.");
@@ -54,7 +54,7 @@ const ReopenClosedTabs = {
 
   _registerToolbarButton() {
     const buttonId = "reopen-closed-tabs-button";
-    const menuPopupId = "reopen-closed-tabs-menupopup";
+    const panelId = "reopen-closed-tabs-panel";
 
     try {
       UC_API.Utils.createWidget({
@@ -67,23 +67,17 @@ const ReopenClosedTabs = {
       });
       debugLog(`Registered toolbar button: ${buttonId}`);
 
-      this._menuPopup = parseElement(`
-        <menupopup id="${menuPopupId}">
-          <menuitem label="Loading tabs..." />
-        </menupopup>
+      this._panel = parseElement(`
+        <panel id="${panelId}" type="arrow" noautofocus="false">
+        </panel>
       `, "xul");
 
       const mainPopupSet = document.getElementById("mainPopupSet");
       if (mainPopupSet) {
-        mainPopupSet.appendChild(this._menuPopup);
-        debugLog(`Created menupopup: ${menuPopupId}`);
+        mainPopupSet.appendChild(this._panel);
+        debugLog(`Created panel: ${panelId}`);
       } else {
-        debugError("Could not find #mainPopupSet to append menupopup.");
-      }
-
-      const button = document.getElementById(buttonId);
-      if (button) {
-        button.setAttribute("menupopup", menuPopupId);
+        debugError("Could not find #mainPopupSet to append panel.");
       }
     } catch (e) {
       debugError("Failed to register toolbar button:", e);
@@ -93,34 +87,36 @@ const ReopenClosedTabs = {
   async toggleMenu() {
     debugLog("Toggle menu called.");
     const button = document.getElementById("reopen-closed-tabs-button");
-    if (button && this._menuPopup) {
-      if (this._menuPopup.state === "open") {
-        this._menuPopup.hidePopup();
+    if (button && this._panel) {
+      if (this._panel.state === "open") {
+        this._panel.hidePopup();
       }
       else {
-        await this._populateMenu();
-        this._menuPopup.openPopup(button, "after_start", 0, 0, false, false);
+        await this._populatePanel();
+        this._panel.openPopup(button, "after_start", 0, 0, false, false);
       }
     }
   },
 
-  async _populateMenu() {
-    debugLog("Populating menu.");
-    while (this._menuPopup.firstChild) {
-      this._menuPopup.removeChild(this._menuPopup.firstChild);
+  async _populatePanel() {
+    debugLog("Populating panel.");
+    while (this._panel.firstChild) {
+      this._panel.removeChild(this._panel.firstChild);
     }
+
+    const mainVbox = parseElement(`<vbox flex="1"/>`, "xul");
+    this._panel.appendChild(mainVbox);
 
     // Search bar
     const searchBox = parseElement(`
       <hbox id="reopen-closed-tabs-search-container" align="center">
-         <textbox id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..." flex="1"/>
+        <input id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..." xmlns="http://www.w3.org/1999/xhtml" flex="1"/>
       </hbox>
-    `, "xul");
-    this._menuPopup.appendChild(searchBox);
-    this._menuPopup.appendChild(parseElement(`<menuseparator />`, "xul"));
+    `, "html");
+    mainVbox.appendChild(searchBox);
 
     const allItemsContainer = parseElement(`<vbox id="reopen-closed-tabs-list-container" flex="1" />`, "xul");
-    this._menuPopup.appendChild(allItemsContainer);
+    mainVbox.appendChild(allItemsContainer);
 
     const closedTabs = await TabManager.getRecentlyClosedTabs();
     const showOpenTabs = Prefs.showOpenTabs;
@@ -139,13 +135,13 @@ const ReopenClosedTabs = {
     }
 
     if (closedTabs.length === 0 && openTabs.length === 0) {
-      const noTabsItem = parseElement(`<menuitem label="No tabs to display." disabled="true"/>`, "xul");
+      const noTabsItem = parseElement(`<label class="reopen-closed-tab-item-disabled" value="No tabs to display."/>`, "xul");
       allItemsContainer.appendChild(noTabsItem);
     }
 
     this._allTabsCache = [...closedTabs, ...openTabs];
 
-    const searchInput = document.getElementById("reopen-closed-tabs-search-input");
+    const searchInput = this._panel.querySelector("#reopen-closed-tabs-search-input");
     if (searchInput) {
       searchInput.addEventListener("input", (event) => this._filterTabs(event.target.value));
       searchInput.addEventListener("keydown", (event) => this._handleSearchKeydown(event));
@@ -155,7 +151,9 @@ const ReopenClosedTabs = {
 
   _renderGroup(container, groupTitle, tabs) {
     const groupHeader = parseElement(`
-      <menuitem class="reopen-closed-tabs-group-header" label="${escapeXmlAttribute(groupTitle)}" disabled="true" />
+      <hbox class="reopen-closed-tabs-group-header" align="center">
+        <label value="${escapeXmlAttribute(groupTitle)}"/>
+      </hbox>
     `, "xul");
     container.appendChild(groupHeader);
 
@@ -188,20 +186,20 @@ const ReopenClosedTabs = {
     const contextLabel = contextParts.join(' / ');
 
     const tabItem = parseElement(`
-      <hbox class="reopen-closed-tab-item" tooltiptext="${url}">
+      <hbox class="reopen-closed-tab-item" align="center" tooltiptext="${url}">
         <image class="tab-favicon" src="${faviconSrc}" />
         <vbox class="tab-item-labels" flex="1">
           <label class="tab-item-label" value="${label}"/>
           ${contextLabel ? `<label class="tab-item-context" value="${contextLabel}"/>` : ''}
         </vbox>
-        <hbox class="tab-item-status-icons">
+        <hbox class="tab-item-status-icons" align="center">
           ${iconHtml}
         </hbox>
       </hbox>
     `, "xul");
 
     tabItem.tabData = tab;
-    tabItem.addEventListener("click", this._boundHandleMenuItemClick);
+    tabItem.addEventListener("click", this._boundHandleItemClick);
     container.appendChild(tabItem);
   },
 
@@ -215,13 +213,13 @@ const ReopenClosedTabs = {
       return title.includes(lowerQuery) || url.includes(lowerQuery) || workspace.includes(lowerQuery) || folder.includes(lowerQuery);
     });
 
-    const tabItemsContainer = document.getElementById("reopen-closed-tabs-list-container");
+    const tabItemsContainer = this._panel.querySelector("#reopen-closed-tabs-list-container");
     if (tabItemsContainer) {
       while (tabItemsContainer.firstChild) {
         tabItemsContainer.removeChild(tabItemsContainer.firstChild);
       }
       if (filteredTabs.length === 0) {
-        const noResultsItem = parseElement(`<menuitem label="No matching tabs." disabled="true"/>`, "xul");
+        const noResultsItem = parseElement(`<label class="reopen-closed-tab-item-disabled" value="No matching tabs."/>`, "xul");
         tabItemsContainer.appendChild(noResultsItem);
       } else {
         // Re-render groups with filtered tabs
@@ -244,7 +242,8 @@ const ReopenClosedTabs = {
   },
 
   _handleSearchKeydown(event) {
-    const tabItemsContainer = document.getElementById("reopen-closed-tabs-list-container");
+    event.stopPropagation();
+    const tabItemsContainer = this._panel.querySelector("#reopen-closed-tabs-list-container");
     if (!tabItemsContainer) return;
 
     const currentSelected = tabItemsContainer.querySelector(".reopen-closed-tab-item[selected]");
@@ -283,7 +282,7 @@ const ReopenClosedTabs = {
     }
   },
 
-  _handleMenuItemClick(event) {
+  _handleItemClick(event) {
     let tabItem = event.target;
     while (tabItem && !tabItem.classList.contains('reopen-closed-tab-item')) {
       tabItem = tabItem.parentElement;
@@ -291,7 +290,7 @@ const ReopenClosedTabs = {
 
     if (tabItem && tabItem.tabData) {
       TabManager.reopenTab(tabItem.tabData);
-      this._menuPopup.hidePopup();
+      this._panel.hidePopup();
     } else {
       debugError("Cannot reopen tab: Tab data not found on menu item.", event.target);
     }
