@@ -681,7 +681,8 @@ const ZenCommandPalette = {
         _isInPrefixMode = false;
 
         get name() {
-          return "ZenCommandPaletteProvider";
+          // HACK: setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
+          return "TestProvider";
         }
         get type() {
           return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
@@ -832,7 +833,7 @@ const ZenCommandPalette = {
           }, 0);
         }
 
-        onEngagement(_, _, details) {
+        onEngagement(queryContext, controller, details) {
           const cmd = details.result._zenCmd;
           if (cmd) {
             debugLog("Executing command from onEngagement:", cmd.key);
