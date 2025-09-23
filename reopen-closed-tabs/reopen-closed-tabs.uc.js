@@ -352,6 +352,32 @@ const ReopenClosedTabs = {
   },
 };
 
+function setupCommandPaletteIntegration(retryCount = 0) {
+  if (window.ZenCommandPalette) {
+    debugLog('Integrating with Zen Command Palette...');
+    window.ZenCommandPalette.addCommands([
+      {
+        key: "reopen:closed-tabs-menu",
+        label: "Open Reopen closed tab menu",
+        command: () => ReopenClosedTabs.toggleMenu(),
+        icon: "chrome://browser/skin/zen-icons/history.svg",
+        tags: ["reopen", "tabs", "closed" ]
+      },
+    ]);
+
+    debugLog('Zen Command Palette integration successful.');
+
+  } else {
+    debugLog('Zen Command Palette not found, retrying in 1000ms');
+    if (retryCount < 10) {
+      setTimeout(() => setupCommandPaletteIntegration(retryCount + 1), 1000);
+    } else {
+      debugError('Could not integrate with Zen Command Palette after 10 retries.');
+    }
+  }
+}
+
 UC_API.Runtime.startupFinished().then(() => {
   ReopenClosedTabs.init();
+  setupCommandPaletteIntegration()
 });
