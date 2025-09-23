@@ -90,7 +90,7 @@ if (target === "browsebot") {
   config = reopenClosedTabsConfig;
 } else {
   // If no target is specified, build all
-  config = [browseBotConfig, commandPaletteConfig];
+  config = [browseBotConfig, commandPaletteConfig, reopenClosedTabsConfig];
 }
 
 export default config;
