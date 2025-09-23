@@ -108,7 +108,7 @@ const ZenCommandPalette = {
   _dynamicCommandsCache: null,
   _commandVisibilityCache: {},
   _userConfig: {},
-  _scrollObserver: null,
+  _resultsObserver: null,
   _boundHandleKeysetCommand: null,
 
   safeStr(x) {
@@ -598,11 +598,11 @@ const ZenCommandPalette = {
     }
   },
 
-  initScrollHandling() {
-    if (location.href !== "chrome://browser/content/browser.xhtml" || this._scrollObserver) {
+  initObservers() {
+    if (location.href !== "chrome://browser/content/browser.xhtml" || this._resultsObserver) {
       return;
     }
-    debugLog("Initializing scroll handling for command palette...");
+    debugLog("Initializing observers");
 
     const SCROLLABLE_CLASS = "zen-command-scrollable";
     const urlbar = document.getElementById("urlbar");
@@ -625,12 +625,6 @@ const ZenCommandPalette = {
         }
       }
 
-      // Handle scrolling
-      const selectedRow = results.querySelector(".urlbarView-row[selected]");
-      if (selectedRow) {
-        selectedRow.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      }
-
       // Handle container class
       const isPrefixModeActive = this.provider?._isInPrefixMode ?? false;
       results.classList.toggle(SCROLLABLE_CLASS, urlbar.hasAttribute("open") && isPrefixModeActive);
@@ -647,7 +641,7 @@ const ZenCommandPalette = {
       attributes: true,
       attributeFilter: ["selected", "open", "data-zen-shortcut"],
     });
-    this._scrollObserver = observer;
+    this._resultsObserver = observer;
     debugLog("Unified MutationObserver successfully initialized.");
   },
 
@@ -768,9 +762,9 @@ const ZenCommandPalette = {
   },
 
   destroy() {
-    if (this._scrollObserver) {
-      this._scrollObserver.disconnect();
-      this._scrollObserver = null;
+    if (this._resultsObserver) {
+      this._resultsObserver.disconnect();
+      this._resultsObserver = null;
       debugLog("MutationObserver disconnected for window.");
     }
   },
@@ -788,7 +782,7 @@ const ZenCommandPalette = {
     await this.loadUserConfig();
     this.applyUserConfig();
 
-    this.initScrollHandling();
+    this.initObservers();
     this.attachUrlbarCloseListeners();
 
     window.addEventListener("unload", () => this.destroy(), { once: true });
