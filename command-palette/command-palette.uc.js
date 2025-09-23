@@ -523,7 +523,7 @@ const ZenCommandPalette = {
     const shortcut = window.gZenKeyboardShortcutsManager._currentShortcutList.find(
       (s) => (s.getAction() === commandKey || s.getID() === commandKey) && !s.isEmpty()
     );
-    return shortcut ? shortcut.toUserString() : null;
+    return shortcut ? shortcut.toDisplayString() : null;
   },
 
   /**
@@ -774,13 +774,18 @@ const ZenCommandPalette = {
    * This is the main entry point for the script.
    */
   async init() {
+    debugLog("Starting ZenCommandPalette init...");
     this._boundHandleKeysetCommand = this._handleKeysetCommand.bind(this);
 
     this.Settings = SettingsModal;
     this.Settings.init(this);
+    debugLog("Settings modal initialized.");
 
     await this.loadUserConfig();
+    debugLog("User config loaded.");
+
     this.applyUserConfig();
+    debugLog("User config applied.");
 
     this.initObservers();
     this.attachUrlbarCloseListeners();
@@ -801,6 +806,7 @@ const ZenCommandPalette = {
       );
       return;
     }
+    debugLog("Urlbar modules imported.");
 
     try {
       const self = this;
@@ -885,8 +891,6 @@ const ZenCommandPalette = {
 
             const liveCommands = await self.generateLiveCommands();
             if (context.canceled) return;
-            this._currentCommandList = liveCommands;
-            this._lastResults = [];
 
             const addResult = (cmd, isHeuristic = false) => {
               if (!cmd) return;
@@ -911,7 +915,6 @@ const ZenCommandPalette = {
               result.payload.icon = cmd.icon || "chrome://browser/skin/trending.svg";
               result.providerName = this.name;
               result.providerType = this.type;
-              this._lastResults.push(result);
               add(this, result);
               return true;
             };
@@ -920,48 +923,38 @@ const ZenCommandPalette = {
               let count = 0;
               const maxResults = Prefs.maxCommandsPrefix;
 
-              const processCommands = async () => {
+              const recentCmds = self._recentCommands
+                .map((key) => liveCommands.find((c) => c.key === key))
+                .filter(Boolean)
+                .filter((cmd) => self.commandIsVisible(cmd));
+
+              for (const cmd of recentCmds) {
+                if (context.canceled || count >= maxResults) break;
+                addResult(cmd, count === 0);
+                count++;
+              }
+
+              if (count < maxResults) {
                 const recentKeys = new Set(self._recentCommands);
-                const recentCmds = self._recentCommands
-                  .map((key) => liveCommands.find((c) => c.key === key))
-                  .filter(Boolean);
-
-                for (const cmd of recentCmds) {
-                  if (context.canceled || count >= maxResults) return;
-                  if (self.commandIsVisible(cmd)) {
-                    addResult(cmd, count === 0);
-                    count++;
-                  }
+                const otherCmds = liveCommands.filter(
+                  (c) => !recentKeys.has(c.key) && self.commandIsVisible(c)
+                );
+                for (const cmd of otherCmds) {
+                  if (context.canceled || count >= maxResults) break;
+                  addResult(cmd, count === 0);
+                  count++;
                 }
+              }
 
-                const otherCommands = liveCommands.filter((c) => !recentKeys.has(c.key));
-                const chunkSize = 50;
-                for (let i = 0; i < otherCommands.length; i += chunkSize) {
-                  if (context.canceled || count >= maxResults) return;
-                  const chunk = otherCommands.slice(i, i + chunkSize);
-                  for (const cmd of chunk) {
-                    if (context.canceled || count >= maxResults) break;
-                    if (self.commandIsVisible(cmd)) {
-                      addResult(cmd, count === 0);
-                      count++;
-                    }
-                  }
-                  // await new Promise((resolve) => setTimeout(resolve, 0));
-                }
-              };
-
-              processCommands().then(() => {
-                if (context.canceled) return;
-                if (count === 0) {
-                  addResult({
-                    key: "no-results",
-                    label: "No matching commands found",
-                    command: self._closeUrlBar.bind(self),
-                    icon: "chrome://browser/skin/zen-icons/info.svg",
-                  });
-                }
-                self.attachUrlbarSelectionListeners();
-              });
+              if (count === 0 && !context.canceled) {
+                addResult({
+                  key: "no-results",
+                  label: "No matching commands found",
+                  command: self._closeUrlBar.bind(self),
+                  icon: "chrome://browser/skin/zen-icons/info.svg",
+                });
+              }
+              self.attachUrlbarSelectionListeners();
               return;
             }
 
@@ -989,8 +982,6 @@ const ZenCommandPalette = {
           setTimeout(() => {
             self.clearDynamicCommandsCache();
             self._commandVisibilityCache = {};
-            this._lastResults = [];
-            this._currentCommandList = null;
           }, 0);
         }
       }
