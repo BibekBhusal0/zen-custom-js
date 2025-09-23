@@ -112,7 +112,7 @@
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.workspaces",
     "label": "Enable Workspace commands",
-    "default": true
+    "default": false
   },
   {
     "type": "checkbox",

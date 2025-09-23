@@ -272,19 +272,12 @@ if (window.ZenCommandPalette) {
 I am not making up the questions. I have been asked these questions in reddit and discord muliple times.
 
 <details>
-<summary><h3>Why did I made a mod, not contribute to the browser</h3></summary>
-I tried building the browser multiple times, but I don't have proper resources to do it.
+<summary><h3>What is difference between this and native zen command bar (released recently)</h3></summary>
+Zen command bar don't contain too much commands to optimize for performance, this mod contain 100+ static commands. And on top of it, this provides API making easy for user to add more commands. Already 4 other mods (2 unreleased) support the command palette.
+
+Another Benifit of this mod, is that this allows setting custom keymaps to commands, and allow adding them as toolbar icons.
 </details>
 
-<details>
-<summary><h3>Will this feature be natively available in Zen browser.</h3></summary>
-Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
-
-This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
-
-UPDATE: it is now available in beta version but it has limited number of commands whereas my project has 100 commands.
-
-</details>
 
 ## 🙏 Credits and Acknowledgements
 
