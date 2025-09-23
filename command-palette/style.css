@@ -13,40 +13,6 @@
 #urlbar-results {
   scrollbar-width: thin !important;
   scrollbar-color: var(--zen-primary-color) transparent !important;
-
-  &.zen-command-scrollable {
-    overflow-y: auto !important;
-    max-height: calc(var(--zen-command-visible-results) * 52px) !important;
-    margin-top: 8px !important;
-    margin-bottom: 8px !important;
-    padding-top: 0px !important;
-    padding-bottom: 2px !important;
-  }
-}
-
-.urlbarView-row[data-zen-shortcut] {
-  position: relative !important;
-
-  &::after {
-    content: attr(data-zen-shortcut);
-    position: absolute;
-    right: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    border-radius: 4px;
-    padding: 6px 8px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-left: auto;
-    margin-top: auto;
-    margin-bottom: auto;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
-
-    &:empty {
-      display: none !important;
-    }
-  }
 }
 
 /* --- Settings Modal Styles --- */
