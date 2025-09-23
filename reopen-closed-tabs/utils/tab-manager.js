@@ -8,20 +8,22 @@ const TabManager = {
   async getRecentlyClosedTabs() {
     debugLog("Fetching recently closed tabs.");
     try {
-      if (typeof SessionStore !== 'undefined' && SessionStore.getClosedTabData) {
+      if (typeof SessionStore !== "undefined" && SessionStore.getClosedTabData) {
         const closedTabsData = SessionStore.getClosedTabData(window);
-        const closedTabs = closedTabsData.map((tab, index) => {
-          const url = tab.state.entries[0]?.url;
-          return {
-            url: url,
-            title: tab.title || tab.state.entries[0]?.title,
-            isClosed: true,
-            sessionData: tab,
-            sessionIndex: index,
-            faviconUrl: tab.image,
-            closedAt: tab.closedAt
-          };
-        }).sort((a, b) => b.closedAt - a.closedAt);
+        const closedTabs = closedTabsData
+          .map((tab, index) => {
+            const url = tab.state.entries[0]?.url;
+            return {
+              url: url,
+              title: tab.title || tab.state.entries[0]?.title,
+              isClosed: true,
+              sessionData: tab,
+              sessionIndex: index,
+              faviconUrl: tab.image,
+              closedAt: tab.closedAt,
+            };
+          })
+          .sort((a, b) => b.closedAt - a.closedAt);
         debugLog("Recently closed tabs fetched:", closedTabs);
         return closedTabs;
       } else {
@@ -41,7 +43,7 @@ const TabManager = {
   removeClosedTab(tabData) {
     debugLog("Removing closed tab from session store:", tabData);
     try {
-      if (typeof SessionStore !== 'undefined' && SessionStore.forgetClosedTab) {
+      if (typeof SessionStore !== "undefined" && SessionStore.forgetClosedTab) {
         SessionStore.forgetClosedTab(window, tabData.sessionIndex);
         debugLog("Closed tab removed successfully.");
       } else {
@@ -56,10 +58,10 @@ const TabManager = {
     const path = [];
     let currentGroup = group;
     while (currentGroup && currentGroup.isZenFolder) {
-        path.unshift(currentGroup.label);
-        currentGroup = currentGroup.group;
+      path.unshift(currentGroup.label);
+      currentGroup = currentGroup.group;
     }
-    return path.join(' / ');
+    return path.join(" / ");
   },
 
   /**
@@ -76,11 +78,11 @@ const TabManager = {
 
       for (const tab of allTabs) {
         if (tab.hasAttribute("zen-empty-tab") || tab.closing) continue;
-        const isEssential= tab.hasAttribute('zen-essential')
+        const isEssential = tab.hasAttribute("zen-essential");
 
         const browser = tab.linkedBrowser;
         const win = tab.ownerGlobal;
-        const workspaceId = tab.getAttribute('zen-workspace-id');
+        const workspaceId = tab.getAttribute("zen-workspace-id");
         const workspace = workspaceId && win.gZenWorkspaces.getWorkspaceFromId(workspaceId);
         const folder = tab.group?.isZenFolder ? this._getFolderBreadcrumbs(tab.group) : null;
 
@@ -91,11 +93,11 @@ const TabManager = {
           isPinned: tab.pinned,
           isEssential,
           folder: folder,
-          workspace: isEssential? undefined : workspace?.name,
+          workspace: isEssential ? undefined : workspace?.name,
           isClosed: false,
           faviconUrl: tab.image,
           tabElement: tab,
-          lastAccessed: tab._lastAccessed
+          lastAccessed: tab._lastAccessed,
         };
 
         openTabs.push(tabInfo);
@@ -129,14 +131,14 @@ const TabManager = {
         const tabState = tabData.sessionData.state;
         const url = tabState.entries[0]?.url;
         if (!url) {
-            debugError("Cannot reopen tab: URL not found in session data.", tabData);
-            return;
+          debugError("Cannot reopen tab: URL not found in session data.", tabData);
+          return;
         }
 
         const newTab = gBrowser.addTab(url, {
-            triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
-            userContextId: tabState.userContextId || 0,
-            skipAnimation: true
+          triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+          userContextId: tabState.userContextId || 0,
+          skipAnimation: true,
         });
         gBrowser.selectedTab = newTab;
 
@@ -148,8 +150,8 @@ const TabManager = {
 
         // Switch workspace if necessary
         if (workspaceId && workspaceId !== activeWorkspaceId) {
-            await gZenWorkspaces.changeWorkspaceWithID(workspaceId);
-            gZenWorkspaces.moveTabToWorkspace(newTab, workspaceId);
+          await gZenWorkspaces.changeWorkspaceWithID(workspaceId);
+          gZenWorkspaces.moveTabToWorkspace(newTab, workspaceId);
         }
 
         // Pin if it was previously pinned
@@ -158,10 +160,10 @@ const TabManager = {
         // Restore to folder state
         const groupId = tabData.sessionData.closedInTabGroupId;
         if (groupId) {
-            const folder = document.getElementById(groupId);
-            if (folder && typeof folder.addTabs === 'function') {
-                folder.addTabs([newTab]);
-            }
+          const folder = document.getElementById(groupId);
+          if (folder && typeof folder.addTabs === "function") {
+            folder.addTabs([newTab]);
+          }
         }
         gBrowser.selectedTab = newTab;
         return;
@@ -170,7 +172,7 @@ const TabManager = {
       // Fallback for any other case.
       if (tabData.url) {
         const newTab = gBrowser.addTab(tabData.url, {
-            triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
+          triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
         });
         gBrowser.selectedTab = newTab;
       } else {

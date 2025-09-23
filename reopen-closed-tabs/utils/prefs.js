@@ -15,7 +15,8 @@ export const Prefs = {
     try {
       const pref = UC_API.Prefs.get(key);
       if (!pref) return defaultValue !== undefined ? defaultValue : Prefs.defaultValues[key];
-      if (!pref.exists()) return defaultValue !== undefined ? defaultValue : Prefs.defaultValues[key];
+      if (!pref.exists())
+        return defaultValue !== undefined ? defaultValue : Prefs.defaultValues[key];
       return pref.value;
     } catch (e) {
       console.error(`ReopenClosedTabs Prefs: Error getting pref ${key}:`, e);

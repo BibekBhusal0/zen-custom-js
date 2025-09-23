@@ -33,13 +33,13 @@ const ReopenClosedTabs = {
     }
 
     const { key, modifiers } = parseShortcutString(shortcutString);
-    if (!key ) {
+    if (!key) {
       debugError("Invalid shortcut string:", shortcutString);
       return;
     }
 
     try {
-      const translatedModifiers = modifiers.replace(/accel/g, 'ctrl').replace(","," ")
+      const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(",", " ");
 
       const hotkey = {
         id: "reopen-closed-tabs-hotkey",
@@ -47,8 +47,8 @@ const ReopenClosedTabs = {
         key: key,
         command: this._boundToggleMenu,
       };
-      this._registeredHotkey = await UC_API.Hotkeys.define(hotkey)
-      if (this._registeredHotkey){
+      this._registeredHotkey = await UC_API.Hotkeys.define(hotkey);
+      if (this._registeredHotkey) {
         this._registeredHotkey.autoAttach({ suppressOriginal: true });
         debugLog(`Registered shortcut: ${shortcutString}`);
       }
@@ -58,13 +58,13 @@ const ReopenClosedTabs = {
   },
 
   onHotkeyChange() {
-      // TODO: Figure out how to apply changes real time (without restart)
-      if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
-        window.ucAPI.showToast(
-          ["Hotkey Changed", "A restart is required for changes to take effect."],
-          1 // Restart button preset
-        );
-      } 
+    // TODO: Figure out how to apply changes real time (without restart)
+    if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
+      window.ucAPI.showToast(
+        ["Hotkey Changed", "A restart is required for changes to take effect."],
+        1 // Restart button preset
+      );
+    }
   },
 
   _registerToolbarButton() {
@@ -82,10 +82,13 @@ const ReopenClosedTabs = {
       });
       debugLog(`Registered toolbar button: ${buttonId}`);
 
-      this._panel = parseElement(`
+      this._panel = parseElement(
+        `
         <panel id="${panelId}" type="arrow">
         </panel>
-      `, "xul");
+      `,
+        "xul"
+      );
 
       const mainPopupSet = document.getElementById("mainPopupSet");
       if (mainPopupSet) {
@@ -105,8 +108,7 @@ const ReopenClosedTabs = {
     if (button && this._panel) {
       if (this._panel.state === "open") {
         this._panel.hidePopup();
-      }
-      else {
+      } else {
         await this._populatePanel();
         this._panel.openPopup(button, "after_start", 0, 0, false, false);
       }
@@ -123,15 +125,21 @@ const ReopenClosedTabs = {
     this._panel.appendChild(mainVbox);
 
     // Search bar
-    const searchBox = parseElement(`
+    const searchBox = parseElement(
+      `
       <div id="reopen-closed-tabs-search-container">
         <img src="chrome://global/skin/icons/search-glass.svg" class="search-icon"/>
         <input id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..."/>
       </div>
-    `, "html");
+    `,
+      "html"
+    );
     mainVbox.appendChild(searchBox);
 
-    const allItemsContainer = parseElement(`<vbox id="reopen-closed-tabs-list-container" flex="1" />`, "xul");
+    const allItemsContainer = parseElement(
+      `<vbox id="reopen-closed-tabs-list-container" flex="1" />`,
+      "xul"
+    );
     mainVbox.appendChild(allItemsContainer);
 
     const closedTabs = await TabManager.getRecentlyClosedTabs();
@@ -151,7 +159,10 @@ const ReopenClosedTabs = {
     }
 
     if (closedTabs.length === 0 && openTabs.length === 0) {
-      const noTabsItem = parseElement(`<label class="reopen-closed-tab-item-disabled" value="No tabs to display."/>`, "xul");
+      const noTabsItem = parseElement(
+        `<label class="reopen-closed-tab-item-disabled" value="No tabs to display."/>`,
+        "xul"
+      );
       allItemsContainer.appendChild(noTabsItem);
     }
 
@@ -160,31 +171,38 @@ const ReopenClosedTabs = {
     const firstItem = allItemsContainer.querySelector(".reopen-closed-tab-item");
     if (firstItem) {
       firstItem.setAttribute("selected", "true");
-    }  
+    }
 
     const searchInput = this._panel.querySelector("#reopen-closed-tabs-search-input");
     if (searchInput) {
       searchInput.addEventListener("input", (event) => this._filterTabs(event.target.value));
       searchInput.addEventListener("keydown", (event) => this._handleSearchKeydown(event));
-      this._panel.addEventListener("popupshown", () => {
-        searchInput.focus();
-        const listContainer = this._panel.querySelector("#reopen-closed-tabs-list-container");
-        if (listContainer) {
-          listContainer.scrollTop = 0;
-        }
-      }, { once: true });
+      this._panel.addEventListener(
+        "popupshown",
+        () => {
+          searchInput.focus();
+          const listContainer = this._panel.querySelector("#reopen-closed-tabs-list-container");
+          if (listContainer) {
+            listContainer.scrollTop = 0;
+          }
+        },
+        { once: true }
+      );
     }
   },
 
   _renderGroup(container, groupTitle, tabs) {
-    const groupHeader = parseElement(`
+    const groupHeader = parseElement(
+      `
       <hbox class="reopen-closed-tabs-group-header" align="center">
         <label value="${escapeXmlAttribute(groupTitle)}"/>
       </hbox>
-    `, "xul");
+    `,
+      "xul"
+    );
     container.appendChild(groupHeader);
 
-    tabs.forEach(tab => {
+    tabs.forEach((tab) => {
       this._renderTabItem(container, tab);
     });
   },
@@ -194,7 +212,7 @@ const ReopenClosedTabs = {
     const url = escapeXmlAttribute(tab.url || "");
     const faviconSrc = escapeXmlAttribute(tab.faviconUrl || "chrome://branding/content/icon32.png");
 
-    let iconHtml = '';
+    let iconHtml = "";
     if (tab.isEssential) {
       iconHtml = `<image class="tab-status-icon" src="chrome://browser/skin/zen-icons/essential-add.svg" />`;
     } else if (tab.isPinned) {
@@ -202,30 +220,33 @@ const ReopenClosedTabs = {
     }
 
     let contextParts = [];
-    if (tab.isClosed){
-      if (tab.closedAt){
-        contextParts = [ ("Closed " + timeAgo(tab.closedAt)) ];
+    if (tab.isClosed) {
+      if (tab.closedAt) {
+        contextParts = ["Closed " + timeAgo(tab.closedAt)];
       }
-    }else{
+    } else {
       if (tab.lastAccessed) contextParts.push(timeAgo(tab.lastAccessed));
       if (tab.workspace) contextParts.push(escapeXmlAttribute(tab.workspace));
       if (tab.folder) contextParts.push(escapeXmlAttribute(tab.folder));
     }
-    const contextLabel = contextParts.join(' ● ');
+    const contextLabel = contextParts.join(" ● ");
 
-    const tabItem = parseElement(`
+    const tabItem = parseElement(
+      `
       <hbox class="reopen-closed-tab-item" align="center" tooltiptext="${url}">
         <image class="tab-favicon" src="${faviconSrc}" />
         <vbox class="tab-item-labels" flex="1">
           <label class="tab-item-label" value="${label}"/>
-          ${contextLabel ? `<label class="tab-item-context" value="${contextLabel}"/>` : ''}
+          ${contextLabel ? `<label class="tab-item-context" value="${contextLabel}"/>` : ""}
         </vbox>
         <hbox class="tab-item-status-icons" align="center">
           ${iconHtml}
-          ${tab.isClosed ? `<image class="close-button" src="chrome://global/skin/icons/close.svg" tooltiptext="Remove from list" />` : ''}
+          ${tab.isClosed ? `<image class="close-button" src="chrome://global/skin/icons/close.svg" tooltiptext="Remove from list" />` : ""}
         </hbox>
       </hbox>
-    `, "xul");
+    `,
+      "xul"
+    );
 
     tabItem.tabData = tab;
     tabItem.addEventListener("click", this._boundHandleItemClick);
@@ -241,7 +262,7 @@ const ReopenClosedTabs = {
     if (tabItem && tabItem.tabData && tabItem.tabData.isClosed) {
       TabManager.removeClosedTab(tabItem.tabData);
       tabItem.remove();
-      this._allTabsCache = this._allTabsCache.filter(tab => tab !== tabItem.tabData);
+      this._allTabsCache = this._allTabsCache.filter((tab) => tab !== tabItem.tabData);
     } else {
       debugError("Cannot remove tab: Tab data not found or tab is not closed.", tabItem);
     }
@@ -249,12 +270,17 @@ const ReopenClosedTabs = {
 
   _filterTabs(query) {
     const lowerQuery = query.toLowerCase();
-    const filteredTabs = this._allTabsCache.filter(tab => {
+    const filteredTabs = this._allTabsCache.filter((tab) => {
       const title = (tab.title || "").toLowerCase();
       const url = (tab.url || "").toLowerCase();
       const workspace = (tab.workspace || "").toLowerCase();
       const folder = (tab.folder || "").toLowerCase();
-      return title.includes(lowerQuery) || url.includes(lowerQuery) || workspace.includes(lowerQuery) || folder.includes(lowerQuery);
+      return (
+        title.includes(lowerQuery) ||
+        url.includes(lowerQuery) ||
+        workspace.includes(lowerQuery) ||
+        folder.includes(lowerQuery)
+      );
     });
 
     const tabItemsContainer = this._panel.querySelector("#reopen-closed-tabs-list-container");
@@ -263,12 +289,15 @@ const ReopenClosedTabs = {
         tabItemsContainer.removeChild(tabItemsContainer.firstChild);
       }
       if (filteredTabs.length === 0) {
-        const noResultsItem = parseElement(`<label class="reopen-closed-tab-item-disabled" value="No matching tabs."/>`, "xul");
+        const noResultsItem = parseElement(
+          `<label class="reopen-closed-tab-item-disabled" value="No matching tabs."/>`,
+          "xul"
+        );
         tabItemsContainer.appendChild(noResultsItem);
       } else {
         // Re-render groups with filtered tabs
-        const closedTabs = filteredTabs.filter(t => t.isClosed);
-        const openTabs = filteredTabs.filter(t => !t.isClosed);
+        const closedTabs = filteredTabs.filter((t) => t.isClosed);
+        const openTabs = filteredTabs.filter((t) => !t.isClosed);
 
         if (closedTabs.length > 0) {
           this._renderGroup(tabItemsContainer, "Recently Closed", closedTabs);
@@ -331,7 +360,8 @@ const ReopenClosedTabs = {
         const selectedItemRect = nextSelected.getBoundingClientRect();
         const containerRect = tabItemsContainer.getBoundingClientRect();
         if (selectedItemRect.top < containerRect.top + stickyHeaderHeight) {
-          tabItemsContainer.scrollTop -= (containerRect.top + stickyHeaderHeight - selectedItemRect.top);
+          tabItemsContainer.scrollTop -=
+            containerRect.top + stickyHeaderHeight - selectedItemRect.top;
         }
       }
     }
@@ -339,7 +369,7 @@ const ReopenClosedTabs = {
 
   _handleItemClick(event) {
     let tabItem = event.target;
-    while (tabItem && !tabItem.classList.contains('reopen-closed-tab-item')) {
+    while (tabItem && !tabItem.classList.contains("reopen-closed-tab-item")) {
       tabItem = tabItem.parentElement;
     }
 
@@ -354,30 +384,29 @@ const ReopenClosedTabs = {
 
 function setupCommandPaletteIntegration(retryCount = 0) {
   if (window.ZenCommandPalette) {
-    debugLog('Integrating with Zen Command Palette...');
+    debugLog("Integrating with Zen Command Palette...");
     window.ZenCommandPalette.addCommands([
       {
         key: "reopen:closed-tabs-menu",
         label: "Open Reopen closed tab menu",
         command: () => ReopenClosedTabs.toggleMenu(),
         icon: "chrome://browser/skin/zen-icons/history.svg",
-        tags: ["reopen", "tabs", "closed" ]
+        tags: ["reopen", "tabs", "closed"],
       },
     ]);
 
-    debugLog('Zen Command Palette integration successful.');
-
+    debugLog("Zen Command Palette integration successful.");
   } else {
-    debugLog('Zen Command Palette not found, retrying in 1000ms');
+    debugLog("Zen Command Palette not found, retrying in 1000ms");
     if (retryCount < 10) {
       setTimeout(() => setupCommandPaletteIntegration(retryCount + 1), 1000);
     } else {
-      debugError('Could not integrate with Zen Command Palette after 10 retries.');
+      debugError("Could not integrate with Zen Command Palette after 10 retries.");
     }
   }
 }
 
 UC_API.Runtime.startupFinished().then(() => {
   ReopenClosedTabs.init();
-  setupCommandPaletteIntegration()
+  setupCommandPaletteIntegration();
 });

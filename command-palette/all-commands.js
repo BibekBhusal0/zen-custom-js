@@ -11,19 +11,20 @@ const togglePref = (prefName) => {
 };
 
 function isNotEmptyTab() {
-  return !window.gBrowser.selectedTab.hasAttribute('zen-empty-tab');
+  return !window.gBrowser.selectedTab.hasAttribute("zen-empty-tab");
 }
 
-function isPinnedTabDifferent () {
-  if ( !window.gZenPinnedTabManager ) return false
-  const currentTab = gBrowser.selectedTab
-  if ( !currentTab ) return false
-  if ( !currentTab.pinned ) return false
-  const pin = gZenPinnedTabManager._pinsCache.find(pin=> pin.uuid === currentTab.getAttribute('zen-pin-id') )
-  if (!pin) return false 
-  return pin.url !== currentTab.linkedBrowser.currentURI.spec
+function isPinnedTabDifferent() {
+  if (!window.gZenPinnedTabManager) return false;
+  const currentTab = gBrowser.selectedTab;
+  if (!currentTab) return false;
+  if (!currentTab.pinned) return false;
+  const pin = gZenPinnedTabManager._pinsCache.find(
+    (pin) => pin.uuid === currentTab.getAttribute("zen-pin-id")
+  );
+  if (!pin) return false;
+  return pin.url !== currentTab.linkedBrowser.currentURI.spec;
 }
-
 
 export const commands = [
   // ----------- Zen Compact Mode -----------
@@ -269,8 +270,8 @@ export const commands = [
     command: () => {
       const tab = gBrowser.selectedTab;
       if (tab?.group?.isZenFolder) {
-        gBrowser.selectedTab.group.rename() 
-        gBrowser.selectedTab.group.focus()
+        gBrowser.selectedTab.group.rename();
+        gBrowser.selectedTab.group.focus();
       }
     },
     condition: () => gBrowser.selectedTab?.group?.isZenFolder,
@@ -303,7 +304,7 @@ export const commands = [
       const newTab = window.gBrowser.duplicateTab(window.gBrowser.selectedTab);
       window.gBrowser.selectedTab = newTab;
     },
-    condition:() =>!!window.gBrowser?.duplicateTab && isNotEmptyTab() ,
+    condition: () => !!window.gBrowser?.duplicateTab && isNotEmptyTab(),
     icon: "chrome://browser/skin/zen-icons/duplicate-tab.svg",
     tags: ["duplicate", "tab", "copy", "clone"],
   },
@@ -343,7 +344,7 @@ export const commands = [
     key: "cmd_close",
     label: "Close Tab",
     icon: "chrome://browser/skin/zen-icons/close.svg",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     tags: ["tab", "close", "remove"],
   },
   {
@@ -351,13 +352,13 @@ export const commands = [
     label: "Toggle Mute Tab",
     icon: "chrome://browser/skin/zen-icons/media-mute.svg",
     tags: ["tab", "mute", "audio", "sound", "toggle"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "Browser:PinTab",
     label: "Pin Tab",
     command: () => gBrowser.pinTab(gBrowser.selectedTab),
-    condition: () => gBrowser?.selectedTab && !gBrowser.selectedTab.pinned  && isNotEmptyTab,
+    condition: () => gBrowser?.selectedTab && !gBrowser.selectedTab.pinned && isNotEmptyTab,
     icon: svgToUrl(icons["pin"]), // using lucde icon for pin this looks better than browser's pin icon
     tags: ["pin", "tab", "stick", "affix"],
   },
@@ -365,7 +366,7 @@ export const commands = [
     key: "Browser:UnpinTab",
     label: "Unpin Tab",
     command: () => gBrowser.unpinTab(gBrowser.selectedTab),
-    condition: () => gBrowser?.selectedTab?.pinned&& isNotEmptyTab,
+    condition: () => gBrowser?.selectedTab?.pinned && isNotEmptyTab,
     icon: svgToUrl(icons["unpin"]),
     tags: ["unpin", "tab", "release", "detach"],
   },
@@ -392,8 +393,8 @@ export const commands = [
     command: () => gZenPinnedTabManager.addToEssentials(gBrowser.selectedTab),
     condition: () =>
       !!window.gZenPinnedTabManager &&
-      gZenPinnedTabManager.canEssentialBeAdded(gBrowser.selectedTab) && 
-      !window.gBrowser.selectedTab.hasAttribute('zen-essential'),
+      gZenPinnedTabManager.canEssentialBeAdded(gBrowser.selectedTab) &&
+      !window.gBrowser.selectedTab.hasAttribute("zen-essential"),
     icon: "chrome://browser/skin/zen-icons/essential-add.svg",
     tags: ["essentials", "add", "bookmark", "save"],
   },
@@ -421,7 +422,7 @@ export const commands = [
   {
     key: "unload-tab",
     label: "Unload Tab",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     command: () => {
       const current = window.gBrowser.selectedTab;
       const tabs = Array.from(window.gBrowser.tabs)
@@ -507,7 +508,7 @@ export const commands = [
     key: "Browser:Reload",
     label: "Reload Page",
     icon: "chrome://browser/skin/zen-icons/reload.svg",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     tags: ["reload", "refresh", "page", "update"],
   },
   {
@@ -515,7 +516,7 @@ export const commands = [
     label: "Hard Reload (Skip Cache)",
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["reload", "hard", "cache", "refresh"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
 
   // ----------- Bookmarks & History -----------
@@ -524,7 +525,7 @@ export const commands = [
     label: "Bookmark This Page",
     icon: "chrome://browser/skin/bookmark.svg",
     tags: ["bookmark", "save", "favorite", "add", "library"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "Browser:BookmarkAllTabs",
@@ -569,28 +570,28 @@ export const commands = [
     label: "Find in Page",
     icon: "chrome://browser/skin/zen-icons/search-page.svg",
     tags: ["find", "search", "page", "text"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "cmd_findAgain",
     label: "Find Next",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
     tags: ["find", "next", "search", "continue"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "cmd_findPrevious",
     label: "Find Previous",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
     tags: ["find", "previous", "search", "back"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "cmd_translate",
     label: "Translate Page",
     icon: "chrome://browser/skin/zen-icons/translations.svg",
     tags: ["translate", "language", "page"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
 
   // ----------- View & Display -----------
@@ -605,28 +606,28 @@ export const commands = [
     label: "Toggle Reader Mode",
     icon: svgToUrl(icons["glass"]),
     tags: ["Read", "Glass", "Mode", "Focus"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "cmd_fullZoomEnlarge",
     label: "Zoom In",
     icon: svgToUrl(icons["zoomIn"]),
     tags: ["zoom", "in", "enlarge", "bigger"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "cmd_fullZoomReduce",
     label: "Zoom Out",
     icon: svgToUrl(icons["zoomOut"]),
     tags: ["zoom", "out", "reduce", "smaller"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "cmd_fullZoomReset",
     label: "Reset Zoom",
     icon: svgToUrl(icons["zoomReset"]),
     tags: ["zoom", "reset", "normal", "100%"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
 
   // ----------- Developer Tools -----------
@@ -635,14 +636,14 @@ export const commands = [
     label: "View Page Source",
     icon: "chrome://browser/skin/zen-icons/source-code.svg",
     tags: ["source", "code", "html", "view"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "View:PageInfo",
     label: "View Page Info",
     icon: "chrome://browser/skin/zen-icons/info.svg",
     tags: ["info", "page", "details", "properties"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
 
   {
@@ -674,47 +675,47 @@ export const commands = [
     label: "Open web inspector",
     tags: ["devtools", "inspector", "elements", "html"],
     icon: "chrome://devtools/skin/images/tool-inspector.svg",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "key_webconsole",
     label: "Open web console",
     tags: ["devtools", "console", "web", "logs"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     icon: "chrome://devtools/skin/images/tool-webconsole.svg",
   },
   {
     key: "key_jsdebugger",
     label: "Open js debugger",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     tags: ["devtools", "debugger", "js", "javascript"],
     icon: "chrome://devtools/skin/images/tool-debugger.svg",
   },
   {
     key: "key_netmonitor",
     label: "Open network monitor",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     tags: ["devtools", "network", "monitor"],
     icon: "chrome://devtools/skin/images/tool-network.svg",
   },
   {
     key: "key_styleeditor",
     label: "Open style editor",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     tags: ["devtools", "style", "editor", "css"],
     icon: "chrome://devtools/skin/images/tool-styleeditor.svg",
   },
   {
     key: "key_performance",
     label: "Open performance panel",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     tags: ["devtools", "performance", "panel"],
     icon: "chrome://devtools/skin/images/tool-profiler.svg",
   },
   {
     key: "key_storage",
     label: "Open storage panel",
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
     tags: ["devtools", "storage", "panel"],
     icon: "chrome://devtools/skin/images/tool-storage.svg",
   },
@@ -731,7 +732,7 @@ export const commands = [
     label: "Take Screenshot",
     icon: "chrome://browser/skin/screenshot.svg",
     tags: ["screenshot", "capture", "image", "snap"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
 
   // ----------- Files & Downloads -----------
@@ -746,14 +747,14 @@ export const commands = [
     label: "Save Page As...",
     icon: "chrome://browser/skin/save.svg",
     tags: ["save", "page", "download", "file"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "cmd_print",
     label: "Print Page",
     icon: "chrome://browser/skin/zen-icons/print.svg",
     tags: ["print", "page", "printer", "document"],
-    condition:isNotEmptyTab,
+    condition: isNotEmptyTab,
   },
   {
     key: "Browser:OpenFile",

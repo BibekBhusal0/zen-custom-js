@@ -9,18 +9,8 @@
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/reopen-closed-tabs/readme.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
-  "tags": [
-    "tabs",
-    "history",
-    "reopen",
-    "closed tabs",
-    "productivity",
-    "zen browser",
-    "sine"
-  ],
+  "tags": ["tabs", "history", "reopen", "closed tabs", "productivity", "zen browser", "sine"],
   "createdAt": "2025-09-22",
   "updatedAt": "2025-09-23",
-  "fork": [
-    "zen"
-  ]
+  "fork": ["zen"]
 }

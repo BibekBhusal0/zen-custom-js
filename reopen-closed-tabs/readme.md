@@ -29,12 +29,11 @@
 
 The Reopen Closed Tabs Menu can be configured from `about:config`.
 
-| Preference Key                                     | Type    | Default | Description                               |
-| -------------------------------------------------- | ------- | ------- | ----------------------------------------- |
-| `extensions.reopen-closed-tabs.shortcut-key`       | String  | `Alt+A` | The keyboard shortcut to open the menu.   |
-| `extensions.reopen-closed-tabs.show-open-tabs`     | Boolean | `false` | Also show currently open tabs in the list.|
-| `extensions.reopen-closed-tabs.debug-mode`         | Boolean | `false` | Enable debug logging for troubleshooting. |
-
+| Preference Key                                 | Type    | Default | Description                                |
+| ---------------------------------------------- | ------- | ------- | ------------------------------------------ |
+| `extensions.reopen-closed-tabs.shortcut-key`   | String  | `Alt+A` | The keyboard shortcut to open the menu.    |
+| `extensions.reopen-closed-tabs.show-open-tabs` | Boolean | `false` | Also show currently open tabs in the list. |
+| `extensions.reopen-closed-tabs.debug-mode`     | Boolean | `false` | Enable debug logging for troubleshooting.  |
 
 ## 📜 License
 
