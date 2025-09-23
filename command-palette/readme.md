@@ -276,8 +276,8 @@ I am not making up the questions. I have been asked these questions in reddit an
 Zen command bar don't contain too much commands to optimize for performance, this mod contain 100+ static commands. And on top of it, this provides API making easy for user to add more commands. Already 4 other mods (2 unreleased) support the command palette.
 
 Another Benifit of this mod, is that this allows setting custom keymaps to commands, and allow adding them as toolbar icons.
-</details>
 
+</details>
 
 ## 🙏 Credits and Acknowledgements
 
