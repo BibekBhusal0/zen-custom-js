@@ -28,12 +28,12 @@ function isPinnedTabDifferent() {
 
 export const commands = [
   // ----------- Zen Compact Mode -----------
-  {
-    key: "cmd_zenCompactModeToggle",
-    label: "Toggle Compact Mode",
-    icon: "chrome://browser/skin/zen-icons/fullscreen.svg",
-    tags: ["compact", "mode", "toggle", "ui", "layout", "hide", "sidebar"],
-  },
+  // {
+  //   key: "cmd_zenCompactModeToggle",
+  //   label: "Toggle Compact Mode",
+  //   icon: "chrome://browser/skin/zen-icons/fullscreen.svg",
+  //   tags: ["compact", "mode", "toggle", "ui", "layout", "hide", "sidebar"],
+  // },
   {
     key: "cmd_zenCompactModeShowSidebar",
     label: "Toggle Floating Sidebar",
@@ -101,27 +101,27 @@ export const commands = [
   },
 
   // ----------- Zen Split View -----------
-  {
-    key: "cmd_zenSplitViewGrid",
-    label: "Split Grid",
-    icon: svgToUrl(icons["splitGrid"]),
-    condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter?.splitViewActive,
-    tags: ["split", "view", "grid", "layout", "multitask"],
-  },
-  {
-    key: "cmd_zenSplitViewVertical",
-    label: "Split Vertical",
-    icon: svgToUrl(icons["splitVz"]),
-    condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter?.splitViewActive,
-    tags: ["split", "view", "vertical", "layout", "multitask"],
-  },
-  {
-    key: "cmd_zenSplitViewHorizontal",
-    label: "Split Horizontal",
-    icon: svgToUrl(icons["splitHz"]),
-    condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter?.splitViewActive,
-    tags: ["split", "view", "horizontal", "layout", "multitask"],
-  },
+  // {
+  //   key: "cmd_zenSplitViewGrid",
+  //   label: "Split Grid",
+  //   icon: svgToUrl(icons["splitGrid"]),
+  //   condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter?.splitViewActive,
+  //   tags: ["split", "view", "grid", "layout", "multitask"],
+  // },
+  // {
+  //   key: "cmd_zenSplitViewVertical",
+  //   label: "Split Vertical",
+  //   icon: svgToUrl(icons["splitVz"]),
+  //   condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter?.splitViewActive,
+  //   tags: ["split", "view", "vertical", "layout", "multitask"],
+  // },
+  // {
+  //   key: "cmd_zenSplitViewHorizontal",
+  //   label: "Split Horizontal",
+  //   icon: svgToUrl(icons["splitHz"]),
+  //   condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter?.splitViewActive,
+  //   tags: ["split", "view", "horizontal", "layout", "multitask"],
+  // },
   {
     key: "cmd_zenSplitViewUnsplit",
     label: "Unsplit View",
@@ -209,15 +209,15 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/sidebars-right.svg",
     tags: ["tabs", "right", "position", "layout"],
   },
-  {
-    key: "remove-from-essentials",
-    label: "Remove from Essentials",
-    command: () => gZenPinnedTabManager.removeEssentials(gBrowser.selectedTab),
-    condition: () =>
-      gBrowser?.selectedTab?.hasAttribute("zen-essential") && !!window.gZenPinnedTabManager,
-    icon: "chrome://browser/skin/zen-icons/essential-remove.svg",
-    tags: ["essentials", "remove", "unpin"],
-  },
+  // {
+  //   key: "remove-from-essentials",
+  //   label: "Remove from Essentials",
+  //   command: () => gZenPinnedTabManager.removeEssentials(gBrowser.selectedTab),
+  //   condition: () =>
+  //     gBrowser?.selectedTab?.hasAttribute("zen-essential") && !!window.gZenPinnedTabManager,
+  //   icon: "chrome://browser/skin/zen-icons/essential-remove.svg",
+  //   tags: ["essentials", "remove", "unpin"],
+  // },
   {
     key: "cmd_zenReorderWorkspaces",
     label: "Reorder Workspaces",
@@ -387,17 +387,17 @@ export const commands = [
     label: "Show All Tabs Panel",
     tags: ["show", "all", "tabs", "panel", "overview"],
   },
-  {
-    key: "add-to-essentials",
-    label: "Add to Essentials",
-    command: () => gZenPinnedTabManager.addToEssentials(gBrowser.selectedTab),
-    condition: () =>
-      !!window.gZenPinnedTabManager &&
-      gZenPinnedTabManager.canEssentialBeAdded(gBrowser.selectedTab) &&
-      !window.gBrowser.selectedTab.hasAttribute("zen-essential"),
-    icon: "chrome://browser/skin/zen-icons/essential-add.svg",
-    tags: ["essentials", "add", "bookmark", "save"],
-  },
+  // {
+  //   key: "add-to-essentials",
+  //   label: "Add to Essentials",
+  //   command: () => gZenPinnedTabManager.addToEssentials(gBrowser.selectedTab),
+  //   condition: () =>
+  //     !!window.gZenPinnedTabManager &&
+  //     gZenPinnedTabManager.canEssentialBeAdded(gBrowser.selectedTab) &&
+  //     !window.gBrowser.selectedTab.hasAttribute("zen-essential"),
+  //   icon: "chrome://browser/skin/zen-icons/essential-add.svg",
+  //   tags: ["essentials", "add", "bookmark", "save"],
+  // },
   {
     key: "cmd_zenReplacePinnedUrlWithCurrent",
     label: "Replace Pinned Tab URL with Current",
@@ -565,13 +565,13 @@ export const commands = [
   },
 
   // ----------- Find & Search -----------
-  {
-    key: "cmd_find",
-    label: "Find in Page",
-    icon: "chrome://browser/skin/zen-icons/search-page.svg",
-    tags: ["find", "search", "page", "text"],
-    condition: isNotEmptyTab,
-  },
+  // {
+  //   key: "cmd_find",
+  //   label: "Find in Page",
+  //   icon: "chrome://browser/skin/zen-icons/search-page.svg",
+  //   tags: ["find", "search", "page", "text"],
+  //   condition: isNotEmptyTab,
+  // },
   {
     key: "cmd_findAgain",
     label: "Find Next",
@@ -764,12 +764,12 @@ export const commands = [
   },
 
   // ----------- Extensions & Customization -----------
-  {
-    key: "Tools:Addons",
-    label: "Manage Extensions",
-    icon: "chrome://mozapps/skin/extensions/extension.svg",
-    tags: ["addons", "extensions", "themes", "manage"],
-  },
+  // {
+  //   key: "Tools:Addons",
+  //   label: "Manage Extensions",
+  //   icon: "chrome://mozapps/skin/extensions/extension.svg",
+  //   tags: ["addons", "extensions", "themes", "manage"],
+  // },
   {
     key: "cmd_CustomizeToolbars",
     label: "Customize Toolbar...",
