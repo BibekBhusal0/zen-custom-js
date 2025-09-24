@@ -79,8 +79,6 @@ const ReopenClosedTabs = {
         callback: this.toggleMenu.bind(this),
       });
       debugLog(`Registered toolbar button: ${buttonId}`);
-
-
     } catch (e) {
       debugError("Failed to register toolbar button:", e);
     }
