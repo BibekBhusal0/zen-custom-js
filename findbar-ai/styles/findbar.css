@@ -337,7 +337,7 @@ browser {
         flex-basis: 100% !important;
 
         &[status="notfound"] {
-          display: block !important;
+          display: none !important;
           width: 30px !important;
           max-width: 30px !important;
           margin: auto !important;

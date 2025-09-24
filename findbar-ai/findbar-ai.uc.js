@@ -115,6 +115,7 @@ export const browseBotFindbar = {
   _handleResizeEnd: null,
   _toolConfirmationDialog: null,
   _highlightTimeout: null,
+  _originalOnMatchesCountResult: null,
 
   _updateFindbarDimensions() {
     if (!this.findbar) {
@@ -280,7 +281,15 @@ export const browseBotFindbar = {
         if (PREFS.dndEnabled) this.enableResize();
         this._updateFindbarDimensions();
       }, 0);
-      setTimeout(() => this.updateFoundMatchesDisplay(), 0);
+
+      const matches = this.findbar.querySelector(".found-matches");
+      const status = this.findbar.querySelector(".findbar-find-status");
+      const wrapper = this.findbar.querySelector('hbox[anonid="findbar-textbox-wrapper"]');
+      if (wrapper) {
+        if (matches && matches.parentElement !== wrapper) wrapper.appendChild(matches);
+        if (status && status.parentElement !== wrapper) wrapper.appendChild(status);
+      }
+
       this.findbar._findField.removeEventListener("keypress", this._handleInputKeyPress);
       this.findbar._findField.addEventListener("keypress", this._handleInputKeyPress);
       this.findbar._findField.removeEventListener("input", this._handleFindFieldInput);
@@ -528,6 +537,67 @@ export const browseBotFindbar = {
       stopBtn.style.display = "none";
       promptInput.disabled = false;
       this.focusPrompt();
+    }
+  },
+
+  _overrideFindbarMatchesDisplay(retry = 0) {
+    debugLog(`_overrideFindbarMatchesDisplay called, retry: ${retry}`);
+    if (this._originalOnMatchesCountResult) {
+      debugLog("Prototype already overridden.");
+      return;
+    }
+
+    const findbarClass = customElements.get("findbar")?.prototype;
+
+    if (!findbarClass) {
+      debugLog("findbarClass not found.");
+      if (retry < 10) {
+        setTimeout(() => this._overrideFindbarMatchesDisplay(retry + 1), 100);
+        debugLog(`Retrying _overrideFindbarMatchesDisplay in 100ms, retry: ${retry + 1}`);
+      } else {
+        debugError("Failed to override findbar matches display: findbar custom element not found after multiple retries.");
+      }
+      return;
+    }
+
+    debugLog("findbarClass found. Overriding onMatchesCountResult.");
+    this._originalOnMatchesCountResult = findbarClass.onMatchesCountResult;
+
+    findbarClass.onMatchesCountResult = function (result) {
+      if (!PREFS.enabled) return;
+
+      debugLog(`onMatchesCountResult called for findbar instance. Result: ${JSON.stringify(result)}`);
+      const foundMatchesElement = this._foundMatches;
+
+      if (!foundMatchesElement) {
+        return;
+      }
+
+      foundMatchesElement.hidden = false;
+      const newLabel = `${result.current}/${result.total}`;
+      foundMatchesElement.setAttribute("value", newLabel);
+      foundMatchesElement.textContent = newLabel;
+    };
+    debugLog("onMatchesCountResult successfully overridden.");
+  },
+
+  _restoreFindbarMatchesDisplay() {
+    if (this._originalOnMatchesCountResult) {
+      const findbarClass = customElements.get("findbar")?.prototype;
+      if (findbarClass) {
+        findbarClass.onMatchesCountResult = this._originalOnMatchesCountResult;
+      }
+      this._originalOnMatchesCountResult = null;
+
+      // Reset the DOM element for the current findbar instance
+      if (this.findbar) {
+        const foundMatchesElement = this.findbar._foundMatches;
+        if (foundMatchesElement) {
+          foundMatchesElement.textContent = "";
+          foundMatchesElement.setAttribute("value", "");
+          foundMatchesElement.hidden = true;
+        }
+      }
     }
   },
 
@@ -790,6 +860,7 @@ export const browseBotFindbar = {
     if (PREFS.contextMenuEnabled) {
       this.addContextMenuItem();
     }
+    this._overrideFindbarMatchesDisplay();
   },
   destroy() {
     this.findbar = null;
@@ -804,6 +875,7 @@ export const browseBotFindbar = {
     this._toolConfirmationDialog?.remove();
     this._toolConfirmationDialog = null;
     SettingsModal.hide();
+    this._restoreFindbarMatchesDisplay();
   },
 
   addExpandButton() {
@@ -1143,7 +1215,6 @@ export const browseBotFindbar = {
     this._updateFindbar = this.updateFindbar.bind(this);
     this._addKeymaps = this.addKeymaps.bind(this);
     this._handleInputKeyPress = this.handleInputKeyPress.bind(this);
-    this._handleFindFieldInput = this.updateFoundMatchesDisplay.bind(this);
     const _clearLLMData = () => {
       this.updateFindbarStatus();
       this.clear();
@@ -1197,14 +1268,7 @@ export const browseBotFindbar = {
     UC_API.Prefs.removeListener(this._dndListener);
     this.disableDND();
 
-    // Disconnect the MutationObserver when listeners are removed
-    if (this._matchesObserver) {
-      this._matchesObserver.disconnect();
-      this._matchesObserver = null;
-    }
-
     this._handleInputKeyPress = null;
-    this._handleFindFieldInput = null;
     this._updateFindbar = null;
     this._addKeymaps = null;
     this._godModeListener = null;
@@ -1214,64 +1278,6 @@ export const browseBotFindbar = {
     this._dndListener = null;
     this._handleFindbarOpenEvent = null;
     this._handleFindbarCloseEvent = null;
-  },
-
-  updateFoundMatchesDisplay(retry = 0) {
-    if (!this.findbar) return;
-    const matches = this.findbar.querySelector(".found-matches");
-    const status = this.findbar.querySelector(".findbar-find-status");
-    const wrapper = this.findbar.querySelector('hbox[anonid="findbar-textbox-wrapper"]');
-    if (!wrapper) {
-      if (retry < 10) setTimeout(() => this.updateFoundMatchesDisplay(retry + 1), 100);
-      return;
-    }
-    if (matches && matches.parentElement !== wrapper) wrapper.appendChild(matches);
-    if (status && status.parentElement !== wrapper) wrapper.appendChild(status);
-
-    if (status && status.getAttribute("status") === "notfound") {
-      status.setAttribute("value", "0/0");
-      status.textContent = "0/0";
-    }
-
-    if (matches) {
-      const labelChild = matches.querySelector("label");
-      let labelValue = labelChild
-        ? labelChild.getAttribute("value")
-        : matches.getAttribute("value");
-      let newLabel = "";
-      if (labelValue) {
-        let normalized = labelValue.replace(/(\d+)\s+of\s+(\d+)(?:\s+match(?:es)?)?/i, "$1/$2");
-        newLabel = normalized === "1/1" ? "1/1" : normalized;
-      }
-      if (labelChild) {
-        if (labelChild.getAttribute("value") !== newLabel)
-          labelChild.setAttribute("value", newLabel);
-        if (labelChild.textContent !== newLabel) labelChild.textContent = newLabel;
-      } else {
-        if (matches.getAttribute("value") !== newLabel) matches.setAttribute("value", newLabel);
-        if (matches.textContent !== newLabel) matches.textContent = newLabel;
-      }
-
-      // Disconnect existing observer before creating a new one
-      if (this._matchesObserver) this._matchesObserver.disconnect();
-
-      const observer = new MutationObserver(() => this.updateFoundMatchesDisplay());
-      observer.observe(matches, {
-        attributes: true,
-        attributeFilter: ["value"],
-      });
-      if (labelChild)
-        observer.observe(labelChild, {
-          attributes: true,
-          attributeFilter: ["value"],
-        });
-      if (status)
-        observer.observe(status, {
-          attributes: true,
-          attributeFilter: ["status", "value"],
-        });
-      this._matchesObserver = observer;
-    }
   },
 
   handleFindbarOpenEvent: function () {
