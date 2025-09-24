@@ -88,6 +88,8 @@ export const browseBotFindbar = {
   _addKeymaps: null,
   _handleInputKeyPress: null,
   _handleFindFieldInput: null,
+  _handleFindbarOpenEvent : null,
+  _handleFindbarCloseEvent : null,
   _isExpanded: false,
   _updateContextMenuText: null,
   _godModeListener: null,
@@ -283,36 +285,6 @@ export const browseBotFindbar = {
       this.findbar._findField.addEventListener("keypress", this._handleInputKeyPress);
       this.findbar._findField.removeEventListener("input", this._handleFindFieldInput);
       this.findbar._findField.addEventListener("input", this._handleFindFieldInput);
-
-      const originalOnFindbarOpen = this.findbar.browser.finder.onFindbarOpen;
-      const originalOnFindbarClose = this.findbar.browser.finder.onFindbarClose;
-
-      //making sure this only runs one time
-      if (!findbar?.openOverWritten) {
-        //update placeholder when findbar is opened
-        findbar.browser.finder.onFindbarOpen = (...args) => {
-          originalOnFindbarOpen.apply(findbar.browser.finder, args); //making sure original function is called
-          if (this.enabled) {
-            debugLog("Findbar is being opened");
-            setTimeout(
-              () => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"),
-              100
-            );
-            this._updateFindbarDimensions();
-          }
-        };
-        findbar.browser.finder.onFindbarClose = (...args) => {
-          originalOnFindbarClose.apply(findbar.browser.finder, args);
-          if (this.enabled) {
-            debugLog("Findbar is being closed");
-
-            if (this._isStreaming) {
-              this._abortController?.abort();
-            }
-          }
-        };
-        findbar.openOverWritten = true;
-      }
     });
   },
 
@@ -1181,6 +1153,10 @@ export const browseBotFindbar = {
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._updateFindbar);
     document.addEventListener("keydown", this._addKeymaps);
+    this._handleFindbarOpenEvent = this.handleFindbarOpenEvent.bind(this);
+    this._handleFindbarCloseEvent = this.handleFindbarCloseEvent.bind(this);
+    window.addEventListener("findbaropen", this._handleFindbarOpenEvent);
+    window.addEventListener("findbarclose", this._handleFindbarCloseEvent);
     this._godModeListener = UC_API.Prefs.addListener(PREFS.GOD_MODE, _clearLLMData);
     this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
     this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
@@ -1211,6 +1187,8 @@ export const browseBotFindbar = {
     }
     gBrowser.tabContainer.removeEventListener("TabSelect", this._updateFindbar);
     document.removeEventListener("keydown", this._addKeymaps);
+    window.removeEventListener("findbaropen", this._handleFindbarOpenEvent);
+    window.removeEventListener("findbarclose", this._handleFindbarCloseEvent);
     UC_API.Prefs.removeListener(this._godModeListener);
     UC_API.Prefs.removeListener(this._citationsListener);
     UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
@@ -1234,6 +1212,8 @@ export const browseBotFindbar = {
     this._contextMenuEnabledListener = null;
     this._minimalListener = null;
     this._dndListener = null;
+    this._handleFindbarOpenEvent = null;
+    this._handleFindbarCloseEvent = null;
   },
 
   updateFoundMatchesDisplay(retry = 0) {
@@ -1291,6 +1271,26 @@ export const browseBotFindbar = {
           attributeFilter: ["status", "value"],
         });
       this._matchesObserver = observer;
+    }
+  },
+
+  handleFindbarOpenEvent: function () {
+    if (this.enabled) {
+      debugLog("Findbar is being opened");
+      setTimeout(
+        () => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"),
+        100
+      );
+      this._updateFindbarDimensions();
+    }
+  },
+
+  handleFindbarCloseEvent: function () {
+    if (this.enabled) {
+      debugLog("Findbar is being closed");
+      if (this._isStreaming) {
+        this._abortController?.abort();
+      }
     }
   },
 };
