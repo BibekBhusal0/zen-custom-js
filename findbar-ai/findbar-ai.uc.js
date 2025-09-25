@@ -569,14 +569,16 @@ export const browseBotFindbar = {
       debugLog(`onMatchesCountResult called for findbar instance. Result: ${JSON.stringify(result)}`);
       const foundMatchesElement = this._foundMatches;
 
-      if (!foundMatchesElement) {
-        return;
+      if (!foundMatchesElement) return;
+
+      if ( result.searchString.trim() === ""){
+        foundMatchesElement.setAttribute("value", "");
+        return
       }
 
       foundMatchesElement.hidden = false;
       const newLabel = `${result.current}/${result.total}`;
       foundMatchesElement.setAttribute("value", newLabel);
-      foundMatchesElement.textContent = newLabel;
     };
     debugLog("onMatchesCountResult successfully overridden.");
   },
@@ -593,7 +595,6 @@ export const browseBotFindbar = {
       if (this.findbar) {
         const foundMatchesElement = this.findbar._foundMatches;
         if (foundMatchesElement) {
-          foundMatchesElement.textContent = "";
           foundMatchesElement.setAttribute("value", "");
           foundMatchesElement.hidden = true;
         }

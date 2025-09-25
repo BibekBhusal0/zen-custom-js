@@ -335,17 +335,6 @@ browser {
       .findbar-label {
         display: none !important;
         flex-basis: 100% !important;
-
-        &[status="notfound"] {
-          display: none !important;
-          width: 30px !important;
-          max-width: 30px !important;
-          margin: auto !important;
-        }
-      }
-
-      .findbar-label:before {
-        display: none !important;
       }
 
       .found-matches {
