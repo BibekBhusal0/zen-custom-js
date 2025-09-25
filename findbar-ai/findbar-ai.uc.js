@@ -540,6 +540,12 @@ export const browseBotFindbar = {
     }
   },
 
+  // The following _overrideFindbarMatchesDisplay function is adapted from
+  // aminomancer's Findbar Mods (https://github.com/aminomancer/uc.css.js/blob/master/JS/findbarMods.uc.js)
+  // under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+  // Original Author: aminomancer
+  // Source: https://github.com/aminomancer/uc.css.js
+  // License: http://creativecommons.org/licenses/by-nc-sa/4.0/
   _overrideFindbarMatchesDisplay(retry = 0) {
     debugLog(`_overrideFindbarMatchesDisplay called, retry: ${retry}`);
     if (this._originalOnMatchesCountResult) {

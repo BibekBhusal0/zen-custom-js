@@ -190,7 +190,8 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 ## 🙏 Credits and Acknowledgements
 
 - **[natsumi-browser](https://github.com/greeeen-dev/natsumi-browser)**: For inspiration on the modern, floating UI styles in Findbar.
-- **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement.
+- **[aminomancer/uc.css.js](https://github.com/aminomancer/uc.css.js)**: The `_overrideFindbarMatchesDisplay` function in `findbar-ai.uc.js` is adapted from `JS/findbarMods.uc.js` under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
+- **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement and design.
 
 ## 📄 License
 
