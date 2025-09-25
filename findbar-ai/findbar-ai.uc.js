@@ -88,8 +88,8 @@ export const browseBotFindbar = {
   _addKeymaps: null,
   _handleInputKeyPress: null,
   _handleFindFieldInput: null,
-  _handleFindbarOpenEvent : null,
-  _handleFindbarCloseEvent : null,
+  _handleFindbarOpenEvent: null,
+  _handleFindbarCloseEvent: null,
   _isExpanded: false,
   _updateContextMenuText: null,
   _godModeListener: null,
@@ -561,7 +561,9 @@ export const browseBotFindbar = {
         setTimeout(() => this._overrideFindbarMatchesDisplay(retry + 1), 100);
         debugLog(`Retrying _overrideFindbarMatchesDisplay in 100ms, retry: ${retry + 1}`);
       } else {
-        debugError("Failed to override findbar matches display: findbar custom element not found after multiple retries.");
+        debugError(
+          "Failed to override findbar matches display: findbar custom element not found after multiple retries."
+        );
       }
       return;
     }
@@ -572,14 +574,16 @@ export const browseBotFindbar = {
     findbarClass.onMatchesCountResult = function (result) {
       if (!PREFS.enabled) return;
 
-      debugLog(`onMatchesCountResult called for findbar instance. Result: ${JSON.stringify(result)}`);
+      debugLog(
+        `onMatchesCountResult called for findbar instance. Result: ${JSON.stringify(result)}`
+      );
       const foundMatchesElement = this._foundMatches;
 
       if (!foundMatchesElement) return;
 
-      if ( result.searchString.trim() === ""){
+      if (result.searchString.trim() === "") {
         foundMatchesElement.setAttribute("value", "");
-        return
+        return;
       }
 
       foundMatchesElement.hidden = false;
@@ -1290,10 +1294,7 @@ export const browseBotFindbar = {
   handleFindbarOpenEvent: function () {
     if (this.enabled) {
       debugLog("Findbar is being opened");
-      setTimeout(
-        () => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"),
-        100
-      );
+      setTimeout(() => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"), 100);
       this._updateFindbarDimensions();
     }
   },
