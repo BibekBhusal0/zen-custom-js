@@ -24,7 +24,6 @@ const reopenClosedTabsHeader = `// ==UserScript==
 // @name            Reopen Closed Tabs
 // @description     A popup menu to view and restore recently closed tabs. Includes a toolbar button and keyboard shortcut.
 // @author          BibekBhusal
-// @onlyonce
 // ==/UserScript==
 
 `;

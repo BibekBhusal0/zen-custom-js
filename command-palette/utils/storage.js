@@ -5,6 +5,7 @@ const DEFAULTS = {
   customIcons: {},
   customShortcuts: {},
   toolbarButtons: [],
+  customCommands: [],
 };
 
 let _settings = null;

@@ -1,5 +1,6 @@
-import { debugLog } from "./utils/prefs.js";
+import { debugLog, debugError } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "./utils/icon.js";
+import { Storage } from "./utils/storage.js";
 
 /**
  * Gets a favicon for a search engine, with fallbacks.
@@ -572,4 +573,54 @@ export async function generateWorkspaceMoveCommands() {
   }
 
   return commands;
+}
+
+export async function generateCustomCommands() {
+  const { customCommands } = await Storage.loadSettings();
+  if (!customCommands || customCommands.length === 0) {
+    return [];
+  }
+
+  return customCommands.map((cmd) => {
+    let commandFunc;
+    if (cmd.type === "js") {
+      commandFunc = () => {
+        try {
+          const Cu = Components.utils;
+          const sandbox = Cu.Sandbox(window, {
+            sandboxPrototype: window,
+            wantXrays: false,
+          });
+          Cu.evalInSandbox(cmd.code, sandbox);
+        } catch (e) {
+          debugError(`Error executing custom JS command "${cmd.name}":`, e);
+          if (window.ucAPI?.showToast) {
+            window.ucAPI.showToast(`Custom command error: ${e.message}`);
+          }
+        }
+      };
+    } else if (cmd.type === "chain") {
+      commandFunc = async () => {
+        for (const key of cmd.commands) {
+          // A small delay might be needed between commands for UI to update
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          await window.ZenCommandPalette.executeCommandByKey(key);
+        }
+      };
+    }
+
+    return {
+      key: `custom:${cmd.id}`,
+      label: cmd.name,
+      command: commandFunc,
+      icon:
+        cmd.icon ||
+        (cmd.type === "js"
+          ? "chrome://browser/skin/zen-icons/source-code.svg"
+          : "chrome://browser/skin/zen-icons/settings.svg"),
+      tags: ["custom", cmd.name.toLowerCase()],
+      allowIcons: true,
+      allowShortcuts: true,
+    };
+  });
 }

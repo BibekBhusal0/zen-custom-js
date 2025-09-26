@@ -23,7 +23,7 @@
 4. Search for Reopen Closed Tabs Menu.
 5. Click Install.
 6. A toast for restart should appear — click on that to restart Zen.
-7. Enjoy!
+7. A new Toolbar icon will appear, right click in it and click on `Customize Toolbar` to change it's position.
 
 ## 🎨 Customization & Preferences
 
@@ -34,6 +34,12 @@ The Reopen Closed Tabs Menu can be configured from `about:config`.
 | `extensions.reopen-closed-tabs.shortcut-key`   | String  | `Alt+A` | The keyboard shortcut to open the menu.    |
 | `extensions.reopen-closed-tabs.show-open-tabs` | Boolean | `false` | Also show currently open tabs in the list. |
 | `extensions.reopen-closed-tabs.debug-mode`     | Boolean | `false` | Enable debug logging for troubleshooting.  |
+
+## 🙏 Credits and Acknowledgements
+
+This mod is released through [Vertex Mods](https://github.com/Vertex-Mods/), and I, [Bibek Bhusal](https://github.com/BibekBhusal0), am the creator of this mod.
+
+Thanks to [12th-devs](https://github.com/12th-devs/) that I don't have to go through pain of writing CSS.
 
 ## 📜 License
 
