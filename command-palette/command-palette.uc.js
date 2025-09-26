@@ -12,6 +12,7 @@ import {
   generateUnloadTabCommands,
   generateExtensionEnableDisableCommands,
   generateExtensionUninstallCommands,
+  generateCustomCommands,
 } from "./dynamic-commands.js";
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
@@ -28,6 +29,12 @@ const ZenCommandPalette = {
    */
   _dynamicCommandProviders: [
     {
+      func: generateCustomCommands,
+      pref: null,
+      allowIcons: true,
+      allowShortcuts: true,
+    },
+    {
       func: generateSearchEngineCommands,
       pref: Prefs.KEYS.DYNAMIC_SEARCH_ENGINES,
       allowIcons: false,
@@ -37,7 +44,7 @@ const ZenCommandPalette = {
       func: generateSineCommands,
       pref: Prefs.KEYS.DYNAMIC_SINE_MODS,
       allowIcons: false,
-      allowShortcuts: true,
+      allowShortcuts: false,
     },
     {
       func: generateWorkspaceCommands,
@@ -333,17 +340,20 @@ const ZenCommandPalette = {
 
     const commandPromises = [];
     for (const provider of this._dynamicCommandProviders) {
-      const promise = provider.func().then((commands) => {
-        return commands.map((cmd) => ({
-          ...cmd,
-          isDynamic: true,
-          providerPref: provider.pref,
-          providerLabel: this._getProviderLabel(provider.func.name),
-          allowIcons: cmd.allowIcons ?? provider.allowIcons,
-          allowShortcuts: cmd.allowShortcuts ?? provider.allowShortcuts,
-        }));
-      });
-      commandPromises.push(promise);
+      const shouldLoad = provider.pref === null ? true : Prefs.getPref(provider.pref);
+      if (shouldLoad) {
+        const promise = provider.func().then((commands) => {
+          return commands.map((cmd) => ({
+            ...cmd,
+            isDynamic: true,
+            providerPref: provider.pref,
+            providerLabel: this._getProviderLabel(provider.func.name),
+            allowIcons: cmd.allowIcons ?? provider.allowIcons,
+            allowShortcuts: cmd.allowShortcuts ?? provider.allowShortcuts,
+          }));
+        });
+        commandPromises.push(promise);
+      }
     }
 
     const commandSets = await Promise.all(commandPromises);
