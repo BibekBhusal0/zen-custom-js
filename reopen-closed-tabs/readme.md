@@ -5,6 +5,8 @@
     </a>
 </div>
 
+https://github.com/user-attachments/assets/be2880c6-21e5-42ce-b8ed-ed45dc1942ad
+
 **Reopen Closed Tabs Menu** is a utility for Zen Browser that provides a quick and easy way to find and restore recently closed tabs. It adds a toolbar button and a configurable keyboard shortcut to open a searchable list of tabs.
 
 ## 🌟 Features
