@@ -377,7 +377,7 @@ const ZenCommandPalette = {
    */
   filterCommandsByInput(input, allCommands) {
     let query = this.safeStr(input).trim();
-    const isCommandPrefix = query.startsWith(":");
+    const isCommandPrefix = query.startsWith(Prefs.prefix);
     if (isCommandPrefix) {
       query = query.substring(1).trim();
     }
@@ -700,14 +700,14 @@ const ZenCommandPalette = {
         getPriority(context) {
           const input = (context.searchString || "").trim();
           // Returning a high priority ensures this provider's results are shown exclusively
-          // when the ':' prefix is used, effectively creating a command-only mode.
-          return input.startsWith(":") ? 10000 : 0;
+          // when the prefix is used, effectively creating a command-only mode.
+          return input.startsWith(Prefs.prefix) ? 10000 : 0;
         }
 
         async isActive(context) {
           try {
             const input = (context.searchString || "").trim();
-            const isPrefixSearch = input.startsWith(":");
+            const isPrefixSearch = input.startsWith(Prefs.prefix);
 
             if (this._isInPrefixMode && !isPrefixSearch) {
               this._isInPrefixMode = false;
@@ -742,7 +742,7 @@ const ZenCommandPalette = {
             const input = (context.searchString || "").trim();
             debugLog(`startQuery for: "${input}"`);
 
-            const isPrefixSearch = input.startsWith(":");
+            const isPrefixSearch = input.startsWith(Prefs.prefix);
             const query = isPrefixSearch ? input.substring(1).trim() : input.trim();
 
             this._isInPrefixMode = isPrefixSearch;

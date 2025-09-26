@@ -2,6 +2,7 @@ let _originalMaxResults = null;
 
 export const Prefs = {
   KEYS: {
+    PREFIX: "zen-command-palette.prefix",
     PREFIX_REQUIRED: "zen-command-palette.prefix-required",
     DEBUG_MODE: "zen-command-palette.debug-mode",
     MAX_COMMANDS: "zen-command-palette.max-commands",
@@ -44,6 +45,9 @@ export const Prefs = {
     }
   },
 
+  get prefix() {
+    return this.getPref(this.KEYS.PREFIX);
+  },
   get prefixRequired() {
     return this.getPref(this.KEYS.PREFIX_REQUIRED);
   },
@@ -107,6 +111,7 @@ export const Prefs = {
 
 Prefs.defaultValues = {
   [Prefs.KEYS.PREFIX_REQUIRED]: false,
+  [Prefs.KEYS.PREFIX]: ':',
   [Prefs.KEYS.DEBUG_MODE]: false,
   [Prefs.KEYS.MAX_COMMANDS]: 3,
   [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
