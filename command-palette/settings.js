@@ -433,8 +433,17 @@ const SettingsModal = {
     }
 
     customCommands.forEach((cmd) => {
+      const defaultIcon =
+        cmd.type === "js"
+          ? "chrome://browser/skin/zen-icons/source-code.svg"
+          : "chrome://browser/skin/zen-icons/settings.svg";
+      const icon = cmd.icon || defaultIcon;
+
       const item = parseElement(`
         <div class="custom-command-item" data-id="${cmd.id}">
+          <img src="${escapeXmlAttribute(
+            icon
+          )}" class="custom-command-icon" />
           <span class="custom-command-name">${escapeXmlAttribute(cmd.name)}</span>
           <span class="custom-command-type">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
@@ -544,7 +553,7 @@ const SettingsModal = {
 
       currentChain.forEach((key, index) => {
         const menulistXUL = `
-          <menulist class="chain-item-selector" value="${escapeXmlAttribute(key)}">
+          <menulist class="chain-item-selector menuitem-iconic" value="${escapeXmlAttribute(key)}">
             <menupopup>${menuitemsXUL}</menupopup>
           </menulist>`;
 
@@ -596,7 +605,7 @@ const SettingsModal = {
             .join("");
 
           const menulistXUL = `
-            <menulist id="chain-command-selector">
+            <menulist id="chain-command-selector" class="menuitem-iconic">
               <menupopup>${menuitemsXUL}</menupopup>
             </menulist>`;
 
@@ -646,11 +655,15 @@ const SettingsModal = {
   _saveCustomCommand(cmd, currentChain) {
     const editor = this._modalElement.querySelector("#custom-command-editor");
     const name = editor.querySelector("#custom-cmd-name").value.trim();
-    const icon = editor.querySelector("#custom-cmd-icon").value.trim();
+    let icon = editor.querySelector("#custom-cmd-icon").value.trim();
 
     if (!name) {
       alert("Command name cannot be empty.");
       return;
+    }
+
+    if (icon.startsWith("<svg") && icon.endsWith("</svg>")) {
+      icon = svgToUrl(icon);
     }
 
     const newCmd = { ...cmd, name, icon: icon || undefined };

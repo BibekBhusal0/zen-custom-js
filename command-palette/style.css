@@ -428,13 +428,21 @@
 
     .custom-command-item {
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: 24px 1fr auto auto;
       gap: 12px;
       align-items: center;
       padding: 8px 12px;
       border-radius: 6px;
       background-color: rgba(127, 127, 127, 0.05);
       border: 1px solid rgba(127, 127, 127, 0.1);
+    }
+
+    .custom-command-icon {
+      width: 16px;
+      height: 16px;
+      justify-self: center;
+      fill: light-dark(black, white) !important;
+      -moz-context-properties: fill !important;
     }
 
     .custom-command-name {
