@@ -1,17 +1,20 @@
 #reopen-closed-tabs-panel {
-  width: 400px !important;
-  max-height: 500px !important;
+  --panel-padding: 0 3px 0 3px !important;
+  width: fit-content !important;
   position: relative !important;
   padding: 0 !important;
 
   #reopen-closed-tabs-search-container {
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
     position: relative;
-    padding-bottom: 8px;
+    padding: 8px 0;
 
     .search-icon {
       position: absolute;
-      left: 8px;
-      top: 10px;
+      left: 12px;
+      top: 17px;
       width: 16px;
       height: 16px;
       fill: light-dark(black, white) !important;
@@ -20,7 +23,7 @@
     }
 
     #reopen-closed-tabs-search-input {
-      width: calc(100% - 16px) !important;
+      width: 97% !important;
       box-sizing: border-box !important;
       padding: 8px 12px 8px 30px !important;
       border-radius: 6px !important;
@@ -29,15 +32,19 @@
 
   #reopen-closed-tabs-list-container {
     overflow-y: auto;
-    max-height: 420px;
-    width: 350px !important;
+    max-height: 500px;
+    width: fit-content !important;
   }
 
   .reopen-closed-tabs-group-header {
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: var(--panel-background);
+    background-color: var(--zen-primary-color);
+    border-radius: 12px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding: 2px;
     & label {
       font-size: 16px;
       padding-bottom: 4px;
@@ -45,6 +52,7 @@
   }
 
   .reopen-closed-tab-item {
+    width: 325px;
     padding: 5px;
     cursor: default;
     border-radius: 4px;
@@ -53,6 +61,9 @@
     &:hover,
     &[selected="true"] {
       background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      .close-button {
+        display: flex;
+      }
     }
 
     .tab-favicon {
@@ -72,7 +83,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      font-size: 14px;
+      font-size: 13px;
       margin-block: 0;
       margin-inline: 0;
     }
@@ -80,8 +91,11 @@
     .tab-item-context {
       font-size: 0.9em;
       opacity: 0.7;
-      margin-block: 0;
-      margin-inline: 0;
+      &:before {
+        width: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis !important;
+      }
     }
 
     .tab-status-icon {
@@ -94,16 +108,18 @@
     }
 
     .close-button {
-      width: 16px;
-      height: 16px;
+      padding: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: var(--toolbarbutton-border-radius);
       margin-inline-start: 4px;
       fill: light-dark(black, white) !important;
       -moz-context-properties: fill !important;
-      opacity: 0.6;
       cursor: pointer;
+      display: none;
 
       &:hover {
-        opacity: 1;
+        background-color: var(--toolbarbutton-hover-background);
       }
     }
   }
