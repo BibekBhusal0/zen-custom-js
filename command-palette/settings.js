@@ -441,9 +441,7 @@ const SettingsModal = {
 
       const item = parseElement(`
         <div class="custom-command-item" data-id="${cmd.id}">
-          <img src="${escapeXmlAttribute(
-            icon
-          )}" class="custom-command-icon" />
+          <img src="${escapeXmlAttribute(icon)}" class="custom-command-icon" />
           <span class="custom-command-name">${escapeXmlAttribute(cmd.name)}</span>
           <span class="custom-command-type">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
@@ -453,17 +451,23 @@ const SettingsModal = {
         </div>
       `);
       item.querySelector(".edit-custom-cmd").addEventListener("click", () => {
-        const commandData = (this._currentSettings.customCommands || []).find((c) => c.id === cmd.id);
+        const commandData = (this._currentSettings.customCommands || []).find(
+          (c) => c.id === cmd.id
+        );
         this._showCustomCommandEditor(commandData);
       });
-      item.querySelector(".delete-custom-cmd").addEventListener("click", () => this._deleteCustomCommand(cmd.id));
+      item
+        .querySelector(".delete-custom-cmd")
+        .addEventListener("click", () => this._deleteCustomCommand(cmd.id));
       listContainer.appendChild(item);
     });
   },
 
   _deleteCustomCommand(id) {
     if (!confirm("Are you sure you want to delete this custom command?")) return;
-    this._currentSettings.customCommands = (this._currentSettings.customCommands || []).filter((c) => c.id !== id);
+    this._currentSettings.customCommands = (this._currentSettings.customCommands || []).filter(
+      (c) => c.id !== id
+    );
     this._renderCustomCommands();
   },
 
