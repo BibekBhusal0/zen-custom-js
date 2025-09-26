@@ -40,7 +40,11 @@
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: var(--panel-background);
+    background-color: var(--zen-primary-color);
+    border-radius: 12px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding: 2px;
     & label {
       font-size: 16px;
       padding-bottom: 4px;
@@ -87,7 +91,11 @@
     .tab-item-context {
       font-size: 0.9em;
       opacity: 0.7;
-
+      &:before {
+        width: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis !important;
+      }
     }
 
     .tab-status-icon {
