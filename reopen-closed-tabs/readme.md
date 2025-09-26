@@ -23,7 +23,7 @@
 4. Search for Reopen Closed Tabs Menu.
 5. Click Install.
 6. A toast for restart should appear — click on that to restart Zen.
-7. Enjoy!
+7. A new Toolbar icon will appear, right click in it and click on `Customize Toolbar` to change it's position.
 
 ## 🎨 Customization & Preferences
 
