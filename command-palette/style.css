@@ -105,10 +105,9 @@
           background-color: rgba(127, 127, 127, 0.1);
 
           &.delete-button img {
-        filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
-          contrast(100%);
+            filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
+              contrast(100%);
           }
-
         }
       }
     }
@@ -158,142 +157,142 @@
       scrollbar-width: thin;
       scrollbar-color: rgba(127, 127, 127, 0.3) transparent;
 
-    #commands-tab-content {
-      .search-bar-wrapper {
-        position: sticky;
-        top: -20px;
-        background: var(--modal-bg);
-        padding-bottom: 15px;
-        margin: -20px -20px 15px -20px;
-        padding-left: 20px;
-        padding-right: 20px;
-        padding-top: 20px;
-        z-index: 1;
+      #commands-tab-content {
+        .search-bar-wrapper {
+          position: sticky;
+          top: -20px;
+          background: var(--modal-bg);
+          padding-bottom: 15px;
+          margin: -20px -20px 15px -20px;
+          padding-left: 20px;
+          padding-right: 20px;
+          padding-top: 20px;
+          z-index: 1;
 
-        #command-search-input {
-          width: calc(100% - 24px);
-          padding: 8px 12px unset !important;
-          font-size: 14px !important;
-          border: 1px solid rgba(127, 127, 127, 0.3) !important;
-          border-radius: 6px !important;
-          background: rgba(0, 0, 0, 0.2) !important;
-          color: inherit !important;
-          position: relative;
+          #command-search-input {
+            width: calc(100% - 24px);
+            padding: 8px 12px unset !important;
+            font-size: 14px !important;
+            border: 1px solid rgba(127, 127, 127, 0.3) !important;
+            border-radius: 6px !important;
+            background: rgba(0, 0, 0, 0.2) !important;
+            color: inherit !important;
+            position: relative;
 
-          &:focus {
-            outline: none !important;
-            border-color: var(--primary-color) !important;
+            &:focus {
+              outline: none !important;
+              border-color: var(--primary-color) !important;
+            }
+          }
+        }
+
+        #commands-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          .commands-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 16px 0 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+
+            h4 {
+              margin: 0;
+              font-size: 16px;
+              font-weight: 600;
+              color: var(--primary-text-color);
+            }
+          }
+
+          .command-item {
+            display: grid;
+            grid-template-columns: 24px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+
+            &:hover {
+              background-color: rgba(127, 127, 127, 0.05);
+            }
+          }
+
+          .command-icon {
+            width: 16px;
+            height: 16px;
+            justify-self: center;
+            fill: light-dark(black, white) !important;
+            -moz-context-properties: fill !important;
+
+            &.editable {
+              cursor: pointer;
+              border-radius: 4px;
+              padding: 4px;
+
+              &:hover {
+                background-color: rgba(127, 127, 127, 0.1);
+              }
+            }
+          }
+
+          .command-label {
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .command-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            .shortcut-input {
+              width: 120px;
+              padding: 6px 10px !important;
+              font-size: 13px !important;
+              text-align: center !important;
+              border-radius: 4px !important;
+              border: 1px solid rgba(127, 127, 127, 0.3) !important;
+              background-color: rgba(0, 0, 0, 0.2) !important;
+
+              &:disabled {
+                opacity: 0.5 !important;
+                cursor: not-allowed !important;
+              }
+            }
+
+            .toolbar-button-toggle {
+              padding: 0px;
+              display: flex;
+              align-content: center;
+              justify-content: center;
+              width: 24px;
+              height: 24px;
+
+              svg {
+                scale: 0.75;
+              }
+
+              &.active {
+                opacity: 1;
+                background-color: var(--primary-bg);
+
+                img {
+                  filter: invert(0.2);
+                }
+              }
+            }
+
+            .visibility-toggle {
+              transform: scale(1.2);
+            }
           }
         }
       }
-
-      #commands-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      .commands-group-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 16px 0 8px;
-        padding-bottom: 8px;
-        border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-
-        h4 {
-          margin: 0;
-          font-size: 16px;
-          font-weight: 600;
-          color: var(--primary-text-color);
-        }
-      }
-
-      .command-item {
-        display: grid;
-        grid-template-columns: 24px 1fr auto;
-        gap: 12px;
-        align-items: center;
-        padding: 8px;
-        border-radius: 6px;
-        transition: background-color 0.2s;
-
-        &:hover {
-          background-color: rgba(127, 127, 127, 0.05);
-        }
-      }
-
-      .command-icon {
-        width: 16px;
-        height: 16px;
-        justify-self: center;
-        fill: light-dark(black, white) !important;
-        -moz-context-properties: fill !important;
-
-        &.editable {
-          cursor: pointer;
-          border-radius: 4px;
-          padding: 4px;
-
-          &:hover {
-            background-color: rgba(127, 127, 127, 0.1);
-          }
-        }
-      }
-
-      .command-label {
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .command-controls {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-
-      .shortcut-input {
-        width: 120px;
-        padding: 6px 10px !important;
-        font-size: 13px !important;
-        text-align: center !important;
-        border-radius: 4px !important;
-        border: 1px solid rgba(127, 127, 127, 0.3) !important;
-        background-color: rgba(0, 0, 0, 0.2) !important;
-
-        &:disabled {
-          opacity: 0.5 !important;
-          cursor: not-allowed !important;
-        }
-      }
-
-      .toolbar-button-toggle {
-        padding: 0px;
-        display: flex;
-        align-content: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-
-        svg {
-          scale: 0.75;
-        }
-
-        &.active {
-          opacity: 1;
-          background-color: var(--primary-bg);
-
-          img {
-            filter: invert(0.2);
-          }
-        }
-      }
-
-      .visibility-toggle {
-        transform: scale(1.2);
-      }
-      }
-      }
-    }
     }
 
     .settings-section {
@@ -311,46 +310,45 @@
         padding-bottom: 8px;
       }
 
-    .setting-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
+      .setting-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 0;
+        border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
 
-      &:last-child {
-        border-bottom: none;
-      }
+        &:last-child {
+          border-bottom: none;
+        }
 
-      label {
-        font-size: 14px;
-        flex-grow: 1;
-        margin-right: 10px;
-      }
+        label {
+          font-size: 14px;
+          flex-grow: 1;
+          margin-right: 10px;
+        }
 
-input{
+        input {
+          &[type="checkbox"] {
+            transform: scale(1.2);
+            margin-right: 5px;
+          }
 
-      &[type="checkbox"] {
-        transform: scale(1.2);
-        margin-right: 5px;
-      }
-
-      &[type="number"] {
-        width: 30px !important;
-        padding: 6px 10px !important;
-        font-size: 14px !important;
-        background: rgba(0, 0, 0, 0.2) !important;
-        border: 1px solid rgba(127, 127, 127, 0.3) !important;
-        border-radius: 4px !important;
-        text-align: right !important;
-        &::-moz-number-spin-box,
-        &::-moz-number-spin-up,
-        &::-moz-number-spin-down {
-          display: none !important;
+          &[type="number"] {
+            width: 30px !important;
+            padding: 6px 10px !important;
+            font-size: 14px !important;
+            background: rgba(0, 0, 0, 0.2) !important;
+            border: 1px solid rgba(127, 127, 127, 0.3) !important;
+            border-radius: 4px !important;
+            text-align: right !important;
+            &::-moz-number-spin-box,
+            &::-moz-number-spin-up,
+            &::-moz-number-spin-down {
+              display: none !important;
+            }
+          }
         }
       }
-        }
-    }
     }
 
     #help-tab-content {
@@ -406,203 +404,202 @@ input{
       flex-direction: column;
       gap: 15px;
 
-    .custom-commands-toolbar {
-      padding: 10px;
-      margin-bottom: 10px;
-      background: rgba(127, 127, 127, 0.05);
-      border-radius: 6px;
-      border: 1px solid rgba(127, 127, 127, 0.3);
+      .custom-commands-toolbar {
+        padding: 10px;
+        margin-bottom: 10px;
+        background: rgba(127, 127, 127, 0.05);
+        border-radius: 6px;
+        border: 1px solid rgba(127, 127, 127, 0.3);
 
-      p {
-        margin: 0 0 10px 0;
-        font-size: 14px;
-        opacity: 0.8;
-      }
-    }
-
-    .custom-commands-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    #custom-commands-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-
-    .no-custom-commands {
-      text-align: center;
-      opacity: 0.7;
-      margin-top: 20px;
-    }
-
-    .custom-command-item {
-      display: grid;
-      grid-template-columns: 24px 1fr auto auto;
-      gap: 12px;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 6px;
-      background-color: rgba(127, 127, 127, 0.05);
-      border: 1px solid rgba(127, 127, 127, 0.1);
-
-    .custom-command-icon {
-      width: 16px;
-      height: 16px;
-      justify-self: center;
-      fill: light-dark(black, white) !important;
-      -moz-context-properties: fill !important;
-    }
-
-    .custom-command-name {
-      font-weight: 600;
-    }
-
-    .custom-command-type {
-      font-size: 12px;
-      font-weight: bold;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background-color: rgba(127, 127, 127, 0.2);
-    }
-
-    .custom-command-controls {
-      display: flex;
-      gap: 8px;
-
-      button {
-        padding: 4px 8px;
-        font-size: 12px;
-      }
-    }
-    }
-    }
-
-    #custom-command-editor {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-
-      h3 {
-        margin: 0;
-        border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-        padding-bottom: 10px;
+        p {
+          margin: 0 0 10px 0;
+          font-size: 14px;
+          opacity: 0.8;
+        }
       }
 
-      textarea {
-        width: calc(100% - 20px);
-        min-height: 150px;
-        padding: 8px 10px !important;
-        font-family: monospace !important;
-        font-size: 13px !important;
-        border: 1px solid rgba(127, 127, 127, 0.3) !important;
-        border-radius: 6px !important;
-        background: rgba(0, 0, 0, 0.2) !important;
-        color: inherit !important;
+      .custom-commands-actions {
+        display: flex;
+        gap: 10px;
       }
 
-      input[type="text"] {
-        width: calc(100% - 24px);
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-        border: 1px solid rgba(127, 127, 127, 0.3) !important;
-        border-radius: 6px !important;
-        background: rgba(0, 0, 0, 0.2) !important;
+      #custom-commands-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .no-custom-commands {
+          text-align: center;
+          opacity: 0.7;
+          margin-top: 20px;
+        }
+
+        .custom-command-item {
+          display: grid;
+          grid-template-columns: 24px 1fr auto auto;
+          gap: 12px;
+          align-items: center;
+          padding: 8px 12px;
+          border-radius: 6px;
+          background-color: rgba(127, 127, 127, 0.05);
+          border: 1px solid rgba(127, 127, 127, 0.1);
+
+          .custom-command-icon {
+            width: 16px;
+            height: 16px;
+            justify-self: center;
+            fill: light-dark(black, white) !important;
+            -moz-context-properties: fill !important;
+          }
+
+          .custom-command-name {
+            font-weight: 600;
+          }
+
+          .custom-command-type {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: rgba(127, 127, 127, 0.2);
+          }
+
+          .custom-command-controls {
+            display: flex;
+            gap: 8px;
+
+            button {
+              padding: 4px 8px;
+              font-size: 12px;
+            }
+          }
+        }
       }
-    .setting-item-vertical {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
 
-      label {
-        font-weight: 600;
+      #custom-command-editor {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+
+        h3 {
+          margin: 0;
+          border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+          padding-bottom: 10px;
+        }
+
+        textarea {
+          width: calc(100% - 20px);
+          min-height: 150px;
+          padding: 8px 10px !important;
+          font-family: monospace !important;
+          font-size: 13px !important;
+          border: 1px solid rgba(127, 127, 127, 0.3) !important;
+          border-radius: 6px !important;
+          background: rgba(0, 0, 0, 0.2) !important;
+          color: inherit !important;
+        }
+
+        input[type="text"] {
+          width: calc(100% - 24px);
+          padding: 8px 12px !important;
+          font-size: 14px !important;
+          border: 1px solid rgba(127, 127, 127, 0.3) !important;
+          border-radius: 6px !important;
+          background: rgba(0, 0, 0, 0.2) !important;
+        }
+        .setting-item-vertical {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          label {
+            font-weight: 600;
+          }
+        }
+
+        .js-warning {
+          font-size: 12px;
+          padding: 8px;
+          border-radius: 4px;
+          background-color: light-dark(rgba(255, 230, 150, 0.5), rgba(100, 80, 0, 0.5));
+          border: 1px solid light-dark(rgba(255, 200, 0, 0.8), rgba(255, 200, 0, 0.5));
+        }
       }
-    }
 
-    .js-warning {
-      font-size: 12px;
-      padding: 8px;
-      border-radius: 4px;
-      background-color: light-dark(rgba(255, 230, 150, 0.5), rgba(100, 80, 0, 0.5));
-      border: 1px solid light-dark(rgba(255, 200, 0, 0.8), rgba(255, 200, 0, 0.5));
-    }
+      .custom-command-editor-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+      }
 
-    }
+      #chain-editor-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
 
-    .custom-command-editor-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 10px;
-    }
+      #available-commands-select {
+        background-color: rgba(0, 0, 0, 0.2);
+        color: inherit;
+        border: 1px solid rgba(127, 127, 127, 0.3);
+        border-radius: 4px;
+      }
 
-    #chain-editor-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+      #chain-builder {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px;
+        background: rgba(127, 127, 127, 0.05);
+        border-radius: 6px;
+      }
 
-    #available-commands-select {
-      background-color: rgba(0, 0, 0, 0.2);
-      color: inherit;
-      border: 1px solid rgba(127, 127, 127, 0.3);
-      border-radius: 4px;
-    }
+      #chain-command-selector-container {
+        display: flex;
+        gap: 10px;
+      }
 
-    #chain-builder {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      padding: 10px;
-      background: rgba(127, 127, 127, 0.05);
-      border-radius: 6px;
-    }
+      #chain-command-selector-placeholder,
+      #chain-command-selector {
+        flex-grow: 1;
+        max-width: 450px;
+      }
 
-    #chain-command-selector-container {
-      display: flex;
-      gap: 10px;
-    }
+      #add-command-to-chain {
+        flex-shrink: 0;
+      }
 
-    #chain-command-selector-placeholder,
-    #chain-command-selector {
-      flex-grow: 1;
-      max-width: 450px;
-    }
+      #current-chain-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 10px;
+        border: 1px solid rgba(127, 127, 127, 0.1);
+        border-radius: 6px;
+      }
 
-    #add-command-to-chain {
-      flex-shrink: 0;
-    }
+      .chain-item-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-    #current-chain-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 250px;
-      overflow-y: auto;
-      padding: 10px;
-      border: 1px solid rgba(127, 127, 127, 0.1);
-      border-radius: 6px;
-    }
+      .chain-item-selector {
+        flex-grow: 1;
+      }
 
-    .chain-item-container {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .chain-item-selector {
-      flex-grow: 1;
-    }
-
-    menulist .menuitem-iconic-icon {
-      fill: light-dark(black, white) !important;
-      -moz-context-properties: fill !important;
-      width: 16px !important;
-      height: 16px !important;
-      object-fit: contain !important;
-      fill: light-dark(black, white) !important;
-      -moz-context-properties: fill !important;
-    }
+      menulist .menuitem-iconic-icon {
+        fill: light-dark(black, white) !important;
+        -moz-context-properties: fill !important;
+        width: 16px !important;
+        height: 16px !important;
+        object-fit: contain !important;
+        fill: light-dark(black, white) !important;
+        -moz-context-properties: fill !important;
+      }
     }
   }
 }
