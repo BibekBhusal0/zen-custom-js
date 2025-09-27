@@ -15,13 +15,6 @@
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconSVG)}`;
   };
 
-  const textToSvgDataUrl = (text) => {
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-    <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="10" fill="currentColor">${text}</text>
-  </svg>`;
-    return svgToUrl(svg);
-  };
-
   const icons = {
     // ICON CREDITS: Lucide Icons[ISC License]
     splitVz: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="context-fill light-dark(black, white)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 19H5c-1 0-2-1-2-2V7c0-1 1-2 2-2h3m8 0h3c1 0 2 1 2 2v10c0 1-1 2-2 2h-3M12 4v16"/></svg>`,
@@ -1501,37 +1494,6 @@
   }
 
   /**
-   * Generates commands for switching between Zen Workspaces.
-   * @returns {Promise<Array<object>>} A promise that resolves to an array of workspace commands.
-   */
-  async function generateWorkspaceCommands() {
-    if (!window.gZenWorkspaces?.workspaceEnabled) return [];
-    const workspacesData = await window.gZenWorkspaces._workspaces();
-    if (!workspacesData || !workspacesData.workspaces) return [];
-
-    return workspacesData.workspaces.map((workspace) => {
-      const icon = window.gZenWorkspaces.getWorkspaceIcon(workspace);
-      let iconUrl = "chrome://browser/skin/zen-icons/workspace.svg"; // Default icon
-
-      if (icon) {
-        if (icon.endsWith(".svg")) {
-          iconUrl = icon;
-        } else {
-          iconUrl = textToSvgDataUrl(icon);
-        }
-      }
-      return {
-        key: `workspace:${workspace.uuid}`,
-        label: `Switch to workspace: ${workspace.name}`,
-        command: () => window.gZenWorkspaces.changeWorkspaceWithID(workspace.uuid),
-        condition: () => workspace.uuid !== window.gZenWorkspaces.activeWorkspace,
-        icon: iconUrl,
-        tags: ["workspace", "switch", workspace.name.toLowerCase()],
-      };
-    });
-  }
-
-  /**
    * Generates commands for installing and uninstalling Sine mods.
    * @returns {Promise<Array<object>>} A promise that resolves to an array of Sine mod commands.
    */
@@ -1824,6 +1786,7 @@
       this._populateCommandsTab();
       this._populateSettingsTab();
       this._populateCustomCommandsTab();
+      this._populateHelpTab();
       this._attachEventListeners();
 
       window.addEventListener("keydown", this._boundCloseOnEscape);
@@ -2235,8 +2198,8 @@
           <span class="custom-command-name">${escapeXmlAttribute(cmd.name)}</span>
           <span class="custom-command-type">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
-            <button class="edit-custom-cmd">Edit</button>
-            <button class="delete-custom-cmd">Delete</button>
+            <button class="edit-custom-cmd icon-button" title="Edit Command"><img src="chrome://browser/skin/zen-icons/edit.svg" /></button>
+            <button class="delete-custom-cmd delete-button icon-button" title="Delete Command"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
           </div>
         </div>
       `);
@@ -2337,23 +2300,24 @@
 
         const menuitemsXUL = allCommands
           .map(
+            // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
+            // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
             (c) =>
               `<menuitem value="${escapeXmlAttribute(c.key)}"
                          label="${escapeXmlAttribute(c.label)}"
-                         image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
-                         class="menuitem-iconic" />`
+                         />`
           )
           .join("");
 
         currentChain.forEach((key, index) => {
           const menulistXUL = `
-          <menulist class="chain-item-selector menuitem-iconic" value="${escapeXmlAttribute(key)}">
+          <menulist class="chain-item-selector" value="${escapeXmlAttribute(key)}">
             <menupopup>${menuitemsXUL}</menupopup>
           </menulist>`;
 
           const menulistElement = parseElement(menulistXUL, "xul");
           const deleteButton = parseElement(
-            `<button class="chain-item-delete" title="Remove Command">
+            `<button class="delete-button icon-button" title="Remove Command">
              <img src="chrome://browser/skin/zen-icons/edit-delete.svg" />
            </button>`
           );
@@ -2390,16 +2354,17 @@
             const menuitemsXUL = allCommands
               .sort((a, b) => a.label.localeCompare(b.label))
               .map(
+                // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
+                // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}" <!-- This line should be moved 3 lines down after issue is resolved -->
                 (c) =>
                   `<menuitem value="${escapeXmlAttribute(c.key)}"
                            label="${escapeXmlAttribute(c.label)}"
-                           image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
-                           class="menuitem-iconic" />`
+                           />`
               )
               .join("");
 
             const menulistXUL = `
-            <menulist id="chain-command-selector" class="menuitem-iconic">
+            <menulist id="chain-command-selector">
               <menupopup>${menuitemsXUL}</menupopup>
             </menulist>`;
 
@@ -2479,6 +2444,58 @@
       }
       this._currentSettings.customCommands = commands;
       this._hideCustomCommandEditor();
+    },
+
+    _populateHelpTab() {
+      const container = this._modalElement.querySelector("#help-tab-content");
+      container.innerHTML = ""; // Clear previous content
+
+      const helpItems = [
+        {
+          url: "https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette",
+          icon: svgToUrl(icons["book"]),
+          title: "View Documentation",
+          description: "Read the full guide on GitHub.",
+        },
+        {
+          url: "https://github.com/BibekBhusal0/zen-custom-js",
+          icon: svgToUrl(icons["star"]),
+          title: "Star on GitHub",
+          description: "Enjoying the mod? Leave a star!",
+        },
+        {
+          url: "https://github.com/BibekBhusal0/zen-custom-js/issues/new",
+          icon: svgToUrl(icons["bug"]),
+          title: "Report a Bug",
+          description: "Found an issue? Let us know.",
+        },
+        {
+          url: "https://github.com/BibekBhusal0/zen-custom-js/issues/22",
+          icon: "chrome://browser/skin/trending.svg",
+          title: "More Commands",
+          description: "Want more commands? Share your ideas here.",
+        },
+      ];
+
+      const buttonsHtml = helpItems
+        .map(
+          (item) => `
+      <button class="help-button" data-url="${escapeXmlAttribute(item.url)}">
+        <img src="${escapeXmlAttribute(item.icon)}" />
+        <span>${escapeXmlAttribute(item.title)}</span>
+        <p>${escapeXmlAttribute(item.description)}</p>
+      </button>
+    `
+        )
+        .join("");
+
+      const content = parseElement(`
+      <div class="help-buttons-container">
+        ${buttonsHtml}
+      </div>
+    `);
+
+      container.appendChild(content);
     },
 
     _populateSettingsTab() {
@@ -2604,28 +2621,7 @@
               <!-- Content will be populated by _populateCustomCommandsTab -->
             </div>
             <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
-              <div class="help-buttons-container">
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette">
-                  <img src="${escapeXmlAttribute(svgToUrl(icons["book"]))}" />
-                  <span>View Documentation</span>
-                  <p>Read the full guide on GitHub.</p>
-                </button>
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js">
-                  <img src="${escapeXmlAttribute(svgToUrl(icons["star"]))}" />
-                  <span>Star on GitHub</span>
-                  <p>Enjoying the mod? Leave a star!</p>
-                </button>
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/new">
-                  <img src="${escapeXmlAttribute(svgToUrl(icons["bug"]))}" />
-                  <span>Report a Bug</span>
-                  <p>Found an issue? Let us know.</p>
-                </button>
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/22">
-                  <img src= "chrome://browser/skin/trending.svg"/>
-                  <span>More Commands</span>
-                  <p>Want more commands? Share your ideas here.</p>
-                </button>
-              </div>
+              <!-- Content will be populated by _populateHelpTab -->
             </div>
           </div>
         </div>
@@ -2732,12 +2728,6 @@
         pref: Prefs.KEYS.DYNAMIC_SINE_MODS,
         allowIcons: false,
         allowShortcuts: false,
-      },
-      {
-        func: generateWorkspaceCommands,
-        pref: Prefs.KEYS.DYNAMIC_WORKSPACES,
-        allowIcons: false,
-        allowShortcuts: true,
       },
       {
         func: generateWorkspaceMoveCommands,
