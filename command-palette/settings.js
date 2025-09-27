@@ -32,6 +32,7 @@ const SettingsModal = {
     this._populateCommandsTab();
     this._populateSettingsTab();
     this._populateCustomCommandsTab();
+    this._populateHelpTab();
     this._attachEventListeners();
 
     window.addEventListener("keydown", this._boundCloseOnEscape);
@@ -693,6 +694,58 @@ const SettingsModal = {
     this._hideCustomCommandEditor();
   },
 
+  _populateHelpTab() {
+    const container = this._modalElement.querySelector("#help-tab-content");
+    container.innerHTML = ""; // Clear previous content
+
+    const helpItems = [
+      {
+        url: "https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette",
+        icon: svgToUrl(icons["book"]),
+        title: "View Documentation",
+        description: "Read the full guide on GitHub.",
+      },
+      {
+        url: "https://github.com/BibekBhusal0/zen-custom-js",
+        icon: svgToUrl(icons["star"]),
+        title: "Star on GitHub",
+        description: "Enjoying the mod? Leave a star!",
+      },
+      {
+        url: "https://github.com/BibekBhusal0/zen-custom-js/issues/new",
+        icon: svgToUrl(icons["bug"]),
+        title: "Report a Bug",
+        description: "Found an issue? Let us know.",
+      },
+      {
+        url: "https://github.com/BibekBhusal0/zen-custom-js/issues/22",
+        icon: "chrome://browser/skin/trending.svg",
+        title: "More Commands",
+        description: "Want more commands? Share your ideas here.",
+      },
+    ];
+
+    const buttonsHtml = helpItems
+      .map(
+        (item) => `
+      <button class="help-button" data-url="${escapeXmlAttribute(item.url)}">
+        <img src="${escapeXmlAttribute(item.icon)}" />
+        <span>${escapeXmlAttribute(item.title)}</span>
+        <p>${escapeXmlAttribute(item.description)}</p>
+      </button>
+    `
+      )
+      .join("");
+
+    const content = parseElement(`
+      <div class="help-buttons-container">
+        ${buttonsHtml}
+      </div>
+    `);
+
+    container.appendChild(content);
+  },
+
   _populateSettingsTab() {
     const container = this._modalElement.querySelector("#settings-tab-content");
     container.innerHTML = "";
@@ -816,28 +869,7 @@ const SettingsModal = {
               <!-- Content will be populated by _populateCustomCommandsTab -->
             </div>
             <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
-              <div class="help-buttons-container">
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette">
-                  <img src="${escapeXmlAttribute(svgToUrl(icons["book"]))}" />
-                  <span>View Documentation</span>
-                  <p>Read the full guide on GitHub.</p>
-                </button>
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js">
-                  <img src="${escapeXmlAttribute(svgToUrl(icons["star"]))}" />
-                  <span>Star on GitHub</span>
-                  <p>Enjoying the mod? Leave a star!</p>
-                </button>
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/new">
-                  <img src="${escapeXmlAttribute(svgToUrl(icons["bug"]))}" />
-                  <span>Report a Bug</span>
-                  <p>Found an issue? Let us know.</p>
-                </button>
-                <button class="help-button" data-url="https://github.com/BibekBhusal0/zen-custom-js/issues/22">
-                  <img src= "chrome://browser/skin/trending.svg"/>
-                  <span>More Commands</span>
-                  <p>Want more commands? Share your ideas here.</p>
-                </button>
-              </div>
+              <!-- Content will be populated by _populateHelpTab -->
             </div>
           </div>
         </div>
