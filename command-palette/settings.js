@@ -708,8 +708,13 @@ const SettingsModal = {
         section: "General",
         items: [
           {
+            key: Prefs.KEYS.PREFIX,
+            label: "Command Prefix",
+            type: "text",
+          },
+          {
             key: Prefs.KEYS.PREFIX_REQUIRED,
-            label: "Require ':' prefix to activate",
+            label: "Require prefix to activate",
             type: "bool",
           },
           {
@@ -758,6 +763,15 @@ const SettingsModal = {
               <input type="number" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
                 currentValue
               )}" />
+            </div>
+          `;
+        } else if (item.type === "text") {
+          itemHtml = `
+            <div class="setting-item">
+              <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
+              <input type="text" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
+                currentValue
+              )}" maxlength="1" />
             </div>
           `;
         }
