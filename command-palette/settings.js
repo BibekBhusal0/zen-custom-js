@@ -551,13 +551,13 @@ const SettingsModal = {
             `<menuitem value="${escapeXmlAttribute(c.key)}"
                          label="${escapeXmlAttribute(c.label)}"
                          image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
-                         class="menuitem-iconic" />`
+                         />`
         )
         .join("");
 
       currentChain.forEach((key, index) => {
         const menulistXUL = `
-          <menulist class="chain-item-selector menuitem-iconic" value="${escapeXmlAttribute(key)}">
+          <menulist class="chain-item-selector" value="${escapeXmlAttribute(key)}">
             <menupopup>${menuitemsXUL}</menupopup>
           </menulist>`;
 
@@ -604,12 +604,12 @@ const SettingsModal = {
                 `<menuitem value="${escapeXmlAttribute(c.key)}"
                            label="${escapeXmlAttribute(c.label)}"
                            image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
-                           class="menuitem-iconic" />`
+                           />`
             )
             .join("");
 
           const menulistXUL = `
-            <menulist id="chain-command-selector" class="menuitem-iconic">
+            <menulist id="chain-command-selector">
               <menupopup>${menuitemsXUL}</menupopup>
             </menulist>`;
 

@@ -451,9 +451,11 @@
           gap: 15px;
 
           h3 {
+            font-size: 16px !important;
             margin: 0;
             border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
+            margin-bottom: 5px;
           }
 
           textarea {
@@ -468,15 +470,26 @@
             color: inherit !important;
           }
 
+          .setting-item{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+
+            label{
+              font-size: 15px;
+              padding-right: 20px;
+            }
           input[type="text"] {
-            width: calc(100% - 24px);
             padding: 8px 12px !important;
             font-size: 14px !important;
             border: 1px solid rgba(127, 127, 127, 0.3) !important;
             border-radius: 6px !important;
             background: rgba(0, 0, 0, 0.2) !important;
+            flex-grow:1;
           }
-
+          }
+          
           .js-warning {
             font-size: 12px;
             padding: 8px;
@@ -491,9 +504,12 @@
           flex-direction: column;
           gap: 8px;
 
-          label {
+          >label {
             font-weight: 600;
+            font-size: 16px !important;
+            padding-top: 2px;
           }
+
           #chain-builder {
             display: flex;
             flex-direction: column;
@@ -501,27 +517,27 @@
             padding: 10px;
             background: rgba(127, 127, 127, 0.05);
             border-radius: 6px;
+
             #chain-command-selector-placeholder,
             #chain-command-selector {
               flex-grow: 1;
               max-width: 450px;
             }
-
-            menulist .menuitem-iconic-icon {
-              fill: light-dark(black, white) !important;
-              -moz-context-properties: fill !important;
-              width: 16px !important;
-              height: 16px !important;
-              object-fit: contain !important;
+            
+            menulist {              
               fill: light-dark(black, white) !important;
               -moz-context-properties: fill !important;
             }
+
             #chain-command-selector-container {
               display: flex;
+              align-content: center;
+              justify-content: space-around; 
               gap: 10px;
-              #add-command-to-chain {
-                flex-shrink: 0;
-              }
+
+            #chain-command-selector {
+              margin: 0 !important;
+            }
             }
 
             #current-chain-list {
