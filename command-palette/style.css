@@ -447,6 +447,33 @@
         padding: 4px 8px;
         font-size: 12px;
       }
+
+      .icon-button {
+        padding: 4px;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .icon-button img {
+        width: 16px;
+        height: 16px;
+        fill: light-dark(black, white) !important;
+        -moz-context-properties: fill !important;
+        transition: filter 0.2s ease;
+      }
+
+      .icon-button:not(.delete-custom-cmd):hover {
+        background-color: rgba(127, 127, 127, 0.1);
+      }
+
+      .delete-custom-cmd:hover img {
+        filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
+          contrast(100%);
+      }
     }
 
     #custom-command-editor {
