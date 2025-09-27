@@ -61,6 +61,12 @@
         display: flex;
         gap: 10px;
       }
+
+      .settings-save-btn {
+        background-color: var(--primary-bg) !important;
+        border-color: transparent !important;
+        color: var(--primary-text-color) !important;
+      }
     }
 
     button {
@@ -77,12 +83,34 @@
         background-color: rgba(127, 127, 127, 0.1);
         border-color: var(--primary-color);
       }
-    }
 
-    .settings-save-btn {
-      background-color: var(--primary-bg) !important;
-      border-color: transparent !important;
-      color: var(--primary-text-color) !important;
+      &.icon-button {
+        padding: 4px;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 16px;
+          height: 16px;
+          fill: light-dark(black, white) !important;
+          -moz-context-properties: fill !important;
+          transition: filter 0.2s ease;
+        }
+
+        &:hover {
+          background-color: rgba(127, 127, 127, 0.1);
+
+          &.delete-button img {
+        filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
+          contrast(100%);
+          }
+
+        }
+      }
     }
 
     .cmd-settings-tabs {
@@ -117,8 +145,7 @@
 
           &:hover {
             background-color: var(--zen-primary-color);
-
-            transform: scale(1.05);
+            transform: scale(1.1);
           }
         }
       }
@@ -130,7 +157,6 @@
       padding: 20px;
       scrollbar-width: thin;
       scrollbar-color: rgba(127, 127, 127, 0.3) transparent;
-    }
 
     #commands-tab-content {
       .search-bar-wrapper {
@@ -165,8 +191,6 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
-      }
-
       .commands-group-header {
         display: flex;
         justify-content: space-between;
@@ -226,7 +250,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-      }
 
       .shortcut-input {
         width: 120px;
@@ -268,6 +291,9 @@
       .visibility-toggle {
         transform: scale(1.2);
       }
+      }
+      }
+    }
     }
 
     .settings-section {
@@ -284,7 +310,6 @@
         border-bottom: 1px solid rgba(127, 127, 127, 0.3);
         padding-bottom: 8px;
       }
-    }
 
     .setting-item {
       display: flex;
@@ -303,12 +328,14 @@
         margin-right: 10px;
       }
 
-      input[type="checkbox"] {
+input{
+
+      &[type="checkbox"] {
         transform: scale(1.2);
         margin-right: 5px;
       }
 
-      input[type="number"] {
+      &[type="number"] {
         width: 30px !important;
         padding: 6px 10px !important;
         font-size: 14px !important;
@@ -322,6 +349,8 @@
           display: none !important;
         }
       }
+        }
+    }
     }
 
     #help-tab-content {
@@ -376,10 +405,10 @@
       display: flex;
       flex-direction: column;
       gap: 15px;
-    }
 
     .custom-commands-toolbar {
       padding: 10px;
+      margin-bottom: 10px;
       background: rgba(127, 127, 127, 0.05);
       border-radius: 6px;
       border: 1px solid rgba(127, 127, 127, 0.3);
@@ -400,7 +429,6 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
-    }
 
     .no-custom-commands {
       text-align: center;
@@ -417,7 +445,6 @@
       border-radius: 6px;
       background-color: rgba(127, 127, 127, 0.05);
       border: 1px solid rgba(127, 127, 127, 0.1);
-    }
 
     .custom-command-icon {
       width: 16px;
@@ -447,33 +474,8 @@
         padding: 4px 8px;
         font-size: 12px;
       }
-
-      .icon-button {
-        padding: 4px;
-        background: transparent;
-        border: none;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .icon-button img {
-        width: 16px;
-        height: 16px;
-        fill: light-dark(black, white) !important;
-        -moz-context-properties: fill !important;
-        transition: filter 0.2s ease;
-      }
-
-      .icon-button:not(.delete-custom-cmd):hover {
-        background-color: rgba(127, 127, 127, 0.1);
-      }
-
-      .delete-custom-cmd:hover img {
-        filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
-          contrast(100%);
-      }
+    }
+    }
     }
 
     #custom-command-editor {
@@ -507,8 +509,6 @@
         border-radius: 6px !important;
         background: rgba(0, 0, 0, 0.2) !important;
       }
-    }
-
     .setting-item-vertical {
       display: flex;
       flex-direction: column;
@@ -525,6 +525,8 @@
       border-radius: 4px;
       background-color: light-dark(rgba(255, 230, 150, 0.5), rgba(100, 80, 0, 0.5));
       border: 1px solid light-dark(rgba(255, 200, 0, 0.8), rgba(255, 200, 0, 0.5));
+    }
+
     }
 
     .custom-command-editor-actions {
@@ -592,29 +594,6 @@
       flex-grow: 1;
     }
 
-    .chain-item-delete {
-      padding: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-      background-color: transparent;
-      border: none;
-
-      img {
-        width: 16px;
-        height: 16px;
-        transition: filter 0.2s ease;
-        fill: light-dark(black, white) !important;
-        -moz-context-properties: fill !important;
-      }
-
-      &:hover img {
-        filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
-          contrast(100%);
-      }
-    }
-
     menulist .menuitem-iconic-icon {
       fill: light-dark(black, white) !important;
       -moz-context-properties: fill !important;
@@ -623,6 +602,7 @@
       object-fit: contain !important;
       fill: light-dark(black, white) !important;
       -moz-context-properties: fill !important;
+    }
     }
   }
 }

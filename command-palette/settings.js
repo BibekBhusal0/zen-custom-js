@@ -446,7 +446,7 @@ const SettingsModal = {
           <span class="custom-command-type">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
             <button class="edit-custom-cmd icon-button" title="Edit Command"><img src="chrome://browser/skin/zen-icons/edit.svg" /></button>
-            <button class="delete-custom-cmd icon-button" title="Delete Command"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
+            <button class="delete-custom-cmd delete-button icon-button" title="Delete Command"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
           </div>
         </div>
       `);
@@ -563,7 +563,7 @@ const SettingsModal = {
 
         const menulistElement = parseElement(menulistXUL, "xul");
         const deleteButton = parseElement(
-          `<button class="chain-item-delete" title="Remove Command">
+          `<button class="delete-button icon-button" title="Remove Command">
              <img src="chrome://browser/skin/zen-icons/edit-delete.svg" />
            </button>`
         );
