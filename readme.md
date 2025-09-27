@@ -16,6 +16,12 @@ Advanced AI functionality inside browser builtin findbar.
 
 https://github.com/user-attachments/assets/258d2643-6135-4b2b-accc-c1d59f3f76fc
 
+### [Reopen Closed Tabs Menu](reopen-closed-tabs)
+
+Menu to search through recently closed tabs.
+
+https://github.com/user-attachments/assets/be2880c6-21e5-42ce-b8ed-ed45dc1942ad
+
 ### [Keyboard Shortcuts Search](/settings-shortcuts-search)
 
 Dynamic search and filter for browser settings shortcuts.
