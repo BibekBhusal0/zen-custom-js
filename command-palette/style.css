@@ -470,26 +470,26 @@
             color: inherit !important;
           }
 
-          .setting-item{
+          .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 4px 0;
 
-            label{
+            label {
               font-size: 15px;
               padding-right: 20px;
             }
-          input[type="text"] {
-            padding: 8px 12px !important;
-            font-size: 14px !important;
-            border: 1px solid rgba(127, 127, 127, 0.3) !important;
-            border-radius: 6px !important;
-            background: rgba(0, 0, 0, 0.2) !important;
-            flex-grow:1;
+            input[type="text"] {
+              padding: 8px 12px !important;
+              font-size: 14px !important;
+              border: 1px solid rgba(127, 127, 127, 0.3) !important;
+              border-radius: 6px !important;
+              background: rgba(0, 0, 0, 0.2) !important;
+              flex-grow: 1;
+            }
           }
-          }
-          
+
           .js-warning {
             font-size: 12px;
             padding: 8px;
@@ -504,7 +504,7 @@
           flex-direction: column;
           gap: 8px;
 
-          >label {
+          > label {
             font-weight: 600;
             font-size: 16px !important;
             padding-top: 2px;
@@ -523,8 +523,8 @@
               flex-grow: 1;
               max-width: 450px;
             }
-            
-            menulist {              
+
+            menulist {
               fill: light-dark(black, white) !important;
               -moz-context-properties: fill !important;
             }
@@ -532,12 +532,12 @@
             #chain-command-selector-container {
               display: flex;
               align-content: center;
-              justify-content: space-around; 
+              justify-content: space-around;
               gap: 10px;
 
-            #chain-command-selector {
-              margin: 0 !important;
-            }
+              #chain-command-selector {
+                margin: 0 !important;
+              }
             }
 
             #current-chain-list {
