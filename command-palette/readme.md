@@ -31,6 +31,11 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 The Zen Command Palette can be configured via its own settings. Simply type `: Command palette configure` in the command palette and you will see commands like `Command Palette: Configure Settings` run the command which will open settings Popup. Which will allow configuration like keyboard shortcut, icon, hiding commands and creating toolbar icon.
 
+https://github.com/user-attachments/assets/bdd87f58-f6f7-480c-8ffe-1150d571f482
+
+> [!Note]
+> You can press delete/blackspace to remove the shortcut key. Changing shortcut key from menu this will not replace/remove existing shortcut keys they have to be done from Zen Settings.
+
 Here are all Preferences which can be configured from `about:config` (also from settings UI)
 
 | Preference Key                                         | Type    | Default                             | Description                                                                  |
@@ -205,6 +210,12 @@ Here are all Preferences which can be configured from `about:config` (also from 
 
 Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands. I encourage all mod creators to incorporate this into their own mods (especially ones with JS).
 
+### Other mods which support Command Palette
+
+- [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
+- [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
+- [Browse Bot (beta)](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
+
 ### Adding a Static Command
 
 Static commands are added once and are always available, unless their `condition` evaluates to false.
@@ -261,15 +272,10 @@ if (window.ZenCommandPalette) {
 I am not making up the questions. I have been asked these questions in reddit and discord muliple times.
 
 <details>
-<summary><h3>Why did I made a mod, not contribute to the browser</h3></summary>
-I tried building the browser multiple times, but I don't have proper resources to do it.
-</details>
+<summary><h3>What is difference between this and native zen command bar (released recently)</h3></summary>
+Zen command bar don't contain too much commands to optimize for performance, this mod contain 100+ static commands. And on top of it, this provides API making easy for user to add more commands. Already 4 other mods (2 unreleased) support the command palette.
 
-<details>
-<summary><h3>Will this feature be natively available in Zen browser.</h3></summary>
-Depends on how zen team prioritize things. I know that this is in their roadmap, so one day it will be available. I will maintain this project until command palette is natively supported in Zen.
-
-This project has gotten enough attention that creator of zen has contacted me. Some functions from this project are used in Zen Browser which might mean command palette will be available sooner than we think. I am absolutely grateful to be contributor of Zen Browser and would love to help any way I can to make Zen a better Browser.
+Another Benifit of this mod, is that this allows setting custom keymaps to commands, and allow adding them as toolbar icons.
 
 </details>
 
