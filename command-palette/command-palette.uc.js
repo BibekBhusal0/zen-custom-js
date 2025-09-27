@@ -4,7 +4,6 @@ import {
   generateExtensionCommands,
   generateSearchEngineCommands,
   generateSineCommands,
-  generateWorkspaceCommands,
   generateFolderCommands,
   generateWorkspaceMoveCommands,
   generateContainerTabCommands,
@@ -45,12 +44,6 @@ const ZenCommandPalette = {
       pref: Prefs.KEYS.DYNAMIC_SINE_MODS,
       allowIcons: false,
       allowShortcuts: false,
-    },
-    {
-      func: generateWorkspaceCommands,
-      pref: Prefs.KEYS.DYNAMIC_WORKSPACES,
-      allowIcons: false,
-      allowShortcuts: true,
     },
     {
       func: generateWorkspaceMoveCommands,
