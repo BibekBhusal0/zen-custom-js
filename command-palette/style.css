@@ -476,15 +476,6 @@
           border-radius: 6px !important;
           background: rgba(0, 0, 0, 0.2) !important;
         }
-        .setting-item-vertical {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-
-          label {
-            font-weight: 600;
-          }
-        }
 
         .js-warning {
           font-size: 12px;
@@ -495,26 +486,15 @@
         }
       }
 
-      .custom-command-editor-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-        margin-top: 10px;
-      }
 
-      #chain-editor-container {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
+        .setting-item-vertical {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
 
-      #available-commands-select {
-        background-color: rgba(0, 0, 0, 0.2);
-        color: inherit;
-        border: 1px solid rgba(127, 127, 127, 0.3);
-        border-radius: 4px;
-      }
-
+          label {
+            font-weight: 600;
+          }
       #chain-builder {
         display: flex;
         flex-direction: column;
@@ -522,21 +502,28 @@
         padding: 10px;
         background: rgba(127, 127, 127, 0.05);
         border-radius: 6px;
-      }
-
-      #chain-command-selector-container {
-        display: flex;
-        gap: 10px;
-      }
-
       #chain-command-selector-placeholder,
       #chain-command-selector {
         flex-grow: 1;
         max-width: 450px;
       }
 
+      menulist .menuitem-iconic-icon {
+        fill: light-dark(black, white) !important;
+        -moz-context-properties: fill !important;
+        width: 16px !important;
+        height: 16px !important;
+        object-fit: contain !important;
+        fill: light-dark(black, white) !important;
+        -moz-context-properties: fill !important;
+      }
+      #chain-command-selector-container {
+        display: flex;
+        gap: 10px;
       #add-command-to-chain {
         flex-shrink: 0;
+      }
+
       }
 
       #current-chain-list {
@@ -548,26 +535,25 @@
         padding: 10px;
         border: 1px solid rgba(127, 127, 127, 0.1);
         border-radius: 6px;
-      }
-
       .chain-item-container {
         display: flex;
         align-items: center;
         gap: 8px;
-      }
-
       .chain-item-selector {
         flex-grow: 1;
       }
+      }
+      }
 
-      menulist .menuitem-iconic-icon {
-        fill: light-dark(black, white) !important;
-        -moz-context-properties: fill !important;
-        width: 16px !important;
-        height: 16px !important;
-        object-fit: contain !important;
-        fill: light-dark(black, white) !important;
-        -moz-context-properties: fill !important;
+
+
+        }
+      }
+      .custom-command-editor-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 10px;
       }
     }
 
