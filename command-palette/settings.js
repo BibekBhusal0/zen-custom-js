@@ -548,8 +548,8 @@ const SettingsModal = {
 
       const menuitemsXUL = allCommands
         .map(
-        // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
-        // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
+          // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
+          // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
           (c) =>
             `<menuitem value="${escapeXmlAttribute(c.key)}"
                          label="${escapeXmlAttribute(c.label)}"
@@ -602,8 +602,8 @@ const SettingsModal = {
           const menuitemsXUL = allCommands
             .sort((a, b) => a.label.localeCompare(b.label))
             .map(
-            // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
-            // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}" <!-- This line should be moved 3 lines down after issue is resolved -->
+              // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
+              // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}" <!-- This line should be moved 3 lines down after issue is resolved -->
               (c) =>
                 `<menuitem value="${escapeXmlAttribute(c.key)}"
                            label="${escapeXmlAttribute(c.label)}"
