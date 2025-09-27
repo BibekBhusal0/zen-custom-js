@@ -111,7 +111,7 @@ export const Prefs = {
 
 Prefs.defaultValues = {
   [Prefs.KEYS.PREFIX_REQUIRED]: false,
-  [Prefs.KEYS.PREFIX]: ':',
+  [Prefs.KEYS.PREFIX]: ":",
   [Prefs.KEYS.DEBUG_MODE]: false,
   [Prefs.KEYS.MAX_COMMANDS]: 3,
   [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
