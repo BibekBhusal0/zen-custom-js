@@ -18,7 +18,7 @@ import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { parseShortcutString } from "../utils/keyboard.js";
 
-const ZenCommandPalette = {
+export const ZenCommandPalette = {
   /**
    * An array of dynamic command providers. Each provider is an object
    * containing a function to generate commands and an optional preference for enabling/disabling.

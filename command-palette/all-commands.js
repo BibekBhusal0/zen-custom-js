@@ -1,6 +1,7 @@
 // This file is adapted from the command list in ZBar-Zen by Darsh-A
 // https://github.com/Darsh-A/ZBar-Zen/blob/main/command_bar.uc.js
 import { svgToUrl, icons } from "./utils/icon.js";
+import { ZenCommandPalette } from "./command-palette.uc.js";
 
 const isCompactMode = () => gZenCompactModeManager?.preference;
 const ucAvailable = () => typeof UC_API !== "undefined";
@@ -840,7 +841,6 @@ export const commands = [
     key: "command-palette:settings-commands",
     label: "Command Palette: Configure Commands",
     command: () => ZenCommandPalette.Settings.show("commands"),
-    condition: () => !!window.ZenCommandPalette,
     icon: "chrome://browser/skin/zen-icons/settings.svg",
     tags: ["command", "palette", "settings", "configure", "customize"],
   },
@@ -848,7 +848,6 @@ export const commands = [
     key: "command-palette:settings-preferences",
     label: "Command Palette: Preferences",
     command: () => ZenCommandPalette.Settings.show("settings"),
-    condition: () => !!window.ZenCommandPalette,
     icon: "chrome://browser/skin/zen-icons/settings.svg",
     tags: ["command", "palette", "settings", "preferences", "options"],
   },
@@ -856,7 +855,6 @@ export const commands = [
     key: "command-palette:settings-help",
     label: "Command Palette: Help",
     command: () => ZenCommandPalette.Settings.show("help"),
-    condition: () => !!window.ZenCommandPalette,
     icon: "chrome://browser/skin/zen-icons/info.svg",
     tags: ["command", "palette", "help", "documentation", "support"],
   },
