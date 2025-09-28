@@ -1144,6 +1144,76 @@
     },
   };
 
+  const commandChainUtils = {
+    async openLink(params) {
+      const { link, where = "new tab" } = params;
+      if (!link) return;
+      const whereNormalized = where?.toLowerCase()?.trim();
+      try {
+        switch (whereNormalized) {
+          case "current tab":
+            openTrustedLinkIn(link, "current");
+            break;
+          case "new tab":
+            openTrustedLinkIn(link, "tab");
+            break;
+          case "new window":
+            openTrustedLinkIn(link, "window");
+            break;
+          case "incognito":
+          case "private":
+            window.openTrustedLinkIn(link, "window", { private: true });
+            break;
+          case "glance":
+            if (window.gZenGlanceManager) {
+              const rect = gBrowser.selectedBrowser.getBoundingClientRect();
+              window.gZenGlanceManager.openGlance({
+                url: link,
+                x: rect.left + rect.width / 2,
+                y: rect.top + rect.height / 2,
+                width: 10,
+                height: 10,
+              });
+            } else {
+              openTrustedLinkIn(link, "tab");
+            }
+            break;
+          case "vsplit":
+          case "hsplit":
+            if (window.gZenViewSplitter) {
+              const sep = whereNormalized === "vsplit" ? "vsep" : "hsep";
+              const tab1 = gBrowser.selectedTab;
+              await openTrustedLinkIn(link, "tab");
+              const tab2 = gBrowser.selectedTab;
+              gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
+            } else {
+              openTrustedLinkIn(link, "tab");
+            }
+            break;
+          default:
+            openTrustedLinkIn(link, "tab");
+        }
+      } catch (e) {
+        debugError(`Command Chain: Failed to open link "${link}" in "${where}".`, e);
+      }
+    },
+    async delay(params) {
+      const { time = 50 } = params;
+      if (!time) return;
+      await new Promise((resolve) => setTimeout(resolve, time));
+    },
+    async showToast(params) {
+      const { title, description } = params;
+      if (!title || !description) return;
+      if (window.ucAPI?.showToast) {
+        window.ucAPI.showToast([title || "", description || ""], 0);
+      } else {
+        debugError("ucAPI.showToast is not available.");
+        alert([title, description], 0);
+      }
+    },
+  };
+
   /**
    * Gets a favicon for a search engine, with fallbacks.
    * @param {object} engine - The search engine object.
@@ -1712,10 +1782,15 @@
         };
       } else if (cmd.type === "chain") {
         commandFunc = async () => {
-          for (const key of cmd.commands) {
-            // A small delay might be needed between commands for UI to update
-            await new Promise((resolve) => setTimeout(resolve, 50));
-            await window.ZenCommandPalette.executeCommandByKey(key);
+          for (const step of cmd.commands) {
+            if (typeof step === "string") {
+              // It's a regular command key
+              await new Promise((resolve) => setTimeout(resolve, 50));
+              await window.ZenCommandPalette.executeCommandByKey(step);
+            } else if (typeof step === "object" && step.action && commandChainUtils[step.action]) {
+              // It's a utility function call
+              await commandChainUtils[step.action](step.params || {});
+            }
           }
         };
       }
@@ -1757,6 +1832,41 @@
       .replace(/'/g, "&apos;");
   };
 
+  const commandChainFunctions = {
+    delay: {
+      label: "Delay",
+      params: [{ name: "time", type: "number", label: "Time (ms)", defaultValue: 500 }],
+    },
+    showToast: {
+      label: "Show Toast",
+      params: [
+        { name: "title", type: "text", label: "Title", defaultValue: "Hello!" },
+        { name: "description", type: "text", label: "Description", defaultValue: "" },
+      ],
+    },
+    openLink: {
+      label: "Open Link",
+      params: [
+        { name: "link", type: "text", label: "URL", defaultValue: "https://" },
+        {
+          name: "where",
+          type: "select",
+          label: "Where",
+          defaultValue: "new tab",
+          options: [
+            { value: "new tab", label: "New Tab" },
+            { value: "current tab", label: "Current Tab" },
+            { value: "new window", label: "New Window" },
+            { value: "private", label: "Private Window" },
+            { value: "vsplit", label: "Vertical Split" },
+            { value: "hsplit", label: "Horizontal Split" },
+            { value: "glance", label: "Glance" },
+          ],
+        },
+      ],
+    },
+  };
+
   const SettingsModal = {
     _modalElement: null,
     _mainModule: null,
@@ -1765,6 +1875,7 @@
     _currentShortcutTarget: null,
     _boundHandleShortcutKeyDown: null,
     _boundCloseOnEscape: null,
+    _boundEditorClickHandler: null,
 
     init(mainModule) {
       this._mainModule = mainModule;
@@ -1856,6 +1967,7 @@
         Prefs.setPref(prefKey, value);
       });
 
+      const oldSettings = JSON.parse(this._initialSettingsState);
       const somethingChanged = JSON.stringify(newSettings) !== this._initialSettingsState;
 
       if (somethingChanged) {
@@ -1865,30 +1977,31 @@
 
       this.hide();
 
-      const shortcutsChanged =
-        JSON.stringify(JSON.parse(this._initialSettingsState).customShortcuts) !==
-        JSON.stringify(newSettings.customShortcuts);
-      const toolbarButtonsChanged =
-        JSON.stringify(JSON.parse(this._initialSettingsState).toolbarButtons) !==
-        JSON.stringify(newSettings.toolbarButtons);
+      // Handle Dynamic Widget Changes
+      const oldButtons = oldSettings.toolbarButtons || [];
+      const newButtons = newSettings.toolbarButtons || [];
+      const addedButtons = newButtons.filter((b) => !oldButtons.includes(b));
+      const removedButtons = oldButtons.filter((b) => !newButtons.includes(b));
 
-      if (shortcutsChanged || toolbarButtonsChanged) {
-        let changedItem = shortcutsChanged
-          ? toolbarButtonsChanged
-            ? "Shortcuts and Toolbar buttons"
-            : "Shortcuts"
-          : "Toolbar buttons";
+      for (const key of addedButtons) {
+        this._mainModule.addWidget(key);
+      }
+      for (const key of removedButtons) {
+        this._mainModule.removeWidget(key);
+      }
 
-        // TODO: Figure out how to apply changes real time (without restart)
+      // Check if Shortcuts Changed
+      const oldShortcutsJSON = JSON.stringify(oldSettings.customShortcuts || {});
+      const newShortcutsJSON = JSON.stringify(newSettings.customShortcuts || {});
+
+      if (oldShortcutsJSON !== newShortcutsJSON) {
         if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
           window.ucAPI.showToast(
-            [`${changedItem} Changed`, "A restart is required for changes to take effect."],
+            ["Shortcut Changed", "A restart is required for shortcut changes to take effect."],
             1 // Restart preset
           );
         } else {
-          alert(
-            "Settings changed. Please restart Zen for shortcut or toolbar changes to take effect."
-          );
+          alert("Please restart Zen for shortcut changes to take effect.");
         }
       }
     },
@@ -2224,10 +2337,69 @@
       this._renderCustomCommands();
     },
 
+    _renderFunctionStep(step, index, chain) {
+      const functionSchema = commandChainFunctions[step.action];
+      if (!functionSchema) return parseElement(`<div>Unknown function: ${step.action}</div>`);
+
+      const wrapper = parseElement(`<div class="function-step" data-index="${index}"></div>`);
+      const label = parseElement(`<label>${escapeXmlAttribute(functionSchema.label)}</label>`);
+      wrapper.appendChild(label);
+
+      for (const param of functionSchema.params) {
+        const paramWrapper = parseElement(`<div class="param-item"></div>`);
+        const currentValue = step.params[param.name];
+        let inputHtml = "";
+
+        switch (param.type) {
+          case "number":
+          case "text":
+            inputHtml = `<input
+            type="${param.type}"
+            class="param-input"
+            data-param="${param.name}"
+            placeholder="${param.label || ""}"
+            value="${escapeXmlAttribute(currentValue)}"
+          />`;
+            break;
+          case "select":
+            const optionsHtml = param.options
+              .map(
+                (opt) =>
+                  `<option value="${escapeXmlAttribute(opt.value)}" ${
+                  currentValue === opt.value ? "selected" : ""
+                }>${escapeXmlAttribute(opt.label)}</option>`
+              )
+              .join("");
+            inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;
+            break;
+        }
+        paramWrapper.appendChild(parseElement(inputHtml));
+        wrapper.appendChild(paramWrapper);
+      }
+
+      wrapper.addEventListener("input", (e) => {
+        const inputElement = e.target;
+        if (inputElement.classList.contains("param-input")) {
+          const paramName = inputElement.dataset.param;
+          const value =
+            inputElement.type === "number" ? Number(inputElement.value) : inputElement.value;
+          chain[index].params[paramName] = value;
+        }
+      });
+
+      return wrapper;
+    },
+
     _showCustomCommandEditor(cmd) {
+      const self = this;
       this._modalElement.querySelector("#custom-commands-view").hidden = true;
       const editorContainer = this._modalElement.querySelector("#custom-command-editor");
       editorContainer.hidden = false;
+
+      // Cleanup previous listener before adding a new one
+      if (this._boundEditorClickHandler) {
+        editorContainer.removeEventListener("click", this._boundEditorClickHandler);
+      }
 
       const isEditing = !!cmd.name;
       let currentChain = [...(cmd.commands || [])];
@@ -2256,13 +2428,21 @@
         </div>
       `;
       } else {
+        const functionButtons = Object.entries(commandChainFunctions)
+          .map(([action, schema]) => `<button data-action="${action}">${schema.label}</button>`)
+          .join("");
+
         typeSpecificHtml = `
         <div class="setting-item-vertical">
           <label>Commands</label>
           <div id="chain-builder">
             <div id="chain-command-selector-container">
               <div id="chain-command-selector-placeholder">Loading...</div>
-              <button id="add-command-to-chain">Add</button>
+              <button id="add-command-to-chain">Add Command</button>
+            </div>
+            <div class="function-actions">
+                <label>Add Function:</label>
+                ${functionButtons}
             </div>
             <div id="current-chain-list"></div>
           </div>
@@ -2281,7 +2461,7 @@
       editorContainer.replaceChildren(parseElement(fullEditorHtml));
 
       const renderChainList = async () => {
-        debugLog("renderChainList: starting");
+        debugLog("renderChainList called");
         const listContainer = editorContainer.querySelector("#current-chain-list");
         if (!listContainer) {
           debugLog("renderChainList: listContainer not found");
@@ -2294,7 +2474,6 @@
           return;
         }
 
-        // Get all commands ONCE to build the options string, so we don't fetch it in the loop.
         const allCommands = await this._mainModule.getAllCommandsForConfig();
         debugLog(`renderChainList: building list with ${currentChain.length} items`);
 
@@ -2309,37 +2488,89 @@
           )
           .join("");
 
-        currentChain.forEach((key, index) => {
-          const menulistXUL = `
-          <menulist class="chain-item-selector" value="${escapeXmlAttribute(key)}">
-            <menupopup>${menuitemsXUL}</menupopup>
-          </menulist>`;
+        currentChain.forEach((step, index) => {
+          const itemContainer = parseElement(`<div class="chain-item-container"></div>`);
 
-          const menulistElement = parseElement(menulistXUL, "xul");
+          if (typeof step === "string") {
+            const menulistXUL = `
+              <menulist class="chain-item-selector" value="${escapeXmlAttribute(step)}">
+                <menupopup>${menuitemsXUL}</menupopup>
+              </menulist>`;
+            const menulistElement = parseElement(menulistXUL, "xul");
+            menulistElement.addEventListener("command", (e) => {
+              currentChain[index] = e.target.value;
+            });
+            itemContainer.appendChild(menulistElement);
+          } else if (typeof step === "object" && step.action) {
+            debugLog(`Rendering function step: ${step.action}`);
+            const functionStepEl = self._renderFunctionStep(step, index, currentChain);
+            itemContainer.appendChild(functionStepEl);
+          }
+
           const deleteButton = parseElement(
             `<button class="delete-button icon-button" title="Remove Command">
              <img src="chrome://browser/skin/zen-icons/edit-delete.svg" />
            </button>`
           );
-
-          const itemContainer = parseElement(`<div class="chain-item-container"></div>`);
-          itemContainer.append(menulistElement, deleteButton);
-          listContainer.appendChild(itemContainer);
-
-          // Add listeners
-          menulistElement.addEventListener("command", (e) => {
-            currentChain[index] = e.target.value;
-            debugLog(`Chain item at index ${index} changed to ${e.target.value}`);
-          });
-
           deleteButton.addEventListener("click", () => {
             currentChain.splice(index, 1);
-            renderChainList(); // Re-render the whole list
+            renderChainList();
           });
+          itemContainer.appendChild(deleteButton);
+
+          listContainer.appendChild(itemContainer);
         });
       };
 
+      // Define and bind the new delegated event listener
+      this._boundEditorClickHandler = (e) => {
+        const target = e.target;
+
+        // Handle "Add Function" buttons
+        if (target.matches(".function-actions button[data-action]")) {
+          const action = target.dataset.action;
+          const functionSchema = commandChainFunctions[action];
+          if (!functionSchema) return;
+
+          debugLog(`Function button clicked: ${action}`);
+
+          const newStep = { action, params: {} };
+          functionSchema.params.forEach((p) => {
+            newStep.params[p.name] = p.defaultValue;
+          });
+
+          currentChain.push(newStep);
+          renderChainList();
+          return;
+        }
+
+        // Handle "Add Command" button
+        if (target.id === "add-command-to-chain") {
+          const selector = editorContainer.querySelector("#chain-command-selector");
+          if (selector && selector.value) {
+            currentChain.push(selector.value);
+            renderChainList();
+          }
+          return;
+        }
+
+        // Handle "Save" button
+        if (target.id === "save-custom-cmd") {
+          self._saveCustomCommand(cmd, currentChain);
+          return;
+        }
+
+        // Handle "Cancel" button
+        if (target.id === "cancel-custom-cmd") {
+          self._hideCustomCommandEditor();
+          return;
+        }
+      };
+
+      editorContainer.addEventListener("click", this._boundEditorClickHandler);
+
       if (cmd.type === "chain") {
+        // Initial population of the command selector dropdown
         debugLog("Chain editor: getting all commands...");
         this._mainModule
           .getAllCommandsForConfig()
@@ -2352,7 +2583,7 @@
             }
 
             const menuitemsXUL = allCommands
-              .sort((a, b) => a.label.localeCompare(b.label))
+              .sort((a, b) => b.label.localeCompare(a.label))
               .map(
                 // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
                 // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}" <!-- This line should be moved 3 lines down after issue is resolved -->
@@ -2385,27 +2616,18 @@
             }
           });
 
-        editorContainer.querySelector("#add-command-to-chain").addEventListener("click", () => {
-          const selector = editorContainer.querySelector("#chain-command-selector");
-          if (selector && selector.value) {
-            currentChain.push(selector.value);
-            renderChainList();
-          }
-        });
-
+        // Initial render of the chain list
         renderChainList();
       }
-
-      editorContainer.querySelector("#cancel-custom-cmd").addEventListener("click", () => {
-        this._hideCustomCommandEditor();
-      });
-
-      editorContainer.querySelector("#save-custom-cmd").addEventListener("click", () => {
-        this._saveCustomCommand(cmd, currentChain);
-      });
     },
 
     _hideCustomCommandEditor() {
+      const editorContainer = this._modalElement?.querySelector("#custom-command-editor");
+      if (editorContainer && this._boundEditorClickHandler) {
+        editorContainer.removeEventListener("click", this._boundEditorClickHandler);
+        this._boundEditorClickHandler = null;
+      }
+
       this._modalElement.querySelector("#custom-commands-view").hidden = false;
       this._modalElement.querySelector("#custom-command-editor").hidden = true;
       this._renderCustomCommands();
@@ -2448,7 +2670,7 @@
 
     _populateHelpTab() {
       const container = this._modalElement.querySelector("#help-tab-content");
-      container.innerHTML = ""; // Clear previous content
+      container.innerHTML = "";
 
       const helpItems = [
         {
@@ -2477,25 +2699,20 @@
         },
       ];
 
-      const buttonsHtml = helpItems
-        .map(
-          (item) => `
-      <button class="help-button" data-url="${escapeXmlAttribute(item.url)}">
-        <img src="${escapeXmlAttribute(item.icon)}" />
-        <span>${escapeXmlAttribute(item.title)}</span>
-        <p>${escapeXmlAttribute(item.description)}</p>
-      </button>
-    `
-        )
-        .join("");
+      const buttonsContainer = parseElement(`<div class="help-buttons-container"></div>`);
 
-      const content = parseElement(`
-      <div class="help-buttons-container">
-        ${buttonsHtml}
-      </div>
-    `);
+      for (const item of helpItems) {
+        const buttonHtml = `
+        <button class="help-button" data-url="${escapeXmlAttribute(item.url)}">
+          <img src="${escapeXmlAttribute(item.icon)}" />
+          <span>${escapeXmlAttribute(item.title)}</span>
+          <p>${escapeXmlAttribute(item.description)}</p>
+        </button>
+      `;
+        buttonsContainer.appendChild(parseElement(buttonHtml));
+      }
 
-      container.appendChild(content);
+      container.appendChild(buttonsContainer);
     },
 
     _populateSettingsTab() {
@@ -2517,7 +2734,7 @@
             {
               key: Prefs.KEYS.PREFIX,
               label: "Command Prefix",
-              type: "text",
+              type: "char",
             },
             {
               key: Prefs.KEYS.PREFIX_REQUIRED,
@@ -2572,7 +2789,7 @@
               )}" />
             </div>
           `;
-          } else if (item.type === "text") {
+          } else if (item.type === "char") {
             itemHtml = `
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
@@ -2792,7 +3009,6 @@
     _dynamicCommandsCache: null,
     _commandVisibilityCache: {},
     _userConfig: {},
-    _boundHandleKeysetCommand: null,
 
     safeStr(x) {
       return (x || "").toString();
@@ -3170,6 +3386,81 @@
       }
     },
 
+    async addWidget(key) {
+      debugLog(`addWidget called for key: ${key}`);
+      const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
+      const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
+
+      const existingWidget = document.getElementById(widgetId);
+      if (existingWidget) {
+        existingWidget.hidden = false;
+        debugLog(`Widget "${widgetId}" already exists, un-hiding it.`);
+        return;
+      }
+
+      const allCommands = await this.getAllCommandsForConfig();
+      const cmd = allCommands.find((c) => c.key === key);
+      if (!cmd) {
+        debugLog(`addWidget: Command with key "${key}" not found.`);
+        return;
+      }
+
+      try {
+        UC_API.Utils.createWidget({
+          id: widgetId,
+          type: "toolbarbutton",
+          label: cmd.label,
+          tooltip: cmd.label,
+          class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
+          image: cmd.icon || "chrome://browser/skin/trending.svg",
+          callback: () => this.executeCommandByKey(key),
+        });
+        debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
+      } catch (e) {
+        debugError(`Failed to create widget for ${key}:`, e);
+      }
+    },
+
+    removeWidget(key) {
+      debugLog(`removeWidget: Hiding widget for key: ${key}`);
+      const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
+      const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
+      const widget = document.getElementById(widgetId);
+      if (widget) {
+        widget.hidden = true;
+        debugLog(`Successfully hid widget: ${widgetId}`);
+      } else {
+        debugLog(`removeWidget: Widget "${widgetId}" not found, nothing to hide.`);
+      }
+    },
+
+    async addHotkey(commandKey, shortcutStr) {
+      debugLog(`addHotkey called for command "${commandKey}" with shortcut "${shortcutStr}"`);
+      const { key, keycode, modifiers } = parseShortcutString(shortcutStr);
+      const useKey = key || keycode;
+      if (!useKey) {
+        debugError(`addHotkey: Invalid shortcut string "${shortcutStr}" for command "${commandKey}"`);
+        return;
+      }
+
+      const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(/,/g, " ");
+      try {
+        const hotkey = {
+          id: `zen-cmd-palette-shortcut-for-${commandKey}`,
+          modifiers: translatedModifiers,
+          key: useKey,
+          command: () => this.executeCommandByKey(commandKey),
+        };
+        const registeredHotkey = await UC_API.Hotkeys.define(hotkey);
+        if (registeredHotkey) {
+          registeredHotkey.autoAttach({ suppressOriginal: true });
+          debugLog(`Successfully defined hotkey for command "${commandKey}"`);
+        }
+      } catch (e) {
+        debugError(`Failed to register new shortcut for ${commandKey}:`, e);
+      }
+    },
+
     /**
      * Retrieves the keyboard shortcut string for a given command key.
      * @param {string} commandKey - The key of the command (matches shortcut action or id).
@@ -3233,82 +3524,29 @@
     /**
      * Creates <key> elements for custom shortcuts and adds them to the document.
      */
-    applyCustomShortcuts() {
-      if (!this._userConfig.customShortcuts) return;
-      const KEYSET_ID = "zen-command-palette-keyset";
-      let keyset = document.getElementById(KEYSET_ID);
-
-      if (keyset && keyset._zenCmdListenerAttached) {
-        keyset.removeEventListener("command", this._boundHandleKeysetCommand);
-      } else if (!keyset) {
-        keyset = document.createXULElement("keyset");
-        keyset.id = KEYSET_ID;
-        document.getElementById("mainKeyset").after(keyset);
+    async applyCustomShortcuts() {
+      if (!this._userConfig.customShortcuts) {
+        debugLog("No custom shortcuts to apply on initial load.");
+        return;
       }
-
-      keyset.replaceChildren();
 
       for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
         if (!shortcutStr) continue;
-
-        const { key, keycode, modifiers } = parseShortcutString(shortcutStr);
-        if (!key && !keycode) continue;
-
-        const keyEl = document.createXULElement("key");
-        keyEl.id = `zen-cmd-palette-shortcut-for-${commandKey}`;
-        if (key) keyEl.setAttribute("key", key);
-        if (keycode) keyEl.setAttribute("keycode", keycode);
-        if (modifiers) keyEl.setAttribute("modifiers", modifiers);
-        keyEl.setAttribute("data-command-key", commandKey);
-
-        keyset.appendChild(keyEl);
+        await this.addHotkey(commandKey, shortcutStr);
       }
-
-      keyset.addEventListener("command", this._boundHandleKeysetCommand);
-      keyset._zenCmdListenerAttached = true;
-      debugLog("Applied custom shortcuts.");
-    },
-
-    _handleKeysetCommand(event) {
-      const commandKey = event.target.getAttribute("data-command-key");
-      if (commandKey) {
-        this.executeCommandByKey(commandKey);
-      }
+      debugLog("Applied initial custom shortcuts.");
     },
 
     async applyToolbarButtons() {
-      const WIDGET_PREFIX = "zen-cmd-palette-widget-";
-      const allCommands = await this.getAllCommandsForConfig();
-
-      // TODO: this is requiered for realtime changes
-      // First, remove all widgets created by this mod to handle removals cleanly.
-
-      if (!this._userConfig?.toolbarButtons) return;
+      if (!this._userConfig?.toolbarButtons) {
+        debugLog("No toolbar buttons to apply on initial load.");
+        return;
+      }
 
       for (const key of this._userConfig.toolbarButtons) {
-        const cmd = allCommands.find((c) => c.key === key);
-        if (!cmd) continue;
-
-        // Sanitize the command key to create a valid widget ID.
-        const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
-        const widgetId = `${WIDGET_PREFIX}${sanitizedKey}`;
-        try {
-          UC_API.Utils.createWidget({
-            id: widgetId,
-            type: "toolbarbutton",
-            label: cmd.label,
-            tooltip: cmd.label,
-            class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
-            image: cmd.icon || "chrome://browser/skin/trending.svg",
-            callback: () => this.executeCommandByKey(key),
-          });
-          debugLog(`Created widget for command: ${key}`);
-        } catch (e) {
-          if (!e.message.includes("widget with same id already exists")) {
-            debugError(`Failed to create widget for ${key}:`, e);
-          }
-        }
+        await this.addWidget(key);
       }
+      debugLog("Applied initial toolbar buttons.");
     },
 
     destroy() {
@@ -3328,7 +3566,6 @@
      */
     async init() {
       debugLog("Starting ZenCommandPalette init...");
-      this._boundHandleKeysetCommand = this._handleKeysetCommand.bind(this);
 
       this.Settings = SettingsModal;
       this.Settings.init(this);
@@ -3643,7 +3880,7 @@
   UC_API.Runtime.startupFinished().then(() => {
     Prefs.setInitialPrefs();
     window.ZenCommandPalette = ZenCommandPalette$1;
-    window.ZenCommandPalette.init();
+    ZenCommandPalette$1.init();
 
     debugLog(
       "Zen Command Palette initialized. Static commands count:",
