@@ -486,9 +486,13 @@ const ZenCommandPalette = {
   },
 
   async addWidget(key) {
+    debugLog(`addWidget called for key: ${key}`);
     const allCommands = await this.getAllCommandsForConfig();
     const cmd = allCommands.find((c) => c.key === key);
-    if (!cmd) return;
+    if (!cmd) {
+      debugLog(`addWidget: Command with key "${key}" not found.`);
+      return;
+    }
 
     const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
     const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
@@ -502,7 +506,7 @@ const ZenCommandPalette = {
         image: cmd.icon || "chrome://browser/skin/trending.svg",
         callback: () => this.executeCommandByKey(key),
       });
-      debugLog(`Created widget for command: ${key}`);
+      debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
     } catch (e) {
       if (!e.message.includes("widget with same id already exists")) {
         debugError(`Failed to create widget for ${key}:`, e);
@@ -511,18 +515,26 @@ const ZenCommandPalette = {
   },
 
   removeWidget(key) {
+    debugLog(`removeWidget called for key: ${key}`);
     const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
     const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
     const widget = document.getElementById(widgetId);
     if (widget) {
       widget.remove();
-      debugLog(`Removed widget: ${widgetId}`);
+      debugLog(`Successfully removed widget: ${widgetId}`);
+    } else {
+      debugLog(`removeWidget: Widget "${widgetId}" not found, nothing to remove.`);
     }
   },
 
   async addHotkey(commandKey, shortcutStr) {
-    const { key, modifiers } = parseShortcutString(shortcutStr);
-    if (!key) return;
+    debugLog(`addHotkey called for command "${commandKey}" with shortcut "${shortcutStr}"`);
+    const { key, keycode, modifiers } = parseShortcutString(shortcutStr);
+    const useKey = key || keycode;
+    if (!useKey) {
+      debugError(`addHotkey: Invalid shortcut string "${shortcutStr}" for command "${commandKey}"`);
+      return;
+    }
 
     const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(/,/g, " ");
     try {
@@ -535,6 +547,7 @@ const ZenCommandPalette = {
       const registeredHotkey = await UC_API.Hotkeys.define(hotkey);
       if (registeredHotkey) {
         registeredHotkey.autoAttach({ suppressOriginal: true });
+        debugLog(`Successfully defined hotkey for command "${commandKey}"`);
       }
     } catch (e) {
       debugError(`Failed to register new shortcut for ${commandKey}:`, e);
@@ -606,72 +619,27 @@ const ZenCommandPalette = {
    */
   async applyCustomShortcuts() {
     if (!this._userConfig.customShortcuts) {
-      debugLog("No custom shortcuts to apply.");
+      debugLog("No custom shortcuts to apply on initial load.");
       return;
     }
 
     for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
       if (!shortcutStr) continue;
-
-      const { key, keycode, modifiers } = parseShortcutString(shortcutStr);
-      const useKey = key || keycode;
-      if (!useKey) {
-        debugLog(`Skipping shortcut for ${commandKey} due to invalid key/keycode.`);
-        continue;
-      }
-
-      const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(/,/g, " ");
-
-      try {
-        const hotkey = {
-          id: `zen-cmd-palette-shortcut-for-${commandKey}`,
-          modifiers: translatedModifiers,
-          key: useKey,
-          command: () => this.executeCommandByKey(commandKey),
-        };
-        const registeredHotkey = await UC_API.Hotkeys.define(hotkey);
-        if (registeredHotkey) {
-          registeredHotkey.autoAttach({ suppressOriginal: true });
-        }
-      } catch (e) {
-        debugError(`Failed to register shortcut for ${commandKey}:`, e);
-      }
+      await this.addHotkey(commandKey, shortcutStr);
     }
-    debugLog("Applied custom shortcuts via UC_API.Hotkeys (one-time setup).");
+    debugLog("Applied initial custom shortcuts.");
   },
 
   async applyToolbarButtons() {
-    const WIDGET_PREFIX = "zen-cmd-palette-widget-";
-    const allCommands = await this.getAllCommandsForConfig();
-
-    // TODO: this is requiered for realtime changes
-
-    if (!this._userConfig?.toolbarButtons) return;
+    if (!this._userConfig?.toolbarButtons) {
+      debugLog("No toolbar buttons to apply on initial load.");
+      return;
+    }
 
     for (const key of this._userConfig.toolbarButtons) {
-      const cmd = allCommands.find((c) => c.key === key);
-      if (!cmd) continue;
-
-      // Sanitize the command key to create a valid widget ID.
-      const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
-      const widgetId = `${WIDGET_PREFIX}${sanitizedKey}`;
-      try {
-        UC_API.Utils.createWidget({
-          id: widgetId,
-          type: "toolbarbutton",
-          label: cmd.label,
-          tooltip: cmd.label,
-          class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
-          image: cmd.icon || "chrome://browser/skin/trending.svg",
-          callback: () => this.executeCommandByKey(key),
-        });
-        debugLog(`Created widget for command: ${key}`);
-      } catch (e) {
-        if (!e.message.includes("widget with same id already exists")) {
-          debugError(`Failed to create widget for ${key}:`, e);
-        }
-      }
+      await this.addWidget(key);
     }
+    debugLog("Applied initial toolbar buttons.");
   },
 
   destroy() {

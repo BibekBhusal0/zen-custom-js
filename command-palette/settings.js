@@ -153,7 +153,9 @@ const SettingsModal = {
     // Analyze Toolbar Button (Widget) changes
     const oldButtons = oldSettings.toolbarButtons || [];
     const newButtons = newSettings.toolbarButtons || [];
+    // Find buttons that are in the new list but not the old one.
     const addedButtons = newButtons.filter((b) => !oldButtons.includes(b));
+    // Find buttons that were in the old list but are not in the new one.
     const removedButtons = oldButtons.filter((b) => !newButtons.includes(b));
 
     for (const key of addedButtons) {
@@ -172,6 +174,8 @@ const SettingsModal = {
       const oldShortcut = oldShortcuts[key];
       const newShortcut = newShortcuts[key];
 
+      // A restart is needed if a shortcut was removed
+      // or if the shortcut string has changed.
       if (
         (oldShortcut && !newShortcut) ||
         (oldShortcut && newShortcut && oldShortcut !== newShortcut)
@@ -180,6 +184,7 @@ const SettingsModal = {
         break;
       }
 
+      // If a shortcut is new, add it dynamically.
       if (!oldShortcut && newShortcut) {
         this._mainModule.addHotkey(key, newShortcut);
       }
