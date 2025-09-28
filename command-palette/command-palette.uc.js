@@ -108,7 +108,6 @@ const ZenCommandPalette = {
   _dynamicCommandsCache: null,
   _commandVisibilityCache: {},
   _userConfig: {},
-  _boundHandleKeysetCommand: null,
 
   safeStr(x) {
     return (x || "").toString();
@@ -549,47 +548,40 @@ const ZenCommandPalette = {
   /**
    * Creates <key> elements for custom shortcuts and adds them to the document.
    */
-  applyCustomShortcuts() {
-    if (!this._userConfig.customShortcuts) return;
-    const KEYSET_ID = "zen-command-palette-keyset";
-    let keyset = document.getElementById(KEYSET_ID);
-
-    if (keyset && keyset._zenCmdListenerAttached) {
-      keyset.removeEventListener("command", this._boundHandleKeysetCommand);
-    } else if (!keyset) {
-      keyset = document.createXULElement("keyset");
-      keyset.id = KEYSET_ID;
-      document.getElementById("mainKeyset").after(keyset);
+  async applyCustomShortcuts() {
+    if (!this._userConfig.customShortcuts) {
+      debugLog("No custom shortcuts to apply.");
+      return;
     }
-
-    keyset.replaceChildren();
 
     for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
       if (!shortcutStr) continue;
 
       const { key, keycode, modifiers } = parseShortcutString(shortcutStr);
-      if (!key && !keycode) continue;
+      const useKey = key || keycode;
+      if (!useKey) {
+        debugLog(`Skipping shortcut for ${commandKey} due to invalid key/keycode.`);
+        continue;
+      }
 
-      const keyEl = document.createXULElement("key");
-      keyEl.id = `zen-cmd-palette-shortcut-for-${commandKey}`;
-      if (key) keyEl.setAttribute("key", key);
-      if (keycode) keyEl.setAttribute("keycode", keycode);
-      if (modifiers) keyEl.setAttribute("modifiers", modifiers);
-      keyEl.setAttribute("data-command-key", commandKey);
+      const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(/,/g, " ");
 
-      keyset.appendChild(keyEl);
+      try {
+        const hotkey = {
+          id: `zen-cmd-palette-shortcut-for-${commandKey}`,
+          modifiers: translatedModifiers,
+          key: useKey,
+          command: () => this.executeCommandByKey(commandKey),
+        };
+        const registeredHotkey = await UC_API.Hotkeys.define(hotkey);
+        if (registeredHotkey) {
+          registeredHotkey.autoAttach({ suppressOriginal: true });
+        }
+      } catch (e) {
+        debugError(`Failed to register shortcut for ${commandKey}:`, e);
+      }
     }
-
-    keyset.addEventListener("command", this._boundHandleKeysetCommand);
-    keyset._zenCmdListenerAttached = true;
-    debugLog("Applied custom shortcuts.");
-  },
-
-  _handleKeysetCommand(event) {
-    const commandKey = event.target.getAttribute("data-command-key");
-    if (commandKey) {
-      this.executeCommandByKey(commandKey);
-    }
+    debugLog("Applied custom shortcuts via UC_API.Hotkeys (one-time setup).");
   },
 
   async applyToolbarButtons() {
@@ -643,7 +635,6 @@ const ZenCommandPalette = {
    */
   async init() {
     debugLog("Starting ZenCommandPalette init...");
-    this._boundHandleKeysetCommand = this._handleKeysetCommand.bind(this);
 
     this.Settings = SettingsModal;
     this.Settings.init(this);
