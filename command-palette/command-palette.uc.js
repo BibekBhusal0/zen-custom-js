@@ -485,6 +485,62 @@ const ZenCommandPalette = {
     }
   },
 
+  async addWidget(key) {
+    const allCommands = await this.getAllCommandsForConfig();
+    const cmd = allCommands.find((c) => c.key === key);
+    if (!cmd) return;
+
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
+    const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
+    try {
+      UC_API.Utils.createWidget({
+        id: widgetId,
+        type: "toolbarbutton",
+        label: cmd.label,
+        tooltip: cmd.label,
+        class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
+        image: cmd.icon || "chrome://browser/skin/trending.svg",
+        callback: () => this.executeCommandByKey(key),
+      });
+      debugLog(`Created widget for command: ${key}`);
+    } catch (e) {
+      if (!e.message.includes("widget with same id already exists")) {
+        debugError(`Failed to create widget for ${key}:`, e);
+      }
+    }
+  },
+
+  removeWidget(key) {
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
+    const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
+    const widget = document.getElementById(widgetId);
+    if (widget) {
+      widget.remove();
+      debugLog(`Removed widget: ${widgetId}`);
+    }
+  },
+
+  async addHotkey(commandKey, shortcutStr) {
+    const { key, modifiers } = parseShortcutString(shortcutStr);
+    if (!key) return;
+
+    const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(/,/g, " ");
+    try {
+      const hotkey = {
+        id: `zen-cmd-palette-shortcut-for-${commandKey}`,
+        modifiers: translatedModifiers,
+        key: useKey,
+        command: () => this.executeCommandByKey(commandKey),
+      };
+      const registeredHotkey = await UC_API.Hotkeys.define(hotkey);
+      if (registeredHotkey) {
+        registeredHotkey.autoAttach({ suppressOriginal: true });
+      }
+    } catch (e) {
+      debugError(`Failed to register new shortcut for ${commandKey}:`, e);
+    }
+  },
+
   /**
    * Retrieves the keyboard shortcut string for a given command key.
    * @param {string} commandKey - The key of the command (matches shortcut action or id).
@@ -949,7 +1005,7 @@ const ZenCommandPalette = {
 UC_API.Runtime.startupFinished().then(() => {
   Prefs.setInitialPrefs();
   window.ZenCommandPalette = ZenCommandPalette;
-  window.ZenCommandPalette.init();
+  ZenCommandPalette.init();
 
   debugLog(
     "Zen Command Palette initialized. Static commands count:",

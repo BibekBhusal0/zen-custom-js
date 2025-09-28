@@ -138,6 +138,7 @@ const SettingsModal = {
       Prefs.setPref(prefKey, value);
     });
 
+    const oldSettings = JSON.parse(this._initialSettingsState);
     const somethingChanged = JSON.stringify(newSettings) !== this._initialSettingsState;
 
     if (somethingChanged) {
@@ -147,33 +148,52 @@ const SettingsModal = {
 
     this.hide();
 
-    const shortcutsChanged =
-      JSON.stringify(JSON.parse(this._initialSettingsState).customShortcuts) !==
-      JSON.stringify(newSettings.customShortcuts);
-    const toolbarButtonsChanged =
-      JSON.stringify(JSON.parse(this._initialSettingsState).toolbarButtons) !==
-      JSON.stringify(newSettings.toolbarButtons);
+    let restartNeeded = false;
 
-    if (shortcutsChanged || toolbarButtonsChanged) {
-      let changedItem = shortcutsChanged
-        ? toolbarButtonsChanged
-          ? "Shortcuts and Toolbar buttons"
-          : "Shortcuts"
-        : "Toolbar buttons";
+    // Analyze Toolbar Button (Widget) changes
+    const oldButtons = oldSettings.toolbarButtons || [];
+    const newButtons = newSettings.toolbarButtons || [];
+    const addedButtons = newButtons.filter((b) => !oldButtons.includes(b));
+    const removedButtons = oldButtons.filter((b) => !newButtons.includes(b));
 
-      // TODO: Figure out how to apply changes real time (without restart)
+    for (const key of addedButtons) {
+      this._mainModule.addWidget(key);
+    }
+    for (const key of removedButtons) {
+      this._mainModule.removeWidget(key);
+    }
+
+    // Analyze Shortcut changes
+    const oldShortcuts = oldSettings.customShortcuts || {};
+    const newShortcuts = newSettings.customShortcuts || {};
+    const allShortcutKeys = new Set([...Object.keys(oldShortcuts), ...Object.keys(newShortcuts)]);
+
+    for (const key of allShortcutKeys) {
+      const oldShortcut = oldShortcuts[key];
+      const newShortcut = newShortcuts[key];
+
+      if (
+        (oldShortcut && !newShortcut) ||
+        (oldShortcut && newShortcut && oldShortcut !== newShortcut)
+      ) {
+        restartNeeded = true;
+        break;
+      }
+
+      if (!oldShortcut && newShortcut) {
+        this._mainModule.addHotkey(key, newShortcut);
+      }
+    }
+
+    if (restartNeeded) {
       if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
         window.ucAPI.showToast(
-          [`${changedItem} Changed`, "A restart is required for changes to take effect."],
+          ["Shortcut Changed", "A restart is required for some shortcut changes to take effect."],
           1 // Restart preset
         );
       } else {
-        alert(
-          "Settings changed. Please restart Zen for shortcut or toolbar changes to take effect."
-        );
+        alert("Please restart Zen for some shortcut changes to take effect.");
       }
-    } else {
-      // this._mainModule.applyUserConfig();
     }
   },
 
