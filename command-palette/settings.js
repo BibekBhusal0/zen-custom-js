@@ -46,6 +46,7 @@ const SettingsModal = {
   _currentShortcutTarget: null,
   _boundHandleShortcutKeyDown: null,
   _boundCloseOnEscape: null,
+  _boundEditorClickHandler: null,
 
   init(mainModule) {
     this._mainModule = mainModule;
@@ -565,6 +566,11 @@ const SettingsModal = {
     const editorContainer = this._modalElement.querySelector("#custom-command-editor");
     editorContainer.hidden = false;
 
+    // Cleanup previous listener before adding a new one
+    if (this._boundEditorClickHandler) {
+      editorContainer.removeEventListener("click", this._boundEditorClickHandler);
+    }
+
     const isEditing = !!cmd.name;
     let currentChain = [...(cmd.commands || [])];
 
@@ -686,8 +692,8 @@ const SettingsModal = {
       });
     };
 
-    // Delegated event listener for the entire editor
-    editorContainer.addEventListener('click', e => {
+    // Define and bind the new delegated event listener
+    this._boundEditorClickHandler = e => {
         const target = e.target;
 
         // Handle "Add Function" buttons
@@ -729,7 +735,9 @@ const SettingsModal = {
             self._hideCustomCommandEditor();
             return;
         }
-    });
+    };
+    
+    editorContainer.addEventListener('click', this._boundEditorClickHandler);
 
 
     if (cmd.type === "chain") {
@@ -746,7 +754,7 @@ const SettingsModal = {
           }
 
           const menuitemsXUL = allCommands
-            .sort((a, b) => a.label.localeCompare(b.label))
+            .sort((a, b) => b.label.localeCompare(a.label))
             .map(
               // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
               // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}" <!-- This line should be moved 3 lines down after issue is resolved -->
@@ -785,6 +793,12 @@ const SettingsModal = {
   },
 
   _hideCustomCommandEditor() {
+    const editorContainer = this._modalElement?.querySelector("#custom-command-editor");
+    if (editorContainer && this._boundEditorClickHandler) {
+      editorContainer.removeEventListener("click", this._boundEditorClickHandler);
+      this._boundEditorClickHandler = null;
+    }
+
     this._modalElement.querySelector("#custom-commands-view").hidden = false;
     this._modalElement.querySelector("#custom-command-editor").hidden = true;
     this._renderCustomCommands();
