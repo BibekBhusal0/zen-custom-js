@@ -487,6 +487,16 @@ const ZenCommandPalette = {
 
   async addWidget(key) {
     debugLog(`addWidget called for key: ${key}`);
+    const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
+    const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
+
+    const existingWidget = document.getElementById(widgetId);
+    if (existingWidget) {
+      existingWidget.hidden = false;
+      debugLog(`Widget "${widgetId}" already exists, un-hiding it.`);
+      return;
+    }
+
     const allCommands = await this.getAllCommandsForConfig();
     const cmd = allCommands.find((c) => c.key === key);
     if (!cmd) {
@@ -494,8 +504,6 @@ const ZenCommandPalette = {
       return;
     }
 
-    const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
-    const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
     try {
       UC_API.Utils.createWidget({
         id: widgetId,
@@ -508,22 +516,20 @@ const ZenCommandPalette = {
       });
       debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
     } catch (e) {
-      if (!e.message.includes("widget with same id already exists")) {
-        debugError(`Failed to create widget for ${key}:`, e);
-      }
+      debugError(`Failed to create widget for ${key}:`, e);
     }
   },
 
   removeWidget(key) {
-    debugLog(`removeWidget called for key: ${key}`);
+    debugLog(`removeWidget: Hiding widget for key: ${key}`);
     const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
     const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
     const widget = document.getElementById(widgetId);
     if (widget) {
-      widget.remove();
-      debugLog(`Successfully removed widget: ${widgetId}`);
+      widget.hidden = true;
+      debugLog(`Successfully hid widget: ${widgetId}`);
     } else {
-      debugLog(`removeWidget: Widget "${widgetId}" not found, nothing to remove.`);
+      debugLog(`removeWidget: Widget "${widgetId}" not found, nothing to hide.`);
     }
   },
 
