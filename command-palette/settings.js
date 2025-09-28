@@ -905,7 +905,7 @@ const SettingsModal = {
           {
             key: Prefs.KEYS.PREFIX,
             label: "Command Prefix",
-            type: "text",
+            type: "char",
           },
           {
             key: Prefs.KEYS.PREFIX_REQUIRED,
@@ -960,7 +960,7 @@ const SettingsModal = {
               )}" />
             </div>
           `;
-        } else if (item.type === "text") {
+        } else if (item.type === "char") {
           itemHtml = `
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>

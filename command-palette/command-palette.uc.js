@@ -597,7 +597,6 @@ const ZenCommandPalette = {
     const allCommands = await this.getAllCommandsForConfig();
 
     // TODO: this is requiered for realtime changes
-    // First, remove all widgets created by this mod to handle removals cleanly.
 
     if (!this._userConfig?.toolbarButtons) return;
 
