@@ -528,7 +528,7 @@ const SettingsModal = {
             type="${param.type}"
             class="param-input"
             data-param="${param.name}"
-            placeholder="${param.label || ''}"
+            placeholder="${param.label || ""}"
             value="${escapeXmlAttribute(currentValue)}"
           />`;
           break;
@@ -552,7 +552,8 @@ const SettingsModal = {
       const inputElement = e.target;
       if (inputElement.classList.contains("param-input")) {
         const paramName = inputElement.dataset.param;
-        const value = inputElement.type === "number" ? Number(inputElement.value) : inputElement.value;
+        const value =
+          inputElement.type === "number" ? Number(inputElement.value) : inputElement.value;
         chain[index].params[paramName] = value;
       }
     });
@@ -598,9 +599,9 @@ const SettingsModal = {
         </div>
       `;
     } else {
-      const functionButtons = Object.entries(commandChainFunctions).map(([action, schema]) => 
-        `<button data-action="${action}">${schema.label}</button>`
-      ).join('');
+      const functionButtons = Object.entries(commandChainFunctions)
+        .map(([action, schema]) => `<button data-action="${action}">${schema.label}</button>`)
+        .join("");
 
       typeSpecificHtml = `
         <div class="setting-item-vertical">
@@ -693,52 +694,51 @@ const SettingsModal = {
     };
 
     // Define and bind the new delegated event listener
-    this._boundEditorClickHandler = e => {
-        const target = e.target;
+    this._boundEditorClickHandler = (e) => {
+      const target = e.target;
 
-        // Handle "Add Function" buttons
-        if (target.matches('.function-actions button[data-action]')) {
-            const action = target.dataset.action;
-            const functionSchema = commandChainFunctions[action];
-            if (!functionSchema) return;
+      // Handle "Add Function" buttons
+      if (target.matches(".function-actions button[data-action]")) {
+        const action = target.dataset.action;
+        const functionSchema = commandChainFunctions[action];
+        if (!functionSchema) return;
 
-            debugLog(`Function button clicked: ${action}`);
-            
-            const newStep = { action, params: {} };
-            functionSchema.params.forEach(p => {
-              newStep.params[p.name] = p.defaultValue;
-            });
+        debugLog(`Function button clicked: ${action}`);
 
-            currentChain.push(newStep);
-            renderChainList();
-            return;
+        const newStep = { action, params: {} };
+        functionSchema.params.forEach((p) => {
+          newStep.params[p.name] = p.defaultValue;
+        });
+
+        currentChain.push(newStep);
+        renderChainList();
+        return;
+      }
+
+      // Handle "Add Command" button
+      if (target.id === "add-command-to-chain") {
+        const selector = editorContainer.querySelector("#chain-command-selector");
+        if (selector && selector.value) {
+          currentChain.push(selector.value);
+          renderChainList();
         }
+        return;
+      }
 
-        // Handle "Add Command" button
-        if (target.id === 'add-command-to-chain') {
-            const selector = editorContainer.querySelector("#chain-command-selector");
-            if (selector && selector.value) {
-                currentChain.push(selector.value);
-                renderChainList();
-            }
-            return;
-        }
+      // Handle "Save" button
+      if (target.id === "save-custom-cmd") {
+        self._saveCustomCommand(cmd, currentChain);
+        return;
+      }
 
-        // Handle "Save" button
-        if (target.id === 'save-custom-cmd') {
-            self._saveCustomCommand(cmd, currentChain);
-            return;
-        }
-
-        // Handle "Cancel" button
-        if (target.id === 'cancel-custom-cmd') {
-            self._hideCustomCommandEditor();
-            return;
-        }
+      // Handle "Cancel" button
+      if (target.id === "cancel-custom-cmd") {
+        self._hideCustomCommandEditor();
+        return;
+      }
     };
-    
-    editorContainer.addEventListener('click', this._boundEditorClickHandler);
 
+    editorContainer.addEventListener("click", this._boundEditorClickHandler);
 
     if (cmd.type === "chain") {
       // Initial population of the command selector dropdown
