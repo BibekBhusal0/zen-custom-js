@@ -2,6 +2,76 @@ import { debugLog, debugError } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "./utils/icon.js";
 import { Storage } from "./utils/storage.js";
 
+const commandChainUtils = {
+  async openLink(params) {
+    const { link, where = "new tab" } = params;
+    if (!link) return;
+    const whereNormalized = where?.toLowerCase()?.trim();
+    try {
+      switch (whereNormalized) {
+        case "current tab":
+          openTrustedLinkIn(link, "current");
+          break;
+        case "new tab":
+          openTrustedLinkIn(link, "tab");
+          break;
+        case "new window":
+          openTrustedLinkIn(link, "window");
+          break;
+        case "incognito":
+        case "private":
+          window.openTrustedLinkIn(link, "window", { private: true });
+          break;
+        case "glance":
+          if (window.gZenGlanceManager) {
+            const rect = gBrowser.selectedBrowser.getBoundingClientRect();
+            window.gZenGlanceManager.openGlance({
+              url: link,
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 2,
+              width: 10,
+              height: 10,
+            });
+          } else {
+            openTrustedLinkIn(link, "tab");
+          }
+          break;
+        case "vsplit":
+        case "hsplit":
+          if (window.gZenViewSplitter) {
+            const sep = whereNormalized === "vsplit" ? "vsep" : "hsep";
+            const tab1 = gBrowser.selectedTab;
+            await openTrustedLinkIn(link, "tab");
+            const tab2 = gBrowser.selectedTab;
+            gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
+          } else {
+            openTrustedLinkIn(link, "tab");
+          }
+          break;
+        default:
+          openTrustedLinkIn(link, "tab");
+      }
+    } catch (e) {
+      debugError(`Command Chain: Failed to open link "${link}" in "${where}".`, e);
+    }
+  },
+  async delay(params) {
+    const { time = 50 } = params;
+    if (!time) return;
+    await new Promise((resolve) => setTimeout(resolve, time));
+  },
+  async showToast(params) {
+    const { title, description } = params;
+    if (!title || !description) return;
+    if (window.ucAPI?.showToast) {
+      window.ucAPI.showToast([title || "", description || ""], 0);
+    } else {
+      debugError("ucAPI.showToast is not available.");
+      alert([title, description], 0);
+    }
+  },
+};
+
 /**
  * Gets a favicon for a search engine, with fallbacks.
  * @param {object} engine - The search engine object.
@@ -601,10 +671,15 @@ export async function generateCustomCommands() {
       };
     } else if (cmd.type === "chain") {
       commandFunc = async () => {
-        for (const key of cmd.commands) {
-          // A small delay might be needed between commands for UI to update
-          await new Promise((resolve) => setTimeout(resolve, 50));
-          await window.ZenCommandPalette.executeCommandByKey(key);
+        for (const step of cmd.commands) {
+          if (typeof step === "string") {
+            // It's a regular command key
+            await new Promise((resolve) => setTimeout(resolve, 50));
+            await window.ZenCommandPalette.executeCommandByKey(step);
+          } else if (typeof step === "object" && step.action && commandChainUtils[step.action]) {
+            // It's a utility function call
+            await commandChainUtils[step.action](step.params || {});
+          }
         }
       };
     }

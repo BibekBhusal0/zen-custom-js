@@ -3,6 +3,41 @@ import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
 import { icons, svgToUrl } from "./utils/icon.js";
 
+const commandChainFunctions = {
+  delay: {
+    label: "Delay",
+    params: [{ name: "time", type: "number", label: "Time (ms)", defaultValue: 500 }],
+  },
+  showToast: {
+    label: "Show Toast",
+    params: [
+      { name: "title", type: "text", label: "Title", defaultValue: "Hello!" },
+      { name: "description", type: "text", label: "Description", defaultValue: "" },
+    ],
+  },
+  openLink: {
+    label: "Open Link",
+    params: [
+      { name: "link", type: "text", label: "URL", defaultValue: "https://" },
+      {
+        name: "where",
+        type: "select",
+        label: "Where",
+        defaultValue: "new tab",
+        options: [
+          { value: "new tab", label: "New Tab" },
+          { value: "current tab", label: "Current Tab" },
+          { value: "new window", label: "New Window" },
+          { value: "private", label: "Private Window" },
+          { value: "vsplit", label: "Vertical Split" },
+          { value: "hsplit", label: "Horizontal Split" },
+          { value: "glance", label: "Glance" },
+        ],
+      },
+    ],
+  },
+};
+
 const SettingsModal = {
   _modalElement: null,
   _mainModule: null,
@@ -472,7 +507,60 @@ const SettingsModal = {
     this._renderCustomCommands();
   },
 
+  _renderFunctionStep(step, index, chain) {
+    const functionSchema = commandChainFunctions[step.action];
+    if (!functionSchema) return parseElement(`<div>Unknown function: ${step.action}</div>`);
+
+    const wrapper = parseElement(`<div class="function-step" data-index="${index}"></div>`);
+    const label = parseElement(`<label>${escapeXmlAttribute(functionSchema.label)}</label>`);
+    wrapper.appendChild(label);
+
+    for (const param of functionSchema.params) {
+      const paramWrapper = parseElement(`<div class="param-item"></div>`);
+      const currentValue = step.params[param.name];
+      let inputHtml = "";
+
+      switch (param.type) {
+        case "number":
+        case "text":
+          inputHtml = `<input
+            type="${param.type}"
+            class="param-input"
+            data-param="${param.name}"
+            placeholder="${param.label || ''}"
+            value="${escapeXmlAttribute(currentValue)}"
+          />`;
+          break;
+        case "select":
+          const optionsHtml = param.options
+            .map(
+              (opt) =>
+                `<option value="${escapeXmlAttribute(opt.value)}" ${
+                  currentValue === opt.value ? "selected" : ""
+                }>${escapeXmlAttribute(opt.label)}</option>`
+            )
+            .join("");
+          inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;
+          break;
+      }
+      paramWrapper.appendChild(parseElement(inputHtml));
+      wrapper.appendChild(paramWrapper);
+    }
+
+    wrapper.addEventListener("input", (e) => {
+      const inputElement = e.target;
+      if (inputElement.classList.contains("param-input")) {
+        const paramName = inputElement.dataset.param;
+        const value = inputElement.type === "number" ? Number(inputElement.value) : inputElement.value;
+        chain[index].params[paramName] = value;
+      }
+    });
+
+    return wrapper;
+  },
+
   _showCustomCommandEditor(cmd) {
+    const self = this;
     this._modalElement.querySelector("#custom-commands-view").hidden = true;
     const editorContainer = this._modalElement.querySelector("#custom-command-editor");
     editorContainer.hidden = false;
@@ -504,13 +592,21 @@ const SettingsModal = {
         </div>
       `;
     } else {
+      const functionButtons = Object.entries(commandChainFunctions).map(([action, schema]) => 
+        `<button data-action="${action}">${schema.label}</button>`
+      ).join('');
+
       typeSpecificHtml = `
         <div class="setting-item-vertical">
           <label>Commands</label>
           <div id="chain-builder">
             <div id="chain-command-selector-container">
               <div id="chain-command-selector-placeholder">Loading...</div>
-              <button id="add-command-to-chain">Add</button>
+              <button id="add-command-to-chain">Add Command</button>
+            </div>
+            <div class="function-actions">
+                <label>Add Function:</label>
+                ${functionButtons}
             </div>
             <div id="current-chain-list"></div>
           </div>
@@ -529,7 +625,7 @@ const SettingsModal = {
     editorContainer.replaceChildren(parseElement(fullEditorHtml));
 
     const renderChainList = async () => {
-      debugLog("renderChainList: starting");
+      debugLog("renderChainList called");
       const listContainer = editorContainer.querySelector("#current-chain-list");
       if (!listContainer) {
         debugLog("renderChainList: listContainer not found");
@@ -542,7 +638,6 @@ const SettingsModal = {
         return;
       }
 
-      // Get all commands ONCE to build the options string, so we don't fetch it in the loop.
       const allCommands = await this._mainModule.getAllCommandsForConfig();
       debugLog(`renderChainList: building list with ${currentChain.length} items`);
 
@@ -557,37 +652,88 @@ const SettingsModal = {
         )
         .join("");
 
-      currentChain.forEach((key, index) => {
-        const menulistXUL = `
-          <menulist class="chain-item-selector" value="${escapeXmlAttribute(key)}">
-            <menupopup>${menuitemsXUL}</menupopup>
-          </menulist>`;
+      currentChain.forEach((step, index) => {
+        const itemContainer = parseElement(`<div class="chain-item-container"></div>`);
 
-        const menulistElement = parseElement(menulistXUL, "xul");
+        if (typeof step === "string") {
+          const menulistXUL = `
+              <menulist class="chain-item-selector" value="${escapeXmlAttribute(step)}">
+                <menupopup>${menuitemsXUL}</menupopup>
+              </menulist>`;
+          const menulistElement = parseElement(menulistXUL, "xul");
+          menulistElement.addEventListener("command", (e) => {
+            currentChain[index] = e.target.value;
+          });
+          itemContainer.appendChild(menulistElement);
+        } else if (typeof step === "object" && step.action) {
+          debugLog(`Rendering function step: ${step.action}`);
+          const functionStepEl = self._renderFunctionStep(step, index, currentChain);
+          itemContainer.appendChild(functionStepEl);
+        }
+
         const deleteButton = parseElement(
           `<button class="delete-button icon-button" title="Remove Command">
              <img src="chrome://browser/skin/zen-icons/edit-delete.svg" />
            </button>`
         );
-
-        const itemContainer = parseElement(`<div class="chain-item-container"></div>`);
-        itemContainer.append(menulistElement, deleteButton);
-        listContainer.appendChild(itemContainer);
-
-        // Add listeners
-        menulistElement.addEventListener("command", (e) => {
-          currentChain[index] = e.target.value;
-          debugLog(`Chain item at index ${index} changed to ${e.target.value}`);
-        });
-
         deleteButton.addEventListener("click", () => {
           currentChain.splice(index, 1);
-          renderChainList(); // Re-render the whole list
+          renderChainList();
         });
+        itemContainer.appendChild(deleteButton);
+
+        listContainer.appendChild(itemContainer);
       });
     };
 
+    // Delegated event listener for the entire editor
+    editorContainer.addEventListener('click', e => {
+        const target = e.target;
+
+        // Handle "Add Function" buttons
+        if (target.matches('.function-actions button[data-action]')) {
+            const action = target.dataset.action;
+            const functionSchema = commandChainFunctions[action];
+            if (!functionSchema) return;
+
+            debugLog(`Function button clicked: ${action}`);
+            
+            const newStep = { action, params: {} };
+            functionSchema.params.forEach(p => {
+              newStep.params[p.name] = p.defaultValue;
+            });
+
+            currentChain.push(newStep);
+            renderChainList();
+            return;
+        }
+
+        // Handle "Add Command" button
+        if (target.id === 'add-command-to-chain') {
+            const selector = editorContainer.querySelector("#chain-command-selector");
+            if (selector && selector.value) {
+                currentChain.push(selector.value);
+                renderChainList();
+            }
+            return;
+        }
+
+        // Handle "Save" button
+        if (target.id === 'save-custom-cmd') {
+            self._saveCustomCommand(cmd, currentChain);
+            return;
+        }
+
+        // Handle "Cancel" button
+        if (target.id === 'cancel-custom-cmd') {
+            self._hideCustomCommandEditor();
+            return;
+        }
+    });
+
+
     if (cmd.type === "chain") {
+      // Initial population of the command selector dropdown
       debugLog("Chain editor: getting all commands...");
       this._mainModule
         .getAllCommandsForConfig()
@@ -633,24 +779,9 @@ const SettingsModal = {
           }
         });
 
-      editorContainer.querySelector("#add-command-to-chain").addEventListener("click", () => {
-        const selector = editorContainer.querySelector("#chain-command-selector");
-        if (selector && selector.value) {
-          currentChain.push(selector.value);
-          renderChainList();
-        }
-      });
-
+      // Initial render of the chain list
       renderChainList();
     }
-
-    editorContainer.querySelector("#cancel-custom-cmd").addEventListener("click", () => {
-      this._hideCustomCommandEditor();
-    });
-
-    editorContainer.querySelector("#save-custom-cmd").addEventListener("click", () => {
-      this._saveCustomCommand(cmd, currentChain);
-    });
   },
 
   _hideCustomCommandEditor() {
@@ -696,7 +827,7 @@ const SettingsModal = {
 
   _populateHelpTab() {
     const container = this._modalElement.querySelector("#help-tab-content");
-    container.innerHTML = ""; // Clear previous content
+    container.innerHTML = "";
 
     const helpItems = [
       {
@@ -725,25 +856,20 @@ const SettingsModal = {
       },
     ];
 
-    const buttonsHtml = helpItems
-      .map(
-        (item) => `
-      <button class="help-button" data-url="${escapeXmlAttribute(item.url)}">
-        <img src="${escapeXmlAttribute(item.icon)}" />
-        <span>${escapeXmlAttribute(item.title)}</span>
-        <p>${escapeXmlAttribute(item.description)}</p>
-      </button>
-    `
-      )
-      .join("");
+    const buttonsContainer = parseElement(`<div class="help-buttons-container"></div>`);
 
-    const content = parseElement(`
-      <div class="help-buttons-container">
-        ${buttonsHtml}
-      </div>
-    `);
+    for (const item of helpItems) {
+      const buttonHtml = `
+        <button class="help-button" data-url="${escapeXmlAttribute(item.url)}">
+          <img src="${escapeXmlAttribute(item.icon)}" />
+          <span>${escapeXmlAttribute(item.title)}</span>
+          <p>${escapeXmlAttribute(item.description)}</p>
+        </button>
+      `;
+      buttonsContainer.appendChild(parseElement(buttonHtml));
+    }
 
-    container.appendChild(content);
+    container.appendChild(buttonsContainer);
   },
 
   _populateSettingsTab() {
