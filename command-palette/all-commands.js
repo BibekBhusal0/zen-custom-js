@@ -860,6 +860,12 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/info.svg",
     tags: ["command", "palette", "help", "documentation", "support"],
   },
+  {
+    key: "command-palette:custom-command",
+    label: "Command Palette: Custom Commands",
+    command: () => ZenCommandPalette.Settings.show("custom-command"),
+    tags: ["command", "palette", "custom", "more"],
+  },
 
   // ----------- Tidy Tabs --------
   {
