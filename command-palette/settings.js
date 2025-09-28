@@ -594,7 +594,10 @@ const SettingsModal = {
       typeSpecificHtml = `
         <div class="setting-item-vertical">
           <label for="custom-cmd-code">JavaScript Code</label>
-          <div class="js-warning">Only run code from sources you trust. Malicious code can compromise your browser.</div>
+          <div class="js-warning">
+            ${icons.warning}
+            Only run code from sources you trust. Malicious code can compromise your browser.
+          </div>
           <textarea id="custom-cmd-code">${escapeXmlAttribute(cmd.code)}</textarea>
         </div>
       `;
