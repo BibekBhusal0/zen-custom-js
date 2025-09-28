@@ -148,14 +148,10 @@ const SettingsModal = {
 
     this.hide();
 
-    let restartNeeded = false;
-
-    // Analyze Toolbar Button (Widget) changes
+    // Handle Dynamic Widget Changes
     const oldButtons = oldSettings.toolbarButtons || [];
     const newButtons = newSettings.toolbarButtons || [];
-    // Find buttons that are in the new list but not the old one.
     const addedButtons = newButtons.filter((b) => !oldButtons.includes(b));
-    // Find buttons that were in the old list but are not in the new one.
     const removedButtons = oldButtons.filter((b) => !newButtons.includes(b));
 
     for (const key of addedButtons) {
@@ -165,39 +161,18 @@ const SettingsModal = {
       this._mainModule.removeWidget(key);
     }
 
-    // Analyze Shortcut changes
-    const oldShortcuts = oldSettings.customShortcuts || {};
-    const newShortcuts = newSettings.customShortcuts || {};
-    const allShortcutKeys = new Set([...Object.keys(oldShortcuts), ...Object.keys(newShortcuts)]);
+    // Check if Shortcuts Changed
+    const oldShortcutsJSON = JSON.stringify(oldSettings.customShortcuts || {});
+    const newShortcutsJSON = JSON.stringify(newSettings.customShortcuts || {});
 
-    for (const key of allShortcutKeys) {
-      const oldShortcut = oldShortcuts[key];
-      const newShortcut = newShortcuts[key];
-
-      // A restart is needed if a shortcut was removed
-      // or if the shortcut string has changed.
-      if (
-        (oldShortcut && !newShortcut) ||
-        (oldShortcut && newShortcut && oldShortcut !== newShortcut)
-      ) {
-        restartNeeded = true;
-        break;
-      }
-
-      // If a shortcut is new, add it dynamically.
-      if (!oldShortcut && newShortcut) {
-        this._mainModule.addHotkey(key, newShortcut);
-      }
-    }
-
-    if (restartNeeded) {
+    if (oldShortcutsJSON !== newShortcutsJSON) {
       if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
         window.ucAPI.showToast(
-          ["Shortcut Changed", "A restart is required for some shortcut changes to take effect."],
+          ["Shortcut Changed", "A restart is required for shortcut changes to take effect."],
           1 // Restart preset
         );
       } else {
-        alert("Please restart Zen for some shortcut changes to take effect.");
+        alert("Please restart Zen for shortcut changes to take effect.");
       }
     }
   },
