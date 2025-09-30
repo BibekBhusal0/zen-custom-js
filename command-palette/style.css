@@ -505,7 +505,8 @@
               height: 16px;
               min-width: 16px;
               min-height: 16px;
-              filter: invert(50%) sepia(100%) saturate(2000%) hue-rotate(30deg) brightness(100%) contrast(100%);
+              filter: invert(50%) sepia(100%) saturate(2000%) hue-rotate(30deg) brightness(100%)
+                contrast(100%);
             }
           }
         }
