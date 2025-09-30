@@ -6,10 +6,11 @@
 // ==/UserScript==
 
 
-(function (factory) {
-  typeof define === 'function' && define.amd ? define(factory) :
-  factory();
-})((function () { 'use strict';
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ZenCommandPalette = {}));
+})(this, (function (exports) { 'use strict';
 
   const svgToUrl = (iconSVG) => {
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(iconSVG)}`;
@@ -29,6 +30,7 @@
     folderOut: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="context-fill light-dark(black, white)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M2 7.5V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-1.5M2 13h10"/><path d="m5 10l-3 3l3 3"/></g></svg>`,
     glass: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="context-fill light-dark(black, white)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><circle cx="6" cy="15" r="4"/><circle cx="18" cy="15" r="4"/><path d="M14 15a2 2 0 0 0-2-2a2 2 0 0 0-2 2m-7.5-2L5 7c.7-1.3 1.4-2 3-2m13.5 8L19 7c-.7-1.3-1.5-2-3-2"/></g></svg>`,
     incognito: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g fill="none" stroke="context-fill light-dark(black, white)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M14 18a2 2 0 0 0-4 0m9-7l-2.11-6.657a2 2 0 0 0-2.752-1.148l-1.276.61A2 2 0 0 1 12 4H8.5a2 2 0 0 0-1.925 1.456L5 11m-3 0h20"/><circle cx="17" cy="18" r="3"/><circle cx="7" cy="18" r="3"/></g></svg>`,
+    warning: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="context-fill light-dark(black, white)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4m0 4h.01"/></svg>`,
 
     // ICON CREDITS: Lucide Labs[ISC License]
     broom: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="context-fill light-dark(black, white)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 11l9-9m-7.4 10.6c.8.8.9 2.1.2 3L10 22l-8-8l6.4-4.8c.9-.7 2.2-.6 3 .2Zm-7.8-2.2l6.8 6.8M5 17l1.4-1.4"/></svg>`,
@@ -882,7 +884,6 @@
       key: "command-palette:settings-commands",
       label: "Command Palette: Configure Commands",
       command: () => ZenCommandPalette.Settings.show("commands"),
-      condition: () => !!window.ZenCommandPalette,
       icon: "chrome://browser/skin/zen-icons/settings.svg",
       tags: ["command", "palette", "settings", "configure", "customize"],
     },
@@ -890,7 +891,6 @@
       key: "command-palette:settings-preferences",
       label: "Command Palette: Preferences",
       command: () => ZenCommandPalette.Settings.show("settings"),
-      condition: () => !!window.ZenCommandPalette,
       icon: "chrome://browser/skin/zen-icons/settings.svg",
       tags: ["command", "palette", "settings", "preferences", "options"],
     },
@@ -898,9 +898,14 @@
       key: "command-palette:settings-help",
       label: "Command Palette: Help",
       command: () => ZenCommandPalette.Settings.show("help"),
-      condition: () => !!window.ZenCommandPalette,
       icon: "chrome://browser/skin/zen-icons/info.svg",
       tags: ["command", "palette", "help", "documentation", "support"],
+    },
+    {
+      key: "command-palette:custom-command",
+      label: "Command Palette: Custom Commands",
+      command: () => ZenCommandPalette.Settings.show("custom-command"),
+      tags: ["command", "palette", "custom", "more"],
     },
 
     // ----------- Tidy Tabs --------
@@ -2423,7 +2428,10 @@
         typeSpecificHtml = `
         <div class="setting-item-vertical">
           <label for="custom-cmd-code">JavaScript Code</label>
-          <div class="js-warning">Only run code from sources you trust. Malicious code can compromise your browser.</div>
+          <div class="js-warning">
+            ${icons.warning}
+            Only run code from sources you trust. Malicious code can compromise your browser.
+          </div>
           <textarea id="custom-cmd-code">${escapeXmlAttribute(cmd.code)}</textarea>
         </div>
       `;
@@ -2919,7 +2927,7 @@
     };
   }
 
-  const ZenCommandPalette$1 = {
+  const ZenCommandPalette = {
     /**
      * An array of dynamic command providers. Each provider is an object
      * containing a function to generate commands and an optional preference for enabling/disabling.
@@ -3492,7 +3500,7 @@
       }
 
       const onUrlbarClose = () => {
-        const isPrefixModeActive = ZenCommandPalette$1.provider?._isInPrefixMode ?? false;
+        const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
         if (this.provider) this.provider.dispose();
         if (isPrefixModeActive) gURLBar.value = "";
       };
@@ -3879,8 +3887,8 @@
   // --- Initialization ---
   UC_API.Runtime.startupFinished().then(() => {
     Prefs.setInitialPrefs();
-    window.ZenCommandPalette = ZenCommandPalette$1;
-    ZenCommandPalette$1.init();
+    window.ZenCommandPalette = ZenCommandPalette;
+    ZenCommandPalette.init();
 
     debugLog(
       "Zen Command Palette initialized. Static commands count:",
@@ -3888,4 +3896,7 @@
     );
   });
 
+  exports.ZenCommandPalette = ZenCommandPalette;
+
 }));
+
