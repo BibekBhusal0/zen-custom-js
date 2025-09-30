@@ -1005,18 +1005,11 @@ export const browseBotFindbar = {
   handleContextMenuClick: async function () {
     const selection = await messageManagerAPI.getSelectedText();
     let finalMessage = "";
-    if (!selection.hasSelection) {
-      finalMessage = "Summarize current page";
+    if (selection.hasSelection) {
+      const commandTemplate = PREFS.contextMenuCommandWithSelection;
+      finalMessage = commandTemplate.replace("{selection}", selection.selectedText);
     } else {
-      finalMessage += "Explain this in context of current page\n";
-      const selectedTextFormatted = selection?.selectedText
-        ?.split("\n")
-        ?.map((line) => line.trim())
-        ?.filter((line) => line.length > 0)
-        ?.map((line) => "> " + line)
-        ?.join("\n");
-
-      finalMessage += selectedTextFormatted;
+      finalMessage = PREFS.contextMenuCommandNoSelection;
     }
     this.expanded = true;
     if (PREFS.contextMenuAutoSend) {

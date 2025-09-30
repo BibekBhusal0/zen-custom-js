@@ -379,9 +379,22 @@ export const SettingsModal = {
         pref: PREFS.CONTEXT_MENU_AUTOSEND,
       },
     ];
+    const contextMenuCommandsHtml = `
+      <div class="setting-item">
+        <label for="pref-context-menu-command-no-selection">Command when no text is selected</label>
+        <input type="text" id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" />
+      </div>
+      <div class="setting-item">
+        <label for="pref-context-menu-command-with-selection">Command when text is selected. Use {selection} for the selected text.</label>
+        <textarea id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
+      </div>
+    `;
     const contextMenuSectionHtml = this._createCheckboxSectionHtml(
       "Context Menu",
-      contextMenuSettings
+      contextMenuSettings,
+      true,
+      "",
+      contextMenuCommandsHtml
     );
 
     const browserFindbarSettings = [

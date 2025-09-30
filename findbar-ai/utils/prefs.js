@@ -12,6 +12,10 @@ export const PREFS = {
   CONFORMATION: "extension.browse-bot.findbar-ai.conform-before-tool-call",
   CONTEXT_MENU_ENABLED: "extension.browse-bot.findbar-ai.context-menu-enabled",
   CONTEXT_MENU_AUTOSEND: "extension.browse-bot.findbar-ai.context-menu-autosend",
+  CONTEXT_MENU_COMMAND_WITH_SELECTION:
+    "extension.browse-bot.findbar-ai.context-menu-command-with-selection",
+  CONTEXT_MENU_COMMAND_NO_SELECTION:
+    "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
   PSEUDO_BG: "extension.browse-bot.findbar-ai.pseudo-bg.enabled",
 
   // Other prefs
@@ -145,6 +149,20 @@ export const PREFS = {
     this.setPref(this.CONTEXT_MENU_AUTOSEND, value);
   },
 
+  get contextMenuCommandWithSelection() {
+    return this.getPref(this.CONTEXT_MENU_COMMAND_WITH_SELECTION);
+  },
+  set contextMenuCommandWithSelection(value) {
+    this.setPref(this.CONTEXT_MENU_COMMAND_WITH_SELECTION, value);
+  },
+
+  get contextMenuCommandNoSelection() {
+    return this.getPref(this.CONTEXT_MENU_COMMAND_NO_SELECTION);
+  },
+  set contextMenuCommandNoSelection(value) {
+    this.setPref(this.CONTEXT_MENU_COMMAND_NO_SELECTION, value);
+  },
+
   get llmProvider() {
     return this.getPref(this.LLM_PROVIDER);
   },
@@ -161,9 +179,6 @@ export const PREFS = {
 
   get pseudoBg() {
     return this.getPref(this.PSEUDO_BG);
-  },
-  set maxToolCalls(value) {
-    this.setPref(this.PSEUDO_BG, value);
   },
 
   get maxToolCalls() {
@@ -239,6 +254,9 @@ PREFS.defaultValues = {
   [PREFS.CITATIONS_ENABLED]: false,
   [PREFS.CONTEXT_MENU_ENABLED]: true,
   [PREFS.CONTEXT_MENU_AUTOSEND]: true,
+  [PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION]: "Summarize current page",
+  [PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION]:
+    "Explain this in context of current page:\n\n{selection}",
   [PREFS.LLM_PROVIDER]: "gemini",
   [PREFS.MISTRAL_API_KEY]: "",
   [PREFS.MISTRAL_MODEL]: "mistral-medium-latest",
