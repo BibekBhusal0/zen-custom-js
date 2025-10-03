@@ -2,13 +2,7 @@ let _originalMaxResults = null;
 
 export const Prefs = {
   KEYS: {
-    PREFIX: "zen-command-palette.prefix",
-    PREFIX_REQUIRED: "zen-command-palette.prefix-required",
     DEBUG_MODE: "zen-command-palette.debug-mode",
-    MAX_COMMANDS: "zen-command-palette.max-commands",
-    MAX_COMMANDS_PREFIX: "zen-command-palette.max-commands-prefix",
-    MIN_QUERY_LENGTH: "zen-command-palette.min-query-length",
-    MIN_SCORE_THRESHOLD: "zen-command-palette.min-score-threshold",
     DYNAMIC_ABOUT_PAGES: "zen-command-palette.dynamic.about-pages",
     DYNAMIC_SEARCH_ENGINES: "zen-command-palette.dynamic.search-engines",
     DYNAMIC_EXTENSIONS: "zen-command-palette.dynamic.extensions",
@@ -45,26 +39,8 @@ export const Prefs = {
     }
   },
 
-  get prefix() {
-    return this.getPref(this.KEYS.PREFIX);
-  },
-  get prefixRequired() {
-    return this.getPref(this.KEYS.PREFIX_REQUIRED);
-  },
   get debugMode() {
     return this.getPref(this.KEYS.DEBUG_MODE);
-  },
-  get maxCommands() {
-    return this.getPref(this.KEYS.MAX_COMMANDS);
-  },
-  get maxCommandsPrefix() {
-    return this.getPref(this.KEYS.MAX_COMMANDS_PREFIX);
-  },
-  get minQueryLength() {
-    return this.getPref(this.KEYS.MIN_QUERY_LENGTH);
-  },
-  get minScoreThreshold() {
-    return this.getPref(this.KEYS.MIN_SCORE_THRESHOLD);
   },
   get loadAboutPages() {
     return this.getPref(this.KEYS.DYNAMIC_ABOUT_PAGES);
@@ -110,13 +86,7 @@ export const Prefs = {
 };
 
 Prefs.defaultValues = {
-  [Prefs.KEYS.PREFIX_REQUIRED]: false,
-  [Prefs.KEYS.PREFIX]: ":",
   [Prefs.KEYS.DEBUG_MODE]: false,
-  [Prefs.KEYS.MAX_COMMANDS]: 3,
-  [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
-  [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
-  [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 150,
   [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
   [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
   [Prefs.KEYS.DYNAMIC_EXTENSIONS]: false,
