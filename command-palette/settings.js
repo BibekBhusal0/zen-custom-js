@@ -283,7 +283,7 @@ const SettingsModal = {
     const customShortcut = this._currentSettings.customShortcuts[cmd.key];
     const nativeShortcut = this._mainModule.getShortcutForCommand(cmd.key);
 
-    const allowIconChange = !cmd.isNative && cmd.allowIcons !== false;
+    const allowIconChange = cmd.allowIcons !== false;
     const allowShortcutChange = !cmd.isNative && cmd.allowShortcuts !== false;
     const allowToolbarButton = cmd.allowShortcuts !== false; // Native commands can be on toolbar
 

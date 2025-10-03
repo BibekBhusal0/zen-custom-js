@@ -200,7 +200,7 @@ export const ZenCommandPalette = {
       }
       const commandSets = await Promise.all(commandPromises);
       dynamicCommands = commandSets.flat();
-      this._dynamicCommandsCache = dynamicCommands;
+      if (useCache) this._dynamicCommandsCache = dynamicCommands;
     }
 
     let allCommands = [...staticCommands, ...dynamicCommands];
@@ -258,9 +258,9 @@ export const ZenCommandPalette = {
         .map((a) => ({
           key: a.commandId,
           label: a.label,
-          icon: a.icon,
+          icon: this._userConfig.customIcons?.[a.commandId] || a.icon,
           isNative: true,
-          allowIcons: false,
+          allowIcons: true,
           allowShortcuts: true,
         }));
       liveCommands.push(...nativeCommands);
@@ -528,17 +528,25 @@ export const ZenCommandPalette = {
       // 4. Add them to the native list
       this._globalActions.push(...nativeModCommands);
 
-      // 5. Patch native commands to respect the `hiddenCommands` setting
+      // 5. Patch native commands to respect user settings
       this._globalActions.forEach((action) => {
-        if (!action._isZenModCommand && action.commandId && !action.isAvailable_patched) {
-          const originalIsAvailable = action.isAvailable;
-          action.isAvailable = (window) => {
-            if (this._userConfig.hiddenCommands?.includes(action.commandId)) {
-              return false;
-            }
-            return originalIsAvailable(window);
-          };
-          action.isAvailable_patched = true;
+        if (!action._isZenModCommand && action.commandId) {
+          // Apply custom icon for native command
+          if (this._userConfig.customIcons?.[action.commandId]) {
+            action.icon = this._userConfig.customIcons[action.commandId];
+          }
+
+          // Patch isAvailable for native commands
+          if (!action.isAvailable_patched) {
+            const originalIsAvailable = action.isAvailable;
+            action.isAvailable = (window) => {
+              if (this._userConfig.hiddenCommands?.includes(action.commandId)) {
+                return false;
+              }
+              return originalIsAvailable(window);
+            };
+            action.isAvailable_patched = true;
+          }
         }
       });
     } catch (e) {
