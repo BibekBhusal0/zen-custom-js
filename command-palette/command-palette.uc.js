@@ -105,11 +105,12 @@ export const ZenCommandPalette = {
   _dynamicCommandsCache: null,
   _commandVisibilityCache: {},
   _userConfig: {},
-  _syncTimeout: null,
   _globalActions: null,
   _nativeProvider: null,
   _originalStartQuery: null,
   _isSyncing: false,
+  _closeListenersAttached: false,
+  _isUrlbarSessionActive: false,
 
   safeStr(x) {
     return (x || "").toString();
@@ -117,6 +118,8 @@ export const ZenCommandPalette = {
 
   clearDynamicCommandsCache() {
     this._dynamicCommandsCache = null;
+    this._commandVisibilityCache = {};
+    debugLog("Dynamic command cache cleared.");
   },
 
   _closeUrlBar() {
@@ -178,9 +181,9 @@ export const ZenCommandPalette = {
    * with dynamically generated ones based on current preferences.
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
-  async generateLiveCommands(createCache = true) {
+  async generateLiveCommands(useCache = true) {
     let dynamicCommands;
-    if (this._dynamicCommandsCache) {
+    if (useCache && this._dynamicCommandsCache) {
       dynamicCommands = this._dynamicCommandsCache;
     } else {
       const commandPromises = [];
@@ -190,12 +193,14 @@ export const ZenCommandPalette = {
         if (shouldLoad) {
           try {
             commandPromises.push(provider.func());
-          } catch {}
+          } catch (e) {
+            debugError(`Error executing dynamic provider ${provider.func.name}`, e);
+          }
         }
       }
       const commandSets = await Promise.all(commandPromises);
       dynamicCommands = commandSets.flat();
-      if (createCache) this._dynamicCommandsCache = dynamicCommands;
+      this._dynamicCommandsCache = dynamicCommands;
     }
 
     let allCommands = [...staticCommands, ...dynamicCommands];
@@ -226,32 +231,44 @@ export const ZenCommandPalette = {
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
   async getAllCommandsForConfig() {
-    let liveCommands = [...staticCommands.map((c) => ({ ...c, isDynamic: false }))];
-
-    const commandPromises = [];
-    for (const provider of this._dynamicCommandProviders) {
-      const shouldLoad = provider.pref === null ? true : Prefs.getPref(provider.pref);
-      if (shouldLoad) {
-        const promise = provider.func().then((commands) => {
-          return commands.map((cmd) => ({
-            ...cmd,
-            isDynamic: true,
-            providerPref: provider.pref,
-            providerLabel: this._getProviderLabel(provider.func.name),
-            allowIcons: cmd.allowIcons ?? provider.allowIcons,
-            allowShortcuts: cmd.allowShortcuts ?? provider.allowShortcuts,
-          }));
-        });
-        commandPromises.push(promise);
+    // 1. Get all commands from the mod (static and dynamic)
+    const modCommands = await this.generateLiveCommands(false); // Force fresh generation
+    const liveCommands = modCommands.map((c) => {
+      // Find its provider to determine if it's dynamic and get its metadata
+      const provider = this._dynamicCommandProviders.find((p) =>
+        this._dynamicCommandsCache?.some((dc) => dc.key === c.key && p.func === dc.providerFunc)
+      );
+      if (provider) {
+        return {
+          ...c,
+          isDynamic: true,
+          providerPref: provider.pref,
+          providerLabel: this._getProviderLabel(provider.func.name),
+          allowIcons: c.allowIcons ?? provider.allowIcons,
+          allowShortcuts: c.allowShortcuts ?? provider.allowShortcuts,
+        };
       }
+      return { ...c, isDynamic: false, allowIcons: true, allowShortcuts: true };
+    });
+
+    // 2. Get all native Zen commands
+    if (this._globalActions) {
+      const nativeCommands = this._globalActions
+        .filter((a) => !a._isZenModCommand && a.commandId)
+        .map((a) => ({
+          key: a.commandId,
+          label: a.label,
+          icon: a.icon,
+          isNative: true,
+          allowIcons: false,
+          allowShortcuts: true,
+        }));
+      liveCommands.push(...nativeCommands);
     }
 
-    const commandSets = await Promise.all(commandPromises);
-    liveCommands.push(...commandSets.flat());
-
-    // Apply custom icons
+    // 3. Apply custom icons (for mod commands)
     for (const cmd of liveCommands) {
-      if (this._userConfig.customIcons?.[cmd.key]) {
+      if (!cmd.isNative && this._userConfig.customIcons?.[cmd.key]) {
         cmd.icon = this._userConfig.customIcons[cmd.key];
       }
     }
@@ -302,7 +319,6 @@ export const ZenCommandPalette = {
     const allCommands = await this.generateLiveCommands(false);
     const cmd = allCommands.find((c) => c.key === key);
     if (cmd) {
-      this._closeUrlBar();
       this.executeCommandObject(cmd);
     } else {
       debugError(`executeCommandByKey: Command with key "${key}" not found.`);
@@ -409,13 +425,27 @@ export const ZenCommandPalette = {
     return shortcut ? shortcut.toDisplayString() : null;
   },
 
+  attachUrlbarCloseListeners() {
+    if (this._closeListenersAttached) {
+      return;
+    }
+    const onUrlbarClose = () => {
+      this._isUrlbarSessionActive = false;
+      // Clear cache after the urlbar session ends, so it's fresh for the next one.
+      this.clearDynamicCommandsCache();
+    };
+    gURLBar.inputField.addEventListener("blur", onUrlbarClose);
+    gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
+    this._closeListenersAttached = true;
+    debugLog("URL bar close listeners attached.");
+  },
+
   /**
    * Loads user customizations from the settings file.
    */
   async loadUserConfig() {
     Storage.reset();
     this._userConfig = await Storage.loadSettings();
-    this.clearDynamicCommandsCache();
     debugLog("User config loaded:", this._userConfig);
     this.queueSyncWithNativeActions();
   },
@@ -457,24 +487,14 @@ export const ZenCommandPalette = {
   },
 
   queueSyncWithNativeActions() {
-    if (this._syncTimeout) return;
-    this._syncTimeout = setTimeout(() => {
-      this._syncTimeout = null;
-      this._syncWithNativeActions();
-    }, 100); // Debounce for 100ms
+    this._syncWithNativeActions();
   },
 
   async _syncWithNativeActions() {
     if (!this._globalActions || this._isSyncing) return;
     this._isSyncing = true;
     try {
-      debugLog("Syncing commands with native command palette...");
-
-      // 1. Clear caches
-      this.clearDynamicCommandsCache();
-      this._commandVisibilityCache = {};
-
-      // 2. Remove our old commands from the native list
+      // 1. Remove previously added commands from the native list
       let i = this._globalActions.length;
       while (i--) {
         if (this._globalActions[i]._isZenModCommand) {
@@ -482,32 +502,45 @@ export const ZenCommandPalette = {
         }
       }
 
-      // 3. Generate our fresh list of commands
-      const myCommands = await this.generateLiveCommands();
+      // 2. Generate the fresh list of commands from this mod, using cache if available
+      const modCommands = await this.generateLiveCommands(true);
 
-      // 4. Map them to the native format
-      const myNativeCommands = myCommands.map((cmd) => {
+      // 3. Map them to the native format
+      const nativeModCommands = modCommands.map((cmd) => {
         const isFunc = typeof cmd.command === "function";
+        const shortcut = this.getShortcutForCommand(cmd.key);
         return {
           label: cmd.label,
           command: isFunc
             ? () => {
-                this._closeUrlBar();
-                // Use timeout to let the urlbar close before execution
                 setTimeout(() => this.executeCommandObject(cmd), 0);
               }
             : cmd.key,
           icon: cmd.icon || "chrome://browser/skin/trending.svg",
           isAvailable: () => this.commandIsVisible(cmd),
           commandId: cmd.key,
-          extraPayload: {},
-          _isZenModCommand: true, // Custom flag to identify our commands
+          // Overwrite native shortcut lookup by providing it in the payload
+          extraPayload: { shortcutContent: shortcut || "" },
+          _isZenModCommand: true,
         };
       });
 
-      // 5. Add them back to the native list
-      this._globalActions.push(...myNativeCommands);
-      debugLog(`Sync complete. Total native commands: ${this._globalActions.length}`);
+      // 4. Add them to the native list
+      this._globalActions.push(...nativeModCommands);
+
+      // 5. Patch native commands to respect the `hiddenCommands` setting
+      this._globalActions.forEach((action) => {
+        if (!action._isZenModCommand && action.commandId && !action.isAvailable_patched) {
+          const originalIsAvailable = action.isAvailable;
+          action.isAvailable = (window) => {
+            if (this._userConfig.hiddenCommands?.includes(action.commandId)) {
+              return false;
+            }
+            return originalIsAvailable(window);
+          };
+          action.isAvailable_patched = true;
+        }
+      });
     } catch (e) {
       debugError("Error during sync with native actions:", e);
     } finally {
@@ -516,11 +549,12 @@ export const ZenCommandPalette = {
   },
 
   destroy() {
+    // Restore the original native provider method
     if (this._nativeProvider && this._originalStartQuery) {
       this._nativeProvider.startQuery = this._originalStartQuery;
       debugLog("Restored native command provider.");
     }
-    // On unload, remove our commands from the native array
+    // On unload, remove commands from the native array
     if (this._globalActions) {
       let i = this._globalActions.length;
       while (i--) {
@@ -558,10 +592,13 @@ export const ZenCommandPalette = {
         this._nativeProvider = nativeProvider;
         this._originalStartQuery = nativeProvider.startQuery.bind(nativeProvider);
         nativeProvider.startQuery = async (context, add) => {
-          await this._syncWithNativeActions();
+          if (!this._isUrlbarSessionActive) {
+            this._isUrlbarSessionActive = true;
+            await this._syncWithNativeActions();
+          }
           return this._originalStartQuery(context, add);
         };
-        debugLog("Successfully patched native command provider.");
+        debugLog("Successfully patched native command provider for real-time sync.");
       } else {
         debugError("Could not find native provider to patch.");
       }
@@ -576,6 +613,8 @@ export const ZenCommandPalette = {
     await this.loadUserConfig();
     this.applyUserConfig();
     debugLog("User config loaded and applied.");
+
+    this.attachUrlbarCloseListeners();
 
     window.addEventListener("unload", () => this.destroy(), { once: true });
 
@@ -617,7 +656,6 @@ export const ZenCommandPalette = {
       "items. total static commands:",
       this.staticCommands.length
     );
-    // Sync is already queued by addCommand
     return this.staticCommands;
   },
 
