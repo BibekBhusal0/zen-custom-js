@@ -18,6 +18,8 @@ import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { parseShortcutString } from "../utils/keyboard.js";
 
+const { AddonManager } = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
+
 export const ZenCommandPalette = {
   /**
    * An array of dynamic command providers. Each provider is an object
@@ -101,13 +103,14 @@ export const ZenCommandPalette = {
     },
   ],
   staticCommands,
-  provider: null,
   Settings: null,
-  _recentCommands: [],
-  MAX_RECENT_COMMANDS: 20,
   _dynamicCommandsCache: null,
   _commandVisibilityCache: {},
   _userConfig: {},
+  _syncTimeout: null,
+  _globalActions: null,
+  _browserStateListeners: null,
+  _addonListener: null,
 
   safeStr(x) {
     return (x || "").toString();
@@ -119,42 +122,11 @@ export const ZenCommandPalette = {
 
   _closeUrlBar() {
     try {
-      gURLBar.value = "";
-      if (window.gZenUIManager && typeof window.gZenUIManager.handleUrlbarClose === "function") {
-        window.gZenUIManager.handleUrlbarClose(false, false);
-        return;
-      }
-
-      gURLBar.selectionStart = gURLBar.selectionEnd = 0;
-      gURLBar.blur();
-
       if (gURLBar.view.isOpen) {
-        gURLBar.view.close();
+        gURLBar.handleRevert();
       }
     } catch (e) {
       debugError("Error in _closeUrlBar", e);
-    }
-  },
-
-  /**
-   * Adds a command to the list of recently used commands.
-   * @param {object} cmd - The command object that was executed.
-   */
-  addRecentCommand(cmd) {
-    if (!cmd || !cmd.key) return;
-
-    // Remove if it already exists to move it to the front.
-    const existingIndex = this._recentCommands.indexOf(cmd.key);
-    if (existingIndex > -1) {
-      this._recentCommands.splice(existingIndex, 1);
-    }
-
-    // Add to the front of the list.
-    this._recentCommands.unshift(cmd.key);
-
-    // Trim the list to the maximum allowed size.
-    if (this._recentCommands.length > this.MAX_RECENT_COMMANDS) {
-      this._recentCommands.length = this.MAX_RECENT_COMMANDS;
     }
   },
 
@@ -166,12 +138,13 @@ export const ZenCommandPalette = {
    */
   commandIsVisible(cmd) {
     try {
-      if (cmd && cmd.key && this._commandVisibilityCache[cmd.key] !== undefined) {
-        return this._commandVisibilityCache[cmd.key];
+      const cacheKey = cmd ? cmd.key : null;
+      if (cacheKey && this._commandVisibilityCache[cacheKey] !== undefined) {
+        return this._commandVisibilityCache[cacheKey];
       }
 
-      if (this._userConfig.hiddenCommands?.includes(cmd.key)) {
-        if (cmd && cmd.key) this._commandVisibilityCache[cmd.key] = false;
+      if (this._userConfig.hiddenCommands?.includes(cacheKey)) {
+        if (cacheKey) this._commandVisibilityCache[cacheKey] = false;
         return false;
       }
       let isVisible = true;
@@ -193,86 +166,12 @@ export const ZenCommandPalette = {
         }
       }
 
-      if (cmd && cmd.key) this._commandVisibilityCache[cmd.key] = isVisible;
+      if (cacheKey) this._commandVisibilityCache[cacheKey] = isVisible;
       return isVisible;
     } catch (e) {
       debugError("Error evaluating condition for", cmd && cmd.key, e);
       return false;
     }
-  },
-
-  /**
-   * A VS Code-style fuzzy scoring algorithm.
-   * @param {string} target The string to score against.
-   * @param {string} query The user's search query.
-   * @returns {number} A score representing the match quality.
-   */
-  calculateFuzzyScore(target, query) {
-    if (!target || !query) return 0;
-
-    const targetLower = target.toLowerCase();
-    const queryLower = query.toLowerCase();
-    const targetLen = target.length;
-    const queryLen = query.length;
-
-    if (queryLen > targetLen) return 0;
-    if (queryLen === 0) return 0;
-
-    // 1. Exact match gets the highest score.
-    if (targetLower === queryLower) {
-      return 200;
-    }
-
-    // 2. Exact prefix matches are heavily prioritized.
-    if (targetLower.startsWith(queryLower)) {
-      return 100 + queryLen;
-    }
-
-    // 3. Exact abbreviation (e.g., 'tcm' for 'Toggle Compact Mode')
-    const initials = targetLower
-      .split(/[\s-_]+/)
-      .map((word) => word[0])
-      .join("");
-    if (initials === queryLower) {
-      return 90 + queryLen;
-    }
-
-    // 4. Calculate score based on character match
-    let score = 0;
-    let queryIndex = 0;
-    let lastMatchIndex = -1;
-    let consecutiveMatches = 0;
-
-    for (let targetIndex = 0; targetIndex < targetLen; targetIndex++) {
-      if (queryIndex < queryLen && targetLower[targetIndex] === queryLower[queryIndex]) {
-        let bonus = 10;
-
-        // Bonus for matching at the beginning of a word
-        if (targetIndex === 0 || [" ", "-", "_"].includes(targetLower[targetIndex - 1])) {
-          bonus += 15;
-        }
-
-        // Bonus for consecutive matches
-        if (lastMatchIndex === targetIndex - 1) {
-          consecutiveMatches++;
-          bonus += 20 * consecutiveMatches;
-        } else {
-          consecutiveMatches = 0;
-        }
-
-        // Penalty for distance from the last match
-        if (lastMatchIndex !== -1) {
-          const distance = targetIndex - lastMatchIndex;
-          bonus -= Math.min(distance - 1, 10); // Cap penalty
-        }
-
-        score += bonus;
-        lastMatchIndex = targetIndex;
-        queryIndex++;
-      }
-    }
-
-    return queryIndex === queryLen ? score : 0;
   },
 
   /**
@@ -362,79 +261,6 @@ export const ZenCommandPalette = {
   },
 
   /**
-   * Filters and sorts the command list using a fuzzy-matching algorithm.
-   * @param {string} input - The user's search string from the URL bar.
-   * @param {Array<object>} allCommands - The full list of commands to filter.
-   * @returns {Array<object>} A sorted array of command objects that match the input.
-   */
-  filterCommandsByInput(input, allCommands) {
-    let query = this.safeStr(input).trim();
-    const isCommandPrefix = query.startsWith(Prefs.prefix);
-    if (isCommandPrefix) {
-      query = query.substring(1).trim();
-    }
-
-    // If the input was just the prefix, show a capped number of available commands.
-    // now handled asynchronously in startQuery
-    if (isCommandPrefix && !query) {
-      return [];
-    }
-
-    // For non-prefixed queries, only show results if the query is long enough.
-    if (!isCommandPrefix && query.length < Prefs.minQueryLength) {
-      return [];
-    }
-
-    if (!query) {
-      return [];
-    }
-
-    const lowerQuery = query.toLowerCase();
-
-    const scoredCommands = allCommands
-      .map((cmd) => {
-        const label = cmd.label || "";
-        const key = cmd.key || "";
-        const tags = (cmd.tags || []).join(" ");
-
-        // Calculate scores for different fields
-        const labelScore = this.calculateFuzzyScore(label, lowerQuery);
-        const keyScore = this.calculateFuzzyScore(key, lowerQuery);
-        const tagsScore = this.calculateFuzzyScore(tags, lowerQuery);
-
-        // Add a bonus for recently used commands.
-        let recencyBonus = 0;
-        const recentIndex = this._recentCommands.indexOf(cmd.key);
-        if (recentIndex > -1) {
-          // More recent commands (lower index) get a higher bonus.
-          recencyBonus = (this.MAX_RECENT_COMMANDS - recentIndex) * 2;
-        }
-
-        // Combine scores, giving label the highest weight, and add recency bonus.
-        const score =
-          Math.max(
-            labelScore * 1.5, // Label is most important
-            keyScore,
-            tagsScore * 0.5 // Tags are least important
-          ) + recencyBonus;
-
-        return { cmd, score };
-      })
-      .filter((item) => item.score >= Prefs.minScoreThreshold)
-      .filter((item) => this.commandIsVisible(item.cmd));
-
-    // Sort by score, descending
-    scoredCommands.sort((a, b) => b.score - a.score);
-
-    const finalCmds = scoredCommands.map((item) => item.cmd);
-
-    if (isCommandPrefix) {
-      return finalCmds.slice(0, Prefs.maxCommandsPrefix);
-    }
-    return finalCmds.slice(0, Prefs.maxCommands);
-  },
-
-  /**
    * Safely executes a command's action within a try-catch block.
    * @param {object} cmd - The command object to execute.
    */
@@ -443,8 +269,6 @@ export const ZenCommandPalette = {
       debugError("executeCommandObject: no command");
       return;
     }
-
-    this.addRecentCommand(cmd);
 
     try {
       // Prioritize explicit command function if it exists.
@@ -479,6 +303,7 @@ export const ZenCommandPalette = {
     const allCommands = await this.generateLiveCommands(false);
     const cmd = allCommands.find((c) => c.key === key);
     if (cmd) {
+      this._closeUrlBar();
       this.executeCommandObject(cmd);
     } else {
       debugError(`executeCommandByKey: Command with key "${key}" not found.`);
@@ -585,23 +410,6 @@ export const ZenCommandPalette = {
     return shortcut ? shortcut.toDisplayString() : null;
   },
 
-  attachUrlbarCloseListeners() {
-    if (this._closeListenersAttached) {
-      return;
-    }
-
-    const onUrlbarClose = () => {
-      const isPrefixModeActive = ZenCommandPalette.provider?._isInPrefixMode ?? false;
-      if (this.provider) this.provider.dispose();
-      if (isPrefixModeActive) gURLBar.value = "";
-    };
-
-    gURLBar.inputField.addEventListener("blur", onUrlbarClose);
-    gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
-    this._closeListenersAttached = true;
-    debugLog("URL bar close listeners attached.");
-  },
-
   /**
    * Loads user customizations from the settings file.
    */
@@ -610,6 +418,7 @@ export const ZenCommandPalette = {
     this._userConfig = await Storage.loadSettings();
     this.clearDynamicCommandsCache();
     debugLog("User config loaded:", this._userConfig);
+    this.queueSyncWithNativeActions();
   },
 
   /**
@@ -648,23 +457,135 @@ export const ZenCommandPalette = {
     debugLog("Applied initial toolbar buttons.");
   },
 
+  queueSyncWithNativeActions() {
+    if (this._syncTimeout) return;
+    this._syncTimeout = setTimeout(() => {
+      this._syncTimeout = null;
+      this._syncWithNativeActions();
+    }, 100); // Debounce for 100ms
+  },
+
+  async _syncWithNativeActions() {
+    if (!this._globalActions) return;
+    debugLog("Syncing commands with native command palette...");
+
+    // 1. Clear caches
+    this.clearDynamicCommandsCache();
+    this._commandVisibilityCache = {};
+
+    // 2. Remove our old commands from the native list
+    let i = this._globalActions.length;
+    while (i--) {
+      if (this._globalActions[i]._isZenModCommand) {
+        this._globalActions.splice(i, 1);
+      }
+    }
+
+    // 3. Generate our fresh list of commands
+    const myCommands = await this.generateLiveCommands();
+
+    // 4. Map them to the native format
+    const myNativeCommands = myCommands.map((cmd) => {
+      const isFunc = typeof cmd.command === "function";
+      return {
+        label: cmd.label,
+        command: isFunc
+          ? () => {
+              this._closeUrlBar();
+              // Use timeout to let the urlbar close before execution
+              setTimeout(() => this.executeCommandObject(cmd), 0);
+            }
+          : cmd.key,
+        icon: cmd.icon || "chrome://browser/skin/trending.svg",
+        isAvailable: () => this.commandIsVisible(cmd),
+        commandId: cmd.key,
+        extraPayload: {},
+        _isZenModCommand: true, // Custom flag to identify our commands
+      };
+    });
+
+    // 5. Add them back to the native list
+    this._globalActions.push(...myNativeCommands);
+    debugLog(`Sync complete. Total native commands: ${this._globalActions.length}`);
+  },
+
+  _addBrowserStateListeners() {
+    const debouncedSync = () => this.queueSyncWithNativeActions();
+
+    this._browserStateListeners = {
+      TabOpen: debouncedSync,
+      TabClose: debouncedSync,
+      TabSelect: debouncedSync,
+      TabAttrModified: debouncedSync,
+    };
+
+    for (const [event, listener] of Object.entries(this._browserStateListeners)) {
+      gBrowser.tabContainer.addEventListener(event, listener);
+    }
+
+    window.addEventListener("ZenWorkspace:changed", debouncedSync);
+    window.addEventListener("ZenWorkspace:updated", debouncedSync);
+
+    this._addonListener = {
+      onEnabled: debouncedSync,
+      onDisabled: debouncedSync,
+      onInstalled: debouncedSync,
+      onUninstalled: debouncedSync,
+    };
+    AddonManager.addAddonListener(this._addonListener);
+    debugLog("Added browser state listeners for dynamic command updates.");
+  },
+
+  _removeBrowserStateListeners() {
+    const debouncedSync = () => this.queueSyncWithNativeActions();
+
+    if (this._browserStateListeners) {
+      for (const [event, listener] of Object.entries(this._browserStateListeners)) {
+        gBrowser.tabContainer.removeEventListener(event, listener);
+      }
+      this._browserStateListeners = null;
+    }
+
+    window.removeEventListener("ZenWorkspace:changed", debouncedSync);
+    window.removeEventListener("ZenWorkspace:updated", debouncedSync);
+
+    if (this._addonListener) {
+      AddonManager.removeAddonListener(this._addonListener);
+      this._addonListener = null;
+    }
+    debugLog("Removed browser state listeners.");
+  },
+
   destroy() {
-    if (this.provider) {
-      const { UrlbarProvidersManager } = ChromeUtils.importESModule(
-        "resource:///modules/UrlbarProvidersManager.sys.mjs"
-      );
-      UrlbarProvidersManager.unregisterProvider(this.provider);
-      this.provider = null;
-      debugLog("Urlbar provider unregistered.");
+    this._removeBrowserStateListeners();
+    // On unload, remove our commands from the native array
+    if (this._globalActions) {
+      let i = this._globalActions.length;
+      while (i--) {
+        if (this._globalActions[i]._isZenModCommand) {
+          this._globalActions.splice(i, 1);
+        }
+      }
+      debugLog("Removed mod commands from native globalActions.");
     }
   },
 
   /**
-   * Initializes the command palette by creating and registering the UrlbarProvider.
+   * Initializes the command palette by integrating with the native command system.
    * This is the main entry point for the script.
    */
   async init() {
     debugLog("Starting ZenCommandPalette init...");
+
+    try {
+      const { globalActions } = ChromeUtils.importESModule(
+        "resource:///modules/ZenUBGlobalActions.sys.mjs"
+      );
+      this._globalActions = globalActions;
+    } catch (e) {
+      debugError("Could not load native globalActions. The mod will not function.", e);
+      return;
+    }
 
     this.Settings = SettingsModal;
     this.Settings.init(this);
@@ -674,228 +595,12 @@ export const ZenCommandPalette = {
     this.applyUserConfig();
     debugLog("User config loaded and applied.");
 
-    this.attachUrlbarCloseListeners();
+    this._addBrowserStateListeners();
+    this.queueSyncWithNativeActions();
 
     window.addEventListener("unload", () => this.destroy(), { once: true });
 
-    const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
-      "resource:///modules/UrlbarUtils.sys.mjs"
-    );
-    const { UrlbarProvidersManager } = ChromeUtils.importESModule(
-      "resource:///modules/UrlbarProvidersManager.sys.mjs"
-    );
-    const { UrlbarResult } = ChromeUtils.importESModule("resource:///modules/UrlbarResult.sys.mjs");
-
-    if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
-      debugError(
-        "UrlbarProvider or UrlbarProvidersManager not available; provider not registered."
-      );
-      return;
-    }
-    debugLog("Urlbar modules imported.");
-
-    const DYNAMIC_TYPE_NAME = "ZenCommandPalette";
-    UrlbarResult.addDynamicResultType(DYNAMIC_TYPE_NAME);
-    debugLog(`Dynamic result type "${DYNAMIC_TYPE_NAME}" added.`);
-
-    try {
-      const self = this;
-      class ZenCommandProvider extends UrlbarProvider {
-        _isInPrefixMode = false;
-
-        get name() {
-          // HACK: setting name to "TestProvider" don't cause too many error messages in console due to setting result.heuristic = true;
-          return "TestProvider";
-        }
-        get type() {
-          return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
-        }
-        getPriority(context) {
-          const input = (context.searchString || "").trim();
-          // Returning a high priority ensures this provider's results are shown exclusively
-          // when the prefix is used, effectively creating a command-only mode.
-          return input.startsWith(Prefs.prefix) ? 10000 : 0;
-        }
-
-        async isActive(context) {
-          try {
-            const input = (context.searchString || "").trim();
-            const isPrefixSearch = input.startsWith(Prefs.prefix);
-
-            if (this._isInPrefixMode && !isPrefixSearch) {
-              this._isInPrefixMode = false;
-              Prefs.resetTempMaxRichResults();
-            }
-
-            // Do not activate if a one-off search engine is already active.
-            const inSearchMode =
-              !!context.searchMode?.engineName || !!gURLBar.searchMode?.engineName;
-            if (inSearchMode) {
-              return false;
-            }
-
-            if (isPrefixSearch) return true;
-            if (Prefs.prefixRequired) return false;
-
-            if (input.length >= Prefs.minQueryLength) {
-              const liveCommands = await self.generateLiveCommands();
-              return self.filterCommandsByInput(input, liveCommands).length > 0;
-            }
-
-            return false;
-          } catch (e) {
-            debugError("isActive error:", e);
-            return false;
-          }
-        }
-
-        async startQuery(context, add) {
-          try {
-            if (context.canceled) return;
-            const input = (context.searchString || "").trim();
-            debugLog(`startQuery for: "${input}"`);
-
-            const isPrefixSearch = input.startsWith(Prefs.prefix);
-            const query = isPrefixSearch ? input.substring(1).trim() : input.trim();
-
-            this._isInPrefixMode = isPrefixSearch;
-
-            if (isPrefixSearch) Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
-            else Prefs.resetTempMaxRichResults();
-
-            if (context.canceled) return;
-
-            const liveCommands = await self.generateLiveCommands();
-            if (context.canceled) return;
-
-            const addResult = (cmd, isHeuristic = false) => {
-              if (!cmd) return;
-              const shortcut = self.getShortcutForCommand(cmd.key);
-              const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
-                suggestion: cmd.label,
-                title: cmd.label,
-                query: input,
-                keywords: cmd?.tags,
-                icon: cmd.icon || "chrome://browser/skin/trending.svg",
-                shortcutContent: shortcut,
-                dynamicType: DYNAMIC_TYPE_NAME,
-              });
-              const result = new UrlbarResult(
-                UrlbarUtils.RESULT_TYPE.DYNAMIC,
-                UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
-                payload,
-                payloadHighlights
-              );
-              if (isHeuristic) result.heuristic = true;
-              result._zenCmd = cmd;
-              add(this, result);
-              return true;
-            };
-
-            if (isPrefixSearch && !query) {
-              let count = 0;
-              const maxResults = Prefs.maxCommandsPrefix;
-              const recentCmds = self._recentCommands
-                .map((key) => liveCommands.find((c) => c.key === key))
-                .filter(Boolean)
-                .filter((cmd) => self.commandIsVisible(cmd));
-
-              for (const cmd of recentCmds) {
-                if (context.canceled || count >= maxResults) break;
-                addResult(cmd, count === 0);
-                count++;
-              }
-
-              if (count < maxResults) {
-                const recentKeys = new Set(self._recentCommands);
-                const otherCmds = liveCommands.filter(
-                  (c) => !recentKeys.has(c.key) && self.commandIsVisible(c)
-                );
-                for (const cmd of otherCmds) {
-                  if (context.canceled || count >= maxResults) break;
-                  addResult(cmd, count === 0);
-                  count++;
-                }
-              }
-
-              if (count === 0 && !context.canceled) {
-                addResult({
-                  key: "no-results",
-                  label: "No available commands",
-                  command: self._closeUrlBar.bind(self),
-                  icon: "chrome://browser/skin/zen-icons/info.svg",
-                });
-              }
-              return;
-            }
-
-            const matches = self.filterCommandsByInput(input, liveCommands);
-
-            if (!matches.length && isPrefixSearch) {
-              addResult({
-                key: "no-results",
-                label: "No matching commands found",
-                command: self._closeUrlBar.bind(self),
-                icon: "chrome://browser/skin/zen-icons/info.svg",
-              });
-              return;
-            }
-
-            matches.forEach((cmd, index) => addResult(cmd, index === 0));
-          } catch (e) {
-            debugError("startQuery unexpected error:", e);
-          }
-        }
-
-        dispose() {
-          Prefs.resetTempMaxRichResults();
-          this._isInPrefixMode = false;
-          setTimeout(() => {
-            self.clearDynamicCommandsCache();
-            self._commandVisibilityCache = {};
-          }, 0);
-        }
-
-        onEngagement(queryContext, controller, details) {
-          const cmd = details.result._zenCmd;
-          if (cmd) {
-            debugLog("Executing command from onEngagement:", cmd.key);
-            self._closeUrlBar();
-            setTimeout(() => self.executeCommandObject(cmd), 0);
-          }
-        }
-
-        getViewUpdate(result) {
-          return {
-            icon: { attributes: { src: result.payload.icon } },
-            titleStrong: { textContent: result.payload.title },
-            shortcutContent: { textContent: result.payload.shortcutContent || "" },
-          };
-        }
-
-        getViewTemplate() {
-          return {
-            attributes: { selectable: true },
-            children: [
-              { name: "icon", tag: "img", classList: ["urlbarView-favicon"] },
-              {
-                name: "title",
-                tag: "span",
-                classList: ["urlbarView-title"],
-                children: [{ name: "titleStrong", tag: "strong" }],
-              },
-              { name: "shortcutContent", tag: "span", classList: ["urlbarView-shortcutContent"] },
-            ],
-          };
-        }
-      }
-
-      this.provider = new ZenCommandProvider();
-      UrlbarProvidersManager.registerProvider(this.provider);
-      debugLog("Zen Command Palette provider registered.");
-    } catch (e) {
-      debugError("Failed to create/register Urlbar provider:", e);
-    }
+    debugLog("Zen Command Palette integration initialized.");
   },
 
   /**
@@ -908,6 +613,7 @@ export const ZenCommandPalette = {
       throw new Error("addCommand: command must have {key, label}");
     }
     this.staticCommands.push(cmd);
+    this.queueSyncWithNativeActions();
     return cmd;
   },
 
@@ -929,9 +635,10 @@ export const ZenCommandPalette = {
     debugLog(
       "addCommands: added",
       addedCount,
-      "items. total commands:",
+      "items. total static commands:",
       this.staticCommands.length
     );
+    // Sync is already queued by addCommand
     return this.staticCommands;
   },
 
@@ -948,6 +655,7 @@ export const ZenCommandPalette = {
     if (idx >= 0) {
       const [removed] = this.staticCommands.splice(idx, 1);
       debugLog("removeCommand:", removed && removed.key);
+      this.queueSyncWithNativeActions();
       return removed;
     }
     return null;
@@ -972,6 +680,7 @@ export const ZenCommandPalette = {
       allowIcons,
       allowShortcuts,
     });
+    this.queueSyncWithNativeActions();
   },
 };
 
