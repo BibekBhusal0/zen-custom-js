@@ -234,15 +234,26 @@ const SettingsModal = {
 
     const allCommands = await this._mainModule.getAllCommandsForConfig();
 
-    const staticCmds = allCommands
-      .filter((c) => !c.isDynamic)
-      .sort((a, b) => a.label.localeCompare(b.label));
-
-    if (staticCmds.length > 0) {
-      const groupWrapper = parseElement('<div class="commands-group static-commands"></div>');
-      staticCmds.forEach((cmd) => this._renderCommand(groupWrapper, cmd));
+    const renderGroup = (title, commands) => {
+      if (commands.length === 0) return;
+      const groupWrapper = parseElement('<div class="commands-group"></div>');
+      const headerHtml = `
+        <div class="commands-group-header">
+          <h4>${escapeXmlAttribute(title)}</h4>
+        </div>
+      `;
+      groupWrapper.appendChild(parseElement(headerHtml));
+      commands
+        .sort((a, b) => a.label.localeCompare(b.label))
+        .forEach((cmd) => this._renderCommand(groupWrapper, cmd));
       container.appendChild(groupWrapper);
-    }
+    };
+
+    const nativeCmds = allCommands.filter((c) => c.isNative);
+    const staticCmds = allCommands.filter((c) => !c.isDynamic && !c.isNative);
+
+    renderGroup("Native Commands", nativeCmds);
+    renderGroup("Customizable Commands", staticCmds);
 
     const dynamicGroups = {};
     allCommands.forEach((cmd) => {
@@ -262,25 +273,7 @@ const SettingsModal = {
       if (group.pref && !Prefs.getPref(group.pref)) {
         continue;
       }
-      const configurableCommands = group.commands.filter(
-        (c) => c.allowIcons !== false || c.allowShortcuts !== false
-      );
-
-      if (configurableCommands.length > 0) {
-        const groupWrapper = parseElement('<div class="commands-group dynamic-commands"></div>');
-
-        const headerHtml = `
-          <div class="commands-group-header">
-            <h4>${escapeXmlAttribute(label)}</h4>
-          </div>
-        `;
-        groupWrapper.appendChild(parseElement(headerHtml));
-
-        configurableCommands
-          .sort((a, b) => a.label.localeCompare(b.label))
-          .forEach((cmd) => this._renderCommand(groupWrapper, cmd));
-        container.appendChild(groupWrapper);
-      }
+      renderGroup(label, group.commands);
     }
   },
 
@@ -289,21 +282,22 @@ const SettingsModal = {
     const customIcon = this._currentSettings.customIcons[cmd.key];
     const customShortcut = this._currentSettings.customShortcuts[cmd.key];
     const nativeShortcut = this._mainModule.getShortcutForCommand(cmd.key);
-    const allowIcons = cmd.allowIcons !== false;
-    const allowShortcuts = cmd.allowShortcuts !== false;
-    const isToolbarButton = this._currentSettings.toolbarButtons?.includes(cmd.key);
 
-    const shortcutInputHtml = allowShortcuts
-      ? `<input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
-          customShortcut || nativeShortcut || ""
-        )}" readonly />`
-      : "";
-    const visibilityToggleHtml = !cmd.isDynamic
-      ? `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
-          !isHidden ? "checked" : ""
-        } />`
-      : "";
-    const toolbarButtonHtml = allowShortcuts
+    const allowIconChange = !cmd.isNative && cmd.allowIcons !== false;
+    const allowShortcutChange = !cmd.isNative && cmd.allowShortcuts !== false;
+    const allowToolbarButton = cmd.allowShortcuts !== false; // Native commands can be on toolbar
+
+    const shortcutValue = customShortcut || nativeShortcut || "";
+    const shortcutInputHtml = `<input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
+      shortcutValue
+    )}" ${!allowShortcutChange ? "readonly" : ""} />`;
+
+    const visibilityToggleHtml = `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
+      !isHidden ? "checked" : ""
+    } />`;
+
+    const isToolbarButton = this._currentSettings.toolbarButtons?.includes(cmd.key);
+    const toolbarButtonHtml = allowToolbarButton
       ? `<button class="toolbar-button-toggle ${isToolbarButton ? "active" : ""}" title="${
           isToolbarButton ? "Remove from Toolbar" : "Add to Toolbar"
         }">${icons.pin}</button>`
@@ -313,7 +307,7 @@ const SettingsModal = {
       <div class="command-item" data-key="${escapeXmlAttribute(cmd.key)}">
         <img src="${escapeXmlAttribute(
           customIcon || cmd.icon || "chrome://browser/skin/trending.svg"
-        )}" class="command-icon ${allowIcons ? "editable" : ""}" />
+        )}" class="command-icon ${allowIconChange ? "editable" : ""}" />
         <span class="command-label">${escapeXmlAttribute(cmd.label)}</span>
         <div class="command-controls">
             ${shortcutInputHtml}
@@ -331,7 +325,7 @@ const SettingsModal = {
       this.onerror = null;
     };
 
-    if (allowIcons) {
+    if (allowIconChange) {
       item.querySelector(".command-icon").addEventListener("click", (e) => {
         const newIconInput = prompt("Enter new icon URL or paste SVG code:", e.target.src);
         if (newIconInput !== null) {
@@ -346,7 +340,7 @@ const SettingsModal = {
       });
     }
 
-    if (allowShortcuts) {
+    if (allowShortcutChange) {
       const shortcutInput = item.querySelector(".shortcut-input");
       shortcutInput.addEventListener("focus", (e) => {
         this._currentShortcutTarget = e.target;
@@ -361,7 +355,9 @@ const SettingsModal = {
         }
         window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
       });
+    }
 
+    if (allowToolbarButton) {
       const toolbarToggle = item.querySelector(".toolbar-button-toggle");
       toolbarToggle.addEventListener("click", (e) => {
         const button = e.currentTarget;
