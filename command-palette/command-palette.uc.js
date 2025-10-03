@@ -18,8 +18,6 @@ import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { parseShortcutString } from "../utils/keyboard.js";
 
-const { AddonManager } = ChromeUtils.importESModule("resource://gre/modules/AddonManager.sys.mjs");
-
 export const ZenCommandPalette = {
   /**
    * An array of dynamic command providers. Each provider is an object
@@ -109,8 +107,9 @@ export const ZenCommandPalette = {
   _userConfig: {},
   _syncTimeout: null,
   _globalActions: null,
-  _browserStateListeners: null,
-  _addonListener: null,
+  _nativeProvider: null,
+  _originalStartQuery: null,
+  _isSyncing: false,
 
   safeStr(x) {
     return (x || "").toString();
@@ -466,98 +465,61 @@ export const ZenCommandPalette = {
   },
 
   async _syncWithNativeActions() {
-    if (!this._globalActions) return;
-    debugLog("Syncing commands with native command palette...");
+    if (!this._globalActions || this._isSyncing) return;
+    this._isSyncing = true;
+    try {
+      debugLog("Syncing commands with native command palette...");
 
-    // 1. Clear caches
-    this.clearDynamicCommandsCache();
-    this._commandVisibilityCache = {};
+      // 1. Clear caches
+      this.clearDynamicCommandsCache();
+      this._commandVisibilityCache = {};
 
-    // 2. Remove our old commands from the native list
-    let i = this._globalActions.length;
-    while (i--) {
-      if (this._globalActions[i]._isZenModCommand) {
-        this._globalActions.splice(i, 1);
+      // 2. Remove our old commands from the native list
+      let i = this._globalActions.length;
+      while (i--) {
+        if (this._globalActions[i]._isZenModCommand) {
+          this._globalActions.splice(i, 1);
+        }
       }
+
+      // 3. Generate our fresh list of commands
+      const myCommands = await this.generateLiveCommands();
+
+      // 4. Map them to the native format
+      const myNativeCommands = myCommands.map((cmd) => {
+        const isFunc = typeof cmd.command === "function";
+        return {
+          label: cmd.label,
+          command: isFunc
+            ? () => {
+                this._closeUrlBar();
+                // Use timeout to let the urlbar close before execution
+                setTimeout(() => this.executeCommandObject(cmd), 0);
+              }
+            : cmd.key,
+          icon: cmd.icon || "chrome://browser/skin/trending.svg",
+          isAvailable: () => this.commandIsVisible(cmd),
+          commandId: cmd.key,
+          extraPayload: {},
+          _isZenModCommand: true, // Custom flag to identify our commands
+        };
+      });
+
+      // 5. Add them back to the native list
+      this._globalActions.push(...myNativeCommands);
+      debugLog(`Sync complete. Total native commands: ${this._globalActions.length}`);
+    } catch (e) {
+      debugError("Error during sync with native actions:", e);
+    } finally {
+      this._isSyncing = false;
     }
-
-    // 3. Generate our fresh list of commands
-    const myCommands = await this.generateLiveCommands();
-
-    // 4. Map them to the native format
-    const myNativeCommands = myCommands.map((cmd) => {
-      const isFunc = typeof cmd.command === "function";
-      return {
-        label: cmd.label,
-        command: isFunc
-          ? () => {
-              this._closeUrlBar();
-              // Use timeout to let the urlbar close before execution
-              setTimeout(() => this.executeCommandObject(cmd), 0);
-            }
-          : cmd.key,
-        icon: cmd.icon || "chrome://browser/skin/trending.svg",
-        isAvailable: () => this.commandIsVisible(cmd),
-        commandId: cmd.key,
-        extraPayload: {},
-        _isZenModCommand: true, // Custom flag to identify our commands
-      };
-    });
-
-    // 5. Add them back to the native list
-    this._globalActions.push(...myNativeCommands);
-    debugLog(`Sync complete. Total native commands: ${this._globalActions.length}`);
-  },
-
-  _addBrowserStateListeners() {
-    const debouncedSync = () => this.queueSyncWithNativeActions();
-
-    this._browserStateListeners = {
-      TabOpen: debouncedSync,
-      TabClose: debouncedSync,
-      TabSelect: debouncedSync,
-      TabAttrModified: debouncedSync,
-    };
-
-    for (const [event, listener] of Object.entries(this._browserStateListeners)) {
-      gBrowser.tabContainer.addEventListener(event, listener);
-    }
-
-    window.addEventListener("ZenWorkspace:changed", debouncedSync);
-    window.addEventListener("ZenWorkspace:updated", debouncedSync);
-
-    this._addonListener = {
-      onEnabled: debouncedSync,
-      onDisabled: debouncedSync,
-      onInstalled: debouncedSync,
-      onUninstalled: debouncedSync,
-    };
-    AddonManager.addAddonListener(this._addonListener);
-    debugLog("Added browser state listeners for dynamic command updates.");
-  },
-
-  _removeBrowserStateListeners() {
-    const debouncedSync = () => this.queueSyncWithNativeActions();
-
-    if (this._browserStateListeners) {
-      for (const [event, listener] of Object.entries(this._browserStateListeners)) {
-        gBrowser.tabContainer.removeEventListener(event, listener);
-      }
-      this._browserStateListeners = null;
-    }
-
-    window.removeEventListener("ZenWorkspace:changed", debouncedSync);
-    window.removeEventListener("ZenWorkspace:updated", debouncedSync);
-
-    if (this._addonListener) {
-      AddonManager.removeAddonListener(this._addonListener);
-      this._addonListener = null;
-    }
-    debugLog("Removed browser state listeners.");
   },
 
   destroy() {
-    this._removeBrowserStateListeners();
+    if (this._nativeProvider && this._originalStartQuery) {
+      this._nativeProvider.startQuery = this._originalStartQuery;
+      debugLog("Restored native command provider.");
+    }
     // On unload, remove our commands from the native array
     if (this._globalActions) {
       let i = this._globalActions.length;
@@ -587,6 +549,26 @@ export const ZenCommandPalette = {
       return;
     }
 
+    try {
+      const { UrlbarProvidersManager } = ChromeUtils.importESModule(
+        "resource:///modules/UrlbarProvidersManager.sys.mjs"
+      );
+      const nativeProvider = UrlbarProvidersManager.getProvider("ZenUrlbarProviderGlobalActions");
+      if (nativeProvider) {
+        this._nativeProvider = nativeProvider;
+        this._originalStartQuery = nativeProvider.startQuery.bind(nativeProvider);
+        nativeProvider.startQuery = async (context, add) => {
+          await this._syncWithNativeActions();
+          return this._originalStartQuery(context, add);
+        };
+        debugLog("Successfully patched native command provider.");
+      } else {
+        debugError("Could not find native provider to patch.");
+      }
+    } catch (e) {
+      debugError("Failed to patch native command provider.", e);
+    }
+
     this.Settings = SettingsModal;
     this.Settings.init(this);
     debugLog("Settings modal initialized.");
@@ -594,9 +576,6 @@ export const ZenCommandPalette = {
     await this.loadUserConfig();
     this.applyUserConfig();
     debugLog("User config loaded and applied.");
-
-    this._addBrowserStateListeners();
-    this.queueSyncWithNativeActions();
 
     window.addEventListener("unload", () => this.destroy(), { once: true });
 
