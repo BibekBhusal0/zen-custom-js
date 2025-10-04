@@ -256,6 +256,12 @@
             align-items: center;
             gap: 10px;
 
+            .shortcut-input-wrapper {
+              position: relative;
+              display: flex;
+              flex-direction: column;
+            }
+
             .shortcut-input {
               width: 120px;
               padding: 6px 10px !important;
@@ -269,6 +275,22 @@
                 opacity: 0.5 !important;
                 cursor: not-allowed !important;
               }
+
+              &.conflict {
+                border-color: #ff6b6b !important;
+                outline-color: #ff6b6b !important;
+              }
+            }
+
+            .shortcut-conflict-warning {
+              position: absolute;
+              bottom: -16px;
+              left: 0;
+              width: 100%;
+              text-align: center;
+              font-size: 10px;
+              color: #ff6b6b;
+              font-weight: bold;
             }
 
             .toolbar-button-toggle {

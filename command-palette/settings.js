@@ -284,13 +284,16 @@ const SettingsModal = {
     const nativeShortcut = this._mainModule.getShortcutForCommand(cmd.key);
 
     const allowIconChange = cmd.allowIcons !== false;
-    const allowShortcutChange = !cmd.isNative && cmd.allowShortcuts !== false;
-    const allowToolbarButton = cmd.allowShortcuts !== false; // Native commands can be on toolbar
+    const allowShortcutChange = cmd.allowShortcuts !== false;
+    const allowToolbarButton = cmd.allowShortcuts !== false;
 
     const shortcutValue = customShortcut || nativeShortcut || "";
-    const shortcutInputHtml = `<input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
-      shortcutValue
-    )}" ${!allowShortcutChange ? "readonly" : ""} />`;
+    const shortcutInputHtml = `<div class="shortcut-input-wrapper">
+      <input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
+        shortcutValue
+      )}" ${!allowShortcutChange ? "readonly" : ""} />
+      <span class="shortcut-conflict-warning" hidden>Conflict!</span>
+    </div>`;
 
     const visibilityToggleHtml = `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
       !isHidden ? "checked" : ""
@@ -379,7 +382,7 @@ const SettingsModal = {
     }
   },
 
-  _handleShortcutKeyDown(event) {
+  async _handleShortcutKeyDown(event) {
     if (!this._currentShortcutTarget) return;
 
     event.preventDefault();
@@ -387,16 +390,31 @@ const SettingsModal = {
 
     const key = event.key;
     const targetInput = this._currentShortcutTarget;
-    const commandKey = targetInput.closest(".command-item").dataset.key;
+    const commandItem = targetInput.closest(".command-item");
+    const commandKey = commandItem.dataset.key;
+    const conflictWarning = commandItem.querySelector(".shortcut-conflict-warning");
+
+    const clearConflict = () => {
+      targetInput.classList.remove("conflict");
+      conflictWarning.hidden = true;
+    };
 
     if (key === "Escape") {
+      clearConflict();
       targetInput.blur();
       return;
     }
+
     if (key === "Backspace" || key === "Delete") {
       targetInput.value = "";
       delete this._currentSettings.customShortcuts[commandKey];
+      clearConflict();
       targetInput.blur();
+      return;
+    }
+
+    // Ignore modifier-only key presses
+    if (["Control", "Alt", "Shift", "Meta"].includes(key)) {
       return;
     }
 
@@ -405,14 +423,46 @@ const SettingsModal = {
     if (event.altKey) shortcutString += "Alt+";
     if (event.shiftKey) shortcutString += "Shift+";
     if (event.metaKey) shortcutString += "Meta+";
+    shortcutString += key.toUpperCase();
 
-    // Avoid adding modifier keys themselves as the shortcut
-    if (!["Control", "Alt", "Shift", "Meta"].includes(key)) {
-      shortcutString += key.toUpperCase();
+    const modifiers = new nsKeyShortcutModifiers(
+      event.ctrlKey,
+      event.altKey,
+      event.shiftKey,
+      event.metaKey,
+      false
+    );
+
+    let hasConflict = window.gZenKeyboardShortcutsManager.checkForConflicts(
+      key,
+      modifiers,
+      commandKey
+    );
+
+    if (!hasConflict) {
+      for (const [otherCmdKey, otherShortcutStr] of Object.entries(
+        this._currentSettings.customShortcuts
+      )) {
+        if (otherCmdKey !== commandKey && otherShortcutStr === shortcutString) {
+          hasConflict = true;
+          break;
+        }
+      }
     }
 
     targetInput.value = shortcutString;
-    this._currentSettings.customShortcuts[commandKey] = shortcutString;
+
+    if (hasConflict) {
+      targetInput.classList.add("conflict");
+      conflictWarning.hidden = false;
+      debugLog(
+        `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`
+      );
+      delete this._currentSettings.customShortcuts[commandKey];
+    } else {
+      clearConflict();
+        this._currentSettings.customShortcuts[commandKey] = shortcutString;
+    }
   },
 
   _populateCustomCommandsTab() {
@@ -532,9 +582,7 @@ const SettingsModal = {
           const optionsHtml = param.options
             .map(
               (opt) =>
-                `<option value="${escapeXmlAttribute(opt.value)}" ${
-                  currentValue === opt.value ? "selected" : ""
-                }>${escapeXmlAttribute(opt.label)}</option>`
+                `<option value=" ${escapeXmlAttribute(opt.value)} " ${ currentValue === opt.value ? "selected" : "" } > ${escapeXmlAttribute(opt.label)} </option>`
             )
             .join("");
           inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;

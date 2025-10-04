@@ -1,6 +1,7 @@
 import { debugLog, debugError } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "./utils/icon.js";
 import { Storage } from "./utils/storage.js";
+import { ZenCommandPalette } from "./command-palette.uc.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -675,7 +676,7 @@ export async function generateCustomCommands() {
           if (typeof step === "string") {
             // It's a regular command key
             await new Promise((resolve) => setTimeout(resolve, 50));
-            await window.ZenCommandPalette.executeCommandByKey(step);
+            ZenCommandPalette.executeCommandByKey(step);
           } else if (typeof step === "object" && step.action && commandChainUtils[step.action]) {
             // It's a utility function call
             await commandChainUtils[step.action](step.params || {});

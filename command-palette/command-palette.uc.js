@@ -160,7 +160,7 @@ export const ZenCommandPalette = {
 
       // If the command relies on a native <command> element (has no custom function),
       // its visibility is also determined by the element's state.
-      if (isVisible && !cmd.command) {
+      if (isVisible && typeof cmd.command !== "function") {
         const commandEl = document.getElementById(cmd.key);
         // The command is only visible if its element exists and is not disabled.
         if (!commandEl || commandEl.disabled) {
@@ -262,6 +262,7 @@ export const ZenCommandPalette = {
           isNative: true,
           allowIcons: true,
           allowShortcuts: true,
+          command: a.command,
         }));
       liveCommands.push(...nativeCommands);
     }
@@ -277,52 +278,52 @@ export const ZenCommandPalette = {
   },
 
   /**
-   * Safely executes a command's action within a try-catch block.
-   * @param {object} cmd - The command object to execute.
-   */
-  executeCommandObject(cmd) {
-    if (!cmd) {
-      debugError("executeCommandObject: no command");
-      return;
-    }
-
-    try {
-      // Prioritize explicit command function if it exists.
-      if (cmd.command && typeof cmd.command === "function") {
-        debugLog("Executing command via function:", cmd.key || cmd.label);
-        const ret = cmd.command();
-        if (ret && typeof ret.then === "function") {
-          ret.catch((e) => debugError("Command promise rejected:", e));
-        }
-        return; // Execution handled.
-      }
-
-      // Fallback for commands that rely on a DOM element.
-      const commandEl = document.getElementById(cmd.key);
-      if (commandEl && typeof commandEl.doCommand === "function") {
-        debugLog("Executing command via doCommand fallback:", cmd.key);
-        commandEl.doCommand();
-      } else {
-        debugError("Command has no executable action:", cmd.key);
-      }
-    } catch (e) {
-      debugError("Command execution error:", e);
-    }
-  },
-
-  /**
    * Finds a command by its key and executes it.
    * @param {string} key - The key of the command to execute.
    */
-  async executeCommandByKey(key) {
+  executeCommandByKey(key) {
     if (!key) return;
-    const allCommands = await this.generateLiveCommands(false);
-    const cmd = allCommands.find((c) => c.key === key);
-    if (cmd) {
-      this.executeCommandObject(cmd);
-    } else {
-      debugError(`executeCommandByKey: Command with key "${key}" not found.`);
+
+    // Check native actions first, as they are the definitive source for the palette.
+    const action = this._globalActions?.find((a) => a.commandId === key);
+    if (action) {
+      debugLog("Executing action via key:", key);
+      const command = action.command;
+      if (typeof command === "function") {
+        command(window);
+      } else if (typeof command === "string") {
+        const commandEl = document.getElementById(command);
+        if (commandEl?.doCommand) {
+          commandEl.doCommand();
+        } else {
+          debugError(`Native command element not found for key: ${key}`);
+        }
+      }
+      return;
     }
+
+    debugLog(`Action not found in globalActions, falling back to command lists for key: ${key}`);
+    const findInCommands = (arr) => arr.find((c) => c.key === key);
+    const cmd =
+      findInCommands(staticCommands) ||
+      (this._dynamicCommandsCache && findInCommands(this._dynamicCommandsCache));
+
+    if (cmd) {
+      debugLog("Executing mod command via fallback:", key);
+      if (typeof cmd.command === "function") {
+        cmd.command();
+      } else {
+        const commandEl = document.getElementById(cmd.key);
+        if (commandEl?.doCommand) {
+          commandEl.doCommand();
+        } else {
+          debugError(`Fallback command has no executable action: ${cmd.key}`);
+        }
+      }
+      return;
+    }
+
+    debugError(`executeCommandByKey: Command with key "${key}" could not be found or executed.`);
   },
 
   async addWidget(key) {
@@ -511,11 +512,7 @@ export const ZenCommandPalette = {
         const shortcut = this.getShortcutForCommand(cmd.key);
         return {
           label: cmd.label,
-          command: isFunc
-            ? () => {
-                setTimeout(() => this.executeCommandObject(cmd), 0);
-              }
-            : cmd.key,
+          command: isFunc ? cmd.command : cmd.key,
           icon: cmd.icon || "chrome://browser/skin/trending.svg",
           isAvailable: () => this.commandIsVisible(cmd),
           commandId: cmd.key,

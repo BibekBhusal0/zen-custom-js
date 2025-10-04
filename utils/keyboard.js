@@ -1,3 +1,45 @@
+const KEY_MAP = {
+  f1: "VK_F1",
+  f2: "VK_F2",
+  f3: "VK_F3",
+  f4: "VK_F4",
+  f5: "VK_F5",
+  f6: "VK_F6",
+  f7: "VK_F7",
+  f8: "VK_F8",
+  f9: "VK_F9",
+  f10: "VK_F10",
+  f11: "VK_F11",
+  f12: "VK_F12",
+  f13: "VK_F13",
+  f14: "VK_F14",
+  f15: "VK_F15",
+  f16: "VK_F16",
+  f17: "VK_F17",
+  f18: "VK_F18",
+  f19: "VK_F19",
+  f20: "VK_F20",
+  f21: "VK_F21",
+  f22: "VK_F22",
+  f23: "VK_F23",
+  f24: "VK_F24",
+  tab: "VK_TAB",
+  enter: "VK_RETURN",
+  escape: "VK_ESCAPE",
+  space: "VK_SPACE",
+  arrowleft: "VK_LEFT",
+  arrowright: "VK_RIGHT",
+  arrowup: "VK_UP",
+  arrowdown: "VK_DOWN",
+  delete: "VK_DELETE",
+  backspace: "VK_BACK",
+  home: "VK_HOME",
+  num_lock: "VK_NUMLOCK",
+  scroll_lock: "VK_SCROLL",
+};
+
+const REVERSE_KEY_MAP = Object.fromEntries(Object.entries(KEY_MAP).map(([key, value]) => [value, key]));
+
 /**
  * Parses a shortcut string (e.g., "Ctrl+Shift+K") into an object for a <key> element.
  * @param {string} str - The shortcut string.
@@ -36,27 +78,7 @@ export function parseShortcutString(str) {
     }
   }
 
-  // A rough mapping for special keys.
-  const KEYCODE_MAP = {
-    f1: "VK_F1",
-    f2: "VK_F2",
-    f3: "VK_F3",
-    f4: "VK_F4",
-    f5: "VK_F5",
-    f6: "VK_F6",
-    f7: "VK_F7",
-    f8: "VK_F8",
-    f9: "VK_F9",
-    f10: "VK_F10",
-    f11: "VK_F11",
-    f12: "VK_F12",
-    enter: "VK_RETURN",
-    escape: "VK_ESCAPE",
-    delete: "VK_DELETE",
-    backspace: "VK_BACK",
-  };
-
-  const keycode = KEYCODE_MAP[keyPart] || null;
+  const keycode = KEY_MAP[keyPart] || null;
   const key = keycode ? null : keyPart;
 
   return {
@@ -96,28 +118,9 @@ export function shortcutToString(shortcutObject) {
     }
   }
 
-  // Key or Keycode is added.
-  const REVERSE_KEYCODE_MAP = {
-    VK_F1: "F1",
-    VK_F2: "F2",
-    VK_F3: "F3",
-    VK_F4: "F4",
-    VK_F5: "F5",
-    VK_F6: "F6",
-    VK_F7: "F7",
-    VK_F8: "F8",
-    VK_F9: "F9",
-    VK_F10: "F10",
-    VK_F11: "F11",
-    VK_F12: "F12",
-    VK_RETURN: "Enter",
-    VK_ESCAPE: "Escape",
-    VK_DELETE: "Delete",
-    VK_BACK: "Backspace",
-  };
-
   if (shortcutObject.keycode) {
-    parts.push(REVERSE_KEYCODE_MAP[shortcutObject.keycode] || shortcutObject.keycode);
+    const keyName = REVERSE_KEY_MAP[shortcutObject.keycode] || shortcutObject.keycode;
+    parts.push(keyName.charAt(0).toUpperCase() + keyName.slice(1));
   } else if (shortcutObject.key) {
     parts.push(shortcutObject.key.toUpperCase());
   }
