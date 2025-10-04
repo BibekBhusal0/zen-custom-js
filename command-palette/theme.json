@@ -8,7 +8,7 @@
   "js": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/refs/heads/sine-test/command-palette/command-palette.uc.js",
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/command-palette/README.md",
   "author": "Bibek Bhusal",
-  "version": "1.7.0-beta",
+  "version": "1.7.2-beta",
   "tags": ["command", "palette", "raycast", "arc", "productivity", "zen browser", "sine", "urlbar"],
   "createdAt": "2024-09-07",
   "updatedAt": "2025-10-03",

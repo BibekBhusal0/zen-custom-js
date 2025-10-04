@@ -1759,7 +1759,7 @@
             if (typeof step === "string") {
               // It's a regular command key
               await new Promise((resolve) => setTimeout(resolve, 50));
-              await window.ZenCommandPalette.executeCommandByKey(step);
+              ZenCommandPalette.executeCommandByKey(step);
             } else if (typeof step === "object" && step.action && commandChainUtils[step.action]) {
               // It's a utility function call
               await commandChainUtils[step.action](step.params || {});
@@ -2086,13 +2086,16 @@
       const nativeShortcut = this._mainModule.getShortcutForCommand(cmd.key);
 
       const allowIconChange = cmd.allowIcons !== false;
-      const allowShortcutChange = !cmd.isNative && cmd.allowShortcuts !== false;
-      const allowToolbarButton = cmd.allowShortcuts !== false; // Native commands can be on toolbar
+      const allowShortcutChange = cmd.allowShortcuts !== false;
+      const allowToolbarButton = cmd.allowShortcuts !== false;
 
       const shortcutValue = customShortcut || nativeShortcut || "";
-      const shortcutInputHtml = `<input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
-      shortcutValue
-    )}" ${!allowShortcutChange ? "readonly" : ""} />`;
+      const shortcutInputHtml = `<div class="shortcut-input-wrapper">
+      <input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
+        shortcutValue
+      )}" ${!allowShortcutChange ? "readonly" : ""} />
+      <span class="shortcut-conflict-warning" hidden>Conflict!</span>
+    </div>`;
 
       const visibilityToggleHtml = `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
       !isHidden ? "checked" : ""
@@ -2181,7 +2184,7 @@
       }
     },
 
-    _handleShortcutKeyDown(event) {
+    async _handleShortcutKeyDown(event) {
       if (!this._currentShortcutTarget) return;
 
       event.preventDefault();
@@ -2189,16 +2192,33 @@
 
       const key = event.key;
       const targetInput = this._currentShortcutTarget;
-      const commandKey = targetInput.closest(".command-item").dataset.key;
+      const commandItem = targetInput.closest(".command-item");
+      const commandKey = commandItem.dataset.key;
+      const conflictWarning = commandItem.querySelector(".shortcut-conflict-warning");
+
+      const clearConflict = () => {
+        targetInput.classList.remove("conflict");
+        conflictWarning.hidden = true;
+      };
 
       if (key === "Escape") {
+        clearConflict();
         targetInput.blur();
         return;
       }
+
       if (key === "Backspace" || key === "Delete") {
         targetInput.value = "";
         delete this._currentSettings.customShortcuts[commandKey];
+        clearConflict();
+        window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+        this._currentShortcutTarget = null;
         targetInput.blur();
+        return;
+      }
+
+      // Ignore modifier-only key presses
+      if (["Control", "Alt", "Shift", "Meta"].includes(key)) {
         return;
       }
 
@@ -2207,14 +2227,44 @@
       if (event.altKey) shortcutString += "Alt+";
       if (event.shiftKey) shortcutString += "Shift+";
       if (event.metaKey) shortcutString += "Meta+";
+      shortcutString += key.toUpperCase();
 
-      // Avoid adding modifier keys themselves as the shortcut
-      if (!["Control", "Alt", "Shift", "Meta"].includes(key)) {
-        shortcutString += key.toUpperCase();
+      const modifiers = new nsKeyShortcutModifiers(
+        event.ctrlKey,
+        event.altKey,
+        event.shiftKey,
+        event.metaKey,
+        false
+      );
+
+      let hasConflict = window.gZenKeyboardShortcutsManager.checkForConflicts(
+        key,
+        modifiers,
+        commandKey
+      );
+
+      if (!hasConflict) {
+        for (const [otherCmdKey, otherShortcutStr] of Object.entries(
+          this._currentSettings.customShortcuts
+        )) {
+          if (otherCmdKey !== commandKey && otherShortcutStr === shortcutString) {
+            hasConflict = true;
+            break;
+          }
+        }
       }
 
       targetInput.value = shortcutString;
-      this._currentSettings.customShortcuts[commandKey] = shortcutString;
+
+      if (hasConflict) {
+        targetInput.classList.add("conflict");
+        conflictWarning.hidden = false;
+        debugLog(`Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`);
+        delete this._currentSettings.customShortcuts[commandKey];
+      } else {
+        clearConflict();
+        this._currentSettings.customShortcuts[commandKey] = shortcutString;
+      }
     },
 
     _populateCustomCommandsTab() {
@@ -2334,9 +2384,7 @@
             const optionsHtml = param.options
               .map(
                 (opt) =>
-                  `<option value="${escapeXmlAttribute(opt.value)}" ${
-                  currentValue === opt.value ? "selected" : ""
-                }>${escapeXmlAttribute(opt.label)}</option>`
+                  `<option value=" ${escapeXmlAttribute(opt.value)} " ${currentValue === opt.value ? "selected" : ""} > ${escapeXmlAttribute(opt.label)} </option>`
               )
               .join("");
             inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;
@@ -2796,6 +2844,50 @@
     },
   };
 
+  const KEY_MAP = {
+    f1: "VK_F1",
+    f2: "VK_F2",
+    f3: "VK_F3",
+    f4: "VK_F4",
+    f5: "VK_F5",
+    f6: "VK_F6",
+    f7: "VK_F7",
+    f8: "VK_F8",
+    f9: "VK_F9",
+    f10: "VK_F10",
+    f11: "VK_F11",
+    f12: "VK_F12",
+    f13: "VK_F13",
+    f14: "VK_F14",
+    f15: "VK_F15",
+    f16: "VK_F16",
+    f17: "VK_F17",
+    f18: "VK_F18",
+    f19: "VK_F19",
+    f20: "VK_F20",
+    f21: "VK_F21",
+    f22: "VK_F22",
+    f23: "VK_F23",
+    f24: "VK_F24",
+    tab: "VK_TAB",
+    enter: "VK_RETURN",
+    escape: "VK_ESCAPE",
+    space: "VK_SPACE",
+    arrowleft: "VK_LEFT",
+    arrowright: "VK_RIGHT",
+    arrowup: "VK_UP",
+    arrowdown: "VK_DOWN",
+    delete: "VK_DELETE",
+    backspace: "VK_BACK",
+    home: "VK_HOME",
+    num_lock: "VK_NUMLOCK",
+    scroll_lock: "VK_SCROLL",
+  };
+
+  Object.fromEntries(
+    Object.entries(KEY_MAP).map(([key, value]) => [value, key])
+  );
+
   /**
    * Parses a shortcut string (e.g., "Ctrl+Shift+K") into an object for a <key> element.
    * @param {string} str - The shortcut string.
@@ -2834,27 +2926,7 @@
       }
     }
 
-    // A rough mapping for special keys.
-    const KEYCODE_MAP = {
-      f1: "VK_F1",
-      f2: "VK_F2",
-      f3: "VK_F3",
-      f4: "VK_F4",
-      f5: "VK_F5",
-      f6: "VK_F6",
-      f7: "VK_F7",
-      f8: "VK_F8",
-      f9: "VK_F9",
-      f10: "VK_F10",
-      f11: "VK_F11",
-      f12: "VK_F12",
-      enter: "VK_RETURN",
-      escape: "VK_ESCAPE",
-      delete: "VK_DELETE",
-      backspace: "VK_BACK",
-    };
-
-    const keycode = KEYCODE_MAP[keyPart] || null;
+    const keycode = KEY_MAP[keyPart] || null;
     const key = keycode ? null : keyPart;
 
     return {
@@ -3009,7 +3081,7 @@
 
         // If the command relies on a native <command> element (has no custom function),
         // its visibility is also determined by the element's state.
-        if (isVisible && !cmd.command) {
+        if (isVisible && typeof cmd.command !== "function") {
           const commandEl = document.getElementById(cmd.key);
           // The command is only visible if its element exists and is not disabled.
           if (!commandEl || commandEl.disabled) {
@@ -3111,6 +3183,7 @@
             isNative: true,
             allowIcons: true,
             allowShortcuts: true,
+            command: a.command,
           }));
         liveCommands.push(...nativeCommands);
       }
@@ -3126,52 +3199,52 @@
     },
 
     /**
-     * Safely executes a command's action within a try-catch block.
-     * @param {object} cmd - The command object to execute.
-     */
-    executeCommandObject(cmd) {
-      if (!cmd) {
-        debugError("executeCommandObject: no command");
-        return;
-      }
-
-      try {
-        // Prioritize explicit command function if it exists.
-        if (cmd.command && typeof cmd.command === "function") {
-          debugLog("Executing command via function:", cmd.key || cmd.label);
-          const ret = cmd.command();
-          if (ret && typeof ret.then === "function") {
-            ret.catch((e) => debugError("Command promise rejected:", e));
-          }
-          return; // Execution handled.
-        }
-
-        // Fallback for commands that rely on a DOM element.
-        const commandEl = document.getElementById(cmd.key);
-        if (commandEl && typeof commandEl.doCommand === "function") {
-          debugLog("Executing command via doCommand fallback:", cmd.key);
-          commandEl.doCommand();
-        } else {
-          debugError("Command has no executable action:", cmd.key);
-        }
-      } catch (e) {
-        debugError("Command execution error:", e);
-      }
-    },
-
-    /**
      * Finds a command by its key and executes it.
      * @param {string} key - The key of the command to execute.
      */
-    async executeCommandByKey(key) {
+    executeCommandByKey(key) {
       if (!key) return;
-      const allCommands = await this.generateLiveCommands(false);
-      const cmd = allCommands.find((c) => c.key === key);
-      if (cmd) {
-        this.executeCommandObject(cmd);
-      } else {
-        debugError(`executeCommandByKey: Command with key "${key}" not found.`);
+
+      // Check native actions first, as they are the definitive source for the palette.
+      const action = this._globalActions?.find((a) => a.commandId === key);
+      if (action) {
+        debugLog("Executing action via key:", key);
+        const command = action.command;
+        if (typeof command === "function") {
+          command(window);
+        } else if (typeof command === "string") {
+          const commandEl = document.getElementById(command);
+          if (commandEl?.doCommand) {
+            commandEl.doCommand();
+          } else {
+            debugError(`Native command element not found for key: ${key}`);
+          }
+        }
+        return;
       }
+
+      debugLog(`Action not found in globalActions, falling back to command lists for key: ${key}`);
+      const findInCommands = (arr) => arr.find((c) => c.key === key);
+      const cmd =
+        findInCommands(commands) ||
+        (this._dynamicCommandsCache && findInCommands(this._dynamicCommandsCache));
+
+      if (cmd) {
+        debugLog("Executing mod command via fallback:", key);
+        if (typeof cmd.command === "function") {
+          cmd.command();
+        } else {
+          const commandEl = document.getElementById(cmd.key);
+          if (commandEl?.doCommand) {
+            commandEl.doCommand();
+          } else {
+            debugError(`Fallback command has no executable action: ${cmd.key}`);
+          }
+        }
+        return;
+      }
+
+      debugError(`executeCommandByKey: Command with key "${key}" could not be found or executed.`);
     },
 
     async addWidget(key) {
@@ -3360,11 +3433,7 @@
           const shortcut = this.getShortcutForCommand(cmd.key);
           return {
             label: cmd.label,
-            command: isFunc
-              ? () => {
-                  setTimeout(() => this.executeCommandObject(cmd), 0);
-                }
-              : cmd.key,
+            command: isFunc ? cmd.command : cmd.key,
             icon: cmd.icon || "chrome://browser/skin/trending.svg",
             isAvailable: () => this.commandIsVisible(cmd),
             commandId: cmd.key,

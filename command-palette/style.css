@@ -256,6 +256,12 @@
             align-items: center;
             gap: 10px;
 
+            .shortcut-input-wrapper {
+              position: relative;
+              display: flex;
+              flex-direction: column;
+            }
+
             .shortcut-input {
               width: 120px;
               padding: 6px 10px !important;
@@ -269,6 +275,22 @@
                 opacity: 0.5 !important;
                 cursor: not-allowed !important;
               }
+
+              &.conflict {
+                border-color: #ff6b6b !important;
+                outline-color: #ff6b6b !important;
+              }
+            }
+
+            .shortcut-conflict-warning {
+              position: absolute;
+              bottom: -16px;
+              left: 0;
+              width: 100%;
+              text-align: center;
+              font-size: 10px;
+              color: #ff6b6b;
+              font-weight: bold;
             }
 
             .toolbar-button-toggle {
@@ -496,6 +518,18 @@
             border-radius: 4px;
             background-color: light-dark(rgba(255, 230, 150, 0.5), rgba(100, 80, 0, 0.5));
             border: 1px solid light-dark(rgba(255, 200, 0, 0.8), rgba(255, 200, 0, 0.5));
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            svg {
+              width: 16px;
+              height: 16px;
+              min-width: 16px;
+              min-height: 16px;
+              filter: invert(50%) sepia(100%) saturate(2000%) hue-rotate(30deg) brightness(100%)
+                contrast(100%);
+            }
           }
         }
 
