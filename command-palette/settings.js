@@ -409,6 +409,8 @@ const SettingsModal = {
       targetInput.value = "";
       delete this._currentSettings.customShortcuts[commandKey];
       clearConflict();
+      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      this._currentShortcutTarget = null;
       targetInput.blur();
       return;
     }
