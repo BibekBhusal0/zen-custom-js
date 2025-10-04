@@ -457,13 +457,11 @@ const SettingsModal = {
     if (hasConflict) {
       targetInput.classList.add("conflict");
       conflictWarning.hidden = false;
-      debugLog(
-        `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`
-      );
+      debugLog(`Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`);
       delete this._currentSettings.customShortcuts[commandKey];
     } else {
       clearConflict();
-        this._currentSettings.customShortcuts[commandKey] = shortcutString;
+      this._currentSettings.customShortcuts[commandKey] = shortcutString;
     }
   },
 
@@ -584,7 +582,7 @@ const SettingsModal = {
           const optionsHtml = param.options
             .map(
               (opt) =>
-                `<option value=" ${escapeXmlAttribute(opt.value)} " ${ currentValue === opt.value ? "selected" : "" } > ${escapeXmlAttribute(opt.label)} </option>`
+                `<option value=" ${escapeXmlAttribute(opt.value)} " ${currentValue === opt.value ? "selected" : ""} > ${escapeXmlAttribute(opt.label)} </option>`
             )
             .join("");
           inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;

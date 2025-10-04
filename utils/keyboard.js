@@ -38,7 +38,9 @@ const KEY_MAP = {
   scroll_lock: "VK_SCROLL",
 };
 
-const REVERSE_KEY_MAP = Object.fromEntries(Object.entries(KEY_MAP).map(([key, value]) => [value, key]));
+const REVERSE_KEY_MAP = Object.fromEntries(
+  Object.entries(KEY_MAP).map(([key, value]) => [value, key])
+);
 
 /**
  * Parses a shortcut string (e.g., "Ctrl+Shift+K") into an object for a <key> element.
