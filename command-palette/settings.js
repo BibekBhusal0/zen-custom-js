@@ -48,7 +48,7 @@ const SettingsModal = {
   _boundCloseOnEscape: null,
   _boundEditorClickHandler: null,
   // BUG: I can't figure out way to control size of icon for menulist, not including icon till fixed, turn this variable to true when fixed
-  _showCommandIconsInSelect: false, 
+  _showCommandIconsInSelect: true, 
 
 
   init(mainModule) {

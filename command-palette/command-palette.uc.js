@@ -263,21 +263,24 @@ export const ZenCommandPalette = {
     if (useCache && this._dynamicCommandsCache) {
       dynamicCommands = this._dynamicCommandsCache;
     } else {
-      const commandPromises = [];
-      for (const provider of this._dynamicCommandProviders) {
-        const shouldLoad =
-          provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
-        if (shouldLoad) {
+      const commandSets = await Promise.all(
+        this._dynamicCommandProviders.map(async (provider) => {
+          const shouldLoad =
+            provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
+          if (!shouldLoad) return [];
           try {
-            commandPromises.push(provider.func());
+            const commands = await provider.func();
+            return commands.map((c) => ({ ...c, providerFunc: provider.func }));
           } catch (e) {
             debugError(`Error executing dynamic provider ${provider.func.name}`, e);
+            return [];
           }
-        }
-      }
-      const commandSets = await Promise.all(commandPromises);
+        })
+      );
       dynamicCommands = commandSets.flat();
-      if (useCache) this._dynamicCommandsCache = dynamicCommands;
+      if (useCache) {
+        this._dynamicCommandsCache = dynamicCommands;
+      }
     }
 
     let allCommands = [...staticCommands, ...dynamicCommands];
@@ -325,20 +328,20 @@ export const ZenCommandPalette = {
     // 1. Get all commands from the mod (static and dynamic)
     const modCommands = await this.generateLiveCommands(false); // Force fresh generation
     const liveCommands = modCommands.map((c) => {
-      // Find its provider to determine if it's dynamic and get its metadata
-      const provider = this._dynamicCommandProviders.find((p) =>
-        this._dynamicCommandsCache?.some((dc) => dc.key === c.key && p.func === dc.providerFunc)
-      );
-      if (provider) {
-        return {
-          ...c,
-          isDynamic: true,
-          providerPref: provider.pref,
-          providerLabel: this._getProviderLabel(provider.func.name),
-          allowIcons: c.allowIcons ?? provider.allowIcons,
-          allowShortcuts: c.allowShortcuts ?? provider.allowShortcuts,
-        };
+      if (c.providerFunc) {
+        const provider = this._dynamicCommandProviders.find((p) => p.func === c.providerFunc);
+        if (provider) {
+          return {
+            ...c,
+            isDynamic: true,
+            providerPref: provider.pref,
+            providerLabel: this._getProviderLabel(provider.func.name),
+            allowIcons: c.allowIcons ?? provider.allowIcons,
+            allowShortcuts: c.allowShortcuts ?? provider.allowShortcuts,
+          };
+        }
       }
+      // It's a static command if it doesn't have a providerFunc
       return { ...c, isDynamic: false, allowIcons: true, allowShortcuts: true };
     });
 
