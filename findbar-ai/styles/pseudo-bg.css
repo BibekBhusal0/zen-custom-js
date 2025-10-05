@@ -1,7 +1,7 @@
 @media -moz-pref("extension.browse-bot.findbar-ai.pseudo-bg.enabled") {
-      .browserSidebarContainer.deck-selected > .browserContainer::before {
-      opacity: 0 !important;
-    }
+  .browserSidebarContainer.deck-selected > .browserContainer::before {
+    opacity: 0 !important;
+  }
   :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])) {
     .browserSidebarContainer.deck-selected > .browserContainer::before {
       position: absolute !important;
@@ -25,9 +25,7 @@
     }
   }
   :root[zen-compact-mode="true"] {
-    :has(
-      .browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])
-    ) {
+    :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])) {
       .browserSidebarContainer.deck-selected > .browserContainer::before {
         @media -moz-pref("zen.view.compact.hide-tabbar") {
           left: calc(var(--findbar-x) - 10px) !important;
@@ -40,9 +38,7 @@
   }
 
   @media -moz-pref("zen.tabs.vertical.right-side") {
-    :has(
-      .browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])
-    ) {
+    :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])) {
       .browserSidebarContainer.deck-selected > .browserContainer::before {
         left: calc(var(--findbar-x) - 10px) !important;
       }
