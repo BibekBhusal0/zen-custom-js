@@ -1,12 +1,15 @@
 @media -moz-pref("extension.browse-bot.findbar-ai.pseudo-bg.enabled") {
-  :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])) {
+      .browserSidebarContainer.deck-selected > .browserContainer::before {
+      opacity: 0 !important;
+    }
+  :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])) {
     .browserSidebarContainer.deck-selected > .browserContainer::before {
       position: absolute !important;
       align-self: center !important;
       z-index: 1 !important;
       content: "" !important;
       background-color: var(--acrylic-bg) !important;
-      top: calc(var(--findbar-y) - 38px) !important;
+      top: calc(var(--findbar-y) - 15px) !important;
       left: calc(var(--findbar-x) - 8px - var(--zen-sidebar-width)) !important;
       width: var(--findbar-width) !important;
       height: var(--findbar-height) !important;
@@ -23,7 +26,7 @@
   }
   :root[zen-compact-mode="true"] {
     :has(
-      .browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])
+      .browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])
     ) {
       .browserSidebarContainer.deck-selected > .browserContainer::before {
         @media -moz-pref("zen.view.compact.hide-tabbar") {
@@ -38,7 +41,7 @@
 
   @media -moz-pref("zen.tabs.vertical.right-side") {
     :has(
-      .browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden="true"])
+      .browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])
     ) {
       .browserSidebarContainer.deck-selected > .browserContainer::before {
         left: calc(var(--findbar-x) - 10px) !important;
@@ -48,7 +51,7 @@
 
   #ai-settings-modal-overlay,
   .tool-confirmation-dialog {
-    &:before {
+    &::before {
       position: absolute !important;
       align-self: center !important;
       content: "" !important;
