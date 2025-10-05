@@ -861,7 +861,7 @@ export const commands = [
   {
     key: "command-palette:custom-command",
     label: "Command Palette: Custom Commands",
-    command: () => ZenCommandPalette.Settings.show("custom-command"),
+    command: () => ZenCommandPalette.Settings.show("custom-commands"),
     tags: ["command", "palette", "custom", "more"],
   },
 
