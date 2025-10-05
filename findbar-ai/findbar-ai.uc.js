@@ -162,7 +162,7 @@ export const browseBotFindbar = {
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
     }
-    setTimeout(() => this._updateFindbarDimensions(), 0);
+    setTimeout(() => this._updateFindbarDimensions(), 20);
   },
   toggleExpanded() {
     this.expanded = !this.expanded;
@@ -338,7 +338,7 @@ export const browseBotFindbar = {
     }
     const messages = this?.chatContainer?.querySelector("#chat-messages");
     if (messages) messages.innerHTML = "";
-    this._updateFindbarDimensions();
+    setTimeout(() => this._updateFindbarDimensions(), 1);
   },
 
   aiStatus: {
@@ -499,7 +499,7 @@ export const browseBotFindbar = {
           } catch (e) {
             debugError("innerHTML assignment failed:", e.message);
           }
-          this._updateFindbarDimensions();
+          setTimeout(() => this._updateFindbarDimensions(), 0);
           if (messagesContainer) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
           }
@@ -807,7 +807,7 @@ export const browseBotFindbar = {
     messageDiv.appendChild(contentDiv);
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    this._updateFindbarDimensions();
+    setTimeout(() => this._updateFindbarDimensions(), 10);
   },
 
   showAIInterface() {
@@ -831,7 +831,7 @@ export const browseBotFindbar = {
 
       this.findbar.insertBefore(this.chatContainer, this.findbar.firstChild);
     }
-    this._updateFindbarDimensions();
+    setTimeout(() => this._updateFindbarDimensions(), 10);
   },
 
   focusInput() {
@@ -875,7 +875,7 @@ export const browseBotFindbar = {
   },
   destroy() {
     this.findbar = null;
-    this._updateFindbarDimensions();
+    setTimeout(() => this._updateFindbarDimensions(), 10);
     this.expanded = false;
     try {
       this.removeListeners();
@@ -1126,6 +1126,7 @@ export const browseBotFindbar = {
     this._stopDrag = null;
     setTimeout(() => this._updateFindbarDimensions(), 0);
     setTimeout(() => this.findbar.style.removeProperty("transition"), 400);
+    setTimeout(() => this._updateFindbarDimensions(), 401); // update dimensions after transition
   },
 
   snapToClosestCorner() {
@@ -1288,7 +1289,7 @@ export const browseBotFindbar = {
     if (this.enabled) {
       debugLog("Findbar is being opened");
       setTimeout(() => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"), 100);
-      this._updateFindbarDimensions();
+      setTimeout(() => this._updateFindbarDimensions(), 1);
     }
   },
 
