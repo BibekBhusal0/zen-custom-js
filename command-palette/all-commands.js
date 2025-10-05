@@ -878,6 +878,7 @@ export const commands = [
     icon: "chrome://global/skin/icons/highlights.svg",
     tags: ["sort", "manage", "group", "folder", "AI", "auto"],
   },
+
   // ----------- Advanced tab Group management ------------
   {
     key: "cmd_zenCollapseGroups",

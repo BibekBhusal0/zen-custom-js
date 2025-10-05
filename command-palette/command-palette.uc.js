@@ -176,7 +176,7 @@ export const ZenCommandPalette = {
 
       // First, evaluate an explicit `condition` if it exists.
       if (typeof cmd.condition === "function") {
-        isVisible = !!cmd.condition();
+        isVisible = !!cmd.condition(window);
       } else if (cmd.condition !== undefined) {
         isVisible = cmd.condition !== false;
       }
@@ -266,7 +266,7 @@ export const ZenCommandPalette = {
    * with dynamically generated ones based on current preferences.
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
-  async generateLiveCommands(useCache = true) {
+  async generateLiveCommands(useCache = true, isPrefixMode = false) {
     let dynamicCommands;
     if (useCache && this._dynamicCommandsCache) {
       dynamicCommands = this._dynamicCommandsCache;
@@ -289,6 +289,20 @@ export const ZenCommandPalette = {
     }
 
     let allCommands = [...staticCommands, ...dynamicCommands];
+
+    if (isPrefixMode && this._globalActions) {
+      const nativeCommands = this._globalActions
+        .filter((a) => a.commandId)
+        .map((a) => ({
+          key: a.commandId,
+          label: a.label,
+          icon: this._userConfig.customIcons?.[a.commandId] || a.icon,
+          isNative: true,
+          command: a.command,
+          condition: a.isAvailable
+        }));
+      allCommands.push(...nativeCommands);
+    }
 
     // Apply custom icons from user config
     for (const cmd of allCommands) {
@@ -706,7 +720,7 @@ export const ZenCommandPalette = {
             if (Prefs.prefixRequired) return false;
 
             if (input.length >= Prefs.minQueryLength) {
-              const liveCommands = await self.generateLiveCommands();
+              const liveCommands = await self.generateLiveCommands(true, isPrefixSearch);
               return self.filterCommandsByInput(input, liveCommands).length > 0;
             }
 
@@ -733,7 +747,7 @@ export const ZenCommandPalette = {
 
             if (context.canceled) return;
 
-            const liveCommands = await self.generateLiveCommands();
+            const liveCommands = await self.generateLiveCommands(true, isPrefixSearch);
             if (context.canceled) return;
 
             const addResult = (cmd, isHeuristic = false) => {
