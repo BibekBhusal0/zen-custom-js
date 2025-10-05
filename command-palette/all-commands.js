@@ -892,7 +892,6 @@ export const commands = [
         }
       });
     },
-    // condition: () => !!window.gZenFolders,
     icon: "chrome://browser/skin/zen-icons/folder.svg",
     tags: ["folder", "collapse", "group", "tabs", "all"],
   },
@@ -909,7 +908,6 @@ export const commands = [
         }
       });
     },
-    // condition: () => !!window.gZenFolders,
     icon: "chrome://browser/skin/zen-icons/folder.svg",
     tags: ["folder", "expand", "group", "tabs", "all"],
   },
