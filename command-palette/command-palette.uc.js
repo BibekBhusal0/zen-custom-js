@@ -294,7 +294,7 @@ export const ZenCommandPalette = {
           icon: this._userConfig.customIcons?.[a.commandId] || a.icon,
           isNative: true,
           command: a.command,
-          condition: a.isAvailable
+          condition: a.isAvailable,
         }));
       allCommands.push(...nativeCommands);
     }
@@ -406,8 +406,7 @@ export const ZenCommandPalette = {
         if (recentIndex > -1) {
           recencyBonus = (this.MAX_RECENT_COMMANDS - recentIndex) * 2;
         }
-        const score =
-          Math.max(labelScore * 1.5, keyScore, tagsScore * 0.5) + recencyBonus;
+        const score = Math.max(labelScore * 1.5, keyScore, tagsScore * 0.5) + recencyBonus;
         return { cmd, score };
       })
       .filter((item) => item.score >= Prefs.minScoreThreshold)
@@ -593,7 +592,7 @@ export const ZenCommandPalette = {
     this.applyToolbarButtons();
     this.applyNativeIconOverrides();
   },
-  
+
   applyNativeIconOverrides() {
     if (this._globalActions && this._userConfig.customIcons) {
       for (const action of this._globalActions) {

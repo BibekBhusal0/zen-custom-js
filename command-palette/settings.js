@@ -48,8 +48,7 @@ const SettingsModal = {
   _boundCloseOnEscape: null,
   _boundEditorClickHandler: null,
   // BUG: I can't figure out way to control size of icon for menulist, not including icon till fixed, turn this variable to true when fixed
-  _showCommandIconsInSelect: true, 
-
+  _showCommandIconsInSelect: true,
 
   init(mainModule) {
     this._mainModule = mainModule;
@@ -460,9 +459,7 @@ const SettingsModal = {
     if (hasConflict) {
       targetInput.classList.add("conflict");
       conflictWarning.hidden = false;
-      debugLog(
-        `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`
-      );
+      debugLog(`Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`);
       delete this._currentSettings.customShortcuts[commandKey];
     } else {
       clearConflict();
