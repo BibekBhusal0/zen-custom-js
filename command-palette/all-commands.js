@@ -883,10 +883,10 @@ export const commands = [
     key: "cmd_zenCollapseGroups",
     label: "Collapse All Groups",
     command: () => {
-      const labels = gBrowser.tabContainer.querySelectorAll('.tab-group-label');
-      labels.forEach(label => {
-        const expanded = label.getAttribute('aria-expanded');
-        if (expanded === 'true') {
+      const labels = gBrowser.tabContainer.querySelectorAll(".tab-group-label");
+      labels.forEach((label) => {
+        const expanded = label.getAttribute("aria-expanded");
+        if (expanded === "true") {
           label.focus();
           label.click();
         }
@@ -899,10 +899,10 @@ export const commands = [
     key: "cmd_zenExpandGroups",
     label: "Expand All Groups",
     command: () => {
-      const labels = gBrowser.tabContainer.querySelectorAll('.tab-group-label');
-      labels.forEach(label => {
-        const expanded = label.getAttribute('aria-expanded');
-        if (expanded === 'false') {
+      const labels = gBrowser.tabContainer.querySelectorAll(".tab-group-label");
+      labels.forEach((label) => {
+        const expanded = label.getAttribute("aria-expanded");
+        if (expanded === "false") {
           label.focus();
           label.click();
         }
