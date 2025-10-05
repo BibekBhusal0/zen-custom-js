@@ -47,6 +47,9 @@ const SettingsModal = {
   _boundHandleShortcutKeyDown: null,
   _boundCloseOnEscape: null,
   _boundEditorClickHandler: null,
+  // BUG: I can't figure out way to control size of icon for menulist, not including icon till fixed, turn this variable to true when fixed
+  _showCommandIconsInSelect: false, 
+
 
   init(mainModule) {
     this._mainModule = mainModule;
@@ -554,6 +557,21 @@ const SettingsModal = {
     this._renderCustomCommands();
   },
 
+  _createCommandMenuItems(allCommands) {
+    const sortedCommands = allCommands.sort((a, b) => a.label.localeCompare(b.label));
+    return sortedCommands
+      .map((c) => {
+        const iconAttr = this._showCommandIconsInSelect
+          ? `image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"`
+          : "";
+        return `<menuitem value="${escapeXmlAttribute(c.key)}"
+                         label="${escapeXmlAttribute(c.label)}"
+                         ${iconAttr}
+                         />`;
+      })
+      .join("");
+  },
+
   _renderFunctionStep(step, index, chain) {
     const functionSchema = commandChainFunctions[step.action];
     if (!functionSchema) return parseElement(`<div>Unknown function: ${step.action}</div>`);
@@ -695,16 +713,7 @@ const SettingsModal = {
       const allCommands = await this._mainModule.getAllCommandsForConfig();
       debugLog(`renderChainList: building list with ${currentChain.length} items`);
 
-      const menuitemsXUL = allCommands
-        .map(
-          // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
-          // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"
-          (c) =>
-            `<menuitem value="${escapeXmlAttribute(c.key)}"
-                         label="${escapeXmlAttribute(c.label)}"
-                         />`
-        )
-        .join("");
+      const menuitemsXUL = this._createCommandMenuItems(allCommands);
 
       currentChain.forEach((step, index) => {
         const itemContainer = parseElement(`<div class="chain-item-container"></div>`);
@@ -800,17 +809,7 @@ const SettingsModal = {
             return;
           }
 
-          const menuitemsXUL = allCommands
-            .sort((a, b) => b.label.localeCompare(a.label))
-            .map(
-              // BUG: can't figure out way to control size of icon for menulist, not including icon till fixed
-              // image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}" <!-- This line should be moved 3 lines down after issue is resolved -->
-              (c) =>
-                `<menuitem value="${escapeXmlAttribute(c.key)}"
-                           label="${escapeXmlAttribute(c.label)}"
-                           />`
-            )
-            .join("");
+          const menuitemsXUL = this._createCommandMenuItems(allCommands);
 
           const menulistXUL = `
             <menulist id="chain-command-selector">
