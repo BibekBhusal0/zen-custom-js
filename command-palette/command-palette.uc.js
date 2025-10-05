@@ -106,7 +106,6 @@ export const ZenCommandPalette = {
   _recentCommands: [],
   MAX_RECENT_COMMANDS: 20,
   _dynamicCommandsCache: null,
-  _commandVisibilityCache: {},
   _userConfig: {},
   _closeListenersAttached: false,
   _globalActions: null,
@@ -117,7 +116,6 @@ export const ZenCommandPalette = {
 
   clearDynamicCommandsCache() {
     this._dynamicCommandsCache = null;
-    this._commandVisibilityCache = {};
   },
 
   _closeUrlBar() {
@@ -164,12 +162,7 @@ export const ZenCommandPalette = {
    */
   commandIsVisible(cmd) {
     try {
-      if (cmd && cmd.key && this._commandVisibilityCache[cmd.key] !== undefined) {
-        return this._commandVisibilityCache[cmd.key];
-      }
-
       if (this._userConfig.hiddenCommands?.includes(cmd.key)) {
-        if (cmd && cmd.key) this._commandVisibilityCache[cmd.key] = false;
         return false;
       }
       let isVisible = true;
@@ -191,7 +184,6 @@ export const ZenCommandPalette = {
         }
       }
 
-      if (cmd && cmd.key) this._commandVisibilityCache[cmd.key] = isVisible;
       return isVisible;
     } catch (e) {
       debugError("Error evaluating condition for", cmd && cmd.key, e);
