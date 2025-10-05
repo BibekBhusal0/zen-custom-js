@@ -878,4 +878,39 @@ export const commands = [
     icon: "chrome://global/skin/icons/highlights.svg",
     tags: ["sort", "manage", "group", "folder", "AI", "auto"],
   },
+  // ----------- Advanced tab Group management ------------
+  {
+    key: "cmd_zenCollapseGroups",
+    label: "Collapse All Groups",
+    command: () => {
+      const labels = gBrowser.tabContainer.querySelectorAll('.tab-group-label');
+      labels.forEach(label => {
+        const expanded = label.getAttribute('aria-expanded');
+        if (expanded === 'true') {
+          label.focus();
+          label.click();
+        }
+      });
+    },
+    // condition: () => !!window.gZenFolders,
+    icon: "chrome://browser/skin/zen-icons/folder.svg",
+    tags: ["folder", "collapse", "group", "tabs", "all"],
+  },
+  {
+    key: "cmd_zenExpandGroups",
+    label: "Expand All Groups",
+    command: () => {
+      const labels = gBrowser.tabContainer.querySelectorAll('.tab-group-label');
+      labels.forEach(label => {
+        const expanded = label.getAttribute('aria-expanded');
+        if (expanded === 'false') {
+          label.focus();
+          label.click();
+        }
+      });
+    },
+    // condition: () => !!window.gZenFolders,
+    icon: "chrome://browser/skin/zen-icons/folder.svg",
+    tags: ["folder", "expand", "group", "tabs", "all"],
+  },
 ];
