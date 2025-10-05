@@ -363,7 +363,7 @@ export const ZenCommandPalette = {
 
     // 3. Apply custom icons (for mod commands)
     for (const cmd of liveCommands) {
-      if (!cmd.isNative && this._userConfig.customIcons?.[cmd.key]) {
+      if (this._userConfig.customIcons?.[cmd.key]) {
         cmd.icon = this._userConfig.customIcons[cmd.key];
       }
     }
@@ -582,6 +582,7 @@ export const ZenCommandPalette = {
     this._userConfig = await Storage.loadSettings();
     this.clearDynamicCommandsCache();
     debugLog("User config loaded:", this._userConfig);
+    this.applyNativeIconOverrides();
   },
 
   /**
@@ -590,6 +591,18 @@ export const ZenCommandPalette = {
   applyUserConfig() {
     this.applyCustomShortcuts();
     this.applyToolbarButtons();
+    this.applyNativeIconOverrides();
+  },
+  
+  applyNativeIconOverrides() {
+    if (this._globalActions && this._userConfig.customIcons) {
+      for (const action of this._globalActions) {
+        if (action.commandId && this._userConfig.customIcons[action.commandId]) {
+          action.icon = this._userConfig.customIcons[action.commandId];
+        }
+      }
+      debugLog("Applied native icon overrides.");
+    }
   },
 
   /**
