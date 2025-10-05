@@ -460,7 +460,9 @@ const SettingsModal = {
     if (hasConflict) {
       targetInput.classList.add("conflict");
       conflictWarning.hidden = false;
-      debugLog(`Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`);
+      debugLog(
+        `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`
+      );
       delete this._currentSettings.customShortcuts[commandKey];
     } else {
       clearConflict();
@@ -947,7 +949,31 @@ const SettingsModal = {
     const prefs = [
       {
         section: "General",
-        items: [{ key: Prefs.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" }],
+        items: [
+          {
+            key: Prefs.KEYS.PREFIX,
+            label: "Command Prefix",
+            type: "char",
+          },
+          {
+            key: Prefs.KEYS.PREFIX_REQUIRED,
+            label: "Require prefix to activate",
+            type: "bool",
+          },
+          {
+            key: Prefs.KEYS.MIN_QUERY_LENGTH,
+            label: "Min query length (no prefix)",
+            type: "number",
+          },
+          { key: Prefs.KEYS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
+          {
+            key: Prefs.KEYS.MAX_COMMANDS_PREFIX,
+            label: "Max results (with prefix)",
+            type: "number",
+          },
+          { key: Prefs.KEYS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
+          { key: Prefs.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
+        ],
       },
       {
         section: "Dynamic Commands",
