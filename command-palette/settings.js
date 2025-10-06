@@ -599,7 +599,9 @@ const SettingsModal = {
           const optionsHtml = param.options
             .map(
               (opt) =>
-                `<option value=" ${escapeXmlAttribute(opt.value)} " ${currentValue === opt.value ? "selected" : ""} > ${escapeXmlAttribute(opt.label)} </option>`
+                `<option value="${escapeXmlAttribute(opt.value)}" ${
+                  (currentValue || "").trim() === opt.value ? "selected" : ""
+                } > ${escapeXmlAttribute(opt.label)} </option>`
             )
             .join("");
           inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;
