@@ -585,20 +585,20 @@ export const ZenCommandPalette = {
     this.applyToolbarButtons();
     this.applyNativeOverrides();
   },
-  
+
   /**
    * Patches the native global actions array with user customizations like hidden commands and icons.
    */
   applyNativeOverrides() {
     if (!this._globalActions) return;
-  
+
     for (const action of this._globalActions) {
       if (action.commandId) {
         // Apply custom icon
         if (this._userConfig.customIcons?.[action.commandId]) {
           action.icon = this._userConfig.customIcons[action.commandId];
         }
-  
+
         // Patch isAvailable to respect hidden commands
         if (!action.isAvailable_patched) {
           const originalIsAvailable = action.isAvailable;

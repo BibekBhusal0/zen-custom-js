@@ -47,12 +47,12 @@ Here are all Preferences which can be configured from `about:config` (also from 
 
 | Preference Key                                         | Type    | Default                             | Description                                                                  |
 | ------------------------------------------------------ | ------- | ----------------------------------- | ---------------------------------------------------------------------------- |
-| `zen-command-palette.prefix`                  | string | `:`                             | Prefix after entering which commands will appear |
-| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Preifx.              |
+| `zen-command-palette.prefix`                           | string  | `:`                                 | Prefix after entering which commands will appear                             |
+| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Preifx.           |
 | `zen-command-palette.debug-mode`                       | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.         |
-| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without prefix).      |
-| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the prefix.        |
-| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the prefix).    |
+| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without prefix).   |
+| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the prefix.            |
+| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the prefix).        |
 | `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.           |
 | `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                          |
 | `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.           |
@@ -78,12 +78,12 @@ Some commands that were previously part of this mod are now natively available i
 
 The following commands are now native:
 
--   Pin/Unpin/Next/Previous/Close Tab
--   Add/Remove from Essentials
--   New/Next/Previous Workspace
--   Reload/Hard Reload
--   New / Private Window
--   And More ...
+- Pin/Unpin/Next/Previous/Close Tab
+- Add/Remove from Essentials
+- New/Next/Previous Workspace
+- Reload/Hard Reload
+- New / Private Window
+- And More ...
 
 ### Zen Browser Features
 
@@ -208,11 +208,13 @@ The following commands are now native:
 - Command Palette: Custom Commands
 
 ### Tidy Tabs
+
 - Clear Other Tabs
 - Sort Tabs
 
-### Advanced Tab Groups 
-- Collapse all groups 
+### Advanced Tab Groups
+
+- Collapse all groups
 - Expand all groups
 
 ### Dynamic Commands
