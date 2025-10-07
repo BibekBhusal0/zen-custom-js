@@ -98,10 +98,14 @@ const TabManager = {
           faviconUrl: tab.image,
           tabElement: tab,
           lastAccessed: tab._lastAccessed,
+          isUnloaded: tab.hasAttribute("pending"),
         };
 
         openTabs.push(tabInfo);
       }
+
+      openTabs.sort((a, b) => b.lastAccessed - a.lastAccessed);
+
       debugLog("Open tabs fetched:", openTabs);
       return openTabs;
     } catch (e) {

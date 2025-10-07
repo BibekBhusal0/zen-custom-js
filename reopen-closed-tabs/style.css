@@ -68,6 +68,15 @@
       }
     }
 
+    &.unloaded-tab {
+      opacity: 0.6;
+
+      &:hover,
+      &[selected="true"] {
+        opacity: 1;
+      }
+    }
+
     .tab-favicon {
       width: 24px;
       height: 24px;

@@ -265,6 +265,10 @@ const ReopenClosedTabs = {
       "xul"
     );
 
+    if (tab.isUnloaded) {
+      tabItem.classList.add("unloaded-tab");
+    }
+
     tabItem.tabData = tab;
     tabItem.addEventListener("click", this._boundHandleItemClick);
     const closeButton = tabItem.querySelector(".close-button");
