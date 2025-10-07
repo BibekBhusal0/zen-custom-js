@@ -16,6 +16,7 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 - 🔄 **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, folders, and internal `about:` pages.
 - 🛠️ **Extensible API**: User scripts and browser modifications can easily add their own commands, making the palette a central hub for all your custom actions.
 - 🎨 **Highly Customizable**: Offers customizable keyboard shortcuts, widgets, icons, dynamic commands, and more.
+- ⌨️ **Custom Commands**: Make your own commands with custom JS or chaining other commands.
 
 ## ⚙️ Installation Guide
 
@@ -40,11 +41,12 @@ Here are all Preferences which can be configured from `about:config` (also from 
 
 | Preference Key                                         | Type    | Default                             | Description                                                                  |
 | ------------------------------------------------------ | ------- | ----------------------------------- | ---------------------------------------------------------------------------- |
-| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with `:`.              |
+| `zen-command-palette.prefix`                  | string | `:`                             | Prefix after entering which commands will appear |
+| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Preifx.              |
 | `zen-command-palette.debug-mode`                       | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.         |
-| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without `:`).      |
-| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the `:` prefix.        |
-| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the `:` prefix).    |
+| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without prefix).      |
+| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the prefix.        |
+| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the prefix).    |
 | `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.           |
 | `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                          |
 | `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.           |
@@ -64,94 +66,87 @@ Here are all Preferences which can be configured from `about:config` (also from 
 <details>
 <summary>Click to view the full list of commands</summary>
 
+### Native Commands
+
+Some commands that were previously part of this mod are now natively available in Zen Browser. To avoid duplication, they have been removed from the default command list. They can be modified/hidden from settings.
+
+The following commands are now native:
+
+-   Pin/Unpin/Next/Previous/Close Tab
+-   Add/Remove from Essentials
+-   New/Next/Previous Workspace
+-   Reload/Hard Reload
+-   New / Private Window
+-   And More ...
+
+### Zen Browser Features
+
+- **Compact Mode**:
+  - Toggle Floating Sidebar
+  - Toggle Floating Toolbar
+  - Toggle Sidebar
+  - Toggle Toolbar
+- **Workspaces**:
+  - Create New Workspace
+  - Change Workspace Name
+  - Change Workspace Icon
+  - Delete Workspace
+  - Reorder Workspaces
+- **Split View**:
+  - Unsplit View
+  - Swap Split Tabs
+  - Rotate Split Orientation
+- **Glance**:
+  - Close Glance
+  - Expand Glance
+  - Split Glance
+- **Folders**:
+  - Remove Tab from Folder
+  - Rename Current Folder
+- **Other**:
+  - Toggle Sidebar Width
+  - Copy Current URL as Markdown
+
 ### Tab Management
 
-- Add to Essentials
-- Clear Other Tabs
-- Close Tab
-- Duplicate Tab
-- Move Tab Down
-- Move Tab Up
 - New Tab
-- Next Tab
-- Pin Tab
-- Previous Tab
-- Remove from Essentials
+- Duplicate Tab
 - Rename Tab
-- Reopen Closed Tab
-- Reset Pinned Tab
-- Replace Pinned Tab URL with Current
-- Show All Tabs Panel
+- Move Tab Up
+- Move Tab Down
 - Toggle Mute Tab
+- Show All Tabs Panel
+- Reopen Closed Tab
 - Unload Tab
 - Unload other tabs
-- Unpin Tab
+- Replace Pinned Tab URL with Current
+- Reset Pinned Tab
 
 ### Window Management
 
 - Close Window
-- Maximize Window
 - Minimize Window
-- New Window
-- Open Private Window
+- Maximize Window
 - Reopen Closed Window
 
 ### Navigation & History
 
 - Go Back
 - Go Forward
-- Hard Reload (Skip Cache)
 - Home
-- Reload Page
-- Stop Loading
-- Bookmark All Tabs
-- Bookmark This Page
-- Search Bookmarks
 - Search History
-- Show All Bookmarks (Library)
 - Show All History (Library)
 
-### Zen Browser Features
+### Bookmarks
 
-- **Compact Mode**:
-  - Toggle Compact Mode
-  - Toggle Floating Sidebar
-  - Toggle Floating Toolbar
-  - Toggle Sidebar
-  - Toggle Toolbar
-- **Workspaces**:
-  - Change Workspace Icon
-  - Change Workspace Name
-  - Create New Workspace
-  - Delete Workspace
-  - Next Workspace
-  - Previous Workspace
-  - Reorder Workspaces
-- **Folders**:
-  - Create New Folder
-  - Remove Tab from Folder
-- **Split View**:
-  - Rotate Split Orientation
-  - Split Grid
-  - Split Horizontal
-  - Split Vertical
-  - Swap Split Tabs
-  - Unsplit View
-- **Glance**:
-  - Close Glance
-  - Expand Glance
-  - Split Glance
-- **Themes**:
-  - Open Theme Picker
-- **UI**:
-  - Copy Current URL
-  - Copy Current URL as Markdown
-  - Toggle Sidebar Width
-  - Toggle Tabs on Right
+- Bookmark This Page
+- Bookmark All Tabs
+- Toggle Bookmark Bar
+- Search Bookmarks
+- Show All Bookmarks (Library)
 
 ### Find & Search
 
-- Find in Page
 - Find Next
 - Find Previous
 - Translate Page
@@ -159,37 +154,60 @@ Here are all Preferences which can be configured from `about:config` (also from 
 ### View & Display
 
 - Toggle Fullscreen
+- Toggle Reader Mode
 - Zoom In
 - Zoom Out
 - Reset Zoom
-- View Page Info
 - View Page Source
+- View Page Info
+
+### Developer Tools
+
+- Toggle web toolbox
+- Open Browser Toolbox
+- Open Browser Console
+- Toggle Responsive Design Mode
+- Open web inspector
+- Open web console
+- Open js debugger
+- Open network monitor
+- Open style editor
+- Open performance panel
+- Open storage panel
 
 ### Media & Files
 
-- Open File
-- Print Page
-- Save Page As...
-- Take Screenshot
 - Toggle Picture-in-Picture
 - View Downloads
+- Save Page As...
+- Print Page
+- Open File
 
 ### System & Application
 
 - Clear Recent History...
-- Clear Startup Cache
 - Customize Toolbar...
-- Manage Extensions
-- Minimize Memory Usage
+- Toggle Work Offline
 - Quit Browser
 - Restart Browser
-- Toggle Work Offline
+- Clear Startup Cache
+- Minimize Memory Usage
+- Create New Profile
 
 ### Command Palette
 
 - Command Palette: Configure Commands
-- Command Palette: Help
 - Command Palette: Preferences
+- Command Palette: Help
+- Command Palette: Custom Commands
+
+### Tidy Tabs
+- Clear Other Tabs
+- Sort Tabs
+
+### Advanced Tab Groups 
+- Collapse all groups 
+- Expand all groups
 
 ### Dynamic Commands
 
@@ -215,6 +233,7 @@ Adding your own commands from other scripts is straightforward. The `ZenCommandP
 - [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
 - [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
 - [Browse Bot (beta)](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
+- [Reopen Closed Tabs Menu](https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu)
 
 ### Adding a Static Command
 
@@ -273,7 +292,7 @@ I am not making up the questions. I have been asked these questions in reddit an
 
 <details>
 <summary><h3>What is difference between this and native zen command bar (released recently)</h3></summary>
-Zen command bar don't contain too much commands to optimize for performance, this mod contain 100+ static commands. And on top of it, this provides API making easy for user to add more commands. Already 4 other mods (2 unreleased) support the command palette.
+Zen command bar don't contain too much commands to optimize for performance, this mod contain 100+ static commands. And on top of it, this provides API making easy for user to add more commands. Already 4 other mods (1 unreleased version) support the command palette.
 
 Another Benifit of this mod, is that this allows setting custom keymaps to commands, and allow adding them as toolbar icons.
 
