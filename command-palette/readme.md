@@ -30,9 +30,15 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 ## 🎨 Customization & Preferences
 
-The Zen Command Palette can be configured via its own settings. Simply type `: Command palette configure` in the command palette and you will see commands like `Command Palette: Configure Settings` run the command which will open settings Popup. Which will allow configuration like keyboard shortcut, icon, hiding commands and creating toolbar icon.
+The Zen Command Palette can be configured via its own settings. Simply type `: Command palette configure` in the command palette and you will see commands like `Command Palette: Configure Settings` run the command which will open settings Popup. Which will allow adding more commands and configuration like keyboard shortcut, icon, hiding commands, creating toolbar icon.
+
+### Creating Toolbar icons
 
 https://github.com/user-attachments/assets/bdd87f58-f6f7-480c-8ffe-1150d571f482
+
+### Making custom commands
+
+https://github.com/user-attachments/assets/71dae23a-bb0c-4a04-add6-450d344751a0
 
 > [!Note]
 > You can press delete/blackspace to remove the shortcut key. Changing shortcut key from menu this will not replace/remove existing shortcut keys they have to be done from Zen Settings.
