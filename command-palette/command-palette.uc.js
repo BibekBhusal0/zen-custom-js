@@ -299,13 +299,6 @@ export const ZenCommandPalette = {
       allCommands.push(...nativeCommands);
     }
 
-    // Apply custom icons from user config
-    for (const cmd of allCommands) {
-      if (this._userConfig.customIcons?.[cmd.key]) {
-        cmd.icon = this._userConfig.customIcons[cmd.key];
-      }
-    }
-
     return allCommands;
   },
 
@@ -581,7 +574,7 @@ export const ZenCommandPalette = {
     this._userConfig = await Storage.loadSettings();
     this.clearDynamicCommandsCache();
     debugLog("User config loaded:", this._userConfig);
-    this.applyNativeIconOverrides();
+    this.applyNativeOverrides();
   },
 
   /**
@@ -590,18 +583,36 @@ export const ZenCommandPalette = {
   applyUserConfig() {
     this.applyCustomShortcuts();
     this.applyToolbarButtons();
-    this.applyNativeIconOverrides();
+    this.applyNativeOverrides();
   },
-
-  applyNativeIconOverrides() {
-    if (this._globalActions && this._userConfig.customIcons) {
-      for (const action of this._globalActions) {
-        if (action.commandId && this._userConfig.customIcons[action.commandId]) {
+  
+  /**
+   * Patches the native global actions array with user customizations like hidden commands and icons.
+   */
+  applyNativeOverrides() {
+    if (!this._globalActions) return;
+  
+    for (const action of this._globalActions) {
+      if (action.commandId) {
+        // Apply custom icon
+        if (this._userConfig.customIcons?.[action.commandId]) {
           action.icon = this._userConfig.customIcons[action.commandId];
         }
+  
+        // Patch isAvailable to respect hidden commands
+        if (!action.isAvailable_patched) {
+          const originalIsAvailable = action.isAvailable;
+          action.isAvailable = (window) => {
+            if (this._userConfig.hiddenCommands?.includes(action.commandId)) {
+              return false;
+            }
+            return originalIsAvailable.call(action, window);
+          };
+          action.isAvailable_patched = true;
+        }
       }
-      debugLog("Applied native icon overrides.");
     }
+    debugLog("Applied native command overrides (icons and visibility).");
   },
 
   /**
