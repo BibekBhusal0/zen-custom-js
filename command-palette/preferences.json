@@ -11,13 +11,13 @@
   {
     "type": "checkbox",
     "property": "zen-command-palette.prefix-required",
-    "label": "Require \":\" prefix to show commands",
+    "label": "Require prefix to show commands",
     "default": false
   },
   {
     "type": "dropdown",
     "property": "zen-command-palette.max-commands",
-    "label": "Maximum Results (without \":\")",
+    "label": "Maximum Results (without )",
     "value": "number",
     "default": 3,
     "placeholder": false,
@@ -32,7 +32,7 @@
   {
     "type": "dropdown",
     "property": "zen-command-palette.max-commands-prefix",
-    "label": "Maximum Results (with \":\"). You can scroll so keep this value high.",
+    "label": "Maximum Results. You can scroll so keep this value high.",
     "value": "number",
     "default": 50,
     "placeholder": false,
@@ -47,7 +47,7 @@
   {
     "type": "dropdown",
     "property": "zen-command-palette.min-query-length",
-    "label": "Activation Length (without \":\")",
+    "label": "Activation Length (without )",
     "value": "number",
     "default": 3,
     "placeholder": false,
