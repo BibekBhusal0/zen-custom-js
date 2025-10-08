@@ -1062,7 +1062,7 @@ export const browseBotFindbar = {
     let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
-    this._updateFindbarDimensions();
+    if (PREFS.pseudoBg)this._updateFindbarDimensions();
   },
 
   stopResize() {
@@ -1107,7 +1107,7 @@ export const browseBotFindbar = {
     newCoors.x -= getSidebarWidth();
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
-    this._updateFindbarDimensions();
+    if (PREFS.pseudoBg)this._updateFindbarDimensions();
 
     this.findbar.style.setProperty("left", `${newCoors.x}px`, "important");
     this.findbar.style.setProperty("top", `${newCoors.y}px`, "important");
