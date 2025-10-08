@@ -855,6 +855,21 @@
     ]
   },
   {
+    "property": "extension.browse-bot.findbar-ai.remember-dimensions",
+    "label": "Remember Dimensions",
+    "type": "checkbox",
+    "default": false,
+    "description": "Automatically saves and restores the findbar's size.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
     "property": "extension.browse-bot.findbar-ai.position",
     "label": "Snap-to Corner",
     "type": "dropdown",

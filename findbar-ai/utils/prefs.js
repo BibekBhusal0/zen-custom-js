@@ -5,6 +5,8 @@ export const PREFS = {
   PERSIST: "extension.browse-bot.findbar-ai.persist-chat",
   DND_ENABLED: "extension.browse-bot.findbar-ai.dnd-enabled",
   POSITION: "extension.browse-bot.findbar-ai.position",
+  REMEMBER_DIMENSIONS: "extension.browse-bot.findbar-ai.remember-dimensions",
+  WIDTH: "extension.browse-bot.findbar-ai.width",
   STREAM_ENABLED: "extension.browse-bot.findbar-ai.stream-enabled",
   GOD_MODE: "extension.browse-bot.findbar-ai.god-mode",
   CITATIONS_ENABLED: "extension.browse-bot.findbar-ai.citations-enabled",
@@ -229,6 +231,20 @@ export const PREFS = {
   set position(value) {
     this.setPref(this.POSITION, value);
   },
+
+  get rememberDimensions() {
+    return this.getPref(this.REMEMBER_DIMENSIONS);
+  },
+  set rememberDimensions(value) {
+    this.setPref(this.REMEMBER_DIMENSIONS, value);
+  },
+
+  get width() {
+    return this.getPref(this.WIDTH);
+  },
+  set width(value) {
+    this.setPref(this.WIDTH, value);
+  },
 };
 
 export const debugLog = (...args) => {
@@ -274,6 +290,8 @@ PREFS.defaultValues = {
   [PREFS.OLLAMA_API_KEY]: "",
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
+  [PREFS.REMEMBER_DIMENSIONS]: false,
+  [PREFS.WIDTH]: 500,
   [PREFS.MAX_TOOL_CALLS]: 5,
   [PREFS.CONFORMATION]: true,
   [PREFS.PSEUDO_BG]: false,

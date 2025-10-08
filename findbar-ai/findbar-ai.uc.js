@@ -114,6 +114,20 @@ export const browseBotFindbar = {
     document.documentElement.style.setProperty("--findbar-x", `${_findbarCoors.x}px`);
     document.documentElement.style.setProperty("--findbar-y", `${_findbarCoors.y}px`);
   },
+
+  _saveFindbarDimensions() {
+    if (!this.findbar || !PREFS.rememberDimensions) return;
+    const rect = this.findbar.getBoundingClientRect();
+    PREFS.width = rect.width;
+  },
+
+  _applyFindbarDimensions() {
+    if (!this.findbar || !PREFS.rememberDimensions) return;
+    const width = PREFS.width;
+    if (width) {
+      this.findbar.style.width = `${width}px`;
+    }
+  },
   _isStreaming: false,
   _abortController: null,
 
@@ -236,6 +250,7 @@ export const browseBotFindbar = {
     }
     gBrowser.getFindBar().then((findbar) => {
       this.findbar = findbar;
+      this._applyFindbarDimensions();
       this.addExpandButton();
       if (PREFS.persistChat) {
         if (this?.findbar?.history) {
@@ -1053,6 +1068,7 @@ export const browseBotFindbar = {
     this._handleResize = null;
     this._stopResize = null;
     this._updateFindbarDimensions();
+    this._saveFindbarDimensions();
   },
   disableResize() {
     this._resizeHandle?.remove();
