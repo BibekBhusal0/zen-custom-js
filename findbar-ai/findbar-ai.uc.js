@@ -5,21 +5,6 @@ import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
 import "./urlbar.uc.js";
 
-var markdownStylesInjected = false;
-const injectMarkdownStyles = async () => {
-  try {
-    const { markedStyles } = await import(
-      "chrome://userscripts/content/engine/assets/imports/marked.js"
-    );
-    const styleTag = parseElement(`<style>${markedStyles}</style>`);
-    document.head.appendChild(styleTag);
-    markdownStylesInjected = true;
-    return true;
-  } catch (e) {
-    debugError(e);
-    return false;
-  }
-};
 
 const sidebarWidthUpdate = function () {
   const mainWindow = document.getElementById("main-window");
@@ -68,9 +53,6 @@ const getSidebarWidth = () => {
 
 function parseMD(markdown, convertHTML = true) {
   const markedOptions = { breaks: true, gfm: true, xhtml: true };
-  if (!markdownStylesInjected) {
-    injectMarkdownStyles();
-  }
   const content = window.marked ? window.marked.parse(markdown, markedOptions) : markdown;
   if (!convertHTML) return content;
   let htmlContent = parseElement(`<div class="markdown-body">${content}</div>`);
