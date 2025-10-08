@@ -144,6 +144,8 @@ export const browseBotFindbar = {
     this._isExpanded = value;
     if (!this.findbar) return;
     this.findbar.expanded = value;
+    setTimeout(() => this._updateFindbarDimensions(), 2);
+    setTimeout(() => this._updateFindbarDimensions(), 20);
 
     if (value) {
       this.findbar.classList.add("ai-expanded");
@@ -162,7 +164,6 @@ export const browseBotFindbar = {
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
     }
-    setTimeout(() => this._updateFindbarDimensions(), 20);
   },
   toggleExpanded() {
     this.expanded = !this.expanded;
