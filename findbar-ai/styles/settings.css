@@ -22,7 +22,8 @@
   height: 80vh;
   padding: 20px 0px 0px 20px;
   border-radius: var(--acrylic-radius) !important;
-  box-shadow: var(--acrylic-shadow) !important;
+        outline: 1px solid rgba(0, 0, 0, 1) !important;
+    border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
   background: var(--acrylic-glass-bg) !important;
   backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
   flex-direction: column;
