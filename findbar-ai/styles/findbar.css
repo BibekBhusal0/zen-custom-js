@@ -114,7 +114,7 @@ browser {
     min-width: 300px !important;
     height: unset !important;
     border-radius: var(--acrylic-radius) !important;
-        outline: 1px solid rgba(0, 0, 0, 1) !important;
+    outline: 1px solid rgba(0, 0, 0, 1) !important;
     border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
     background: var(--acrylic-glass-bg) !important;
     backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
@@ -874,7 +874,7 @@ browser {
     min-width: 200px;
     max-width: 90vw;
     border-radius: var(--acrylic-radius) !important;
-        outline: 1px solid rgba(0, 0, 0, 1) !important;
+    outline: 1px solid rgba(0, 0, 0, 1) !important;
     border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
     background: var(--acrylic-glass-bg) !important;
     backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
