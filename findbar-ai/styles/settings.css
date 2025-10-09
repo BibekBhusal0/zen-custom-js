@@ -154,16 +154,16 @@
     margin-bottom: 10px;
   }
 
+  /* When Citations enabled hiding stream option*/
   &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked) {
     .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
       display: none !important;
     }
-  }
-
-  &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked)
+/* When citations and god mode enabled showing warning*/
     :has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:checked) {
-    #citations-god-mode-warning {
-      display: block !important;
+      #citations-god-mode-warning {
+        display: block !important;
+      }
     }
   }
 
@@ -173,16 +173,50 @@
     }
   }
 
-  .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
-  .setting-item:has(#pref-max-tool-calls) {
-    display: none;
+  /* When Findbar AI is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.enabled:not(:checked)) {
+    /* Hide other options Findbar section */
+    .settings-section:first-of-type .setting-item:not(:first-child) {
+      display: none !important;
+    }
+
+    /* Hide findbar sections */
+    .settings-section{
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.god-mode),
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled),
+      &:has([data-pref="accessibility.typeaheadfind"]) {
+        display: none !important;
+      }
+    }
   }
 
-  :has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:checked) {
-    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
-    .setting-item:has(#pref-max-tool-calls) {
-      display: flex;
+  /* When God Mode is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:not(:checked)) {
+    /* Hide God Mode dependent settings */
+    .setting-item{
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
+      &:has(#pref-max-tool-calls) {
+        display: none !important;
+      }
     }
+  }
+
+  /* When Context Menu is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled:not(:checked)) {
+    /* Hide Context Menu dependent settings */
+    .setting-item{
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-autosend),
+      &:has(#pref-context-menu-command-no-selection),
+      &:has(#pref-context-menu-command-with-selection) {
+        display: none !important;
+      }
+    }
+  }
+
+  /* When Drag and Drop is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.dnd-enabled:not(:checked))
+    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.remember-dimensions) {
+    display: none !important;
   }
 }
 
