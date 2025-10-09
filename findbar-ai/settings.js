@@ -41,36 +41,6 @@ export const SettingsModal = {
       placeholder.replaceWith(providerSelectorXulElement);
     }
 
-    const positionOptions = {
-      "top-left": "Top Left",
-      "top-right": "Top Right",
-      "bottom-left": "Bottom Left",
-      "bottom-right": "Bottom Right",
-    };
-    const positionOptionsXUL = Object.entries(positionOptions)
-      .map(
-        ([value, label]) =>
-          `<menuitem
-            value="${value}"
-            label="${escapeXmlAttribute(label)}"
-            ${value === PREFS.position ? 'selected="true"' : ""}
-          />`
-      )
-      .join("");
-
-    const positionMenulistXul = `
-      <menulist id="pref-position" data-pref="${PREFS.POSITION}" value="${PREFS.position}">
-        <menupopup>
-          ${positionOptionsXUL}
-        </menupopup>
-      </menulist>`;
-    const positionSelectorXulElement = parseElement(positionMenulistXul, "xul");
-    const positionPlaceholder = this._modalElement.querySelector("#position-selector-placeholder");
-
-    if (positionPlaceholder) {
-      positionPlaceholder.replaceWith(positionSelectorXulElement);
-    }
-
     for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = provider.modelPref;
       const currentModel = provider.model;
@@ -332,10 +302,21 @@ export const SettingsModal = {
       { label: "Remember Dimensions", pref: PREFS.REMEMBER_DIMENSIONS },
       { label: "Pseudo Background (for transparent Browsers)", pref: PREFS.PSEUDO_BG },
     ];
-    const positionSelectorPlaceholderHtml = `
+    const positionOptions = {
+      "top-left": "Top Left",
+      "top-right": "Top Right",
+      "bottom-left": "Bottom Left",
+      "bottom-right": "Bottom Right",
+    };
+    const positionOptionsHTML = Object.entries(positionOptions)
+      .map(([value, label]) => `<option value="${value}">${escapeXmlAttribute(label)}</option>`)
+      .join("");
+    const positionSelectorHtml = `
       <div class="setting-item">
         <label for="pref-position">Position</label>
-        <div id="position-selector-placeholder"></div>
+        <select id="pref-position" data-pref="${PREFS.POSITION}">
+          ${positionOptionsHTML}
+        </select>
       </div>
     `;
     const generalSectionHtml = this._createCheckboxSectionHtml(
@@ -343,7 +324,7 @@ export const SettingsModal = {
       generalSettings,
       true,
       "",
-      positionSelectorPlaceholderHtml
+      positionSelectorHtml
     );
 
     const aiBehaviorSettings = [
