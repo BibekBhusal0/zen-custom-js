@@ -72,12 +72,12 @@
     height: 80vh;
     padding: 20px 0px 0px 20px;
   }
-
-  .tool-confirmation-content,
-  .browse-bot-settings-modal,
-  findbar {
-    background: transparent !important;
-    background-color: transparent !important;
-    backdrop-filter: none !important;
-  }
+  /**/
+  /* .tool-confirmation-content, */
+  /* .browse-bot-settings-modal, */
+  /* findbar { */
+  /*   background: transparent !important; */
+  /*   background-color: transparent !important; */
+  /*   backdrop-filter: none !important; */
+  /* } */
 }

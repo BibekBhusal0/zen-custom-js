@@ -13,6 +13,24 @@
   --acrylic-glass-border: 1.5px solid
     color-mix(in srgb, var(--browser-primary-color) 20%, transparent 80%);
 
+  --browse-bot-dialog-bg: var(--acrylic-glass-bg);
+  --browse-bot-dialog-backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+
+  @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "solid") {
+    --browse-bot-dialog-bg: var(--acrylic-bg) !important;
+    --browse-bot-dialog-backdrop-filter: none !important;
+  }
+
+  @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "acrylic") {
+    --browse-bot-dialog-bg: var(--acrylic-glass-bg) !important;
+    --browse-bot-dialog-backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+  }
+
+  @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
+    --browse-bot-dialog-bg: transparent !important;
+    --browse-bot-dialog-backdrop-filter: none;
+  }
+
   --browse-bot-primary-bg: light-dark(
     color-mix(in srgb, var(--browser-primary-color) 90%, white 10%),
     color-mix(in srgb, var(--browser-primary-color) 70%, black 30%)
@@ -118,16 +136,8 @@ browser {
     border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
     z-index: 9999;
     opacity: 1;
-
-    @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "solid") {
-      background: var(--acrylic-bg) !important;
-      backdrop-filter: none !important;
-    }
-
-    @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "acrylic") {
-      background: var(--acrylic-glass-bg) !important;
-      backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
-    }
+    background: var(--browse-bot-dialog-bg) !important;
+    backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
 
     &:is([hidden="true"]) {
       visibility: inherit !important;
@@ -884,8 +894,8 @@ browser {
     border-radius: var(--acrylic-radius) !important;
     outline: 1px solid rgba(0, 0, 0, 1) !important;
     border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
-    background: var(--acrylic-glass-bg) !important;
-    backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+    background: var(--browse-bot-dialog-bg) !important;
+    backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
 
     p {
       margin-bottom: 15px;

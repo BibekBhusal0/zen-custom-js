@@ -24,8 +24,8 @@
   border-radius: var(--acrylic-radius) !important;
   outline: 1px solid rgba(0, 0, 0, 1) !important;
   border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
-  background: var(--acrylic-glass-bg) !important;
-  backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+  background: var(--browse-bot-dialog-bg) !important;
+  backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
   flex-direction: column;
   gap: 14px;
 
