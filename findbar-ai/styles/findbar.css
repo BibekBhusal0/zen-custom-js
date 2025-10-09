@@ -116,10 +116,18 @@ browser {
     border-radius: var(--acrylic-radius) !important;
     outline: 1px solid rgba(0, 0, 0, 1) !important;
     border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
-    background: var(--acrylic-glass-bg) !important;
-    backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
     z-index: 9999;
     opacity: 1;
+
+    @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "solid") {
+      background: var(--acrylic-bg) !important;
+      backdrop-filter: none !important;
+    }
+
+    @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "acrylic") {
+      background: var(--acrylic-glass-bg) !important;
+      backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+    }
 
     &:is([hidden="true"]) {
       visibility: inherit !important;

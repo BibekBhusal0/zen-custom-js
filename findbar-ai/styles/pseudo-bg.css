@@ -1,4 +1,4 @@
-@media -moz-pref("extension.browse-bot.findbar-ai.pseudo-bg.enabled") {
+@media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
   .browserSidebarContainer.deck-selected > .browserContainer::before {
     opacity: 0 !important;
   }

@@ -299,7 +299,6 @@ export const SettingsModal = {
       { label: "Persist Chat (don't persist when browser closes)", pref: PREFS.PERSIST },
       { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
       { label: "Remember Dimensions", pref: PREFS.REMEMBER_DIMENSIONS },
-      { label: "Pseudo Background (for transparent Browsers)", pref: PREFS.PSEUDO_BG },
     ];
     const positionOptions = {
       "top-left": "Top Left",
@@ -318,12 +317,30 @@ export const SettingsModal = {
         </select>
       </div>
     `;
+
+    const backgroundStyleOptions = {
+      solid: "Solid",
+      acrylic: "Acrylic",
+      pseudo: "Pseudo",
+    };
+    const backgroundStyleOptionsHTML = Object.entries(backgroundStyleOptions)
+      .map(([value, label]) => `<option value="${value}">${escapeXmlAttribute(label)}</option>`)
+      .join("");
+    const backgroundStyleSelectorHtml = `
+      <div class="setting-item">
+        <label for="pref-background-style">Background Style</label>
+        <select id="pref-background-style" data-pref="${PREFS.BACKGROUND_STYLE}">
+          ${backgroundStyleOptionsHTML}
+        </select>
+      </div>
+    `;
+
     const findbarSectionHtml = this._createCheckboxSectionHtml(
       "Findbar",
       findbarSettings,
       true,
       "",
-      positionSelectorHtml
+      positionSelectorHtml + backgroundStyleSelectorHtml
     );
 
     // Section 2: URLBar AI

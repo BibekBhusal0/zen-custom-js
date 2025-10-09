@@ -18,7 +18,7 @@ export const PREFS = {
     "extension.browse-bot.findbar-ai.context-menu-command-with-selection",
   CONTEXT_MENU_COMMAND_NO_SELECTION:
     "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
-  PSEUDO_BG: "extension.browse-bot.findbar-ai.pseudo-bg.enabled",
+  BACKGROUND_STYLE: "extension.browse-bot.findbar-ai.background-style",
 
   // Other prefs
   URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
@@ -179,8 +179,8 @@ export const PREFS = {
     this.setPref(this.PERSIST, value);
   },
 
-  get pseudoBg() {
-    return this.getPref(this.PSEUDO_BG);
+  get backgroundStyle() {
+    return this.getPref(this.BACKGROUND_STYLE);
   },
 
   get maxToolCalls() {
@@ -294,7 +294,7 @@ PREFS.defaultValues = {
   [PREFS.WIDTH]: 500,
   [PREFS.MAX_TOOL_CALLS]: 5,
   [PREFS.CONFORMATION]: true,
-  [PREFS.PSEUDO_BG]: false,
+  [PREFS.BACKGROUND_STYLE]: "acrylic",
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
   // [PREFS.SHOW_TOOL_CALL]: false,
