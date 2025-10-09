@@ -733,7 +733,7 @@ browser {
           position: absolute !important;
           right: 10px !important;
           transition: all 0.2s ease !important;
-/*border: 1px red solid !important; */
+          /*border: 1px red solid !important; */
           background: var(--browse-bot-dialog-bg) !important;
           backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
           outline: 1px solid rgba(0, 0, 0, 1) !important;
@@ -743,9 +743,9 @@ browser {
           }
 
           border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
-          padding-bottom:4px !important;
+          padding-bottom: 4px !important;
           margin-bottom: -2px !important;
-            clip-path: inset(0 0 15% 0);
+          clip-path: inset(0 0 15% 0);
         }
 
         &::before {
@@ -765,9 +765,9 @@ browser {
 
           border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
           border-bottom: none !important;
-          padding-bottom:4px !important;
+          padding-bottom: 4px !important;
           margin-bottom: -2px !important;
-            clip-path: inset(0 0 15% 0);
+          clip-path: inset(0 0 15% 0);
           border-radius: 4px !important;
           display: flex !important;
           justify-content: center !important;
