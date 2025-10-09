@@ -292,12 +292,11 @@ export const SettingsModal = {
   },
 
   _generateSettingsHtml() {
-    const generalSettings = [
+    // Section 1: Findbar
+    const findbarSettings = [
       { label: "Enable AI Findbar", pref: PREFS.ENABLED },
-      { label: "Enable URLBar AI", pref: PREFS.URLBAR_AI_ENABLED },
       { label: "Minimal Mode (similar to arc)", pref: PREFS.MINIMAL },
       { label: "Persist Chat (don't persist when browser closes)", pref: PREFS.PERSIST },
-      { label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE },
       { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
       { label: "Remember Dimensions", pref: PREFS.REMEMBER_DIMENSIONS },
       { label: "Pseudo Background (for transparent Browsers)", pref: PREFS.PSEUDO_BG },
@@ -319,14 +318,19 @@ export const SettingsModal = {
         </select>
       </div>
     `;
-    const generalSectionHtml = this._createCheckboxSectionHtml(
-      "General",
-      generalSettings,
+    const findbarSectionHtml = this._createCheckboxSectionHtml(
+      "Findbar",
+      findbarSettings,
       true,
       "",
       positionSelectorHtml
     );
 
+    // Section 2: URLBar AI
+    const urlbarSettings = [{ label: "Enable URLBar AI", pref: PREFS.URLBAR_AI_ENABLED }];
+    const urlbarSectionHtml = this._createCheckboxSectionHtml("URLBar AI", urlbarSettings, false);
+
+    // Section 3: AI Behavior
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
@@ -353,7 +357,7 @@ export const SettingsModal = {
       maxToolCallsHtml
     );
 
-    // Context Menu Settings
+    // Section 4: Context Menu
     const contextMenuSettings = [
       { label: "Enable Context Menu (right click menu)", pref: PREFS.CONTEXT_MENU_ENABLED },
       {
@@ -374,26 +378,12 @@ export const SettingsModal = {
     const contextMenuSectionHtml = this._createCheckboxSectionHtml(
       "Context Menu",
       contextMenuSettings,
-      true,
+      false,
       "",
       contextMenuCommandsHtml
     );
 
-    const browserFindbarSettings = [
-      { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
-      {
-        label: "Enable sound (when word not found)",
-        pref: "accessibility.typeaheadfind.enablesound",
-      },
-      { label: "Entire Word", pref: "findbar.entireword" },
-      { label: "Highlight All", pref: "findbar.highlightAll" },
-    ];
-    const browserSettingsHtml = this._createCheckboxSectionHtml(
-      "Browser Findbar",
-      browserFindbarSettings,
-      false
-    );
-
+    // Section 5: LLM Providers
     let llmProviderSettingsHtml = "";
     for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
@@ -440,6 +430,26 @@ export const SettingsModal = {
         ${llmProviderSettingsHtml}
       </section>`;
 
+    // Section 6: Browser Findbar
+    const browserFindbarSettings = [
+      { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
+      {
+        label: "Enable sound (when word not found)",
+        pref: "accessibility.typeaheadfind.enablesound",
+      },
+      { label: "Entire Word", pref: "findbar.entireword" },
+      { label: "Highlight All", pref: "findbar.highlightAll" },
+    ];
+    const browserSettingsHtml = this._createCheckboxSectionHtml(
+      "Browser Findbar",
+      browserFindbarSettings,
+      false
+    );
+
+    // Section 7: Development
+    const devSettings = [{ label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE }];
+    const devSectionHtml = this._createCheckboxSectionHtml("Development", devSettings, false);
+
     return `
       <div id="ai-settings-modal-overlay">
         <div class="browse-bot-settings-modal">
@@ -451,11 +461,13 @@ export const SettingsModal = {
             </div>
           </div>
           <div class="ai-settings-content">
-            ${generalSectionHtml}
+            ${findbarSectionHtml}
+            ${urlbarSectionHtml}
             ${aiBehaviorSectionHtml}
             ${contextMenuSectionHtml}
             ${llmProvidersSectionHtml}
             ${browserSettingsHtml}
+            ${devSectionHtml}
           </div>
         </div>
       </div>
