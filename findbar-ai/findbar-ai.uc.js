@@ -5,25 +5,29 @@ import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
 import "./urlbar.uc.js";
 
+const getSidebarWidth = () => {
+  if (
+    gZenCompactModeManager &&
+    (!gZenCompactModeManager?.preference || !PREFS.getPref("zen.view.compact.hide-tabbar") ) &&
+    !gZenCompactModeManager.sidebarIsOnRight
+  ) {
+    return gZenCompactModeManager.getAndApplySidebarWidth();
+  } else return 0;
+};
+
 const sidebarWidthUpdate = function () {
   const mainWindow = document.getElementById("main-window");
-  const toolbox = document.getElementById("navigator-toolbox");
-
-  function updateSidebarWidthIfCompact() {
-    const isCompact = mainWindow.getAttribute("zen-compact-mode") === "true";
-    if (!isCompact) return;
-
-    const value = getComputedStyle(toolbox).getPropertyValue("--zen-sidebar-width");
-    if (value) {
-      mainWindow.style.setProperty("--zen-sidebar-width", value.trim());
-    }
+  function updateSidebarWidth() {
+    const width = getSidebarWidth()
+    if (width)  mainWindow.style.setProperty("--zen-sidebar-width", width + "px");
+    setTimeout(() => browseBotFindbar._updateFindbarDimensions(), 2);
   }
 
   // Set up a MutationObserver to watch attribute changes on #main-window
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
-      if (mutation.type === "attributes" && mutation.attributeName === "zen-compact-mode") {
-        updateSidebarWidthIfCompact();
+      if (mutation.type === "attributes" && (mutation.attributeName === "zen-compact-mode" || mutation.attributeName === "zen-sidebar-expanded" )) {
+        updateSidebarWidth();
       }
     }
   });
@@ -31,24 +35,12 @@ const sidebarWidthUpdate = function () {
   // Observe attribute changes
   observer.observe(mainWindow, {
     attributes: true,
-    attributeFilter: ["zen-compact-mode"],
+    attributeFilter: ["zen-compact-mode", "zen-sidebar-expanded"],
   });
-
-  // Optional: run it once in case the attribute is already set at load
-  updateSidebarWidthIfCompact();
+  updateSidebarWidth();
 };
 
 sidebarWidthUpdate();
-
-const getSidebarWidth = () => {
-  if (
-    gZenCompactModeManager &&
-    !gZenCompactModeManager?.preference &&
-    !gZenCompactModeManager.sidebarIsOnRight
-  ) {
-    return gZenCompactModeManager.getAndApplySidebarWidth();
-  } else return 0;
-};
 
 function parseMD(markdown, convertHTML = true) {
   const markedOptions = { breaks: true, gfm: true, xhtml: true };

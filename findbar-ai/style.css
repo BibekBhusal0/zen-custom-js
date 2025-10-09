@@ -1,3 +1,9 @@
+@import "styles/findbar.css";
+@import "styles/markdown.css";
+@import "styles/urlbar.css";
+@import "styles/settings.css";
+@import "styles/pseudo-bg.css";
+
 :root {
   /*using fallback colors for zen colors*/
   --browser-primary-color: var(--zen-primary-color, #8ae3be);
@@ -46,9 +52,3 @@
   --browse-bot-warning: #f5a524;
   --browse-bot-warning-bg: light-dark(#fdedd3, #62420e);
 }
-
-@import "styles/findbar.css";
-@import "styles/markdown.css";
-@import "styles/urlbar.css";
-@import "styles/settings.css";
-@import "styles/pseudo-bg.css";
