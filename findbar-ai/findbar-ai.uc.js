@@ -17,6 +17,7 @@ const getSidebarWidth = () => {
 
 function updateSidebarWidth() {
   if (!PREFS.pseudoBg) return;
+  const mainWindow = document.getElementById("main-window");
   const width = getSidebarWidth();
   if (width) mainWindow.style.setProperty("--zen-sidebar-width", width + "px");
   setTimeout(() => browseBotFindbar._updateFindbarDimensions(), 2);
