@@ -24,12 +24,15 @@
       transition: none !important;
     }
   }
+  
    :root[zen-sidebar-expanded="true"] {
+     @media not -moz-pref("zen.tabs.vertical.right-side") {
     :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])) {
       .browserSidebarContainer.deck-selected > .browserContainer::before {
       left: calc(var(--findbar-x) - 8px - var(--zen-sidebar-width)) !important;
       }
-    }
+       }
+     }
   }
 
   :root[zen-compact-mode="true"] {

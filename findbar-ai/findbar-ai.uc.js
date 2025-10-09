@@ -17,6 +17,7 @@ const getSidebarWidth = () => {
 
 const sidebarWidthUpdate = function () {
   const mainWindow = document.getElementById("main-window");
+  const attributes = ["zen-compact-mode", "zen-sidebar-expanded", "zen-right-side"]
   function updateSidebarWidth() {
     const width = getSidebarWidth()
     if (width)  mainWindow.style.setProperty("--zen-sidebar-width", width + "px");
@@ -26,7 +27,7 @@ const sidebarWidthUpdate = function () {
   // Set up a MutationObserver to watch attribute changes on #main-window
   const observer = new MutationObserver((mutationsList) => {
     for (const mutation of mutationsList) {
-      if (mutation.type === "attributes" && (mutation.attributeName === "zen-compact-mode" || mutation.attributeName === "zen-sidebar-expanded" )) {
+      if (mutation.type === "attributes" && attributes.includes(mutation.attributeName)) {
         updateSidebarWidth();
       }
     }
@@ -35,7 +36,7 @@ const sidebarWidthUpdate = function () {
   // Observe attribute changes
   observer.observe(mainWindow, {
     attributes: true,
-    attributeFilter: ["zen-compact-mode", "zen-sidebar-expanded"],
+    attributeFilter: attributes,
   });
   updateSidebarWidth();
 };
