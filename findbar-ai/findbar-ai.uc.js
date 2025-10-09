@@ -8,7 +8,7 @@ import "./urlbar.uc.js";
 const getSidebarWidth = () => {
   if (
     gZenCompactModeManager &&
-    (!gZenCompactModeManager?.preference || !PREFS.getPref("zen.view.compact.hide-tabbar") ) &&
+    (!gZenCompactModeManager?.preference || !PREFS.getPref("zen.view.compact.hide-tabbar")) &&
     !gZenCompactModeManager.sidebarIsOnRight
   ) {
     return gZenCompactModeManager.getAndApplySidebarWidth();
@@ -16,19 +16,19 @@ const getSidebarWidth = () => {
 };
 
 function updateSidebarWidth() {
-  if (!PREFS.pseudoBg) return
-  const width = getSidebarWidth()
-  if (width)  mainWindow.style.setProperty("--zen-sidebar-width", width + "px");
+  if (!PREFS.pseudoBg) return;
+  const width = getSidebarWidth();
+  if (width) mainWindow.style.setProperty("--zen-sidebar-width", width + "px");
   setTimeout(() => browseBotFindbar._updateFindbarDimensions(), 2);
 }
 
 const sidebarWidthUpdate = function () {
   const mainWindow = document.getElementById("main-window");
-  const attributes = ["zen-compact-mode", "zen-sidebar-expanded", "zen-right-side"]
+  const attributes = ["zen-compact-mode", "zen-sidebar-expanded", "zen-right-side"];
 
   // Set up a MutationObserver to watch attribute changes on #main-window
   const observer = new MutationObserver((mutationsList) => {
-    if (!PREFS.pseudoBg) return
+    if (!PREFS.pseudoBg) return;
     for (const mutation of mutationsList) {
       if (mutation.type === "attributes" && attributes.includes(mutation.attributeName)) {
         updateSidebarWidth();
@@ -1111,7 +1111,7 @@ export const browseBotFindbar = {
 
   stopDrag() {
     this._isDragging = false;
-    if(!PREFS.pseudoBg) this.findbar.style.setProperty("transition", "all 0.3s ease", "important");
+    if (!PREFS.pseudoBg) this.findbar.style.setProperty("transition", "all 0.3s ease", "important");
     this.snapToClosestCorner();
     this._initialMouseCoor = { x: null, y: null };
     this._initialContainerCoor = { x: null, y: null };
@@ -1120,9 +1120,9 @@ export const browseBotFindbar = {
     this._handleDrag = null;
     this._stopDrag = null;
     setTimeout(() => this._updateFindbarDimensions(), 0);
-if(!PREFS.pseudoBg){
+    if (!PREFS.pseudoBg) {
       setTimeout(() => this.findbar.style.removeProperty("transition"), 400);
-    setTimeout(() => this._updateFindbarDimensions(), 401); // update dimensions after transition
+      setTimeout(() => this._updateFindbarDimensions(), 401); // update dimensions after transition
     }
   },
 
@@ -1223,9 +1223,9 @@ if(!PREFS.pseudoBg){
     };
     const _handleContextMenuPrefChange = this.handleContextMenuPrefChange.bind(this);
     const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
-    const _handleBackgroundStyleChange = () =>{
-      updateSidebarWidth()
-    }
+    const _handleBackgroundStyleChange = () => {
+      updateSidebarWidth();
+    };
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._updateFindbar);
     document.addEventListener("keydown", this._addKeymaps);
@@ -1234,7 +1234,10 @@ if(!PREFS.pseudoBg){
     window.addEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.addEventListener("findbarclose", this._handleFindbarCloseEvent);
     this._agenticModeListener = UC_API.Prefs.addListener(PREFS.AGENTIC_MODE, _clearLLMData);
-    this._backgroundStylesListener = UC_API.Prefs.addListener(PREFS.BACKGROUND_STYLE, _handleBackgroundStyleChange);
+    this._backgroundStylesListener = UC_API.Prefs.addListener(
+      PREFS.BACKGROUND_STYLE,
+      _handleBackgroundStyleChange
+    );
     this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
     this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
     this._contextMenuEnabledListener = UC_API.Prefs.addListener(
@@ -1266,8 +1269,8 @@ if(!PREFS.pseudoBg){
     document.removeEventListener("keydown", this._addKeymaps);
     window.removeEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.removeEventListener("findbarclose", this._handleFindbarCloseEvent);
-        UC_API.Prefs.removeListener(this._agenticModeListener);
-        UC_API.Prefs.removeListener(this._backgroundStylesListener);
+    UC_API.Prefs.removeListener(this._agenticModeListener);
+    UC_API.Prefs.removeListener(this._backgroundStylesListener);
     UC_API.Prefs.removeListener(this._citationsListener);
     UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
     UC_API.Prefs.removeListener(this._minimalListener);
@@ -1278,7 +1281,7 @@ if(!PREFS.pseudoBg){
     this._handleInputKeyPress = null;
     this._updateFindbar = null;
     this._addKeymaps = null;
-        this._agenticModeListener = null;
+    this._agenticModeListener = null;
     this._citationsListener = null;
     this._contextMenuEnabledListener = null;
     this._minimalListener = null;

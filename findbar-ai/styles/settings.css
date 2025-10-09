@@ -159,7 +159,7 @@
     .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
       display: none !important;
     }
-/* When citations and agentic mode enabled showing warning*/
+    /* When citations and agentic mode enabled showing warning*/
     :has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:checked) {
       #citations-agentic-mode-warning {
         display: block !important;
@@ -181,7 +181,7 @@
     }
 
     /* Hide findbar sections */
-    .settings-section{
+    .settings-section {
       &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode),
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled),
       &:has([data-pref="accessibility.typeaheadfind"]) {
@@ -192,7 +192,7 @@
 
   /* When agentic Mode is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:not(:checked)) {
-    .setting-item{
+    .setting-item {
       &:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
       &:has(#pref-max-tool-calls) {
         display: none !important;
@@ -203,7 +203,7 @@
   /* When Context Menu is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled:not(:checked)) {
     /* Hide Context Menu dependent settings */
-    .setting-item{
+    .setting-item {
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-autosend),
       &:has(#pref-context-menu-command-no-selection),
       &:has(#pref-context-menu-command-with-selection) {

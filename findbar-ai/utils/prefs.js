@@ -184,8 +184,8 @@ export const PREFS = {
     return this.getPref(this.BACKGROUND_STYLE);
   },
 
-  get pseudoBg (){
-    return this.backgroundStyle === "pseudo"
+  get pseudoBg() {
+    return this.backgroundStyle === "pseudo";
   },
 
   get maxToolCalls() {
@@ -268,7 +268,7 @@ PREFS.defaultValues = {
   [PREFS.ENABLED]: true,
   [PREFS.URLBAR_AI_ENABLED]: true,
   [PREFS.MINIMAL]: true,
-    [PREFS.AGENTIC_MODE]: false,
+  [PREFS.AGENTIC_MODE]: false,
   [PREFS.DEBUG_MODE]: false,
   [PREFS.PERSIST]: false,
   [PREFS.STREAM_ENABLED]: true,
