@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
+    "cross-env": "^7.0.3",
     "@rollup/plugin-node-resolve": "^16.0.2",
     "chokidar-cli": "^3.0.0",
     "prettier": "^3.6.2",
