@@ -184,6 +184,10 @@ export const PREFS = {
     return this.getPref(this.BACKGROUND_STYLE);
   },
 
+  get pseudoBg (){
+    return this.backgroundStyle === "pseudo"
+  },
+
   get maxToolCalls() {
     return this.getPref(this.MAX_TOOL_CALLS);
   },

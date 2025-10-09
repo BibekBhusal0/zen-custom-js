@@ -15,17 +15,20 @@ const getSidebarWidth = () => {
   } else return 0;
 };
 
+function updateSidebarWidth() {
+  if (!PREFS.pseudoBg) return
+  const width = getSidebarWidth()
+  if (width)  mainWindow.style.setProperty("--zen-sidebar-width", width + "px");
+  setTimeout(() => browseBotFindbar._updateFindbarDimensions(), 2);
+}
+
 const sidebarWidthUpdate = function () {
   const mainWindow = document.getElementById("main-window");
   const attributes = ["zen-compact-mode", "zen-sidebar-expanded", "zen-right-side"]
-  function updateSidebarWidth() {
-    const width = getSidebarWidth()
-    if (width)  mainWindow.style.setProperty("--zen-sidebar-width", width + "px");
-    setTimeout(() => browseBotFindbar._updateFindbarDimensions(), 2);
-  }
 
   // Set up a MutationObserver to watch attribute changes on #main-window
   const observer = new MutationObserver((mutationsList) => {
+    if (!PREFS.pseudoBg) return
     for (const mutation of mutationsList) {
       if (mutation.type === "attributes" && attributes.includes(mutation.attributeName)) {
         updateSidebarWidth();
@@ -67,6 +70,7 @@ export const browseBotFindbar = {
   _isExpanded: false,
   _updateContextMenuText: null,
   _agenticModeListener: null,
+  _backgroundStylesListener: null,
   _citationsListener: null,
   _contextMenuEnabledListener: null,
   _persistListener: null,
@@ -1051,7 +1055,7 @@ export const browseBotFindbar = {
     let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
-    if (PREFS.backgroundStyle === "pseudo") this._updateFindbarDimensions();
+    if (PREFS.pseudoBg) this._updateFindbarDimensions();
   },
 
   stopResize() {
@@ -1097,7 +1101,7 @@ export const browseBotFindbar = {
     newCoors.x -= getSidebarWidth();
     newCoors.x = Math.max(minCoors.x, Math.min(newCoors.x, maxCoors.x));
     newCoors.y = Math.max(minCoors.y, Math.min(newCoors.y, maxCoors.y));
-    if (PREFS.backgroundStyle === "pseudo") this._updateFindbarDimensions();
+    if (PREFS.pseudoBg) this._updateFindbarDimensions();
 
     this.findbar.style.setProperty("left", `${newCoors.x}px`, "important");
     this.findbar.style.setProperty("top", `${newCoors.y}px`, "important");
@@ -1217,6 +1221,9 @@ export const browseBotFindbar = {
     };
     const _handleContextMenuPrefChange = this.handleContextMenuPrefChange.bind(this);
     const _handleMinimalPrefChange = this.handleMinimalPrefChange.bind(this);
+    const _handleBackgroundStyleChange = () =>{
+      updateSidebarWidth()
+    }
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._updateFindbar);
     document.addEventListener("keydown", this._addKeymaps);
@@ -1225,6 +1232,7 @@ export const browseBotFindbar = {
     window.addEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.addEventListener("findbarclose", this._handleFindbarCloseEvent);
     this._agenticModeListener = UC_API.Prefs.addListener(PREFS.AGENTIC_MODE, _clearLLMData);
+    this._backgroundStylesListener = UC_API.Prefs.addListener(PREFS.BACKGROUND_STYLE, _handleBackgroundStyleChange);
     this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
     this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
     this._contextMenuEnabledListener = UC_API.Prefs.addListener(
@@ -1257,6 +1265,7 @@ export const browseBotFindbar = {
     window.removeEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.removeEventListener("findbarclose", this._handleFindbarCloseEvent);
         UC_API.Prefs.removeListener(this._agenticModeListener);
+        UC_API.Prefs.removeListener(this._backgroundStylesListener);
     UC_API.Prefs.removeListener(this._citationsListener);
     UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
     UC_API.Prefs.removeListener(this._minimalListener);
