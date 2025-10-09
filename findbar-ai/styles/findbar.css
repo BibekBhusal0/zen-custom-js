@@ -377,7 +377,16 @@ browser {
         top: 34px !important;
         left: 0 !important;
         width: 100% !important;
-        border-top: 1px solid rgba(127, 127, 127, 0.3) !important;
+        background: var(--browse-bot-dialog-bg) !important;
+        backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
+        outline: 1px solid rgba(0, 0, 0, 1) !important;
+
+        @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
+          background: var(--acrylic-bg) !important;
+        }
+
+        border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
+        border-bottom: none !important;
       }
     }
 
@@ -717,11 +726,6 @@ browser {
           content: "";
           position: absolute !important;
           border-radius: var(--acrylic-radius) !important;
-          background: var(--acrylic-glass-bg) !important;
-          backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
-
-          border-bottom-right-radius: 0 !important;
-          border-bottom-left-radius: 0 !important;
           opacity: 0 !important;
           top: 0px !important;
           width: 140px !important;
@@ -729,7 +733,19 @@ browser {
           position: absolute !important;
           right: 10px !important;
           transition: all 0.2s ease !important;
-          /* border: 1px red solid !important; */
+/*border: 1px red solid !important; */
+          background: var(--browse-bot-dialog-bg) !important;
+          backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
+          outline: 1px solid rgba(0, 0, 0, 1) !important;
+
+          @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
+            background: var(--acrylic-bg) !important;
+          }
+
+          border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
+          padding-bottom:4px !important;
+          margin-bottom: -2px !important;
+            clip-path: inset(0 0 15% 0);
         }
 
         &::before {
@@ -739,8 +755,19 @@ browser {
         .findbar-drag-handle {
           width: 20px !important;
           opacity: 0 !important;
-          background: var(--acrylic-glass-bg) !important;
-          backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+          background: var(--browse-bot-dialog-bg) !important;
+          backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
+          outline: 1px solid rgba(0, 0, 0, 1) !important;
+
+          @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
+            background: var(--acrylic-bg) !important;
+          }
+
+          border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
+          border-bottom: none !important;
+          padding-bottom:4px !important;
+          margin-bottom: -2px !important;
+            clip-path: inset(0 0 15% 0);
           border-radius: 4px !important;
           display: flex !important;
           justify-content: center !important;
