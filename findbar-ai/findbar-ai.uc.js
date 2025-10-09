@@ -1111,7 +1111,7 @@ export const browseBotFindbar = {
 
   stopDrag() {
     this._isDragging = false;
-    this.findbar.style.setProperty("transition", "all 0.3s ease", "important");
+    if(!PREFS.pseudoBg) this.findbar.style.setProperty("transition", "all 0.3s ease", "important");
     this.snapToClosestCorner();
     this._initialMouseCoor = { x: null, y: null };
     this._initialContainerCoor = { x: null, y: null };
@@ -1120,8 +1120,10 @@ export const browseBotFindbar = {
     this._handleDrag = null;
     this._stopDrag = null;
     setTimeout(() => this._updateFindbarDimensions(), 0);
-    setTimeout(() => this.findbar.style.removeProperty("transition"), 400);
+if(!PREFS.pseudoBg){
+      setTimeout(() => this.findbar.style.removeProperty("transition"), 400);
     setTimeout(() => this._updateFindbarDimensions(), 401); // update dimensions after transition
+    }
   },
 
   snapToClosestCorner() {
