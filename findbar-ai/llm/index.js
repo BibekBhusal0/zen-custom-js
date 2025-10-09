@@ -153,7 +153,7 @@ class LLM {
 
 /**
  * An extended LLM class specifically for the BrowseBot Findbar.
- * It manages application-specific states like godMode, streaming, citations,
+ * It manages application-specific states like agentic, streaming, citations,
  * and constructs the appropriate system prompts.
  */
 class BrowseBotLLM extends LLM {
@@ -162,8 +162,8 @@ class BrowseBotLLM extends LLM {
     this.systemInstruction = "";
   }
 
-  get godMode() {
-    return PREFS.godMode;
+  get agenticMode() {
+    return PREFS.agenticMode;
   }
   get streamEnabled() {
     return PREFS.streamEnabled;
@@ -186,10 +186,10 @@ class BrowseBotLLM extends LLM {
 ## Your Instructions:
 - Be concise, accurate, and helpful.`;
 
-    if (this.godMode) {
+    if (this.agenticMode) {
       systemPrompt += `
 
-## GOD MODE ENABLED - TOOL USAGE:
+## AGENTIC MODE ENABLED - TOOL USAGE:
 You have access to browser functions. The user knows you have these abilities.
 - **CRITICAL**: When you decide to call a tool, give short summary of what tool are you calling and why?
 - Use tools when the user explicitly asks, or when it is the only logical way to fulfill their request (e.g., "search for...").
@@ -337,7 +337,7 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 `;
     }
 
-    if (!this.godMode) {
+    if (!this.agenticMode) {
       systemPrompt += `
 - Strictly base all your answers on the webpage content provided below.
 - If the user's question cannot be answered from the content, state that the information is not available on the page.
@@ -393,7 +393,7 @@ Here is the initial info about the current page:
       return object;
     }
 
-    if (!this.godMode) {
+    if (!this.agenticMode) {
       if (this.streamEnabled) {
         const self = this;
         const streamResult = await super.streamText({ prompt, abortSignal });

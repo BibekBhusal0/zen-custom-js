@@ -125,7 +125,7 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.ollama-model`                        | String  | `"llama2"`                | The specific Ollama model to use.                                                                           |
 | `extension.browse-bot.findbar-ai.context-menu-enabled`     | Boolean | `true`                    | Toggles the "Ask AI" item in the right-click context menu.                                                  |
 | `extension.browse-bot.findbar-ai.context-menu-autosend`    | Boolean | `true`                    | If true, clicking the context menu item sends the request to the AI immediately.                            |
-| `extension.browse-bot.findbar-ai.god-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                           |
+| `extension.browse-bot.findbar-ai.agentic-mode`                 | Boolean | `false`                   | If true, allows the AI to use tools to interact with the browser.                                           |
 | `extension.browse-bot.findbar-ai.max-tool-calls`           | Number  | `5`                       | The maximum number of consecutive tool calls the AI can make in one turn.                                   |
 | `extension.browse-bot.findbar-ai.conform-before-tool-call` | Boolean | `true`                    | If true, prompts you for confirmation before the AI executes any tools.                                     |
 | `extension.browse-bot.findbar-ai.stream-enabled`           | Boolean | `true`                    | AI response will be smooth.                                                                                 |
@@ -133,7 +133,7 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.debug-mode`                          | Boolean | `false`                   | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                         |
 
 > [!WARNING]
-> Don't turn on both God Mode and Citations at the same time. The AI might not function properly.
+> Don't turn on both Agentic Mode Citations at the same time. The AI might not function properly.
 
 </details>
 
@@ -148,10 +148,10 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 
 ## 🔨 Tool-calls
 
-AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.browse-bot.findbar-ai.god-mode` to `true`.
+AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.browse-bot.findbar-ai.agentic-mode` to `true`.
 
 > [!NOTE]
-> The **Findbar AI** has access to all tools listed below in God Mode (except for bookmarks). The **URL Bar AI** uses a focused subset for quick actions: `Search`, `Navigation`, `Tab Management`, `Workspace Management`, and `UI Feedback`.
+> The **Findbar AI** has access to all tools listed below in Agentic Mode (except for bookmarks). The **URL Bar AI** uses a focused subset for quick actions: `Search`, `Navigation`, `Tab Management`, `Workspace Management`, and `UI Feedback`.
 
 Currently available tool calls are:
 

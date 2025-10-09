@@ -73,7 +73,7 @@ export const browseBotFindbar = {
   _handleFindbarCloseEvent: null,
   _isExpanded: false,
   _updateContextMenuText: null,
-  _godModeListener: null,
+  _agenticModeListener: null,
   _citationsListener: null,
   _contextMenuEnabledListener: null,
   _persistListener: null,
@@ -340,11 +340,11 @@ export const browseBotFindbar = {
 
   aiStatus: {
     citationsEnabled: PREFS.citationsEnabled,
-    godMode: PREFS.godMode,
+    agenticMode: PREFS.agenticMode,
   },
   updateFindbarStatus() {
     this.aiStatus = {
-      godMode: PREFS.godMode,
+      agenticMode: PREFS.agenticMode,
       citationsEnabled: PREFS.citationsEnabled,
     };
     if (this.findbar) this.findbar.aiStatus = this.aiStatus;
@@ -1231,7 +1231,7 @@ export const browseBotFindbar = {
     this._handleFindbarCloseEvent = this.handleFindbarCloseEvent.bind(this);
     window.addEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.addEventListener("findbarclose", this._handleFindbarCloseEvent);
-    this._godModeListener = UC_API.Prefs.addListener(PREFS.GOD_MODE, _clearLLMData);
+    this._agenticModeListener = UC_API.Prefs.addListener(PREFS.AGENTIC_MODE, _clearLLMData);
     this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
     this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
     this._contextMenuEnabledListener = UC_API.Prefs.addListener(
@@ -1263,7 +1263,7 @@ export const browseBotFindbar = {
     document.removeEventListener("keydown", this._addKeymaps);
     window.removeEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.removeEventListener("findbarclose", this._handleFindbarCloseEvent);
-    UC_API.Prefs.removeListener(this._godModeListener);
+        UC_API.Prefs.removeListener(this._agenticModeListener);
     UC_API.Prefs.removeListener(this._citationsListener);
     UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
     UC_API.Prefs.removeListener(this._minimalListener);
@@ -1274,7 +1274,7 @@ export const browseBotFindbar = {
     this._handleInputKeyPress = null;
     this._updateFindbar = null;
     this._addKeymaps = null;
-    this._godModeListener = null;
+        this._agenticModeListener = null;
     this._citationsListener = null;
     this._contextMenuEnabledListener = null;
     this._minimalListener = null;

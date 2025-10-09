@@ -148,7 +148,7 @@
     }
   }
 
-  #citations-god-mode-warning {
+  #citations-agentic-mode-warning {
     display: none;
     color: red;
     margin-bottom: 10px;
@@ -159,9 +159,9 @@
     .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
       display: none !important;
     }
-/* When citations and god mode enabled showing warning*/
-    :has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:checked) {
-      #citations-god-mode-warning {
+/* When citations and agentic mode enabled showing warning*/
+    :has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:checked) {
+      #citations-agentic-mode-warning {
         display: block !important;
       }
     }
@@ -182,7 +182,7 @@
 
     /* Hide findbar sections */
     .settings-section{
-      &:has(#pref-extension\.browse-bot\.findbar-ai\.god-mode),
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode),
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled),
       &:has([data-pref="accessibility.typeaheadfind"]) {
         display: none !important;
@@ -190,9 +190,8 @@
     }
   }
 
-  /* When God Mode is disabled */
-  &:has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:not(:checked)) {
-    /* Hide God Mode dependent settings */
+  /* When agentic Mode is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:not(:checked)) {
     .setting-item{
       &:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
       &:has(#pref-max-tool-calls) {

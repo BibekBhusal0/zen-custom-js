@@ -761,8 +761,8 @@
     ]
   },
   {
-    "property": "extension.browse-bot.findbar-ai.god-mode",
-    "label": "God Mode (Enable Tools)",
+    "property": "extension.browse-bot.findbar-ai.agentic-mode",
+    "label": "Agentic Mode (Enable Tools)",
     "type": "checkbox",
     "default": false,
     "description": "Allows the AI to use tools, such as performing searches or opening links.",
@@ -790,7 +790,7 @@
       },
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.god-mode",
+          "property": "extension.browse-bot.findbar-ai.agentic-mode",
           "value": true
         }
       }

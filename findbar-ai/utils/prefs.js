@@ -8,7 +8,7 @@ export const PREFS = {
   REMEMBER_DIMENSIONS: "extension.browse-bot.findbar-ai.remember-dimensions",
   WIDTH: "extension.browse-bot.findbar-ai.width",
   STREAM_ENABLED: "extension.browse-bot.findbar-ai.stream-enabled",
-  GOD_MODE: "extension.browse-bot.findbar-ai.god-mode",
+  AGENTIC_MODE: "extension.browse-bot.findbar-ai.agentic-mode",
   CITATIONS_ENABLED: "extension.browse-bot.findbar-ai.citations-enabled",
   MAX_TOOL_CALLS: "extension.browse-bot.findbar-ai.max-tool-calls",
   CONFORMATION: "extension.browse-bot.findbar-ai.conform-before-tool-call",
@@ -71,7 +71,8 @@ export const PREFS = {
       "extension.browse-bot.dnd-enabled": PREFS.DND_ENABLED,
       "extension.browse-bot.position": PREFS.POSITION,
       "extension.browse-bot.stream-enabled": PREFS.STREAM_ENABLED,
-      "extension.browse-bot.god-mode": PREFS.GOD_MODE,
+      "extension.browse-bot.god-mode": PREFS.AGENTIC_MODE,
+      "extension.browse-bot.findbar-god-mode": PREFS.AGENTIC_MODE,
       "extension.browse-bot.citations-enabled": PREFS.CITATIONS_ENABLED,
       "extension.browse-bot.max-tool-calls": PREFS.MAX_TOOL_CALLS,
       "extension.browse-bot.conform-before-tool-call": PREFS.CONFORMATION,
@@ -123,11 +124,11 @@ export const PREFS = {
     this.setPref(this.STREAM_ENABLED, value);
   },
 
-  set godMode(value) {
-    this.setPref(this.GOD_MODE, value);
+  set agenticMode(value) {
+    this.setPref(this.AGENTIC_MODE, value);
   },
-  get godMode() {
-    return this.getPref(this.GOD_MODE);
+  get agenticMode() {
+    return this.getPref(this.AGENTIC_MODE);
   },
 
   get citationsEnabled() {
@@ -263,7 +264,7 @@ PREFS.defaultValues = {
   [PREFS.ENABLED]: true,
   [PREFS.URLBAR_AI_ENABLED]: true,
   [PREFS.MINIMAL]: true,
-  [PREFS.GOD_MODE]: false,
+    [PREFS.AGENTIC_MODE]: false,
   [PREFS.DEBUG_MODE]: false,
   [PREFS.PERSIST]: false,
   [PREFS.STREAM_ENABLED]: true,
