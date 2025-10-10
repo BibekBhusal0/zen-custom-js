@@ -701,3 +701,7 @@
     }
   }
 }
+
+#urlbar[zen-cmd-palette-prefix-mode="true"]{
+  background: red !important;
+}

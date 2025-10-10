@@ -365,26 +365,25 @@ export const ZenCommandPalette = {
 
   /**
    * Filters and sorts the command list using a fuzzy-matching algorithm.
-   * @param {string} input - The user's search string from the URL bar.
+   * @param {string} query - The user's search string, without the command prefix.
    * @param {Array<object>} allCommands - The full list of commands to filter.
+   * @param {boolean} isPrefixMode - Whether the command palette is in prefix mode.
    * @returns {Array<object>} A sorted array of command objects that match the input.
    */
-  filterCommandsByInput(input, allCommands) {
-    let query = this.safeStr(input).trim();
-    const isCommandPrefix = query.startsWith(Prefs.prefix);
-    if (isCommandPrefix) {
-      query = query.substring(1).trim();
+  filterCommandsByInput(query, allCommands, isPrefixMode) {
+    const cleanQuery = this.safeStr(query).trim();
+
+    if (isPrefixMode) {
+      if (!cleanQuery) {
+        return [];
+      }
+    } else {
+      if (cleanQuery.length < Prefs.minQueryLength) {
+        return [];
+      }
     }
-    if (isCommandPrefix && !query) {
-      return [];
-    }
-    if (!isCommandPrefix && query.length < Prefs.minQueryLength) {
-      return [];
-    }
-    if (!query) {
-      return [];
-    }
-    const lowerQuery = query.toLowerCase();
+
+    const lowerQuery = cleanQuery.toLowerCase();
 
     const scoredCommands = allCommands
       .map((cmd) => {
@@ -408,7 +407,7 @@ export const ZenCommandPalette = {
     scoredCommands.sort((a, b) => b.score - a.score);
     const finalCmds = scoredCommands.map((item) => item.cmd);
 
-    if (isCommandPrefix) {
+    if (isPrefixMode) {
       return finalCmds.slice(0, Prefs.maxCommandsPrefix);
     }
     return finalCmds.slice(0, Prefs.maxCommands);
@@ -654,6 +653,10 @@ export const ZenCommandPalette = {
     }
   },
 
+  _exitPrefixMode() {
+    if (this.provider) this.provider.dispose()
+  },
+
   /**
    * Initializes the command palette by creating and registering the UrlbarProvider.
    * This is the main entry point for the script.
@@ -679,6 +682,15 @@ export const ZenCommandPalette = {
     debugLog("User config loaded and applied.");
 
     this.attachUrlbarCloseListeners();
+
+    gURLBar.inputField.addEventListener("keydown", (event) => {
+      if (this.provider?._isInPrefixMode && gURLBar.value === "") {
+        if (event.key === "Backspace" || event.key === "Escape") {
+          event.preventDefault();
+          this._exitPrefixMode();
+        }
+      }
+    });
 
     window.addEventListener("unload", () => this.destroy(), { once: true });
 
@@ -713,24 +725,24 @@ export const ZenCommandPalette = {
         get type() {
           return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
         }
-        getPriority(context) {
-          const input = (context.searchString || "").trim();
-          return input.startsWith(Prefs.prefix) ? 10000 : 0;
+        getPriority() {
+          return this._isInPrefixMode  ? 10000 : 0;
         }
 
         async isActive(context) {
           try {
+            if (this._isInPrefixMode) {
+              if (context.searchMode?.engineName) {
+                this.dispose();
+                return false;
+              }
+              return true;
+            }
+
             const input = (context.searchString || "").trim();
             const isPrefixSearch = input.startsWith(Prefs.prefix);
 
-            if (this._isInPrefixMode && !isPrefixSearch) {
-              this._isInPrefixMode = false;
-              Prefs.resetTempMaxRichResults();
-            }
-
-            const inSearchMode =
-              !!context.searchMode?.engineName || !!gURLBar.searchMode?.engineName;
-            if (inSearchMode) {
+            if (context.searchMode?.engineName) {
               return false;
             }
 
@@ -738,8 +750,8 @@ export const ZenCommandPalette = {
             if (Prefs.prefixRequired) return false;
 
             if (input.length >= Prefs.minQueryLength) {
-              const liveCommands = await self.generateLiveCommands(true, isPrefixSearch);
-              return self.filterCommandsByInput(input, liveCommands).length > 0;
+              const liveCommands = await self.generateLiveCommands(true, false);
+              return self.filterCommandsByInput(input, liveCommands, false).length > 0;
             }
 
             return false;
@@ -755,17 +767,24 @@ export const ZenCommandPalette = {
             const input = (context.searchString || "").trim();
             debugLog(`startQuery for: "${input}"`);
 
-            const isPrefixSearch = input.startsWith(Prefs.prefix);
-            const query = isPrefixSearch ? input.substring(1).trim() : input.trim();
+            const isEnteringPrefixMode = !this._isInPrefixMode && input.startsWith(Prefs.prefix);
+            let query;
 
-            this._isInPrefixMode = isPrefixSearch;
+            if (isEnteringPrefixMode) {
+              this._isInPrefixMode = true;
+              gURLBar.setAttribute("zen-cmd-palette-prefix-mode", "true");
+              query = input.substring(Prefs.prefix.length).trim();
+              gURLBar.value = query;
+            } else {
+              query = input;
+            }
 
-            if (isPrefixSearch) Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
+            if (this._isInPrefixMode) Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
             else Prefs.resetTempMaxRichResults();
 
             if (context.canceled) return;
 
-            const liveCommands = await self.generateLiveCommands(true, isPrefixSearch);
+            const liveCommands = await self.generateLiveCommands(true, this._isInPrefixMode);
             if (context.canceled) return;
 
             const addResult = (cmd, isHeuristic = false) => {
@@ -792,7 +811,7 @@ export const ZenCommandPalette = {
               return true;
             };
 
-            if (isPrefixSearch && !query) {
+            if (this._isInPrefixMode && !query) {
               let count = 0;
               const maxResults = Prefs.maxCommandsPrefix;
               const recentCmds = self._recentCommands
@@ -829,9 +848,9 @@ export const ZenCommandPalette = {
               return;
             }
 
-            const matches = self.filterCommandsByInput(input, liveCommands);
+            const matches = self.filterCommandsByInput(query, liveCommands, this._isInPrefixMode);
 
-            if (!matches.length && isPrefixSearch) {
+            if (!matches.length && this._isInPrefixMode) {
               addResult({
                 key: "no-results",
                 label: "No matching commands found",
@@ -849,6 +868,7 @@ export const ZenCommandPalette = {
 
         dispose() {
           Prefs.resetTempMaxRichResults();
+          gURLBar.removeAttribute("zen-cmd-palette-prefix-mode");
           this._isInPrefixMode = false;
           setTimeout(() => {
             self.clearDynamicCommandsCache();
