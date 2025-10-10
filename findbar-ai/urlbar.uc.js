@@ -47,6 +47,7 @@ window.browseBotURLBarLLM = urlBarLLM;
 export const urlbarAI = {
   _isAIMode: false,
   _originalPlaceholder: "",
+  _originalHeight: null,
   _initialized: false,
   _enabled: false,
   _prefListener: null,
@@ -57,6 +58,10 @@ export const urlbarAI = {
 
   get hideSuggestions() {
     return PREFS.getPref(PREFS.URLBAR_AI_HIDE_SUGGESTIONS);
+  },
+
+  get animationsEnabled() {
+    return PREFS.getPref(PREFS.URLBAR_AI_ANIMATIONS_ENABLED);
   },
 
   init() {
@@ -99,13 +104,73 @@ export const urlbarAI = {
 
       gURLBar.selectionStart = gURLBar.selectionEnd = 0;
       gURLBar.blur();
-
+      this.clearAnimationPropertiesInUrlBar()
       if (gURLBar.view.isOpen) {
         gURLBar.view.close();
       }
     } catch (e) {
       debugError("urlbarAI: Error in _closeUrlBar", e);
     }
+  },
+
+  animateAIOn () {
+    if (!this.animationsEnabled && !this.hideSuggestions) return false
+    try{
+      const textbox = gURLBar.textbox
+      if (!textbox) return false
+      if (!gURLBar.view.isOpen) return false
+      const height = textbox.getBoundingClientRect().height
+      if (!height) return
+      this._originalHeight = height
+      textbox.style.setProperty("height", height + "px", "important")
+      textbox.style.setProperty("overflow", "hidden", "important")
+      textbox.style.setProperty("transition", "height 0.15s ease", "important")
+      const panelHeight = gURLBar.panel.getBoundingClientRect() .height
+      const inputHeight = height - panelHeight - 10
+      setTimeout(()=>{
+        textbox.style.setProperty("height", inputHeight + "px", "important")
+      }, 1)
+    } catch (e) {
+      debugError( "Error while animating", e)
+      return false
+    }
+    return true
+  }, 
+
+  animateAIOff() {
+    if (!this.animationsEnabled && !this.hideSuggestions) return false
+    try{
+      const textbox = gURLBar.textbox
+      if (!textbox) return false
+      if (!gURLBar.view.isOpen) return false
+      if (!this._originalHeight) return false
+      const height = textbox.getBoundingClientRect().height
+      if (!height) return
+      if (height === this._originalHeight) return
+      textbox.style.setProperty("transition", "height 0.15s ease", "important")
+      textbox.style.setProperty("overflow", "hidden", "important")
+      setTimeout(()=>{
+        textbox.style.setProperty("height", this._originalHeight + "px", "important")
+        this._originalHeight = null;
+      }, 1)
+      setTimeout(()=>{
+        this.clearAnimationPropertiesInUrlBar()
+      }, 200)
+    } catch (e) {
+      debugError( "Error while animating", e)
+      return false
+    }
+    return true
+  },
+
+  clearAnimationPropertiesInUrlBar() {
+    try{
+      const textbox = gURLBar.textbox
+      if (!textbox) return
+      textbox.style.removeProperty("transition")
+      textbox.style.removeProperty("overflow")
+      textbox.style.removeProperty("height")
+    }catch{}
   },
 
   toggleAIMode(forceState, forceClose = false) {
@@ -118,13 +183,15 @@ export const urlbarAI = {
     if (this._isAIMode) {
       gURLBar.setAttribute("ai-mode-active", "true");
       gURLBar.inputField.setAttribute("placeholder", "Command to AI");
+      this.animateAIOn()
       gURLBar.startQuery();
     } else {
+      if (forceClose) this._closeUrlBar();
+      else this.animateAIOff()
       gURLBar.removeAttribute("ai-mode-active");
       gURLBar.removeAttribute("is-ai-thinking");
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
       gURLBar.value = "";
-      if (forceClose) this._closeUrlBar();
     }
     debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
   },
@@ -164,6 +231,7 @@ export const urlbarAI = {
       if (this._isAIMode) {
         debugLog("urlbarAI: Disabling AI mode due to blur or popup hide");
         this.toggleAIMode(false);
+        this.clearAnimationPropertiesInUrlBar()
       }
     };
 
