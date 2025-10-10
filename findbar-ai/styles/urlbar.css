@@ -44,12 +44,18 @@
           content: url("chrome://browser/skin/trending.svg") !important;
           -moz-context-properties: fill !important;
           padding-left: 5px !important;
-          padding-top: 3px !important;
+          padding-top: 2px !important;
+          scale: 1.2 !important;
           fill: light-dark(black, white) !important;
 
           display: block;
           visibility: visible;
         }
+      }
+
+      #urlbar-input{
+        margin-top: -2px !important;
+        font-size: 15px !important;
       }
 
       @media -moz-pref("extension.browse-bot.urlbar-ai.hide-suggestions") {
