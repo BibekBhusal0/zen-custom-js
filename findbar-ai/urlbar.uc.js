@@ -201,6 +201,7 @@ export const urlbarAI = {
     this._isAIMode = newState;
 
     if (this._isAIMode) {
+      gURLBar.value = "";
       gURLBar.setAttribute("ai-mode-active", "true");
       gURLBar.inputField.setAttribute("placeholder", "Command to AI");
       this.animateAIOn()
