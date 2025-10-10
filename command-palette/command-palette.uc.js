@@ -654,7 +654,7 @@ export const ZenCommandPalette = {
   },
 
   _exitPrefixMode() {
-    if (this.provider) this.provider.dispose()
+    if (this.provider) this.provider.dispose();
   },
 
   /**
@@ -726,7 +726,7 @@ export const ZenCommandPalette = {
           return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
         }
         getPriority() {
-          return this._isInPrefixMode  ? 10000 : 0;
+          return this._isInPrefixMode ? 10000 : 0;
         }
 
         async isActive(context) {
