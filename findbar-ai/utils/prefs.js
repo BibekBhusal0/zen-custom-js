@@ -23,6 +23,7 @@ export const PREFS = {
   // URL Bar prefs
   URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
   URLBAR_AI_HIDE_SUGGESTIONS: "extension.browse-bot.urlbar-ai.hide-suggestions",
+  URLBAR_AI_ANIMATIONS_ENABLED: "extension.browse-bot.urlbar-ai.animations-enabled",
 
   // Other prefs
   DEBUG_MODE: "extension.browse-bot.debug-mode",
@@ -271,6 +272,7 @@ PREFS.defaultValues = {
   [PREFS.ENABLED]: true,
   [PREFS.URLBAR_AI_ENABLED]: true,
   [PREFS.URLBAR_AI_HIDE_SUGGESTIONS]: true,
+  [PREFS.URLBAR_AI_ANIMATIONS_ENABLED]: true,
   [PREFS.MINIMAL]: true,
   [PREFS.AGENTIC_MODE]: false,
   [PREFS.DEBUG_MODE]: false,

@@ -344,7 +344,11 @@ export const SettingsModal = {
     );
 
     // Section 2: URLBar AI
-    const urlbarSettings = [{ label: "Enable URLBar AI", pref: PREFS.URLBAR_AI_ENABLED }];
+    const urlbarSettings = [
+      { label: "Enable URLBar AI", pref: PREFS.URLBAR_AI_ENABLED },
+      { label: "Enable Animations", pref: PREFS.URLBAR_AI_ANIMATIONS_ENABLED },
+      { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
+    ];
     const urlbarSectionHtml = this._createCheckboxSectionHtml("URLBar AI", urlbarSettings, false);
 
     // Section 3: AI Behavior
