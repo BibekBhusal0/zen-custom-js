@@ -190,6 +190,17 @@
     }
   }
 
+  /* When URLBar AI is disabled */
+  &:has(#pref-extension\.browse-bot\.urlbar-ai-enabled:not(:checked)) {
+    /* Hide URLBar AI dependent settings */
+    .setting-item{
+      &:has([data-pref="extension.browse-bot.urlbar-ai.animations-enabled"]),
+      &:has([data-pref="extension.browse-bot.urlbar-ai.hide-suggestions"]) {
+        display: none !important;
+      }
+    }
+  }
+
   /* When agentic Mode is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:not(:checked)) {
     .setting-item {
