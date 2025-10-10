@@ -255,7 +255,7 @@ export const urlbarAI = {
   },
 
   handlePrefChange(pref) {
-    if (pref.value) this.init()
-    else this.destroy()
+    if (pref.value) this.init();
+    else this.destroy();
   },
 };

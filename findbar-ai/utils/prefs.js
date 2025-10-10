@@ -25,10 +25,10 @@ export const PREFS = {
   URLBAR_AI_HIDE_SUGGESTIONS: "extension.browse-bot.urlbar-ai.hide-suggestions",
   URLBAR_AI_ANIMATIONS_ENABLED: "extension.browse-bot.urlbar-ai.animations-enabled",
 
-  // Other 
+  // Other
   DEBUG_MODE: "extension.browse-bot.debug-mode",
 
-  // Shared LLM 
+  // Shared LLM
   LLM_PROVIDER: "extension.browse-bot.llm-provider",
   MISTRAL_API_KEY: "extension.browse-bot.mistral-api-key",
   MISTRAL_MODEL: "extension.browse-bot.mistral-model",
