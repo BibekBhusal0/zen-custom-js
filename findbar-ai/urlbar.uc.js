@@ -108,7 +108,7 @@ export const urlbarAI = {
     }
   },
 
-  toggleAIMode(forceState) {
+  toggleAIMode(forceState, forceClose = false) {
     const newState = typeof forceState === "boolean" ? forceState : !this._isAIMode;
     if (newState === this._isAIMode) return;
 
@@ -123,8 +123,8 @@ export const urlbarAI = {
       gURLBar.removeAttribute("ai-mode-active");
       gURLBar.removeAttribute("is-ai-thinking");
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
-      this._closeUrlBar();
       gURLBar.value = "";
+      if (forceClose) this._closeUrlBar();
     }
     debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
   },
@@ -201,10 +201,10 @@ export const urlbarAI = {
       urlBarLLM.sendMessage(prompt).finally(() => {
         gURLBar.removeAttribute("is-ai-thinking");
         gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
-        this.toggleAIMode(false);
+        this.toggleAIMode(false, true);
       });
     } else {
-      this.toggleAIMode(false);
+      this.toggleAIMode(false, true);
     }
   },
 
