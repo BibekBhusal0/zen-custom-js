@@ -55,13 +55,18 @@ export const urlbarAI = {
   get enabled() {
     return PREFS.getPref(PREFS.URLBAR_AI_ENABLED);
   },
-
   get hideSuggestions() {
     return PREFS.getPref(PREFS.URLBAR_AI_HIDE_SUGGESTIONS);
   },
-
   get animationsEnabled() {
     return PREFS.getPref(PREFS.URLBAR_AI_ANIMATIONS_ENABLED);
+  },
+
+  _hideSuggestions(){
+    gURLBar.setAttribute("hide-suggestions", "true")
+  },
+  _resetHideSuggestions(){
+    gURLBar.removeAttribute("hide-suggestions")
   },
 
   init() {
@@ -97,6 +102,8 @@ export const urlbarAI = {
 
   _closeUrlBar() {
     try {
+      this.clearAnimationPropertiesInUrlBar()
+      this._resetHideSuggestions()
       if (window.gZenUIManager && typeof window.gZenUIManager.handleUrlbarClose === "function") {
         window.gZenUIManager.handleUrlbarClose(false, false);
         return;
@@ -104,7 +111,6 @@ export const urlbarAI = {
 
       gURLBar.selectionStart = gURLBar.selectionEnd = 0;
       gURLBar.blur();
-      this.clearAnimationPropertiesInUrlBar()
       if (gURLBar.view.isOpen) {
         gURLBar.view.close();
       }
@@ -114,11 +120,18 @@ export const urlbarAI = {
   },
 
   animateAIOn () {
-    if (!this.animationsEnabled && !this.hideSuggestions) return false
+    if (!this.hideSuggestions) {return false}
+    if (!this.animationsEnabled) {
+      this._hideSuggestions()
+      return false
+    }
     try{
       const textbox = gURLBar.textbox
       if (!textbox) return false
-      if (!gURLBar.view.isOpen) return false
+      if (!gURLBar.view.isOpen) {
+        this._hideSuggestions()
+        return false
+      }
       const height = textbox.getBoundingClientRect().height
       if (!height) return
       this._originalHeight = height
@@ -127,9 +140,8 @@ export const urlbarAI = {
       textbox.style.setProperty("transition", "height 0.15s ease", "important")
       const panelHeight = gURLBar.panel.getBoundingClientRect() .height
       const inputHeight = height - panelHeight - 10
-      setTimeout(()=>{
-        textbox.style.setProperty("height", inputHeight + "px", "important")
-      }, 1)
+      setTimeout(()=>textbox.style.setProperty("height", inputHeight + "px", "important"), 1)
+      setTimeout(()=>this._hideSuggestions(), 151)
     } catch (e) {
       debugError( "Error while animating", e)
       return false
@@ -138,11 +150,18 @@ export const urlbarAI = {
   }, 
 
   animateAIOff() {
-    if (!this.animationsEnabled && !this.hideSuggestions) return false
+    if (!this.hideSuggestions) {return false}
+    if (!this.animationsEnabled) {
+      this._resetHideSuggestions()
+      return false
+    }
     try{
       const textbox = gURLBar.textbox
       if (!textbox) return false
-      if (!gURLBar.view.isOpen) return false
+      if (!gURLBar.view.isOpen) {
+        this._resetHideSuggestions()
+        return false
+      }
       if (!this._originalHeight) return false
       const height = textbox.getBoundingClientRect().height
       if (!height) return
@@ -155,7 +174,8 @@ export const urlbarAI = {
       }, 1)
       setTimeout(()=>{
         this.clearAnimationPropertiesInUrlBar()
-      }, 200)
+        this._resetHideSuggestions()
+      }, 151)
     } catch (e) {
       debugError( "Error while animating", e)
       return false
@@ -232,6 +252,7 @@ export const urlbarAI = {
         debugLog("urlbarAI: Disabling AI mode due to blur or popup hide");
         this.toggleAIMode(false);
         this.clearAnimationPropertiesInUrlBar()
+        this._resetHideSuggestions()
       }
     };
 

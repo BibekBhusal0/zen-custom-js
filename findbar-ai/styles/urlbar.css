@@ -55,11 +55,12 @@
 
       #urlbar-input{
         margin-top: -2px !important;
+        margin-left: 4px !important;
         font-size: 15px !important;
       }
 
       @media -moz-pref("extension.browse-bot.urlbar-ai.hide-suggestions") {
-        @media not -moz-pref( "extension.browse-bot.urlbar-ai.animations-enabled") {
+        &[hide-suggestions="true"]{
           .urlbarView {
             display: none !important;
           }
