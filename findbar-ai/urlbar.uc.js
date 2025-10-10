@@ -140,18 +140,18 @@ export const urlbarAI = {
   },
 
   handleUrlbarKeyDown(e) {
-    if (this._isAIMode && this.hideSuggestions) {
-      if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Tab") {
+    if (this._isAIMode ) {
+      if (((e.key === "ArrowUp" || e.key === "ArrowDown") && this.hideSuggestions )|| e.key === "Tab") {
         e.preventDefault();
         e.stopPropagation();
         return;
       }
-    }
-    if (e.key === "Enter" && this._isAIMode) {
-      debugLog("urlbarAI: Enter key pressed in AI mode");
-      e.preventDefault();
-      e.stopPropagation();
-      this.send();
+      if (e.key === "Enter" ) {
+        debugLog("urlbarAI: Enter key pressed in AI mode");
+        e.preventDefault();
+        e.stopPropagation();
+        this.send();
+      }
     }
   },
 
