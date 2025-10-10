@@ -55,6 +55,10 @@ export const urlbarAI = {
     return PREFS.getPref(PREFS.URLBAR_AI_ENABLED);
   },
 
+  get hideSuggestions() {
+    return PREFS.getPref(PREFS.URLBAR_AI_HIDE_SUGGESTIONS);
+  },
+
   init() {
     if (!this.enabled) {
       debugLog("urlbarAI: Disabled by preference.");
@@ -134,19 +138,15 @@ export const urlbarAI = {
   },
 
   handleUrlbarKeyDown(e) {
-    if (e.key === "Enter" && this._isAIMode) {
-      debugLog("urlbarAI: Enter key pressed in AI mode");
-      let isNavigational = false;
-      if (gURLBar.view.isOpen && gURLBar.view.selectedResult) {
-        const type = gURLBar?.view?.selectedResult?.type;
-        if (type !== 2) isNavigational = true;
-      }
-
-      if (isNavigational) {
-        debugLog("urlbarAI: Selected item is navigational, letting default action proceed.");
+    if (this._isAIMode && this.hideSuggestions) {
+      if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Tab") {
+        e.preventDefault();
+        e.stopPropagation();
         return;
       }
-
+    }
+    if (e.key === "Enter" && this._isAIMode) {
+      debugLog("urlbarAI: Enter key pressed in AI mode");
       e.preventDefault();
       e.stopPropagation();
       this.send();
@@ -251,10 +251,7 @@ export const urlbarAI = {
   },
 
   handlePrefChange(pref) {
-    if (pref.value) {
-      this.init();
-    } else {
-      this.destroy();
-    }
+    if (pref.value) this.init()
+    else this.destroy()
   },
 };

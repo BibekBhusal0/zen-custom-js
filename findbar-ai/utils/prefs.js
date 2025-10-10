@@ -20,8 +20,11 @@ export const PREFS = {
     "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
   BACKGROUND_STYLE: "extension.browse-bot.findbar-ai.background-style",
 
-  // Other prefs
+  // URL Bar prefs
   URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
+  URLBAR_AI_HIDE_SUGGESTIONS: "extension.browse-bot.urlbar-ai.hide-suggestions",
+
+  // Other prefs
   DEBUG_MODE: "extension.browse-bot.debug-mode",
 
   // Shared LLM prefs
@@ -267,6 +270,7 @@ export const debugError = (...args) => {
 PREFS.defaultValues = {
   [PREFS.ENABLED]: true,
   [PREFS.URLBAR_AI_ENABLED]: true,
+  [PREFS.URLBAR_AI_HIDE_SUGGESTIONS]: true,
   [PREFS.MINIMAL]: true,
   [PREFS.AGENTIC_MODE]: false,
   [PREFS.DEBUG_MODE]: false,

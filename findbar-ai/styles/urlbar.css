@@ -40,5 +40,11 @@
         visibility: visible;
       }
     }
+
+    @media -moz-pref("extension.browse-bot.urlbar-ai.hide-suggestions") {
+      .urlbarView{
+        display: none !important;
+      }
+    }
   }
 }
