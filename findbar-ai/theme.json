@@ -4,11 +4,11 @@
   "description": "Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.",
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js/tree/sine-test/findbar-ai",
   "preferences": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/findbar-ai/preferences.json",
-  "js": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/findbar-ai/findbar-ai.uc.js",
+  "js": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/findbar-ai/browse-bot.uc.js",
   "style": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/findbar-ai/style.css",
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/findbar-ai/README.md",
   "author": "Bibek Bhusal",
-  "version": "1.4.0-beta",
+  "version": "1.5.0-beta",
   "tags": [
     "ai",
     "findbar",
@@ -25,6 +25,6 @@
     "Claude"
   ],
   "createdAt": "2024-05-22",
-  "updatedAt": "2025-09-21",
+  "updatedAt": "2025-10-10",
   "fork": ["zen"]
 }

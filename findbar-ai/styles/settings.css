@@ -22,9 +22,10 @@
   height: 80vh;
   padding: 20px 0px 0px 20px;
   border-radius: var(--acrylic-radius) !important;
-  box-shadow: var(--acrylic-shadow) !important;
-  background: var(--acrylic-glass-bg) !important;
-  backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+  outline: 1px solid rgba(0, 0, 0, 1) !important;
+  border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
+  background: var(--browse-bot-dialog-bg) !important;
+  backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
   flex-direction: column;
   gap: 14px;
 
@@ -147,22 +148,22 @@
     }
   }
 
-  #citations-god-mode-warning {
+  #citations-agentic-mode-warning {
     display: none;
     color: red;
     margin-bottom: 10px;
   }
 
+  /* When Citations enabled hiding stream option*/
   &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked) {
     .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
       display: none !important;
     }
-  }
-
-  &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked)
-    :has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:checked) {
-    #citations-god-mode-warning {
-      display: block !important;
+    /* When citations and agentic mode enabled showing warning*/
+    :has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:checked) {
+      #citations-agentic-mode-warning {
+        display: block !important;
+      }
     }
   }
 
@@ -172,16 +173,60 @@
     }
   }
 
-  .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
-  .setting-item:has(#pref-max-tool-calls) {
-    display: none;
+  /* When Findbar AI is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.enabled:not(:checked)) {
+    /* Hide other options Findbar section */
+    .settings-section:first-of-type .setting-item:not(:first-child) {
+      display: none !important;
+    }
+
+    /* Hide findbar sections */
+    .settings-section {
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode),
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled),
+      &:has([data-pref="accessibility.typeaheadfind"]) {
+        display: none !important;
+      }
+    }
   }
 
-  :has(#pref-extension\.browse-bot\.findbar-ai\.god-mode:checked) {
-    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
-    .setting-item:has(#pref-max-tool-calls) {
-      display: flex;
+  /* When URLBar AI is disabled */
+  &:has(#pref-extension\.browse-bot\.urlbar-ai-enabled:not(:checked)) {
+    /* Hide URLBar AI dependent settings */
+    .setting-item {
+      &:has([data-pref="extension.browse-bot.urlbar-ai.animations-enabled"]),
+      &:has([data-pref="extension.browse-bot.urlbar-ai.hide-suggestions"]) {
+        display: none !important;
+      }
     }
+  }
+
+  /* When agentic Mode is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:not(:checked)) {
+    .setting-item {
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
+      &:has(#pref-max-tool-calls) {
+        display: none !important;
+      }
+    }
+  }
+
+  /* When Context Menu is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled:not(:checked)) {
+    /* Hide Context Menu dependent settings */
+    .setting-item {
+      &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-autosend),
+      &:has(#pref-context-menu-command-no-selection),
+      &:has(#pref-context-menu-command-with-selection) {
+        display: none !important;
+      }
+    }
+  }
+
+  /* When Drag and Drop is disabled */
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.dnd-enabled:not(:checked))
+    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.remember-dimensions) {
+    display: none !important;
   }
 }
 

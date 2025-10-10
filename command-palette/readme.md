@@ -16,6 +16,7 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 - 🔄 **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, folders, and internal `about:` pages.
 - 🛠️ **Extensible API**: User scripts and browser modifications can easily add their own commands, making the palette a central hub for all your custom actions.
 - 🎨 **Highly Customizable**: Offers customizable keyboard shortcuts, widgets, icons, dynamic commands, and more.
+- ⌨️ **Custom Commands**: Make your own commands with custom JS or chaining other commands.
 
 ## ⚙️ Installation Guide
 
@@ -29,9 +30,15 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 ## 🎨 Customization & Preferences
 
-The Zen Command Palette can be configured via its own settings. Simply type `: Command palette configure` in the command palette and you will see commands like `Command Palette: Configure Settings` run the command which will open settings Popup. Which will allow configuration like keyboard shortcut, icon, hiding commands and creating toolbar icon.
+The Zen Command Palette can be configured via its own settings. Simply type `: Command palette configure` in the command palette and you will see commands like `Command Palette: Configure Settings` run the command which will open settings Popup. Which will allow adding more commands and configuration like keyboard shortcut, icon, hiding commands, creating toolbar icon.
+
+### Creating Toolbar icons
 
 https://github.com/user-attachments/assets/bdd87f58-f6f7-480c-8ffe-1150d571f482
+
+### Making custom commands
+
+https://github.com/user-attachments/assets/71dae23a-bb0c-4a04-add6-450d344751a0
 
 > [!Note]
 > You can press delete/blackspace to remove the shortcut key. Changing shortcut key from menu this will not replace/remove existing shortcut keys they have to be done from Zen Settings.
@@ -40,13 +47,19 @@ Here are all Preferences which can be configured from `about:config` (also from 
 
 | Preference Key                                         | Type    | Default                             | Description                                                                  |
 | ------------------------------------------------------ | ------- | ----------------------------------- | ---------------------------------------------------------------------------- |
+| `zen-command-palette.prefix`                           | string  | `:`                                 | Prefix after entering which commands will appear                             |
+| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Preifx.           |
 | `zen-command-palette.debug-mode`                       | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.         |
+| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without prefix).   |
+| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the prefix.            |
+| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the prefix).        |
+| `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.           |
 | `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                          |
 | `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.           |
 | `zen-command-palette.dynamic.extensions`               | Boolean | `false`                             | Automatically generate commands for extensions with an options page.         |
 | `zen-command-palette.dynamic.extension-uninstall`      | Boolean | `false`                             | Automatically generate commands for uninstalling extension                   |
 | `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.           |
-| `zen-command-palette.dynamic.workspaces`               | Boolean | `false`                             | Automatically generate commands for switching/moving tabs to Workspaces.     |
+| `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.     |
 | `zen-command-palette.dynamic.folders`                  | Boolean | `true`                              | Automatically generate commands for managing Folders.                        |
 | `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for uninstalling sine mods.                  |
 | `zen-command-palette.dynamic.container-tabs`           | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.          |
@@ -65,12 +78,12 @@ Some commands that were previously part of this mod are now natively available i
 
 The following commands are now native:
 
--   Pin/Unpin/Next/Previous/Close Tab
--   Add/Remove from Essentials
--   New/Next/Previous Workspace
--   Reload/Hard Reload
--   New / Private Window
--   And More ...
+- Pin/Unpin/Next/Previous/Close Tab
+- Add/Remove from Essentials
+- New/Next/Previous Workspace
+- Reload/Hard Reload
+- New / Private Window
+- And More ...
 
 ### Zen Browser Features
 
@@ -99,8 +112,6 @@ The following commands are now native:
 - **Other**:
   - Toggle Sidebar Width
   - Copy Current URL as Markdown
-  - Clear Other Tabs
-  - Sort Tabs
 
 ### Tab Management
 
@@ -196,6 +207,16 @@ The following commands are now native:
 - Command Palette: Help
 - Command Palette: Custom Commands
 
+### Tidy Tabs
+
+- Clear Other Tabs
+- Sort Tabs
+
+### Advanced Tab Groups
+
+- Collapse all groups
+- Expand all groups
+
 ### Dynamic Commands
 
 - **About Pages**: `Open about:[page-name]` (e.g., "Open about:config").
@@ -217,10 +238,11 @@ Adding your own commands from other scripts is straightforward. The `ZenCommandP
 
 ### Other mods which support Command Palette
 
-- [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
+- [Advanced Tab Groups](https://github.com/12th-devs/Advanced-Tab-Groups)
 - [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
-- [Browse Bot (beta)](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
+- [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
 - [Reopen Closed Tabs Menu](https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu)
+- [Browse Bot (beta)](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
 
 ### Adding a Static Command
 
@@ -288,6 +310,8 @@ Another Benifit of this mod, is that this allows setting custom keymaps to comma
 ## 🙏 Credits and Acknowledgements
 
 Thanks to [12th-devs](https://github.com/12th-devs/) and [CompTechGuy](https://github.com/Comp-Tech-Guy) for finding out issues and recommending new features.
+
+Thanks to [Bliwi](https://github.com/Bliwi) for adding commands for Advanced Tab Groups.
 
 Special thanks to [ferrocyante](https://github.com/ferrocyante) that I don't have to go through pain of writing CSS.
 
