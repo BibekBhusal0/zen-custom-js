@@ -84,6 +84,7 @@ export const urlbarAI = {
       this.toggleAIMode(false);
     }
     gURLBar.removeAttribute("ai-mode-active");
+    gURLBar.removeAttribute("is-ai-thinking");
     gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
     this._initialized = false;
     debugLog("urlbarAI: Destruction complete");
@@ -120,6 +121,7 @@ export const urlbarAI = {
       gURLBar.startQuery();
     } else {
       gURLBar.removeAttribute("ai-mode-active");
+      gURLBar.removeAttribute("is-ai-thinking");
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
       this._closeUrlBar();
       gURLBar.value = "";
@@ -194,8 +196,10 @@ export const urlbarAI = {
       debugLog(`URLbar: Sending prompt: "${prompt}"`);
       gURLBar.value = "";
       // TODO: Maybe better animations could be added here
+      gURLBar.setAttribute("is-ai-thinking", "true");
       gURLBar.inputField.setAttribute("placeholder", "AI thinking...");
       urlBarLLM.sendMessage(prompt).finally(() => {
+        gURLBar.removeAttribute("is-ai-thinking");
         gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
         this.toggleAIMode(false);
       });
