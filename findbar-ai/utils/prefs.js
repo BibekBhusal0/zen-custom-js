@@ -1,5 +1,5 @@
 export const PREFS = {
-  // Findbar AI specific prefs
+  // Findbar
   ENABLED: "extension.browse-bot.findbar-ai.enabled",
   MINIMAL: "extension.browse-bot.findbar-ai.minimal",
   PERSIST: "extension.browse-bot.findbar-ai.persist-chat",
@@ -20,15 +20,15 @@ export const PREFS = {
     "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
   BACKGROUND_STYLE: "extension.browse-bot.findbar-ai.background-style",
 
-  // URL Bar prefs
+  // URL Bar
   URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
   URLBAR_AI_HIDE_SUGGESTIONS: "extension.browse-bot.urlbar-ai.hide-suggestions",
   URLBAR_AI_ANIMATIONS_ENABLED: "extension.browse-bot.urlbar-ai.animations-enabled",
 
-  // Other prefs
+  // Other 
   DEBUG_MODE: "extension.browse-bot.debug-mode",
 
-  // Shared LLM prefs
+  // Shared LLM 
   LLM_PROVIDER: "extension.browse-bot.llm-provider",
   MISTRAL_API_KEY: "extension.browse-bot.mistral-api-key",
   MISTRAL_MODEL: "extension.browse-bot.mistral-model",
