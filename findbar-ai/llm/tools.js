@@ -1217,10 +1217,10 @@ Note that first and second tool clls can be made in parallel, but the third tool
   },
   workspaces: {
     moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
-Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find.
+Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find but don't use text make sure to use emoji.
 `,
     tools: {
-      getAllWorkspaces: createTool("Retrieves all workspaces.", {}, getAllWorkspaces),
+      getAllWorkspaces: createTool("Retrieves all workspaces with id, name, icon, position and isActive.", {}, getAllWorkspaces),
       createWorkspace: createTool(
         "Creates a new workspace.",
         {
@@ -1230,7 +1230,7 @@ Different workspace can contain different tabs (pinned and unpinned). A workspac
         createWorkspace
       ),
       updateWorkspace: createTool(
-        "Updates an existing workspace.",
+        "Updates an existing workspace (name and icon).",
         {
           id: createStringParameter("The ID of the workspace to update."),
           name: createStringParameter("The new name for the workspace.", true),
