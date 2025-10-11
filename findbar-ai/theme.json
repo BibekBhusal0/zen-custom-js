@@ -8,7 +8,7 @@
   "style": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/findbar-ai/style.css",
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/sine-test/findbar-ai/README.md",
   "author": "Bibek Bhusal",
-  "version": "1.5.0-beta",
+  "version": "1.5.3-beta",
   "tags": [
     "ai",
     "findbar",
@@ -25,6 +25,6 @@
     "Claude"
   ],
   "createdAt": "2024-05-22",
-  "updatedAt": "2025-10-10",
+  "updatedAt": "2025-10-11",
   "fork": ["zen"]
 }

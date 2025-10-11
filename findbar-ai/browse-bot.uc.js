@@ -11,10 +11,10 @@
 })((function () { 'use strict';
 
   // src/errors/ai-sdk-error.ts
-  var marker$3 = "vercel.ai.error";
-  var symbol$3 = Symbol.for(marker$3);
-  var _a$3;
-  var _AISDKError$1 = class _AISDKError extends Error {
+  var marker$b = "vercel.ai.error";
+  var symbol$b = Symbol.for(marker$b);
+  var _a$b;
+  var _AISDKError$9 = class _AISDKError extends Error {
     /**
      * Creates an AI SDK Error.
      *
@@ -29,7 +29,7 @@
       cause
     }) {
       super(message);
-      this[_a$3] = true;
+      this[_a$b] = true;
       this.name = name14;
       this.cause = cause;
     }
@@ -39,22 +39,22 @@
      * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
      */
     static isInstance(error) {
-      return _AISDKError.hasMarker(error, marker$3);
+      return _AISDKError.hasMarker(error, marker$b);
     }
     static hasMarker(error, marker15) {
       const markerSymbol = Symbol.for(marker15);
       return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
     }
   };
-  _a$3 = symbol$3;
-  var AISDKError$1 = _AISDKError$1;
+  _a$b = symbol$b;
+  var AISDKError$9 = _AISDKError$9;
 
   // src/errors/api-call-error.ts
-  var name$3 = "AI_APICallError";
-  var marker2$3 = `vercel.ai.error.${name$3}`;
-  var symbol2$3 = Symbol.for(marker2$3);
-  var _a2$3;
-  var APICallError$1 = class APICallError extends AISDKError$1 {
+  var name$6 = "AI_APICallError";
+  var marker2$6 = `vercel.ai.error.${name$6}`;
+  var symbol2$6 = Symbol.for(marker2$6);
+  var _a2$6;
+  var APICallError$4 = class APICallError extends AISDKError$9 {
     constructor({
       message,
       url,
@@ -70,8 +70,8 @@
       // server error
       data
     }) {
-      super({ name: name$3, message, cause });
-      this[_a2$3] = true;
+      super({ name: name$6, message, cause });
+      this[_a2$6] = true;
       this.url = url;
       this.requestBodyValues = requestBodyValues;
       this.statusCode = statusCode;
@@ -81,30 +81,129 @@
       this.data = data;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker2$3);
+      return AISDKError$9.hasMarker(error, marker2$6);
     }
   };
-  _a2$3 = symbol2$3;
+  _a2$6 = symbol2$6;
+
+  // src/errors/no-such-model-error.ts
+  var name10$5 = "AI_NoSuchModelError";
+  var marker11$4 = `vercel.ai.error.${name10$5}`;
+  var symbol11$4 = Symbol.for(marker11$4);
+  var _a11$4;
+  var NoSuchModelError$4 = class NoSuchModelError extends AISDKError$9 {
+    constructor({
+      errorName = name10$5,
+      modelId,
+      modelType,
+      message = `No such ${modelType}: ${modelId}`
+    }) {
+      super({ name: errorName, message });
+      this[_a11$4] = true;
+      this.modelId = modelId;
+      this.modelType = modelType;
+    }
+    static isInstance(error) {
+      return AISDKError$9.hasMarker(error, marker11$4);
+    }
+  };
+  _a11$4 = symbol11$4;
+
+  // src/errors/ai-sdk-error.ts
+  var marker$a = "vercel.ai.error";
+  var symbol$a = Symbol.for(marker$a);
+  var _a$a;
+  var _AISDKError$8 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$a] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$a);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$a = symbol$a;
+  var AISDKError$8 = _AISDKError$8;
+
+  // src/errors/api-call-error.ts
+  var name$5 = "AI_APICallError";
+  var marker2$5 = `vercel.ai.error.${name$5}`;
+  var symbol2$5 = Symbol.for(marker2$5);
+  var _a2$5;
+  var APICallError$3 = class APICallError extends AISDKError$8 {
+    constructor({
+      message,
+      url,
+      requestBodyValues,
+      statusCode,
+      responseHeaders,
+      responseBody,
+      cause,
+      isRetryable = statusCode != null && (statusCode === 408 || // request timeout
+      statusCode === 409 || // conflict
+      statusCode === 429 || // too many requests
+      statusCode >= 500),
+      // server error
+      data
+    }) {
+      super({ name: name$5, message, cause });
+      this[_a2$5] = true;
+      this.url = url;
+      this.requestBodyValues = requestBodyValues;
+      this.statusCode = statusCode;
+      this.responseHeaders = responseHeaders;
+      this.responseBody = responseBody;
+      this.isRetryable = isRetryable;
+      this.data = data;
+    }
+    static isInstance(error) {
+      return AISDKError$8.hasMarker(error, marker2$5);
+    }
+  };
+  _a2$5 = symbol2$5;
 
   // src/errors/empty-response-body-error.ts
   var name2$3 = "AI_EmptyResponseBodyError";
   var marker3$2 = `vercel.ai.error.${name2$3}`;
   var symbol3$2 = Symbol.for(marker3$2);
   var _a3$2;
-  var EmptyResponseBodyError$1 = class EmptyResponseBodyError extends AISDKError$1 {
+  var EmptyResponseBodyError$1 = class EmptyResponseBodyError extends AISDKError$8 {
     // used in isInstance
     constructor({ message = "Empty response body" } = {}) {
       super({ name: name2$3, message });
       this[_a3$2] = true;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker3$2);
+      return AISDKError$8.hasMarker(error, marker3$2);
     }
   };
   _a3$2 = symbol3$2;
 
   // src/errors/get-error-message.ts
-  function getErrorMessage$2(error) {
+  function getErrorMessage$3(error) {
     if (error == null) {
       return "unknown error";
     }
@@ -122,7 +221,7 @@
   var marker4$3 = `vercel.ai.error.${name3$2}`;
   var symbol4$3 = Symbol.for(marker4$3);
   var _a4$3;
-  var InvalidArgumentError$2 = class InvalidArgumentError extends AISDKError$1 {
+  var InvalidArgumentError$2 = class InvalidArgumentError extends AISDKError$8 {
     constructor({
       message,
       cause,
@@ -133,155 +232,68 @@
       this.argument = argument;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker4$3);
+      return AISDKError$8.hasMarker(error, marker4$3);
     }
   };
   _a4$3 = symbol4$3;
 
-  // src/errors/invalid-prompt-error.ts
-  var name4$2 = "AI_InvalidPromptError";
-  var marker5$1 = `vercel.ai.error.${name4$2}`;
-  var symbol5$1 = Symbol.for(marker5$1);
-  var _a5$1;
-  var InvalidPromptError = class extends AISDKError$1 {
-    constructor({
-      prompt,
-      message,
-      cause
-    }) {
-      super({ name: name4$2, message: `Invalid prompt: ${message}`, cause });
-      this[_a5$1] = true;
-      this.prompt = prompt;
-    }
-    static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker5$1);
-    }
-  };
-  _a5$1 = symbol5$1;
-
-  // src/errors/invalid-response-data-error.ts
-  var name5$1 = "AI_InvalidResponseDataError";
-  var marker6$1 = `vercel.ai.error.${name5$1}`;
-  var symbol6$1 = Symbol.for(marker6$1);
-  var _a6$1;
-  var InvalidResponseDataError = class extends AISDKError$1 {
-    constructor({
-      data,
-      message = `Invalid response data: ${JSON.stringify(data)}.`
-    }) {
-      super({ name: name5$1, message });
-      this[_a6$1] = true;
-      this.data = data;
-    }
-    static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker6$1);
-    }
-  };
-  _a6$1 = symbol6$1;
-
   // src/errors/json-parse-error.ts
-  var name6$2 = "AI_JSONParseError";
-  var marker7$3 = `vercel.ai.error.${name6$2}`;
-  var symbol7$3 = Symbol.for(marker7$3);
-  var _a7$3;
-  var JSONParseError$1 = class JSONParseError extends AISDKError$1 {
+  var name6$3 = "AI_JSONParseError";
+  var marker7$4 = `vercel.ai.error.${name6$3}`;
+  var symbol7$4 = Symbol.for(marker7$4);
+  var _a7$4;
+  var JSONParseError$2 = class JSONParseError extends AISDKError$8 {
     constructor({ text, cause }) {
       super({
-        name: name6$2,
+        name: name6$3,
         message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage$2(cause)}`,
+Error message: ${getErrorMessage$3(cause)}`,
         cause
       });
-      this[_a7$3] = true;
+      this[_a7$4] = true;
       this.text = text;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker7$3);
+      return AISDKError$8.hasMarker(error, marker7$4);
     }
   };
-  _a7$3 = symbol7$3;
+  _a7$4 = symbol7$4;
 
   // src/errors/load-api-key-error.ts
   var name7$1 = "AI_LoadAPIKeyError";
   var marker8$1 = `vercel.ai.error.${name7$1}`;
   var symbol8$1 = Symbol.for(marker8$1);
   var _a8$1;
-  var LoadAPIKeyError = class extends AISDKError$1 {
+  var LoadAPIKeyError = class extends AISDKError$8 {
     // used in isInstance
     constructor({ message }) {
       super({ name: name7$1, message });
       this[_a8$1] = true;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker8$1);
+      return AISDKError$8.hasMarker(error, marker8$1);
     }
   };
   _a8$1 = symbol8$1;
 
-  // src/errors/no-such-model-error.ts
-  var name10$1 = "AI_NoSuchModelError";
-  var marker11 = `vercel.ai.error.${name10$1}`;
-  var symbol11 = Symbol.for(marker11);
-  var _a11;
-  var NoSuchModelError = class extends AISDKError$1 {
-    constructor({
-      errorName = name10$1,
-      modelId,
-      modelType,
-      message = `No such ${modelType}: ${modelId}`
-    }) {
-      super({ name: errorName, message });
-      this[_a11] = true;
-      this.modelId = modelId;
-      this.modelType = modelType;
-    }
-    static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker11);
-    }
-  };
-  _a11 = symbol11;
-
-  // src/errors/too-many-embedding-values-for-call-error.ts
-  var name11$1 = "AI_TooManyEmbeddingValuesForCallError";
-  var marker12$2 = `vercel.ai.error.${name11$1}`;
-  var symbol12$2 = Symbol.for(marker12$2);
-  var _a12$2;
-  var TooManyEmbeddingValuesForCallError$1 = class TooManyEmbeddingValuesForCallError extends AISDKError$1 {
-    constructor(options) {
-      super({
-        name: name11$1,
-        message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
-      });
-      this[_a12$2] = true;
-      this.provider = options.provider;
-      this.modelId = options.modelId;
-      this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
-      this.values = options.values;
-    }
-    static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker12$2);
-    }
-  };
-  _a12$2 = symbol12$2;
-
   // src/errors/type-validation-error.ts
-  var name12$2 = "AI_TypeValidationError";
-  var marker13$1 = `vercel.ai.error.${name12$2}`;
-  var symbol13$1 = Symbol.for(marker13$1);
-  var _a13$1;
-  var _TypeValidationError$1 = class _TypeValidationError extends AISDKError$1 {
+  var name12$3 = "AI_TypeValidationError";
+  var marker13$2 = `vercel.ai.error.${name12$3}`;
+  var symbol13$2 = Symbol.for(marker13$2);
+  var _a13$2;
+  var _TypeValidationError$2 = class _TypeValidationError extends AISDKError$8 {
     constructor({ value, cause }) {
       super({
-        name: name12$2,
+        name: name12$3,
         message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$2(cause)}`,
+Error message: ${getErrorMessage$3(cause)}`,
         cause
       });
-      this[_a13$1] = true;
+      this[_a13$2] = true;
       this.value = value;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker13$1);
+      return AISDKError$8.hasMarker(error, marker13$2);
     }
     /**
      * Wraps an error into a TypeValidationError.
@@ -300,52 +312,8 @@ Error message: ${getErrorMessage$2(cause)}`,
       return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
     }
   };
-  _a13$1 = symbol13$1;
-  var TypeValidationError$1 = _TypeValidationError$1;
-
-  // src/errors/unsupported-functionality-error.ts
-  var name13$1 = "AI_UnsupportedFunctionalityError";
-  var marker14$2 = `vercel.ai.error.${name13$1}`;
-  var symbol14$2 = Symbol.for(marker14$2);
-  var _a14$2;
-  var UnsupportedFunctionalityError$1 = class UnsupportedFunctionalityError extends AISDKError$1 {
-    constructor({
-      functionality,
-      message = `'${functionality}' functionality not supported.`
-    }) {
-      super({ name: name13$1, message });
-      this[_a14$2] = true;
-      this.functionality = functionality;
-    }
-    static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker14$2);
-    }
-  };
-  _a14$2 = symbol14$2;
-
-  // src/json-value/is-json.ts
-  function isJSONValue(value) {
-    if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-      return true;
-    }
-    if (Array.isArray(value)) {
-      return value.every(isJSONValue);
-    }
-    if (typeof value === "object") {
-      return Object.entries(value).every(
-        ([key, val]) => typeof key === "string" && isJSONValue(val)
-      );
-    }
-    return false;
-  }
-  function isJSONArray(value) {
-    return Array.isArray(value) && value.every(isJSONValue);
-  }
-  function isJSONObject(value) {
-    return value != null && typeof value === "object" && Object.entries(value).every(
-      ([key, val]) => typeof key === "string" && isJSONValue(val)
-    );
-  }
+  _a13$2 = symbol13$2;
+  var TypeValidationError$2 = _TypeValidationError$2;
 
   class ParseError extends Error {
     constructor(message, options) {
@@ -4686,7 +4654,7 @@ Error message: ${getErrorMessage$2(cause)}`,
       inst.partial = (...args) => partial(ZodOptional$1, inst, args[0]);
       inst.required = (...args) => required(ZodNonOptional, inst, args[0]);
   });
-  function object$1(shape, params) {
+  function object(shape, params) {
       const def = {
           type: "object",
           get shape() {
@@ -9096,7 +9064,7 @@ Error message: ${getErrorMessage$2(cause)}`,
   var generateId$1 = createIdGenerator$1();
 
   // src/get-error-message.ts
-  function getErrorMessage$1(error) {
+  function getErrorMessage$2(error) {
     if (error == null) {
       return "unknown error";
     }
@@ -9128,7 +9096,7 @@ Error message: ${getErrorMessage$2(cause)}`,
     if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES.includes(error.message.toLowerCase())) {
       const cause = error.cause;
       if (cause != null) {
-        return new APICallError$1({
+        return new APICallError$3({
           message: `Cannot connect to API: ${cause.message}`,
           cause,
           url,
@@ -9181,7 +9149,7 @@ Error message: ${getErrorMessage$2(cause)}`,
   }
 
   // src/version.ts
-  var VERSION$9 = "3.0.12" ;
+  var VERSION$9 = "3.0.11" ;
 
   // src/get-from-api.ts
   var getOriginalFetch = () => globalThis.fetch;
@@ -9213,10 +9181,10 @@ Error message: ${getErrorMessage$2(cause)}`,
             requestBodyValues: {}
           });
         } catch (error) {
-          if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
+          if (isAbortError$1(error) || APICallError$3.isInstance(error)) {
             throw error;
           }
-          throw new APICallError$1({
+          throw new APICallError$3({
             message: "Failed to process error response",
             cause: error,
             statusCode: response.status,
@@ -9235,11 +9203,11 @@ Error message: ${getErrorMessage$2(cause)}`,
         });
       } catch (error) {
         if (error instanceof Error) {
-          if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
+          if (isAbortError$1(error) || APICallError$3.isInstance(error)) {
             throw error;
           }
         }
-        throw new APICallError$1({
+        throw new APICallError$3({
           message: "Failed to process successful response",
           cause: error,
           statusCode: response.status,
@@ -9437,7 +9405,7 @@ Error message: ${getErrorMessage$2(cause)}`,
       const result = await standardSchema["~standard"].validate(value);
       return result.issues == null ? { success: true, value: result.value } : {
         success: false,
-        error: new TypeValidationError$1({
+        error: new TypeValidationError$2({
           value,
           cause: result.issues
         })
@@ -9452,7 +9420,7 @@ Error message: ${getErrorMessage$2(cause)}`,
   }) {
     const result = await safeValidateTypes$1({ value, schema });
     if (!result.success) {
-      throw TypeValidationError$1.wrap({ value, cause: result.error });
+      throw TypeValidationError$2.wrap({ value, cause: result.error });
     }
     return result.value;
   }
@@ -9471,13 +9439,13 @@ Error message: ${getErrorMessage$2(cause)}`,
       }
       return {
         success: false,
-        error: TypeValidationError$1.wrap({ value, cause: result.error }),
+        error: TypeValidationError$2.wrap({ value, cause: result.error }),
         rawValue: value
       };
     } catch (error) {
       return {
         success: false,
-        error: TypeValidationError$1.wrap({ value, cause: error }),
+        error: TypeValidationError$2.wrap({ value, cause: error }),
         rawValue: value
       };
     }
@@ -9495,10 +9463,10 @@ Error message: ${getErrorMessage$2(cause)}`,
       }
       return validateTypes$1({ value, schema });
     } catch (error) {
-      if (JSONParseError$1.isInstance(error) || TypeValidationError$1.isInstance(error)) {
+      if (JSONParseError$2.isInstance(error) || TypeValidationError$2.isInstance(error)) {
         throw error;
       }
-      throw new JSONParseError$1({ text, cause: error });
+      throw new JSONParseError$2({ text, cause: error });
     }
   }
   async function safeParseJSON$1({
@@ -9514,7 +9482,7 @@ Error message: ${getErrorMessage$2(cause)}`,
     } catch (error) {
       return {
         success: false,
-        error: JSONParseError$1.isInstance(error) ? error : new JSONParseError$1({ text, cause: error }),
+        error: JSONParseError$2.isInstance(error) ? error : new JSONParseError$2({ text, cause: error }),
         rawValue: void 0
       };
     }
@@ -9637,10 +9605,10 @@ Error message: ${getErrorMessage$2(cause)}`,
             requestBodyValues: body.values
           });
         } catch (error) {
-          if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
+          if (isAbortError$1(error) || APICallError$3.isInstance(error)) {
             throw error;
           }
-          throw new APICallError$1({
+          throw new APICallError$3({
             message: "Failed to process error response",
             cause: error,
             statusCode: response.status,
@@ -9659,11 +9627,11 @@ Error message: ${getErrorMessage$2(cause)}`,
         });
       } catch (error) {
         if (error instanceof Error) {
-          if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
+          if (isAbortError$1(error) || APICallError$3.isInstance(error)) {
             throw error;
           }
         }
-        throw new APICallError$1({
+        throw new APICallError$3({
           message: "Failed to process successful response",
           cause: error,
           statusCode: response.status,
@@ -9755,7 +9723,7 @@ Error message: ${getErrorMessage$2(cause)}`,
     if (responseBody.trim() === "") {
       return {
         responseHeaders,
-        value: new APICallError$1({
+        value: new APICallError$3({
           message: response.statusText,
           url,
           requestBodyValues,
@@ -9773,7 +9741,7 @@ Error message: ${getErrorMessage$2(cause)}`,
       });
       return {
         responseHeaders,
-        value: new APICallError$1({
+        value: new APICallError$3({
           message: errorToMessage(parsedError),
           url,
           requestBodyValues,
@@ -9787,7 +9755,7 @@ Error message: ${getErrorMessage$2(cause)}`,
     } catch (parseError) {
       return {
         responseHeaders,
-        value: new APICallError$1({
+        value: new APICallError$3({
           message: response.statusText,
           url,
           requestBodyValues,
@@ -9820,7 +9788,7 @@ Error message: ${getErrorMessage$2(cause)}`,
     });
     const responseHeaders = extractResponseHeaders$1(response);
     if (!parsedResult.success) {
-      throw new APICallError$1({
+      throw new APICallError$3({
         message: "Invalid JSON response",
         cause: parsedResult.error,
         statusCode: response.status,
@@ -9839,7 +9807,7 @@ Error message: ${getErrorMessage$2(cause)}`,
   var createBinaryResponseHandler = () => async ({ response, url, requestBodyValues }) => {
     const responseHeaders = extractResponseHeaders$1(response);
     if (!response.body) {
-      throw new APICallError$1({
+      throw new APICallError$3({
         message: "Response body is empty",
         url,
         requestBodyValues,
@@ -9855,7 +9823,7 @@ Error message: ${getErrorMessage$2(cause)}`,
         value: new Uint8Array(buffer)
       };
     } catch (error) {
-      throw new APICallError$1({
+      throw new APICallError$3({
         message: "Failed to read response as array buffer",
         url,
         requestBodyValues,
@@ -11249,17 +11217,17 @@ Error message: ${getErrorMessage$2(cause)}`,
   // src/gateway-provider.ts
 
   // src/errors/gateway-error.ts
-  var marker$2 = "vercel.ai.gateway.error";
-  var symbol$2 = Symbol.for(marker$2);
-  var _a$2, _b;
-  var GatewayError = class _GatewayError extends (_b = Error, _a$2 = symbol$2, _b) {
+  var marker$9 = "vercel.ai.gateway.error";
+  var symbol$9 = Symbol.for(marker$9);
+  var _a$9, _b;
+  var GatewayError = class _GatewayError extends (_b = Error, _a$9 = symbol$9, _b) {
     constructor({
       message,
       statusCode = 500,
       cause
     }) {
       super(message);
-      this[_a$2] = true;
+      this[_a$9] = true;
       this.statusCode = statusCode;
       this.cause = cause;
     }
@@ -11272,29 +11240,29 @@ Error message: ${getErrorMessage$2(cause)}`,
       return _GatewayError.hasMarker(error);
     }
     static hasMarker(error) {
-      return typeof error === "object" && error !== null && symbol$2 in error && error[symbol$2] === true;
+      return typeof error === "object" && error !== null && symbol$9 in error && error[symbol$9] === true;
     }
   };
 
   // src/errors/gateway-authentication-error.ts
-  var name$2 = "GatewayAuthenticationError";
-  var marker2$2 = `vercel.ai.gateway.error.${name$2}`;
-  var symbol2$2 = Symbol.for(marker2$2);
-  var _a2$2, _b2;
-  var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2 = GatewayError, _a2$2 = symbol2$2, _b2) {
+  var name$4 = "GatewayAuthenticationError";
+  var marker2$4 = `vercel.ai.gateway.error.${name$4}`;
+  var symbol2$4 = Symbol.for(marker2$4);
+  var _a2$4, _b2;
+  var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2 = GatewayError, _a2$4 = symbol2$4, _b2) {
     constructor({
       message = "Authentication failed",
       statusCode = 401,
       cause
     } = {}) {
       super({ message, statusCode, cause });
-      this[_a2$2] = true;
+      this[_a2$4] = true;
       // used in isInstance
-      this.name = name$2;
+      this.name = name$4;
       this.type = "authentication_error";
     }
     static isInstance(error) {
-      return GatewayError.hasMarker(error) && symbol2$2 in error;
+      return GatewayError.hasMarker(error) && symbol2$4 in error;
     }
     /**
      * Creates a contextual error message when authentication fails
@@ -11389,18 +11357,14 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       return GatewayError.hasMarker(error) && symbol4$2 in error;
     }
   };
-  var name4$1 = "GatewayModelNotFoundError";
-  var marker5 = `vercel.ai.gateway.error.${name4$1}`;
-  var symbol5 = Symbol.for(marker5);
-  var modelNotFoundParamSchema = lazyValidator(
-    () => zodSchema(
-      object$1({
-        modelId: string()
-      })
-    )
-  );
-  var _a5, _b5;
-  var GatewayModelNotFoundError = class extends (_b5 = GatewayError, _a5 = symbol5, _b5) {
+  var name4$3 = "GatewayModelNotFoundError";
+  var marker5$2 = `vercel.ai.gateway.error.${name4$3}`;
+  var symbol5$2 = Symbol.for(marker5$2);
+  var modelNotFoundParamSchema = object({
+    modelId: string()
+  });
+  var _a5$2, _b5;
+  var GatewayModelNotFoundError = class extends (_b5 = GatewayError, _a5$2 = symbol5$2, _b5) {
     constructor({
       message = "Model not found",
       statusCode = 404,
@@ -11408,45 +11372,45 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       cause
     } = {}) {
       super({ message, statusCode, cause });
-      this[_a5] = true;
+      this[_a5$2] = true;
       // used in isInstance
-      this.name = name4$1;
+      this.name = name4$3;
       this.type = "model_not_found";
       this.modelId = modelId;
     }
     static isInstance(error) {
-      return GatewayError.hasMarker(error) && symbol5 in error;
+      return GatewayError.hasMarker(error) && symbol5$2 in error;
     }
   };
 
   // src/errors/gateway-internal-server-error.ts
-  var name5 = "GatewayInternalServerError";
-  var marker6 = `vercel.ai.gateway.error.${name5}`;
-  var symbol6 = Symbol.for(marker6);
-  var _a6, _b6;
-  var GatewayInternalServerError = class extends (_b6 = GatewayError, _a6 = symbol6, _b6) {
+  var name5$1 = "GatewayInternalServerError";
+  var marker6$1 = `vercel.ai.gateway.error.${name5$1}`;
+  var symbol6$1 = Symbol.for(marker6$1);
+  var _a6$1, _b6;
+  var GatewayInternalServerError = class extends (_b6 = GatewayError, _a6$1 = symbol6$1, _b6) {
     constructor({
       message = "Internal server error",
       statusCode = 500,
       cause
     } = {}) {
       super({ message, statusCode, cause });
-      this[_a6] = true;
+      this[_a6$1] = true;
       // used in isInstance
-      this.name = name5;
+      this.name = name5$1;
       this.type = "internal_server_error";
     }
     static isInstance(error) {
-      return GatewayError.hasMarker(error) && symbol6 in error;
+      return GatewayError.hasMarker(error) && symbol6$1 in error;
     }
   };
 
   // src/errors/gateway-response-error.ts
-  var name6$1 = "GatewayResponseError";
-  var marker7$2 = `vercel.ai.gateway.error.${name6$1}`;
-  var symbol7$2 = Symbol.for(marker7$2);
-  var _a7$2, _b7;
-  var GatewayResponseError = class extends (_b7 = GatewayError, _a7$2 = symbol7$2, _b7) {
+  var name6$2 = "GatewayResponseError";
+  var marker7$3 = `vercel.ai.gateway.error.${name6$2}`;
+  var symbol7$3 = Symbol.for(marker7$3);
+  var _a7$3, _b7;
+  var GatewayResponseError = class extends (_b7 = GatewayError, _a7$3 = symbol7$3, _b7) {
     constructor({
       message = "Invalid response from Gateway",
       statusCode = 502,
@@ -11455,28 +11419,27 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       cause
     } = {}) {
       super({ message, statusCode, cause });
-      this[_a7$2] = true;
+      this[_a7$3] = true;
       // used in isInstance
-      this.name = name6$1;
+      this.name = name6$2;
       this.type = "response_error";
       this.response = response;
       this.validationError = validationError;
     }
     static isInstance(error) {
-      return GatewayError.hasMarker(error) && symbol7$2 in error;
+      return GatewayError.hasMarker(error) && symbol7$3 in error;
     }
   };
-  async function createGatewayErrorFromResponse({
+
+  // src/errors/create-gateway-error.ts
+  function createGatewayErrorFromResponse({
     response,
     statusCode,
     defaultMessage = "Gateway request failed",
     cause,
     authMethod
   }) {
-    const parseResult = await safeValidateTypes$1({
-      value: response,
-      schema: gatewayErrorResponseSchema
-    });
+    const parseResult = gatewayErrorResponseSchema.safeParse(response);
     if (!parseResult.success) {
       return new GatewayResponseError({
         message: `Invalid error response format: ${defaultMessage}`,
@@ -11486,7 +11449,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         cause
       });
     }
-    const validatedResponse = parseResult.value;
+    const validatedResponse = parseResult.data;
     const errorType = validatedResponse.error.type;
     const message = validatedResponse.error.message;
     switch (errorType) {
@@ -11502,14 +11465,13 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       case "rate_limit_exceeded":
         return new GatewayRateLimitError({ message, statusCode, cause });
       case "model_not_found": {
-        const modelResult = await safeValidateTypes$1({
-          value: validatedResponse.error.param,
-          schema: modelNotFoundParamSchema
-        });
+        const modelResult = modelNotFoundParamSchema.safeParse(
+          validatedResponse.error.param
+        );
         return new GatewayModelNotFoundError({
           message,
           statusCode,
-          modelId: modelResult.success ? modelResult.value.modelId : void 0,
+          modelId: modelResult.success ? modelResult.data.modelId : void 0,
           cause
         });
       }
@@ -11519,18 +11481,14 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         return new GatewayInternalServerError({ message, statusCode, cause });
     }
   }
-  var gatewayErrorResponseSchema = lazyValidator(
-    () => zodSchema(
-      object$1({
-        error: object$1({
-          message: string(),
-          type: string().nullish(),
-          param: unknown().nullish(),
-          code: union([string(), number$1()]).nullish()
-        })
-      })
-    )
-  );
+  var gatewayErrorResponseSchema = object({
+    error: object({
+      message: string(),
+      type: string().nullish(),
+      param: unknown().nullish(),
+      code: union([string(), number$1()]).nullish()
+    })
+  });
 
   // src/errors/as-gateway-error.ts
   function asGatewayError(error, authMethod) {
@@ -11538,7 +11496,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     if (GatewayError.isInstance(error)) {
       return error;
     }
-    if (APICallError$1.isInstance(error)) {
+    if (APICallError$4.isInstance(error)) {
       return createGatewayErrorFromResponse({
         response: extractApiCallResponse(error),
         statusCode: (_a8 = error.statusCode) != null ? _a8 : 500,
@@ -11571,16 +11529,16 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     return {};
   }
   var GATEWAY_AUTH_METHOD_HEADER = "ai-gateway-auth-method";
-  async function parseAuthMethod(headers) {
-    const result = await safeValidateTypes$1({
-      value: headers[GATEWAY_AUTH_METHOD_HEADER],
-      schema: gatewayAuthMethodSchema
-    });
-    return result.success ? result.value : void 0;
+  function parseAuthMethod(headers) {
+    const result = gatewayAuthMethodSchema.safeParse(
+      headers[GATEWAY_AUTH_METHOD_HEADER]
+    );
+    return result.success ? result.data : void 0;
   }
-  var gatewayAuthMethodSchema = lazyValidator(
-    () => zodSchema(union([literal("api-key"), literal("oidc")]))
-  );
+  var gatewayAuthMethodSchema = union([
+    literal("api-key"),
+    literal("oidc")
+  ]);
   var GatewayFetchMetadata = class {
     constructor(config) {
       this.config = config;
@@ -11591,7 +11549,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           url: `${this.config.baseURL}/config`,
           headers: await resolve(this.config.headers()),
           successfulResponseHandler: createJsonResponseHandler$1(
-            gatewayAvailableModelsResponseSchema
+            gatewayFetchMetadataSchema
           ),
           failedResponseHandler: createJsonErrorResponseHandler$1({
             errorSchema: any(),
@@ -11601,7 +11559,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         });
         return value;
       } catch (error) {
-        throw await asGatewayError(error);
+        throw asGatewayError(error);
       }
     }
     async getCredits() {
@@ -11610,9 +11568,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         const { value } = await getFromApi({
           url: `${baseUrl.origin}/v1/credits`,
           headers: await resolve(this.config.headers()),
-          successfulResponseHandler: createJsonResponseHandler$1(
-            gatewayCreditsResponseSchema
-          ),
+          successfulResponseHandler: createJsonResponseHandler$1(gatewayCreditsSchema),
           failedResponseHandler: createJsonErrorResponseHandler$1({
             errorSchema: any(),
             errorToMessage: (data) => data
@@ -11621,53 +11577,44 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         });
         return value;
       } catch (error) {
-        throw await asGatewayError(error);
+        throw asGatewayError(error);
       }
     }
   };
-  var gatewayAvailableModelsResponseSchema = lazyValidator(
-    () => zodSchema(
-      object$1({
-        models: array(
-          object$1({
-            id: string(),
-            name: string(),
-            description: string().nullish(),
-            pricing: object$1({
-              input: string(),
-              output: string(),
-              input_cache_read: string().nullish(),
-              input_cache_write: string().nullish()
-            }).transform(
-              ({ input, output, input_cache_read, input_cache_write }) => ({
-                input,
-                output,
-                ...input_cache_read ? { cachedInputTokens: input_cache_read } : {},
-                ...input_cache_write ? { cacheCreationInputTokens: input_cache_write } : {}
-              })
-            ).nullish(),
-            specification: object$1({
-              specificationVersion: literal("v2"),
-              provider: string(),
-              modelId: string()
-            }),
-            modelType: _enum(["language", "embedding", "image"]).nullish()
-          })
-        )
-      })
-    )
-  );
-  var gatewayCreditsResponseSchema = lazyValidator(
-    () => zodSchema(
-      object$1({
-        balance: string(),
-        total_used: string()
-      }).transform(({ balance, total_used }) => ({
-        balance,
-        totalUsed: total_used
-      }))
-    )
-  );
+  var gatewayLanguageModelSpecificationSchema = object({
+    specificationVersion: literal("v2"),
+    provider: string(),
+    modelId: string()
+  });
+  var gatewayLanguageModelPricingSchema = object({
+    input: string(),
+    output: string(),
+    input_cache_read: string().nullish(),
+    input_cache_write: string().nullish()
+  }).transform(({ input, output, input_cache_read, input_cache_write }) => ({
+    input,
+    output,
+    ...input_cache_read ? { cachedInputTokens: input_cache_read } : {},
+    ...input_cache_write ? { cacheCreationInputTokens: input_cache_write } : {}
+  }));
+  var gatewayLanguageModelEntrySchema = object({
+    id: string(),
+    name: string(),
+    description: string().nullish(),
+    pricing: gatewayLanguageModelPricingSchema.nullish(),
+    specification: gatewayLanguageModelSpecificationSchema,
+    modelType: _enum(["language", "embedding", "image"]).nullish()
+  });
+  var gatewayFetchMetadataSchema = object({
+    models: array(gatewayLanguageModelEntrySchema)
+  });
+  var gatewayCreditsSchema = object({
+    balance: string(),
+    total_used: string()
+  }).transform(({ balance, total_used }) => ({
+    balance,
+    totalUsed: total_used
+  }));
   var GatewayLanguageModel = class {
     constructor(modelId, config) {
       this.modelId = modelId;
@@ -11718,7 +11665,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           warnings
         };
       } catch (error) {
-        throw await asGatewayError(error, await parseAuthMethod(resolvedHeaders));
+        throw asGatewayError(error, parseAuthMethod(resolvedHeaders));
       }
     }
     async doStream(options) {
@@ -11773,7 +11720,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           response: { headers: responseHeaders }
         };
       } catch (error) {
-        throw await asGatewayError(error, await parseAuthMethod(resolvedHeaders));
+        throw asGatewayError(error, parseAuthMethod(resolvedHeaders));
       }
     }
     isFilePart(part) {
@@ -11866,7 +11813,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           response: { headers: responseHeaders, body: rawValue }
         };
       } catch (error) {
-        throw await asGatewayError(error, await parseAuthMethod(resolvedHeaders));
+        throw asGatewayError(error, parseAuthMethod(resolvedHeaders));
       }
     }
     getUrl() {
@@ -11879,22 +11826,18 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       };
     }
   };
-  var gatewayEmbeddingResponseSchema = lazyValidator(
-    () => zodSchema(
-      object$1({
-        embeddings: array(array(number$1())),
-        usage: object$1({ tokens: number$1() }).nullish(),
-        providerMetadata: record(string(), record(string(), unknown())).optional()
-      })
-    )
-  );
+  var gatewayEmbeddingResponseSchema = object({
+    embeddings: array(array(number$1())),
+    usage: object({ tokens: number$1() }).nullish(),
+    providerMetadata: record(string(), record(string(), unknown())).optional()
+  });
   async function getVercelRequestId() {
     var _a8;
     return (_a8 = indexBrowserExports.getContext().headers) == null ? void 0 : _a8["x-vercel-id"];
   }
 
   // src/version.ts
-  var VERSION$8 = "1.0.39" ;
+  var VERSION$8 = "1.0.35" ;
 
   // src/gateway-provider.ts
   var AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
@@ -11969,10 +11912,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           metadataCache = metadata;
           return metadata;
         }).catch(async (error) => {
-          throw await asGatewayError(
-            error,
-            await parseAuthMethod(await getHeaders())
-          );
+          throw asGatewayError(error, parseAuthMethod(await getHeaders()));
         });
       }
       return metadataCache ? Promise.resolve(metadataCache) : pendingMetadata;
@@ -11983,10 +11923,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         headers: getHeaders,
         fetch: options.fetch
       }).getCredits().catch(async (error) => {
-        throw await asGatewayError(
-          error,
-          await parseAuthMethod(await getHeaders())
-        );
+        throw asGatewayError(error, parseAuthMethod(await getHeaders()));
       });
     };
     const provider = function(modelId) {
@@ -12000,7 +11937,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     provider.getAvailableModels = getAvailableModels;
     provider.getCredits = getCredits;
     provider.imageModel = (modelId) => {
-      throw new NoSuchModelError({ modelId, modelType: "imageModel" });
+      throw new NoSuchModelError$4({ modelId, modelType: "imageModel" });
     };
     provider.languageModel = createLanguageModel;
     provider.textEmbeddingModel = (modelId) => {
@@ -12035,6 +11972,222 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     } catch (e) {
       return null;
     }
+  }
+
+  // src/errors/ai-sdk-error.ts
+  var marker$8 = "vercel.ai.error";
+  var symbol$8 = Symbol.for(marker$8);
+  var _a$8;
+  var _AISDKError$7 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$8] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$8);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$8 = symbol$8;
+  var AISDKError$7 = _AISDKError$7;
+
+  // src/errors/api-call-error.ts
+  var name$3 = "AI_APICallError";
+  var marker2$3 = `vercel.ai.error.${name$3}`;
+  var symbol2$3 = Symbol.for(marker2$3);
+  var _a2$3;
+  var APICallError$2 = class APICallError extends AISDKError$7 {
+    constructor({
+      message,
+      url,
+      requestBodyValues,
+      statusCode,
+      responseHeaders,
+      responseBody,
+      cause,
+      isRetryable = statusCode != null && (statusCode === 408 || // request timeout
+      statusCode === 409 || // conflict
+      statusCode === 429 || // too many requests
+      statusCode >= 500),
+      // server error
+      data
+    }) {
+      super({ name: name$3, message, cause });
+      this[_a2$3] = true;
+      this.url = url;
+      this.requestBodyValues = requestBodyValues;
+      this.statusCode = statusCode;
+      this.responseHeaders = responseHeaders;
+      this.responseBody = responseBody;
+      this.isRetryable = isRetryable;
+      this.data = data;
+    }
+    static isInstance(error) {
+      return AISDKError$7.hasMarker(error, marker2$3);
+    }
+  };
+  _a2$3 = symbol2$3;
+
+  // src/errors/get-error-message.ts
+  function getErrorMessage$1(error) {
+    if (error == null) {
+      return "unknown error";
+    }
+    if (typeof error === "string") {
+      return error;
+    }
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return JSON.stringify(error);
+  }
+
+  // src/errors/invalid-prompt-error.ts
+  var name4$2 = "AI_InvalidPromptError";
+  var marker5$1 = `vercel.ai.error.${name4$2}`;
+  var symbol5$1 = Symbol.for(marker5$1);
+  var _a5$1;
+  var InvalidPromptError$1 = class InvalidPromptError extends AISDKError$7 {
+    constructor({
+      prompt,
+      message,
+      cause
+    }) {
+      super({ name: name4$2, message: `Invalid prompt: ${message}`, cause });
+      this[_a5$1] = true;
+      this.prompt = prompt;
+    }
+    static isInstance(error) {
+      return AISDKError$7.hasMarker(error, marker5$1);
+    }
+  };
+  _a5$1 = symbol5$1;
+
+  // src/errors/json-parse-error.ts
+  var name6$1 = "AI_JSONParseError";
+  var marker7$2 = `vercel.ai.error.${name6$1}`;
+  var symbol7$2 = Symbol.for(marker7$2);
+  var _a7$2;
+  var JSONParseError$1 = class JSONParseError extends AISDKError$7 {
+    constructor({ text, cause }) {
+      super({
+        name: name6$1,
+        message: `JSON parsing failed: Text: ${text}.
+Error message: ${getErrorMessage$1(cause)}`,
+        cause
+      });
+      this[_a7$2] = true;
+      this.text = text;
+    }
+    static isInstance(error) {
+      return AISDKError$7.hasMarker(error, marker7$2);
+    }
+  };
+  _a7$2 = symbol7$2;
+
+  // src/errors/type-validation-error.ts
+  var name12$2 = "AI_TypeValidationError";
+  var marker13$1 = `vercel.ai.error.${name12$2}`;
+  var symbol13$1 = Symbol.for(marker13$1);
+  var _a13$1;
+  var _TypeValidationError$1 = class _TypeValidationError extends AISDKError$7 {
+    constructor({ value, cause }) {
+      super({
+        name: name12$2,
+        message: `Type validation failed: Value: ${JSON.stringify(value)}.
+Error message: ${getErrorMessage$1(cause)}`,
+        cause
+      });
+      this[_a13$1] = true;
+      this.value = value;
+    }
+    static isInstance(error) {
+      return AISDKError$7.hasMarker(error, marker13$1);
+    }
+    /**
+     * Wraps an error into a TypeValidationError.
+     * If the cause is already a TypeValidationError with the same value, it returns the cause.
+     * Otherwise, it creates a new TypeValidationError.
+     *
+     * @param {Object} params - The parameters for wrapping the error.
+     * @param {unknown} params.value - The value that failed validation.
+     * @param {unknown} params.cause - The original error or cause of the validation failure.
+     * @returns {TypeValidationError} A TypeValidationError instance.
+     */
+    static wrap({
+      value,
+      cause
+    }) {
+      return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
+    }
+  };
+  _a13$1 = symbol13$1;
+  var TypeValidationError$1 = _TypeValidationError$1;
+
+  // src/errors/unsupported-functionality-error.ts
+  var name13$7 = "AI_UnsupportedFunctionalityError";
+  var marker14$8 = `vercel.ai.error.${name13$7}`;
+  var symbol14$8 = Symbol.for(marker14$8);
+  var _a14$8;
+  var UnsupportedFunctionalityError$7 = class UnsupportedFunctionalityError extends AISDKError$7 {
+    constructor({
+      functionality,
+      message = `'${functionality}' functionality not supported.`
+    }) {
+      super({ name: name13$7, message });
+      this[_a14$8] = true;
+      this.functionality = functionality;
+    }
+    static isInstance(error) {
+      return AISDKError$7.hasMarker(error, marker14$8);
+    }
+  };
+  _a14$8 = symbol14$8;
+
+  // src/json-value/is-json.ts
+  function isJSONValue(value) {
+    if (value === null || typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      return true;
+    }
+    if (Array.isArray(value)) {
+      return value.every(isJSONValue);
+    }
+    if (typeof value === "object") {
+      return Object.entries(value).every(
+        ([key, val]) => typeof key === "string" && isJSONValue(val)
+      );
+    }
+    return false;
+  }
+  function isJSONArray(value) {
+    return Array.isArray(value) && value.every(isJSONValue);
+  }
+  function isJSONObject(value) {
+    return value != null && typeof value === "object" && Object.entries(value).every(
+      ([key, val]) => typeof key === "string" && isJSONValue(val)
+    );
   }
 
   /*
@@ -13324,21 +13477,21 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     for (var name17 in all)
       __defProp(target, name17, { get: all[name17], enumerable: true });
   };
-  var name$1 = "AI_NoOutputSpecifiedError";
-  var marker$1 = `vercel.ai.error.${name$1}`;
-  var symbol$1 = Symbol.for(marker$1);
-  var _a$1;
-  var NoOutputSpecifiedError = class extends AISDKError$1 {
+  var name$2 = "AI_NoOutputSpecifiedError";
+  var marker$7 = `vercel.ai.error.${name$2}`;
+  var symbol$7 = Symbol.for(marker$7);
+  var _a$7;
+  var NoOutputSpecifiedError = class extends AISDKError$7 {
     // used in isInstance
     constructor({ message = "No output specified." } = {}) {
-      super({ name: name$1, message });
-      this[_a$1] = true;
+      super({ name: name$2, message });
+      this[_a$7] = true;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker$1);
+      return AISDKError$7.hasMarker(error, marker$7);
     }
   };
-  _a$1 = symbol$1;
+  _a$7 = symbol$7;
 
   // src/logger/log-warnings.ts
   function formatWarning(warning) {
@@ -13390,10 +13543,10 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     }
   };
   var name2$1 = "AI_InvalidArgumentError";
-  var marker2$1 = `vercel.ai.error.${name2$1}`;
-  var symbol2$1 = Symbol.for(marker2$1);
-  var _a2$1;
-  var InvalidArgumentError$1 = class InvalidArgumentError extends AISDKError$1 {
+  var marker2$2 = `vercel.ai.error.${name2$1}`;
+  var symbol2$2 = Symbol.for(marker2$2);
+  var _a2$2;
+  var InvalidArgumentError$1 = class InvalidArgumentError extends AISDKError$7 {
     constructor({
       parameter,
       value,
@@ -13403,33 +13556,33 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         name: name2$1,
         message: `Invalid argument for parameter ${parameter}: ${message}`
       });
-      this[_a2$1] = true;
+      this[_a2$2] = true;
       this.parameter = parameter;
       this.value = value;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker2$1);
+      return AISDKError$7.hasMarker(error, marker2$2);
     }
   };
-  _a2$1 = symbol2$1;
-  var name4 = "AI_InvalidToolInputError";
-  var marker4$1 = `vercel.ai.error.${name4}`;
+  _a2$2 = symbol2$2;
+  var name4$1 = "AI_InvalidToolInputError";
+  var marker4$1 = `vercel.ai.error.${name4$1}`;
   var symbol4$1 = Symbol.for(marker4$1);
   var _a4$1;
-  var InvalidToolInputError = class extends AISDKError$1 {
+  var InvalidToolInputError = class extends AISDKError$7 {
     constructor({
       toolInput,
       toolName,
       cause,
-      message = `Invalid input for tool ${toolName}: ${getErrorMessage$2(cause)}`
+      message = `Invalid input for tool ${toolName}: ${getErrorMessage$1(cause)}`
     }) {
-      super({ name: name4, message, cause });
+      super({ name: name4$1, message, cause });
       this[_a4$1] = true;
       this.toolInput = toolInput;
       this.toolName = toolName;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker4$1);
+      return AISDKError$7.hasMarker(error, marker4$1);
     }
   };
   _a4$1 = symbol4$1;
@@ -13437,7 +13590,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   var marker7$1 = `vercel.ai.error.${name7}`;
   var symbol7$1 = Symbol.for(marker7$1);
   var _a7$1;
-  var NoObjectGeneratedError = class extends AISDKError$1 {
+  var NoObjectGeneratedError = class extends AISDKError$7 {
     constructor({
       message = "No object generated.",
       cause,
@@ -13454,7 +13607,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       this.finishReason = finishReason;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker7$1);
+      return AISDKError$7.hasMarker(error, marker7$1);
     }
   };
   _a7$1 = symbol7$1;
@@ -13462,7 +13615,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   var marker8 = `vercel.ai.error.${name8}`;
   var symbol8 = Symbol.for(marker8);
   var _a8;
-  var NoOutputGeneratedError = class extends AISDKError$1 {
+  var NoOutputGeneratedError = class extends AISDKError$7 {
     // used in isInstance
     constructor({
       message = "No output generated.",
@@ -13472,7 +13625,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       this[_a8] = true;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker8);
+      return AISDKError$7.hasMarker(error, marker8);
     }
   };
   _a8 = symbol8;
@@ -13480,7 +13633,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   var marker9 = `vercel.ai.error.${name9}`;
   var symbol9 = Symbol.for(marker9);
   var _a9;
-  var NoSuchToolError = class extends AISDKError$1 {
+  var NoSuchToolError = class extends AISDKError$7 {
     constructor({
       toolName,
       availableTools = void 0,
@@ -13492,30 +13645,30 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       this.availableTools = availableTools;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker9);
+      return AISDKError$7.hasMarker(error, marker9);
     }
   };
   _a9 = symbol9;
-  var name10 = "AI_ToolCallRepairError";
-  var marker10 = `vercel.ai.error.${name10}`;
+  var name10$4 = "AI_ToolCallRepairError";
+  var marker10 = `vercel.ai.error.${name10$4}`;
   var symbol10 = Symbol.for(marker10);
   var _a10;
-  var ToolCallRepairError = class extends AISDKError$1 {
+  var ToolCallRepairError = class extends AISDKError$7 {
     constructor({
       cause,
       originalError,
-      message = `Error repairing tool call: ${getErrorMessage$2(cause)}`
+      message = `Error repairing tool call: ${getErrorMessage$1(cause)}`
     }) {
-      super({ name: name10, message, cause });
+      super({ name: name10$4, message, cause });
       this[_a10] = true;
       this.originalError = originalError;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker10);
+      return AISDKError$7.hasMarker(error, marker10);
     }
   };
   _a10 = symbol10;
-  var UnsupportedModelVersionError = class extends AISDKError$1 {
+  var UnsupportedModelVersionError = class extends AISDKError$7 {
     constructor(options) {
       super({
         name: "AI_UnsupportedModelVersionError",
@@ -13527,28 +13680,28 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     }
   };
   var name12$1 = "AI_InvalidMessageRoleError";
-  var marker12$1 = `vercel.ai.error.${name12$1}`;
-  var symbol12$1 = Symbol.for(marker12$1);
-  var _a12$1;
-  var InvalidMessageRoleError = class extends AISDKError$1 {
+  var marker12$4 = `vercel.ai.error.${name12$1}`;
+  var symbol12$4 = Symbol.for(marker12$4);
+  var _a12$4;
+  var InvalidMessageRoleError = class extends AISDKError$7 {
     constructor({
       role,
       message = `Invalid message role: '${role}'. Must be one of: "system", "user", "assistant", "tool".`
     }) {
       super({ name: name12$1, message });
-      this[_a12$1] = true;
+      this[_a12$4] = true;
       this.role = role;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker12$1);
+      return AISDKError$7.hasMarker(error, marker12$4);
     }
   };
-  _a12$1 = symbol12$1;
+  _a12$4 = symbol12$4;
   var name14 = "AI_DownloadError";
-  var marker14$1 = `vercel.ai.error.${name14}`;
-  var symbol14$1 = Symbol.for(marker14$1);
-  var _a14$1;
-  var DownloadError = class extends AISDKError$1 {
+  var marker14$7 = `vercel.ai.error.${name14}`;
+  var symbol14$7 = Symbol.for(marker14$7);
+  var _a14$7;
+  var DownloadError = class extends AISDKError$7 {
     constructor({
       url,
       statusCode,
@@ -13557,21 +13710,21 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       message = cause == null ? `Failed to download ${url}: ${statusCode} ${statusText}` : `Failed to download ${url}: ${cause}`
     }) {
       super({ name: name14, message, cause });
-      this[_a14$1] = true;
+      this[_a14$7] = true;
       this.url = url;
       this.statusCode = statusCode;
       this.statusText = statusText;
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker14$1);
+      return AISDKError$7.hasMarker(error, marker14$7);
     }
   };
-  _a14$1 = symbol14$1;
+  _a14$7 = symbol14$7;
   var name15 = "AI_RetryError";
   var marker15 = `vercel.ai.error.${name15}`;
   var symbol15 = Symbol.for(marker15);
   var _a15;
-  var RetryError = class extends AISDKError$1 {
+  var RetryError = class extends AISDKError$7 {
     constructor({
       message,
       reason,
@@ -13584,7 +13737,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       this.lastError = errors[errors.length - 1];
     }
     static isInstance(error) {
-      return AISDKError$1.hasMarker(error, marker15);
+      return AISDKError$7.hasMarker(error, marker15);
     }
   };
   _a15 = symbol15;
@@ -13720,7 +13873,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   }
 
   // src/version.ts
-  var VERSION$6 = "5.0.68" ;
+  var VERSION$6 = "5.0.62" ;
 
   // src/util/download/download.ts
   var download = async ({ url }) => {
@@ -13808,7 +13961,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         content.toString()
       );
       if (dataUrlMediaType == null || base64Content == null) {
-        throw new AISDKError$1({
+        throw new AISDKError$7({
           name: "InvalidDataContentError",
           message: `Invalid data URL format in content ${content.toString()}`
         });
@@ -14147,8 +14300,8 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   }
 
   // src/util/is-non-empty-object.ts
-  function isNonEmptyObject(object2) {
-    return object2 != null && Object.keys(object2).length > 0;
+  function isNonEmptyObject(object7) {
+    return object7 != null && Object.keys(object7).length > 0;
   }
 
   // src/prompt/prepare-tools-and-tool-choice.ts
@@ -14212,30 +14365,30 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     string(),
     record(string(), jsonValueSchema)
   );
-  var textPartSchema = object$1({
+  var textPartSchema = object({
     type: literal("text"),
     text: string(),
     providerOptions: providerMetadataSchema.optional()
   });
-  var imagePartSchema = object$1({
+  var imagePartSchema = object({
     type: literal("image"),
     image: union([dataContentSchema, _instanceof(URL)]),
     mediaType: string().optional(),
     providerOptions: providerMetadataSchema.optional()
   });
-  var filePartSchema = object$1({
+  var filePartSchema = object({
     type: literal("file"),
     data: union([dataContentSchema, _instanceof(URL)]),
     filename: string().optional(),
     mediaType: string(),
     providerOptions: providerMetadataSchema.optional()
   });
-  var reasoningPartSchema = object$1({
+  var reasoningPartSchema = object({
     type: literal("reasoning"),
     text: string(),
     providerOptions: providerMetadataSchema.optional()
   });
-  var toolCallPartSchema = object$1({
+  var toolCallPartSchema = object({
     type: literal("tool-call"),
     toolCallId: string(),
     toolName: string(),
@@ -14244,31 +14397,31 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     providerExecuted: boolean().optional()
   });
   var outputSchema = discriminatedUnion("type", [
-    object$1({
+    object({
       type: literal("text"),
       value: string()
     }),
-    object$1({
+    object({
       type: literal("json"),
       value: jsonValueSchema
     }),
-    object$1({
+    object({
       type: literal("error-text"),
       value: string()
     }),
-    object$1({
+    object({
       type: literal("error-json"),
       value: jsonValueSchema
     }),
-    object$1({
+    object({
       type: literal("content"),
       value: array(
         union([
-          object$1({
+          object({
             type: literal("text"),
             text: string()
           }),
-          object$1({
+          object({
             type: literal("media"),
             data: string(),
             mediaType: string()
@@ -14277,7 +14430,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       )
     })
   ]);
-  var toolResultPartSchema = object$1({
+  var toolResultPartSchema = object({
     type: literal("tool-result"),
     toolCallId: string(),
     toolName: string(),
@@ -14286,14 +14439,14 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   });
 
   // src/prompt/message.ts
-  var systemModelMessageSchema = object$1(
+  var systemModelMessageSchema = object(
     {
       role: literal("system"),
       content: string(),
       providerOptions: providerMetadataSchema.optional()
     }
   );
-  var userModelMessageSchema = object$1({
+  var userModelMessageSchema = object({
     role: literal("user"),
     content: union([
       string(),
@@ -14301,7 +14454,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     ]),
     providerOptions: providerMetadataSchema.optional()
   });
-  var assistantModelMessageSchema = object$1({
+  var assistantModelMessageSchema = object({
     role: literal("assistant"),
     content: union([
       string(),
@@ -14317,7 +14470,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     ]),
     providerOptions: providerMetadataSchema.optional()
   });
-  var toolModelMessageSchema = object$1({
+  var toolModelMessageSchema = object({
     role: literal("tool"),
     content: array(toolResultPartSchema),
     providerOptions: providerMetadataSchema.optional()
@@ -14332,19 +14485,19 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   // src/prompt/standardize-prompt.ts
   async function standardizePrompt(prompt) {
     if (prompt.prompt == null && prompt.messages == null) {
-      throw new InvalidPromptError({
+      throw new InvalidPromptError$1({
         prompt,
         message: "prompt or messages must be defined"
       });
     }
     if (prompt.prompt != null && prompt.messages != null) {
-      throw new InvalidPromptError({
+      throw new InvalidPromptError$1({
         prompt,
         message: "prompt and messages cannot be defined at the same time"
       });
     }
     if (prompt.system != null && typeof prompt.system !== "string") {
-      throw new InvalidPromptError({
+      throw new InvalidPromptError$1({
         prompt,
         message: "system must be a string"
       });
@@ -14357,13 +14510,13 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     } else if (prompt.messages != null) {
       messages = prompt.messages;
     } else {
-      throw new InvalidPromptError({
+      throw new InvalidPromptError$1({
         prompt,
         message: "prompt or messages must be defined"
       });
     }
     if (messages.length === 0) {
-      throw new InvalidPromptError({
+      throw new InvalidPromptError$1({
         prompt,
         message: "messages must not be empty"
       });
@@ -14373,7 +14526,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       schema: array(modelMessageSchema)
     });
     if (!validationResult.success) {
-      throw new InvalidPromptError({
+      throw new InvalidPromptError$1({
         prompt,
         message: "The messages must be a ModelMessage[]. If you have passed a UIMessage[], you can use convertToModelMessages to convert them.",
         cause: validationResult.error
@@ -14386,7 +14539,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   }
   function wrapGatewayError(error) {
     if (GatewayAuthenticationError.isInstance(error) || GatewayModelNotFoundError.isInstance(error)) {
-      return new AISDKError$1({
+      return new AISDKError$7({
         name: "GatewayError",
         message: "Vercel AI Gateway access failed. If you want to use AI SDK providers directly, use the providers, e.g. @ai-sdk/openai, or register a different global default provider.",
         cause: error
@@ -14679,7 +14832,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       if (maxRetries === 0) {
         throw error;
       }
-      const errorMessage = getErrorMessage$1(error);
+      const errorMessage = getErrorMessage$2(error);
       const newErrors = [...errors, error];
       const tryNumber = newErrors.length;
       if (tryNumber > maxRetries) {
@@ -14689,7 +14842,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           errors: newErrors
         });
       }
-      if (error instanceof Error && APICallError$1.isInstance(error) && error.isRetryable === true && tryNumber <= maxRetries) {
+      if (error instanceof Error && APICallError$2.isInstance(error) && error.isRetryable === true && tryNumber <= maxRetries) {
         await delay(
           getRetryDelayInMs({
             error,
@@ -14963,7 +15116,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     errorMode
   }) {
     if (errorMode === "text") {
-      return { type: "error-text", value: getErrorMessage$2(output) };
+      return { type: "error-text", value: getErrorMessage$1(output) };
     } else if (errorMode === "json") {
       return { type: "error-json", value: toJSONValue(output) };
     }
@@ -15162,17 +15315,17 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
               stepNumber: steps.length,
               messages: stepInputMessages
             }));
-            const stepModel = resolveLanguageModel(
-              (_a17 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a17 : model
-            );
             const promptMessages = await convertToLanguageModelPrompt({
               prompt: {
-                system: (_b = prepareStepResult == null ? void 0 : prepareStepResult.system) != null ? _b : initialPrompt.system,
-                messages: (_c = prepareStepResult == null ? void 0 : prepareStepResult.messages) != null ? _c : stepInputMessages
+                system: (_a17 = prepareStepResult == null ? void 0 : prepareStepResult.system) != null ? _a17 : initialPrompt.system,
+                messages: (_b = prepareStepResult == null ? void 0 : prepareStepResult.messages) != null ? _b : stepInputMessages
               },
-              supportedUrls: await stepModel.supportedUrls,
+              supportedUrls: await model.supportedUrls,
               download: download2
             });
+            const stepModel = resolveLanguageModel(
+              (_c = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _c : model
+            );
             const { toolChoice: stepToolChoice, tools: stepTools } = prepareToolsAndToolChoice({
               tools,
               toolChoice: (_d = prepareStepResult == null ? void 0 : prepareStepResult.toolChoice) != null ? _d : toolChoice,
@@ -15312,7 +15465,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                 toolCallId: toolCall.toolCallId,
                 toolName: toolCall.toolName,
                 input: toolCall.input,
-                error: getErrorMessage$1(toolCall.error),
+                error: getErrorMessage$2(toolCall.error),
                 dynamic: true
               });
             }
@@ -15391,20 +15544,16 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
             })
           );
           const lastStep = steps[steps.length - 1];
-          let resolvedOutput;
-          if (lastStep.finishReason === "stop") {
-            resolvedOutput = await (output == null ? void 0 : output.parseOutput(
+          return new DefaultGenerateTextResult({
+            steps,
+            resolvedOutput: await (output == null ? void 0 : output.parseOutput(
               { text: lastStep.text },
               {
                 response: lastStep.response,
                 usage: lastStep.usage,
                 finishReason: lastStep.finishReason
               }
-            ));
-          }
-          return new DefaultGenerateTextResult({
-            steps,
-            resolvedOutput
+            ))
           });
         }
       });
@@ -17024,7 +17173,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                   toolCallId: toolCall.toolCallId,
                   toolName: toolCall.toolName,
                   input: toolCall.input,
-                  error: getErrorMessage$1(toolCall.error),
+                  error: getErrorMessage$2(toolCall.error),
                   dynamic: true
                 });
                 break;
@@ -17679,17 +17828,17 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
               stepNumber: recordedSteps.length,
               messages: stepInputMessages
             }));
-            const stepModel = resolveLanguageModel(
-              (_a17 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a17 : model
-            );
             const promptMessages = await convertToLanguageModelPrompt({
               prompt: {
-                system: (_b = prepareStepResult == null ? void 0 : prepareStepResult.system) != null ? _b : initialPrompt.system,
-                messages: (_c = prepareStepResult == null ? void 0 : prepareStepResult.messages) != null ? _c : stepInputMessages
+                system: (_a17 = prepareStepResult == null ? void 0 : prepareStepResult.system) != null ? _a17 : initialPrompt.system,
+                messages: (_b = prepareStepResult == null ? void 0 : prepareStepResult.messages) != null ? _b : stepInputMessages
               },
-              supportedUrls: await stepModel.supportedUrls,
+              supportedUrls: await model.supportedUrls,
               download: download2
             });
+            const stepModel = resolveLanguageModel(
+              (_c = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _c : model
+            );
             const { toolChoice: stepToolChoice, tools: stepTools } = prepareToolsAndToolChoice({
               tools,
               toolChoice: (_d = prepareStepResult == null ? void 0 : prepareStepResult.toolChoice) != null ? _d : toolChoice,
@@ -18201,7 +18350,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       sendSources = false,
       sendStart = true,
       sendFinish = true,
-      onError = getErrorMessage$2
+      onError = getErrorMessage$1
     } = {}) {
       const responseMessageId = generateMessageId != null ? getResponseUIMessageId({
         originalMessages,
@@ -18536,7 +18685,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       } : { success: true, value };
     },
     createElementStream() {
-      throw new UnsupportedFunctionalityError$1({
+      throw new UnsupportedFunctionalityError$7({
         functionality: "element streams in no-schema mode"
       });
     }
@@ -18558,7 +18707,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       return safeValidateTypes$1({ value, schema });
     },
     createElementStream() {
-      throw new UnsupportedFunctionalityError$1({
+      throw new UnsupportedFunctionalityError$7({
         functionality: "element streams in object mode"
       });
     }
@@ -18655,9 +18804,9 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
               transform(chunk, controller) {
                 switch (chunk.type) {
                   case "object": {
-                    const array = chunk.object;
-                    for (; publishedElements < array.length; publishedElements++) {
-                      controller.enqueue(array[publishedElements]);
+                    const array7 = chunk.object;
+                    for (; publishedElements < array7.length; publishedElements++) {
+                      controller.enqueue(array7[publishedElements]);
                     }
                     break;
                   }
@@ -18745,7 +18894,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         };
       },
       createElementStream() {
-        throw new UnsupportedFunctionalityError$1({
+        throw new UnsupportedFunctionalityError$7({
           functionality: "element streams in enum mode"
         });
       }
@@ -19142,7 +19291,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           response = generateResult.responseData;
           reasoning = generateResult.reasoning;
           logWarnings(warnings);
-          const object2 = await parseAndValidateObjectResultWithRepair(
+          const object7 = await parseAndValidateObjectResultWithRepair(
             result,
             outputStrategy,
             repairText,
@@ -19158,7 +19307,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
               attributes: {
                 "ai.response.finishReason": finishReason,
                 "ai.response.object": {
-                  output: () => JSON.stringify(object2)
+                  output: () => JSON.stringify(object7)
                 },
                 "ai.response.providerMetadata": JSON.stringify(
                   resultProviderMetadata
@@ -19170,7 +19319,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
             })
           );
           return new DefaultGenerateObjectResult({
-            object: object2,
+            object: object7,
             reasoning,
             finishReason,
             usage,
@@ -19213,7 +19362,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   // src/generate-text/output.ts
   var output_exports = {};
   __export(output_exports, {
-    object: () => object,
+    object: () => object3,
     text: () => text
   });
   var text = () => ({
@@ -19226,7 +19375,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       return text2;
     }
   });
-  var object = ({
+  var object3 = ({
     schema: inputSchema
   }) => {
     const schema = asSchema(inputSchema);
@@ -19289,16 +19438,16 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     version: string()
   });
   var BaseParamsSchema = looseObject({
-    _meta: optional(object$1({}).loose())
+    _meta: optional(object({}).loose())
   });
   var ResultSchema = BaseParamsSchema;
-  var RequestSchema = object$1({
+  var RequestSchema = object({
     method: string(),
     params: optional(BaseParamsSchema)
   });
   var ServerCapabilitiesSchema = looseObject({
-    experimental: optional(object$1({}).loose()),
-    logging: optional(object$1({}).loose()),
+    experimental: optional(object({}).loose()),
+    logging: optional(object({}).loose()),
     prompts: optional(
       looseObject({
         listChanged: optional(boolean())
@@ -19325,27 +19474,27 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   var PaginatedResultSchema = ResultSchema.extend({
     nextCursor: optional(string())
   });
-  var ToolSchema = object$1({
+  var ToolSchema = object({
     name: string(),
     description: optional(string()),
-    inputSchema: object$1({
+    inputSchema: object({
       type: literal("object"),
-      properties: optional(object$1({}).loose())
+      properties: optional(object({}).loose())
     }).loose()
   }).loose();
   PaginatedResultSchema.extend({
     tools: array(ToolSchema)
   });
-  var TextContentSchema = object$1({
+  var TextContentSchema = object({
     type: literal("text"),
     text: string()
   }).loose();
-  var ImageContentSchema = object$1({
+  var ImageContentSchema = object({
     type: literal("image"),
     data: base64(),
     mimeType: string()
   }).loose();
-  var ResourceContentsSchema = object$1({
+  var ResourceContentsSchema = object({
     /**
      * The URI of this resource.
      */
@@ -19361,7 +19510,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   var BlobResourceContentsSchema = ResourceContentsSchema.extend({
     blob: base64()
   });
-  var EmbeddedResourceSchema = object$1({
+  var EmbeddedResourceSchema = object({
     type: literal("resource"),
     resource: union([TextResourceContentsSchema, BlobResourceContentsSchema])
   }).loose();
@@ -19378,28 +19527,28 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
 
   // src/tool/mcp/json-rpc-message.ts
   var JSONRPC_VERSION = "2.0";
-  var JSONRPCRequestSchema = object$1({
+  var JSONRPCRequestSchema = object({
     jsonrpc: literal(JSONRPC_VERSION),
     id: union([string(), number$1().int()])
   }).merge(RequestSchema).strict();
-  var JSONRPCResponseSchema = object$1({
+  var JSONRPCResponseSchema = object({
     jsonrpc: literal(JSONRPC_VERSION),
     id: union([string(), number$1().int()]),
     result: ResultSchema
   }).strict();
-  var JSONRPCErrorSchema = object$1({
+  var JSONRPCErrorSchema = object({
     jsonrpc: literal(JSONRPC_VERSION),
     id: union([string(), number$1().int()]),
-    error: object$1({
+    error: object({
       code: number$1().int(),
       message: string(),
       data: optional(unknown())
     })
   }).strict();
-  var JSONRPCNotificationSchema = object$1({
+  var JSONRPCNotificationSchema = object({
     jsonrpc: literal(JSONRPC_VERSION)
   }).merge(
-    object$1({
+    object({
       method: string(),
       params: optional(BaseParamsSchema)
     })
@@ -20584,6 +20733,1409 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     },
   };
 
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                 TAB ID MANAGEMENT                       │
+  // ╰─────────────────────────────────────────────────────────╯
+  /**
+   * Manages unique, session-only IDs for tab objects.
+   * This is necessary because no built-in tab property is consistently
+   * available and unique for all tabs (e.g., background/unloaded tabs).
+   */
+  const TabIdManager = new (class {
+    #tabIdMap = new WeakMap();
+    #idTabMap = new Map();
+    #nextId = 1;
+
+    _getOrCreateId(tab) {
+      if (!this.#tabIdMap.has(tab)) {
+        const id = this.#nextId++;
+        this.#tabIdMap.set(tab, id);
+        this.#idTabMap.set(id, tab);
+      }
+      return this.#tabIdMap.get(tab);
+    }
+
+    getTabById(id) {
+      const numericId = Number(id);
+      const tab = this.#idTabMap.get(numericId);
+      // Ensure the tab still exists in the browser before returning it.
+      if (tab && tab.ownerGlobal && !tab.ownerGlobal.closed && gBrowser.tabs.includes(tab)) {
+        return tab;
+      }
+      // Clean up the map if the tab is gone.
+      this.#idTabMap.delete(numericId);
+      return null;
+    }
+
+    mapTab(tab) {
+      if (!tab) return null;
+
+      const id = this._getOrCreateId(tab);
+      const splitGroup = tab.group?.hasAttribute("split-view-group") ? tab.group : null;
+      const workspaceId = tab.getAttribute("zen-workspace-id");
+      const workspace = workspaceId ? gZenWorkspaces.getWorkspaceFromId(workspaceId) : null;
+      const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
+
+      return {
+        id: String(id),
+        title: tab.label,
+        url: tab.linkedBrowser?.currentURI?.spec,
+        isCurrent: tab === gBrowser.selectedTab,
+        inCurrentWorkspace: workspaceId === activeWorkspaceId,
+        workspaceId,
+        workspaceName: workspace?.name || null,
+        workspaceIcon: workspace?.icon || null,
+        pinned: tab.pinned,
+        isGroup: gBrowser.isTabGroup(tab),
+        isEssential: tab.hasAttribute("zen-essential"),
+        parentFolderId: tab.group && !splitGroup ? tab.group.id : null,
+        parentFolderName: tab.group && !splitGroup ? tab.group.label : null,
+        isSplitView: !!splitGroup,
+        splitViewId: splitGroup ? splitGroup.id : null,
+      };
+    }
+  })();
+
+  // Helper function to create Zod string parameters
+  const createStringParameter = (description, isOptional = false) => {
+    let schema = stringType().describe(description);
+    return isOptional ? schema.optional() : schema;
+  };
+
+  // Helper function for array of strings parameter
+  const createStringArrayParameter = (description, isOptional = false) => {
+    let schema = arrayType(stringType()).describe(description);
+    return isOptional ? schema.optional() : schema;
+  };
+
+  // Helper function to create tools with consistent structure
+  const createTool = (description, parameters, executeFn) => {
+    return tool({
+      description,
+      inputSchema: objectType(parameters),
+      execute: executeFn,
+    });
+  };
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                      HELPERS                            │
+  // ╰─────────────────────────────────────────────────────────╯
+  /**
+   * Retrieves tab objects based on their session IDs.
+   * @param {string[]} tabIds - An array of session IDs for the tabs to retrieve.
+   * @returns {Array<object>} An array of tab browser elements.
+   */
+  function getTabsByIds(tabIds) {
+    if (!Array.isArray(tabIds)) tabIds = [tabIds];
+    return tabIds.map((id) => TabIdManager.getTabById(id)).filter(Boolean);
+  }
+
+  /**
+   * Maps a tab element to a simplified object for AI consumption.
+   * @param {object} tab - The tab browser element.
+   * @returns {object|null} A simplified tab object, or null if the tab is invalid.
+   */
+  function mapTabToObject(tab) {
+    return TabIdManager.mapTab(tab);
+  }
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                         SEARCH                          │
+  // ╰─────────────────────────────────────────────────────────╯
+  async function getSearchURL(engineName, searchTerm) {
+    try {
+      const engine = await Services.search.getEngineByName(engineName);
+      if (!engine) {
+        debugError(`No search engine found with name: ${engineName}`);
+        return null;
+      }
+      const submission = engine.getSubmission(searchTerm.trim());
+      if (!submission) {
+        debugError(`No submission found for term: ${searchTerm} and engine: ${engineName}`);
+        return null;
+      }
+      return submission.uri.spec;
+    } catch (e) {
+      debugError(`Error getting search URL for engine "${engineName}".`, e);
+      return null;
+    }
+  }
+
+  async function search(args) {
+    const { searchTerm, engineName, where } = args;
+    const defaultEngineName = Services.search.defaultEngine.name;
+    const searchEngineName = engineName || defaultEngineName;
+    if (!searchTerm) return { error: "Search tool requires a searchTerm." };
+
+    const url = await getSearchURL(searchEngineName, searchTerm);
+    if (url) {
+      return await openLink({ link: url, where });
+    } else {
+      return {
+        error: `Could not find search engine named '${searchEngineName}'.`,
+      };
+    }
+  }
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                          TABS                           │
+  // ╰─────────────────────────────────────────────────────────╯
+  async function openLink(args) {
+    const { link, where = "new tab" } = args;
+    if (!link) return { error: "openLink requires a link." };
+    const whereNormalized = where?.toLowerCase()?.trim();
+    try {
+      switch (whereNormalized) {
+        case "current tab":
+          openTrustedLinkIn(link, "current");
+          break;
+        case "new tab":
+          openTrustedLinkIn(link, "tab");
+          break;
+        case "new window":
+          openTrustedLinkIn(link, "window");
+          break;
+        case "incognito":
+        case "private":
+          window.openTrustedLinkIn(link, "window", { private: true });
+          break;
+        case "glance":
+          if (window.gZenGlanceManager) {
+            const rect = gBrowser.selectedBrowser.getBoundingClientRect();
+            window.gZenGlanceManager.openGlance({
+              url: link,
+              x: rect.left + rect.width / 2,
+              y: rect.top + rect.height / 2,
+              width: 10,
+              height: 10,
+            });
+          } else {
+            openTrustedLinkIn(link, "tab");
+            return { result: `Glance not available. Opened in a new tab.` };
+          }
+          break;
+        case "vsplit":
+        case "hsplit":
+          if (window.gZenViewSplitter) {
+            const sep = whereNormalized === "vsplit" ? "vsep" : "hsep";
+            const tab1 = gBrowser.selectedTab;
+            await openTrustedLinkIn(link, "tab");
+            const tab2 = gBrowser.selectedTab;
+            gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
+          } else return { error: "Split view is not available." };
+          break;
+        default:
+          openTrustedLinkIn(link, "tab");
+          return {
+            result: `Unknown location "${where}". Opened in a new tab as fallback.`,
+          };
+      }
+      return { result: `Successfully opened ${link} in ${where}.` };
+    } catch (e) {
+      debugError(`Failed to open link "${link}" in "${where}".`, e);
+      return { error: `Failed to open link.` };
+    }
+  }
+
+  async function newSplit(args) {
+    const { links, type = "vertical" } = args;
+    if (!window.gZenViewSplitter) return { error: "Split view function is not available." };
+    if (!links || !Array.isArray(links) || links.length < 2)
+      return { error: "newSplit requires an array of at least two links." };
+
+    try {
+      const tabs = [];
+      for (const link of links) {
+        // openTrustedLinkIn seems to always select the new tab
+        await openTrustedLinkIn(link, "tab");
+        tabs.push(gBrowser.selectedTab);
+      }
+
+      let gridType;
+      const lowerType = type.toLowerCase();
+      if (lowerType === "grid") {
+        gridType = "grid";
+      } else if (lowerType === "horizontal") {
+        gridType = "hsep";
+      } else {
+        // "vertical" or default
+        gridType = "vsep";
+      }
+
+      gZenViewSplitter.splitTabs(tabs, gridType);
+      return {
+        result: `Successfully created split view with ${links.length} tabs.`,
+      };
+    } catch (e) {
+      debugError("Failed to create split view.", e);
+      return { error: "Failed to create split view." };
+    }
+  }
+
+  /**
+   * Retrieves all open tabs across all workspaces.
+   * @returns {Promise<object>} A promise that resolves with an object containing an array of all tabs.
+   */
+  async function getAllTabs() {
+    try {
+      const allTabs = gZenWorkspaces.allStoredTabs.map(mapTabToObject).filter(Boolean);
+      return { tabs: allTabs };
+    } catch (e) {
+      debugError("Failed to get all tabs:", e);
+      return { error: "Failed to retrieve tabs." };
+    }
+  }
+
+  /**
+   * Closes specified tabs.
+   * @param {object} args - The arguments object.
+   * @param {string[]} args.tabIds - An array of session IDs for the tabs to close.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function closeTabs(args) {
+    const { tabIds } = args;
+    if (!tabIds || tabIds.length === 0) return { error: "closeTabs requires an array of tabIds." };
+    try {
+      const tabsToClose = getTabsByIds(tabIds);
+      if (tabsToClose.length === 0) return { error: "No matching tabs found to close." };
+
+      gBrowser.removeTabs(tabsToClose);
+      return { result: `Successfully closed ${tabsToClose.length} tab(s).` };
+    } catch (e) {
+      debugError("Failed to close tabs:", e);
+      return { error: "An error occurred while closing tabs." };
+    }
+  }
+
+  /**
+   * Splits existing tabs into a view.
+   * @param {object} args - The arguments object.
+   * @param {string[]} args.tabIds - An array of session IDs for the tabs to split.
+   * @param {string} [args.type="vertical"] - The split type: 'horizontal', 'vertical', or 'grid'. Defaults to 'vertical'.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function splitExistingTabs(args) {
+    const { tabIds, type = "vertical" } = args;
+    if (!window.gZenViewSplitter) return { error: "Split view function is not available." };
+    if (!tabIds || tabIds.length < 2)
+      return { error: "splitExistingTabs requires at least two tabIds." };
+
+    try {
+      const tabs = getTabsByIds(tabIds);
+      if (tabs.length < 2) return { error: "Could not find at least two tabs to split." };
+
+      let gridType;
+      const lowerType = type.toLowerCase();
+      if (lowerType === "grid") {
+        gridType = "grid";
+      } else if (lowerType === "horizontal") {
+        gridType = "hsep";
+      } else {
+        // "vertical" or default
+        gridType = "vsep";
+      }
+
+      gZenViewSplitter.splitTabs(tabs, gridType);
+      return { result: `Successfully created split view with ${tabs.length} tabs.` };
+    } catch (e) {
+      debugError("Failed to split existing tabs.", e);
+      return { error: "Failed to create split view." };
+    }
+  }
+
+  /**
+   * Searches tabs based on a query.
+   * @param {object} args - The arguments object.
+   * @param {string} args.query - The search term for tabs.
+   * @returns {Promise<object>} A promise that resolves with an object containing an array of tab results or an error.
+   */
+  async function searchTabs(args) {
+    const { query } = args;
+    if (!query) return { error: "searchTabs requires a query." };
+    const lowerCaseQuery = query.toLowerCase();
+
+    try {
+      const allTabs = gZenWorkspaces.allStoredTabs;
+      const results = allTabs
+        .filter((tab) => {
+          const title = tab.label?.toLowerCase() || "";
+          const url = tab.linkedBrowser?.currentURI?.spec?.toLowerCase() || "";
+          return title.includes(lowerCaseQuery) || url.includes(lowerCaseQuery);
+        })
+        .map(mapTabToObject)
+        .filter(Boolean);
+
+      return { tabs: results };
+    } catch (e) {
+      debugError(`Error searching tabs for query "${query}":`, e);
+      return { error: `Failed to search tabs.` };
+    }
+  }
+
+  /**
+   * Adds tabs to a folder (tab group).
+   * @param {object} args - The arguments object.
+   * @param {string[]} args.tabIds - The session IDs of the tabs to add.
+   * @param {string} args.folderId - The ID of the folder to add the tabs to.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function addTabsToFolder(args) {
+    const { tabIds, folderId } = args;
+    if (!tabIds || !folderId) return { error: "addTabsToFolder requires tabIds and a folderId." };
+
+    try {
+      const tabs = getTabsByIds(tabIds);
+      const folder = document.getElementById(folderId);
+
+      if (!folder || !folder.isZenFolder) {
+        return { error: `Folder with ID "${folderId}" not found or is not a valid folder.` };
+      }
+      if (tabs.length === 0) return { error: "No valid tabs found to add to the folder." };
+
+      folder.addTabs(tabs);
+      return { result: `Successfully added ${tabs.length} tab(s) to folder "${folder.label}".` };
+    } catch (e) {
+      debugError("Failed to add tabs to folder:", e);
+      return { error: "Failed to add tabs to folder." };
+    }
+  }
+
+  /**
+   * Removes tabs from their current folder.
+   * @param {object} args - The arguments object.
+   * @param {string[]} args.tabIds - The session IDs of the tabs to remove from their folder.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function removeTabsFromFolder(args) {
+    const { tabIds } = args;
+    if (!tabIds) return { error: "removeTabsFromFolder requires tabIds." };
+
+    try {
+      const tabs = getTabsByIds(tabIds);
+      if (tabs.length === 0) return { error: "No valid tabs found." };
+
+      let ungroupedCount = 0;
+      tabs.forEach((tab) => {
+        if (tab.group) {
+          gBrowser.ungroupTab(tab);
+          ungroupedCount++;
+        }
+      });
+      return { result: `Successfully ungrouped ${ungroupedCount} tab(s).` };
+    } catch (e) {
+      debugError("Failed to remove tabs from folder:", e);
+      return { error: "Failed to remove tabs from folder." };
+    }
+  }
+
+  /**
+   * Creates a new, empty tab folder.
+   * @param {object} args - The arguments object.
+   * @param {string} args.name - The name for the new folder.
+   * @returns {Promise<object>} A promise that resolves with the new folder's information or an error.
+   */
+  async function createTabFolder(args) {
+    const { name } = args;
+    if (!name) return { error: "createTabFolder requires a name." };
+    try {
+      const folder = gZenFolders.createFolder([], { label: name, renameFolder: false });
+      return {
+        result: `Successfully created folder "${folder.label}".`,
+        folder: {
+          id: folder.id,
+          name: folder.label,
+        },
+      };
+    } catch (e) {
+      debugError("Failed to create tab folder:", e);
+      return { error: "Failed to create tab folder." };
+    }
+  }
+
+  /**
+   * Reorders a tab to a new index.
+   * @param {object} args - The arguments object.
+   * @param {string} args.tabId - The session ID of the tab to reorder.
+   * @param {number} args.newIndex - The new index for the tab.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function reorderTab(args) {
+    const { tabId, newIndex } = args;
+    if (!tabId || typeof newIndex !== "number") {
+      return { error: "reorderTab requires a tabId and a newIndex." };
+    }
+    try {
+      const tab = TabIdManager.getTabById(tabId);
+      if (!tab) return { error: `Tab with id ${tabId} not found.` };
+      gBrowser.moveTabTo(tab, { tabIndex: newIndex });
+      return { result: `Successfully moved tab to index ${newIndex}.` };
+    } catch (e) {
+      debugError("Failed to reorder tab:", e);
+      return { error: "Failed to reorder tab." };
+    }
+  }
+
+  /**
+   * Adds one or more tabs to the essentials.
+   * @param {object} args - The arguments object.
+   * @param {string[]} args.tabIds - An array of session IDs for the tabs to add to essentials.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function addTabsToEssentials(args) {
+    const { tabIds } = args;
+    if (!tabIds || tabIds.length === 0)
+      return { error: "addTabsToEssentials requires at least one tabId." };
+    try {
+      const tabs = getTabsByIds(tabIds);
+      if (tabs.length === 0) return { error: "No matching tabs found." };
+      if (window.gZenPinnedTabManager) {
+        gZenPinnedTabManager.addToEssentials(tabs);
+        return { result: `Successfully added ${tabs.length} tab(s) to essentials.` };
+      } else {
+        return { error: "Essentials manager is not available." };
+      }
+    } catch (e) {
+      debugError("Failed to add tabs to essentials:", e);
+      return { error: "An error occurred while adding tabs to essentials." };
+    }
+  }
+
+  /**
+   * Removes one or more tabs from the essentials.
+   * @param {object} args - The arguments object.
+   * @param {string[]} args.tabIds - An array of session IDs for the tabs to remove from essentials.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function removeTabsFromEssentials(args) {
+    const { tabIds } = args;
+    if (!tabIds || tabIds.length === 0)
+      return { error: "removeTabsFromEssentials requires at least one tabId." };
+    try {
+      const tabs = getTabsByIds(tabIds);
+      if (tabs.length === 0) return { error: "No matching tabs found." };
+      if (window.gZenPinnedTabManager) {
+        tabs.forEach((tab) => gZenPinnedTabManager.removeFromEssentials(tab));
+        return { result: `Successfully removed ${tabs.length} tab(s) from essentials.` };
+      } else {
+        return { error: "Essentials manager is not available." };
+      }
+    } catch (e) {
+      debugError("Failed to remove tabs from essentials:", e);
+      return { error: "An error occurred while removing tabs from essentials." };
+    }
+  }
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                        BOOKMARKS                        │
+  // ╰─────────────────────────────────────────────────────────╯
+
+  /**
+   * Searches bookmarks based on a query.
+   * @param {object} args - The arguments object.
+   * @param {string} args.query - The search term for bookmarks.
+   * @returns {Promise<object>} A promise that resolves with an object containing an array of bookmark results or an error.
+   */
+  async function searchBookmarks(args) {
+    const { query } = args;
+    if (!query) return { error: "searchBookmarks requires a query." };
+
+    try {
+      const searchParams = { query };
+      const bookmarks = await PlacesUtils.bookmarks.search(searchParams);
+
+      // Map to a simpler format to save tokens for the AI model
+      const results = bookmarks.map((bookmark) => ({
+        id: bookmark.guid,
+        title: bookmark.title,
+        url: bookmark?.url?.href,
+        parentID: bookmark.parentGuid,
+      }));
+
+      debugLog(`Found ${results.length} bookmarks for query "${query}":`, results);
+      return { bookmarks: results };
+    } catch (e) {
+      debugError(`Error searching bookmarks for query "${query}":`, e);
+      return { error: `Failed to search bookmarks.` };
+    }
+  }
+
+  /**
+   * Reads all bookmarks.
+   * @returns {Promise<object>} A promise that resolves with an object containing an array of all bookmark results or an error.
+   */
+
+  async function getAllBookmarks() {
+    try {
+      const bookmarks = await PlacesUtils.bookmarks.search({});
+
+      const results = bookmarks.map((bookmark) => ({
+        id: bookmark.guid,
+        title: bookmark.title,
+        url: bookmark?.url?.href,
+        parentID: bookmark.parentGuid,
+      }));
+
+      debugLog(`Read ${results.length} total bookmarks.`);
+      return { bookmarks: results };
+    } catch (e) {
+      debugError(`Error reading all bookmarks:`, e);
+      return { error: `Failed to read all bookmarks.` };
+    }
+  }
+
+  /**
+   * Creates a new bookmark.
+   * @param {object} args - The arguments object.
+   * @param {string} args.url - The URL to bookmark.
+   * @param {string} [args.title] - The title for the bookmark. If not provided, the URL is used.
+   * @param {string} [args.parentID] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function createBookmark(args) {
+    const { url, title, parentID } = args;
+    if (!url) return { error: "createBookmark requires a URL." };
+
+    try {
+      const bookmarkInfo = {
+        parentGuid: parentID || PlacesUtils.bookmarks.toolbarGuid,
+        url: new URL(url),
+        title: title || url,
+      };
+
+      const bm = await PlacesUtils.bookmarks.insert(bookmarkInfo);
+
+      debugLog(`Bookmark created successfully:`, JSON.stringify(bm));
+      return { result: `Successfully bookmarked "${bm.title}".` };
+    } catch (e) {
+      debugError(`Error creating bookmark for URL "${url}":`, e);
+      return { error: `Failed to create bookmark.` };
+    }
+  }
+
+  /**
+   * Creates a new bookmark folder.
+   * @param {object} args - The arguments object.
+   * @param {string} args.title - The title for the new folder.
+   * @param {string} [args.parentID] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function addBookmarkFolder(args) {
+    const { title, parentID } = args;
+    if (!title) return { error: "addBookmarkFolder requires a title." };
+
+    try {
+      const folderInfo = {
+        parentGuid: parentID || PlacesUtils.bookmarks.toolbarGuid,
+        type: PlacesUtils.bookmarks.TYPE_FOLDER,
+        title: title,
+      };
+
+      const folder = await PlacesUtils.bookmarks.insert(folderInfo);
+
+      debugLog(`Bookmark folder created successfully:`, JSON.stringify(folderInfo));
+      return { result: `Successfully created folder "${folder.title}".` };
+    } catch (e) {
+      debugError(`Error creating bookmark folder "${title}":`, e);
+      return { error: `Failed to create folder.` };
+    }
+  }
+
+  /**
+   * Updates an existing bookmark.
+   * @param {object} args - The arguments object.
+   * @param {string} args.id - The GUID of the bookmark to update.
+   * @param {string} [args.url] - The new URL for the bookmark.
+   * @param {string} [args.parentID] - parent id
+   *
+   * @param {string} [args.title] - The new title for the bookmark.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function updateBookmark(args) {
+    const { id, url, title, parentID } = args;
+    if (!id) return { error: "updateBookmark requires a bookmark id (guid)." };
+    if (!url && !title && !parentID)
+      return {
+        error: "updateBookmark requires either a new url, title, or parentID.",
+      };
+
+    try {
+      const oldBookmark = await PlacesUtils.bookmarks.fetch(id);
+      if (!oldBookmark) {
+        return { error: `No bookmark found with id "${id}".` };
+      }
+
+      const bm = await PlacesUtils.bookmarks.update({
+        guid: id,
+        url: url ? new URL(url) : oldBookmark.url,
+        title: title || oldBookmark.title,
+        parentGuid: parentID || oldBookmark.parentGuid,
+      });
+
+      debugLog(`Bookmark updated successfully:`, JSON.stringify(bm));
+      return { result: `Successfully updated bookmark to "${bm.title}".` };
+    } catch (e) {
+      debugError(`Error updating bookmark with id "${id}":`, e);
+      return { error: `Failed to update bookmark.` };
+    }
+  }
+
+  /**
+   * Deletes a bookmark.
+   * @param {object} args - The arguments object.
+   * @param {string} args.id - The GUID of the bookmark to delete.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+
+  async function deleteBookmark(args) {
+    const { id } = args;
+    if (!id) return { error: "deleteBookmark requires a bookmark id (guid)." };
+    try {
+      await PlacesUtils.bookmarks.remove(id);
+      debugLog(`Bookmark with id "${id}" deleted successfully.`);
+      return { result: `Successfully deleted bookmark.` };
+    } catch (e) {
+      debugError(`Error deleting bookmark with id "${id}":`, e);
+      return { error: `Failed to delete bookmark.` };
+    }
+  }
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                        WORKSPACES                       │
+  // ╰─────────────────────────────────────────────────────────╯
+  /**
+   * Retrieves all workspaces.
+   * @returns {Promise<object>} A promise that resolves with an object containing an array of all workspaces.
+   */
+  async function getAllWorkspaces() {
+    try {
+      const { workspaces } = await gZenWorkspaces._workspaces();
+      const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
+      const result = workspaces.map((ws) => ({
+        id: ws.uuid,
+        name: ws.name,
+        icon: ws.icon,
+        position: ws.position,
+        isActive: ws.uuid === activeWorkspaceId,
+      }));
+      return { workspaces: result };
+    } catch (e) {
+      debugError("Failed to get all workspaces:", e);
+      return { error: "Failed to retrieve workspaces." };
+    }
+  }
+
+  /**
+   * Creates a new workspace.
+   * @param {object} args - The arguments object.
+   * @param {string} args.name - The name for the new workspace.
+   * @param {string} [args.icon] - The icon (emoji or URL) for the new workspace.
+   * @returns {Promise<object>} A promise that resolves with the new workspace information.
+   */
+  async function createWorkspace(args) {
+    const { name, icon } = args;
+    if (!name) return { error: "createWorkspace requires a name." };
+    try {
+      const ws = await gZenWorkspaces.createAndSaveWorkspace(name, icon, false);
+      return {
+        result: `Successfully created workspace "${name}".`,
+        workspace: { id: ws.uuid, name: ws.name, icon: ws.icon },
+      };
+    } catch (e) {
+      debugError("Failed to create workspace:", e);
+      return { error: "Failed to create workspace." };
+    }
+  }
+
+  /**
+   * Updates an existing workspace.
+   * @param {object} args - The arguments object.
+   * @param {string} args.id - The ID of the workspace to update.
+   * @param {string} [args.name] - The new name for the workspace.
+   * @param {string} [args.icon] - The new icon for the workspace.
+   * @returns {Promise<object>} A promise that resolves with a success message.
+   */
+  async function updateWorkspace(args) {
+    const { id, name, icon } = args;
+    if (!id) return { error: "updateWorkspace requires a workspace id." };
+    if (!name && !icon) return { error: "updateWorkspace requires a new name or icon." };
+    try {
+      const workspace = gZenWorkspaces.getWorkspaceFromId(id);
+      if (!workspace) return { error: `Workspace with id ${id} not found.` };
+      if (name) workspace.name = name;
+      if (icon) workspace.icon = icon;
+      await gZenWorkspaces.saveWorkspace(workspace);
+      return { result: `Successfully updated workspace.` };
+    } catch (e) {
+      debugError("Failed to update workspace:", e);
+      return { error: "Failed to update workspace." };
+    }
+  }
+
+  /**
+   * Deletes a workspace.
+   * @param {object} args - The arguments object.
+   * @param {string} args.id - The ID of the workspace to delete.
+   * @returns {Promise<object>} A promise that resolves with a success message.
+   */
+  async function deleteWorkspace(args) {
+    const { id } = args;
+    if (!id) return { error: "deleteWorkspace requires a workspace id." };
+    try {
+      await gZenWorkspaces.removeWorkspace(id);
+      return { result: "Successfully deleted workspace." };
+    } catch (e) {
+      debugError("Failed to delete workspace:", e);
+      return { error: "Failed to delete workspace." };
+    }
+  }
+
+  /**
+   * Moves tabs to a specified workspace.
+   * @param {object} args - The arguments object.
+   * @param {string[]} args.tabIds - The session IDs of the tabs to move.
+   * @param {string} args.workspaceId - The ID of the target workspace.
+   * @returns {Promise<object>} A promise that resolves with a success message.
+   */
+  async function moveTabsToWorkspace(args) {
+    const { tabIds, workspaceId } = args;
+    if (!tabIds || !workspaceId)
+      return { error: "moveTabsToWorkspace requires tabIds and a workspaceId." };
+    try {
+      const tabs = getTabsByIds(tabIds);
+      if (tabs.length === 0) return { error: "No valid tabs found to move." };
+      gZenWorkspaces.moveTabsToWorkspace(tabs, workspaceId);
+      return { result: `Successfully moved ${tabs.length} tab(s) to workspace.` };
+    } catch (e) {
+      debugError("Failed to move tabs to workspace:", e);
+      return { error: "Failed to move tabs to workspace." };
+    }
+  }
+
+  /**
+   * Reorders a workspace to a new position.
+   * @param {object} args - The arguments object.
+   * @param {string} args.id - The ID of the workspace to reorder.
+   * @param {number} args.newPosition - The new zero-based index for the workspace.
+   * @returns {Promise<object>} A promise that resolves with a success message.
+   */
+  async function reorderWorkspace(args) {
+    const { id, newPosition } = args;
+    if (!id || typeof newPosition !== "number") {
+      return { error: "reorderWorkspace requires a workspace id and a newPosition." };
+    }
+    try {
+      await gZenWorkspaces.reorderWorkspace(id, newPosition);
+      return { result: "Successfully reordered workspace." };
+    } catch (e) {
+      debugError("Failed to reorder workspace:", e);
+      return { error: "Failed to reorder workspace." };
+    }
+  }
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                         ELEMENTS                        │
+  // ╰─────────────────────────────────────────────────────────╯
+
+  /**
+   * Clicks an element on the page.
+   * @param {object} args - The arguments object.
+   * @param {string} args.selector - The CSS selector of the element to click.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function clickElement(args) {
+    const { selector } = args;
+    if (!selector) return { error: "clickElement requires a selector." };
+    return messageManagerAPI.clickElement(selector);
+  }
+
+  /**
+   * Fills a form input on the page.
+   * @param {object} args - The arguments object.
+   * @param {string} args.selector - The CSS selector of the input element to fill.
+   * @param {string} args.value - The value to fill the input with.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function fillForm(args) {
+    const { selector, value } = args;
+    if (!selector) return { error: "fillForm requires a selector." };
+    if (value === undefined) return { error: "fillForm requires a value." };
+    return messageManagerAPI.fillForm(selector, value);
+  }
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                        UI FEEDBACK                      │
+  // ╰─────────────────────────────────────────────────────────╯
+
+  /**
+   * Shows a temporary toast message to the user.
+   * @param {object} args - The arguments object.
+   * @param {string} args.title - The main title of the toast message.
+   * @param {string} [args.description] - Optional secondary text for the toast.
+   * @returns {Promise<object>} A promise that resolves with a success message or an error.
+   */
+  async function showToast(args) {
+    const { title, description } = args;
+    if (!title) return { error: "showToast requires a title." };
+
+    try {
+      if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
+        // ucAPI.showToast takes an array [title, description] and a preset.
+        // Preset 0 means no button will be shown.
+        // https://github.com/CosmoCreeper/Sine/blob/main/engine/utils/uc_api.js#L102
+        window.ucAPI.showToast([title, description], 0);
+        return { result: "Toast displayed successfully." };
+      } else {
+        debugError("ucAPI.showToast is not available.");
+        return { error: "Toast functionality is not available." };
+      }
+    } catch (e) {
+      debugError("Failed to show toast:", e);
+      return { error: "An error occurred while displaying the toast." };
+    }
+  }
+
+  // ╭─────────────────────────────────────────────────────────╮
+  // │                         YOUTUBE                         │
+  // ╰─────────────────────────────────────────────────────────╯
+  /**
+   * Wrapper for messageManagerAPI.getYoutubeComments to handle arguments.
+   * @param {object} args - The arguments object.
+   * @param {number} [args.count] - The number of comments to retrieve.
+   * @returns {Promise<object>} A promise that resolves with the comments.
+   */
+  async function getYoutubeComments(args) {
+    return messageManagerAPI.getYoutubeComments(args.count);
+  }
+
+  const toolNameMapping = {
+    search: "Searching the web",
+    openLink: "Opening a link",
+    newSplit: "Creating a split view",
+    splitExistingTabs: "Splitting existing tabs",
+    getAllTabs: "Reading tabs",
+    searchTabs: "Searching tabs",
+    closeTabs: "Closing tabs",
+    reorderTab: "Reordering a tab",
+    addTabsToFolder: "Adding tabs to a folder",
+    removeTabsFromFolder: "Removing tabs from a folder",
+    createTabFolder: "Creating a tab folder",
+    addTabsToEssentials: "Adding tabs to Essentials",
+    removeTabsFromEssentials: "Removing tabs from Essentials",
+    getPageTextContent: "Reading page content",
+    getHTMLContent: "Reading page source code",
+    clickElement: "Clicking an element",
+    fillForm: "Filling a form",
+    getYoutubeTranscript: "Getting YouTube transcript",
+    getYoutubeDescription: "Getting YouTube description",
+    getYoutubeComments: "Getting YouTube comments",
+    searchBookmarks: "Searching bookmarks",
+    getAllBookmarks: "Reading bookmarks",
+    createBookmark: "Creating a bookmark",
+    addBookmarkFolder: "Creating a bookmark folder",
+    updateBookmark: "Updating a bookmark",
+    deleteBookmark: "Deleting a bookmark",
+    getAllWorkspaces: "Reading workspaces",
+    createWorkspace: "Creating a workspace",
+    updateWorkspace: "Updating a workspace",
+    deleteWorkspace: "Deleting a workspace",
+    moveTabsToWorkspace: "Moving tabs to a workspace",
+    reorderWorkspace: "Reordering a workspace",
+    showToast: "Showing a notification",
+  };
+
+  const tabsInstructions = `If you open tab in glace it will create new small popup window to show the tab, vsplit and hsplit means it will open new tab in vertical and horizontal split with current tab respectively.`;
+  const toolGroups = {
+    search: {
+      moreInstructions: async () => {
+        const searchEngines = await Services.search.getVisibleEngines();
+        const engineNames = searchEngines.map((e) => e.name).join(", ");
+        const defaultEngineName = Services.search.defaultEngine.name;
+        return (
+          `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.` +
+          "\n" +
+          tabsInstructions
+        );
+      },
+      tools: {
+        search: createTool(
+          "Performs a web search using a specified search engine and opens the results.",
+          {
+            searchTerm: createStringParameter("The term to search for."),
+            engineName: createStringParameter("The name of the search engine to use.", true),
+            where: createStringParameter(
+              "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
+              true
+            ),
+          },
+          search
+        ),
+      },
+      example: async () => {
+        return `#### Searching and Spliting: 
+-   **User Prompt:** "search cat in google and dog in youtube open them in vertical split"
+-   **Your first Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "cat", "engineName": "google", where: "new tab"}}}\`
+-   **Your second Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "dog", "engineName": "youtube", where: "vsplit"}}}\`
+Note: Only second search is open in split (vertial by default), this will make it split with first search.
+`;
+      },
+    },
+    navigation: {
+      moreInstructions: tabsInstructions + "While opening tab make sure it has valid URL.",
+      tools: {
+        openLink: createTool(
+          "Opens a given URL in a specified location. Can also create a split view with the current tab.",
+          {
+            link: createStringParameter("The URL to open."),
+            where: createStringParameter(
+              "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
+              true
+            ),
+          },
+          openLink
+        ),
+        newSplit: createTool(
+          "Creates a split view by opening multiple new URLs in new tabs, then arranging them side-by-side.",
+          {
+            links: createStringArrayParameter("An array of URLs for the new tabs."),
+            type: createStringParameter(
+              "The split type: 'vertical', 'horizontal', or 'grid'. Defaults to 'vertical'.",
+              true
+            ),
+          },
+          newSplit
+        ),
+        splitExistingTabs: createTool(
+          "Creates a split view from existing open tabs.",
+          {
+            tabIds: createStringArrayParameter("An array of tab session IDs to split."),
+            type: createStringParameter(
+              "The split type: 'vertical', 'horizontal', or 'grid'. Defaults to 'vertical'.",
+              true
+            ),
+          },
+          splitExistingTabs
+        ),
+      },
+      example: async () => `#### Opening a Single Link:
+-   **User Prompt:** "open github"
+-   **Your Tool Call:** \`{"functionCall": {"name": "openLink", "args": {"link": "https://github.com", "where": "new tab"}}}\`
+
+#### Creating a Split View with New Pages:
+-   **User Prompt:** "show me youtube and twitch side by side"
+-   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"links": ["https://youtube.com", "https://twitch.tv"], "type": "vertical"}}}\`
+
+#### Splitting Existing Tabs:
+-   **User Prompt:** "Make all my open youtube tabs in grid"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
+-   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["x", "y", ...]}, "type": "grid"}}\``,
+    },
+    tabs: {
+      moreInstructions: `Zen browser has advanced tab management features they are:
+- Workspaces: Different workspace can contain different tabs (pinned and unpinned).
+- Essential: Essential tabs are not workspace specific, they are most important tabs and they are always shown dispite of current workspace.
+- Tab groups: Similar tabs can be made in group to organize it in better way.
+- Split tabs: Zen allows to view multiple tabs at same time by splitting.
+`,
+      tools: {
+        getAllTabs: createTool(
+          "Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.",
+          {},
+          getAllTabs
+        ),
+        searchTabs: createTool(
+          "Searches open tabs by title or URL. Similar to `getAllTabs` this will also provide more information about tab.",
+          { query: createStringParameter("The search term for tabs.") },
+          searchTabs
+        ),
+        closeTabs: createTool(
+          "Closes one or more tabs.",
+          { tabIds: createStringArrayParameter("An array of tab session IDs to close.") },
+          closeTabs
+        ),
+        reorderTab: createTool(
+          "Reorders a tab to a new index.",
+          {
+            tabId: createStringParameter("The session ID of the tab to reorder."),
+            newIndex: numberType().describe("The new index for the tab."),
+          },
+          reorderTab
+        ),
+        addTabsToFolder: createTool(
+          "Adds one or more tabs to a folder.",
+          {
+            tabIds: createStringArrayParameter("The session IDs of the tabs to add."),
+            folderId: createStringParameter("The ID of the folder to add the tabs to."),
+          },
+          addTabsToFolder
+        ),
+        removeTabsFromFolder: createTool(
+          "Removes one or more tabs from their folder.",
+          {
+            tabIds: createStringArrayParameter(
+              "The session IDs of the tabs to remove from their folder."
+            ),
+          },
+          removeTabsFromFolder
+        ),
+        createTabFolder: createTool(
+          "Creates a new, empty tab folder.",
+          {
+            name: createStringParameter("The name for the new folder."),
+          },
+          createTabFolder
+        ),
+        addTabsToEssentials: createTool(
+          "Adds one or more tabs to the essentials.",
+          { tabIds: createStringArrayParameter("An array of session IDs to add to essentials.") },
+          addTabsToEssentials
+        ),
+        removeTabsFromEssentials: createTool(
+          "Removes one or more tabs from the essentials.",
+          {
+            tabIds: createStringArrayParameter("An array of session IDs to remove from essentials."),
+          },
+          removeTabsFromEssentials
+        ),
+      },
+      example: async () => `#### Finding and Closing Tabs:
+-   **User Prompt:** "close all youtube tabs"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "searchTabs", "args": {"query": "youtube.com"}}}\`
+-   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["1", "2"]}}}\`
+
+#### Creating a Folder and Adding Tabs:
+-   **User Prompt:** "create a new folder called 'Social Media' and add all my facebook tab to it"
+-   **Your First Tool Call (to get tab ID):** \`{"functionCall": {"name": "searchTabs", "args": {"query": "facebook.com"}}}\`
+-   **Your Second Tool Call (to create folder):** \`{"functionCall": {"name": "createTabFolder", "args": {"name": "Social Media"}}}\`
+-   **Your Third Tool Call (after getting IDs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["3", ...], "folderId": "folder-123"}}}\`
+
+#### Making a Tab Essential:
+-   **User Prompt:** "make my current tab essential"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
+-   **Your Second Tool Call (after finding the current tab ID):** \`{"functionCall": {"name": "addTabsToEssentials", "args": {"tabIds": ["5"]}}}\``,
+    },
+    pageInteraction: {
+      tools: {
+        getPageTextContent: createTool(
+          "Retrieves the text content of the current web page to answer questions. Only use if the initial context is insufficient to answer user's question or fulfill user's command.",
+          {},
+          messageManagerAPI.getPageTextContent.bind(messageManagerAPI)
+        ),
+        getHTMLContent: createTool(
+          "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
+          {},
+          messageManagerAPI.getHTMLContent.bind(messageManagerAPI)
+        ),
+        clickElement: createTool(
+          "Clicks an element on the page.",
+          {
+            selector: createStringParameter("The CSS selector of the element to click."),
+          },
+          clickElement
+        ),
+        fillForm: createTool(
+          "Fills a form input on the page.",
+          {
+            selector: createStringParameter("The CSS selector of the input element to fill."),
+            value: createStringParameter("The value to fill the input with."),
+          },
+          fillForm
+        ),
+      },
+      example: async () => `#### Reading the Current Page for Context
+-   **User Prompt:** "summarize this page for me"
+-   **Your Tool Call:** \`{"functionCall": {"name": "getPageTextContent", "args": {}}}\`
+-   And you summarize the page as per user's requirements.
+
+#### Finding and Clicking a Link on the Current Page
+-   **User Prompt:** "click on the contact link"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
+-   **Your Second Tool Call (after receiving HTML and finding the link):** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#contact-link"}}}\`
+
+#### Filling a form:
+-   **User Prompt:** "Fill the name with John and submit"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "fillForm", "args": {"selector": "#name", "value": "John"}}}\`
+-   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\`
+Note: you must run tool getHTMLContent before clicking button or filling form to make sure element exists.
+`,
+    },
+    youtube: {
+      tools: {
+        getYoutubeTranscript: createTool(
+          "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video.",
+          {},
+          messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
+        ),
+        getYoutubeDescription: createTool(
+          "Retrieves the description of the current YouTube video. Only use if the current page is a YouTube video.",
+          {},
+          messageManagerAPI.getYoutubeDescription.bind(messageManagerAPI)
+        ),
+        getYoutubeComments: createTool(
+          "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video.",
+          {
+            count: numberType()
+              .optional()
+              .describe("The maximum number of comments to retrieve. Defaults to 10."),
+          },
+          getYoutubeComments
+        ),
+      },
+      example: async () => `#### Getting YouTube Video Details:
+-   **User Prompt:** "Summarize this Youtube Video in 5 bullet points"
+-   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeTranscript"}}\`
+-   And you summarize the video as per user's requirements.
+
+#### Reading Youtube Comments:
+-   **User Prompt:** "What are the user's feedback on this video"
+-   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", count: 20}}\`
+-   And Based on comments you tell user about the user's feedback on video.
+`,
+    },
+    bookmarks: {
+      tools: {
+        searchBookmarks: createTool(
+          "Searches bookmarks based on a query.",
+          {
+            query: createStringParameter("The search term for bookmarks."),
+          },
+          searchBookmarks
+        ),
+        getAllBookmarks: createTool("Retrieves all bookmarks.", {}, getAllBookmarks),
+        createBookmark: createTool(
+          "Creates a new bookmark.",
+          {
+            url: createStringParameter("The URL to bookmark."),
+            title: createStringParameter("The title for the bookmark.", true),
+            parentID: createStringParameter("The GUID of the parent folder.", true),
+          },
+          createBookmark
+        ),
+        addBookmarkFolder: createTool(
+          "Creates a new bookmark folder.",
+          {
+            title: createStringParameter("The title for the new folder."),
+            parentID: createStringParameter("The GUID of the parent folder.", true),
+          },
+          addBookmarkFolder
+        ),
+        updateBookmark: createTool(
+          "Updates an existing bookmark.",
+          {
+            id: createStringParameter("The GUID of the bookmark to update."),
+            url: createStringParameter("The new URL for the bookmark.", true),
+            title: createStringParameter("The new title for the bookmark.", true),
+            parentID: createStringParameter("The GUID of the parent folder.", true),
+          },
+          updateBookmark
+        ),
+        deleteBookmark: createTool(
+          "Deletes a bookmark.",
+          {
+            id: createStringParameter("The GUID of the bookmark to delete."),
+          },
+          deleteBookmark
+        ),
+      },
+      example: async () => `#### Finding and Editing a bookmark by folder name:
+-   **User Prompt:** "Move bookmark titled 'Example' to folder 'MyFolder'"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "Example"}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "MyFolder"}}}\`
+-   **Your Third Tool Call (after receiving the bookmark and folder ids):** \`{"functionCall": {"name": "updateBookmark", "args": {"id": "xxxxxxxxxxxx", "parentID": "yyyyyyyyyyyy"}}}\`
+Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.`,
+    },
+    workspaces: {
+      moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
+Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find but don't use text make sure to use emoji.
+`,
+      tools: {
+        getAllWorkspaces: createTool(
+          "Retrieves all workspaces with id, name, icon, position and isActive.",
+          {},
+          getAllWorkspaces
+        ),
+        createWorkspace: createTool(
+          "Creates a new workspace.",
+          {
+            name: createStringParameter("The name for the new workspace."),
+            icon: createStringParameter("The icon (emoji or URL) for the new workspace.", true),
+          },
+          createWorkspace
+        ),
+        updateWorkspace: createTool(
+          "Updates an existing workspace (name and icon).",
+          {
+            id: createStringParameter("The ID of the workspace to update."),
+            name: createStringParameter("The new name for the workspace.", true),
+            icon: createStringParameter("The new icon for the workspace.", true),
+          },
+          updateWorkspace
+        ),
+        deleteWorkspace: createTool(
+          "Deletes a workspace.",
+          { id: createStringParameter("The ID of the workspace to delete.") },
+          deleteWorkspace
+        ),
+        moveTabsToWorkspace: createTool(
+          "Moves tabs to a specified workspace.",
+          {
+            tabIds: createStringArrayParameter("The session IDs of the tabs to move."),
+            workspaceId: createStringParameter("The ID of the target workspace."),
+          },
+          moveTabsToWorkspace
+        ),
+        reorderWorkspace: createTool(
+          "Reorders a workspace to a new position.",
+          {
+            id: createStringParameter("The ID of the workspace to reorder."),
+            newPosition: numberType().describe("The new zero-based index for the workspace."),
+          },
+          reorderWorkspace
+        ),
+      },
+      // example: async () =>
+    },
+    uiFeedback: {
+      tools: {
+        showToast: createTool(
+          "Shows a temporary toast message to the user.",
+          {
+            title: createStringParameter("The main title of the toast message."),
+            description: createStringParameter("Optional secondary text for the toast.", true),
+          },
+          showToast
+        ),
+      },
+      example: async () => `#### Showing a Toast Notification:
+-   **User Prompt:** "let me know when the download is complete"
+-   **Your Tool Call (after a long-running task):** \`{"functionCall": {"name": "showToast", "args": {"title": "Download Complete", "description": "The file has been saved to your downloads folder."}}}\``,
+    },
+    misc: {
+      example: async (activeGroups) => {
+        let example = "";
+        if (activeGroups.has("workspaces") && activeGroups.has("tabs")) {
+          example += `#### Creating and Managing a Workspace:
+-   **User Prompt:** "make a new workspace called 'Research', then move all tabs related to animals in that workspace."
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
+-   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\``;
+        }
+        return example;
+      },
+    },
+  };
+
+  const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
+    const selectedTools = (() => {
+      if (!groups || !Array.isArray(groups) || groups.length === 0) {
+        // get all tools from all groups except 'misc'
+        return Object.entries(toolGroups).reduce((acc, [name, group]) => {
+          if (name !== "misc" && group.tools) {
+            return { ...acc, ...group.tools };
+          }
+          return acc;
+        }, {});
+      }
+      return groups.reduce((acc, groupName) => {
+        if (toolGroups[groupName] && toolGroups[groupName].tools) {
+          return { ...acc, ...toolGroups[groupName].tools };
+        }
+        return acc;
+      }, {});
+    })();
+
+    if (!shouldToolBeCalled && !afterToolCall) {
+      return selectedTools;
+    }
+
+    const wrappedTools = {};
+    for (const toolName in selectedTools) {
+      const originalTool = selectedTools[toolName];
+      const newTool = { ...originalTool };
+
+      const originalExecute = originalTool.execute;
+      newTool.execute = async (args) => {
+        if (shouldToolBeCalled && !(await shouldToolBeCalled(toolName))) {
+          debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
+          return { error: `Tool execution for '${toolName}' was denied by user.` };
+        }
+        const result = await originalExecute(args);
+        if (afterToolCall) afterToolCall(toolName, result);
+        return result;
+      };
+      wrappedTools[toolName] = newTool;
+    }
+
+    return wrappedTools;
+  };
+
+  const getToolSystemPrompt = async (groups, includeExamples = true) => {
+    try {
+      const activeGroupNames =
+        groups && Array.isArray(groups) && groups.length > 0
+          ? groups
+          : Object.keys(toolGroups).filter((g) => g !== "misc");
+      const activeGroups = new Set(activeGroupNames);
+
+      let availableTools = [];
+      let toolExamples = [];
+
+      for (const groupName of activeGroupNames) {
+        const group = toolGroups[groupName];
+        if (group) {
+          if (group.tools) {
+            for (const toolName in group.tools) {
+              const tool = group.tools[toolName];
+              const params = Object.keys(tool.inputSchema.shape).join(", ");
+              availableTools.push(`- \`${toolName}(${params})\`: ${tool.description}`);
+            }
+          }
+          if (group.moreInstructions) {
+            const instructions =
+              typeof group.moreInstructions === "function"
+                ? await group.moreInstructions()
+                : group.moreInstructions;
+            availableTools.push(instructions);
+          }
+          if (includeExamples && group.example) {
+            toolExamples.push(await group.example(activeGroups));
+          }
+        }
+      }
+
+      if (includeExamples && toolGroups.misc && toolGroups.misc.example) {
+        const miscExample = await toolGroups.misc.example(activeGroups);
+        if (miscExample) toolExamples.push(miscExample);
+      }
+
+      let systemPrompt = `
+## Available Tools:
+${availableTools.join("\n")}
+`;
+
+      if (includeExamples && toolExamples.length > 0) {
+        systemPrompt += `
+## Tool Call Examples:
+These are just examples for you on how you can use tools calls, each example gives you some concept, the concept is not specific to single tool.
+
+${toolExamples.join("\n\n")}
+`;
+      }
+
+      return systemPrompt;
+    } catch (error) {
+      debugError("Error in getToolSystemPrompt:", error);
+      return "";
+    }
+  };
+
+  const icons = {
+    loading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
+    success: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+    error: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-error)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    declined: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
+  };
+
   const getSidebarWidth = () => {
     if (
       gZenCompactModeManager &&
@@ -20674,6 +22226,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     _toolConfirmationDialog: null,
     _highlightTimeout: null,
     _originalOnMatchesCountResult: null,
+    _currentAIMessageDiv: null,
 
     _updateFindbarDimensions() {
       if (!this.findbar) {
@@ -20774,7 +22327,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         const dialog = parseElement(`
         <div class="tool-confirmation-dialog">
           <div class="tool-confirmation-content">
-            <p>Allow the following tools to run: ${toolNames?.join(", ")}?</p>
+            <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
             <div class="buttons">
               <button class="not-again">Don't ask again</button>
               <div class="right-side-buttons">
@@ -21014,56 +22567,122 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       return container;
     },
 
+    _removeToolCallUI() {
+      if (!this._currentAIMessageDiv) return;
+      const container = this._currentAIMessageDiv.querySelector(".tool-calls-container");
+      if (container) {
+        container.remove();
+        setTimeout(() => this._updateFindbarDimensions(), 0);
+      }
+    },
+
+    _createOrUpdateToolCallUI(messageDiv, toolName, status, errorMsg = null) {
+      if (!messageDiv) return;
+
+      let container = messageDiv.querySelector(".tool-calls-container");
+      const messageContent = messageDiv.querySelector(".message-content");
+      if (!container) {
+        container = parseElement(`<div class="tool-calls-container"></div>`);
+        if (messageContent) {
+          messageDiv.insertBefore(container, messageContent);
+        } else {
+          messageDiv.appendChild(container);
+        }
+      }
+
+      const friendlyName = toolNameMapping[toolName] || toolName;
+      let toolDiv = container.querySelector(`[data-tool-name="${toolName}"]`);
+      if (!toolDiv) {
+        toolDiv = parseElement(`
+        <div class="tool-call-status" data-tool-name="${toolName}">
+          <span class="tool-call-icon"></span>
+          <span class="tool-call-name">${friendlyName}</span>
+        </div>
+      `);
+        container.appendChild(toolDiv);
+      }
+
+      const iconSpan = toolDiv.querySelector(".tool-call-icon");
+      if (iconSpan) {
+        iconSpan.innerHTML = icons[status] || "";
+      }
+
+      toolDiv.dataset.status = status;
+      let title = friendlyName;
+      if (status === "error" && errorMsg) {
+        title += `\nError: ${errorMsg}`;
+      } else if (status === "declined") {
+        title += `\nDeclined by user.`;
+      }
+      toolDiv.setAttribute("tooltiptext", title);
+
+      setTimeout(() => this._updateFindbarDimensions(), 0);
+    },
+
     async sendMessage(prompt) {
       if (!prompt || this._isStreaming) return;
 
       this.show();
       this.expanded = true;
 
-      // Add user message to the UI immediately
       this.addChatMessage({ role: "user", content: prompt });
       const messagesContainer = this.chatContainer.querySelector("#chat-messages");
 
       this._abortController = new AbortController();
       this._toggleStreamingControls(true);
 
-      let aiMessageDiv;
+      const aiMessageDiv = parseElement(
+        `<div class="chat-message chat-message-ai">
+        <div class="message-content">
+          <div class="markdown-body"></div>
+        </div>
+      </div>`
+      );
+      const contentDiv = aiMessageDiv.querySelector(".markdown-body");
+      if (messagesContainer) {
+        messagesContainer.appendChild(aiMessageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+      this._currentAIMessageDiv = aiMessageDiv;
 
       try {
         const resultPromise = browseBotFindbarLLM.sendMessage(prompt, this._abortController.signal);
 
         if (PREFS.citationsEnabled || !PREFS.streamEnabled) {
           const loadingIndicator = this.createLoadingIndicator();
-          if (messagesContainer) {
-            messagesContainer.appendChild(loadingIndicator);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          }
+          contentDiv.appendChild(loadingIndicator);
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
           try {
             const result = await resultPromise;
+            contentDiv.innerHTML = ""; // Clear loading indicator
+
             if (PREFS.citationsEnabled) {
-              this.addChatMessage({ role: "assistant", content: result });
+              const { answer, citations } = result;
+              if (citations && citations.length > 0) {
+                aiMessageDiv.dataset.citations = JSON.stringify(citations);
+              }
+              const textToParse = answer.replace(
+                /\[(\d+)\]/g,
+                `<span class="citation-link" data-citation-id="$1">[$1]</span>`
+              );
+              contentDiv.appendChild(parseMD(textToParse));
             } else {
-              this.addChatMessage({ role: "assistant", content: result.text });
+              if (result.text.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+                contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
+              } else if (
+                result.text.trim() === "" &&
+                !aiMessageDiv.querySelector(".tool-calls-container")
+              ) {
+                aiMessageDiv.remove();
+              } else {
+                contentDiv.appendChild(parseMD(result.text));
+              }
             }
           } finally {
-            loadingIndicator.remove();
+            if (loadingIndicator.parentNode) loadingIndicator.remove();
           }
         } else {
-          aiMessageDiv = parseElement(
-            `<div class="chat-message chat-message-ai">
-  <div class="message-content">
-    <div class="markdown-body"></div>
-  </div>
-</div>`
-          );
-          const contentDiv = aiMessageDiv.querySelector(".markdown-body");
-
-          if (messagesContainer) {
-            messagesContainer.appendChild(aiMessageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          }
-
           const result = await resultPromise;
           let fullText = "";
           for await (const delta of result.textStream) {
@@ -21078,6 +22697,11 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
               messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
           }
+          if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+            contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
+          } else if (fullText.trim() === "" && !aiMessageDiv.querySelector(".tool-calls-container")) {
+            aiMessageDiv.remove();
+          }
         }
       } catch (e) {
         if (e.name !== "AbortError") {
@@ -21091,6 +22715,8 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       } finally {
         this._toggleStreamingControls(false);
         this._abortController = null;
+        this._removeToolCallUI();
+        this._currentAIMessageDiv = null;
       }
     },
 
@@ -21635,7 +23261,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
       newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
       this.findbar.style.width = `${newWidth}px`;
-      if (PREFS.pseudoBg) this._updateFindbarDimensions();
+      this._updateFindbarDimensions();
     },
 
     stopResize() {
@@ -21888,6 +23514,111 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     },
   };
 
+  // src/errors/ai-sdk-error.ts
+  var marker$6 = "vercel.ai.error";
+  var symbol$6 = Symbol.for(marker$6);
+  var _a$6;
+  var _AISDKError$6 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$6] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$6);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$6 = symbol$6;
+  var AISDKError$6 = _AISDKError$6;
+
+  // src/errors/no-such-model-error.ts
+  var name10$3 = "AI_NoSuchModelError";
+  var marker11$3 = `vercel.ai.error.${name10$3}`;
+  var symbol11$3 = Symbol.for(marker11$3);
+  var _a11$3;
+  var NoSuchModelError$3 = class NoSuchModelError extends AISDKError$6 {
+    constructor({
+      errorName = name10$3,
+      modelId,
+      modelType,
+      message = `No such ${modelType}: ${modelId}`
+    }) {
+      super({ name: errorName, message });
+      this[_a11$3] = true;
+      this.modelId = modelId;
+      this.modelType = modelType;
+    }
+    static isInstance(error) {
+      return AISDKError$6.hasMarker(error, marker11$3);
+    }
+  };
+  _a11$3 = symbol11$3;
+
+  // src/errors/too-many-embedding-values-for-call-error.ts
+  var name11$3 = "AI_TooManyEmbeddingValuesForCallError";
+  var marker12$3 = `vercel.ai.error.${name11$3}`;
+  var symbol12$3 = Symbol.for(marker12$3);
+  var _a12$3;
+  var TooManyEmbeddingValuesForCallError$3 = class TooManyEmbeddingValuesForCallError extends AISDKError$6 {
+    constructor(options) {
+      super({
+        name: name11$3,
+        message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+      });
+      this[_a12$3] = true;
+      this.provider = options.provider;
+      this.modelId = options.modelId;
+      this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
+      this.values = options.values;
+    }
+    static isInstance(error) {
+      return AISDKError$6.hasMarker(error, marker12$3);
+    }
+  };
+  _a12$3 = symbol12$3;
+
+  // src/errors/unsupported-functionality-error.ts
+  var name13$6 = "AI_UnsupportedFunctionalityError";
+  var marker14$6 = `vercel.ai.error.${name13$6}`;
+  var symbol14$6 = Symbol.for(marker14$6);
+  var _a14$6;
+  var UnsupportedFunctionalityError$6 = class UnsupportedFunctionalityError extends AISDKError$6 {
+    constructor({
+      functionality,
+      message = `'${functionality}' functionality not supported.`
+    }) {
+      super({ name: name13$6, message });
+      this[_a14$6] = true;
+      this.functionality = functionality;
+    }
+    static isInstance(error) {
+      return AISDKError$6.hasMarker(error, marker14$6);
+    }
+  };
+  _a14$6 = symbol14$6;
+
   // src/mistral-provider.ts
   function convertToMistralChatMessages(prompt) {
     const messages = [];
@@ -21920,7 +23651,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                       document_url: part.data.toString()
                     };
                   } else {
-                    throw new UnsupportedFunctionalityError$1({
+                    throw new UnsupportedFunctionalityError$6({
                       functionality: "Only images and PDF file parts are supported"
                     });
                   }
@@ -22029,7 +23760,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         return "unknown";
     }
   }
-  var mistralLanguageModelOptions = object$1({
+  var mistralLanguageModelOptions = object({
     /**
     Whether to inject a safety prompt before all conversations.
     
@@ -22058,7 +23789,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
      */
     parallelToolCalls: boolean().optional()
   });
-  var mistralErrorDataSchema = object$1({
+  var mistralErrorDataSchema = object({
     object: literal("error"),
     message: string(),
     type: string(),
@@ -22115,7 +23846,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         };
       default: {
         const _exhaustiveCheck = type;
-        throw new UnsupportedFunctionalityError$1({
+        throw new UnsupportedFunctionalityError$6({
           functionality: `tool choice type: ${_exhaustiveCheck}`
         });
       }
@@ -22484,28 +24215,28 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     string(),
     array(
       discriminatedUnion("type", [
-        object$1({
+        object({
           type: literal("text"),
           text: string()
         }),
-        object$1({
+        object({
           type: literal("image_url"),
           image_url: union([
             string(),
-            object$1({
+            object({
               url: string(),
               detail: string().nullable()
             })
           ])
         }),
-        object$1({
+        object({
           type: literal("reference"),
           reference_ids: array(number$1())
         }),
-        object$1({
+        object({
           type: literal("thinking"),
           thinking: array(
-            object$1({
+            object({
               type: literal("text"),
               text: string()
             })
@@ -22514,24 +24245,24 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       ])
     )
   ]).nullish();
-  var mistralUsageSchema = object$1({
+  var mistralUsageSchema = object({
     prompt_tokens: number$1(),
     completion_tokens: number$1(),
     total_tokens: number$1()
   });
-  var mistralChatResponseSchema = object$1({
+  var mistralChatResponseSchema = object({
     id: string().nullish(),
     created: number$1().nullish(),
     model: string().nullish(),
     choices: array(
-      object$1({
-        message: object$1({
+      object({
+        message: object({
           role: literal("assistant"),
           content: mistralContentSchema,
           tool_calls: array(
-            object$1({
+            object({
               id: string(),
-              function: object$1({ name: string(), arguments: string() })
+              function: object({ name: string(), arguments: string() })
             })
           ).nullish()
         }),
@@ -22542,19 +24273,19 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     object: literal("chat.completion"),
     usage: mistralUsageSchema
   });
-  var mistralChatChunkSchema = object$1({
+  var mistralChatChunkSchema = object({
     id: string().nullish(),
     created: number$1().nullish(),
     model: string().nullish(),
     choices: array(
-      object$1({
-        delta: object$1({
+      object({
+        delta: object({
           role: _enum(["assistant"]).optional(),
           content: mistralContentSchema,
           tool_calls: array(
-            object$1({
+            object({
               id: string(),
-              function: object$1({ name: string(), arguments: string() })
+              function: object({ name: string(), arguments: string() })
             })
           ).nullish()
         }),
@@ -22581,7 +24312,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       headers
     }) {
       if (values.length > this.maxEmbeddingsPerCall) {
-        throw new TooManyEmbeddingValuesForCallError$1({
+        throw new TooManyEmbeddingValuesForCallError$3({
           provider: this.provider,
           modelId: this.modelId,
           maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
@@ -22614,13 +24345,13 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       };
     }
   };
-  var MistralTextEmbeddingResponseSchema = object$1({
-    data: array(object$1({ embedding: array(number$1()) })),
-    usage: object$1({ prompt_tokens: number$1() }).nullish()
+  var MistralTextEmbeddingResponseSchema = object({
+    data: array(object({ embedding: array(number$1()) })),
+    usage: object({ prompt_tokens: number$1() }).nullish()
   });
 
   // src/version.ts
-  var VERSION$5 = "2.0.19" ;
+  var VERSION$5 = "2.0.18" ;
 
   // src/mistral-provider.ts
   function createMistral(options = {}) {
@@ -22664,64 +24395,138 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     provider.textEmbedding = createEmbeddingModel;
     provider.textEmbeddingModel = createEmbeddingModel;
     provider.imageModel = (modelId) => {
-      throw new NoSuchModelError({ modelId, modelType: "imageModel" });
+      throw new NoSuchModelError$3({ modelId, modelType: "imageModel" });
     };
     return provider;
   }
   createMistral();
 
+  // src/errors/ai-sdk-error.ts
+  var marker$5 = "vercel.ai.error";
+  var symbol$5 = Symbol.for(marker$5);
+  var _a$5;
+  var _AISDKError$5 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$5] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$5);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$5 = symbol$5;
+  var AISDKError$5 = _AISDKError$5;
+
+  // src/errors/too-many-embedding-values-for-call-error.ts
+  var name11$2 = "AI_TooManyEmbeddingValuesForCallError";
+  var marker12$2 = `vercel.ai.error.${name11$2}`;
+  var symbol12$2 = Symbol.for(marker12$2);
+  var _a12$2;
+  var TooManyEmbeddingValuesForCallError$2 = class TooManyEmbeddingValuesForCallError extends AISDKError$5 {
+    constructor(options) {
+      super({
+        name: name11$2,
+        message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+      });
+      this[_a12$2] = true;
+      this.provider = options.provider;
+      this.modelId = options.modelId;
+      this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
+      this.values = options.values;
+    }
+    static isInstance(error) {
+      return AISDKError$5.hasMarker(error, marker12$2);
+    }
+  };
+  _a12$2 = symbol12$2;
+
+  // src/errors/unsupported-functionality-error.ts
+  var name13$5 = "AI_UnsupportedFunctionalityError";
+  var marker14$5 = `vercel.ai.error.${name13$5}`;
+  var symbol14$5 = Symbol.for(marker14$5);
+  var _a14$5;
+  var UnsupportedFunctionalityError$5 = class UnsupportedFunctionalityError extends AISDKError$5 {
+    constructor({
+      functionality,
+      message = `'${functionality}' functionality not supported.`
+    }) {
+      super({ name: name13$5, message });
+      this[_a14$5] = true;
+      this.functionality = functionality;
+    }
+    static isInstance(error) {
+      return AISDKError$5.hasMarker(error, marker14$5);
+    }
+  };
+  _a14$5 = symbol14$5;
+
   // src/google-provider.ts
 
   // src/version.ts
-  var VERSION$4 = "2.0.20" ;
-  var googleErrorDataSchema = lazySchema(
-    () => zodSchema(
-      object$1({
-        error: object$1({
-          code: number$1().nullable(),
-          message: string(),
-          status: string()
-        })
-      })
-    )
-  );
+  var VERSION$4 = "2.0.18" ;
+  var googleErrorDataSchema = object({
+    error: object({
+      code: number$1().nullable(),
+      message: string(),
+      status: string()
+    })
+  });
   var googleFailedResponseHandler = createJsonErrorResponseHandler$1({
     errorSchema: googleErrorDataSchema,
     errorToMessage: (data) => data.error.message
   });
-  var googleGenerativeAIEmbeddingProviderOptions = lazySchema(
-    () => zodSchema(
-      object$1({
-        /**
-         * Optional. Optional reduced dimension for the output embedding.
-         * If set, excessive values in the output embedding are truncated from the end.
-         */
-        outputDimensionality: number$1().optional(),
-        /**
-         * Optional. Specifies the task type for generating embeddings.
-         * Supported task types:
-         * - SEMANTIC_SIMILARITY: Optimized for text similarity.
-         * - CLASSIFICATION: Optimized for text classification.
-         * - CLUSTERING: Optimized for clustering texts based on similarity.
-         * - RETRIEVAL_DOCUMENT: Optimized for document retrieval.
-         * - RETRIEVAL_QUERY: Optimized for query-based retrieval.
-         * - QUESTION_ANSWERING: Optimized for answering questions.
-         * - FACT_VERIFICATION: Optimized for verifying factual information.
-         * - CODE_RETRIEVAL_QUERY: Optimized for retrieving code blocks based on natural language queries.
-         */
-        taskType: _enum([
-          "SEMANTIC_SIMILARITY",
-          "CLASSIFICATION",
-          "CLUSTERING",
-          "RETRIEVAL_DOCUMENT",
-          "RETRIEVAL_QUERY",
-          "QUESTION_ANSWERING",
-          "FACT_VERIFICATION",
-          "CODE_RETRIEVAL_QUERY"
-        ]).optional()
-      })
-    )
-  );
+  var googleGenerativeAIEmbeddingProviderOptions = object({
+    /**
+     * Optional. Optional reduced dimension for the output embedding.
+     * If set, excessive values in the output embedding are truncated from the end.
+     */
+    outputDimensionality: number$1().optional(),
+    /**
+     * Optional. Specifies the task type for generating embeddings.
+     * Supported task types:
+     * - SEMANTIC_SIMILARITY: Optimized for text similarity.
+     * - CLASSIFICATION: Optimized for text classification.
+     * - CLUSTERING: Optimized for clustering texts based on similarity.
+     * - RETRIEVAL_DOCUMENT: Optimized for document retrieval.
+     * - RETRIEVAL_QUERY: Optimized for query-based retrieval.
+     * - QUESTION_ANSWERING: Optimized for answering questions.
+     * - FACT_VERIFICATION: Optimized for verifying factual information.
+     * - CODE_RETRIEVAL_QUERY: Optimized for retrieving code blocks based on natural language queries.
+     */
+    taskType: _enum([
+      "SEMANTIC_SIMILARITY",
+      "CLASSIFICATION",
+      "CLUSTERING",
+      "RETRIEVAL_DOCUMENT",
+      "RETRIEVAL_QUERY",
+      "QUESTION_ANSWERING",
+      "FACT_VERIFICATION",
+      "CODE_RETRIEVAL_QUERY"
+    ]).optional()
+  });
 
   // src/google-generative-ai-embedding-model.ts
   var GoogleGenerativeAIEmbeddingModel = class {
@@ -22747,7 +24552,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         schema: googleGenerativeAIEmbeddingProviderOptions
       });
       if (values.length > this.maxEmbeddingsPerCall) {
-        throw new TooManyEmbeddingValuesForCallError$1({
+        throw new TooManyEmbeddingValuesForCallError$2({
           provider: this.provider,
           modelId: this.modelId,
           maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
@@ -22816,20 +24621,12 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       };
     }
   };
-  var googleGenerativeAITextEmbeddingResponseSchema = lazySchema(
-    () => zodSchema(
-      object$1({
-        embeddings: array(object$1({ values: array(number$1()) }))
-      })
-    )
-  );
-  var googleGenerativeAISingleEmbeddingResponseSchema = lazySchema(
-    () => zodSchema(
-      object$1({
-        embedding: object$1({ values: array(number$1()) })
-      })
-    )
-  );
+  var googleGenerativeAITextEmbeddingResponseSchema = object({
+    embeddings: array(object({ values: array(number$1()) }))
+  });
+  var googleGenerativeAISingleEmbeddingResponseSchema = object({
+    embedding: object({ values: array(number$1()) })
+  });
 
   // src/convert-json-schema-to-openapi-schema.ts
   function convertJSONSchemaToOpenAPISchema(jsonSchema) {
@@ -22934,7 +24731,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       switch (role) {
         case "system": {
           if (!systemMessagesAllowed) {
-            throw new UnsupportedFunctionalityError$1({
+            throw new UnsupportedFunctionalityError$5({
               functionality: "system messages are only supported at the beginning of the conversation"
             });
           }
@@ -22994,12 +24791,12 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                 }
                 case "file": {
                   if (part.mediaType !== "image/png") {
-                    throw new UnsupportedFunctionalityError$1({
+                    throw new UnsupportedFunctionalityError$5({
                       functionality: "Only PNG images are supported in assistant messages"
                     });
                   }
                   if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError$1({
+                    throw new UnsupportedFunctionalityError$5({
                       functionality: "File data URLs in assistant messages are not supported"
                     });
                   }
@@ -23095,52 +24892,40 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   function getModelPath(modelId) {
     return modelId.includes("/") ? modelId : `models/${modelId}`;
   }
-  var googleGenerativeAIProviderOptions = lazySchema(
-    () => zodSchema(
-      object$1({
-        responseModalities: array(_enum(["TEXT", "IMAGE"])).optional(),
-        thinkingConfig: object$1({
-          thinkingBudget: number$1().optional(),
-          includeThoughts: boolean().optional()
-        }).optional(),
-        /**
-         * Optional.
-         * The name of the cached content used as context to serve the prediction.
-         * Format: cachedContents/{cachedContent}
-         */
-        cachedContent: string().optional(),
-        /**
-         * Optional. Enable structured output. Default is true.
-         *
-         * This is useful when the JSON Schema contains elements that are
-         * not supported by the OpenAPI schema version that
-         * Google Generative AI uses. You can use this to disable
-         * structured outputs if you need to.
-         */
-        structuredOutputs: boolean().optional(),
-        /**
-         * Optional. A list of unique safety settings for blocking unsafe content.
-         */
-        safetySettings: array(
-          object$1({
-            category: _enum([
-              "HARM_CATEGORY_UNSPECIFIED",
-              "HARM_CATEGORY_HATE_SPEECH",
-              "HARM_CATEGORY_DANGEROUS_CONTENT",
-              "HARM_CATEGORY_HARASSMENT",
-              "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-              "HARM_CATEGORY_CIVIC_INTEGRITY"
-            ]),
-            threshold: _enum([
-              "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
-              "BLOCK_LOW_AND_ABOVE",
-              "BLOCK_MEDIUM_AND_ABOVE",
-              "BLOCK_ONLY_HIGH",
-              "BLOCK_NONE",
-              "OFF"
-            ])
-          })
-        ).optional(),
+  var googleGenerativeAIProviderOptions = object({
+    responseModalities: array(_enum(["TEXT", "IMAGE"])).optional(),
+    thinkingConfig: object({
+      thinkingBudget: number$1().optional(),
+      includeThoughts: boolean().optional()
+    }).optional(),
+    /**
+    Optional.
+    The name of the cached content used as context to serve the prediction.
+    Format: cachedContents/{cachedContent}
+       */
+    cachedContent: string().optional(),
+    /**
+     * Optional. Enable structured output. Default is true.
+     *
+     * This is useful when the JSON Schema contains elements that are
+     * not supported by the OpenAPI schema version that
+     * Google Generative AI uses. You can use this to disable
+     * structured outputs if you need to.
+     */
+    structuredOutputs: boolean().optional(),
+    /**
+    Optional. A list of unique safety settings for blocking unsafe content.
+     */
+    safetySettings: array(
+      object({
+        category: _enum([
+          "HARM_CATEGORY_UNSPECIFIED",
+          "HARM_CATEGORY_HATE_SPEECH",
+          "HARM_CATEGORY_DANGEROUS_CONTENT",
+          "HARM_CATEGORY_HARASSMENT",
+          "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+          "HARM_CATEGORY_CIVIC_INTEGRITY"
+        ]),
         threshold: _enum([
           "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
           "BLOCK_LOW_AND_ABOVE",
@@ -23148,33 +24933,30 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
           "BLOCK_ONLY_HIGH",
           "BLOCK_NONE",
           "OFF"
-        ]).optional(),
-        /**
-         * Optional. Enables timestamp understanding for audio-only files.
-         *
-         * https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/audio-understanding
-         */
-        audioTimestamp: boolean().optional(),
-        /**
-         * Optional. Defines labels used in billing reports. Available on Vertex AI only.
-         *
-         * https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/add-labels-to-api-calls
-         */
-        labels: record(string(), string()).optional(),
-        /**
-         * Optional. If specified, the media resolution specified will be used.
-         *
-         * https://ai.google.dev/api/generate-content#MediaResolution
-         */
-        mediaResolution: _enum([
-          "MEDIA_RESOLUTION_UNSPECIFIED",
-          "MEDIA_RESOLUTION_LOW",
-          "MEDIA_RESOLUTION_MEDIUM",
-          "MEDIA_RESOLUTION_HIGH"
-        ]).optional()
+        ])
       })
-    )
-  );
+    ).optional(),
+    threshold: _enum([
+      "HARM_BLOCK_THRESHOLD_UNSPECIFIED",
+      "BLOCK_LOW_AND_ABOVE",
+      "BLOCK_MEDIUM_AND_ABOVE",
+      "BLOCK_ONLY_HIGH",
+      "BLOCK_NONE",
+      "OFF"
+    ]).optional(),
+    /**
+     * Optional. Enables timestamp understanding for audio-only files.
+     *
+     * https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/audio-understanding
+     */
+    audioTimestamp: boolean().optional(),
+    /**
+     * Optional. Defines labels used in billing reports. Available on Vertex AI only.
+     *
+     * https://cloud.google.com/vertex-ai/generative-ai/docs/multimodal/add-labels-to-api-calls
+     */
+    labels: record(string(), string()).optional()
+  });
   function prepareTools$3({
     tools,
     toolChoice,
@@ -23308,7 +25090,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         };
       default: {
         const _exhaustiveCheck = type;
-        throw new UnsupportedFunctionalityError$1({
+        throw new UnsupportedFunctionalityError$5({
           functionality: `tool choice type: ${_exhaustiveCheck}`
         });
       }
@@ -23341,6 +25123,56 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         return "unknown";
     }
   }
+  var groundingChunkSchema = object({
+    web: object({ uri: string(), title: string() }).nullish(),
+    retrievedContext: object({ uri: string(), title: string() }).nullish()
+  });
+  var groundingMetadataSchema = object({
+    webSearchQueries: array(string()).nullish(),
+    retrievalQueries: array(string()).nullish(),
+    searchEntryPoint: object({ renderedContent: string() }).nullish(),
+    groundingChunks: array(groundingChunkSchema).nullish(),
+    groundingSupports: array(
+      object({
+        segment: object({
+          startIndex: number$1().nullish(),
+          endIndex: number$1().nullish(),
+          text: string().nullish()
+        }),
+        segment_text: string().nullish(),
+        groundingChunkIndices: array(number$1()).nullish(),
+        supportChunkIndices: array(number$1()).nullish(),
+        confidenceScores: array(number$1()).nullish(),
+        confidenceScore: array(number$1()).nullish()
+      })
+    ).nullish(),
+    retrievalMetadata: union([
+      object({
+        webDynamicRetrievalScore: number$1()
+      }),
+      object({})
+    ]).nullish()
+  });
+  var googleSearch = createProviderDefinedToolFactory({
+    id: "google.google_search",
+    name: "google_search",
+    inputSchema: object({
+      mode: _enum(["MODE_DYNAMIC", "MODE_UNSPECIFIED"]).default("MODE_UNSPECIFIED"),
+      dynamicThreshold: number$1().default(1)
+    })
+  });
+  var urlMetadataSchema = object({
+    retrievedUrl: string(),
+    urlRetrievalStatus: string()
+  });
+  var urlContextMetadataSchema = object({
+    urlMetadata: array(urlMetadataSchema)
+  });
+  var urlContext = createProviderDefinedToolFactory({
+    id: "google.url_context",
+    name: "url_context",
+    inputSchema: object({})
+  });
 
   // src/google-generative-ai-language-model.ts
   var GoogleGenerativeAILanguageModel = class {
@@ -23834,60 +25666,29 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       title: chunk.web.title
     }));
   }
-  var getGroundingMetadataSchema = () => object$1({
-    webSearchQueries: array(string()).nullish(),
-    retrievalQueries: array(string()).nullish(),
-    searchEntryPoint: object$1({ renderedContent: string() }).nullish(),
-    groundingChunks: array(
-      object$1({
-        web: object$1({ uri: string(), title: string() }).nullish(),
-        retrievedContext: object$1({ uri: string(), title: string() }).nullish()
-      })
-    ).nullish(),
-    groundingSupports: array(
-      object$1({
-        segment: object$1({
-          startIndex: number$1().nullish(),
-          endIndex: number$1().nullish(),
-          text: string().nullish()
-        }),
-        segment_text: string().nullish(),
-        groundingChunkIndices: array(number$1()).nullish(),
-        supportChunkIndices: array(number$1()).nullish(),
-        confidenceScores: array(number$1()).nullish(),
-        confidenceScore: array(number$1()).nullish()
-      })
-    ).nullish(),
-    retrievalMetadata: union([
-      object$1({
-        webDynamicRetrievalScore: number$1()
-      }),
-      object$1({})
-    ]).nullish()
-  });
-  var getContentSchema = () => object$1({
+  var contentSchema = object({
     parts: array(
       union([
         // note: order matters since text can be fully empty
-        object$1({
-          functionCall: object$1({
+        object({
+          functionCall: object({
             name: string(),
             args: unknown()
           }),
           thoughtSignature: string().nullish()
         }),
-        object$1({
-          inlineData: object$1({
+        object({
+          inlineData: object({
             mimeType: string(),
             data: string()
           })
         }),
-        object$1({
-          executableCode: object$1({
+        object({
+          executableCode: object({
             language: string(),
             code: string()
           }).nullish(),
-          codeExecutionResult: object$1({
+          codeExecutionResult: object({
             outcome: string(),
             output: string()
           }).nullish(),
@@ -23898,7 +25699,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       ])
     ).nullish()
   });
-  var getSafetyRatingSchema = () => object$1({
+  var safetyRatingSchema = object({
     category: string().nullish(),
     probability: string().nullish(),
     probabilityScore: number$1().nullish(),
@@ -23906,89 +25707,56 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     severityScore: number$1().nullish(),
     blocked: boolean().nullish()
   });
-  var usageSchema$1 = object$1({
+  var usageSchema$1 = object({
     cachedContentTokenCount: number$1().nullish(),
     thoughtsTokenCount: number$1().nullish(),
     promptTokenCount: number$1().nullish(),
     candidatesTokenCount: number$1().nullish(),
     totalTokenCount: number$1().nullish()
   });
-  var getUrlContextMetadataSchema = () => object$1({
-    urlMetadata: array(
-      object$1({
-        retrievedUrl: string(),
-        urlRetrievalStatus: string()
+  var responseSchema = object({
+    candidates: array(
+      object({
+        content: contentSchema.nullish().or(object({}).strict()),
+        finishReason: string().nullish(),
+        safetyRatings: array(safetyRatingSchema).nullish(),
+        groundingMetadata: groundingMetadataSchema.nullish(),
+        urlContextMetadata: urlContextMetadataSchema.nullish()
       })
-    )
+    ),
+    usageMetadata: usageSchema$1.nullish(),
+    promptFeedback: object({
+      blockReason: string().nullish(),
+      safetyRatings: array(safetyRatingSchema).nullish()
+    }).nullish()
   });
-  var responseSchema = lazySchema(
-    () => zodSchema(
-      object$1({
-        candidates: array(
-          object$1({
-            content: getContentSchema().nullish().or(object$1({}).strict()),
-            finishReason: string().nullish(),
-            safetyRatings: array(getSafetyRatingSchema()).nullish(),
-            groundingMetadata: getGroundingMetadataSchema().nullish(),
-            urlContextMetadata: getUrlContextMetadataSchema().nullish()
-          })
-        ),
-        usageMetadata: usageSchema$1.nullish(),
-        promptFeedback: object$1({
-          blockReason: string().nullish(),
-          safetyRatings: array(getSafetyRatingSchema()).nullish()
-        }).nullish()
+  var chunkSchema = object({
+    candidates: array(
+      object({
+        content: contentSchema.nullish(),
+        finishReason: string().nullish(),
+        safetyRatings: array(safetyRatingSchema).nullish(),
+        groundingMetadata: groundingMetadataSchema.nullish(),
+        urlContextMetadata: urlContextMetadataSchema.nullish()
       })
-    )
-  );
-  var chunkSchema = lazySchema(
-    () => zodSchema(
-      object$1({
-        candidates: array(
-          object$1({
-            content: getContentSchema().nullish(),
-            finishReason: string().nullish(),
-            safetyRatings: array(getSafetyRatingSchema()).nullish(),
-            groundingMetadata: getGroundingMetadataSchema().nullish(),
-            urlContextMetadata: getUrlContextMetadataSchema().nullish()
-          })
-        ).nullish(),
-        usageMetadata: usageSchema$1.nullish(),
-        promptFeedback: object$1({
-          blockReason: string().nullish(),
-          safetyRatings: array(getSafetyRatingSchema()).nullish()
-        }).nullish()
-      })
-    )
-  );
+    ).nullish(),
+    usageMetadata: usageSchema$1.nullish(),
+    promptFeedback: object({
+      blockReason: string().nullish(),
+      safetyRatings: array(safetyRatingSchema).nullish()
+    }).nullish()
+  });
   var codeExecution = createProviderDefinedToolFactoryWithOutputSchema({
     id: "google.code_execution",
     name: "code_execution",
-    inputSchema: object$1({
+    inputSchema: object({
       language: string().describe("The programming language of the code."),
       code: string().describe("The code to be executed.")
     }),
-    outputSchema: object$1({
+    outputSchema: object({
       outcome: string().describe('The outcome of the execution (e.g., "OUTCOME_OK").'),
       output: string().describe("The output from the code execution.")
     })
-  });
-  var googleSearch = createProviderDefinedToolFactory({
-    id: "google.google_search",
-    name: "google_search",
-    inputSchema: lazySchema(
-      () => zodSchema(
-        object$1({
-          mode: _enum(["MODE_DYNAMIC", "MODE_UNSPECIFIED"]).default("MODE_UNSPECIFIED"),
-          dynamicThreshold: number$1().default(1)
-        })
-      )
-    )
-  });
-  var urlContext = createProviderDefinedToolFactory({
-    id: "google.url_context",
-    name: "url_context",
-    inputSchema: lazySchema(() => zodSchema(object$1({})))
   });
 
   // src/google-tools.ts
@@ -24106,21 +25874,13 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
       };
     }
   };
-  var googleImageResponseSchema = lazySchema(
-    () => zodSchema(
-      object$1({
-        predictions: array(object$1({ bytesBase64Encoded: string() })).default([])
-      })
-    )
-  );
-  var googleImageProviderOptionsSchema = lazySchema(
-    () => zodSchema(
-      object$1({
-        personGeneration: _enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
-        aspectRatio: _enum(["1:1", "3:4", "4:3", "9:16", "16:9"]).nullish()
-      })
-    )
-  );
+  var googleImageResponseSchema = object({
+    predictions: array(object({ bytesBase64Encoded: string() })).default([])
+  });
+  var googleImageProviderOptionsSchema = object({
+    personGeneration: _enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
+    aspectRatio: _enum(["1:1", "3:4", "4:3", "9:16", "16:9"]).nullish()
+  });
 
   // src/google-provider.ts
   function createGoogleGenerativeAI(options = {}) {
@@ -24192,9 +25952,169 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   }
   createGoogleGenerativeAI();
 
+  // src/errors/ai-sdk-error.ts
+  var marker$4 = "vercel.ai.error";
+  var symbol$4 = Symbol.for(marker$4);
+  var _a$4;
+  var _AISDKError$4 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$4] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$4);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$4 = symbol$4;
+  var AISDKError$4 = _AISDKError$4;
+
+  // src/errors/api-call-error.ts
+  var name$1 = "AI_APICallError";
+  var marker2$1 = `vercel.ai.error.${name$1}`;
+  var symbol2$1 = Symbol.for(marker2$1);
+  var _a2$1;
+  var APICallError$1 = class APICallError extends AISDKError$4 {
+    constructor({
+      message,
+      url,
+      requestBodyValues,
+      statusCode,
+      responseHeaders,
+      responseBody,
+      cause,
+      isRetryable = statusCode != null && (statusCode === 408 || // request timeout
+      statusCode === 409 || // conflict
+      statusCode === 429 || // too many requests
+      statusCode >= 500),
+      // server error
+      data
+    }) {
+      super({ name: name$1, message, cause });
+      this[_a2$1] = true;
+      this.url = url;
+      this.requestBodyValues = requestBodyValues;
+      this.statusCode = statusCode;
+      this.responseHeaders = responseHeaders;
+      this.responseBody = responseBody;
+      this.isRetryable = isRetryable;
+      this.data = data;
+    }
+    static isInstance(error) {
+      return AISDKError$4.hasMarker(error, marker2$1);
+    }
+  };
+  _a2$1 = symbol2$1;
+
+  // src/errors/invalid-prompt-error.ts
+  var name4 = "AI_InvalidPromptError";
+  var marker5 = `vercel.ai.error.${name4}`;
+  var symbol5 = Symbol.for(marker5);
+  var _a5;
+  var InvalidPromptError = class extends AISDKError$4 {
+    constructor({
+      prompt,
+      message,
+      cause
+    }) {
+      super({ name: name4, message: `Invalid prompt: ${message}`, cause });
+      this[_a5] = true;
+      this.prompt = prompt;
+    }
+    static isInstance(error) {
+      return AISDKError$4.hasMarker(error, marker5);
+    }
+  };
+  _a5 = symbol5;
+
+  // src/errors/invalid-response-data-error.ts
+  var name5 = "AI_InvalidResponseDataError";
+  var marker6 = `vercel.ai.error.${name5}`;
+  var symbol6 = Symbol.for(marker6);
+  var _a6;
+  var InvalidResponseDataError = class extends AISDKError$4 {
+    constructor({
+      data,
+      message = `Invalid response data: ${JSON.stringify(data)}.`
+    }) {
+      super({ name: name5, message });
+      this[_a6] = true;
+      this.data = data;
+    }
+    static isInstance(error) {
+      return AISDKError$4.hasMarker(error, marker6);
+    }
+  };
+  _a6 = symbol6;
+
+  // src/errors/too-many-embedding-values-for-call-error.ts
+  var name11$1 = "AI_TooManyEmbeddingValuesForCallError";
+  var marker12$1 = `vercel.ai.error.${name11$1}`;
+  var symbol12$1 = Symbol.for(marker12$1);
+  var _a12$1;
+  var TooManyEmbeddingValuesForCallError$1 = class TooManyEmbeddingValuesForCallError extends AISDKError$4 {
+    constructor(options) {
+      super({
+        name: name11$1,
+        message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+      });
+      this[_a12$1] = true;
+      this.provider = options.provider;
+      this.modelId = options.modelId;
+      this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
+      this.values = options.values;
+    }
+    static isInstance(error) {
+      return AISDKError$4.hasMarker(error, marker12$1);
+    }
+  };
+  _a12$1 = symbol12$1;
+
+  // src/errors/unsupported-functionality-error.ts
+  var name13$4 = "AI_UnsupportedFunctionalityError";
+  var marker14$4 = `vercel.ai.error.${name13$4}`;
+  var symbol14$4 = Symbol.for(marker14$4);
+  var _a14$4;
+  var UnsupportedFunctionalityError$4 = class UnsupportedFunctionalityError extends AISDKError$4 {
+    constructor({
+      functionality,
+      message = `'${functionality}' functionality not supported.`
+    }) {
+      super({ name: name13$4, message });
+      this[_a14$4] = true;
+      this.functionality = functionality;
+    }
+    static isInstance(error) {
+      return AISDKError$4.hasMarker(error, marker14$4);
+    }
+  };
+  _a14$4 = symbol14$4;
+
   // src/openai-provider.ts
-  var openaiErrorDataSchema = object$1({
-    error: object$1({
+  var openaiErrorDataSchema = object({
+    error: object({
       message: string(),
       // The additional information below is handled loosely to support
       // OpenAI-compatible providers that have slightly different error
@@ -24268,7 +26188,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                     };
                   } else if (part.mediaType.startsWith("audio/")) {
                     if (part.data instanceof URL) {
-                      throw new UnsupportedFunctionalityError$1({
+                      throw new UnsupportedFunctionalityError$4({
                         functionality: "audio file parts with URLs"
                       });
                     }
@@ -24293,14 +26213,14 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                         };
                       }
                       default: {
-                        throw new UnsupportedFunctionalityError$1({
+                        throw new UnsupportedFunctionalityError$4({
                           functionality: `audio content parts with media type ${part.mediaType}`
                         });
                       }
                     }
                   } else if (part.mediaType === "application/pdf") {
                     if (part.data instanceof URL) {
-                      throw new UnsupportedFunctionalityError$1({
+                      throw new UnsupportedFunctionalityError$4({
                         functionality: "PDF file parts with URLs"
                       });
                     }
@@ -24312,7 +26232,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                       }
                     };
                   } else {
-                    throw new UnsupportedFunctionalityError$1({
+                    throw new UnsupportedFunctionalityError$4({
                       functionality: `file part media type ${part.mediaType}`
                     });
                   }
@@ -24414,27 +26334,27 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   }
   var openaiChatResponseSchema = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         id: string().nullish(),
         created: number$1().nullish(),
         model: string().nullish(),
         choices: array(
-          object$1({
-            message: object$1({
+          object({
+            message: object({
               role: literal("assistant").nullish(),
               content: string().nullish(),
               tool_calls: array(
-                object$1({
+                object({
                   id: string().nullish(),
                   type: literal("function"),
-                  function: object$1({
+                  function: object({
                     name: string(),
                     arguments: string()
                   })
                 })
               ).nullish(),
               annotations: array(
-                object$1({
+                object({
                   type: literal("url_citation"),
                   start_index: number$1(),
                   end_index: number$1(),
@@ -24444,13 +26364,13 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
               ).nullish()
             }),
             index: number$1(),
-            logprobs: object$1({
+            logprobs: object({
               content: array(
-                object$1({
+                object({
                   token: string(),
                   logprob: number$1(),
                   top_logprobs: array(
-                    object$1({
+                    object({
                       token: string(),
                       logprob: number$1()
                     })
@@ -24461,14 +26381,14 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
             finish_reason: string().nullish()
           })
         ),
-        usage: object$1({
+        usage: object({
           prompt_tokens: number$1().nullish(),
           completion_tokens: number$1().nullish(),
           total_tokens: number$1().nullish(),
-          prompt_tokens_details: object$1({
+          prompt_tokens_details: object({
             cached_tokens: number$1().nullish()
           }).nullish(),
-          completion_tokens_details: object$1({
+          completion_tokens_details: object({
             reasoning_tokens: number$1().nullish(),
             accepted_prediction_tokens: number$1().nullish(),
             rejected_prediction_tokens: number$1().nullish()
@@ -24480,28 +26400,28 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   var openaiChatChunkSchema = lazyValidator(
     () => zodSchema(
       union([
-        object$1({
+        object({
           id: string().nullish(),
           created: number$1().nullish(),
           model: string().nullish(),
           choices: array(
-            object$1({
-              delta: object$1({
+            object({
+              delta: object({
                 role: _enum(["assistant"]).nullish(),
                 content: string().nullish(),
                 tool_calls: array(
-                  object$1({
+                  object({
                     index: number$1(),
                     id: string().nullish(),
                     type: literal("function").nullish(),
-                    function: object$1({
+                    function: object({
                       name: string().nullish(),
                       arguments: string().nullish()
                     })
                   })
                 ).nullish(),
                 annotations: array(
-                  object$1({
+                  object({
                     type: literal("url_citation"),
                     start_index: number$1(),
                     end_index: number$1(),
@@ -24510,13 +26430,13 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
                   })
                 ).nullish()
               }).nullish(),
-              logprobs: object$1({
+              logprobs: object({
                 content: array(
-                  object$1({
+                  object({
                     token: string(),
                     logprob: number$1(),
                     top_logprobs: array(
-                      object$1({
+                      object({
                         token: string(),
                         logprob: number$1()
                       })
@@ -24528,14 +26448,14 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
               index: number$1()
             })
           ),
-          usage: object$1({
+          usage: object({
             prompt_tokens: number$1().nullish(),
             completion_tokens: number$1().nullish(),
             total_tokens: number$1().nullish(),
-            prompt_tokens_details: object$1({
+            prompt_tokens_details: object({
               cached_tokens: number$1().nullish()
             }).nullish(),
-            completion_tokens_details: object$1({
+            completion_tokens_details: object({
               reasoning_tokens: number$1().nullish(),
               accepted_prediction_tokens: number$1().nullish(),
               rejected_prediction_tokens: number$1().nullish()
@@ -24548,7 +26468,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   );
   var openaiChatLanguageModelOptions = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         /**
          * Modify the likelihood of specified tokens appearing in the completion.
          *
@@ -24691,7 +26611,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         };
       default: {
         const _exhaustiveCheck = type;
-        throw new UnsupportedFunctionalityError$1({
+        throw new UnsupportedFunctionalityError$4({
           functionality: `tool choice type: ${_exhaustiveCheck}`
         });
       }
@@ -25280,7 +27200,7 @@ ${userMessage}
                 return part.text;
               }
               case "tool-call": {
-                throw new UnsupportedFunctionalityError$1({
+                throw new UnsupportedFunctionalityError$4({
                   functionality: "tool-call messages"
                 });
               }
@@ -25293,7 +27213,7 @@ ${assistantMessage}
           break;
         }
         case "tool": {
-          throw new UnsupportedFunctionalityError$1({
+          throw new UnsupportedFunctionalityError$4({
             functionality: "tool messages"
           });
         }
@@ -25343,22 +27263,22 @@ ${user}:`]
   }
   var openaiCompletionResponseSchema = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         id: string().nullish(),
         created: number$1().nullish(),
         model: string().nullish(),
         choices: array(
-          object$1({
+          object({
             text: string(),
             finish_reason: string(),
-            logprobs: object$1({
+            logprobs: object({
               tokens: array(string()),
               token_logprobs: array(number$1()),
               top_logprobs: array(record(string(), number$1())).nullish()
             }).nullish()
           })
         ),
-        usage: object$1({
+        usage: object({
           prompt_tokens: number$1(),
           completion_tokens: number$1(),
           total_tokens: number$1()
@@ -25369,23 +27289,23 @@ ${user}:`]
   var openaiCompletionChunkSchema = lazyValidator(
     () => zodSchema(
       union([
-        object$1({
+        object({
           id: string().nullish(),
           created: number$1().nullish(),
           model: string().nullish(),
           choices: array(
-            object$1({
+            object({
               text: string(),
               finish_reason: string().nullish(),
               index: number$1(),
-              logprobs: object$1({
+              logprobs: object({
                 tokens: array(string()),
                 token_logprobs: array(number$1()),
                 top_logprobs: array(record(string(), number$1())).nullish()
               }).nullish()
             })
           ),
-          usage: object$1({
+          usage: object({
             prompt_tokens: number$1(),
             completion_tokens: number$1(),
             total_tokens: number$1()
@@ -25397,7 +27317,7 @@ ${user}:`]
   );
   var openaiCompletionProviderOptions = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         /**
         Echo back the prompt in addition to the completion.
            */
@@ -25671,7 +27591,7 @@ ${user}:`]
   };
   var openaiEmbeddingProviderOptions = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         /**
         The number of dimensions the resulting output embeddings should have.
         Only supported in text-embedding-3 and later models.
@@ -25687,9 +27607,9 @@ ${user}:`]
   );
   var openaiTextEmbeddingResponseSchema = lazyValidator(
     () => zodSchema(
-      object$1({
-        data: array(object$1({ embedding: array(number$1()) })),
-        usage: object$1({ prompt_tokens: number$1() }).nullish()
+      object({
+        data: array(object({ embedding: array(number$1()) })),
+        usage: object({ prompt_tokens: number$1() }).nullish()
       })
     )
   );
@@ -25759,9 +27679,9 @@ ${user}:`]
   };
   var openaiImageResponseSchema = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         data: array(
-          object$1({
+          object({
             b64_json: string(),
             revised_prompt: string().optional()
           })
@@ -25862,7 +27782,7 @@ ${user}:`]
   };
   var codeInterpreterInputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         code: string().nullish(),
         containerId: string()
       })
@@ -25870,11 +27790,11 @@ ${user}:`]
   );
   var codeInterpreterOutputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         outputs: array(
           discriminatedUnion("type", [
-            object$1({ type: literal("logs"), logs: string() }),
-            object$1({ type: literal("image"), url: string() })
+            object({ type: literal("logs"), logs: string() }),
+            object({ type: literal("image"), url: string() })
           ])
         ).nullish()
       })
@@ -25882,10 +27802,10 @@ ${user}:`]
   );
   var codeInterpreterArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         container: union([
           string(),
-          object$1({
+          object({
             fileIds: array(string()).optional()
           })
         ]).optional()
@@ -25901,12 +27821,12 @@ ${user}:`]
   var codeInterpreter = (args = {}) => {
     return codeInterpreterToolFactory(args);
   };
-  var comparisonFilterSchema = object$1({
+  var comparisonFilterSchema = object({
     key: string(),
     type: _enum(["eq", "ne", "gt", "gte", "lt", "lte"]),
     value: union([string(), number$1(), boolean()])
   });
-  var compoundFilterSchema = object$1({
+  var compoundFilterSchema = object({
     type: _enum(["and", "or"]),
     filters: array(
       union([comparisonFilterSchema, lazy(() => compoundFilterSchema)])
@@ -25914,10 +27834,10 @@ ${user}:`]
   });
   var fileSearchArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         vectorStoreIds: array(string()),
         maxNumResults: number$1().optional(),
-        ranking: object$1({
+        ranking: object({
           ranker: string().optional(),
           scoreThreshold: number$1().optional()
         }).optional(),
@@ -25927,10 +27847,10 @@ ${user}:`]
   );
   var fileSearchOutputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         queries: array(string()),
         results: array(
-          object$1({
+          object({
             attributes: record(string(), unknown()),
             fileId: string(),
             filename: string(),
@@ -25944,15 +27864,15 @@ ${user}:`]
   var fileSearch = createProviderDefinedToolFactoryWithOutputSchema({
     id: "openai.file_search",
     name: "file_search",
-    inputSchema: object$1({}),
+    inputSchema: object({}),
     outputSchema: fileSearchOutputSchema
   });
   var imageGenerationArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         background: _enum(["auto", "opaque", "transparent"]).optional(),
         inputFidelity: _enum(["low", "high"]).optional(),
-        inputImageMask: object$1({
+        inputImageMask: object({
           fileId: string().optional(),
           imageUrl: string().optional()
         }).optional(),
@@ -25966,9 +27886,9 @@ ${user}:`]
       }).strict()
     )
   );
-  var imageGenerationInputSchema = lazySchema(() => zodSchema(object$1({})));
+  var imageGenerationInputSchema = lazySchema(() => zodSchema(object({})));
   var imageGenerationOutputSchema = lazySchema(
-    () => zodSchema(object$1({ result: string() }))
+    () => zodSchema(object({ result: string() }))
   );
   var imageGenerationToolFactory = createProviderDefinedToolFactoryWithOutputSchema({
     id: "openai.image_generation",
@@ -25981,8 +27901,8 @@ ${user}:`]
   };
   var localShellInputSchema = lazySchema(
     () => zodSchema(
-      object$1({
-        action: object$1({
+      object({
+        action: object({
           type: literal("exec"),
           command: array(string()),
           timeoutMs: number$1().optional(),
@@ -25994,7 +27914,7 @@ ${user}:`]
     )
   );
   var localShellOutputSchema = lazySchema(
-    () => zodSchema(object$1({ output: string() }))
+    () => zodSchema(object({ output: string() }))
   );
   var localShell = createProviderDefinedToolFactoryWithOutputSchema({
     id: "openai.local_shell",
@@ -26004,12 +27924,12 @@ ${user}:`]
   });
   var webSearchArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
-        filters: object$1({
+      object({
+        filters: object({
           allowedDomains: array(string()).optional()
         }).optional(),
         searchContextSize: _enum(["low", "medium", "high"]).optional(),
-        userLocation: object$1({
+        userLocation: object({
           type: literal("approximate"),
           country: string().optional(),
           city: string().optional(),
@@ -26021,17 +27941,17 @@ ${user}:`]
   );
   var webSearchInputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         action: discriminatedUnion("type", [
-          object$1({
+          object({
             type: literal("search"),
             query: string().nullish()
           }),
-          object$1({
+          object({
             type: literal("open_page"),
             url: string()
           }),
-          object$1({
+          object({
             type: literal("find"),
             url: string(),
             pattern: string()
@@ -26050,7 +27970,7 @@ ${user}:`]
   };
   var webSearchPreviewArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         /**
          * Search context size to use for the web search.
          * - high: Most comprehensive context, highest cost, slower response
@@ -26061,7 +27981,7 @@ ${user}:`]
         /**
          * User location information to provide geographically relevant search results.
          */
-        userLocation: object$1({
+        userLocation: object({
           /**
            * Type of location (always 'approximate')
            */
@@ -26088,17 +28008,17 @@ ${user}:`]
   );
   var webSearchPreviewInputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         action: discriminatedUnion("type", [
-          object$1({
+          object({
             type: literal("search"),
             query: string().nullish()
           }),
-          object$1({
+          object({
             type: literal("open_page"),
             url: string()
           }),
-          object$1({
+          object({
             type: literal("find"),
             url: string(),
             pattern: string()
@@ -26261,7 +28181,7 @@ ${user}:`]
                       }
                     };
                   } else {
-                    throw new UnsupportedFunctionalityError$1({
+                    throw new UnsupportedFunctionalityError$4({
                       functionality: `file part media type ${part.mediaType}`
                     });
                   }
@@ -26406,28 +28326,10 @@ ${user}:`]
               case "error-text":
                 contentValue = output.value;
                 break;
+              case "content":
               case "json":
               case "error-json":
                 contentValue = JSON.stringify(output.value);
-                break;
-              case "content":
-                contentValue = output.value.map((item) => {
-                  switch (item.type) {
-                    case "text": {
-                      return { type: "input_text", text: item.text };
-                    }
-                    case "media": {
-                      return item.mediaType.startsWith("image/") ? {
-                        type: "input_image",
-                        image_url: `data:${item.mediaType};base64,${item.data}`
-                      } : {
-                        type: "input_file",
-                        filename: "data",
-                        file_data: `data:${item.mediaType};base64,${item.data}`
-                      };
-                    }
-                  }
-                });
                 break;
             }
             input.push({
@@ -26446,7 +28348,7 @@ ${user}:`]
     }
     return { input, warnings };
   }
-  var openaiResponsesReasoningProviderOptionsSchema = object$1({
+  var openaiResponsesReasoningProviderOptionsSchema = object({
     itemId: string().nullish(),
     reasoningEncryptedContent: string().nullish()
   });
@@ -26471,16 +28373,16 @@ ${user}:`]
   var openaiResponsesChunkSchema = lazyValidator(
     () => zodSchema(
       union([
-        object$1({
+        object({
           type: literal("response.output_text.delta"),
           item_id: string(),
           delta: string(),
           logprobs: array(
-            object$1({
+            object({
               token: string(),
               logprob: number$1(),
               top_logprobs: array(
-                object$1({
+                object({
                   token: string(),
                   logprob: number$1()
                 })
@@ -26488,99 +28390,99 @@ ${user}:`]
             })
           ).nullish()
         }),
-        object$1({
+        object({
           type: _enum(["response.completed", "response.incomplete"]),
-          response: object$1({
-            incomplete_details: object$1({ reason: string() }).nullish(),
-            usage: object$1({
+          response: object({
+            incomplete_details: object({ reason: string() }).nullish(),
+            usage: object({
               input_tokens: number$1(),
-              input_tokens_details: object$1({ cached_tokens: number$1().nullish() }).nullish(),
+              input_tokens_details: object({ cached_tokens: number$1().nullish() }).nullish(),
               output_tokens: number$1(),
-              output_tokens_details: object$1({ reasoning_tokens: number$1().nullish() }).nullish()
+              output_tokens_details: object({ reasoning_tokens: number$1().nullish() }).nullish()
             }),
             service_tier: string().nullish()
           })
         }),
-        object$1({
+        object({
           type: literal("response.created"),
-          response: object$1({
+          response: object({
             id: string(),
             created_at: number$1(),
             model: string(),
             service_tier: string().nullish()
           })
         }),
-        object$1({
+        object({
           type: literal("response.output_item.added"),
           output_index: number$1(),
           item: discriminatedUnion("type", [
-            object$1({
+            object({
               type: literal("message"),
               id: string()
             }),
-            object$1({
+            object({
               type: literal("reasoning"),
               id: string(),
               encrypted_content: string().nullish()
             }),
-            object$1({
+            object({
               type: literal("function_call"),
               id: string(),
               call_id: string(),
               name: string(),
               arguments: string()
             }),
-            object$1({
+            object({
               type: literal("web_search_call"),
               id: string(),
               status: string(),
-              action: object$1({
+              action: object({
                 type: literal("search"),
                 query: string().optional()
               }).nullish()
             }),
-            object$1({
+            object({
               type: literal("computer_call"),
               id: string(),
               status: string()
             }),
-            object$1({
+            object({
               type: literal("file_search_call"),
               id: string()
             }),
-            object$1({
+            object({
               type: literal("image_generation_call"),
               id: string()
             }),
-            object$1({
+            object({
               type: literal("code_interpreter_call"),
               id: string(),
               container_id: string(),
               code: string().nullable(),
               outputs: array(
                 discriminatedUnion("type", [
-                  object$1({ type: literal("logs"), logs: string() }),
-                  object$1({ type: literal("image"), url: string() })
+                  object({ type: literal("logs"), logs: string() }),
+                  object({ type: literal("image"), url: string() })
                 ])
               ).nullable(),
               status: string()
             })
           ])
         }),
-        object$1({
+        object({
           type: literal("response.output_item.done"),
           output_index: number$1(),
           item: discriminatedUnion("type", [
-            object$1({
+            object({
               type: literal("message"),
               id: string()
             }),
-            object$1({
+            object({
               type: literal("reasoning"),
               id: string(),
               encrypted_content: string().nullish()
             }),
-            object$1({
+            object({
               type: literal("function_call"),
               id: string(),
               call_id: string(),
@@ -26588,49 +28490,49 @@ ${user}:`]
               arguments: string(),
               status: literal("completed")
             }),
-            object$1({
+            object({
               type: literal("code_interpreter_call"),
               id: string(),
               code: string().nullable(),
               container_id: string(),
               outputs: array(
                 discriminatedUnion("type", [
-                  object$1({ type: literal("logs"), logs: string() }),
-                  object$1({ type: literal("image"), url: string() })
+                  object({ type: literal("logs"), logs: string() }),
+                  object({ type: literal("image"), url: string() })
                 ])
               ).nullable()
             }),
-            object$1({
+            object({
               type: literal("image_generation_call"),
               id: string(),
               result: string()
             }),
-            object$1({
+            object({
               type: literal("web_search_call"),
               id: string(),
               status: string(),
               action: discriminatedUnion("type", [
-                object$1({
+                object({
                   type: literal("search"),
                   query: string().nullish()
                 }),
-                object$1({
+                object({
                   type: literal("open_page"),
                   url: string()
                 }),
-                object$1({
+                object({
                   type: literal("find"),
                   url: string(),
                   pattern: string()
                 })
               ]).nullish()
             }),
-            object$1({
+            object({
               type: literal("file_search_call"),
               id: string(),
               queries: array(string()),
               results: array(
-                object$1({
+                object({
                   attributes: record(string(), unknown()),
                   file_id: string(),
                   filename: string(),
@@ -26639,11 +28541,11 @@ ${user}:`]
                 })
               ).nullish()
             }),
-            object$1({
+            object({
               type: literal("local_shell_call"),
               id: string(),
               call_id: string(),
-              action: object$1({
+              action: object({
                 type: literal("exec"),
                 command: array(string()),
                 timeout_ms: number$1().optional(),
@@ -26652,46 +28554,46 @@ ${user}:`]
                 env: record(string(), string()).optional()
               })
             }),
-            object$1({
+            object({
               type: literal("computer_call"),
               id: string(),
               status: literal("completed")
             })
           ])
         }),
-        object$1({
+        object({
           type: literal("response.function_call_arguments.delta"),
           item_id: string(),
           output_index: number$1(),
           delta: string()
         }),
-        object$1({
+        object({
           type: literal("response.image_generation_call.partial_image"),
           item_id: string(),
           output_index: number$1(),
           partial_image_b64: string()
         }),
-        object$1({
+        object({
           type: literal("response.code_interpreter_call_code.delta"),
           item_id: string(),
           output_index: number$1(),
           delta: string()
         }),
-        object$1({
+        object({
           type: literal("response.code_interpreter_call_code.done"),
           item_id: string(),
           output_index: number$1(),
           code: string()
         }),
-        object$1({
+        object({
           type: literal("response.output_text.annotation.added"),
           annotation: discriminatedUnion("type", [
-            object$1({
+            object({
               type: literal("url_citation"),
               url: string(),
               title: string()
             }),
-            object$1({
+            object({
               type: literal("file_citation"),
               file_id: string(),
               filename: string().nullish(),
@@ -26702,25 +28604,25 @@ ${user}:`]
             })
           ])
         }),
-        object$1({
+        object({
           type: literal("response.reasoning_summary_part.added"),
           item_id: string(),
           summary_index: number$1()
         }),
-        object$1({
+        object({
           type: literal("response.reasoning_summary_text.delta"),
           item_id: string(),
           summary_index: number$1(),
           delta: string()
         }),
-        object$1({
+        object({
           type: literal("error"),
           code: string(),
           message: string(),
           param: string().nullish(),
           sequence_number: number$1()
         }),
-        object$1({ type: string() }).loose().transform((value) => ({
+        object({ type: string() }).loose().transform((value) => ({
           type: "unknown_chunk",
           message: value.type
         }))
@@ -26730,30 +28632,30 @@ ${user}:`]
   );
   var openaiResponsesResponseSchema = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         id: string(),
         created_at: number$1(),
-        error: object$1({
+        error: object({
           code: string(),
           message: string()
         }).nullish(),
         model: string(),
         output: array(
           discriminatedUnion("type", [
-            object$1({
+            object({
               type: literal("message"),
               role: literal("assistant"),
               id: string(),
               content: array(
-                object$1({
+                object({
                   type: literal("output_text"),
                   text: string(),
                   logprobs: array(
-                    object$1({
+                    object({
                       token: string(),
                       logprob: number$1(),
                       top_logprobs: array(
-                        object$1({
+                        object({
                           token: string(),
                           logprob: number$1()
                         })
@@ -26762,14 +28664,14 @@ ${user}:`]
                   ).nullish(),
                   annotations: array(
                     discriminatedUnion("type", [
-                      object$1({
+                      object({
                         type: literal("url_citation"),
                         start_index: number$1(),
                         end_index: number$1(),
                         url: string(),
                         title: string()
                       }),
-                      object$1({
+                      object({
                         type: literal("file_citation"),
                         file_id: string(),
                         filename: string().nullish(),
@@ -26778,7 +28680,7 @@ ${user}:`]
                         end_index: number$1().nullish(),
                         quote: string().nullish()
                       }),
-                      object$1({
+                      object({
                         type: literal("container_file_citation")
                       })
                     ])
@@ -26786,32 +28688,32 @@ ${user}:`]
                 })
               )
             }),
-            object$1({
+            object({
               type: literal("web_search_call"),
               id: string(),
               status: string(),
               action: discriminatedUnion("type", [
-                object$1({
+                object({
                   type: literal("search"),
                   query: string().nullish()
                 }),
-                object$1({
+                object({
                   type: literal("open_page"),
                   url: string()
                 }),
-                object$1({
+                object({
                   type: literal("find"),
                   url: string(),
                   pattern: string()
                 })
               ]).nullish()
             }),
-            object$1({
+            object({
               type: literal("file_search_call"),
               id: string(),
               queries: array(string()),
               results: array(
-                object$1({
+                object({
                   attributes: record(string(), unknown()),
                   file_id: string(),
                   filename: string(),
@@ -26820,28 +28722,28 @@ ${user}:`]
                 })
               ).nullish()
             }),
-            object$1({
+            object({
               type: literal("code_interpreter_call"),
               id: string(),
               code: string().nullable(),
               container_id: string(),
               outputs: array(
                 discriminatedUnion("type", [
-                  object$1({ type: literal("logs"), logs: string() }),
-                  object$1({ type: literal("image"), url: string() })
+                  object({ type: literal("logs"), logs: string() }),
+                  object({ type: literal("image"), url: string() })
                 ])
               ).nullable()
             }),
-            object$1({
+            object({
               type: literal("image_generation_call"),
               id: string(),
               result: string()
             }),
-            object$1({
+            object({
               type: literal("local_shell_call"),
               id: string(),
               call_id: string(),
-              action: object$1({
+              action: object({
                 type: literal("exec"),
                 command: array(string()),
                 timeout_ms: number$1().optional(),
@@ -26850,24 +28752,24 @@ ${user}:`]
                 env: record(string(), string()).optional()
               })
             }),
-            object$1({
+            object({
               type: literal("function_call"),
               call_id: string(),
               name: string(),
               arguments: string(),
               id: string()
             }),
-            object$1({
+            object({
               type: literal("computer_call"),
               id: string(),
               status: string().optional()
             }),
-            object$1({
+            object({
               type: literal("reasoning"),
               id: string(),
               encrypted_content: string().nullish(),
               summary: array(
-                object$1({
+                object({
                   type: literal("summary_text"),
                   text: string()
                 })
@@ -26876,12 +28778,12 @@ ${user}:`]
           ])
         ),
         service_tier: string().nullish(),
-        incomplete_details: object$1({ reason: string() }).nullish(),
-        usage: object$1({
+        incomplete_details: object({ reason: string() }).nullish(),
+        usage: object({
           input_tokens: number$1(),
-          input_tokens_details: object$1({ cached_tokens: number$1().nullish() }).nullish(),
+          input_tokens_details: object({ cached_tokens: number$1().nullish() }).nullish(),
           output_tokens: number$1(),
-          output_tokens_details: object$1({ reasoning_tokens: number$1().nullish() }).nullish()
+          output_tokens_details: object({ reasoning_tokens: number$1().nullish() }).nullish()
         })
       })
     )
@@ -26889,7 +28791,7 @@ ${user}:`]
   var TOP_LOGPROBS_MAX = 20;
   var openaiResponsesProviderOptionsSchema = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         include: array(
           _enum([
             "reasoning.encrypted_content",
@@ -27062,7 +28964,7 @@ ${user}:`]
         };
       default: {
         const _exhaustiveCheck = type;
-        throw new UnsupportedFunctionalityError$1({
+        throw new UnsupportedFunctionalityError$4({
           functionality: `tool choice type: ${_exhaustiveCheck}`
         });
       }
@@ -28060,7 +29962,7 @@ ${user}:`]
   }
   var openaiSpeechProviderOptionsSchema = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         instructions: string().nullish(),
         speed: number$1().min(0.25).max(4).default(1).nullish()
       })
@@ -28169,19 +30071,19 @@ ${user}:`]
   };
   var openaiTranscriptionResponseSchema = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         text: string(),
         language: string().nullish(),
         duration: number$1().nullish(),
         words: array(
-          object$1({
+          object({
             word: string(),
             start: number$1(),
             end: number$1()
           })
         ).nullish(),
         segments: array(
-          object$1({
+          object({
             id: number$1(),
             seek: number$1(),
             start: number$1(),
@@ -28199,7 +30101,7 @@ ${user}:`]
   );
   var openAITranscriptionProviderOptions = lazyValidator(
     () => zodSchema(
-      object$1({
+      object({
         /**
          * Additional information to include in the transcription response.
          */
@@ -28394,7 +30296,7 @@ ${user}:`]
   };
 
   // src/version.ts
-  var VERSION$3 = "2.0.48" ;
+  var VERSION$3 = "2.0.46" ;
 
   // src/openai-provider.ts
   function createOpenAI(options = {}) {
@@ -28493,15 +30395,97 @@ ${user}:`]
   }
   createOpenAI();
 
+  // src/errors/ai-sdk-error.ts
+  var marker$3 = "vercel.ai.error";
+  var symbol$3 = Symbol.for(marker$3);
+  var _a$3;
+  var _AISDKError$3 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$3] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$3);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$3 = symbol$3;
+  var AISDKError$3 = _AISDKError$3;
+
+  // src/errors/no-such-model-error.ts
+  var name10$2 = "AI_NoSuchModelError";
+  var marker11$2 = `vercel.ai.error.${name10$2}`;
+  var symbol11$2 = Symbol.for(marker11$2);
+  var _a11$2;
+  var NoSuchModelError$2 = class NoSuchModelError extends AISDKError$3 {
+    constructor({
+      errorName = name10$2,
+      modelId,
+      modelType,
+      message = `No such ${modelType}: ${modelId}`
+    }) {
+      super({ name: errorName, message });
+      this[_a11$2] = true;
+      this.modelId = modelId;
+      this.modelType = modelType;
+    }
+    static isInstance(error) {
+      return AISDKError$3.hasMarker(error, marker11$2);
+    }
+  };
+  _a11$2 = symbol11$2;
+
+  // src/errors/unsupported-functionality-error.ts
+  var name13$3 = "AI_UnsupportedFunctionalityError";
+  var marker14$3 = `vercel.ai.error.${name13$3}`;
+  var symbol14$3 = Symbol.for(marker14$3);
+  var _a14$3;
+  var UnsupportedFunctionalityError$3 = class UnsupportedFunctionalityError extends AISDKError$3 {
+    constructor({
+      functionality,
+      message = `'${functionality}' functionality not supported.`
+    }) {
+      super({ name: name13$3, message });
+      this[_a14$3] = true;
+      this.functionality = functionality;
+    }
+    static isInstance(error) {
+      return AISDKError$3.hasMarker(error, marker14$3);
+    }
+  };
+  _a14$3 = symbol14$3;
+
   // src/anthropic-provider.ts
 
   // src/version.ts
-  var VERSION$2 = "2.0.26" ;
+  var VERSION$2 = "2.0.25" ;
   var anthropicErrorDataSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         type: literal("error"),
-        error: object$1({
+        error: object({
           type: string(),
           message: string()
         })
@@ -28514,25 +30498,25 @@ ${user}:`]
   });
   var anthropicMessagesResponseSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         type: literal("message"),
         id: string().nullish(),
         model: string().nullish(),
         content: array(
           discriminatedUnion("type", [
-            object$1({
+            object({
               type: literal("text"),
               text: string(),
               citations: array(
                 discriminatedUnion("type", [
-                  object$1({
+                  object({
                     type: literal("web_search_result_location"),
                     cited_text: string(),
                     url: string(),
                     title: string(),
                     encrypted_index: string()
                   }),
-                  object$1({
+                  object({
                     type: literal("page_location"),
                     cited_text: string(),
                     document_index: number$1(),
@@ -28540,7 +30524,7 @@ ${user}:`]
                     start_page_number: number$1(),
                     end_page_number: number$1()
                   }),
-                  object$1({
+                  object({
                     type: literal("char_location"),
                     cited_text: string(),
                     document_index: number$1(),
@@ -28551,58 +30535,58 @@ ${user}:`]
                 ])
               ).optional()
             }),
-            object$1({
+            object({
               type: literal("thinking"),
               thinking: string(),
               signature: string()
             }),
-            object$1({
+            object({
               type: literal("redacted_thinking"),
               data: string()
             }),
-            object$1({
+            object({
               type: literal("tool_use"),
               id: string(),
               name: string(),
               input: unknown()
             }),
-            object$1({
+            object({
               type: literal("server_tool_use"),
               id: string(),
               name: string(),
               input: record(string(), unknown()).nullish()
             }),
-            object$1({
+            object({
               type: literal("web_fetch_tool_result"),
               tool_use_id: string(),
               content: union([
-                object$1({
+                object({
                   type: literal("web_fetch_result"),
                   url: string(),
                   retrieved_at: string(),
-                  content: object$1({
+                  content: object({
                     type: literal("document"),
                     title: string().nullable(),
-                    citations: object$1({ enabled: boolean() }).optional(),
-                    source: object$1({
+                    citations: object({ enabled: boolean() }).optional(),
+                    source: object({
                       type: literal("text"),
                       media_type: string(),
                       data: string()
                     })
                   })
                 }),
-                object$1({
+                object({
                   type: literal("web_fetch_tool_result_error"),
                   error_code: string()
                 })
               ])
             }),
-            object$1({
+            object({
               type: literal("web_search_tool_result"),
               tool_use_id: string(),
               content: union([
                 array(
-                  object$1({
+                  object({
                     type: literal("web_search_result"),
                     url: string(),
                     title: string(),
@@ -28610,23 +30594,23 @@ ${user}:`]
                     page_age: string().nullish()
                   })
                 ),
-                object$1({
+                object({
                   type: literal("web_search_tool_result_error"),
                   error_code: string()
                 })
               ])
             }),
-            object$1({
+            object({
               type: literal("code_execution_tool_result"),
               tool_use_id: string(),
               content: union([
-                object$1({
+                object({
                   type: literal("code_execution_result"),
                   stdout: string(),
                   stderr: string(),
                   return_code: number$1()
                 }),
-                object$1({
+                object({
                   type: literal("code_execution_tool_result_error"),
                   error_code: string()
                 })
@@ -28648,9 +30632,9 @@ ${user}:`]
   var anthropicMessagesChunkSchema = lazySchema(
     () => zodSchema(
       discriminatedUnion("type", [
-        object$1({
+        object({
           type: literal("message_start"),
-          message: object$1({
+          message: object({
             id: string().nullish(),
             model: string().nullish(),
             usage: looseObject({
@@ -28660,64 +30644,64 @@ ${user}:`]
             })
           })
         }),
-        object$1({
+        object({
           type: literal("content_block_start"),
           index: number$1(),
           content_block: discriminatedUnion("type", [
-            object$1({
+            object({
               type: literal("text"),
               text: string()
             }),
-            object$1({
+            object({
               type: literal("thinking"),
               thinking: string()
             }),
-            object$1({
+            object({
               type: literal("tool_use"),
               id: string(),
               name: string()
             }),
-            object$1({
+            object({
               type: literal("redacted_thinking"),
               data: string()
             }),
-            object$1({
+            object({
               type: literal("server_tool_use"),
               id: string(),
               name: string(),
               input: record(string(), unknown()).nullish()
             }),
-            object$1({
+            object({
               type: literal("web_fetch_tool_result"),
               tool_use_id: string(),
               content: union([
-                object$1({
+                object({
                   type: literal("web_fetch_result"),
                   url: string(),
                   retrieved_at: string(),
-                  content: object$1({
+                  content: object({
                     type: literal("document"),
                     title: string().nullable(),
-                    citations: object$1({ enabled: boolean() }).optional(),
-                    source: object$1({
+                    citations: object({ enabled: boolean() }).optional(),
+                    source: object({
                       type: literal("text"),
                       media_type: string(),
                       data: string()
                     })
                   })
                 }),
-                object$1({
+                object({
                   type: literal("web_fetch_tool_result_error"),
                   error_code: string()
                 })
               ])
             }),
-            object$1({
+            object({
               type: literal("web_search_tool_result"),
               tool_use_id: string(),
               content: union([
                 array(
-                  object$1({
+                  object({
                     type: literal("web_search_result"),
                     url: string(),
                     title: string(),
@@ -28725,23 +30709,23 @@ ${user}:`]
                     page_age: string().nullish()
                   })
                 ),
-                object$1({
+                object({
                   type: literal("web_search_tool_result_error"),
                   error_code: string()
                 })
               ])
             }),
-            object$1({
+            object({
               type: literal("code_execution_tool_result"),
               tool_use_id: string(),
               content: union([
-                object$1({
+                object({
                   type: literal("code_execution_result"),
                   stdout: string(),
                   stderr: string(),
                   return_code: number$1()
                 }),
-                object$1({
+                object({
                   type: literal("code_execution_tool_result_error"),
                   error_code: string()
                 })
@@ -28749,37 +30733,37 @@ ${user}:`]
             })
           ])
         }),
-        object$1({
+        object({
           type: literal("content_block_delta"),
           index: number$1(),
           delta: discriminatedUnion("type", [
-            object$1({
+            object({
               type: literal("input_json_delta"),
               partial_json: string()
             }),
-            object$1({
+            object({
               type: literal("text_delta"),
               text: string()
             }),
-            object$1({
+            object({
               type: literal("thinking_delta"),
               thinking: string()
             }),
-            object$1({
+            object({
               type: literal("signature_delta"),
               signature: string()
             }),
-            object$1({
+            object({
               type: literal("citations_delta"),
               citation: discriminatedUnion("type", [
-                object$1({
+                object({
                   type: literal("web_search_result_location"),
                   cited_text: string(),
                   url: string(),
                   title: string(),
                   encrypted_index: string()
                 }),
-                object$1({
+                object({
                   type: literal("page_location"),
                   cited_text: string(),
                   document_index: number$1(),
@@ -28787,7 +30771,7 @@ ${user}:`]
                   start_page_number: number$1(),
                   end_page_number: number$1()
                 }),
-                object$1({
+                object({
                   type: literal("char_location"),
                   cited_text: string(),
                   document_index: number$1(),
@@ -28799,20 +30783,20 @@ ${user}:`]
             })
           ])
         }),
-        object$1({
+        object({
           type: literal("content_block_stop"),
           index: number$1()
         }),
-        object$1({
+        object({
           type: literal("error"),
-          error: object$1({
+          error: object({
             type: string(),
             message: string()
           })
         }),
-        object$1({
+        object({
           type: literal("message_delta"),
-          delta: object$1({
+          delta: object({
             stop_reason: string().nullish(),
             stop_sequence: string().nullish()
           }),
@@ -28821,10 +30805,10 @@ ${user}:`]
             cache_creation_input_tokens: number$1().nullish()
           })
         }),
-        object$1({
+        object({
           type: literal("message_stop")
         }),
-        object$1({
+        object({
           type: literal("ping")
         })
       ])
@@ -28832,18 +30816,18 @@ ${user}:`]
   );
   var anthropicReasoningMetadataSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         signature: string().optional(),
         redactedData: string().optional()
       })
     )
   );
-  var anthropicFilePartProviderOptions = object$1({
+  var anthropicFilePartProviderOptions = object({
     /**
      * Citation configuration for this document.
      * When enabled, this document will generate citations in the response.
      */
-    citations: object$1({
+    citations: object({
       /**
        * Enable citations for this document
        */
@@ -28861,9 +30845,9 @@ ${user}:`]
      */
     context: string().optional()
   });
-  var anthropicProviderOptions = object$1({
+  var anthropicProviderOptions = object({
     sendReasoning: boolean().optional(),
-    thinking: object$1({
+    thinking: object({
       type: union([literal("enabled"), literal("disabled")]),
       budgetTokens: number$1().optional()
     }).optional(),
@@ -28876,7 +30860,7 @@ ${user}:`]
      * Cache control settings for this message.
      * See https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
      */
-    cacheControl: object$1({
+    cacheControl: object({
       type: literal("ephemeral"),
       ttl: union([literal("5m"), literal("1h")]).optional()
     }).optional()
@@ -28891,14 +30875,14 @@ ${user}:`]
   }
   var textEditor_20250728ArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         maxCharacters: number$1().optional()
       })
     )
   );
   var textEditor_20250728InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         command: _enum(["view", "create", "str_replace", "insert"]),
         path: string(),
         file_text: string().optional(),
@@ -28919,11 +30903,11 @@ ${user}:`]
   };
   var webSearch_20250305ArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         maxUses: number$1().optional(),
         allowedDomains: array(string()).optional(),
         blockedDomains: array(string()).optional(),
-        userLocation: object$1({
+        userLocation: object({
           type: literal("approximate"),
           city: string().optional(),
           region: string().optional(),
@@ -28936,7 +30920,7 @@ ${user}:`]
   var webSearch_20250305OutputSchema = lazySchema(
     () => zodSchema(
       array(
-        object$1({
+        object({
           url: string(),
           title: string(),
           pageAge: string().nullable(),
@@ -28948,7 +30932,7 @@ ${user}:`]
   );
   var webSearch_20250305InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         query: string()
       })
     )
@@ -28964,31 +30948,31 @@ ${user}:`]
   };
   var webFetch_20250910ArgsSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         maxUses: number$1().optional(),
         allowedDomains: array(string()).optional(),
         blockedDomains: array(string()).optional(),
-        citations: object$1({ enabled: boolean() }).optional(),
+        citations: object({ enabled: boolean() }).optional(),
         maxContentTokens: number$1().optional()
       })
     )
   );
   var webFetch_20250910OutputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         type: literal("web_fetch_result"),
         url: string(),
-        content: object$1({
+        content: object({
           type: literal("document"),
           title: string(),
-          citations: object$1({ enabled: boolean() }).optional(),
+          citations: object({ enabled: boolean() }).optional(),
           source: union([
-            object$1({
+            object({
               type: literal("base64"),
               mediaType: literal("application/pdf"),
               data: string()
             }),
-            object$1({
+            object({
               type: literal("text"),
               mediaType: literal("text/plain"),
               data: string()
@@ -29001,7 +30985,7 @@ ${user}:`]
   );
   var webFetch_20250910InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         url: string()
       })
     )
@@ -29213,7 +31197,7 @@ ${user}:`]
         };
       default: {
         const _exhaustiveCheck = type;
-        throw new UnsupportedFunctionalityError$1({
+        throw new UnsupportedFunctionalityError$3({
           functionality: `tool choice type: ${_exhaustiveCheck}`
         });
       }
@@ -29221,7 +31205,7 @@ ${user}:`]
   }
   var codeExecution_20250522OutputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         type: literal("code_execution_result"),
         stdout: string(),
         stderr: string(),
@@ -29231,7 +31215,7 @@ ${user}:`]
   );
   var codeExecution_20250522InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         code: string()
       })
     )
@@ -29255,11 +31239,11 @@ ${user}:`]
       return new TextDecoder().decode(data);
     }
     if (data instanceof URL) {
-      throw new UnsupportedFunctionalityError$1({
+      throw new UnsupportedFunctionalityError$3({
         functionality: "URL-based text documents are not supported for citations"
       });
     }
-    throw new UnsupportedFunctionalityError$1({
+    throw new UnsupportedFunctionalityError$3({
       functionality: `unsupported data type for text documents: ${typeof data}`
     });
   }
@@ -29300,7 +31284,7 @@ ${user}:`]
       switch (type) {
         case "system": {
           if (system != null) {
-            throw new UnsupportedFunctionalityError$1({
+            throw new UnsupportedFunctionalityError$3({
               functionality: "Multiple system messages that are separated by user/assistant messages"
             });
           }
@@ -29394,7 +31378,7 @@ ${user}:`]
                           cache_control: cacheControl
                         });
                       } else {
-                        throw new UnsupportedFunctionalityError$1({
+                        throw new UnsupportedFunctionalityError$3({
                           functionality: `media type: ${part.mediaType}`
                         });
                       }
@@ -29433,7 +31417,7 @@ ${user}:`]
                                 cache_control: void 0
                               };
                             }
-                            throw new UnsupportedFunctionalityError$1({
+                            throw new UnsupportedFunctionalityError$3({
                               functionality: `media type: ${contentPart.mediaType}`
                             });
                           }
@@ -29877,7 +31861,7 @@ ${user}:`]
       };
       if (isThinking) {
         if (thinkingBudget == null) {
-          throw new UnsupportedFunctionalityError$1({
+          throw new UnsupportedFunctionalityError$3({
             functionality: "thinking requires a budget"
           });
         }
@@ -30626,7 +32610,7 @@ ${user}:`]
   };
   var bash_20241022InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         command: string(),
         restart: boolean().optional()
       })
@@ -30639,7 +32623,7 @@ ${user}:`]
   });
   var bash_20250124InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         command: string(),
         restart: boolean().optional()
       })
@@ -30652,7 +32636,7 @@ ${user}:`]
   });
   var computer_20241022InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         action: _enum([
           "key",
           "type",
@@ -30677,7 +32661,7 @@ ${user}:`]
   });
   var computer_20250124InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         action: _enum([
           "key",
           "hold_key",
@@ -30712,7 +32696,7 @@ ${user}:`]
   });
   var textEditor_20241022InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         command: _enum(["view", "create", "str_replace", "insert", "undo_edit"]),
         path: string(),
         file_text: string().optional(),
@@ -30730,7 +32714,7 @@ ${user}:`]
   });
   var textEditor_20250124InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         command: _enum(["view", "create", "str_replace", "insert", "undo_edit"]),
         path: string(),
         file_text: string().optional(),
@@ -30748,7 +32732,7 @@ ${user}:`]
   });
   var textEditor_20250429InputSchema = lazySchema(
     () => zodSchema(
-      object$1({
+      object({
         command: _enum(["view", "create", "str_replace", "insert"]),
         path: string(),
         file_text: string().optional(),
@@ -30934,10 +32918,10 @@ ${user}:`]
     provider.chat = createChatModel;
     provider.messages = createChatModel;
     provider.textEmbeddingModel = (modelId) => {
-      throw new NoSuchModelError({ modelId, modelType: "textEmbeddingModel" });
+      throw new NoSuchModelError$2({ modelId, modelType: "textEmbeddingModel" });
     };
     provider.imageModel = (modelId) => {
-      throw new NoSuchModelError({ modelId, modelType: "imageModel" });
+      throw new NoSuchModelError$2({ modelId, modelType: "imageModel" });
     };
     provider.tools = anthropicTools;
     return provider;
@@ -30945,7 +32929,7 @@ ${user}:`]
   createAnthropic();
 
   // src/chat/openai-compatible-chat-language-model.ts
-  object$1({
+  object({
     /**
      * A unique identifier representing your end-user, which can help the provider to
      * monitor and detect abuse.
@@ -30956,8 +32940,8 @@ ${user}:`]
      */
     reasoningEffort: string().optional()
   });
-  var openaiCompatibleErrorDataSchema = object$1({
-    error: object$1({
+  var openaiCompatibleErrorDataSchema = object({
+    error: object({
       message: string(),
       // The additional information below is handled loosely to support
       // OpenAI-compatible providers that have slightly different error
@@ -30971,34 +32955,34 @@ ${user}:`]
     errorSchema: openaiCompatibleErrorDataSchema,
     errorToMessage: (data) => data.error.message
   };
-  var openaiCompatibleTokenUsageSchema = object$1({
+  var openaiCompatibleTokenUsageSchema = object({
     prompt_tokens: number$1().nullish(),
     completion_tokens: number$1().nullish(),
     total_tokens: number$1().nullish(),
-    prompt_tokens_details: object$1({
+    prompt_tokens_details: object({
       cached_tokens: number$1().nullish()
     }).nullish(),
-    completion_tokens_details: object$1({
+    completion_tokens_details: object({
       reasoning_tokens: number$1().nullish(),
       accepted_prediction_tokens: number$1().nullish(),
       rejected_prediction_tokens: number$1().nullish()
     }).nullish()
   }).nullish();
-  object$1({
+  object({
     id: string().nullish(),
     created: number$1().nullish(),
     model: string().nullish(),
     choices: array(
-      object$1({
-        message: object$1({
+      object({
+        message: object({
           role: literal("assistant").nullish(),
           content: string().nullish(),
           reasoning_content: string().nullish(),
           reasoning: string().nullish(),
           tool_calls: array(
-            object$1({
+            object({
               id: string().nullish(),
-              function: object$1({
+              function: object({
                 name: string(),
                 arguments: string()
               })
@@ -31010,7 +32994,7 @@ ${user}:`]
     ),
     usage: openaiCompatibleTokenUsageSchema
   });
-  object$1({
+  object({
     /**
      * Echo back the prompt in addition to the completion.
      */
@@ -31032,24 +33016,24 @@ ${user}:`]
      */
     user: string().optional()
   });
-  var usageSchema = object$1({
+  var usageSchema = object({
     prompt_tokens: number$1(),
     completion_tokens: number$1(),
     total_tokens: number$1()
   });
-  object$1({
+  object({
     id: string().nullish(),
     created: number$1().nullish(),
     model: string().nullish(),
     choices: array(
-      object$1({
+      object({
         text: string(),
         finish_reason: string()
       })
     ),
     usage: usageSchema.nullish()
   });
-  object$1({
+  object({
     /**
      * The number of dimensions the resulting output embeddings should have.
      * Only supported in text-embedding-3 and later models.
@@ -31061,9 +33045,9 @@ ${user}:`]
      */
     user: string().optional()
   });
-  object$1({
-    data: array(object$1({ embedding: array(number$1()) })),
-    usage: object$1({ prompt_tokens: number$1() }).nullish(),
+  object({
+    data: array(object({ embedding: array(number$1()) })),
+    usage: object({ prompt_tokens: number$1() }).nullish(),
     providerMetadata: record(string(), record(string(), any())).optional()
   });
   var OpenAICompatibleImageModel = class {
@@ -31133,9 +33117,91 @@ ${user}:`]
       };
     }
   };
-  var openaiCompatibleImageResponseSchema = object$1({
-    data: array(object$1({ b64_json: string() }))
+  var openaiCompatibleImageResponseSchema = object({
+    data: array(object({ b64_json: string() }))
   });
+
+  // src/errors/ai-sdk-error.ts
+  var marker$2 = "vercel.ai.error";
+  var symbol$2 = Symbol.for(marker$2);
+  var _a$2;
+  var _AISDKError$2 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$2] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$2);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$2 = symbol$2;
+  var AISDKError$2 = _AISDKError$2;
+
+  // src/errors/no-such-model-error.ts
+  var name10$1 = "AI_NoSuchModelError";
+  var marker11$1 = `vercel.ai.error.${name10$1}`;
+  var symbol11$1 = Symbol.for(marker11$1);
+  var _a11$1;
+  var NoSuchModelError$1 = class NoSuchModelError extends AISDKError$2 {
+    constructor({
+      errorName = name10$1,
+      modelId,
+      modelType,
+      message = `No such ${modelType}: ${modelId}`
+    }) {
+      super({ name: errorName, message });
+      this[_a11$1] = true;
+      this.modelId = modelId;
+      this.modelType = modelType;
+    }
+    static isInstance(error) {
+      return AISDKError$2.hasMarker(error, marker11$1);
+    }
+  };
+  _a11$1 = symbol11$1;
+
+  // src/errors/unsupported-functionality-error.ts
+  var name13$2 = "AI_UnsupportedFunctionalityError";
+  var marker14$2 = `vercel.ai.error.${name13$2}`;
+  var symbol14$2 = Symbol.for(marker14$2);
+  var _a14$2;
+  var UnsupportedFunctionalityError$2 = class UnsupportedFunctionalityError extends AISDKError$2 {
+    constructor({
+      functionality,
+      message = `'${functionality}' functionality not supported.`
+    }) {
+      super({ name: name13$2, message });
+      this[_a14$2] = true;
+      this.functionality = functionality;
+    }
+    static isInstance(error) {
+      return AISDKError$2.hasMarker(error, marker14$2);
+    }
+  };
+  _a14$2 = symbol14$2;
 
   // src/xai-provider.ts
   function convertToXaiChatMessages(prompt) {
@@ -31169,7 +33235,7 @@ ${user}:`]
                       }
                     };
                   } else {
-                    throw new UnsupportedFunctionalityError$1({
+                    throw new UnsupportedFunctionalityError$2({
                       functionality: `file part media type ${part.mediaType}`
                     });
                   }
@@ -31269,14 +33335,14 @@ ${user}:`]
         return "unknown";
     }
   }
-  var webSourceSchema = object$1({
+  var webSourceSchema = object({
     type: literal("web"),
     country: string().length(2).optional(),
     excludedWebsites: array(string()).max(5).optional(),
     allowedWebsites: array(string()).max(5).optional(),
     safeSearch: boolean().optional()
   });
-  var xSourceSchema = object$1({
+  var xSourceSchema = object({
     type: literal("x"),
     excludedXHandles: array(string()).optional(),
     includedXHandles: array(string()).optional(),
@@ -31287,13 +33353,13 @@ ${user}:`]
      */
     xHandles: array(string()).optional()
   });
-  var newsSourceSchema = object$1({
+  var newsSourceSchema = object({
     type: literal("news"),
     country: string().length(2).optional(),
     excludedWebsites: array(string()).max(5).optional(),
     safeSearch: boolean().optional()
   });
-  var rssSourceSchema = object$1({
+  var rssSourceSchema = object({
     type: literal("rss"),
     links: array(string().url()).max(1)
     // currently only supports one RSS link
@@ -31304,9 +33370,9 @@ ${user}:`]
     newsSourceSchema,
     rssSourceSchema
   ]);
-  var xaiProviderOptions = object$1({
+  var xaiProviderOptions = object({
     reasoningEffort: _enum(["low", "high"]).optional(),
-    searchParameters: object$1({
+    searchParameters: object({
       /**
        * search mode preference
        * - "off": disables search completely
@@ -31339,8 +33405,8 @@ ${user}:`]
       sources: array(searchSourceSchema).optional()
     }).optional()
   });
-  var xaiErrorDataSchema = object$1({
-    error: object$1({
+  var xaiErrorDataSchema = object({
+    error: object({
       message: string(),
       type: string().nullish(),
       param: any().nullish(),
@@ -31396,7 +33462,7 @@ ${user}:`]
         };
       default: {
         const _exhaustiveCheck = type;
-        throw new UnsupportedFunctionalityError$1({
+        throw new UnsupportedFunctionalityError$2({
           functionality: `tool choice type: ${_exhaustiveCheck}`
         });
       }
@@ -31775,29 +33841,29 @@ ${user}:`]
       };
     }
   };
-  var xaiUsageSchema = object$1({
+  var xaiUsageSchema = object({
     prompt_tokens: number$1(),
     completion_tokens: number$1(),
     total_tokens: number$1(),
-    completion_tokens_details: object$1({
+    completion_tokens_details: object({
       reasoning_tokens: number$1().nullish()
     }).nullish()
   });
-  var xaiChatResponseSchema = object$1({
+  var xaiChatResponseSchema = object({
     id: string().nullish(),
     created: number$1().nullish(),
     model: string().nullish(),
     choices: array(
-      object$1({
-        message: object$1({
+      object({
+        message: object({
           role: literal("assistant"),
           content: string().nullish(),
           reasoning_content: string().nullish(),
           tool_calls: array(
-            object$1({
+            object({
               id: string(),
               type: literal("function"),
-              function: object$1({
+              function: object({
                 name: string(),
                 arguments: string()
               })
@@ -31812,21 +33878,21 @@ ${user}:`]
     usage: xaiUsageSchema,
     citations: array(string().url()).nullish()
   });
-  var xaiChatChunkSchema = object$1({
+  var xaiChatChunkSchema = object({
     id: string().nullish(),
     created: number$1().nullish(),
     model: string().nullish(),
     choices: array(
-      object$1({
-        delta: object$1({
+      object({
+        delta: object({
           role: _enum(["assistant"]).optional(),
           content: string().nullish(),
           reasoning_content: string().nullish(),
           tool_calls: array(
-            object$1({
+            object({
               id: string(),
               type: literal("function"),
-              function: object$1({
+              function: object({
                 name: string(),
                 arguments: string()
               })
@@ -31842,7 +33908,7 @@ ${user}:`]
   });
 
   // src/version.ts
-  var VERSION$1 = "2.0.25" ;
+  var VERSION$1 = "2.0.24" ;
 
   // src/xai-provider.ts
   var xaiErrorStructure = {
@@ -31887,13 +33953,95 @@ ${user}:`]
     provider.languageModel = createLanguageModel;
     provider.chat = createLanguageModel;
     provider.textEmbeddingModel = (modelId) => {
-      throw new NoSuchModelError({ modelId, modelType: "textEmbeddingModel" });
+      throw new NoSuchModelError$1({ modelId, modelType: "textEmbeddingModel" });
     };
     provider.imageModel = createImageModel;
     provider.image = createImageModel;
     return provider;
   }
   var xai = createXai();
+
+  // src/errors/ai-sdk-error.ts
+  var marker$1 = "vercel.ai.error";
+  var symbol$1 = Symbol.for(marker$1);
+  var _a$1;
+  var _AISDKError$1 = class _AISDKError extends Error {
+    /**
+     * Creates an AI SDK Error.
+     *
+     * @param {Object} params - The parameters for creating the error.
+     * @param {string} params.name - The name of the error.
+     * @param {string} params.message - The error message.
+     * @param {unknown} [params.cause] - The underlying cause of the error.
+     */
+    constructor({
+      name: name14,
+      message,
+      cause
+    }) {
+      super(message);
+      this[_a$1] = true;
+      this.name = name14;
+      this.cause = cause;
+    }
+    /**
+     * Checks if the given error is an AI SDK Error.
+     * @param {unknown} error - The error to check.
+     * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
+     */
+    static isInstance(error) {
+      return _AISDKError.hasMarker(error, marker$1);
+    }
+    static hasMarker(error, marker15) {
+      const markerSymbol = Symbol.for(marker15);
+      return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
+    }
+  };
+  _a$1 = symbol$1;
+  var AISDKError$1 = _AISDKError$1;
+
+  // src/errors/no-such-model-error.ts
+  var name10 = "AI_NoSuchModelError";
+  var marker11 = `vercel.ai.error.${name10}`;
+  var symbol11 = Symbol.for(marker11);
+  var _a11;
+  var NoSuchModelError = class extends AISDKError$1 {
+    constructor({
+      errorName = name10,
+      modelId,
+      modelType,
+      message = `No such ${modelType}: ${modelId}`
+    }) {
+      super({ name: errorName, message });
+      this[_a11] = true;
+      this.modelId = modelId;
+      this.modelType = modelType;
+    }
+    static isInstance(error) {
+      return AISDKError$1.hasMarker(error, marker11);
+    }
+  };
+  _a11 = symbol11;
+
+  // src/errors/unsupported-functionality-error.ts
+  var name13$1 = "AI_UnsupportedFunctionalityError";
+  var marker14$1 = `vercel.ai.error.${name13$1}`;
+  var symbol14$1 = Symbol.for(marker14$1);
+  var _a14$1;
+  var UnsupportedFunctionalityError$1 = class UnsupportedFunctionalityError extends AISDKError$1 {
+    constructor({
+      functionality,
+      message = `'${functionality}' functionality not supported.`
+    }) {
+      super({ name: name13$1, message });
+      this[_a14$1] = true;
+      this.functionality = functionality;
+    }
+    static isInstance(error) {
+      return AISDKError$1.hasMarker(error, marker14$1);
+    }
+  };
+  _a14$1 = symbol14$1;
 
   // src/perplexity-provider.ts
   function convertToPerplexityMessages(prompt) {
@@ -32232,26 +34380,26 @@ ${user}:`]
       timestamp: new Date(created * 1e3)
     };
   }
-  var perplexityUsageSchema = object$1({
+  var perplexityUsageSchema = object({
     prompt_tokens: number$1(),
     completion_tokens: number$1(),
     total_tokens: number$1().nullish(),
     citation_tokens: number$1().nullish(),
     num_search_queries: number$1().nullish()
   });
-  var perplexityImageSchema = object$1({
+  var perplexityImageSchema = object({
     image_url: string(),
     origin_url: string(),
     height: number$1(),
     width: number$1()
   });
-  var perplexityResponseSchema = object$1({
+  var perplexityResponseSchema = object({
     id: string(),
     created: number$1(),
     model: string(),
     choices: array(
-      object$1({
-        message: object$1({
+      object({
+        message: object({
           role: literal("assistant"),
           content: string()
         }),
@@ -32262,13 +34410,13 @@ ${user}:`]
     images: array(perplexityImageSchema).nullish(),
     usage: perplexityUsageSchema.nullish()
   });
-  var perplexityChunkSchema = object$1({
+  var perplexityChunkSchema = object({
     id: string(),
     created: number$1(),
     model: string(),
     choices: array(
-      object$1({
-        delta: object$1({
+      object({
+        delta: object({
           role: literal("assistant"),
           content: string()
         }),
@@ -32279,8 +34427,8 @@ ${user}:`]
     images: array(perplexityImageSchema).nullish(),
     usage: perplexityUsageSchema.nullish()
   });
-  var perplexityErrorSchema = object$1({
-    error: object$1({
+  var perplexityErrorSchema = object({
+    error: object({
       code: number$1(),
       message: string().nullish(),
       type: string().nullish()
@@ -32292,7 +34440,7 @@ ${user}:`]
   };
 
   // src/version.ts
-  var VERSION = "2.0.13" ;
+  var VERSION = "2.0.12" ;
 
   // src/perplexity-provider.ts
   function createPerplexity(options = {}) {
@@ -34393,1412 +36541,6 @@ Error message: ${getErrorMessage(cause)}`,
     },
   });
 
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                 TAB ID MANAGEMENT                       │
-  // ╰─────────────────────────────────────────────────────────╯
-  /**
-   * Manages unique, session-only IDs for tab objects.
-   * This is necessary because no built-in tab property is consistently
-   * available and unique for all tabs (e.g., background/unloaded tabs).
-   */
-  const TabIdManager = new (class {
-    #tabIdMap = new WeakMap();
-    #idTabMap = new Map();
-    #nextId = 1;
-
-    _getOrCreateId(tab) {
-      if (!this.#tabIdMap.has(tab)) {
-        const id = this.#nextId++;
-        this.#tabIdMap.set(tab, id);
-        this.#idTabMap.set(id, tab);
-      }
-      return this.#tabIdMap.get(tab);
-    }
-
-    getTabById(id) {
-      const numericId = Number(id);
-      const tab = this.#idTabMap.get(numericId);
-      // Ensure the tab still exists in the browser before returning it.
-      if (tab && tab.ownerGlobal && !tab.ownerGlobal.closed && gBrowser.tabs.includes(tab)) {
-        return tab;
-      }
-      // Clean up the map if the tab is gone.
-      this.#idTabMap.delete(numericId);
-      return null;
-    }
-
-    mapTab(tab) {
-      if (!tab) return null;
-
-      const id = this._getOrCreateId(tab);
-      const splitGroup = tab.group?.hasAttribute("split-view-group") ? tab.group : null;
-      const workspaceId = tab.getAttribute("zen-workspace-id");
-      const workspace = workspaceId ? gZenWorkspaces.getWorkspaceFromId(workspaceId) : null;
-      const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
-
-      return {
-        id: String(id),
-        title: tab.label,
-        url: tab.linkedBrowser?.currentURI?.spec,
-        isCurrent: tab === gBrowser.selectedTab,
-        inCurrentWorkspace: workspaceId === activeWorkspaceId,
-        workspaceId,
-        workspaceName: workspace?.name || null,
-        workspaceIcon: workspace?.icon || null,
-        pinned: tab.pinned,
-        isGroup: gBrowser.isTabGroup(tab),
-        isEssential: tab.hasAttribute("zen-essential"),
-        parentFolderId: tab.group && !splitGroup ? tab.group.id : null,
-        parentFolderName: tab.group && !splitGroup ? tab.group.label : null,
-        isSplitView: !!splitGroup,
-        splitViewId: splitGroup ? splitGroup.id : null,
-      };
-    }
-  })();
-
-  // Helper function to create Zod string parameters
-  const createStringParameter = (description, isOptional = false) => {
-    let schema = stringType().describe(description);
-    return isOptional ? schema.optional() : schema;
-  };
-
-  // Helper function for array of strings parameter
-  const createStringArrayParameter = (description, isOptional = false) => {
-    let schema = arrayType(stringType()).describe(description);
-    return isOptional ? schema.optional() : schema;
-  };
-
-  // Helper function to create tools with consistent structure
-  const createTool = (description, parameters, executeFn) => {
-    return tool({
-      description,
-      inputSchema: objectType(parameters),
-      execute: executeFn,
-    });
-  };
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                      HELPERS                            │
-  // ╰─────────────────────────────────────────────────────────╯
-  /**
-   * Retrieves tab objects based on their session IDs.
-   * @param {string[]} tabIds - An array of session IDs for the tabs to retrieve.
-   * @returns {Array<object>} An array of tab browser elements.
-   */
-  function getTabsByIds(tabIds) {
-    if (!Array.isArray(tabIds)) tabIds = [tabIds];
-    return tabIds.map((id) => TabIdManager.getTabById(id)).filter(Boolean);
-  }
-
-  /**
-   * Maps a tab element to a simplified object for AI consumption.
-   * @param {object} tab - The tab browser element.
-   * @returns {object|null} A simplified tab object, or null if the tab is invalid.
-   */
-  function mapTabToObject(tab) {
-    return TabIdManager.mapTab(tab);
-  }
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                         SEARCH                          │
-  // ╰─────────────────────────────────────────────────────────╯
-  async function getSearchURL(engineName, searchTerm) {
-    try {
-      const engine = await Services.search.getEngineByName(engineName);
-      if (!engine) {
-        debugError(`No search engine found with name: ${engineName}`);
-        return null;
-      }
-      const submission = engine.getSubmission(searchTerm.trim());
-      if (!submission) {
-        debugError(`No submission found for term: ${searchTerm} and engine: ${engineName}`);
-        return null;
-      }
-      return submission.uri.spec;
-    } catch (e) {
-      debugError(`Error getting search URL for engine "${engineName}".`, e);
-      return null;
-    }
-  }
-
-  async function search(args) {
-    const { searchTerm, engineName, where } = args;
-    const defaultEngineName = Services.search.defaultEngine.name;
-    const searchEngineName = engineName || defaultEngineName;
-    if (!searchTerm) return { error: "Search tool requires a searchTerm." };
-
-    const url = await getSearchURL(searchEngineName, searchTerm);
-    if (url) {
-      return await openLink({ link: url, where });
-    } else {
-      return {
-        error: `Could not find search engine named '${searchEngineName}'.`,
-      };
-    }
-  }
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                          TABS                           │
-  // ╰─────────────────────────────────────────────────────────╯
-  async function openLink(args) {
-    const { link, where = "new tab" } = args;
-    if (!link) return { error: "openLink requires a link." };
-    const whereNormalized = where?.toLowerCase()?.trim();
-    try {
-      switch (whereNormalized) {
-        case "current tab":
-          openTrustedLinkIn(link, "current");
-          break;
-        case "new tab":
-          openTrustedLinkIn(link, "tab");
-          break;
-        case "new window":
-          openTrustedLinkIn(link, "window");
-          break;
-        case "incognito":
-        case "private":
-          window.openTrustedLinkIn(link, "window", { private: true });
-          break;
-        case "glance":
-          if (window.gZenGlanceManager) {
-            const rect = gBrowser.selectedBrowser.getBoundingClientRect();
-            window.gZenGlanceManager.openGlance({
-              url: link,
-              x: rect.left + rect.width / 2,
-              y: rect.top + rect.height / 2,
-              width: 10,
-              height: 10,
-            });
-          } else {
-            openTrustedLinkIn(link, "tab");
-            return { result: `Glance not available. Opened in a new tab.` };
-          }
-          break;
-        case "vsplit":
-        case "hsplit":
-          if (window.gZenViewSplitter) {
-            const sep = whereNormalized === "vsplit" ? "vsep" : "hsep";
-            const tab1 = gBrowser.selectedTab;
-            await openTrustedLinkIn(link, "tab");
-            const tab2 = gBrowser.selectedTab;
-            gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
-          } else return { error: "Split view is not available." };
-          break;
-        default:
-          openTrustedLinkIn(link, "tab");
-          return {
-            result: `Unknown location "${where}". Opened in a new tab as fallback.`,
-          };
-      }
-      return { result: `Successfully opened ${link} in ${where}.` };
-    } catch (e) {
-      debugError(`Failed to open link "${link}" in "${where}".`, e);
-      return { error: `Failed to open link.` };
-    }
-  }
-
-  async function newSplit(args) {
-    const { links, type = "vertical" } = args;
-    if (!window.gZenViewSplitter) return { error: "Split view function is not available." };
-    if (!links || !Array.isArray(links) || links.length < 2)
-      return { error: "newSplit requires an array of at least two links." };
-
-    try {
-      const tabs = [];
-      for (const link of links) {
-        // openTrustedLinkIn seems to always select the new tab
-        await openTrustedLinkIn(link, "tab");
-        tabs.push(gBrowser.selectedTab);
-      }
-
-      let gridType;
-      const lowerType = type.toLowerCase();
-      if (lowerType === "grid") {
-        gridType = "grid";
-      } else if (lowerType === "horizontal") {
-        gridType = "hsep";
-      } else {
-        // "vertical" or default
-        gridType = "vsep";
-      }
-
-      gZenViewSplitter.splitTabs(tabs, gridType);
-      return {
-        result: `Successfully created split view with ${links.length} tabs.`,
-      };
-    } catch (e) {
-      debugError("Failed to create split view.", e);
-      return { error: "Failed to create split view." };
-    }
-  }
-
-  /**
-   * Retrieves all open tabs across all workspaces.
-   * @returns {Promise<object>} A promise that resolves with an object containing an array of all tabs.
-   */
-  async function getAllTabs() {
-    try {
-      const allTabs = gZenWorkspaces.allStoredTabs.map(mapTabToObject).filter(Boolean);
-      return { tabs: allTabs };
-    } catch (e) {
-      debugError("Failed to get all tabs:", e);
-      return { error: "Failed to retrieve tabs." };
-    }
-  }
-
-  /**
-   * Closes specified tabs.
-   * @param {object} args - The arguments object.
-   * @param {string[]} args.tabIds - An array of session IDs for the tabs to close.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function closeTabs(args) {
-    const { tabIds } = args;
-    if (!tabIds || tabIds.length === 0) return { error: "closeTabs requires an array of tabIds." };
-    try {
-      const tabsToClose = getTabsByIds(tabIds);
-      if (tabsToClose.length === 0) return { error: "No matching tabs found to close." };
-
-      gBrowser.removeTabs(tabsToClose);
-      return { result: `Successfully closed ${tabsToClose.length} tab(s).` };
-    } catch (e) {
-      debugError("Failed to close tabs:", e);
-      return { error: "An error occurred while closing tabs." };
-    }
-  }
-
-  /**
-   * Splits existing tabs into a view.
-   * @param {object} args - The arguments object.
-   * @param {string[]} args.tabIds - An array of session IDs for the tabs to split.
-   * @param {string} [args.type="vertical"] - The split type: 'horizontal', 'vertical', or 'grid'. Defaults to 'vertical'.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function splitExistingTabs(args) {
-    const { tabIds, type = "vertical" } = args;
-    if (!window.gZenViewSplitter) return { error: "Split view function is not available." };
-    if (!tabIds || tabIds.length < 2)
-      return { error: "splitExistingTabs requires at least two tabIds." };
-
-    try {
-      const tabs = getTabsByIds(tabIds);
-      if (tabs.length < 2) return { error: "Could not find at least two tabs to split." };
-
-      let gridType;
-      const lowerType = type.toLowerCase();
-      if (lowerType === "grid") {
-        gridType = "grid";
-      } else if (lowerType === "horizontal") {
-        gridType = "hsep";
-      } else {
-        // "vertical" or default
-        gridType = "vsep";
-      }
-
-      gZenViewSplitter.splitTabs(tabs, gridType);
-      return { result: `Successfully created split view with ${tabs.length} tabs.` };
-    } catch (e) {
-      debugError("Failed to split existing tabs.", e);
-      return { error: "Failed to create split view." };
-    }
-  }
-
-  /**
-   * Searches tabs based on a query.
-   * @param {object} args - The arguments object.
-   * @param {string} args.query - The search term for tabs.
-   * @returns {Promise<object>} A promise that resolves with an object containing an array of tab results or an error.
-   */
-  async function searchTabs(args) {
-    const { query } = args;
-    if (!query) return { error: "searchTabs requires a query." };
-    const lowerCaseQuery = query.toLowerCase();
-
-    try {
-      const allTabs = gZenWorkspaces.allStoredTabs;
-      const results = allTabs
-        .filter((tab) => {
-          const title = tab.label?.toLowerCase() || "";
-          const url = tab.linkedBrowser?.currentURI?.spec?.toLowerCase() || "";
-          return title.includes(lowerCaseQuery) || url.includes(lowerCaseQuery);
-        })
-        .map(mapTabToObject)
-        .filter(Boolean);
-
-      return { tabs: results };
-    } catch (e) {
-      debugError(`Error searching tabs for query "${query}":`, e);
-      return { error: `Failed to search tabs.` };
-    }
-  }
-
-  /**
-   * Adds tabs to a folder (tab group).
-   * @param {object} args - The arguments object.
-   * @param {string[]} args.tabIds - The session IDs of the tabs to add.
-   * @param {string} args.folderId - The ID of the folder to add the tabs to.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function addTabsToFolder(args) {
-    const { tabIds, folderId } = args;
-    if (!tabIds || !folderId) return { error: "addTabsToFolder requires tabIds and a folderId." };
-
-    try {
-      const tabs = getTabsByIds(tabIds);
-      const folder = document.getElementById(folderId);
-
-      if (!folder || !folder.isZenFolder) {
-        return { error: `Folder with ID "${folderId}" not found or is not a valid folder.` };
-      }
-      if (tabs.length === 0) return { error: "No valid tabs found to add to the folder." };
-
-      folder.addTabs(tabs);
-      return { result: `Successfully added ${tabs.length} tab(s) to folder "${folder.label}".` };
-    } catch (e) {
-      debugError("Failed to add tabs to folder:", e);
-      return { error: "Failed to add tabs to folder." };
-    }
-  }
-
-  /**
-   * Removes tabs from their current folder.
-   * @param {object} args - The arguments object.
-   * @param {string[]} args.tabIds - The session IDs of the tabs to remove from their folder.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function removeTabsFromFolder(args) {
-    const { tabIds } = args;
-    if (!tabIds) return { error: "removeTabsFromFolder requires tabIds." };
-
-    try {
-      const tabs = getTabsByIds(tabIds);
-      if (tabs.length === 0) return { error: "No valid tabs found." };
-
-      let ungroupedCount = 0;
-      tabs.forEach((tab) => {
-        if (tab.group) {
-          gBrowser.ungroupTab(tab);
-          ungroupedCount++;
-        }
-      });
-      return { result: `Successfully ungrouped ${ungroupedCount} tab(s).` };
-    } catch (e) {
-      debugError("Failed to remove tabs from folder:", e);
-      return { error: "Failed to remove tabs from folder." };
-    }
-  }
-
-  /**
-   * Creates a new, empty tab folder.
-   * @param {object} args - The arguments object.
-   * @param {string} args.name - The name for the new folder.
-   * @returns {Promise<object>} A promise that resolves with the new folder's information or an error.
-   */
-  async function createTabFolder(args) {
-    const { name } = args;
-    if (!name) return { error: "createTabFolder requires a name." };
-    try {
-      const folder = gZenFolders.createFolder([], { label: name, renameFolder: false });
-      return {
-        result: `Successfully created folder "${folder.label}".`,
-        folder: {
-          id: folder.id,
-          name: folder.label,
-        },
-      };
-    } catch (e) {
-      debugError("Failed to create tab folder:", e);
-      return { error: "Failed to create tab folder." };
-    }
-  }
-
-  /**
-   * Reorders a tab to a new index.
-   * @param {object} args - The arguments object.
-   * @param {string} args.tabId - The session ID of the tab to reorder.
-   * @param {number} args.newIndex - The new index for the tab.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function reorderTab(args) {
-    const { tabId, newIndex } = args;
-    if (!tabId || typeof newIndex !== "number") {
-      return { error: "reorderTab requires a tabId and a newIndex." };
-    }
-    try {
-      const tab = TabIdManager.getTabById(tabId);
-      if (!tab) return { error: `Tab with id ${tabId} not found.` };
-      gBrowser.moveTabTo(tab, { tabIndex: newIndex });
-      return { result: `Successfully moved tab to index ${newIndex}.` };
-    } catch (e) {
-      debugError("Failed to reorder tab:", e);
-      return { error: "Failed to reorder tab." };
-    }
-  }
-
-  /**
-   * Adds one or more tabs to the essentials.
-   * @param {object} args - The arguments object.
-   * @param {string[]} args.tabIds - An array of session IDs for the tabs to add to essentials.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function addTabsToEssentials(args) {
-    const { tabIds } = args;
-    if (!tabIds || tabIds.length === 0)
-      return { error: "addTabsToEssentials requires at least one tabId." };
-    try {
-      const tabs = getTabsByIds(tabIds);
-      if (tabs.length === 0) return { error: "No matching tabs found." };
-      if (window.gZenPinnedTabManager) {
-        gZenPinnedTabManager.addToEssentials(tabs);
-        return { result: `Successfully added ${tabs.length} tab(s) to essentials.` };
-      } else {
-        return { error: "Essentials manager is not available." };
-      }
-    } catch (e) {
-      debugError("Failed to add tabs to essentials:", e);
-      return { error: "An error occurred while adding tabs to essentials." };
-    }
-  }
-
-  /**
-   * Removes one or more tabs from the essentials.
-   * @param {object} args - The arguments object.
-   * @param {string[]} args.tabIds - An array of session IDs for the tabs to remove from essentials.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function removeTabsFromEssentials(args) {
-    const { tabIds } = args;
-    if (!tabIds || tabIds.length === 0)
-      return { error: "removeTabsFromEssentials requires at least one tabId." };
-    try {
-      const tabs = getTabsByIds(tabIds);
-      if (tabs.length === 0) return { error: "No matching tabs found." };
-      if (window.gZenPinnedTabManager) {
-        tabs.forEach((tab) => gZenPinnedTabManager.removeFromEssentials(tab));
-        return { result: `Successfully removed ${tabs.length} tab(s) from essentials.` };
-      } else {
-        return { error: "Essentials manager is not available." };
-      }
-    } catch (e) {
-      debugError("Failed to remove tabs from essentials:", e);
-      return { error: "An error occurred while removing tabs from essentials." };
-    }
-  }
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                        BOOKMARKS                        │
-  // ╰─────────────────────────────────────────────────────────╯
-
-  /**
-   * Searches bookmarks based on a query.
-   * @param {object} args - The arguments object.
-   * @param {string} args.query - The search term for bookmarks.
-   * @returns {Promise<object>} A promise that resolves with an object containing an array of bookmark results or an error.
-   */
-  async function searchBookmarks(args) {
-    const { query } = args;
-    if (!query) return { error: "searchBookmarks requires a query." };
-
-    try {
-      const searchParams = { query };
-      const bookmarks = await PlacesUtils.bookmarks.search(searchParams);
-
-      // Map to a simpler format to save tokens for the AI model
-      const results = bookmarks.map((bookmark) => ({
-        id: bookmark.guid,
-        title: bookmark.title,
-        url: bookmark?.url?.href,
-        parentID: bookmark.parentGuid,
-      }));
-
-      debugLog(`Found ${results.length} bookmarks for query "${query}":`, results);
-      return { bookmarks: results };
-    } catch (e) {
-      debugError(`Error searching bookmarks for query "${query}":`, e);
-      return { error: `Failed to search bookmarks.` };
-    }
-  }
-
-  /**
-   * Reads all bookmarks.
-   * @returns {Promise<object>} A promise that resolves with an object containing an array of all bookmark results or an error.
-   */
-
-  async function getAllBookmarks() {
-    try {
-      const bookmarks = await PlacesUtils.bookmarks.search({});
-
-      const results = bookmarks.map((bookmark) => ({
-        id: bookmark.guid,
-        title: bookmark.title,
-        url: bookmark?.url?.href,
-        parentID: bookmark.parentGuid,
-      }));
-
-      debugLog(`Read ${results.length} total bookmarks.`);
-      return { bookmarks: results };
-    } catch (e) {
-      debugError(`Error reading all bookmarks:`, e);
-      return { error: `Failed to read all bookmarks.` };
-    }
-  }
-
-  /**
-   * Creates a new bookmark.
-   * @param {object} args - The arguments object.
-   * @param {string} args.url - The URL to bookmark.
-   * @param {string} [args.title] - The title for the bookmark. If not provided, the URL is used.
-   * @param {string} [args.parentID] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function createBookmark(args) {
-    const { url, title, parentID } = args;
-    if (!url) return { error: "createBookmark requires a URL." };
-
-    try {
-      const bookmarkInfo = {
-        parentGuid: parentID || PlacesUtils.bookmarks.toolbarGuid,
-        url: new URL(url),
-        title: title || url,
-      };
-
-      const bm = await PlacesUtils.bookmarks.insert(bookmarkInfo);
-
-      debugLog(`Bookmark created successfully:`, JSON.stringify(bm));
-      return { result: `Successfully bookmarked "${bm.title}".` };
-    } catch (e) {
-      debugError(`Error creating bookmark for URL "${url}":`, e);
-      return { error: `Failed to create bookmark.` };
-    }
-  }
-
-  /**
-   * Creates a new bookmark folder.
-   * @param {object} args - The arguments object.
-   * @param {string} args.title - The title for the new folder.
-   * @param {string} [args.parentID] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function addBookmarkFolder(args) {
-    const { title, parentID } = args;
-    if (!title) return { error: "addBookmarkFolder requires a title." };
-
-    try {
-      const folderInfo = {
-        parentGuid: parentID || PlacesUtils.bookmarks.toolbarGuid,
-        type: PlacesUtils.bookmarks.TYPE_FOLDER,
-        title: title,
-      };
-
-      const folder = await PlacesUtils.bookmarks.insert(folderInfo);
-
-      debugLog(`Bookmark folder created successfully:`, JSON.stringify(folderInfo));
-      return { result: `Successfully created folder "${folder.title}".` };
-    } catch (e) {
-      debugError(`Error creating bookmark folder "${title}":`, e);
-      return { error: `Failed to create folder.` };
-    }
-  }
-
-  /**
-   * Updates an existing bookmark.
-   * @param {object} args - The arguments object.
-   * @param {string} args.id - The GUID of the bookmark to update.
-   * @param {string} [args.url] - The new URL for the bookmark.
-   * @param {string} [args.parentID] - parent id
-   *
-   * @param {string} [args.title] - The new title for the bookmark.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function updateBookmark(args) {
-    const { id, url, title, parentID } = args;
-    if (!id) return { error: "updateBookmark requires a bookmark id (guid)." };
-    if (!url && !title && !parentID)
-      return {
-        error: "updateBookmark requires either a new url, title, or parentID.",
-      };
-
-    try {
-      const oldBookmark = await PlacesUtils.bookmarks.fetch(id);
-      if (!oldBookmark) {
-        return { error: `No bookmark found with id "${id}".` };
-      }
-
-      const bm = await PlacesUtils.bookmarks.update({
-        guid: id,
-        url: url ? new URL(url) : oldBookmark.url,
-        title: title || oldBookmark.title,
-        parentGuid: parentID || oldBookmark.parentGuid,
-      });
-
-      debugLog(`Bookmark updated successfully:`, JSON.stringify(bm));
-      return { result: `Successfully updated bookmark to "${bm.title}".` };
-    } catch (e) {
-      debugError(`Error updating bookmark with id "${id}":`, e);
-      return { error: `Failed to update bookmark.` };
-    }
-  }
-
-  /**
-   * Deletes a bookmark.
-   * @param {object} args - The arguments object.
-   * @param {string} args.id - The GUID of the bookmark to delete.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-
-  async function deleteBookmark(args) {
-    const { id } = args;
-    if (!id) return { error: "deleteBookmark requires a bookmark id (guid)." };
-    try {
-      await PlacesUtils.bookmarks.remove(id);
-      debugLog(`Bookmark with id "${id}" deleted successfully.`);
-      return { result: `Successfully deleted bookmark.` };
-    } catch (e) {
-      debugError(`Error deleting bookmark with id "${id}":`, e);
-      return { error: `Failed to delete bookmark.` };
-    }
-  }
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                        WORKSPACES                       │
-  // ╰─────────────────────────────────────────────────────────╯
-  /**
-   * Retrieves all workspaces.
-   * @returns {Promise<object>} A promise that resolves with an object containing an array of all workspaces.
-   */
-  async function getAllWorkspaces() {
-    try {
-      const { workspaces } = await gZenWorkspaces._workspaces();
-      const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
-      const result = workspaces.map((ws) => ({
-        id: ws.uuid,
-        name: ws.name,
-        icon: ws.icon,
-        position: ws.position,
-        isActive: ws.uuid === activeWorkspaceId,
-      }));
-      return { workspaces: result };
-    } catch (e) {
-      debugError("Failed to get all workspaces:", e);
-      return { error: "Failed to retrieve workspaces." };
-    }
-  }
-
-  /**
-   * Creates a new workspace.
-   * @param {object} args - The arguments object.
-   * @param {string} args.name - The name for the new workspace.
-   * @param {string} [args.icon] - The icon (emoji or URL) for the new workspace.
-   * @returns {Promise<object>} A promise that resolves with the new workspace information.
-   */
-  async function createWorkspace(args) {
-    const { name, icon } = args;
-    if (!name) return { error: "createWorkspace requires a name." };
-    try {
-      const ws = await gZenWorkspaces.createAndSaveWorkspace(name, icon, false);
-      return {
-        result: `Successfully created workspace "${name}".`,
-        workspace: { id: ws.uuid, name: ws.name, icon: ws.icon },
-      };
-    } catch (e) {
-      debugError("Failed to create workspace:", e);
-      return { error: "Failed to create workspace." };
-    }
-  }
-
-  /**
-   * Updates an existing workspace.
-   * @param {object} args - The arguments object.
-   * @param {string} args.id - The ID of the workspace to update.
-   * @param {string} [args.name] - The new name for the workspace.
-   * @param {string} [args.icon] - The new icon for the workspace.
-   * @returns {Promise<object>} A promise that resolves with a success message.
-   */
-  async function updateWorkspace(args) {
-    const { id, name, icon } = args;
-    if (!id) return { error: "updateWorkspace requires a workspace id." };
-    if (!name && !icon) return { error: "updateWorkspace requires a new name or icon." };
-    try {
-      const workspace = gZenWorkspaces.getWorkspaceFromId(id);
-      if (!workspace) return { error: `Workspace with id ${id} not found.` };
-      if (name) workspace.name = name;
-      if (icon) workspace.icon = icon;
-      await gZenWorkspaces.saveWorkspace(workspace);
-      return { result: `Successfully updated workspace.` };
-    } catch (e) {
-      debugError("Failed to update workspace:", e);
-      return { error: "Failed to update workspace." };
-    }
-  }
-
-  /**
-   * Deletes a workspace.
-   * @param {object} args - The arguments object.
-   * @param {string} args.id - The ID of the workspace to delete.
-   * @returns {Promise<object>} A promise that resolves with a success message.
-   */
-  async function deleteWorkspace(args) {
-    const { id } = args;
-    if (!id) return { error: "deleteWorkspace requires a workspace id." };
-    try {
-      await gZenWorkspaces.removeWorkspace(id);
-      return { result: "Successfully deleted workspace." };
-    } catch (e) {
-      debugError("Failed to delete workspace:", e);
-      return { error: "Failed to delete workspace." };
-    }
-  }
-
-  /**
-   * Moves tabs to a specified workspace.
-   * @param {object} args - The arguments object.
-   * @param {string[]} args.tabIds - The session IDs of the tabs to move.
-   * @param {string} args.workspaceId - The ID of the target workspace.
-   * @returns {Promise<object>} A promise that resolves with a success message.
-   */
-  async function moveTabsToWorkspace(args) {
-    const { tabIds, workspaceId } = args;
-    if (!tabIds || !workspaceId)
-      return { error: "moveTabsToWorkspace requires tabIds and a workspaceId." };
-    try {
-      const tabs = getTabsByIds(tabIds);
-      if (tabs.length === 0) return { error: "No valid tabs found to move." };
-      gZenWorkspaces.moveTabsToWorkspace(tabs, workspaceId);
-      return { result: `Successfully moved ${tabs.length} tab(s) to workspace.` };
-    } catch (e) {
-      debugError("Failed to move tabs to workspace:", e);
-      return { error: "Failed to move tabs to workspace." };
-    }
-  }
-
-  /**
-   * Reorders a workspace to a new position.
-   * @param {object} args - The arguments object.
-   * @param {string} args.id - The ID of the workspace to reorder.
-   * @param {number} args.newPosition - The new zero-based index for the workspace.
-   * @returns {Promise<object>} A promise that resolves with a success message.
-   */
-  async function reorderWorkspace(args) {
-    const { id, newPosition } = args;
-    if (!id || typeof newPosition !== "number") {
-      return { error: "reorderWorkspace requires a workspace id and a newPosition." };
-    }
-    try {
-      await gZenWorkspaces.reorderWorkspace(id, newPosition);
-      return { result: "Successfully reordered workspace." };
-    } catch (e) {
-      debugError("Failed to reorder workspace:", e);
-      return { error: "Failed to reorder workspace." };
-    }
-  }
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                         ELEMENTS                        │
-  // ╰─────────────────────────────────────────────────────────╯
-
-  /**
-   * Clicks an element on the page.
-   * @param {object} args - The arguments object.
-   * @param {string} args.selector - The CSS selector of the element to click.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function clickElement(args) {
-    const { selector } = args;
-    if (!selector) return { error: "clickElement requires a selector." };
-    return messageManagerAPI.clickElement(selector);
-  }
-
-  /**
-   * Fills a form input on the page.
-   * @param {object} args - The arguments object.
-   * @param {string} args.selector - The CSS selector of the input element to fill.
-   * @param {string} args.value - The value to fill the input with.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function fillForm(args) {
-    const { selector, value } = args;
-    if (!selector) return { error: "fillForm requires a selector." };
-    if (value === undefined) return { error: "fillForm requires a value." };
-    return messageManagerAPI.fillForm(selector, value);
-  }
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                        UI FEEDBACK                      │
-  // ╰─────────────────────────────────────────────────────────╯
-
-  /**
-   * Shows a temporary toast message to the user.
-   * @param {object} args - The arguments object.
-   * @param {string} args.title - The main title of the toast message.
-   * @param {string} [args.description] - Optional secondary text for the toast.
-   * @returns {Promise<object>} A promise that resolves with a success message or an error.
-   */
-  async function showToast(args) {
-    const { title, description } = args;
-    if (!title) return { error: "showToast requires a title." };
-
-    try {
-      if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
-        // ucAPI.showToast takes an array [title, description] and a preset.
-        // Preset 0 means no button will be shown.
-        // https://github.com/CosmoCreeper/Sine/blob/main/engine/utils/uc_api.js#L102
-        window.ucAPI.showToast([title, description], 0);
-        return { result: "Toast displayed successfully." };
-      } else {
-        debugError("ucAPI.showToast is not available.");
-        return { error: "Toast functionality is not available." };
-      }
-    } catch (e) {
-      debugError("Failed to show toast:", e);
-      return { error: "An error occurred while displaying the toast." };
-    }
-  }
-
-  // ╭─────────────────────────────────────────────────────────╮
-  // │                         YOUTUBE                         │
-  // ╰─────────────────────────────────────────────────────────╯
-  /**
-   * Wrapper for messageManagerAPI.getYoutubeComments to handle arguments.
-   * @param {object} args - The arguments object.
-   * @param {number} [args.count] - The number of comments to retrieve.
-   * @returns {Promise<object>} A promise that resolves with the comments.
-   */
-  async function getYoutubeComments(args) {
-    return messageManagerAPI.getYoutubeComments(args.count);
-  }
-
-  const toolNameMapping = {
-    search: "Searching the web",
-    openLink: "Opening a link",
-    newSplit: "Creating a split view",
-    splitExistingTabs: "Splitting existing tabs",
-    getAllTabs: "Reading tabs",
-    searchTabs: "Searching tabs",
-    closeTabs: "Closing tabs",
-    reorderTab: "Reordering a tab",
-    addTabsToFolder: "Adding tabs to a folder",
-    removeTabsFromFolder: "Removing tabs from a folder",
-    createTabFolder: "Creating a tab folder",
-    addTabsToEssentials: "Adding tabs to Essentials",
-    removeTabsFromEssentials: "Removing tabs from Essentials",
-    getPageTextContent: "Reading page content",
-    getHTMLContent: "Reading page source code",
-    clickElement: "Clicking an element",
-    fillForm: "Filling a form",
-    getYoutubeTranscript: "Getting YouTube transcript",
-    getYoutubeDescription: "Getting YouTube description",
-    getYoutubeComments: "Getting YouTube comments",
-    searchBookmarks: "Searching bookmarks",
-    getAllBookmarks: "Reading bookmarks",
-    createBookmark: "Creating a bookmark",
-    addBookmarkFolder: "Creating a bookmark folder",
-    updateBookmark: "Updating a bookmark",
-    deleteBookmark: "Deleting a bookmark",
-    getAllWorkspaces: "Reading workspaces",
-    createWorkspace: "Creating a workspace",
-    updateWorkspace: "Updating a workspace",
-    deleteWorkspace: "Deleting a workspace",
-    moveTabsToWorkspace: "Moving tabs to a workspace",
-    reorderWorkspace: "Reordering a workspace",
-    showToast: "Showing a notification",
-  };
-
-  const tabsInstructions = `If you open tab in glace it will create new small popup window to show the tab, vsplit and hsplit means it will open new tab in vertical and horizontal split with current tab respectively.`;
-  const toolGroups = {
-    search: {
-      moreInstructions: async () => {
-        const searchEngines = await Services.search.getVisibleEngines();
-        const engineNames = searchEngines.map((e) => e.name).join(", ");
-        const defaultEngineName = Services.search.defaultEngine.name;
-        return (
-          `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.` +
-          "\n" +
-          tabsInstructions
-        );
-      },
-      tools: {
-        search: createTool(
-          "Performs a web search using a specified search engine and opens the results.",
-          {
-            searchTerm: createStringParameter("The term to search for."),
-            engineName: createStringParameter("The name of the search engine to use.", true),
-            where: createStringParameter(
-              "Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
-              true
-            ),
-          },
-          search
-        ),
-      },
-      example: async () => {
-        return `#### Searching and Spliting: 
--   **User Prompt:** "search cat in google and dog in youtube open them in vertical split"
--   **Your first Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "cat", "engineName": "google", where: "new tab"}}}\`
--   **Your second Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "dog", "engineName": "youtube", where: "vsplit"}}}\`
-Note: Only second search is open in split (vertial by default), this will make it split with first search.
-`;
-      },
-    },
-    navigation: {
-      moreInstructions: tabsInstructions + "While opening tab make sure it has valid URL.",
-      tools: {
-        openLink: createTool(
-          "Opens a given URL in a specified location. Can also create a split view with the current tab.",
-          {
-            link: createStringParameter("The URL to open."),
-            where: createStringParameter(
-              "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
-              true
-            ),
-          },
-          openLink
-        ),
-        newSplit: createTool(
-          "Creates a split view by opening multiple new URLs in new tabs, then arranging them side-by-side.",
-          {
-            links: createStringArrayParameter("An array of URLs for the new tabs."),
-            type: createStringParameter(
-              "The split type: 'vertical', 'horizontal', or 'grid'. Defaults to 'vertical'.",
-              true
-            ),
-          },
-          newSplit
-        ),
-        splitExistingTabs: createTool(
-          "Creates a split view from existing open tabs.",
-          {
-            tabIds: createStringArrayParameter("An array of tab session IDs to split."),
-            type: createStringParameter(
-              "The split type: 'vertical', 'horizontal', or 'grid'. Defaults to 'vertical'.",
-              true
-            ),
-          },
-          splitExistingTabs
-        ),
-      },
-      example: async () => `#### Opening a Single Link:
--   **User Prompt:** "open github"
--   **Your Tool Call:** \`{"functionCall": {"name": "openLink", "args": {"link": "https://github.com", "where": "new tab"}}}\`
-
-#### Creating a Split View with New Pages:
--   **User Prompt:** "show me youtube and twitch side by side"
--   **Your Tool Call:** \`{"functionCall": {"name": "newSplit", "args": {"links": ["https://youtube.com", "https://twitch.tv"], "type": "vertical"}}}\`
-
-#### Splitting Existing Tabs:
--   **User Prompt:** "Make all my open youtube tabs in grid"
--   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
--   **Your Second Tool Call (after getting tab IDs):** \`{"functionCall": {"name": "splitExistingTabs", "args": {"tabIds": ["x", "y", ...]}, "type": "grid"}}\``,
-    },
-    tabs: {
-      moreInstructions: `Zen browser has advanced tab management features they are:
-- Workspaces: Different workspace can contain different tabs (pinned and unpinned).
-- Essential: Essential tabs are not workspace specific, they are most important tabs and they are always shown dispite of current workspace.
-- Tab groups: Similar tabs can be made in group to organize it in better way.
-- Split tabs: Zen allows to view multiple tabs at same time by splitting.
-`,
-      tools: {
-        getAllTabs: createTool(
-          "Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.",
-          {},
-          getAllTabs
-        ),
-        searchTabs: createTool(
-          "Searches open tabs by title or URL. Similar to `getAllTabs` this will also provide more information about tab.",
-          { query: createStringParameter("The search term for tabs.") },
-          searchTabs
-        ),
-        closeTabs: createTool(
-          "Closes one or more tabs.",
-          { tabIds: createStringArrayParameter("An array of tab session IDs to close.") },
-          closeTabs
-        ),
-        reorderTab: createTool(
-          "Reorders a tab to a new index.",
-          {
-            tabId: createStringParameter("The session ID of the tab to reorder."),
-            newIndex: numberType().describe("The new index for the tab."),
-          },
-          reorderTab
-        ),
-        addTabsToFolder: createTool(
-          "Adds one or more tabs to a folder.",
-          {
-            tabIds: createStringArrayParameter("The session IDs of the tabs to add."),
-            folderId: createStringParameter("The ID of the folder to add the tabs to."),
-          },
-          addTabsToFolder
-        ),
-        removeTabsFromFolder: createTool(
-          "Removes one or more tabs from their folder.",
-          {
-            tabIds: createStringArrayParameter(
-              "The session IDs of the tabs to remove from their folder."
-            ),
-          },
-          removeTabsFromFolder
-        ),
-        createTabFolder: createTool(
-          "Creates a new, empty tab folder.",
-          {
-            name: createStringParameter("The name for the new folder."),
-          },
-          createTabFolder
-        ),
-        addTabsToEssentials: createTool(
-          "Adds one or more tabs to the essentials.",
-          { tabIds: createStringArrayParameter("An array of session IDs to add to essentials.") },
-          addTabsToEssentials
-        ),
-        removeTabsFromEssentials: createTool(
-          "Removes one or more tabs from the essentials.",
-          {
-            tabIds: createStringArrayParameter("An array of session IDs to remove from essentials."),
-          },
-          removeTabsFromEssentials
-        ),
-      },
-      example: async () => `#### Finding and Closing Tabs:
--   **User Prompt:** "close all youtube tabs"
--   **Your First Tool Call:** \`{"functionCall": {"name": "searchTabs", "args": {"query": "youtube.com"}}}\`
--   **Your Second Tool Call (after receiving tab IDs):** \`{"functionCall": {"name": "closeTabs", "args": {"tabIds": ["1", "2"]}}}\`
-
-#### Creating a Folder and Adding Tabs:
--   **User Prompt:** "create a new folder called 'Social Media' and add all my facebook tab to it"
--   **Your First Tool Call (to get tab ID):** \`{"functionCall": {"name": "searchTabs", "args": {"query": "facebook.com"}}}\`
--   **Your Second Tool Call (to create folder):** \`{"functionCall": {"name": "createTabFolder", "args": {"name": "Social Media"}}}\`
--   **Your Third Tool Call (after getting IDs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["3", ...], "folderId": "folder-123"}}}\`
-
-#### Making a Tab Essential:
--   **User Prompt:** "make my current tab essential"
--   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
--   **Your Second Tool Call (after finding the current tab ID):** \`{"functionCall": {"name": "addTabsToEssentials", "args": {"tabIds": ["5"]}}}\``,
-    },
-    pageInteraction: {
-      tools: {
-        getPageTextContent: createTool(
-          "Retrieves the text content of the current web page to answer questions. Only use if the initial context is insufficient to answer user's question or fulfill user's command.",
-          {},
-          messageManagerAPI.getPageTextContent.bind(messageManagerAPI)
-        ),
-        getHTMLContent: createTool(
-          "Retrieves the full HTML source of the current web page for detailed analysis. Use this tool very rarely, only when text content is insufficient.",
-          {},
-          messageManagerAPI.getHTMLContent.bind(messageManagerAPI)
-        ),
-        clickElement: createTool(
-          "Clicks an element on the page.",
-          {
-            selector: createStringParameter("The CSS selector of the element to click."),
-          },
-          clickElement
-        ),
-        fillForm: createTool(
-          "Fills a form input on the page.",
-          {
-            selector: createStringParameter("The CSS selector of the input element to fill."),
-            value: createStringParameter("The value to fill the input with."),
-          },
-          fillForm
-        ),
-      },
-      example: async () => `#### Reading the Current Page for Context
--   **User Prompt:** "summarize this page for me"
--   **Your Tool Call:** \`{"functionCall": {"name": "getPageTextContent", "args": {}}}\`
--   And you summarize the page as per user's requirements.
-
-#### Finding and Clicking a Link on the Current Page
--   **User Prompt:** "click on the contact link"
--   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
--   **Your Second Tool Call (after receiving HTML and finding the link):** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#contact-link"}}}\`
-
-#### Filling a form:
--   **User Prompt:** "Fill the name with John and submit"
--   **Your First Tool Call:** \`{"functionCall": {"name": "getHTMLContent", "args": {}}}\`
--   **Your Second Tool Call:** \`{"functionCall": {"name": "fillForm", "args": {"selector": "#name", "value": "John"}}}\`
--   **Your Third Tool Call:** \`{"functionCall": {"name": "clickElement", "args": {"selector": "#submit-button"}}}\`
-Note: you must run tool getHTMLContent before clicking button or filling form to make sure element exists.
-`,
-    },
-    youtube: {
-      tools: {
-        getYoutubeTranscript: createTool(
-          "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video.",
-          {},
-          messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
-        ),
-        getYoutubeDescription: createTool(
-          "Retrieves the description of the current YouTube video. Only use if the current page is a YouTube video.",
-          {},
-          messageManagerAPI.getYoutubeDescription.bind(messageManagerAPI)
-        ),
-        getYoutubeComments: createTool(
-          "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video.",
-          {
-            count: numberType()
-              .optional()
-              .describe("The maximum number of comments to retrieve. Defaults to 10."),
-          },
-          getYoutubeComments
-        ),
-      },
-      example: async () => `#### Getting YouTube Video Details:
--   **User Prompt:** "Summarize this Youtube Video in 5 bullet points"
--   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeTranscript"}}\`
--   And you summarize the video as per user's requirements.
-
-#### Reading Youtube Comments:
--   **User Prompt:** "What are the user's feedback on this video"
--   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", count: 20}}\`
--   And Based on comments you tell user about the user's feedback on video.
-`,
-    },
-    bookmarks: {
-      tools: {
-        searchBookmarks: createTool(
-          "Searches bookmarks based on a query.",
-          {
-            query: createStringParameter("The search term for bookmarks."),
-          },
-          searchBookmarks
-        ),
-        getAllBookmarks: createTool("Retrieves all bookmarks.", {}, getAllBookmarks),
-        createBookmark: createTool(
-          "Creates a new bookmark.",
-          {
-            url: createStringParameter("The URL to bookmark."),
-            title: createStringParameter("The title for the bookmark.", true),
-            parentID: createStringParameter("The GUID of the parent folder.", true),
-          },
-          createBookmark
-        ),
-        addBookmarkFolder: createTool(
-          "Creates a new bookmark folder.",
-          {
-            title: createStringParameter("The title for the new folder."),
-            parentID: createStringParameter("The GUID of the parent folder.", true),
-          },
-          addBookmarkFolder
-        ),
-        updateBookmark: createTool(
-          "Updates an existing bookmark.",
-          {
-            id: createStringParameter("The GUID of the bookmark to update."),
-            url: createStringParameter("The new URL for the bookmark.", true),
-            title: createStringParameter("The new title for the bookmark.", true),
-            parentID: createStringParameter("The GUID of the parent folder.", true),
-          },
-          updateBookmark
-        ),
-        deleteBookmark: createTool(
-          "Deletes a bookmark.",
-          {
-            id: createStringParameter("The GUID of the bookmark to delete."),
-          },
-          deleteBookmark
-        ),
-      },
-      example: async () => `#### Finding and Editing a bookmark by folder name:
--   **User Prompt:** "Move bookmark titled 'Example' to folder 'MyFolder'"
--   **Your First Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "Example"}}}\`
--   **Your Second Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "MyFolder"}}}\`
--   **Your Third Tool Call (after receiving the bookmark and folder ids):** \`{"functionCall": {"name": "updateBookmark", "args": {"id": "xxxxxxxxxxxx", "parentID": "yyyyyyyyyyyy"}}}\`
-Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.`,
-    },
-    workspaces: {
-      moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
-Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find.
-`,
-      tools: {
-        getAllWorkspaces: createTool("Retrieves all workspaces.", {}, getAllWorkspaces),
-        createWorkspace: createTool(
-          "Creates a new workspace.",
-          {
-            name: createStringParameter("The name for the new workspace."),
-            icon: createStringParameter("The icon (emoji or URL) for the new workspace.", true),
-          },
-          createWorkspace
-        ),
-        updateWorkspace: createTool(
-          "Updates an existing workspace.",
-          {
-            id: createStringParameter("The ID of the workspace to update."),
-            name: createStringParameter("The new name for the workspace.", true),
-            icon: createStringParameter("The new icon for the workspace.", true),
-          },
-          updateWorkspace
-        ),
-        deleteWorkspace: createTool(
-          "Deletes a workspace.",
-          { id: createStringParameter("The ID of the workspace to delete.") },
-          deleteWorkspace
-        ),
-        moveTabsToWorkspace: createTool(
-          "Moves tabs to a specified workspace.",
-          {
-            tabIds: createStringArrayParameter("The session IDs of the tabs to move."),
-            workspaceId: createStringParameter("The ID of the target workspace."),
-          },
-          moveTabsToWorkspace
-        ),
-        reorderWorkspace: createTool(
-          "Reorders a workspace to a new position.",
-          {
-            id: createStringParameter("The ID of the workspace to reorder."),
-            newPosition: numberType().describe("The new zero-based index for the workspace."),
-          },
-          reorderWorkspace
-        ),
-      },
-      // example: async () =>
-    },
-    uiFeedback: {
-      tools: {
-        showToast: createTool(
-          "Shows a temporary toast message to the user.",
-          {
-            title: createStringParameter("The main title of the toast message."),
-            description: createStringParameter("Optional secondary text for the toast.", true),
-          },
-          showToast
-        ),
-      },
-      example: async () => `#### Showing a Toast Notification:
--   **User Prompt:** "let me know when the download is complete"
--   **Your Tool Call (after a long-running task):** \`{"functionCall": {"name": "showToast", "args": {"title": "Download Complete", "description": "The file has been saved to your downloads folder."}}}\``,
-    },
-    misc: {
-      example: async (activeGroups) => {
-        let example = "";
-        if (activeGroups.has("workspaces") && activeGroups.has("tabs")) {
-          example += `#### Creating and Managing a Workspace:
--   **User Prompt:** "make a new workspace called 'Research', then move all tabs related to animals in that workspace."
--   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
--   **Your Second Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
--   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\``;
-        }
-        return example;
-      },
-    },
-  };
-
-  const getTools = (groups, shouldToolBeCalled) => {
-    const selectedTools = (() => {
-      if (!groups || !Array.isArray(groups) || groups.length === 0) {
-        // get all tools from all groups except 'misc'
-        return Object.entries(toolGroups).reduce((acc, [name, group]) => {
-          if (name !== "misc" && group.tools) {
-            return { ...acc, ...group.tools };
-          }
-          return acc;
-        }, {});
-      }
-      return groups.reduce((acc, groupName) => {
-        if (toolGroups[groupName] && toolGroups[groupName].tools) {
-          return { ...acc, ...toolGroups[groupName].tools };
-        }
-        return acc;
-      }, {});
-    })();
-
-    if (!shouldToolBeCalled) {
-      return selectedTools;
-    }
-
-    const wrappedTools = {};
-    for (const toolName in selectedTools) {
-      const originalTool = selectedTools[toolName];
-      const newTool = { ...originalTool };
-
-      const originalExecute = originalTool.execute;
-      newTool.execute = async (args) => {
-        if (!(await shouldToolBeCalled(toolName))) {
-          debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
-          return { error: `Tool execution for '${toolName}' was denied.` };
-        }
-        return originalExecute(args);
-      };
-
-      if (Object.prototype.hasOwnProperty.call(originalTool, "executeFn")) {
-        const originalExecuteFn = originalTool.executeFn;
-        Object.defineProperty(newTool, "executeFn", {
-          value: async (args) => {
-            if (!(await shouldToolBeCalled(toolName))) {
-              debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
-              return { error: `Tool execution for '${toolName}' was denied.` };
-            }
-            return originalExecuteFn(args);
-          },
-          enumerable: false,
-          configurable: true,
-          writable: false,
-        });
-      }
-      wrappedTools[toolName] = newTool;
-    }
-
-    return wrappedTools;
-  };
-
-  const getToolSystemPrompt = async (groups, includeExamples = true) => {
-    try {
-      const activeGroupNames =
-        groups && Array.isArray(groups) && groups.length > 0
-          ? groups
-          : Object.keys(toolGroups).filter((g) => g !== "misc");
-      const activeGroups = new Set(activeGroupNames);
-
-      let availableTools = [];
-      let toolExamples = [];
-
-      for (const groupName of activeGroupNames) {
-        const group = toolGroups[groupName];
-        if (group) {
-          if (group.tools) {
-            for (const toolName in group.tools) {
-              const tool = group.tools[toolName];
-              const params = Object.keys(tool.inputSchema.shape).join(", ");
-              availableTools.push(`- \`${toolName}(${params})\`: ${tool.description}`);
-            }
-          }
-          if (group.moreInstructions) {
-            const instructions =
-              typeof group.moreInstructions === "function"
-                ? await group.moreInstructions()
-                : group.moreInstructions;
-            availableTools.push(instructions);
-          }
-          if (includeExamples && group.example) {
-            toolExamples.push(await group.example(activeGroups));
-          }
-        }
-      }
-
-      if (includeExamples && toolGroups.misc && toolGroups.misc.example) {
-        const miscExample = await toolGroups.misc.example(activeGroups);
-        if (miscExample) toolExamples.push(miscExample);
-      }
-
-      let systemPrompt = `
-## Available Tools:
-${availableTools.join("\n")}
-`;
-
-      if (includeExamples && toolExamples.length > 0) {
-        systemPrompt += `
-## Tool Call Examples:
-These are just examples for you on how you can use tools calls, each example gives you some concept, the concept is not specific to single tool.
-
-${toolExamples.join("\n\n")}
-`;
-      }
-
-      return systemPrompt;
-    } catch (error) {
-      debugError("Error in getToolSystemPrompt:", error);
-      return "";
-    }
-  };
-
   const citationSchema = objectType({
     answer: stringType().describe("The conversational answer to the user's query."),
     citations: arrayType(
@@ -36204,25 +36946,46 @@ Here is the initial info about the current page:
       }
 
       const shouldToolBeCalled = async (toolName) => {
+        browseBotFindbar._createOrUpdateToolCallUI(
+          browseBotFindbar._currentAIMessageDiv,
+          toolName,
+          "loading"
+        );
         if (PREFS.conformation) {
           const friendlyName = toolNameMapping[toolName] || toolName;
           const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
           if (!confirmed) {
             debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+            browseBotFindbar._createOrUpdateToolCallUI(
+              browseBotFindbar._currentAIMessageDiv,
+              toolName,
+              "declined"
+            );
             return false;
           }
         }
         return true;
       };
+
+      const afterToolCall = (toolName, result) => {
+        const status = result.error ? "error" : "success";
+        browseBotFindbar._createOrUpdateToolCallUI(
+          browseBotFindbar._currentAIMessageDiv,
+          toolName,
+          status,
+          result.error
+        );
+      };
+
       const findbarToolGroups = Object.keys(toolGroups).filter(
         (group) => group !== "bookmarks" && group !== "misc"
       );
-      const tools = getTools(findbarToolGroups, shouldToolBeCalled);
+      const tools = getTools(findbarToolGroups, { shouldToolBeCalled, afterToolCall });
 
       const commonConfig = {
         prompt,
         tools,
-        maxSteps: this.maxToolCalls,
+        stopWhen: stepCountIs(this.maxToolCalls),
         abortSignal,
       };
 
@@ -36265,8 +37028,13 @@ Your primary responsibilities include:
 1. Making tool calls in each response based on user input.
 2. If the user does not provide specific commands, perform a search using the provided terms. You are permitted to correct any grammar or spelling mistakes and refine user queries for better accuracy.
 3. If a URL is provided, open it directly.
-4. Update user about your action with Toast Notification (not default action like searching or opening URL. But if you fix spelling mistake in search term update user with toast.)
+4. Update user about your action with Toast Notification.
 5. Managing tabs, if user ask you to manage the tabs (grouping, closing, spliting) you will do it with tools you have access to.
+
+When To use Toast:
+- When you perform not default action like searching or opening URL while if you fix spelling mistake in search term.
+- When you can't fulfill user's requirement (show short and clear toast why user's requirement can't be fulfilled).
+- When Long and complicated task is completed.
 
 Your goal is to ensure a seamless and user-friendly browsing experience.`;
       systemPrompt += await getToolSystemPrompt(urlBarGroups);
@@ -36278,16 +37046,16 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
 
       const shouldToolBeCalled = async (toolName) => {
         const friendlyName = toolNameMapping[toolName] || toolName;
-        gURLBar.inputField.setAttribute("placeholder", `AI: ${friendlyName}...`);
+        gURLBar.inputField.setAttribute("placeholder", `${friendlyName}...`);
         return true;
       };
 
-      const urlBarToolSet = getTools(urlBarGroups, shouldToolBeCalled);
+      const urlBarToolSet = getTools(urlBarGroups, { shouldToolBeCalled });
 
       await super.generateText({
         prompt,
         tools: urlBarToolSet,
-        maxSteps: PREFS.maxToolCalls,
+        stopWhen: stepCountIs(PREFS.maxToolCalls),
       });
     }
   }
