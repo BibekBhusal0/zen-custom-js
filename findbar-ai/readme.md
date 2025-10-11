@@ -9,6 +9,9 @@ Inspired by Arc Browser, this script transforms the standard findbar and URL bar
 
 https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
+>[!Note]
+> This is beta version and contains experimental features. This docs might not be upto date. and the preferences.json file might not be upto date as well. Don't open a issue if the experimental features are not working as expected (since they are under heavy developement).
+
 ## 🌟 Features
 
 - 🎨 **Floating Chat UI**: A sleek, draggable, and resizable findbar that transforms into an AI chat panel.
