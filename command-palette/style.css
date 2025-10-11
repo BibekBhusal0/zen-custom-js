@@ -703,5 +703,20 @@
 }
 
 #urlbar[zen-cmd-palette-prefix-mode="true"] {
-  background: red !important;
+  .urlbar-input-box{
+    position: relative !important;
+    margin-left: 100px !important;
+    &::before{
+      content: "Commands";
+      position: absolute;
+      left: -100px;
+      top: -2px;
+      background-color: color-mix( in srgb, var(--zen-primary-color) 50%, light-dark(rgba(0, 0, 0, 0.5), rgba(255, 255, 255, 0.2)) 50% );
+      color: white;
+      padding: 2px 10px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  }
 }
