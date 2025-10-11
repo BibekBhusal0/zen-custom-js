@@ -1138,7 +1138,7 @@ export const browseBotFindbar = {
     let newWidth = this.startWidth + (e.clientX - this._initialMouseCoor.x) * directionFactor;
     newWidth = Math.min(Math.max(newWidth, minWidth), maxWidth);
     this.findbar.style.width = `${newWidth}px`;
-    if (PREFS.pseudoBg) this._updateFindbarDimensions();
+    this._updateFindbarDimensions();
   },
 
   stopResize() {
