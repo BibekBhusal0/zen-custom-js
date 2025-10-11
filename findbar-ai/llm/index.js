@@ -1,4 +1,4 @@
-import { streamText, generateText, generateObject } from "ai";
+import { streamText, generateText, generateObject , stepCountIs } from 'ai';
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import { claude, gemini, grok, mistral, ollamaProvider, openai, perplexity } from "./providers.js";
@@ -432,7 +432,7 @@ Here is the initial info about the current page:
     const commonConfig = {
       prompt,
       tools,
-      maxSteps: this.maxToolCalls,
+      stopWhen: stepCountIs(this.maxToolCalls),
       abortSignal,
     };
 
