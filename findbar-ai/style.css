@@ -51,4 +51,6 @@
   --browse-bot-success-bg: light-dark(#d1f4e0, #095028);
   --browse-bot-warning: #f5a524;
   --browse-bot-warning-bg: light-dark(#fdedd3, #62420e);
+  --browse-bot-muted: #71717a;
+  --browse-bot-muted-bg: light-dark(#f4f4f5, #27272a);
 }

@@ -59,6 +59,15 @@ browser {
   }
 }
 
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media -moz-pref("extension.browse-bot.findbar-ai.enabled") {
   @media -moz-pref("extension.browse-bot.findbar-ai.context-menu-enabled") {
     #browse-bot-context-menu-item {
@@ -522,6 +531,8 @@ browser {
         word-wrap: break-word;
         font-size: 14px;
         position: relative;
+        display: flex;
+        flex-direction: column;
       }
 
       .chat-message-user {
@@ -648,6 +659,56 @@ browser {
       padding: 0.3px !important;
       background: color-mix(in srgb, var(--browse-bot-primary-bg) 40%, transparent 60%) !important;
     }
+
+    .tool-calls-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 4px 6px 8px 6px;
+      .tool-call-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+
+        &[data-status="loading"] {
+          background-color: var(--browse-bot-muted-bg);
+          color: var(--browse-bot-muted);
+          .tool-call-icon {
+            animation: spin 1s linear infinite;
+          }
+        }
+
+        &[data-status="success"] {
+          background-color: var(--browse-bot-success-bg);
+          color: var(--browse-bot-success);
+        }
+
+        &[data-status="error"] {
+          background-color: var(--browse-bot-error-bg);
+          color: var(--browse-bot-error);
+        }
+
+        &[data-status="declined"] {
+          background-color: var(--browse-bot-warning-bg);
+          color: var(--browse-bot-warning);
+          opacity: 0.7;
+        }
+        .tool-call-icon {
+          width: 14px;
+          height: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+
+
+
 
     #findbar-expand {
       padding: 4px !important;

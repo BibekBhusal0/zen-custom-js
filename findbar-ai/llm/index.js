@@ -1,4 +1,4 @@
-import { streamText, generateText, generateObject , stepCountIs } from 'ai';
+import { streamText, generateText, generateObject, stepCountIs } from "ai";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import { claude, gemini, grok, mistral, ollamaProvider, openai, perplexity } from "./providers.js";
@@ -414,20 +414,41 @@ Here is the initial info about the current page:
     }
 
     const shouldToolBeCalled = async (toolName) => {
+      browseBotFindbar._createOrUpdateToolCallUI(
+        browseBotFindbar._currentAIMessageDiv,
+        toolName,
+        "loading"
+      );
       if (PREFS.conformation) {
         const friendlyName = toolNameMapping[toolName] || toolName;
         const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
         if (!confirmed) {
           debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+          browseBotFindbar._createOrUpdateToolCallUI(
+            browseBotFindbar._currentAIMessageDiv,
+            toolName,
+            "declined"
+          );
           return false;
         }
       }
       return true;
     };
+
+    const afterToolCall = (toolName, result) => {
+      const status = result.error ? "error" : "success";
+      browseBotFindbar._createOrUpdateToolCallUI(
+        browseBotFindbar._currentAIMessageDiv,
+        toolName,
+        status,
+        result.error
+      );
+    };
+
     const findbarToolGroups = Object.keys(toolGroups).filter(
       (group) => group !== "bookmarks" && group !== "misc"
     );
-    const tools = getTools(findbarToolGroups, shouldToolBeCalled);
+    const tools = getTools(findbarToolGroups, { shouldToolBeCalled, afterToolCall });
 
     const commonConfig = {
       prompt,

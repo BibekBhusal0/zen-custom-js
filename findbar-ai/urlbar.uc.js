@@ -1,7 +1,7 @@
 import { LLM } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
-import { stepCountIs } from 'ai';
+import { stepCountIs } from "ai";
 import { parseElement } from "./utils/parse.js";
 
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
@@ -37,7 +37,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
       return true;
     };
 
-    const urlBarToolSet = getTools(urlBarGroups, shouldToolBeCalled);
+    const urlBarToolSet = getTools(urlBarGroups, { shouldToolBeCalled });
 
     await super.generateText({
       prompt,

@@ -1292,7 +1292,7 @@ Different workspace can contain different tabs (pinned and unpinned). A workspac
   },
 };
 
-const getTools = (groups, shouldToolBeCalled) => {
+const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
   const selectedTools = (() => {
     if (!groups || !Array.isArray(groups) || groups.length === 0) {
       // get all tools from all groups except 'misc'
@@ -1311,7 +1311,7 @@ const getTools = (groups, shouldToolBeCalled) => {
     }, {});
   })();
 
-  if (!shouldToolBeCalled) {
+  if (!shouldToolBeCalled && !afterToolCall) {
     return selectedTools;
   }
 
@@ -1322,28 +1322,14 @@ const getTools = (groups, shouldToolBeCalled) => {
 
     const originalExecute = originalTool.execute;
     newTool.execute = async (args) => {
-      if (!(await shouldToolBeCalled(toolName))) {
+      if (shouldToolBeCalled && !(await shouldToolBeCalled(toolName))) {
         debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
-        return { error: `Tool execution for '${toolName}' was denied.` };
+        return { error: `Tool execution for '${toolName}' was denied by user.` };
       }
-      return originalExecute(args);
+      const result = await originalExecute(args);
+      if (afterToolCall) afterToolCall(toolName, result);
+      return result;
     };
-
-    if (Object.prototype.hasOwnProperty.call(originalTool, "executeFn")) {
-      const originalExecuteFn = originalTool.executeFn;
-      Object.defineProperty(newTool, "executeFn", {
-        value: async (args) => {
-          if (!(await shouldToolBeCalled(toolName))) {
-            debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
-            return { error: `Tool execution for '${toolName}' was denied.` };
-          }
-          return originalExecuteFn(args);
-        },
-        enumerable: false,
-        configurable: true,
-        writable: false,
-      });
-    }
     wrappedTools[toolName] = newTool;
   }
 

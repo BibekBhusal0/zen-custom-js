@@ -4,6 +4,14 @@ import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
 import "./urlbar.uc.js";
+import { toolNameMapping } from "./llm/tools.js";
+
+const icons = {
+  loading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
+  success: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  error: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-error)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+  declined: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
+};
 
 const getSidebarWidth = () => {
   if (
@@ -95,6 +103,7 @@ export const browseBotFindbar = {
   _toolConfirmationDialog: null,
   _highlightTimeout: null,
   _originalOnMatchesCountResult: null,
+  _currentAIMessageDiv: null,
 
   _updateFindbarDimensions() {
     if (!this.findbar) {
@@ -435,56 +444,122 @@ export const browseBotFindbar = {
     return container;
   },
 
+  _removeToolCallUI() {
+    if (!this._currentAIMessageDiv) return;
+    const container = this._currentAIMessageDiv.querySelector(".tool-calls-container");
+    if (container) {
+      container.remove();
+      setTimeout(() => this._updateFindbarDimensions(), 0);
+    }
+  },
+
+  _createOrUpdateToolCallUI(messageDiv, toolName, status, errorMsg = null) {
+    if (!messageDiv) return;
+
+    let container = messageDiv.querySelector(".tool-calls-container");
+    const messageContent = messageDiv.querySelector(".message-content");
+    if (!container) {
+      container = parseElement(`<div class="tool-calls-container"></div>`);
+      if (messageContent) {
+        messageDiv.insertBefore(container, messageContent);
+      } else {
+        messageDiv.appendChild(container);
+      }
+    }
+
+    const friendlyName = toolNameMapping[toolName] || toolName;
+    let toolDiv = container.querySelector(`[data-tool-name="${toolName}"]`);
+    if (!toolDiv) {
+      toolDiv = parseElement(`
+        <div class="tool-call-status" data-tool-name="${toolName}">
+          <span class="tool-call-icon"></span>
+          <span class="tool-call-name">${friendlyName}</span>
+        </div>
+      `);
+      container.appendChild(toolDiv);
+    }
+
+    const iconSpan = toolDiv.querySelector(".tool-call-icon");
+    if (iconSpan) {
+      iconSpan.innerHTML = icons[status] || "";
+    }
+
+    toolDiv.dataset.status = status;
+    let title = friendlyName;
+    if (status === "error" && errorMsg) {
+      title += `\nError: ${errorMsg}`;
+    } else if (status === "declined") {
+      title += `\nDeclined by user.`;
+    }
+    toolDiv.setAttribute("tooltiptext", title);
+
+    setTimeout(() => this._updateFindbarDimensions(), 0);
+  },
+
   async sendMessage(prompt) {
     if (!prompt || this._isStreaming) return;
 
     this.show();
     this.expanded = true;
 
-    // Add user message to the UI immediately
     this.addChatMessage({ role: "user", content: prompt });
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
 
     this._abortController = new AbortController();
     this._toggleStreamingControls(true);
 
-    let aiMessageDiv;
+    const aiMessageDiv = parseElement(
+      `<div class="chat-message chat-message-ai">
+        <div class="message-content">
+          <div class="markdown-body"></div>
+        </div>
+      </div>`
+    );
+    const contentDiv = aiMessageDiv.querySelector(".markdown-body");
+    if (messagesContainer) {
+      messagesContainer.appendChild(aiMessageDiv);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    this._currentAIMessageDiv = aiMessageDiv;
 
     try {
       const resultPromise = browseBotFindbarLLM.sendMessage(prompt, this._abortController.signal);
 
       if (PREFS.citationsEnabled || !PREFS.streamEnabled) {
         const loadingIndicator = this.createLoadingIndicator();
-        if (messagesContainer) {
-          messagesContainer.appendChild(loadingIndicator);
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+        contentDiv.appendChild(loadingIndicator);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
           const result = await resultPromise;
+          contentDiv.innerHTML = ""; // Clear loading indicator
+
           if (PREFS.citationsEnabled) {
-            this.addChatMessage({ role: "assistant", content: result });
+            const { answer, citations } = result;
+            if (citations && citations.length > 0) {
+              aiMessageDiv.dataset.citations = JSON.stringify(citations);
+            }
+            const textToParse = answer.replace(
+              /\[(\d+)\]/g,
+              `<span class="citation-link" data-citation-id="$1">[$1]</span>`
+            );
+            contentDiv.appendChild(parseMD(textToParse));
           } else {
-            this.addChatMessage({ role: "assistant", content: result.text });
+            if (result.text.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+              contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
+            } else if (
+              result.text.trim() === "" &&
+              !aiMessageDiv.querySelector(".tool-calls-container")
+            ) {
+              aiMessageDiv.remove();
+            } else {
+              contentDiv.appendChild(parseMD(result.text));
+            }
           }
         } finally {
-          loadingIndicator.remove();
+          if (loadingIndicator.parentNode) loadingIndicator.remove();
         }
       } else {
-        aiMessageDiv = parseElement(
-          `<div class="chat-message chat-message-ai">
-  <div class="message-content">
-    <div class="markdown-body"></div>
-  </div>
-</div>`
-        );
-        const contentDiv = aiMessageDiv.querySelector(".markdown-body");
-
-        if (messagesContainer) {
-          messagesContainer.appendChild(aiMessageDiv);
-          messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
-
         const result = await resultPromise;
         let fullText = "";
         for await (const delta of result.textStream) {
@@ -499,6 +574,11 @@ export const browseBotFindbar = {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
           }
         }
+        if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+          contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
+        } else if (fullText.trim() === "" && !aiMessageDiv.querySelector(".tool-calls-container")) {
+          aiMessageDiv.remove();
+        }
       }
     } catch (e) {
       if (e.name !== "AbortError") {
@@ -512,6 +592,8 @@ export const browseBotFindbar = {
     } finally {
       this._toggleStreamingControls(false);
       this._abortController = null;
+      this._removeToolCallUI();
+      this._currentAIMessageDiv = null;
     }
   },
 
@@ -779,7 +861,7 @@ export const browseBotFindbar = {
       contentDiv.appendChild(parseMD(textToParse));
     } else {
       // Case 2: String content (from user, stream, generateText, or history)
-      const textContent = typeof content === "string" ? content : (content[0]?.text ?? "");
+      const textContent = typeof content === "string" ? content : content[0]?.text ?? "";
 
       if (role === "assistant" && PREFS.citationsEnabled) {
         // Sub-case: Rendering historical assistant message in citation mode.
