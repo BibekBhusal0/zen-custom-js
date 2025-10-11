@@ -33,7 +33,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
 
     const shouldToolBeCalled = async (toolName) => {
       const friendlyName = toolNameMapping[toolName] || toolName;
-      gURLBar.inputField.setAttribute("placeholder", `AI: ${friendlyName}...`);
+      gURLBar.inputField.setAttribute("placeholder", `${friendlyName}...`);
       return true;
     };
 

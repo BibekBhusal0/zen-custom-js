@@ -195,7 +195,7 @@ export const browseBotFindbar = {
       const dialog = parseElement(`
         <div class="tool-confirmation-dialog">
           <div class="tool-confirmation-content">
-            <p>Allow the following tools to run: ${toolNames?.join(", ")}?</p>
+            <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
             <div class="buttons">
               <button class="not-again">Don't ask again</button>
               <div class="right-side-buttons">
