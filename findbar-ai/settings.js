@@ -407,17 +407,28 @@ export const SettingsModal = {
     // Section 5: LLM Providers
     let llmProviderSettingsHtml = "";
     for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
-      const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
-      const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
+      const modelPrefKey = provider.modelPref;
 
-      const apiInputHtml = apiPrefKey
-        ? `
+      let apiInputHtml;
+      if (name === "ollama") {
+        const baseUrlPrefKey = PREFS.OLLAMA_BASE_URL;
+        apiInputHtml = `
+        <div class="setting-item">
+          <label for="pref-ollama-base-url">Base URL</label>
+          <input type="text" id="pref-ollama-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
+        </div>
+      `;
+      } else {
+        const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
+        apiInputHtml = apiPrefKey
+          ? `
         <div class="setting-item">
           <label for="pref-${this._getSafeIdForProvider(name)}-api-key">API Key</label>
           <input type="password" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
         </div>
       `
-        : "";
+          : "";
+      }
 
       // Placeholder for the XUL menulist, which will be inserted dynamically in createModalElement
       const modelSelectPlaceholderHtml = modelPrefKey

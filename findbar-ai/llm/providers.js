@@ -4,7 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { xai as createGrok } from "@ai-sdk/xai";
 import { createPerplexity } from "@ai-sdk/perplexity";
-import { ollama } from "ollama-ai-provider";
+import { createOllama } from "ollama-ai-provider";
 import PREFS from "../utils/prefs.js";
 
 // Base object with shared logic for all providers
@@ -13,7 +13,7 @@ const providerPrototype = {
     return PREFS.getPref(this.apiPref);
   },
   set apiKey(v) {
-    if (typeof v === "string") PREFS.setPref(this.apiPref, v);
+    if (typeof v === "string" && this.apiPref) PREFS.setPref(this.apiPref, v);
   },
   get model() {
     return PREFS.getPref(this.modelPref);
@@ -243,6 +243,13 @@ const ollamaProvider = Object.assign(Object.create(providerPrototype), {
   label: "Ollama (local)",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=ollama.com/",
   apiKeyUrl: "",
+  baseUrlPref: PREFS.OLLAMA_BASE_URL,
+  get baseUrl() {
+    return PREFS.ollamaBaseUrl
+  },
+  set baseUrl(v) {
+    if (typeof v === "string") PREFS.ollamaBaseUrl = v
+  },
   AVAILABLE_MODELS: [
     "deepseek-r1:8b",
     "deepseek-r1:1.5b",
@@ -278,14 +285,21 @@ const ollamaProvider = Object.assign(Object.create(providerPrototype), {
     "qwen3:8b": "Qwen3 (8B parameters)",
     "qwen3:14b": "Qwen3 (14B parameters)",
     "qwen3:32b": "Qwen3 (32B parameters)",
-    "qwen3:30b-a3b": "Qwen3 (30B mixture-of-experts model with 3B active parameters)",
-    "qwen3:235b-a22b": "Qwen3 (235B mixture-of-experts model with 22B active parameters)",
     "llama4:scout": "Llama 4 Scout",
     "llama4:maverick": "Llama 4 Maverick",
   },
   modelPref: PREFS.OLLAMA_MODEL,
-  apiPref: PREFS.OLLAMA_API_KEY,
+  get apiKey() {
+    return "not_required";
+  },
+  set apiKey(v) {
+    return 
+    // Not required at all
+  },
   getModel() {
+    const ollama = createOllama({
+      baseURL:this.baseUrl ,
+    });
     return ollama(this.model);
   },
 });

@@ -43,7 +43,7 @@ export const PREFS = {
   PERPLEXITY_API_KEY: "extension.browse-bot.perplexity-api-key",
   PERPLEXITY_MODEL: "extension.browse-bot.perplexity-model",
   OLLAMA_MODEL: "extension.browse-bot.ollama-model",
-  OLLAMA_API_KEY: "extension.browse-bot.ollama-api-key",
+  OLLAMA_BASE_URL: "browse-bot.browse-bot.ollama-base-url",
 
   //TODO: Not yet implimented
   COPY_BTN_ENABLED: "extension.browse-bot.findbar-ai.copy-btn-enabled",
@@ -254,6 +254,13 @@ export const PREFS = {
   set width(value) {
     this.setPref(this.WIDTH, value);
   },
+
+  get ollamaBaseUrl() {
+    return this.getPref(this.OLLAMA_BASE_URL);
+  },
+  set ollamaBaseUrl(value) {
+    this.setPref(this.OLLAMA_BASE_URL, value);
+  },
 };
 
 export const debugLog = (...args) => {
@@ -298,7 +305,7 @@ PREFS.defaultValues = {
   [PREFS.PERPLEXITY_API_KEY]: "",
   [PREFS.PERPLEXITY_MODEL]: "sonar",
   [PREFS.OLLAMA_MODEL]: "llama2",
-  [PREFS.OLLAMA_API_KEY]: "",
+  [PREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
   [PREFS.DND_ENABLED]: true,
   [PREFS.POSITION]: "top-right",
   [PREFS.REMEMBER_DIMENSIONS]: true,

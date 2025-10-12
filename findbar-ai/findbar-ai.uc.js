@@ -385,7 +385,7 @@ export const browseBotFindbar = {
         <div class="browse-bot-setup">
           <div class="ai-setup-content">
             <h3>AI Setup Required</h3>
-            <p>To use AI features, you need to set up your API key and select a provider. If it is Ollama set any value to API key(don't keep it empty).</p>
+            <p>To use AI features, you need to set up your API key and select a provider.</p>
             <div class="provider-selection-group">
               <label for="provider-selector">Select Provider:</label>
             </div>
@@ -408,23 +408,39 @@ export const browseBotFindbar = {
     const input = container.querySelector("#api-key");
     const saveBtn = container.querySelector("#save-api-key");
     const getApiKeyLink = container.querySelector("#get-api-key-link");
+    const setupContent = container.querySelector(".ai-setup-content");
+    const description = setupContent.querySelector("p");
 
-    // Initialize the input and link based on the currently selected provider
-    input.value = browseBotFindbarLLM.currentProvider.apiKey || "";
-    getApiKeyLink.disabled = !browseBotFindbarLLM.currentProvider.apiKeyUrl;
-    getApiKeyLink.title = browseBotFindbarLLM.currentProvider.apiKeyUrl
-      ? "Get API Key"
-      : "No API key link available for this provider.";
+    const updateUIForProvider = (providerName) => {
+      const provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[providerName];
+      if (providerName === "ollama") {
+        description.textContent =
+          "Ollama is selected. You can customize the Base URL below or use the default.";
+        input.type = "text";
+        input.placeholder = "Enter Ollama Base URL";
+        input.value = PREFS.ollamaBaseUrl || "";
+        getApiKeyLink.style.display = "none";
+      } else {
+        description.textContent =
+          "To use AI features, you need to set up your API key and select a provider.";
+        input.type = "password";
+        input.placeholder = "Enter your API key";
+        input.value = provider.apiKey || "";
+        getApiKeyLink.style.display = provider.apiKeyUrl ? "inline-block" : "none";
+        getApiKeyLink.disabled = !provider.apiKeyUrl;
+        getApiKeyLink.title = provider.apiKeyUrl
+          ? "Get API Key"
+          : "No API key link available for this provider.";
+      }
+    };
+
+    updateUIForProvider(currentProviderName);
 
     // Use 'command' event for XUL menulist
     providerSelector.addEventListener("command", (e) => {
       const selectedProviderName = e.target.value;
       browseBotFindbarLLM.setProvider(selectedProviderName); // This also updates PREFS.llmProvider internally
-      input.value = browseBotFindbarLLM.currentProvider.apiKey || "";
-      getApiKeyLink.disabled = !browseBotFindbarLLM.currentProvider.apiKeyUrl;
-      getApiKeyLink.title = browseBotFindbarLLM.currentProvider.apiKeyUrl
-        ? "Get API Key"
-        : "No API key link available for this provider.";
+      updateUIForProvider(selectedProviderName);
     });
 
     getApiKeyLink.addEventListener("click", () => {
@@ -432,9 +448,14 @@ export const browseBotFindbar = {
     });
 
     saveBtn.addEventListener("click", () => {
-      const key = input.value.trim();
-      if (key) {
-        browseBotFindbarLLM.currentProvider.apiKey = key; // This also updates PREFS.mistralApiKey/geminiApiKey internally
+      const value = input.value.trim();
+      const providerName = browseBotFindbarLLM.currentProvider.name;
+
+      if (providerName === "ollama") {
+        if (value) { PREFS.ollamaBaseUrl = value; }
+        this.showAIInterface();
+      } else if (value) {
+        browseBotFindbarLLM.currentProvider.apiKey = value; // This also updates PREFS.mistralApiKey/geminiApiKey internally
         this.showAIInterface(); // Refresh UI after saving key
       }
     });
@@ -906,7 +927,7 @@ export const browseBotFindbar = {
 
     this.findbar.classList.remove("ai-settings-active");
 
-    if (!browseBotFindbarLLM.currentProvider.apiKey) {
+    if (!browseBotFindbarLLM.currentProvider.apiKey && browseBotFindbarLLM.currentProvider.name !== "ollama") {
       this.apiKeyContainer = this.createAPIKeyInterface();
       this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     } else {
