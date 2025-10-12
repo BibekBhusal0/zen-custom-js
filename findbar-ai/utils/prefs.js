@@ -43,7 +43,7 @@ export const PREFS = {
   PERPLEXITY_API_KEY: "extension.browse-bot.perplexity-api-key",
   PERPLEXITY_MODEL: "extension.browse-bot.perplexity-model",
   OLLAMA_MODEL: "extension.browse-bot.ollama-model",
-  OLLAMA_BASE_URL: "browse-bot.browse-bot.ollama-base-url",
+  OLLAMA_BASE_URL: "extension.browse-bot.ollama-base-url",
 
   //TODO: Not yet implimented
   COPY_BTN_ENABLED: "extension.browse-bot.findbar-ai.copy-btn-enabled",
