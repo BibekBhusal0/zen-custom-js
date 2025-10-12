@@ -11,16 +11,14 @@
 
   --acrylic-bg: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));
   --acrylic-background: rgba(36, 37, 39, 0.6) !important;
-  --acrylic-backdrop: saturate(2.5) !important;
   --acrylic-border: 0.5px solid rgba(127, 127, 127, 0.3);
   --acrylic-radius: 8px;
   --acrylic-glass-bg: color-mix(in srgb, var(--acrylic-bg) 40%, transparent 60%);
-  --acrylic-glass-blur: blur(50px);
   --acrylic-glass-border: 1.5px solid
     color-mix(in srgb, var(--browser-primary-color) 20%, transparent 80%);
 
   --browse-bot-dialog-bg: var(--acrylic-glass-bg);
-  --browse-bot-dialog-backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+  --browse-bot-dialog-backdrop-filter: blur(32px) brightness(0.7) saturate(2.5);
 
   @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "solid") {
     --browse-bot-dialog-bg: var(--acrylic-bg) !important;
@@ -29,7 +27,7 @@
 
   @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "acrylic") {
     --browse-bot-dialog-bg: var(--acrylic-glass-bg) !important;
-    --browse-bot-dialog-backdrop-filter: var(--acrylic-backdrop) var(--acrylic-glass-blur);
+    --browse-bot-dialog-backdrop-filter: blur(32px) brightness(0.7) saturate(2.5);
   }
 
   @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
