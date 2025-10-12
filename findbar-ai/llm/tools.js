@@ -45,6 +45,12 @@ const TabIdManager = new (class {
     const workspaceId = tab.getAttribute("zen-workspace-id");
     const workspace = workspaceId ? gZenWorkspaces.getWorkspaceFromId(workspaceId) : null;
     const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
+      const isEssential= tab.hasAttribute("zen-essential");
+    const workspaceInfos = {
+      workspaceId,
+      workspaceName: workspace?.name || null,
+      workspaceIcon: workspace?.icon || null,
+    }
 
     return {
       id: String(id),
@@ -52,16 +58,14 @@ const TabIdManager = new (class {
       url: tab.linkedBrowser?.currentURI?.spec,
       isCurrent: tab === gBrowser.selectedTab,
       inCurrentWorkspace: workspaceId === activeWorkspaceId,
-      workspaceId,
-      workspaceName: workspace?.name || null,
-      workspaceIcon: workspace?.icon || null,
       pinned: tab.pinned,
       isGroup: gBrowser.isTabGroup(tab),
-      isEssential: tab.hasAttribute("zen-essential"),
+      isEssential,
       parentFolderId: tab.group && !splitGroup ? tab.group.id : null,
       parentFolderName: tab.group && !splitGroup ? tab.group.label : null,
       isSplitView: !!splitGroup,
       splitViewId: splitGroup ? splitGroup.id : null,
+      ...(isEssential ? {} : workspaceInfos),
     };
   }
 })();
@@ -1003,8 +1007,10 @@ Note: Only second search is open in split (vertial by default), this will make i
     moreInstructions: `Zen browser has advanced tab management features they are:
 - Workspaces: Different workspace can contain different tabs (pinned and unpinned).
 - Essential: Essential tabs are not workspace specific, they are most important tabs and they are always shown dispite of current workspace.
-- Tab groups: Similar tabs can be made in group to organize it in better way.
+- Tab folders: Similar tabs can be made in folders to organize it in better way (it is also called tab group).
 - Split tabs: Zen allows to view multiple tabs at same time by splitting.
+
+The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management
 `,
     tools: {
       getAllTabs: createTool(
@@ -1218,6 +1224,8 @@ Note that first and second tool clls can be made in parallel, but the third tool
   workspaces: {
     moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
 Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find but don't use text make sure to use emoji.
+
+Also if tab is essential which means does not belong to any specific workspace.
 `,
     tools: {
       getAllWorkspaces: createTool(
@@ -1289,7 +1297,17 @@ Different workspace can contain different tabs (pinned and unpinned). A workspac
 -   **User Prompt:** "make a new workspace called 'Research', then move all tabs related to animals in that workspace."
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
 -   **Your Second Tool Call:** \`{"functionCall": {"name": "createWorkspace", "args": {"name": "Research"}}}\`
--   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\``;
+-   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\`
+
+#### Advanced tabs management (using tools related to folder and workspace to manage tabs)
+-   **User Prompt:** "My tabs are not properly managed manage them"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
+-   **Your Second Tool Call:**(based on all tabs) \`{"functionCall": {"name": "createTabFolder", "args": {"name": "..."}}}\`
+-   **Your Third Tool Call (based on all tabs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["x", "y", ...] }}}\`
+-   **Your Fourth Tool Call (based on all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\`
+-   Go on making on tool calls until tabs are managed.
+
+`;
       }
       return example;
     },
