@@ -661,23 +661,23 @@ browser {
 
     .tool-calls-container {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 4px 6px 8px 6px;
+      flex-direction: column;
+      gap: 3px;
+      padding: 2px;
       .tool-call-status {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        padding: 3px 8px;
+        gap: 3px;
+        padding: 4px 8px;
         border-radius: 6px;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 500;
 
         &[data-status="loading"] {
           background-color: var(--browse-bot-muted-bg);
           color: var(--browse-bot-muted);
           .tool-call-icon {
-            animation: spin 1s linear infinite;
+            animation: spin 0.7s linear infinite;
           }
         }
 
@@ -697,8 +697,8 @@ browser {
           opacity: 0.7;
         }
         .tool-call-icon {
-          width: 14px;
-          height: 14px;
+          width: 16px;
+          height: 16px;
           display: flex;
           align-items: center;
           justify-content: center;
