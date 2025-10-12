@@ -651,34 +651,28 @@ export const browseBotFindbar = {
     findbarClass.onMatchesCountResult = function (result) {
       if (!PREFS.enabled) return;
 
-      // debugLog(
-      //   `onMatchesCountResult called for findbar instance. Result: ${JSON.stringify(result)}`
-      // );
       const foundMatchesElement = this._foundMatches;
+      if (typeof result?.current !== "number" || typeof result?.total !== "number") return;
 
-      if (!foundMatchesElement) return;
-      if (typeof result?.current === "number" && typeof result?.total === "number" ){
-        const next = this.querySelector(".findbar-find-next")
-        const previous = this.querySelector(".findbar-find-previous")
-        if (next && previous){
-          // setTimeout( ()=>{ 
-            if (result.searchString.trim() === "" || result.total === 0 || result.total === 1 ) {
-            next.setAttribute("disabled", true)
-            previous.setAttribute("disabled", true)
-          }else if (result.current === 1){
-            next.setAttribute("disabled", true)
-            previous.setAttribute("disabled", false)
-          }else if (result.current === result.total){
-            next.setAttribute("disabled", false)
-            previous.setAttribute("disabled", true)
-          }else {
-            next.setAttribute("disabled", true)
-            previous.setAttribute("disabled", true)
-          } 
-        // } , 10)
+      const next = this.querySelector(".findbar-find-next");
+      const previous = this.querySelector(".findbar-find-previous");
+      if (next && previous) {
+        if (result.searchString.trim() === "" || result.total <= 1) {
+          next.disabled = true;
+          previous.disabled = true;
+        } else if (result.current <= 1) {
+          next.disabled = false;
+          previous.disabled = true;
+        } else if (result.current >= result.total) {
+          next.disabled = true;
+          previous.disabled = false;
+        } else {
+          next.disabled = false;
+          previous.disabled = false;
         }
       }
 
+      if (!foundMatchesElement) return;
       if (result.searchString.trim() === "") {
         foundMatchesElement.setAttribute("value", "");
         return;
