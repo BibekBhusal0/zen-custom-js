@@ -527,12 +527,12 @@ export const browseBotFindbar = {
 
       if (PREFS.citationsEnabled || !PREFS.streamEnabled) {
         const loadingIndicator = this.createLoadingIndicator();
-        contentDiv.appendChild(loadingIndicator);
+        messagesContainer.appendChild(loadingIndicator);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
           const result = await resultPromise;
-          contentDiv.innerHTML = ""; // Clear loading indicator
+          if (loadingIndicator.parentNode) loadingIndicator.remove();
 
           if (PREFS.citationsEnabled) {
             const { answer, citations } = result;
@@ -832,9 +832,7 @@ export const browseBotFindbar = {
   },
 
   createLoadingIndicator() {
-    const messageDiv = parseElement(`<div class="chat-message chat-message-loading"></div>`);
-    const contentDiv = parseElement(`<div class="message-content">Loading...</div>`);
-    messageDiv.appendChild(contentDiv);
+    const messageDiv = parseElement(`<div class="chat-message chat-message-loading"><div class="message-content">Loading...</div></div>`);
     return messageDiv;
   },
 
