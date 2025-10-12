@@ -28,6 +28,23 @@
   backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
   flex-direction: column;
   gap: 14px;
+  
+    textarea{
+    flex-grow: 1 !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    border: 2px solid color-mix(in srgb, var(--browser-primary-color) 30%, transparent 70%) !important;
+    background-color: var(--acrylic-glass-bg) !important;
+    backdrop-filter: var(--acrylic-glass-blur) brightness(0.8);
+min-width: 250px !important;
+      padding: 6px !important;
+      margin: 0 !important;
+      
+    &:focus {
+      outline: none !important;
+      border: 2px solid var(--browser-primary-color) !important;
+    }
+  }
 
   .ai-settings-header {
     display: flex;
@@ -236,13 +253,13 @@ findbar,
   input[type="password"],
   input[type="number"],
   menulist,
-  select {
+  select{
     flex-grow: 1 !important;
     padding: 8px 12px !important;
     font-size: 14px !important;
     transition: all 0.2s ease !important;
     border: 2px solid color-mix(in srgb, var(--browser-primary-color) 30%, transparent 70%) !important;
-    background: var(--acrylic-glass-bg) !important;
+    background-color: var(--acrylic-glass-bg) !important;
     backdrop-filter: var(--acrylic-glass-blur) brightness(0.8);
 
     &:focus {
@@ -253,10 +270,31 @@ findbar,
   menupopup {
     --panel-background: var(--acrylic-bg) !important;
   }
-  input[type="number"] {
+  input{
+    
+  &[type="number"] {
     padding: 8px 0px !important;
     max-width: 50px !important;
+    text-align: center !important;
+    font-size: 16px !important;
+              &::-moz-number-spin-box,
+                &::-moz-number-spin-up,
+                &::-moz-number-spin-down {
+                  display: none !important;
+                }
   }
+  &[type="text"]{
+    min-width: 250px !important;
+      padding: 6px !important;
+      margin: 0 !important;
+  }
+    }
+  select{
+    padding: 6px 8px !important;
+    max-width: 200px !important;
+    margin: 0 !important;
+  }
+
   button {
     cursor: pointer;
     font-weight: 600;
