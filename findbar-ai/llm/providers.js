@@ -245,10 +245,10 @@ const ollamaProvider = Object.assign(Object.create(providerPrototype), {
   apiKeyUrl: "",
   baseUrlPref: PREFS.OLLAMA_BASE_URL,
   get baseUrl() {
-    return PREFS.ollamaBaseUrl
+    return PREFS.ollamaBaseUrl;
   },
   set baseUrl(v) {
-    if (typeof v === "string") PREFS.ollamaBaseUrl = v
+    if (typeof v === "string") PREFS.ollamaBaseUrl = v;
   },
   AVAILABLE_MODELS: [
     "deepseek-r1:8b",
@@ -293,12 +293,12 @@ const ollamaProvider = Object.assign(Object.create(providerPrototype), {
     return "not_required";
   },
   set apiKey(v) {
-    return 
+    return;
     // Not required at all
   },
   getModel() {
     const ollama = createOllama({
-      baseURL:this.baseUrl ,
+      baseURL: this.baseUrl,
     });
     return ollama(this.model);
   },

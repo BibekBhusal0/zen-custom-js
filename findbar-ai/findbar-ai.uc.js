@@ -452,7 +452,9 @@ export const browseBotFindbar = {
       const providerName = browseBotFindbarLLM.currentProvider.name;
 
       if (providerName === "ollama") {
-        if (value) { PREFS.ollamaBaseUrl = value; }
+        if (value) {
+          PREFS.ollamaBaseUrl = value;
+        }
         this.showAIInterface();
       } else if (value) {
         browseBotFindbarLLM.currentProvider.apiKey = value; // This also updates PREFS.mistralApiKey/geminiApiKey internally
@@ -853,7 +855,9 @@ export const browseBotFindbar = {
   },
 
   createLoadingIndicator() {
-    const messageDiv = parseElement(`<div class="chat-message chat-message-loading"><div class="message-content">Loading...</div></div>`);
+    const messageDiv = parseElement(
+      `<div class="chat-message chat-message-loading"><div class="message-content">Loading...</div></div>`
+    );
     return messageDiv;
   },
 
@@ -927,7 +931,10 @@ export const browseBotFindbar = {
 
     this.findbar.classList.remove("ai-settings-active");
 
-    if (!browseBotFindbarLLM.currentProvider.apiKey && browseBotFindbarLLM.currentProvider.name !== "ollama") {
+    if (
+      !browseBotFindbarLLM.currentProvider.apiKey &&
+      browseBotFindbarLLM.currentProvider.name !== "ollama"
+    ) {
       this.apiKeyContainer = this.createAPIKeyInterface();
       this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     } else {

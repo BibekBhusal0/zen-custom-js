@@ -45,12 +45,12 @@ const TabIdManager = new (class {
     const workspaceId = tab.getAttribute("zen-workspace-id");
     const workspace = workspaceId ? gZenWorkspaces.getWorkspaceFromId(workspaceId) : null;
     const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
-      const isEssential= tab.hasAttribute("zen-essential");
+    const isEssential = tab.hasAttribute("zen-essential");
     const workspaceInfos = {
       workspaceId,
       workspaceName: workspace?.name || null,
       workspaceIcon: workspace?.icon || null,
-    }
+    };
 
     return {
       id: String(id),
