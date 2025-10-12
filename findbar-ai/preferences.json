@@ -55,13 +55,34 @@
     "default": "gemini",
     "description": "Select the AI service provider to use.",
     "options": [
-      { "value": "claude", "label": "Anthropic Claude" },
-      { "value": "gemini", "label": "Google Gemini" },
-      { "value": "grok", "label": "xAI Grok" },
-      { "value": "mistral", "label": "Mistral AI" },
-      { "value": "ollama", "label": "Ollama (local)" },
-      { "value": "openai", "label": "OpenAI GPT" },
-      { "value": "perplexity", "label": "Perplexity AI" }
+      {
+        "value": "claude",
+        "label": "Anthropic Claude"
+      },
+      {
+        "value": "gemini",
+        "label": "Google Gemini"
+      },
+      {
+        "value": "grok",
+        "label": "xAI Grok"
+      },
+      {
+        "value": "mistral",
+        "label": "Mistral AI"
+      },
+      {
+        "value": "ollama",
+        "label": "Ollama (local)"
+      },
+      {
+        "value": "openai",
+        "label": "OpenAI GPT"
+      },
+      {
+        "value": "perplexity",
+        "label": "Perplexity AI"
+      }
     ]
   },
   {
@@ -71,7 +92,14 @@
     "placeholder": "Enter your Anthropic Claude API key",
     "default": "",
     "description": "Your personal API key from Anthropic. Required to use Claude models.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "claude" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "claude"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.claude-model",
@@ -80,14 +108,39 @@
     "default": "claude-4-opus",
     "description": "Select the Claude model to use.",
     "options": [
-      { "value": "claude-4-opus", "label": "Claude 4 Opus" },
-      { "value": "claude-4-sonnet", "label": "Claude 4 Sonnet" },
-      { "value": "claude-4-haiku", "label": "Claude 4 Haiku" },
-      { "value": "claude-3-opus", "label": "Claude 3 Opus" },
-      { "value": "claude-3-sonnet", "label": "Claude 3 Sonnet" },
-      { "value": "claude-3-haiku", "label": "Claude 3 Haiku" }
+      {
+        "value": "claude-4-opus",
+        "label": "Claude 4 Opus"
+      },
+      {
+        "value": "claude-4-sonnet",
+        "label": "Claude 4 Sonnet"
+      },
+      {
+        "value": "claude-4-haiku",
+        "label": "Claude 4 Haiku"
+      },
+      {
+        "value": "claude-3-opus",
+        "label": "Claude 3 Opus"
+      },
+      {
+        "value": "claude-3-sonnet",
+        "label": "Claude 3 Sonnet"
+      },
+      {
+        "value": "claude-3-haiku",
+        "label": "Claude 3 Haiku"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "claude" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "claude"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.gemini-api-key",
@@ -96,7 +149,14 @@
     "placeholder": "Enter your Google Gemini API key",
     "default": "",
     "description": "Your personal API key from Google AI Studio. Required to use Gemini models.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "gemini" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "gemini"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.gemini-model",
@@ -105,19 +165,59 @@
     "default": "gemini-2.0-flash",
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
-      { "value": "gemini-2.5-pro", "label": "Gemini 2.5 Pro" },
-      { "value": "gemini-2.5-flash", "label": "Gemini 2.5 Flash" },
-      { "value": "gemini-2.5-flash-lite", "label": "Gemini 2.5 Flash Lite" },
-      { "value": "gemini-2.5-flash-lite-preview-06-17", "label": "Gemini 2.5 Flash Lite (preview)" },
-      { "value": "gemini-2.0-flash", "label": "Gemini 2.0 Flash" },
-      { "value": "gemini-1.5-pro", "label": "Gemini 1.5 Pro" },
-      { "value": "gemini-1.5-pro-latest", "label": "Gemini 1.5 Pro Latest" },
-      { "value": "gemini-1.5-flash", "label": "Gemini 1.5 Flash" },
-      { "value": "gemini-1.5-flash-latest", "label": "Gemini 1.5 Flash Latest" },
-      { "value": "gemini-1.5-flash-8b", "label": "Gemini 1.5 Flash 8B" },
-      { "value": "gemini-1.5-flash-8b-latest", "label": "Gemini 1.5 Flash 8B Latest" }
+      {
+        "value": "gemini-2.5-pro",
+        "label": "Gemini 2.5 Pro"
+      },
+      {
+        "value": "gemini-2.5-flash",
+        "label": "Gemini 2.5 Flash"
+      },
+      {
+        "value": "gemini-2.5-flash-lite",
+        "label": "Gemini 2.5 Flash Lite"
+      },
+      {
+        "value": "gemini-2.5-flash-lite-preview-06-17",
+        "label": "Gemini 2.5 Flash Lite (preview)"
+      },
+      {
+        "value": "gemini-2.0-flash",
+        "label": "Gemini 2.0 Flash"
+      },
+      {
+        "value": "gemini-1.5-pro",
+        "label": "Gemini 1.5 Pro"
+      },
+      {
+        "value": "gemini-1.5-pro-latest",
+        "label": "Gemini 1.5 Pro Latest"
+      },
+      {
+        "value": "gemini-1.5-flash",
+        "label": "Gemini 1.5 Flash"
+      },
+      {
+        "value": "gemini-1.5-flash-latest",
+        "label": "Gemini 1.5 Flash Latest"
+      },
+      {
+        "value": "gemini-1.5-flash-8b",
+        "label": "Gemini 1.5 Flash 8B"
+      },
+      {
+        "value": "gemini-1.5-flash-8b-latest",
+        "label": "Gemini 1.5 Flash 8B Latest"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "gemini" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "gemini"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.grok-api-key",
@@ -126,7 +226,14 @@
     "placeholder": "Enter your xAI Grok API key",
     "default": "",
     "description": "Your personal API key from xAI. Required to use Grok models.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "grok" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "grok"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.grok-model",
@@ -135,21 +242,67 @@
     "default": "grok-4",
     "description": "Select the Grok model to use.",
     "options": [
-      { "value": "grok-4", "label": "Grok 4" },
-      { "value": "grok-3", "label": "Grok 3" },
-      { "value": "grok-3-latest", "label": "Grok 3 Latest" },
-      { "value": "grok-3-fast", "label": "Grok 3 Fast" },
-      { "value": "grok-3-fast-latest", "label": "Grok 3 Fast Latest" },
-      { "value": "grok-3-mini", "label": "Grok 3 Mini" },
-      { "value": "grok-3-mini-latest", "label": "Grok 3 Mini Latest" },
-      { "value": "grok-3-mini-fast", "label": "Grok 3 Mini Fast" },
-      { "value": "grok-3-mini-fast-latest", "label": "Grok 3 Mini Fast Latest" },
-      { "value": "grok-2", "label": "Grok 2" },
-      { "value": "grok-2-latest", "label": "Grok 2 Latest" },
-      { "value": "grok-2-1212", "label": "Grok 2 1212" },
-      { "value": "grok-beta", "label": "Grok Beta" }
+      {
+        "value": "grok-4",
+        "label": "Grok 4"
+      },
+      {
+        "value": "grok-3",
+        "label": "Grok 3"
+      },
+      {
+        "value": "grok-3-latest",
+        "label": "Grok 3 Latest"
+      },
+      {
+        "value": "grok-3-fast",
+        "label": "Grok 3 Fast"
+      },
+      {
+        "value": "grok-3-fast-latest",
+        "label": "Grok 3 Fast Latest"
+      },
+      {
+        "value": "grok-3-mini",
+        "label": "Grok 3 Mini"
+      },
+      {
+        "value": "grok-3-mini-latest",
+        "label": "Grok 3 Mini Latest"
+      },
+      {
+        "value": "grok-3-mini-fast",
+        "label": "Grok 3 Mini Fast"
+      },
+      {
+        "value": "grok-3-mini-fast-latest",
+        "label": "Grok 3 Mini Fast Latest"
+      },
+      {
+        "value": "grok-2",
+        "label": "Grok 2"
+      },
+      {
+        "value": "grok-2-latest",
+        "label": "Grok 2 Latest"
+      },
+      {
+        "value": "grok-2-1212",
+        "label": "Grok 2 1212"
+      },
+      {
+        "value": "grok-beta",
+        "label": "Grok Beta"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "grok" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "grok"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.mistral-api-key",
@@ -158,7 +311,14 @@
     "placeholder": "Enter your Mistral API key",
     "default": "",
     "description": "Your personal API key from Mistral AI. Required to use Mistral models.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "mistral" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "mistral"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.mistral-model",
@@ -167,21 +327,67 @@
     "default": "mistral-medium-latest",
     "description": "Select the Mistral model to use.",
     "options": [
-      { "value": "pixtral-large-latest", "label": "Pixtral Large (Latest)" },
-      { "value": "mistral-large-latest", "label": "Mistral Large (Latest)" },
-      { "value": "mistral-medium-latest", "label": "Mistral Medium (Latest)" },
-      { "value": "mistral-medium-2505", "label": "Mistral Medium (2505)" },
-      { "value": "mistral-small-latest", "label": "Mistral Small(Latest)" },
-      { "value": "magistral-small-2506", "label": "Magistral Small (2506)" },
-      { "value": "magistral-medium-2506", "label": "Magistral Medium (2506)" },
-      { "value": "ministral-3b-latest", "label": "Ministral 3B (Latest)" },
-      { "value": "ministral-8b-latest", "label": "Ministral 8B (Latest)" },
-      { "value": "pixtral-12b-2409", "label": "Pixtral 12B (2409)" },
-      { "value": "open-mistral-7b", "label": "Open Mistral 7B" },
-      { "value": "open-mixtral-8x7b", "label": "Open Mixtral 8x7B" },
-      { "value": "open-mixtral-8x22b", "label": "Open Mixtral 8x22B" }
+      {
+        "value": "pixtral-large-latest",
+        "label": "Pixtral Large (Latest)"
+      },
+      {
+        "value": "mistral-large-latest",
+        "label": "Mistral Large (Latest)"
+      },
+      {
+        "value": "mistral-medium-latest",
+        "label": "Mistral Medium (Latest)"
+      },
+      {
+        "value": "mistral-medium-2505",
+        "label": "Mistral Medium (2505)"
+      },
+      {
+        "value": "mistral-small-latest",
+        "label": "Mistral Small(Latest)"
+      },
+      {
+        "value": "magistral-small-2506",
+        "label": "Magistral Small (2506)"
+      },
+      {
+        "value": "magistral-medium-2506",
+        "label": "Magistral Medium (2506)"
+      },
+      {
+        "value": "ministral-3b-latest",
+        "label": "Ministral 3B (Latest)"
+      },
+      {
+        "value": "ministral-8b-latest",
+        "label": "Ministral 8B (Latest)"
+      },
+      {
+        "value": "pixtral-12b-2409",
+        "label": "Pixtral 12B (2409)"
+      },
+      {
+        "value": "open-mistral-7b",
+        "label": "Open Mistral 7B"
+      },
+      {
+        "value": "open-mixtral-8x7b",
+        "label": "Open Mixtral 8x7B"
+      },
+      {
+        "value": "open-mixtral-8x22b",
+        "label": "Open Mixtral 8x22B"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "mistral" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "mistral"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.ollama-base-url",
@@ -190,7 +396,14 @@
     "placeholder": "http://localhost:11434/api",
     "default": "http://localhost:11434/api",
     "description": "The base URL for your local Ollama API.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "ollama" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "ollama"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.ollama-model",
@@ -199,26 +412,87 @@
     "default": "mixtral:8x7b",
     "description": "Select the Ollama model to use. You must have this model installed locally.",
     "options": [
-      { "value": "deepseek-r1:8b", "label": "DeepSeek R1 (8B)" },
-      { "value": "deepseek-r1:1.5b", "label": "DeepSeek R1 (1.5B)" },
-      { "value": "deepseek-r1:7b", "label": "DeepSeek R1 (7B)" },
-      { "value": "deepseek-r1:14b", "label": "DeepSeek R1 (14B)" },
-      { "value": "deepseek-r1:32b", "label": "DeepSeek R1 (32B)" },
-      { "value": "deepseek-r1:70b", "label": "DeepSeek R1 (70B)" },
-      { "value": "mixtral:8x22b", "label": "Mixtral (8x22B)" },
-      { "value": "mixtral:8x7b", "label": "Mixtral (8x7B)" },
-      { "value": "qwen3:0.6b", "label": "Qwen3 (0.6B)" },
-      { "value": "qwen3:1.7b", "label": "Qwen3 (1.7B)" },
-      { "value": "qwen3:4b", "label": "Qwen3 (4B)" },
-      { "value": "qwen3:8b", "label": "Qwen3 (8B)" },
-      { "value": "qwen3-14b", "label": "Qwen3 (14B)" },
-      { "value": "qwen3:32b", "label": "Qwen3 (32B)" },
-      { "value": "qwen3:30b-a3b", "label": "Qwen3 (30B MoE, 3B active)" },
-      { "value": "qwen3:235b-a22b", "label": "Qwen3 (235B MoE, 22B active)" },
-      { "value": "llama4:scout", "label": "Llama 4 Scout" },
-      { "value": "llama4:maverick", "label": "Llama 4 Maverick" }
+      {
+        "value": "deepseek-r1:8b",
+        "label": "DeepSeek R1 (8B)"
+      },
+      {
+        "value": "deepseek-r1:1.5b",
+        "label": "DeepSeek R1 (1.5B)"
+      },
+      {
+        "value": "deepseek-r1:7b",
+        "label": "DeepSeek R1 (7B)"
+      },
+      {
+        "value": "deepseek-r1:14b",
+        "label": "DeepSeek R1 (14B)"
+      },
+      {
+        "value": "deepseek-r1:32b",
+        "label": "DeepSeek R1 (32B)"
+      },
+      {
+        "value": "deepseek-r1:70b",
+        "label": "DeepSeek R1 (70B)"
+      },
+      {
+        "value": "mixtral:8x22b",
+        "label": "Mixtral (8x22B)"
+      },
+      {
+        "value": "mixtral:8x7b",
+        "label": "Mixtral (8x7B)"
+      },
+      {
+        "value": "qwen3:0.6b",
+        "label": "Qwen3 (0.6B)"
+      },
+      {
+        "value": "qwen3:1.7b",
+        "label": "Qwen3 (1.7B)"
+      },
+      {
+        "value": "qwen3:4b",
+        "label": "Qwen3 (4B)"
+      },
+      {
+        "value": "qwen3:8b",
+        "label": "Qwen3 (8B)"
+      },
+      {
+        "value": "qwen3:14b",
+        "label": "Qwen3 (14B)"
+      },
+      {
+        "value": "qwen3:32b",
+        "label": "Qwen3 (32B)"
+      },
+      {
+        "value": "qwen3:30b-a3b",
+        "label": "Qwen3 (30B MoE, 3B active)"
+      },
+      {
+        "value": "qwen3:235b-a22b",
+        "label": "Qwen3 (235B MoE, 22B active)"
+      },
+      {
+        "value": "llama4:scout",
+        "label": "Llama 4 Scout"
+      },
+      {
+        "value": "llama4:maverick",
+        "label": "Llama 4 Maverick"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "ollama" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "ollama"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.openai-api-key",
@@ -227,7 +501,14 @@
     "placeholder": "Enter your OpenAI API key",
     "default": "",
     "description": "Your personal API key from OpenAI. Required to use GPT models.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "openai" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openai"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.openai-model",
@@ -236,20 +517,79 @@
     "default": "gpt-4o",
     "description": "Select the OpenAI model to use.",
     "options": [
-      { "value": "gpt-4.1", "label": "GPT 4.1" },
-      { "value": "gpt-4.1-mini", "label": "GPT 4.1 Mini" },
-      { "value": "gpt-4.1-nano", "label": "GPT 4.1 Nano" },
-      { "value": "gpt-4o", "label": "GPT 4o" },
-      { "value": "gpt-4o-mini", "label": "GPT 4o Mini" },
-      { "value": "gpt-4-turbo", "label": "GPT 4 Turbo" },
-      { "value": "gpt-4", "label": "GPT 4" },
-      { "value": "gpt-3.5-turbo", "label": "GPT 3.5 Turbo" },
-      { "value": "o1", "label": "O1" },
-      { "value": "o3-mini", "label": "O3 Mini" },
-      { "value": "o3", "label": "O3" },
-      { "value": "o4-mini", "label": "O4 Mini" }
+      {
+        "value": "gpt-4.1",
+        "label": "GPT 4.1"
+      },
+      {
+        "value": "gpt-4.1-mini",
+        "label": "GPT 4.1 Mini"
+      },
+      {
+        "value": "gpt-4.1-nano",
+        "label": "GPT 4.1 Nano"
+      },
+      {
+        "value": "gpt-4o",
+        "label": "GPT 4o"
+      },
+      {
+        "value": "gpt-4o-mini",
+        "label": "GPT 4o Mini"
+      },
+      {
+        "value": "gpt-4-turbo",
+        "label": "GPT 4 Turbo"
+      },
+      {
+        "value": "gpt-4",
+        "label": "GPT 4"
+      },
+      {
+        "value": "gpt-3.5-turbo",
+        "label": "GPT 3.5 Turbo"
+      },
+      {
+        "value": "o1",
+        "label": "O1"
+      },
+      {
+        "value": "o3-mini",
+        "label": "O3 Mini"
+      },
+      {
+        "value": "o3",
+        "label": "O3"
+      },
+      {
+        "value": "o4-mini",
+        "label": "O4 Mini"
+      },
+      {
+        "value": "gpt-5",
+        "label": "GTP 5"
+      },
+      {
+        "value": "gpt-5-mini",
+        "label": "GPT 5 mini"
+      },
+      {
+        "value": "gpt-5-nano",
+        "label": "GPT 5 nano"
+      },
+      {
+        "value": "gpt-5-chat-latest",
+        "label": "GPT 5 latest"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "openai" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openai"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.perplexity-api-key",
@@ -258,7 +598,14 @@
     "placeholder": "Enter your Perplexity API key",
     "default": "",
     "description": "Your personal API key from Perplexity AI. Required to use Perplexity models.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "perplexity" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "perplexity"
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.perplexity-model",
@@ -267,19 +614,48 @@
     "default": "sonar",
     "description": "Select the Perplexity model to use.",
     "options": [
-      { "value": "sonar-deep-research", "label": "Sonar Deep Research" },
-      { "value": "sonar-reasoning-pro", "label": "Sonar Reasoning Pro" },
-      { "value": "sonar-reasoning", "label": "Sonar Reasoning" },
-      { "value": "sonar-pro", "label": "Sonar Pro" },
-      { "value": "sonar", "label": "Sonar" }
+      {
+        "value": "sonar-deep-research",
+        "label": "Sonar Deep Research"
+      },
+      {
+        "value": "sonar-reasoning-pro",
+        "label": "Sonar Reasoning Pro"
+      },
+      {
+        "value": "sonar-reasoning",
+        "label": "Sonar Reasoning"
+      },
+      {
+        "value": "sonar-pro",
+        "label": "Sonar Pro"
+      },
+      {
+        "value": "sonar",
+        "label": "Sonar"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.llm-provider", "value": "perplexity" } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "perplexity"
+        }
+      }
+    ]
   },
   {
     "type": "separator",
     "id": "browse-bot-response-separator",
     "label": "AI Response",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.stream-enabled",
@@ -288,8 +664,18 @@
     "default": true,
     "description": "AI response will be streamed in chunks for a smoother experience.",
     "conditions": [
-      { "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } },
-      { "not": { "property": "extension.browse-bot.findbar-ai.citations-enabled", "value": true } }
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "not": {
+          "property": "extension.browse-bot.findbar-ai.citations-enabled",
+          "value": true
+        }
+      }
     ],
     "operator": "AND"
   },
@@ -299,7 +685,14 @@
     "type": "checkbox",
     "default": false,
     "description": "The AI will provide a link in its response pointing to the source text on the page.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.agentic-mode",
@@ -307,7 +700,14 @@
     "type": "checkbox",
     "default": false,
     "description": "Allows the AI to use tools, such as performing searches or opening links.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.conform-before-tool-call",
@@ -316,8 +716,40 @@
     "default": true,
     "description": "If unchecked, AI tools will run automatically without asking for permission.",
     "conditions": [
-      { "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } },
-      { "if": { "property": "extension.browse-bot.findbar-ai.agentic-mode", "value": true } }
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.agentic-mode",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.max-tool-calls",
+    "label": "Max Tool Calls",
+    "type": "number",
+    "default": 5,
+    "description": "The maximum number of consecutive tool calls the AI can make in one turn.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.agentic-mode",
+          "value": true
+        }
+      }
     ],
     "operator": "AND"
   },
@@ -325,14 +757,28 @@
     "type": "separator",
     "id": "browse-bot-appearance-separator",
     "label": "Appearance & Behavior",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.minimal",
     "label": "Enable Minimal Mode (Arc-style)",
     "type": "checkbox",
     "default": true,
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.persist-chat",
@@ -340,7 +786,14 @@
     "type": "checkbox",
     "default": false,
     "description": "Saves the chat history for each tab. History is lost when the browser is closed.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.dnd-enabled",
@@ -348,15 +801,29 @@
     "type": "checkbox",
     "default": true,
     "description": "Allows the AI chat panel to be moved around the screen and resized.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.remember-dimensions",
     "label": "Remember Dimensions",
     "type": "checkbox",
-    "default": false,
+    "default": true,
     "description": "Automatically saves and restores the findbar's size.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.position",
@@ -365,18 +832,73 @@
     "default": "top-right",
     "description": "The corner the findbar will snap to after being dragged.",
     "options": [
-      { "value": "top-left", "label": "Top Left" },
-      { "value": "top-right", "label": "Top Right" },
-      { "value": "bottom-left", "label": "Bottom Left" },
-      { "value": "bottom-right", "label": "Bottom Right" }
+      {
+        "value": "top-left",
+        "label": "Top Left"
+      },
+      {
+        "value": "top-right",
+        "label": "Top Right"
+      },
+      {
+        "value": "bottom-left",
+        "label": "Bottom Left"
+      },
+      {
+        "value": "bottom-right",
+        "label": "Bottom Right"
+      }
     ],
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.background-style",
+    "label": "Background Style",
+    "type": "dropdown",
+    "default": "solid",
+    "description": "The background style of the findbar.",
+    "options": [
+      {
+        "value": "solid",
+        "label": "Solid"
+      },
+      {
+        "value": "acrylic",
+        "label": "Acrylic"
+      },
+      {
+        "value": "pseudo",
+        "label": "Pseudo"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "type": "separator",
     "id": "browse-bot-context-menu-separator",
     "label": "Context Menu",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
@@ -384,7 +906,14 @@
     "type": "checkbox",
     "default": true,
     "description": "Adds an 'Ask AI' / 'Summarize with AI' option to the right-click context menu.",
-    "conditions": [{ "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } }]
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.context-menu-autosend",
@@ -393,8 +922,62 @@
     "default": true,
     "description": "If enabled, clicking the context menu item immediately sends the query. If disabled, it only populates the input field.",
     "conditions": [
-      { "if": { "property": "extension.browse-bot.findbar-ai.enabled", "value": true } },
-      { "if": { "property": "extension.browse-bot.findbar-ai.context-menu-enabled", "value": true } }
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
+    "label": "Context Menu Command (No Selection)",
+    "type": "string",
+    "default": "Summarize current page",
+    "description": "The command to send to the AI when the context menu is used without any text selected.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.context-menu-command-with-selection",
+    "label": "Context Menu Command (With Selection)",
+    "type": "string",
+    "default": "Explain this in context of current page:\n\n{selection}",
+    "description": "The command to send to the AI when text is selected. Use {selection} as a placeholder.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
+      }
     ],
     "operator": "AND"
   },
