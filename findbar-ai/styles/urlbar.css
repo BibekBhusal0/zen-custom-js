@@ -55,7 +55,7 @@
 
       #urlbar-input {
         margin-top: -2px !important;
-        margin-left: 4px !important;
+        margin-left: 8px !important;
         font-size: 15px !important;
       }
 
@@ -102,7 +102,6 @@
       transition: all 0.3s cubic-bezier(0.175, 0.385, 0.12, 1) !important;
       &:not(:has(#urlbar[ai-mode-active="true"])) {
         filter: none !important;
-        opacity: 1 !important;
         scale: 1 !important;
         transition:
           filter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.35),
@@ -114,7 +113,6 @@
     #browser:has(#urlbar[ai-mode-active="true"]) .browserStack {
       scale: 1.05 !important;
       filter: brightness(75%) blur(15px) saturate(115%) !important;
-      opacity: 1 !important;
     }
   }
 }
