@@ -1227,3 +1227,64 @@
   min-height: 52px;
 }
 
+
+
+.markdown-body .hljs {
+  color: var(--fgColor-default);
+  background-color: var(--bgColor-default);
+.hljs-quote {
+  color: var(--color-prettylights-syntax-comment);
+  font-style: italic;
+}
+.hljs-doctag,
+.hljs-keyword,
+.hljs-meta .hljs-keyword,
+.hljs-template-tag,
+.hljs-type {
+  color: var(--color-prettylights-syntax-keyword);
+}
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet ,
+.hljs-built_in,
+.hljs-class .hljs-title {
+  color: var(--color-prettylights-syntax-constant);
+}
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.function_,
+.hljs-function .hljs-title {
+  color: var(--color-prettylights-syntax-entity);
+}
+.hljs-attr,
+.hljs-attribute,
+.hljs-params {
+  color: var(--color-prettylights-syntax-variable);
+}
+.hljs-regexp,
+.hljs-link,
+.hljs-string,
+.hljs-meta .hljs-string,
+.hljs-template-variable,
+.hljs-variable.language_ ,
+.hljs-addition {
+  color: var(--color-prettylights-syntax-string);
+}
+.hljs-deletion,
+.hljs-error {
+  color: var(--color-prettylights-syntax-invalid-illegal-bg);
+  background: var(--color-prettylights-syntax-invalid-illegal-bg);
+}
+.hljs-meta,
+.hljs-meta .hljs-string {
+  color: var(--color-prettylights-syntax-constant);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: bold;
+}
+}
