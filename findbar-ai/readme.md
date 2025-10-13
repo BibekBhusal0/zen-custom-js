@@ -25,8 +25,10 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## 🛠️ Technologies used
 
-- [Vercel AI SDK](https://ai-sdk.dev/)
-- [Zod](https://zod.dev/)
+- **[Vercel AI SDK](https://ai-sdk.dev/)**: For managing multiple Providers for AI.
+- **[Zod](https://zod.dev/)**: Schema validation (making sure AI is giving output in correct format and calling correct tools).
+- **[Marked](https://marked.js.org/)**: For markdown parsing.
+- **[highlight.js](https://highlightjs.org/)**: Syntax highlight for code in markdown.
 
 ## 🚨 Caution
 
