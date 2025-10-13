@@ -7,7 +7,6 @@ import { parseElement } from "./utils/parse.js";
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
 
 export class UrlBarLLM extends LLM {
-  // TODO: Improve system prompt, should use Toast as feedback
   async getSystemPrompt() {
     let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively and organizing their workspace in better way.
 
@@ -298,7 +297,6 @@ export const urlbarAI = {
     if (prompt) {
       debugLog(`URLbar: Sending prompt: "${prompt}"`);
       gURLBar.value = "";
-      // TODO: Maybe better animations could be added here
       gURLBar.setAttribute("is-ai-thinking", "true");
       gURLBar.inputField.setAttribute("placeholder", "AI thinking...");
       urlBarLLM.sendMessage(prompt).finally(() => {
