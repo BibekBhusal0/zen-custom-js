@@ -1,0 +1,142 @@
+#reopen-closed-tabs-panel {
+  --panel-padding: 0 3px 0 3px !important;
+  width: fit-content !important;
+  position: relative !important;
+  padding: 0 !important;
+
+  #reopen-closed-tabs-search-container {
+    display: flex;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative;
+    padding: 8px 0;
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 17px;
+      width: 16px;
+      height: 16px;
+      fill: light-dark(black, white) !important;
+      -moz-context-properties: fill !important;
+      opacity: 0.6;
+    }
+
+    #reopen-closed-tabs-search-input {
+      width: 97% !important;
+      box-sizing: border-box !important;
+      padding: 8px 12px 8px 30px !important;
+      border-radius: 6px !important;
+    }
+  }
+
+  #reopen-closed-tabs-list-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 500px;
+    width: fit-content !important;
+  }
+
+  .reopen-closed-tabs-group-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--zen-primary-color);
+    border-radius: 12px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding: 2px;
+    & label {
+      font-size: 16px;
+      padding-bottom: 4px;
+    }
+  }
+
+  .reopen-closed-tab-item {
+    width: 325px;
+    padding: 5px;
+    margin-right: 11px;
+    cursor: default;
+    border-radius: 4px;
+    margin-bottom: 2px;
+
+    &:hover,
+    &[selected="true"] {
+      background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      .close-button {
+        display: flex;
+      }
+    }
+
+    &.unloaded-tab {
+      opacity: 0.6;
+
+      &:hover,
+      &[selected="true"] {
+        opacity: 1;
+      }
+    }
+
+    .tab-favicon {
+      width: 24px;
+      height: 24px;
+      margin-inline-end: 8px;
+    }
+
+    .tab-item-labels {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      gap: 0 !important;
+    }
+
+    .tab-item-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 13px;
+      margin-block: 0;
+      margin-inline: 0;
+    }
+
+    .tab-item-context {
+      font-size: 0.9em;
+      opacity: 0.7;
+      &:before {
+        width: 90%;
+        overflow: hidden;
+        text-overflow: ellipsis !important;
+      }
+    }
+
+    .tab-status-icon {
+      width: 16px;
+      height: 16px;
+      margin-inline-start: 4px;
+      fill: light-dark(black, white) !important;
+      -moz-context-properties: fill !important;
+      flex-shrink: 0;
+    }
+
+    .close-button {
+      padding: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: var(--toolbarbutton-border-radius);
+      margin-inline-start: 4px;
+      fill: light-dark(black, white) !important;
+      -moz-context-properties: fill !important;
+      cursor: pointer;
+      display: none;
+
+      &:hover {
+        background-color: var(--toolbarbutton-hover-background);
+      }
+    }
+  }
+
+  .reopen-closed-tab-item-disabled {
+    padding: 4px;
+    color: var(--panel-disabled-text-color);
+  }
+}

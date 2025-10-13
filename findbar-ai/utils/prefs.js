@@ -27,6 +27,7 @@ export const PREFS = {
 
   // Other
   DEBUG_MODE: "extension.browse-bot.debug-mode",
+  SOLID_BG: "extension.browse-bot.solid-bg",
 
   // Shared LLM
   LLM_PROVIDER: "extension.browse-bot.llm-provider",

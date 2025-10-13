@@ -1,0 +1,16 @@
+{
+  "id": "reopen-closed-tabs",
+  "name": "Reopen Closed Tabs Menu",
+  "description": "A popup menu to view and restore recently closed tabs. Includes a toolbar button and keyboard shortcut.",
+  "homepage": "https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu",
+  "preferences": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/preferences.json",
+  "style": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/style.css",
+  "js": true,
+  "readme": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/readme.md",
+  "author": "Bibek Bhusal",
+  "version": "1.0.0",
+  "tags": ["tabs", "history", "reopen", "closed tabs", "productivity", "zen browser", "sine"],
+  "createdAt": "2025-09-22",
+  "updatedAt": "2025-10-07",
+  "fork": ["zen"]
+}

@@ -34,4 +34,4 @@ jobs:
       with:
         name: bundled-js
         path: |
-          dist/browse-bot.uc.js
+          dist/

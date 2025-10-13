@@ -1,0 +1,176 @@
+[
+  {
+    "type": "text",
+    "label": "Configure the behavior of the command palette. All changes real time (no need to restart)"
+  },
+  {
+    "type": "separator",
+    "label": "General Behavior",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.prefix-required",
+    "label": "Require prefix to show commands",
+    "default": false
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.max-commands",
+    "label": "Maximum Results (without )",
+    "value": "number",
+    "default": 3,
+    "placeholder": false,
+    "options": [
+      { "label": "1 Command", "value": 1 },
+      { "label": "2 Commands", "value": 2 },
+      { "label": "3 Commands", "value": 3 },
+      { "label": "4 Commands", "value": 4 },
+      { "label": "5 Commands", "value": 5 }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.max-commands-prefix",
+    "label": "Maximum Results. You can scroll so keep this value high.",
+    "value": "number",
+    "default": 50,
+    "placeholder": false,
+    "options": [
+      { "label": "20 Commands", "value": 20 },
+      { "label": "30 Commands", "value": 30 },
+      { "label": "50 Commands", "value": 50 },
+      { "label": "80 Commands", "value": 80 },
+      { "label": "100 Commands", "value": 100 }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.min-query-length",
+    "label": "Activation Length (without )",
+    "value": "number",
+    "default": 3,
+    "placeholder": false,
+    "options": [
+      { "label": "2 Characters", "value": 2 },
+      { "label": "3 Characters", "value": 3 },
+      { "label": "4 Characters", "value": 4 },
+      { "label": "5 Characters", "value": 5 }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.min-score-threshold",
+    "label": "Fuzzy Search Sensitivity",
+    "value": "number",
+    "default": 150,
+    "placeholder": false,
+    "options": [
+      { "label": "Super Strict (350)", "value": 350 },
+      { "label": "Very Strict (300)", "value": 300 },
+      { "label": "Strict (250)", "value": 250 },
+      { "label": "Balanced (200)", "value": 200 },
+      { "label": "Loose (150)", "value": 150 },
+      { "label": "Very Loose (100)", "value": 100 }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "value": "number",
+    "property": "browser.urlbar.maxRichResults",
+    "label": "The number of search suggestions",
+    "default": 1,
+    "placeholder": false,
+    "options": [
+      { "label": "5", "value": 5 },
+      { "label": "6", "value": 6 },
+      { "label": "7", "value": 7 },
+      { "label": "8", "value": 8 },
+      { "label": "9", "value": 9 },
+      { "label": "10", "value": 10 },
+      { "label": "12", "value": 12 }
+    ]
+  },
+  {
+    "type": "separator",
+    "label": "Dynamic Commands",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.search-engines",
+    "label": "Enable Search Engine commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extensions",
+    "label": "Enable Extension Options commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.workspaces",
+    "label": "Enable Workspace commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.folders",
+    "label": "Enable Folder Management commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.sine-mods",
+    "label": "Enable Sine Mod Management commands",
+    "default": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.container-tabs",
+    "label": "Enable Container Tab commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.active-tabs",
+    "label": "Enable Active Tab switching commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.unload-tab",
+    "label": "Enable Active Tab unloading commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-enable-disable",
+    "label": "Enable Extension Enable/Disable commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-uninstall",
+    "label": "Enable Extension Uninstall commands",
+    "default": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.about-pages",
+    "label": "Enable `about:` page commands",
+    "default": false
+  },
+  {
+    "type": "separator",
+    "label": "Development",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.debug-mode",
+    "label": "Enable debug logging in Browser Console",
+    "default": false
+  }
+]
