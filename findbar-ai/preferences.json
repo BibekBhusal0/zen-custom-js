@@ -14,17 +14,39 @@
     "description": "Enables or disables the AI features in the URL bar."
   },
   {
-    "type": "separator",
-    "id": "browse-bot-api-separator",
-    "label": "API Configuration",
+    "property": "extension.browse-bot.urlbar-ai.hide-suggestions",
+    "label": "Hide Suggestions in URLBar AI",
+    "type": "checkbox",
+    "default": true,
+    "description": "Hides the autocomplete suggestions when URLBar AI is active.",
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
+          "property": "extension.browse-bot.urlbar-ai-enabled",
           "value": true
         }
       }
     ]
+  },
+  {
+    "property": "extension.browse-bot.urlbar-ai.animations-enabled",
+    "label": "Enable Animations in URLBar AI",
+    "type": "checkbox",
+    "default": true,
+    "description": "Enables animations for the URLBar AI interface.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.urlbar-ai-enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-api-separator",
+    "label": "API Configuration"
   },
   {
     "property": "extension.browse-bot.llm-provider",
@@ -61,14 +83,6 @@
         "value": "perplexity",
         "label": "Perplexity AI"
       }
-    ],
-    "conditions": [
-      {
-        "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      }
     ]
   },
   {
@@ -81,18 +95,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "claude"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.claude-model",
@@ -129,18 +136,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "claude"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.gemini-api-key",
@@ -152,18 +152,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "gemini"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.gemini-model",
@@ -220,18 +213,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "gemini"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.grok-api-key",
@@ -243,18 +229,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "grok"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.grok-model",
@@ -319,18 +298,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "grok"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.mistral-api-key",
@@ -342,18 +314,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "mistral"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.mistral-model",
@@ -418,41 +383,27 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "mistral"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
-    "property": "extension.browse-bot.ollama-api-key",
-    "label": "Ollama API Key (enter any value/ will be ignored)",
+    "property": "extension.browse-bot.ollama-base-url",
+    "label": "Ollama Base URL",
     "type": "string",
-    "placeholder": "Usually not required for local Ollama",
-    "default": "",
-    "description": "API Key for your Ollama service, if required. For local instances, this is often left blank.",
+    "placeholder": "http://localhost:11434/api",
+    "default": "http://localhost:11434/api",
+    "description": "The base URL for your local Ollama API.",
     "conditions": [
-      {
-        "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
       {
         "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "ollama"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.ollama-model",
@@ -537,18 +488,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "ollama"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.openai-api-key",
@@ -560,18 +504,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "openai"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.openai-model",
@@ -627,23 +564,32 @@
       {
         "value": "o4-mini",
         "label": "O4 Mini"
+      },
+      {
+        "value": "gpt-5",
+        "label": "GTP 5"
+      },
+      {
+        "value": "gpt-5-mini",
+        "label": "GPT 5 mini"
+      },
+      {
+        "value": "gpt-5-nano",
+        "label": "GPT 5 nano"
+      },
+      {
+        "value": "gpt-5-chat-latest",
+        "label": "GPT 5 latest"
       }
     ],
     "conditions": [
-      {
-        "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
       {
         "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "openai"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.perplexity-api-key",
@@ -655,18 +601,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "perplexity"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.perplexity-model",
@@ -699,18 +638,11 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      },
-      {
-        "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "perplexity"
         }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "type": "separator",
@@ -727,16 +659,18 @@
   },
   {
     "property": "extension.browse-bot.findbar-ai.stream-enabled",
-    "label": "Stream Response (smooth experiance)",
+    "label": "Stream Response",
     "type": "checkbox",
     "default": true,
-    "description": "AI response will be smooth.",
+    "description": "AI response will be streamed in chunks for a smoother experience.",
     "conditions": [
       {
         "if": {
           "property": "extension.browse-bot.findbar-ai.enabled",
           "value": true
-        },
+        }
+      },
+      {
         "not": {
           "property": "extension.browse-bot.findbar-ai.citations-enabled",
           "value": true
@@ -781,6 +715,28 @@
     "type": "checkbox",
     "default": true,
     "description": "If unchecked, AI tools will run automatically without asking for permission.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.agentic-mode",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.max-tool-calls",
+    "label": "Max Tool Calls",
+    "type": "number",
+    "default": 5,
+    "description": "The maximum number of consecutive tool calls the AI can make in one turn.",
     "conditions": [
       {
         "if": {
@@ -858,7 +814,7 @@
     "property": "extension.browse-bot.findbar-ai.remember-dimensions",
     "label": "Remember Dimensions",
     "type": "checkbox",
-    "default": false,
+    "default": true,
     "description": "Automatically saves and restores the findbar's size.",
     "conditions": [
       {
@@ -891,6 +847,35 @@
       {
         "value": "bottom-right",
         "label": "Bottom Right"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.background-style",
+    "label": "Background Style",
+    "type": "dropdown",
+    "default": "solid",
+    "description": "The background style of the findbar.",
+    "options": [
+      {
+        "value": "solid",
+        "label": "Solid"
+      },
+      {
+        "value": "acrylic",
+        "label": "Acrylic"
+      },
+      {
+        "value": "pseudo",
+        "label": "Pseudo"
       }
     ],
     "conditions": [
@@ -953,31 +938,59 @@
     "operator": "AND"
   },
   {
-    "type": "separator",
-    "id": "browse-bot-development-separator",
-    "label": "Development",
+    "property": "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
+    "label": "Context Menu Command (No Selection)",
+    "type": "string",
+    "default": "Summarize current page",
+    "description": "The command to send to the AI when the context menu is used without any text selected.",
     "conditions": [
       {
         "if": {
           "property": "extension.browse-bot.findbar-ai.enabled",
           "value": true
         }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
       }
-    ]
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.context-menu-command-with-selection",
+    "label": "Context Menu Command (With Selection)",
+    "type": "string",
+    "default": "Explain this in context of current page:\n\n{selection}",
+    "description": "The command to send to the AI when text is selected. Use {selection} as a placeholder.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-development-separator",
+    "label": "Development"
   },
   {
     "property": "extension.browse-bot.debug-mode",
     "label": "Enable Debug Mode",
     "type": "checkbox",
     "default": false,
-    "description": "Enables verbose logging in the Browser Console for troubleshooting.",
-    "conditions": [
-      {
-        "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      }
-    ]
+    "description": "Enables verbose logging in the Browser Console for troubleshooting."
   }
 ]
