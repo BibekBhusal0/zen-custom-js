@@ -3,7 +3,7 @@ import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
 import { SettingsModal } from "./settings.js";
-import "./urlbar.uc.js";
+import { marked } from "marked";
 import { toolNameMapping } from "./llm/tools.js";
 
 const icons = {
@@ -56,8 +56,11 @@ const sidebarWidthUpdate = function () {
 sidebarWidthUpdate();
 
 function parseMD(markdown, convertHTML = true) {
-  const markedOptions = { breaks: true, gfm: true, xhtml: true };
-  const content = window.marked ? window.marked.parse(markdown, markedOptions) : markdown;
+  const markedOptions = { breaks: true, gfm: true };
+  let content = marked.parse(markdown, markedOptions);
+  content = content.replace(/<img([^>]*?)(?<!\/)>/gi, "<img$1 />")
+    .replace(/<hr([^>]*?)(?<!\/)>/gi, "<hr$1 />")
+    .replace(/<br([^>]*?)(?<!\/)>/gi, "<br$1 />");
   if (!convertHTML) return content;
   let htmlContent = parseElement(`<div class="markdown-body">${content}</div>`);
 

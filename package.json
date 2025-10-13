@@ -16,14 +16,15 @@
     "@ai-sdk/perplexity": "^2.0.12",
     "@ai-sdk/xai": "^2.0.24",
     "ai": "^5.0.62",
+    "marked": "^16.4.0",
     "ollama-ai-provider": "^1.2.0",
     "zod": "^3.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.6",
-    "cross-env": "^7.0.3",
     "@rollup/plugin-node-resolve": "^16.0.2",
     "chokidar-cli": "^3.0.0",
+    "cross-env": "^7.0.3",
     "prettier": "^3.6.2",
     "rollup": "^4.52.4",
     "rollup-plugin-string": "^3.0.0"
