@@ -581,6 +581,8 @@ export const browseBotFindbar = {
           }
         } finally {
           if (loadingIndicator.parentNode) loadingIndicator.remove();
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          setTimeout(() => this._updateFindbarDimensions(), 0);
         }
       } else {
         const result = await resultPromise;
