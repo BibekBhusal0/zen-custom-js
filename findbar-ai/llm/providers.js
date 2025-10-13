@@ -238,7 +238,7 @@ const perplexity = Object.assign(Object.create(providerPrototype), {
   create: createPerplexity,
 });
 
-const ollamaProvider = Object.assign(Object.create(providerPrototype), {
+const ollama = Object.assign(Object.create(providerPrototype), {
   name: "ollama",
   label: "Ollama (local)",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=ollama.com/",
@@ -304,4 +304,4 @@ const ollamaProvider = Object.assign(Object.create(providerPrototype), {
   },
 });
 
-export { mistral, gemini, openai, claude, grok, perplexity, ollamaProvider };
+export { mistral, gemini, openai, claude, grok, perplexity, ollama };
