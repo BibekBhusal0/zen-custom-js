@@ -201,6 +201,8 @@ You have access to browser functions. The user knows you have these abilities.
 - While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
 - User will provide URL and title of current of webpage. If you need more context, use the \`getPageTextContent\` or \`getHTMLContent\` tools.
 - When the user asks you to "read the current page", use the \`getPageTextContent()\` or \`getHTMLContent\` tool.
+- Don't use search tool unless user explicitely asks.
+- When user asks you to manage tabs (close/group/move tabs) do it smartly first read tabs and take action don't ask too many question for confirmation.
 - If the user asks you to open a link by its text (e.g., "click the 'About Us' link"), you must first use \`getHTMLContent()\` to find the link's full URL, then use \`openLink()\` to open it.`;
     }
 
