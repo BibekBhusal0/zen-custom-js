@@ -1016,6 +1016,7 @@ Note: Only second search is open in split (vertial by default), this will make i
 
 The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management. Don't ask conformative questions to user like when user's input is clear. Like when user asks you to close tabs don't ask them "Do you really want to close those tabs ... ".
 More importantly, please don't use IDs of folder/tabs/workspace while talking to user, refere them by name not id. User might not know the ids of tabs.
+**Never** mention tabId or groupId with the user. Don't ask for Id if you need Id to filfill user's request you have to read it yourself.
 `,
     tools: {
       getAllTabs: createTool(
@@ -1229,8 +1230,9 @@ Note that first and second tool clls can be made in parallel, but the third tool
   workspaces: {
     moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
 Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find but don't use text make sure to use emoji.
+If tab is essential which means does not belong to any specific workspace.
 
-Also if tab is essential which means does not belong to any specific workspace.
+**Never** mention worksapceId with the user. Don't ask for Id if you need Id to filfill user's request you have to read it yourself.
 `,
     tools: {
       getAllWorkspaces: createTool(
