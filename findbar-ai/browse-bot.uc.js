@@ -13,7 +13,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
         label: "Summarize Page",
         command: () => {
           browseBotFindbar.expanded = true;
-          browseBotFindbar.sendMessage("Summarize the current page");
+          browseBotFindbar.sendMessage(PREFS.contextMenuCommandNoSelection);
           browseBotFindbar.focusPrompt();
         },
         condition: () => PREFS.enabled,
