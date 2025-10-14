@@ -21102,7 +21102,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
     `;
 
       const findbarSectionHtml = this._createCheckboxSectionHtml(
-        "Findbar",
+        "Findbar AI (ctrl + shift + F)",
         findbarSettings,
         true,
         "",
@@ -21115,7 +21115,11 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         { label: "Enable Animations", pref: PREFS.URLBAR_AI_ANIMATIONS_ENABLED },
         { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
       ];
-      const urlbarSectionHtml = this._createCheckboxSectionHtml("URLBar AI", urlbarSettings, false);
+      const urlbarSectionHtml = this._createCheckboxSectionHtml(
+        "URLBar AI (ctrl + space)",
+        urlbarSettings,
+        false
+      );
 
       // Section 3: AI Behavior
       const aiBehaviorSettings = [
@@ -21635,6 +21639,10 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
         return { error: `Folder with ID "${folderId}" not found or is not a valid folder.` };
       }
       if (tabs.length === 0) return { error: "No valid tabs found to add to the folder." };
+
+      for (const tab of tabs) {
+        if (!tab.pinned) gBrowser.pinTab(tab);
+      }
 
       folder.addTabs(tabs);
       return { result: `Successfully added ${tabs.length} tab(s) to folder "${folder.label}".` };
@@ -22280,7 +22288,9 @@ Note: Only second search is open in split (vertial by default), this will make i
 - Tab folders: Similar tabs can be made in folders to organize it in better way (it is also called tab group).
 - Split tabs: Zen allows to view multiple tabs at same time by splitting.
 
-The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management
+The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management. Don't ask conformative questions to user like when user's input is clear. Like when user asks you to close tabs don't ask them "Do you really want to close those tabs ... ".
+More importantly, please don't use IDs of folder/tabs/workspace while talking to user, refere them by name not id. User might not know the ids of tabs.
+**Never** mention tabId or groupId with the user. Don't ask for Id if you need Id to filfill user's request you have to read it yourself.
 `,
       tools: {
         getAllTabs: createTool(
@@ -22493,8 +22503,9 @@ Note that first and second tool clls can be made in parallel, but the third tool
     workspaces: {
       moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
 Different workspace can contain different tabs (pinned and unpinned). A workspace has it's own icon (most likely a emoji sometimes even URL), name and it has tabs inside workspace. While creating new workspace if user don't specify icon use most logical emoji you could find but don't use text make sure to use emoji.
+If tab is essential which means does not belong to any specific workspace.
 
-Also if tab is essential which means does not belong to any specific workspace.
+**Never** mention worksapceId with the user. Don't ask for Id if you need Id to filfill user's request you have to read it yourself.
 `,
       tools: {
         getAllWorkspaces: createTool(
@@ -22569,12 +22580,12 @@ Also if tab is essential which means does not belong to any specific workspace.
 -   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\`
 
 #### Advanced tabs management (using tools related to folder and workspace to manage tabs)
--   **User Prompt:** "My tabs are not properly managed manage them"
+-   **User Prompt:** "Manage my tabs"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
 -   **Your Second Tool Call:**(based on all tabs) \`{"functionCall": {"name": "createTabFolder", "args": {"name": "..."}}}\`
 -   **Your Third Tool Call (based on all tabs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["x", "y", ...] }}}\`
 -   **Your Fourth Tool Call (based on all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\`
--   Go on making on tool calls until tabs are managed.
+-   Go on keep making tool calls until tabs are managed (note here you should not ask any question to user for conformation).
 
 `;
         }
@@ -30867,7 +30878,7 @@ ${user}:`]
   // src/anthropic-provider.ts
 
   // src/version.ts
-  var VERSION$2 = "2.0.27" ;
+  var VERSION$2 = "2.0.28" ;
   var anthropicErrorDataSchema = lazySchema(
     () => zodSchema(
       object$1({
@@ -30987,6 +30998,7 @@ ${user}:`]
                 })
               ])
             }),
+            // code execution results for code_execution_20250522 tool:
             object$1({
               type: literal("code_execution_tool_result"),
               tool_use_id: string(),
@@ -31000,6 +31012,62 @@ ${user}:`]
                 object$1({
                   type: literal("code_execution_tool_result_error"),
                   error_code: string()
+                })
+              ])
+            }),
+            // bash code execution results for code_execution_20250825 tool:
+            object$1({
+              type: literal("bash_code_execution_tool_result"),
+              tool_use_id: string(),
+              content: discriminatedUnion("type", [
+                object$1({
+                  type: literal("bash_code_execution_result"),
+                  content: array(
+                    object$1({
+                      type: literal("bash_code_execution_output"),
+                      file_id: string()
+                    })
+                  ),
+                  stdout: string(),
+                  stderr: string(),
+                  return_code: number$1()
+                }),
+                object$1({
+                  type: literal("bash_code_execution_tool_result_error"),
+                  error_code: string()
+                })
+              ])
+            }),
+            // text editor code execution results for code_execution_20250825 tool:
+            object$1({
+              type: literal("text_editor_code_execution_tool_result"),
+              tool_use_id: string(),
+              content: discriminatedUnion("type", [
+                object$1({
+                  type: literal("text_editor_code_execution_tool_result_error"),
+                  error_code: string()
+                }),
+                object$1({
+                  type: literal("text_editor_code_execution_view_result"),
+                  content: string(),
+                  file_type: string(),
+                  num_lines: number$1().nullable(),
+                  start_line: number$1().nullable(),
+                  total_lines: number$1().nullable()
+                }),
+                object$1({
+                  type: literal("text_editor_code_execution_create_result"),
+                  is_file_update: boolean()
+                }),
+                object$1({
+                  type: literal(
+                    "text_editor_code_execution_str_replace_result"
+                  ),
+                  lines: array(string()).nullable(),
+                  new_lines: number$1().nullable(),
+                  new_start: number$1().nullable(),
+                  old_lines: number$1().nullable(),
+                  old_start: number$1().nullable()
                 })
               ])
             })
@@ -31102,6 +31170,7 @@ ${user}:`]
                 })
               ])
             }),
+            // code execution results for code_execution_20250522 tool:
             object$1({
               type: literal("code_execution_tool_result"),
               tool_use_id: string(),
@@ -31115,6 +31184,62 @@ ${user}:`]
                 object$1({
                   type: literal("code_execution_tool_result_error"),
                   error_code: string()
+                })
+              ])
+            }),
+            // bash code execution results for code_execution_20250825 tool:
+            object$1({
+              type: literal("bash_code_execution_tool_result"),
+              tool_use_id: string(),
+              content: discriminatedUnion("type", [
+                object$1({
+                  type: literal("bash_code_execution_result"),
+                  content: array(
+                    object$1({
+                      type: literal("bash_code_execution_output"),
+                      file_id: string()
+                    })
+                  ),
+                  stdout: string(),
+                  stderr: string(),
+                  return_code: number$1()
+                }),
+                object$1({
+                  type: literal("bash_code_execution_tool_result_error"),
+                  error_code: string()
+                })
+              ])
+            }),
+            // text editor code execution results for code_execution_20250825 tool:
+            object$1({
+              type: literal("text_editor_code_execution_tool_result"),
+              tool_use_id: string(),
+              content: discriminatedUnion("type", [
+                object$1({
+                  type: literal("text_editor_code_execution_tool_result_error"),
+                  error_code: string()
+                }),
+                object$1({
+                  type: literal("text_editor_code_execution_view_result"),
+                  content: string(),
+                  file_type: string(),
+                  num_lines: number$1().nullable(),
+                  start_line: number$1().nullable(),
+                  total_lines: number$1().nullable()
+                }),
+                object$1({
+                  type: literal("text_editor_code_execution_create_result"),
+                  is_file_update: boolean()
+                }),
+                object$1({
+                  type: literal(
+                    "text_editor_code_execution_str_replace_result"
+                  ),
+                  lines: array(string()).nullable(),
+                  new_lines: number$1().nullable(),
+                  new_start: number$1().nullable(),
+                  old_lines: number$1().nullable(),
+                  old_start: number$1().nullable()
                 })
               ])
             })
@@ -31420,6 +31545,14 @@ ${user}:`]
               });
               break;
             }
+            case "anthropic.code_execution_20250825": {
+              betas.add("code-execution-2025-08-25");
+              anthropicTools2.push({
+                type: "code_execution_20250825",
+                name: "code_execution"
+              });
+              break;
+            }
             case "anthropic.computer_20250124": {
               betas.add("computer-use-2025-01-24");
               anthropicTools2.push({
@@ -31615,6 +31748,91 @@ ${user}:`]
   });
   var codeExecution_20250522 = (args = {}) => {
     return factory4(args);
+  };
+  var codeExecution_20250825OutputSchema = lazySchema(
+    () => zodSchema(
+      discriminatedUnion("type", [
+        object$1({
+          type: literal("bash_code_execution_result"),
+          content: array(
+            object$1({
+              type: literal("bash_code_execution_output"),
+              file_id: string()
+            })
+          ),
+          stdout: string(),
+          stderr: string(),
+          return_code: number$1()
+        }),
+        object$1({
+          type: literal("bash_code_execution_tool_result_error"),
+          error_code: string()
+        }),
+        object$1({
+          type: literal("text_editor_code_execution_tool_result_error"),
+          error_code: string()
+        }),
+        object$1({
+          type: literal("text_editor_code_execution_view_result"),
+          content: string(),
+          file_type: string(),
+          num_lines: number$1().nullable(),
+          start_line: number$1().nullable(),
+          total_lines: number$1().nullable()
+        }),
+        object$1({
+          type: literal("text_editor_code_execution_create_result"),
+          is_file_update: boolean()
+        }),
+        object$1({
+          type: literal("text_editor_code_execution_str_replace_result"),
+          lines: array(string()).nullable(),
+          new_lines: number$1().nullable(),
+          new_start: number$1().nullable(),
+          old_lines: number$1().nullable(),
+          old_start: number$1().nullable()
+        })
+      ])
+    )
+  );
+  var codeExecution_20250825InputSchema = lazySchema(
+    () => zodSchema(
+      discriminatedUnion("type", [
+        object$1({
+          type: literal("bash_code_execution"),
+          command: string()
+        }),
+        discriminatedUnion("command", [
+          object$1({
+            type: literal("text_editor_code_execution"),
+            command: literal("view"),
+            path: string()
+          }),
+          object$1({
+            type: literal("text_editor_code_execution"),
+            command: literal("create"),
+            path: string(),
+            file_text: string().nullish()
+          }),
+          object$1({
+            type: literal("text_editor_code_execution"),
+            command: literal("str_replace"),
+            path: string(),
+            old_str: string(),
+            new_str: string()
+          })
+        ])
+      ])
+    )
+  );
+  var factory5 = createProviderDefinedToolFactoryWithOutputSchema({
+    id: "anthropic.code_execution_20250825",
+    name: "code_execution",
+    inputSchema: codeExecution_20250825InputSchema,
+    outputSchema: codeExecution_20250825OutputSchema
+  });
+  var codeExecution_20250825 = (args = {}) => {
+    return factory5(args);
   };
 
   // src/convert-to-anthropic-messages-prompt.ts
@@ -31919,7 +32137,17 @@ ${user}:`]
                 }
                 case "tool-call": {
                   if (part.providerExecuted) {
-                    if (part.toolName === "code_execution" || part.toolName === "web_fetch" || part.toolName === "web_search") {
+                    if (part.toolName === "code_execution" && part.input != null && typeof part.input === "object" && "type" in part.input && typeof part.input.type === "string" && (part.input.type === "bash_code_execution" || part.input.type === "text_editor_code_execution")) {
+                      anthropicContent.push({
+                        type: "server_tool_use",
+                        id: part.toolCallId,
+                        name: part.input.type,
+                        // map back to subtool name
+                        input: part.input,
+                        cache_control: cacheControl
+                      });
+                    } else if (part.toolName === "code_execution" || // code execution 20250522
+                    part.toolName === "web_fetch" || part.toolName === "web_search") {
                       anthropicContent.push({
                         type: "server_tool_use",
                         id: part.toolCallId,
@@ -31954,21 +32182,48 @@ ${user}:`]
                       });
                       break;
                     }
-                    const codeExecutionOutput = await validateTypes$1({
-                      value: output.value,
-                      schema: codeExecution_20250522OutputSchema
-                    });
-                    anthropicContent.push({
-                      type: "code_execution_tool_result",
-                      tool_use_id: part.toolCallId,
-                      content: {
-                        type: codeExecutionOutput.type,
-                        stdout: codeExecutionOutput.stdout,
-                        stderr: codeExecutionOutput.stderr,
-                        return_code: codeExecutionOutput.return_code
-                      },
-                      cache_control: cacheControl
-                    });
+                    if (output.value == null || typeof output.value !== "object" || !("type" in output.value) || typeof output.value.type !== "string") {
+                      warnings.push({
+                        type: "other",
+                        message: `provider executed tool result output value is not a valid code execution result for tool ${part.toolName}`
+                      });
+                      break;
+                    }
+                    if (output.value.type === "code_execution_result") {
+                      const codeExecutionOutput = await validateTypes$1({
+                        value: output.value,
+                        schema: codeExecution_20250522OutputSchema
+                      });
+                      anthropicContent.push({
+                        type: "code_execution_tool_result",
+                        tool_use_id: part.toolCallId,
+                        content: {
+                          type: codeExecutionOutput.type,
+                          stdout: codeExecutionOutput.stdout,
+                          stderr: codeExecutionOutput.stderr,
+                          return_code: codeExecutionOutput.return_code
+                        },
+                        cache_control: cacheControl
+                      });
+                    } else {
+                      const codeExecutionOutput = await validateTypes$1({
+                        value: output.value,
+                        schema: codeExecution_20250825OutputSchema
+                      });
+                      anthropicContent.push(
+                        codeExecutionOutput.type === "bash_code_execution_result" || codeExecutionOutput.type === "bash_code_execution_tool_result_error" ? {
+                          type: "bash_code_execution_tool_result",
+                          tool_use_id: part.toolCallId,
+                          cache_control: cacheControl,
+                          content: codeExecutionOutput
+                        } : {
+                          type: "text_editor_code_execution_tool_result",
+                          tool_use_id: part.toolCallId,
+                          cache_control: cacheControl,
+                          content: codeExecutionOutput
+                        }
+                      );
+                    }
                     break;
                   }
                   if (part.toolName === "web_fetch") {
@@ -32438,7 +32693,15 @@ ${user}:`]
             break;
           }
           case "server_tool_use": {
-            if (part.name === "web_search" || part.name === "code_execution" || part.name === "web_fetch") {
+            if (part.name === "text_editor_code_execution" || part.name === "bash_code_execution") {
+              content.push({
+                type: "tool-call",
+                toolCallId: part.id,
+                toolName: "code_execution",
+                input: JSON.stringify({ type: part.name, ...part.input }),
+                providerExecuted: true
+              });
+            } else if (part.name === "web_search" || part.name === "code_execution" || part.name === "web_fetch") {
               content.push({
                 type: "tool-call",
                 toolCallId: part.id,
@@ -32534,6 +32797,7 @@ ${user}:`]
             }
             break;
           }
+          // code execution 20250522:
           case "code_execution_tool_result": {
             if (part.content.type === "code_execution_result") {
               content.push({
@@ -32561,6 +32825,18 @@ ${user}:`]
                 providerExecuted: true
               });
             }
+            break;
+          }
+          // code execution 20250825:
+          case "bash_code_execution_tool_result":
+          case "text_editor_code_execution_tool_result": {
+            content.push({
+              type: "tool-result",
+              toolCallId: part.tool_use_id,
+              toolName: "code_execution",
+              result: part.content,
+              providerExecuted: true
+            });
             break;
           }
         }
@@ -32679,7 +32955,8 @@ ${user}:`]
                         type: "tool-call",
                         toolCallId: value.content_block.id,
                         toolName: value.content_block.name,
-                        input: ""
+                        input: "",
+                        firstDelta: true
                       };
                       controller.enqueue(
                         usesJsonResponseTool ? { type: "text-start", id: String(value.index) } : {
@@ -32691,18 +32968,29 @@ ${user}:`]
                       return;
                     }
                     case "server_tool_use": {
-                      if (value.content_block.name === "web_fetch" || value.content_block.name === "web_search" || value.content_block.name === "code_execution") {
+                      if ([
+                        "web_fetch",
+                        "web_search",
+                        // code execution 20250825:
+                        "code_execution",
+                        // code execution 20250825 text editor:
+                        "text_editor_code_execution",
+                        // code execution 20250825 bash:
+                        "bash_code_execution"
+                      ].includes(value.content_block.name)) {
                         contentBlocks[value.index] = {
                           type: "tool-call",
                           toolCallId: value.content_block.id,
                           toolName: value.content_block.name,
                           input: "",
-                          providerExecuted: true
+                          providerExecuted: true,
+                          firstDelta: true
                         };
+                        const mappedToolName = value.content_block.name === "text_editor_code_execution" || value.content_block.name === "bash_code_execution" ? "code_execution" : value.content_block.name;
                         controller.enqueue({
                           type: "tool-input-start",
                           id: value.content_block.id,
-                          toolName: value.content_block.name,
+                          toolName: mappedToolName,
                           providerExecuted: true
                         });
                       }
@@ -32794,6 +33082,7 @@ ${user}:`]
                       }
                       return;
                     }
+                    // code execution 20250522:
                     case "code_execution_tool_result": {
                       const part = value.content_block;
                       if (part.content.type === "code_execution_result") {
@@ -32822,6 +33111,19 @@ ${user}:`]
                           providerExecuted: true
                         });
                       }
+                      return;
+                    }
+                    // code execution 20250825:
+                    case "bash_code_execution_tool_result":
+                    case "text_editor_code_execution_tool_result": {
+                      const part = value.content_block;
+                      controller.enqueue({
+                        type: "tool-result",
+                        toolCallId: part.tool_use_id,
+                        toolName: "code_execution",
+                        result: part.content,
+                        providerExecuted: true
+                      });
                       return;
                     }
                     default: {
@@ -32856,7 +33158,14 @@ ${user}:`]
                             type: "tool-input-end",
                             id: contentBlock.toolCallId
                           });
-                          controller.enqueue(contentBlock);
+                          const toolName = contentBlock.toolName === "text_editor_code_execution" || contentBlock.toolName === "bash_code_execution" ? "code_execution" : contentBlock.toolName;
+                          controller.enqueue({
+                            type: "tool-call",
+                            toolCallId: contentBlock.toolCallId,
+                            toolName,
+                            input: contentBlock.input,
+                            providerExecuted: contentBlock.providerExecuted
+                          });
                         }
                         break;
                     }
@@ -32904,7 +33213,10 @@ ${user}:`]
                     }
                     case "input_json_delta": {
                       const contentBlock = contentBlocks[value.index];
-                      const delta = value.delta.partial_json;
+                      let delta = value.delta.partial_json;
+                      if (delta.length === 0) {
+                        return;
+                      }
                       if (usesJsonResponseTool) {
                         if ((contentBlock == null ? void 0 : contentBlock.type) !== "text") {
                           return;
@@ -32918,12 +33230,16 @@ ${user}:`]
                         if ((contentBlock == null ? void 0 : contentBlock.type) !== "tool-call") {
                           return;
                         }
+                        if (contentBlock.firstDelta && (contentBlock.toolName === "bash_code_execution" || contentBlock.toolName === "text_editor_code_execution")) {
+                          delta = `{"type": "${contentBlock.toolName}",${delta.substring(1)}`;
+                        }
                         controller.enqueue({
                           type: "tool-input-delta",
                           id: contentBlock.toolCallId,
                           delta
                         });
                         contentBlock.input += delta;
+                        contentBlock.firstDelta = false;
                       }
                       return;
                     }
@@ -33179,6 +33495,19 @@ ${user}:`]
      * Tool name must be `code_execution`.
      */
     codeExecution_20250522,
+    /**
+     * Claude can analyze data, create visualizations, perform complex calculations,
+     * run system commands, create and edit files, and process uploaded files directly within
+     * the API conversation.
+     *
+     * The code execution tool allows Claude to run both Python and Bash commands and manipulate files,
+     * including writing code, in a secure, sandboxed environment.
+     *
+     * This is the latest version with enhanced Bash support and file operations.
+     *
+     * Tool name must be `code_execution`.
+     */
+    codeExecution_20250825,
     /**
      * Claude can interact with computer environments through the computer use tool, which
      * provides screenshot capabilities and mouse/keyboard control for autonomous desktop interaction.
