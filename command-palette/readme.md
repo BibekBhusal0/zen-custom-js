@@ -242,7 +242,7 @@ Adding your own commands from other scripts is straightforward. The `ZenCommandP
 - [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
 - [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
 - [Reopen Closed Tabs Menu](https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu)
-- [Browse Bot (beta)](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
+- [Browse Bot](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
 
 ### Adding a Static Command
 
