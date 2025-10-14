@@ -35,12 +35,12 @@
     }
   }
 
-    :root[zen-single-toolbar="true"] {
+  :root[zen-single-toolbar="true"] {
     :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])) {
       .browserSidebarContainer.deck-selected > .browserContainer::before {
         background: red !important;
-          left: calc(var(--findbar-x) + 2px - var(--zen-sidebar-width)) !important;
-          top: calc(var(--findbar-y) - 10px) !important;
+        left: calc(var(--findbar-x) + 2px - var(--zen-sidebar-width)) !important;
+        top: calc(var(--findbar-y) - 10px) !important;
       }
     }
   }
@@ -56,7 +56,6 @@
       }
     }
   }
-
 
   @media -moz-pref("zen.tabs.vertical.right-side") {
     :has(.browserSidebarContainer.deck-selected > .browserContainer > findbar:not([hidden])) {
