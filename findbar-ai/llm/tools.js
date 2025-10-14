@@ -366,6 +366,10 @@ async function addTabsToFolder(args) {
     }
     if (tabs.length === 0) return { error: "No valid tabs found to add to the folder." };
 
+    for (const tab of tabs) {
+      if (!tab.pinned) gBrowser.pinTab(tab);
+    }
+
     folder.addTabs(tabs);
     return { result: `Successfully added ${tabs.length} tab(s) to folder "${folder.label}".` };
   } catch (e) {
