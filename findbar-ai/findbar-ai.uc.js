@@ -122,6 +122,9 @@ export const browseBotFindbar = {
   _originalOnMatchesCountResult: null,
   _currentAIMessageDiv: null,
 
+/**
+ * Save findbar dimensions in css variables
+ */
   _updateFindbarDimensions() {
     if (!this.findbar) {
       document.documentElement.style.removeProperty("--findbar-width");
@@ -139,12 +142,18 @@ export const browseBotFindbar = {
     document.documentElement.style.setProperty("--findbar-y", `${_findbarCoors.y}px`);
   },
 
+/**
+ * Save findbar dimensions in prefs
+ */
   _saveFindbarDimensions() {
     if (!this.findbar || !PREFS.rememberDimensions) return;
     const rect = this.findbar.getBoundingClientRect();
     PREFS.width = rect.width;
   },
 
+/**
+ * Apply findbar dimensions in saved prefs
+ */
   _applyFindbarDimensions() {
     if (!this.findbar || !PREFS.rememberDimensions) return;
     const width = PREFS.width;
@@ -177,15 +186,12 @@ export const browseBotFindbar = {
       }
     } else {
       if (this._isStreaming) {
-        this._abortController?.abort();
+        this._abortController?.abort(); // Stop messsage if it is running
       }
       this.findbar.classList.remove("ai-expanded");
       this.removeAIInterface();
       if (isChanged && !this.minimal) this.focusInput();
     }
-  },
-  toggleExpanded() {
-    this.expanded = !this.expanded;
   },
 
   get enabled() {
@@ -193,9 +199,6 @@ export const browseBotFindbar = {
   },
   set enabled(value) {
     if (typeof value === "boolean") PREFS.enabled = value;
-  },
-  toggleEnabled() {
-    this.enabled = !this.enabled;
   },
   handleEnabledChange(enabled) {
     if (enabled.value) this.init();
@@ -278,11 +281,12 @@ export const browseBotFindbar = {
       this.addExpandButton();
       if (PREFS.persistChat) {
         if (this?.findbar?.history) {
-          browseBotFindbarLLM.history = this.findbar.history;
+          browseBotFindbarLLM.history = this.findbar.history; // restore history from findbar
           if (
             this?.findbar?.aiStatus &&
-            JSON.stringify(this.aiStatus) !== JSON.stringify(this.findbar.aiStatus)
+            JSON.stringify(this.aiStatus) !== JSON.stringify(this.findbar.aiStatus) // check status saved in findabr
           ) {
+            // clear history if ai stauts is changed
             browseBotFindbarLLM.history = [];
             this.findbar.history = [];
           }
@@ -318,6 +322,11 @@ export const browseBotFindbar = {
     });
   },
 
+
+/**
+ * Highlight a word using native findbar
+ * @param {string} word - Word to highlight.
+ */
   highlight(word) {
     if (!this.findbar) return;
 
@@ -1050,7 +1059,7 @@ export const browseBotFindbar = {
       const button = parseElement(
         `<button id="${button_id}" anonid="${button_id}">Expand</button>`
       );
-      button.addEventListener("click", () => this.toggleExpanded());
+      button.addEventListener("click", () => this.expanded = true);
       button.textContent = "Expand";
       this.findbar.appendChild(button);
       this.expandButton = button;
