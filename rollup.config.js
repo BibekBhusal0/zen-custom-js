@@ -30,7 +30,7 @@ const reopenClosedTabsHeader = `// ==UserScript==
 
 // --- Common Plugins ---
 const commonPlugins = [
-  resolve(),
+  resolve({ browser: true }),
   commonjs(),
   string({
     include: "**/*.css",
@@ -46,8 +46,10 @@ const browseBotConfig = {
       format: "umd",
       name: "BrowseBot",
       banner: browseBotHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 
@@ -59,8 +61,10 @@ const reopenClosedTabsConfig = {
       format: "umd",
       name: "reopenClosedTabs",
       banner: reopenClosedTabsHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 
@@ -72,8 +76,10 @@ const commandPaletteConfig = {
       format: "umd",
       name: "ZenCommandPalette",
       banner: commandPaletteHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 
