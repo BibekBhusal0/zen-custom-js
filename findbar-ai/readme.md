@@ -9,9 +9,6 @@ Inspired by Arc Browser, this script transforms the standard findbar and URL bar
 
 https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
-> [!Note]
-> This is beta version and contains experimental features. This docs might not be upto date. and the preferences.json file might not be upto date as well. Don't open a issue if the experimental features are not working as expected (since they are under heavy developement).
-
 ## 🌟 Features
 
 - 🎨 **Floating Chat UI**: A sleek, draggable, and resizable findbar that transforms into an AI chat panel.
@@ -25,8 +22,10 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## 🛠️ Technologies used
 
-- [Vercel AI SDK](https://ai-sdk.dev/)
-- [Zod](https://zod.dev/)
+- **[Vercel AI SDK](https://ai-sdk.dev/)**: For managing multiple Providers for AI.
+- **[Zod](https://zod.dev/)**: Schema validation (making sure AI is giving output in correct format and calling correct tools).
+- **[Marked](https://marked.js.org/)**: For markdown parsing.
+- **[highlight.js](https://highlightjs.org/)**: Syntax highlight for code in markdown.
 
 ## 🚨 Caution
 
@@ -36,12 +35,13 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ### Easy Install via Sine (Recommended)
 
-1.  Ensure you have the latest version of [Sine](https://github.com/CosmoCreeper/Sine) installed.
-2.  In Zen Browser, open Settings and navigate to the `Sine Mods` tab.
-3.  Search for **BrowseBot**.
-4.  Click **Install**.
-5.  Restart the browser when prompted.
-6.  Enjoy your new AI assistant! ✨
+1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).
+2. Restart Zen Browser.
+3. Open settings and go to the `Sine` tab.
+4. Search for `BrowseBot`.
+5. Click Install.
+6. A toast for restart should appear — click on that to restart Zen.
+7. Enjoy your new AI assistant! ✨
 
 ### Manual Install (`fx-autoconfig`)
 
@@ -86,13 +86,13 @@ For advanced users or those not using Sine or who are willing to contribute:
 3.  **Start Chatting**:
     - Press `Ctrl+F` to open the standard findbar.
     - In the default (non-minimal) view, click the "Expand" button to switch to AI chat. In Minimal Mode, just enter your query and click "Ask".
-    - Type your questions about the current page and press "Send".
+    - Type your questions about the current page and press on send button.
     - Use `Ctrl+Shift+F` to open the AI chat directly, using any text you have selected on the page as the initial prompt.
 
 ### URL Bar AI Commands
 
 1.  Press `Ctrl+Space` to activate AI mode in the URL bar.
-2.  Type your command directly (e.g., "search for red pandas", "open github.com", "close all youtube tabs").
+2.  Type your command directly (e.g., "search for red pandas", "open github", "close all youtube tabs").
 3.  Press `Enter` to execute the command. The AI will perform the action, often providing feedback via a small toast notification.
 
 ## 🔧 Customization
@@ -173,8 +173,6 @@ Currently available tool calls are:
 - **Workspace Management**: Tools to `getAllWorkspaces`, `createWorkspace`, `updateWorkspace`, `deleteWorkspace`, `moveTabsToWorkspace`, and `reorderWorkspace`.
 - **UI Feedback**: `showToast` to display temporary notifications to the user.
 
-More tools will be comming soon. [More tools](./llm/more-tools.js) are currently in test.
-
 ## ✔️ Development Roadmap
 
 - [ ] Pin/unpin the findbar
@@ -193,14 +191,15 @@ More tools will be comming soon. [More tools](./llm/more-tools.js) are currently
 ## 🐛 Bugs and potential issues (I am working on fixing them)
 
 - If AI makes tool call to open tab, history might not persist correctly.
-- AI can't make multiple tool calls in row
 - Styles in glance
 
 ## 🙏 Credits and Acknowledgements
 
 - **[natsumi-browser](https://github.com/greeeen-dev/natsumi-browser)**: For inspiration on the modern, floating UI styles in Findbar.
+- **[Arc-2.0](https://github.com/YashjitPal/Arc-2.0)**: For inspiration for animation for URL bar.
+- **[Arcline](https://github.com/ferrocyante/arcline)**: For implementation of pseudo background.
 - **[aminomancer/uc.css.js](https://github.com/aminomancer/uc.css.js)**: The `_overrideFindbarMatchesDisplay` function in `findbar-ai.uc.js` is adapted from `JS/findbarMods.uc.js` under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
-- **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement and design.
+- **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement, styling, and design.
 
 ## 📄 License
 
