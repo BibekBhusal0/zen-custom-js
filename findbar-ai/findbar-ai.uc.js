@@ -1,7 +1,7 @@
 import { messageManagerAPI } from "./messageManager.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
-import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
+import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
 import { Marked } from "marked";

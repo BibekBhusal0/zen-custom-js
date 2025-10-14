@@ -1,6 +1,6 @@
 import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { parseShortcutString } from "../utils/keyboard.js";
-import { parseElement, escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
+import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { timeAgo } from "../utils/timesAgo.js";
 import TabManager from "./utils/tab-manager.js";
 

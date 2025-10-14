@@ -2,7 +2,7 @@ import { LLM } from "./llm/index.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
 import { stepCountIs } from "ai";
-import { parseElement } from "./utils/parse.js";
+import { parseElement } from "../utils/parse.js";
 
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
 
