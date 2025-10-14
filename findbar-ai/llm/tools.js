@@ -1010,7 +1010,8 @@ Note: Only second search is open in split (vertial by default), this will make i
 - Tab folders: Similar tabs can be made in folders to organize it in better way (it is also called tab group).
 - Split tabs: Zen allows to view multiple tabs at same time by splitting.
 
-The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management
+The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management. Don't ask conformative questions to user like when user's input is clear. Like when user asks you to close tabs don't ask them "Do you really want to close those tabs ... ".
+More importantly, please don't use IDs of folder/tabs/workspace while talking to user, refere them by name not id. User might not know the ids of tabs.
 `,
     tools: {
       getAllTabs: createTool(
@@ -1300,12 +1301,12 @@ Also if tab is essential which means does not belong to any specific workspace.
 -   **Your Third Tool Call (after getting the new workspace ID and reading all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\`
 
 #### Advanced tabs management (using tools related to folder and workspace to manage tabs)
--   **User Prompt:** "My tabs are not properly managed manage them"
+-   **User Prompt:** "Manage my tabs"
 -   **Your First Tool Call:** \`{"functionCall": {"name": "getAllTabs", "args": {}}}\`
 -   **Your Second Tool Call:**(based on all tabs) \`{"functionCall": {"name": "createTabFolder", "args": {"name": "..."}}}\`
 -   **Your Third Tool Call (based on all tabs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["x", "y", ...] }}}\`
 -   **Your Fourth Tool Call (based on all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\`
--   Go on making on tool calls until tabs are managed.
+-   Go on keep making tool calls until tabs are managed (note here you should not ask any question to user for conformation).
 
 `;
       }
