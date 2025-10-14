@@ -41,7 +41,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 4. Search for `BrowseBot`.
 5. Click Install.
 6. A toast for restart should appear — click on that to restart Zen.
-7.  Enjoy your new AI assistant! ✨
+7. Enjoy your new AI assistant! ✨
 
 ### Manual Install (`fx-autoconfig`)
 

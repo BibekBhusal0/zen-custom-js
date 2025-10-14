@@ -122,9 +122,9 @@ export const browseBotFindbar = {
   _originalOnMatchesCountResult: null,
   _currentAIMessageDiv: null,
 
-/**
- * Save findbar dimensions in css variables
- */
+  /**
+   * Save findbar dimensions in css variables
+   */
   _updateFindbarDimensions() {
     if (!this.findbar) {
       document.documentElement.style.removeProperty("--findbar-width");
@@ -142,18 +142,18 @@ export const browseBotFindbar = {
     document.documentElement.style.setProperty("--findbar-y", `${_findbarCoors.y}px`);
   },
 
-/**
- * Save findbar dimensions in prefs
- */
+  /**
+   * Save findbar dimensions in prefs
+   */
   _saveFindbarDimensions() {
     if (!this.findbar || !PREFS.rememberDimensions) return;
     const rect = this.findbar.getBoundingClientRect();
     PREFS.width = rect.width;
   },
 
-/**
- * Apply findbar dimensions in saved prefs
- */
+  /**
+   * Apply findbar dimensions in saved prefs
+   */
   _applyFindbarDimensions() {
     if (!this.findbar || !PREFS.rememberDimensions) return;
     const width = PREFS.width;
@@ -322,11 +322,10 @@ export const browseBotFindbar = {
     });
   },
 
-
-/**
- * Highlight a word using native findbar
- * @param {string} word - Word to highlight.
- */
+  /**
+   * Highlight a word using native findbar
+   * @param {string} word - Word to highlight.
+   */
   highlight(word) {
     if (!this.findbar) return;
 
@@ -1059,7 +1058,7 @@ export const browseBotFindbar = {
       const button = parseElement(
         `<button id="${button_id}" anonid="${button_id}">Expand</button>`
       );
-      button.addEventListener("click", () => this.expanded = true);
+      button.addEventListener("click", () => (this.expanded = true));
       button.textContent = "Expand";
       this.findbar.appendChild(button);
       this.expandButton = button;
