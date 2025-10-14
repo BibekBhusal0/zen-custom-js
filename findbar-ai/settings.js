@@ -336,7 +336,7 @@ export const SettingsModal = {
     `;
 
     const findbarSectionHtml = this._createCheckboxSectionHtml(
-      "Findbar",
+      "Findbar AI (ctrl + shift + F)",
       findbarSettings,
       true,
       "",
@@ -349,7 +349,7 @@ export const SettingsModal = {
       { label: "Enable Animations", pref: PREFS.URLBAR_AI_ANIMATIONS_ENABLED },
       { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
     ];
-    const urlbarSectionHtml = this._createCheckboxSectionHtml("URLBar AI", urlbarSettings, false);
+    const urlbarSectionHtml = this._createCheckboxSectionHtml("URLBar AI (ctrl + space)", urlbarSettings, false);
 
     // Section 3: AI Behavior
     const aiBehaviorSettings = [
