@@ -8,6 +8,14 @@
 }
 
 @media -moz-pref( "extension.browse-bot.urlbar-ai-enabled") {
+  :root[zen-single-toolbar="true"] {
+    #urlbar[ai-mode-active="true"] {
+      #identity-box::before{
+        margin-top:4px !important;
+      }
+    }
+  }
+
   #urlbar {
     &:not([open]) #urlbar-ask-ai-button {
       display: none !important;
