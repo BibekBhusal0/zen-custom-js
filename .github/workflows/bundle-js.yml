@@ -1,4 +1,4 @@
-name: Bundle BrowseBot JS Files
+name: Bundle JS Files
 
 on:
   workflow_dispatch:
