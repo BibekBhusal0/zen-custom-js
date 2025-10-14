@@ -22,9 +22,7 @@
     "@ai-sdk/perplexity": "^2.0.12",
     "@ai-sdk/xai": "^2.0.24",
     "ai": "^5.0.62",
-    "highlight.js": "^11.11.1",
     "marked": "^16.4.0",
-    "marked-highlight": "^2.2.2",
     "ollama-ai-provider": "^1.2.0",
     "zod": "^3.0.0"
   },
