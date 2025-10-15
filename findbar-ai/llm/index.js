@@ -416,19 +416,13 @@ Here is the initial info about the current page:
     }
 
     const shouldToolBeCalled = async (toolName) => {
-      browseBotFindbar._createOrUpdateToolCallUI(
-        toolName,
-        "loading"
-      );
+      browseBotFindbar._createOrUpdateToolCallUI(toolName, "loading");
       if (PREFS.conformation) {
         const friendlyName = toolNameMapping[toolName] || toolName;
         const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
         if (!confirmed) {
           debugLog(`Tool execution for '${toolName}' cancelled by user.`);
-          browseBotFindbar._createOrUpdateToolCallUI(
-            toolName,
-            "declined"
-          );
+          browseBotFindbar._createOrUpdateToolCallUI(toolName, "declined");
           return false;
         }
       }
@@ -437,11 +431,7 @@ Here is the initial info about the current page:
 
     const afterToolCall = (toolName, result) => {
       const status = result.error ? "error" : "success";
-      browseBotFindbar._createOrUpdateToolCallUI(
-        toolName,
-        status,
-        result.error
-      );
+      browseBotFindbar._createOrUpdateToolCallUI(toolName, status, result.error);
     };
 
     // NOTE: Not using bookmarks groiup because AI always made bookmark folder when asked to make tab folder

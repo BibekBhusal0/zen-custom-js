@@ -489,7 +489,7 @@ export const browseBotFindbar = {
   },
 
   _createOrUpdateToolCallUI(toolName, status, errorMsg = null) {
-    const messageDiv =this._currentAIMessageDiv;
+    const messageDiv = this._currentAIMessageDiv;
     if (!messageDiv) return;
 
     let container = messageDiv.querySelector(".tool-calls-container");
@@ -504,8 +504,10 @@ export const browseBotFindbar = {
     }
 
     const friendlyName = toolNameMapping[toolName] || toolName;
-    const existingLoadingItems = container.querySelectorAll('.tool-call-status[data-status="loading"]');
-    existingLoadingItems.forEach(item => item.remove());
+    const existingLoadingItems = container.querySelectorAll(
+      '.tool-call-status[data-status="loading"]'
+    );
+    existingLoadingItems.forEach((item) => item.remove());
 
     let toolDiv = parseElement(`
 <div class="tool-call-status" data-tool-name="${toolName} data-status="${status}">
