@@ -14385,7 +14385,7 @@ The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment var
   }
 
   // src/version.ts
-  var VERSION$6 = "5.0.70" ;
+  var VERSION$6 = "5.0.72" ;
 
   // src/util/download/download.ts
   var download = async ({ url }) => {
@@ -23252,7 +23252,8 @@ Please report this to https://github.com/markedjs/marked.`,e){let r="<p>An error
       }
     },
 
-    _createOrUpdateToolCallUI(messageDiv, toolName, status, errorMsg = null) {
+    _createOrUpdateToolCallUI(toolName, status, errorMsg = null) {
+      const messageDiv = this._currentAIMessageDiv;
       if (!messageDiv) return;
 
       let container = messageDiv.querySelector(".tool-calls-container");
@@ -23267,23 +23268,21 @@ Please report this to https://github.com/markedjs/marked.`,e){let r="<p>An error
       }
 
       const friendlyName = toolNameMapping[toolName] || toolName;
-      let toolDiv = container.querySelector(`[data-tool-name="${toolName}"]`);
-      if (!toolDiv) {
-        toolDiv = parseElement(`
-        <div class="tool-call-status" data-tool-name="${toolName}">
-          <span class="tool-call-icon"></span>
-          <span class="tool-call-name">${friendlyName}</span>
-        </div>
-      `);
-        container.appendChild(toolDiv);
-      }
+      const existingLoadingItems = container.querySelectorAll(
+        '.tool-call-status[data-status="loading"]'
+      );
+      existingLoadingItems.forEach((item) => item.remove());
 
-      const iconSpan = toolDiv.querySelector(".tool-call-icon");
-      if (iconSpan) {
-        iconSpan.innerHTML = icons[status] || "";
-      }
+      let toolDiv = parseElement(`
+<div class="tool-call-status" data-tool-name="${toolName} data-status="${status}">
+  <span class="tool-call-icon">${icons[status] || ""}</span>
+  <span class="tool-call-name">${friendlyName}</span>
+</div>
+`);
 
-      toolDiv.dataset.status = status;
+      container.appendChild(toolDiv);
+
+      // toolDiv.dataset.status = status;
       let title = friendlyName;
       if (status === "error" && errorMsg) {
         title += `\nError: ${errorMsg}`;
@@ -23292,6 +23291,7 @@ Please report this to https://github.com/markedjs/marked.`,e){let r="<p>An error
       }
       toolDiv.setAttribute("tooltiptext", title);
 
+      messageDiv.scrollTop = messageDiv.scrollHeight;
       setTimeout(() => this._updateFindbarDimensions(), 0);
     },
 
@@ -30878,7 +30878,7 @@ ${user}:`]
   // src/anthropic-provider.ts
 
   // src/version.ts
-  var VERSION$2 = "2.0.28" ;
+  var VERSION$2 = "2.0.29" ;
   var anthropicErrorDataSchema = lazySchema(
     () => zodSchema(
       object$1({
@@ -31624,6 +31624,14 @@ ${user}:`]
               anthropicTools2.push({
                 name: "bash",
                 type: "bash_20241022"
+              });
+              break;
+            }
+            case "anthropic.memory_20250818": {
+              betas.add("context-management-2025-06-27");
+              anthropicTools2.push({
+                name: "memory",
+                type: "memory_20250818"
               });
               break;
             }
@@ -33409,6 +33417,48 @@ ${user}:`]
     name: "computer",
     inputSchema: computer_20250124InputSchema
   });
+  var memory_20250818InputSchema = lazySchema(
+    () => zodSchema(
+      discriminatedUnion("command", [
+        object$1({
+          command: literal("view"),
+          path: string(),
+          view_range: tuple([number$1(), number$1()]).optional()
+        }),
+        object$1({
+          command: literal("create"),
+          path: string(),
+          file_text: string()
+        }),
+        object$1({
+          command: literal("str_replace"),
+          path: string(),
+          old_str: string(),
+          new_str: string()
+        }),
+        object$1({
+          command: literal("insert"),
+          path: string(),
+          insert_line: number$1(),
+          insert_text: string()
+        }),
+        object$1({
+          command: literal("delete"),
+          path: string()
+        }),
+        object$1({
+          command: literal("rename"),
+          old_path: string(),
+          new_path: string()
+        })
+      ])
+    )
+  );
+  var memory_20250818 = createProviderDefinedToolFactory({
+    id: "anthropic.memory_20250818",
+    name: "memory",
+    inputSchema: memory_20250818InputSchema
+  });
   var textEditor_20241022InputSchema = lazySchema(
     () => zodSchema(
       object$1({
@@ -33534,6 +33584,17 @@ ${user}:`]
      * @param displayNumber - The display number to control (only relevant for X11 environments). If specified, the tool will be provided a display number in the tool definition.
      */
     computer_20250124,
+    /**
+     * The memory tool enables Claude to store and retrieve information across conversations through a memory file directory.
+     * Claude can create, read, update, and delete files that persist between sessions,
+     * allowing it to build knowledge over time without keeping everything in the context window.
+     * The memory tool operates client-side—you control where and how the data is stored through your own infrastructure.
+     *
+     * Supported models: Claude Sonnet 4.5, Claude Sonnet 4, Claude Opus 4.1, Claude Opus 4.
+     *
+     * Tool name must be `memory`.
+     */
+    memory_20250818,
     /**
      * Claude can use an Anthropic-defined text editor tool to view and modify text files,
      * helping you debug, fix, and improve your code or other text documents. This allows Claude
@@ -37530,21 +37591,13 @@ Here is the initial info about the current page:
       }
 
       const shouldToolBeCalled = async (toolName) => {
-        browseBotFindbar._createOrUpdateToolCallUI(
-          browseBotFindbar._currentAIMessageDiv,
-          toolName,
-          "loading"
-        );
+        browseBotFindbar._createOrUpdateToolCallUI(toolName, "loading");
         if (PREFS.conformation) {
           const friendlyName = toolNameMapping[toolName] || toolName;
           const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
           if (!confirmed) {
             debugLog(`Tool execution for '${toolName}' cancelled by user.`);
-            browseBotFindbar._createOrUpdateToolCallUI(
-              browseBotFindbar._currentAIMessageDiv,
-              toolName,
-              "declined"
-            );
+            browseBotFindbar._createOrUpdateToolCallUI(toolName, "declined");
             return false;
           }
         }
@@ -37553,12 +37606,7 @@ Here is the initial info about the current page:
 
       const afterToolCall = (toolName, result) => {
         const status = result.error ? "error" : "success";
-        browseBotFindbar._createOrUpdateToolCallUI(
-          browseBotFindbar._currentAIMessageDiv,
-          toolName,
-          status,
-          result.error
-        );
+        browseBotFindbar._createOrUpdateToolCallUI(toolName, status, result.error);
       };
 
       // NOTE: Not using bookmarks groiup because AI always made bookmark folder when asked to make tab folder
