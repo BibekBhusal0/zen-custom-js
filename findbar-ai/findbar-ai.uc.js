@@ -488,7 +488,8 @@ export const browseBotFindbar = {
     }
   },
 
-  _createOrUpdateToolCallUI(messageDiv, toolName, status, errorMsg = null) {
+  _createOrUpdateToolCallUI(toolName, status, errorMsg = null) {
+    const messageDiv =this._currentAIMessageDiv;
     if (!messageDiv) return;
 
     let container = messageDiv.querySelector(".tool-calls-container");
@@ -503,23 +504,19 @@ export const browseBotFindbar = {
     }
 
     const friendlyName = toolNameMapping[toolName] || toolName;
-    let toolDiv = container.querySelector(`[data-tool-name="${toolName}"]`);
-    if (!toolDiv) {
-      toolDiv = parseElement(`
-        <div class="tool-call-status" data-tool-name="${toolName}">
-          <span class="tool-call-icon"></span>
-          <span class="tool-call-name">${friendlyName}</span>
-        </div>
-      `);
-      container.appendChild(toolDiv);
-    }
+    const existingLoadingItems = container.querySelectorAll('.tool-call-status[data-status="loading"]');
+    existingLoadingItems.forEach(item => item.remove());
 
-    const iconSpan = toolDiv.querySelector(".tool-call-icon");
-    if (iconSpan) {
-      iconSpan.innerHTML = icons[status] || "";
-    }
+    let toolDiv = parseElement(`
+<div class="tool-call-status" data-tool-name="${toolName} data-status="${status}">
+  <span class="tool-call-icon">${icons[status] || ""}</span>
+  <span class="tool-call-name">${friendlyName}</span>
+</div>
+`);
 
-    toolDiv.dataset.status = status;
+    container.appendChild(toolDiv);
+
+    // toolDiv.dataset.status = status;
     let title = friendlyName;
     if (status === "error" && errorMsg) {
       title += `\nError: ${errorMsg}`;
@@ -528,6 +525,7 @@ export const browseBotFindbar = {
     }
     toolDiv.setAttribute("tooltiptext", title);
 
+    messageDiv.scrollTop = messageDiv.scrollHeight;
     setTimeout(() => this._updateFindbarDimensions(), 0);
   },
 

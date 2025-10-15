@@ -417,7 +417,6 @@ Here is the initial info about the current page:
 
     const shouldToolBeCalled = async (toolName) => {
       browseBotFindbar._createOrUpdateToolCallUI(
-        browseBotFindbar._currentAIMessageDiv,
         toolName,
         "loading"
       );
@@ -427,7 +426,6 @@ Here is the initial info about the current page:
         if (!confirmed) {
           debugLog(`Tool execution for '${toolName}' cancelled by user.`);
           browseBotFindbar._createOrUpdateToolCallUI(
-            browseBotFindbar._currentAIMessageDiv,
             toolName,
             "declined"
           );
@@ -440,7 +438,6 @@ Here is the initial info about the current page:
     const afterToolCall = (toolName, result) => {
       const status = result.error ? "error" : "success";
       browseBotFindbar._createOrUpdateToolCallUI(
-        browseBotFindbar._currentAIMessageDiv,
         toolName,
         status,
         result.error
