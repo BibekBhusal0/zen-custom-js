@@ -20,12 +20,20 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 - 📚 **Citation Support**: Get direct quotes from the page text that support the AI's answer.
 - 🔧 **Highly Customizable**: Fine-tune every aspect through an extensive in-app settings panel or `about:config`.
 
+##  Demo Videos
+### URL Bar AI
+
+https://github.com/user-attachments/assets/78e37797-0e6a-4176-8eb2-e5e03f868db3
+
+### Agentic mode (with new tool calls)
+
+https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
+
 ## 🛠️ Technologies used
 
 - **[Vercel AI SDK](https://ai-sdk.dev/)**: For managing multiple Providers for AI.
 - **[Zod](https://zod.dev/)**: Schema validation (making sure AI is giving output in correct format and calling correct tools).
 - **[Marked](https://marked.js.org/)**: For markdown parsing.
-- **[highlight.js](https://highlightjs.org/)**: Syntax highlight for code in markdown.
 
 ## 🚨 Caution
 
