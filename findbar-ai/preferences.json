@@ -1,5 +1,4 @@
-[
-  {
+[{
     "property": "extension.browse-bot.findbar-ai.enabled",
     "label": "Enable Findbar AI",
     "type": "checkbox",
@@ -105,32 +104,32 @@
     "property": "extension.browse-bot.claude-model",
     "label": "Claude Model",
     "type": "dropdown",
-    "default": "claude-4-opus",
+    "default": "claude-opus-4-1",
     "description": "Select the Claude model to use.",
     "options": [
       {
-        "value": "claude-4-opus",
-        "label": "Claude 4 Opus"
+        "value": "claude-sonnet-4-5",
+        "label": "Claude Sonnet 4.5"
       },
       {
-        "value": "claude-4-sonnet",
-        "label": "Claude 4 Sonnet"
+        "value": "claude-opus-4-1",
+        "label": "Claude Opus 4.1"
       },
       {
-        "value": "claude-4-haiku",
-        "label": "Claude 4 Haiku"
+        "value": "claude-opus-4-0",
+        "label": "Claude Opus 4.0"
       },
       {
-        "value": "claude-3-opus",
-        "label": "Claude 3 Opus"
+        "value": "claude-sonnet-4-0",
+        "label": "Claude Sonnet 4.0"
       },
       {
-        "value": "claude-3-sonnet",
-        "label": "Claude 3 Sonnet"
+        "value": "claude-3-7-sonnet-latest",
+        "label": "Claude 3.7 Sonnet Latest"
       },
       {
-        "value": "claude-3-haiku",
-        "label": "Claude 3 Haiku"
+        "value": "claude-3-5-haiku-latest",
+        "label": "Claude 3.5 Haiku Latest"
       }
     ],
     "conditions": [
@@ -243,6 +242,18 @@
     "description": "Select the Grok model to use.",
     "options": [
       {
+        "value": "grok-4-fast-non-reasoning",
+        "label": "Grok 4 Fast (Non-Reasoning)"
+      },
+      {
+        "value": "grok-4-fast-reasoning",
+        "label": "Grok 4 Fast (Reasoning)"
+      },
+      {
+        "value": "grok-code-fast-1",
+        "label": "Grok Code Fast 1"
+      },
+      {
         "value": "grok-4",
         "label": "Grok 4"
       },
@@ -285,14 +296,6 @@
       {
         "value": "grok-2-latest",
         "label": "Grok 2 Latest"
-      },
-      {
-        "value": "grok-2-1212",
-        "label": "Grok 2 1212"
-      },
-      {
-        "value": "grok-beta",
-        "label": "Grok Beta"
       }
     ],
     "conditions": [
@@ -414,27 +417,27 @@
     "options": [
       {
         "value": "deepseek-r1:8b",
-        "label": "DeepSeek R1 (8B)"
+        "label": "DeepSeek R1 (8B parameters)"
       },
       {
         "value": "deepseek-r1:1.5b",
-        "label": "DeepSeek R1 (1.5B)"
+        "label": "DeepSeek R1 (1.5B parameters)"
       },
       {
         "value": "deepseek-r1:7b",
-        "label": "DeepSeek R1 (7B)"
+        "label": "DeepSeek R1 (7B parameters)"
       },
       {
         "value": "deepseek-r1:14b",
-        "label": "DeepSeek R1 (14B)"
+        "label": "DeepSeek R1 (14B parameters)"
       },
       {
         "value": "deepseek-r1:32b",
-        "label": "DeepSeek R1 (32B)"
+        "label": "DeepSeek R1 (32B parameters)"
       },
       {
         "value": "deepseek-r1:70b",
-        "label": "DeepSeek R1 (70B)"
+        "label": "DeepSeek R1 (70B parameters)"
       },
       {
         "value": "mixtral:8x22b",
@@ -446,35 +449,35 @@
       },
       {
         "value": "qwen3:0.6b",
-        "label": "Qwen3 (0.6B)"
+        "label": "Qwen3 (0.6B parameters)"
       },
       {
         "value": "qwen3:1.7b",
-        "label": "Qwen3 (1.7B)"
+        "label": "Qwen3 (1.7B parameters)"
       },
       {
         "value": "qwen3:4b",
-        "label": "Qwen3 (4B)"
+        "label": "Qwen3 (4B parameters)"
       },
       {
         "value": "qwen3:8b",
-        "label": "Qwen3 (8B)"
+        "label": "Qwen3 (8B parameters)"
       },
       {
         "value": "qwen3:14b",
-        "label": "Qwen3 (14B)"
+        "label": "Qwen3 (14B parameters)"
       },
       {
         "value": "qwen3:32b",
-        "label": "Qwen3 (32B)"
+        "label": "Qwen3 (32B parameters)"
       },
       {
         "value": "qwen3:30b-a3b",
-        "label": "Qwen3 (30B MoE, 3B active)"
+        "label": "Qwen3 (30B-A3B)"
       },
       {
         "value": "qwen3:235b-a22b",
-        "label": "Qwen3 (235B MoE, 22B active)"
+        "label": "Qwen3 (235B-A22B)"
       },
       {
         "value": "llama4:scout",
@@ -567,19 +570,23 @@
       },
       {
         "value": "gpt-5",
-        "label": "GTP 5"
+        "label": "GPT 5"
       },
       {
         "value": "gpt-5-mini",
-        "label": "GPT 5 mini"
+        "label": "GPT 5 Mini"
       },
       {
         "value": "gpt-5-nano",
-        "label": "GPT 5 nano"
+        "label": "GPT 5 Nano"
       },
       {
         "value": "gpt-5-chat-latest",
-        "label": "GPT 5 latest"
+        "label": "GPT 5 Latest"
+      },
+      {
+        "value": "gpt-5-codex",
+        "label": "GPT 5 Codex"
       }
     ],
     "conditions": [
