@@ -40,15 +40,22 @@ const commonPlugins = [
 // --- Individual Configurations ---
 const browseBotConfig = {
   input: "findbar-ai/browse-bot.uc.js",
-  output: [
-    {
-      file: "dist/browse-bot.uc.js",
-      format: "umd",
-      name: "BrowseBot",
-      banner: browseBotHeader,
-      inlineDynamicImports: true,
+  output: {
+    dir: "dist",
+    format: "es",
+    banner: browseBotHeader,
+    manualChunks(id) {
+      if (id.includes("node_modules")) {
+        // Bundle Vercel AI SDK, Zod, and other AI libs into a vendor chunk
+        const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider"];
+        if (vendorPackages.some((pkg) => id.includes(pkg))) {
+          return "vercel-ai-sdk";
+        }
+      }
     },
-  ],
+    chunkFileNames: "vercel-ai-sdk.uc.js",
+    entryFileNames: "browse-bot.uc.js",
+  },
   context: "window",
   plugins: commonPlugins,
 };
