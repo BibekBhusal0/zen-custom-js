@@ -1,4 +1,5 @@
-[{
+[
+  {
     "property": "extension.browse-bot.findbar-ai.enabled",
     "label": "Enable Findbar AI",
     "type": "checkbox",
