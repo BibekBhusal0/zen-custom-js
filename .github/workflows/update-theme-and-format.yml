@@ -6,7 +6,6 @@ permissions:
 on:
   push:
     branches:
-      - main
   workflow_dispatch:
 
 jobs:
@@ -113,7 +112,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --global prettier
 
       - name: Run Prettier
         run: npm run format

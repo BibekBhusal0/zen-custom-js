@@ -1,0 +1,126 @@
+@keyframes urlbar-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: -300% 50%;
+  }
+}
+
+@media -moz-pref( "extension.browse-bot.urlbar-ai-enabled") {
+  :root[zen-single-toolbar="true"] {
+    #urlbar[ai-mode-active="true"] {
+      #identity-box::before {
+        margin-top: 4px !important;
+      }
+    }
+  }
+
+  #urlbar {
+    &:not([open]) #urlbar-ask-ai-button {
+      display: none !important;
+    }
+    #urlbar-ask-ai-button {
+      width: 24px !important;
+      height: 24px !important;
+      appearance: none !important;
+      outline: none !important;
+      border: none !important;
+      border-radius: 5px !important;
+      transition: all 0.2s ease !important;
+      display: inline-flex !important;
+      justify-content: center !important;
+      align-content: center !important;
+      background-color: transparent !important;
+      -moz-context-properties: fill !important;
+      fill: light-dark(black, white) !important;
+      opacity: 1 !important;
+      &:hover {
+        background: var(--tab-hover-background-color) !important;
+        border: none !important;
+      }
+    }
+    &[ai-mode-active="true"] {
+      #urlbar-ask-ai-button {
+        opacity: 0 !important;
+      }
+
+      #identity-box {
+        visibility: hidden;
+        width: 15px !important;
+        &::before {
+          content: url("chrome://browser/skin/trending.svg") !important;
+          -moz-context-properties: fill !important;
+          padding-left: 5px !important;
+          padding-top: 2px !important;
+          scale: 1.2 !important;
+          fill: light-dark(black, white) !important;
+
+          display: block;
+          visibility: visible;
+        }
+      }
+
+      #urlbar-input {
+        margin-top: -2px !important;
+        margin-left: 8px !important;
+        font-size: 15px !important;
+      }
+
+      @media -moz-pref("extension.browse-bot.urlbar-ai.hide-suggestions") {
+        &[hide-suggestions="true"] {
+          .urlbarView {
+            display: none !important;
+          }
+        }
+      }
+    }
+  }
+
+  @media -moz-pref( "extension.browse-bot.urlbar-ai.animations-enabled") {
+    #urlbar {
+      &[is-ai-thinking="true"] {
+        .urlbar-input-container::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(45deg, #ff8a00, #e52e71, #7f00ff, #00c9ff, #ff8a00);
+          background-size: 400% 100%;
+          animation: urlbar-gradient 8s linear infinite;
+          border-radius: 15px !important;
+          background-repeat: repeat-x;
+          opacity: 0.2;
+          transition: opacity 0.5s ease-in-out;
+          z-index: 1;
+          pointer-events: none;
+          @media not -moz-pref("extension.browse-bot.urlbar-ai.hide-suggestions") {
+            border-radius: 15px 15px 0 0 !important;
+          }
+        }
+      }
+      #urlbar-ask-ai-button {
+        transition: opacity 0.15s ease;
+      }
+    }
+
+    .browserStack {
+      transition: all 0.3s cubic-bezier(0.175, 0.385, 0.12, 1) !important;
+      &:not(:has(#urlbar[ai-mode-active="true"])) {
+        filter: none !important;
+        scale: 1 !important;
+        transition:
+          filter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.35),
+          opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.35),
+          scale 0.25s cubic-bezier(0.175, 0.885, 0.32, 1) !important;
+      }
+    }
+
+    #browser:has(#urlbar[ai-mode-active="true"]) .browserStack {
+      scale: 1.05 !important;
+      filter: brightness(75%) blur(15px) saturate(115%) !important;
+    }
+  }
+}

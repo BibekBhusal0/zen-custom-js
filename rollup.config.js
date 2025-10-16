@@ -30,7 +30,7 @@ const reopenClosedTabsHeader = `// ==UserScript==
 
 // --- Common Plugins ---
 const commonPlugins = [
-  resolve(),
+  resolve({ browser: true }),
   commonjs(),
   string({
     include: "**/*.css",
@@ -39,15 +39,24 @@ const commonPlugins = [
 
 // --- Individual Configurations ---
 const browseBotConfig = {
-  input: "findbar-ai/findbar-ai.uc.js",
-  output: [
-    {
-      file: "dist/browse-bot.uc.js",
-      format: "umd",
-      name: "BrowseBot",
-      banner: browseBotHeader,
+  input: "findbar-ai/browse-bot.uc.js",
+  output: {
+    dir: "dist",
+    format: "es",
+    banner: browseBotHeader,
+    manualChunks(id) {
+      if (id.includes("node_modules")) {
+        // Bundle Vercel AI SDK, Zod, and other AI libs into a vendor chunk
+        const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider"];
+        if (vendorPackages.some((pkg) => id.includes(pkg))) {
+          return "vercel-ai-sdk";
+        }
+      }
     },
-  ],
+    chunkFileNames: "vercel-ai-sdk.uc.js",
+    entryFileNames: "browse-bot.uc.js",
+  },
+  context: "window",
   plugins: commonPlugins,
 };
 
@@ -59,8 +68,10 @@ const reopenClosedTabsConfig = {
       format: "umd",
       name: "reopenClosedTabs",
       banner: reopenClosedTabsHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 
@@ -72,8 +83,10 @@ const commandPaletteConfig = {
       format: "umd",
       name: "ZenCommandPalette",
       banner: commandPaletteHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 

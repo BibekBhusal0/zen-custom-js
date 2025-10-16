@@ -1,5 +1,5 @@
 import { debugLog, debugError } from "./utils/prefs.js";
-import { textToSvgDataUrl, svgToUrl, icons } from "./utils/icon.js";
+import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
 import { ZenCommandPalette } from "./command-palette.uc.js";
 

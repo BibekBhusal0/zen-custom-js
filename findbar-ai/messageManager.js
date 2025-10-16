@@ -118,6 +118,34 @@ function frameScript() {
     }
   }
 
+  const getYoutubeDescription = async () => {
+    const descriptionContainer = content.document.querySelector("#description-inline-expander");
+    if (descriptionContainer) {
+      const expandButton =
+        descriptionContainer.querySelector("#expand") ||
+        descriptionContainer.querySelector("#expand-button") ||
+        descriptionContainer.querySelector("tp-yt-paper-button#more");
+      // Check if button is visible, as it's hidden when expanded
+      if (expandButton && expandButton.offsetParent !== null) {
+        expandButton.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+    }
+
+    const desc = content.document.querySelector(
+      "#description-inline-expander .yt-core-attributed-string, #description .content, .ytd-expandable-video-description-body-renderer .yt-core-attributed-string"
+    );
+    return desc ? desc.textContent.trim() : "Description not found.";
+  };
+
+  const getYoutubeComments = (count = 10) => {
+    const comments = Array.from(
+      content.document.querySelectorAll("ytd-comment-thread-renderer #content-text")
+    ).slice(0, count);
+    if (comments.length === 0) return ["No comments found or they are not loaded yet."];
+    return comments.map((c) => c.textContent.trim());
+  };
+
   const handlers = {
     GetPageHTMLContent: () => {
       return {
@@ -167,6 +195,15 @@ function frameScript() {
     GetYoutubeTranscript: async () => {
       const transcript = await getYouTubeTranscript();
       return { transcript };
+    },
+
+    GetYoutubeDescription: async () => {
+      const description = await getYoutubeDescription();
+      return { description };
+    },
+
+    GetYoutubeComments: ({ count }) => {
+      return { comments: getYoutubeComments(count) };
     },
   };
 
@@ -287,6 +324,24 @@ export const messageManagerAPI = {
     } catch (error) {
       debugError("Failed to get youtube transcript:", error);
       return { error: `Failed to get youtube transcript: ${error.message}` };
+    }
+  },
+
+  async getYoutubeDescription() {
+    try {
+      return await this.send("GetYoutubeDescription");
+    } catch (error) {
+      debugError("Failed to get youtube description:", error);
+      return { error: `Failed to get youtube description: ${error.message}` };
+    }
+  },
+
+  async getYoutubeComments(count) {
+    try {
+      return await this.send("GetYoutubeComments", { count });
+    } catch (error) {
+      debugError("Failed to get youtube comments:", error);
+      return { error: `Failed to get youtube comments: ${error.message}` };
     }
   },
 };
