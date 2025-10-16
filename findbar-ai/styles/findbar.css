@@ -666,7 +666,7 @@ browser {
 
         &[data-status="loading"] {
           /* FIX: hiding loading indicator from css unelss i figure out a way to hide it correctly*/
-          display: none;
+          display: none !important;
           background-color: var(--browse-bot-muted-bg);
           color: var(--browse-bot-muted);
           .tool-call-icon {
