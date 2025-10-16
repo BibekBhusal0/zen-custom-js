@@ -434,7 +434,7 @@ Here is the initial info about the current page:
       browseBotFindbar._createOrUpdateToolCallUI(toolName, status, result.error);
     };
 
-    // NOTE: Not using bookmarks groiup because AI always made bookmark folder when asked to make tab folder
+    // NOTE: Not using bookmarks group because AI always made bookmark folder when asked to make tab folder
     const findbarToolGroups = Object.keys(toolGroups).filter(
       (group) => group !== "bookmarks" && group !== "misc"
     );
