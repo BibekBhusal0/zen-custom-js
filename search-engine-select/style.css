@@ -119,3 +119,20 @@
   height: 16px;
   flex-shrink: 0;
 }
+
+@media -moz-pref("zen.tabs.vertical.right-side") {
+  #search-engine-switcher-container {
+    left: 0 !important;
+    right: unset !important;
+    border-left: none !important;
+    border-radius: 0 30px 30px 0;
+    flex-direction: row-reverse !important;
+  }
+  #ses-engine-select{
+    flex-direction: row-reverse !important;
+  }
+  #ses-engine-options{
+    left: 0 !important;
+    right: unset !important;
+  }
+}
