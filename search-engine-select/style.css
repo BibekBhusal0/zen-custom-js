@@ -128,10 +128,10 @@
     border-radius: 0 30px 30px 0;
     flex-direction: row-reverse !important;
   }
-  #ses-engine-select{
+  #ses-engine-select {
     flex-direction: row-reverse !important;
   }
-  #ses-engine-options{
+  #ses-engine-options {
     left: 0 !important;
     right: unset !important;
   }
