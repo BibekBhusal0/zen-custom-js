@@ -1,10 +1,3 @@
-// ==UserScript==
-// @name            BrowseBot
-// @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface.
-// @author          BibekBhusal
-// ==/UserScript==
-
-
 // src/errors/ai-sdk-error.ts
 var marker$3 = "vercel.ai.error";
 var symbol$3 = Symbol.for(marker$3);
@@ -7873,35 +7866,26 @@ var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2 
   }) {
     let contextualMessage;
     if (apiKeyProvided) {
-      contextualMessage = `AI Gateway authentication failed: Invalid API key provided.
+      contextualMessage = `AI Gateway authentication failed: Invalid API key.
 
-The token is expected to be provided via the 'apiKey' option or 'AI_GATEWAY_API_KEY' environment variable.`;
+Create a new API key: https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%2Fapi-keys
+
+Provide via 'apiKey' option or 'AI_GATEWAY_API_KEY' environment variable.`;
     } else if (oidcTokenProvided) {
-      contextualMessage = `AI Gateway authentication failed: Invalid OIDC token provided.
+      contextualMessage = `AI Gateway authentication failed: Invalid OIDC token.
 
-The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment variable. It expires every 12 hours.
-- make sure your Vercel project settings have OIDC enabled
-- if running locally with 'vercel dev', the token is automatically obtained and refreshed
-- if running locally with your own dev server, run 'vercel env pull' to fetch the token
-- in production/preview, the token is automatically obtained and refreshed
+Run 'npx vercel link' to link your project, then 'vc env pull' to fetch the token.
 
-Alternative: Provide an API key via 'apiKey' option or 'AI_GATEWAY_API_KEY' environment variable.`;
+Alternatively, use an API key: https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%2Fapi-keys`;
     } else {
       contextualMessage = `AI Gateway authentication failed: No authentication provided.
 
-Provide either an API key or OIDC token.
+Option 1 - API key:
+Create an API key: https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%2Fapi-keys
+Provide via 'apiKey' option or 'AI_GATEWAY_API_KEY' environment variable.
 
-API key instructions:
-
-The token is expected to be provided via the 'apiKey' option or 'AI_GATEWAY_API_KEY' environment variable.
-
-OIDC token instructions:
-
-The token is expected to be provided via the 'VERCEL_OIDC_TOKEN' environment variable. It expires every 12 hours.
-- make sure your Vercel project settings have OIDC enabled
-- if running locally with 'vercel dev', the token is automatically obtained and refreshed
-- if running locally with your own dev server, run 'vercel env pull' to fetch the token
-- in production/preview, the token is automatically obtained and refreshed`;
+Option 2 - OIDC token:
+Run 'npx vercel link' to link your project, then 'vc env pull' to fetch the token.`;
     }
     return new _GatewayAuthenticationError({
       message: contextualMessage,
@@ -8459,7 +8443,7 @@ async function getVercelRequestId() {
 }
 
 // src/version.ts
-var VERSION$8 = "1.0.40" ;
+var VERSION$8 = "2.0.0" ;
 
 // src/gateway-provider.ts
 var AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
@@ -10950,7 +10934,7 @@ function detectMediaType({
 }
 
 // src/version.ts
-var VERSION$6 = "5.0.72" ;
+var VERSION$6 = "5.0.76" ;
 
 // src/util/download/download.ts
 var download = async ({ url }) => {
@@ -13393,8 +13377,6 @@ async function parsePartialJson(jsonText) {
   }
   return { value: void 0, state: "failed-parse" };
 }
-
-// src/ui/ui-messages.ts
 function isToolUIPart(part) {
   return part.type.startsWith("tool-");
 }
@@ -23314,7 +23296,7 @@ createOpenAI();
 // src/anthropic-provider.ts
 
 // src/version.ts
-var VERSION$2 = "2.0.31" ;
+var VERSION$2 = "2.0.33" ;
 var anthropicErrorDataSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -23811,16 +23793,65 @@ var anthropicProviderOptions = object$1({
   cacheControl: object$1({
     type: literal("ephemeral"),
     ttl: union([literal("5m"), literal("1h")]).optional()
+  }).optional(),
+  /**
+   * Agent Skills configuration. Skills enable Claude to perform specialized tasks
+   * like document processing (PPTX, DOCX, PDF, XLSX) and data analysis.
+   * Requires code execution tool to be enabled.
+   */
+  container: object$1({
+    id: string().optional(),
+    skills: array(
+      object$1({
+        type: union([literal("anthropic"), literal("custom")]),
+        skillId: string(),
+        version: string().optional()
+      })
+    ).optional()
   }).optional()
 });
 
 // src/get-cache-control.ts
+var MAX_CACHE_BREAKPOINTS = 4;
 function getCacheControl(providerMetadata) {
   var _a;
   const anthropic2 = providerMetadata == null ? void 0 : providerMetadata.anthropic;
   const cacheControlValue = (_a = anthropic2 == null ? void 0 : anthropic2.cacheControl) != null ? _a : anthropic2 == null ? void 0 : anthropic2.cache_control;
   return cacheControlValue;
 }
+var CacheControlValidator = class {
+  constructor() {
+    this.breakpointCount = 0;
+    this.warnings = [];
+  }
+  getCacheControl(providerMetadata, context) {
+    const cacheControlValue = getCacheControl(providerMetadata);
+    if (!cacheControlValue) {
+      return void 0;
+    }
+    if (!context.canCache) {
+      this.warnings.push({
+        type: "unsupported-setting",
+        setting: "cacheControl",
+        details: `cache_control cannot be set on ${context.type}. It will be ignored.`
+      });
+      return void 0;
+    }
+    this.breakpointCount++;
+    if (this.breakpointCount > MAX_CACHE_BREAKPOINTS) {
+      this.warnings.push({
+        type: "unsupported-setting",
+        setting: "cacheControl",
+        details: `Maximum ${MAX_CACHE_BREAKPOINTS} cache breakpoints exceeded (found ${this.breakpointCount}). This breakpoint will be ignored.`
+      });
+      return void 0;
+    }
+    return cacheControlValue;
+  }
+  getWarnings() {
+    return this.warnings;
+  }
+};
 var textEditor_20250728ArgsSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -23950,11 +23981,13 @@ var webFetch_20250910 = (args = {}) => {
 async function prepareTools$2({
   tools,
   toolChoice,
-  disableParallelToolUse
+  disableParallelToolUse,
+  cacheControlValidator
 }) {
   tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
   const toolWarnings = [];
   const betas = /* @__PURE__ */ new Set();
+  const validator = cacheControlValidator || new CacheControlValidator();
   if (tools == null) {
     return { tools: void 0, toolChoice: void 0, toolWarnings, betas };
   }
@@ -23962,7 +23995,10 @@ async function prepareTools$2({
   for (const tool of tools) {
     switch (tool.type) {
       case "function": {
-        const cacheControl = getCacheControl(tool.providerOptions);
+        const cacheControl = validator.getCacheControl(tool.providerOptions, {
+          type: "tool definition",
+          canCache: true
+        });
         anthropicTools2.push({
           name: tool.name,
           description: tool.description,
@@ -23977,7 +24013,8 @@ async function prepareTools$2({
             betas.add("code-execution-2025-05-22");
             anthropicTools2.push({
               type: "code_execution_20250522",
-              name: "code_execution"
+              name: "code_execution",
+              cache_control: void 0
             });
             break;
           }
@@ -23996,7 +24033,8 @@ async function prepareTools$2({
               type: "computer_20250124",
               display_width_px: tool.args.displayWidthPx,
               display_height_px: tool.args.displayHeightPx,
-              display_number: tool.args.displayNumber
+              display_number: tool.args.displayNumber,
+              cache_control: void 0
             });
             break;
           }
@@ -24007,7 +24045,8 @@ async function prepareTools$2({
               type: "computer_20241022",
               display_width_px: tool.args.displayWidthPx,
               display_height_px: tool.args.displayHeightPx,
-              display_number: tool.args.displayNumber
+              display_number: tool.args.displayNumber,
+              cache_control: void 0
             });
             break;
           }
@@ -24015,7 +24054,8 @@ async function prepareTools$2({
             betas.add("computer-use-2025-01-24");
             anthropicTools2.push({
               name: "str_replace_editor",
-              type: "text_editor_20250124"
+              type: "text_editor_20250124",
+              cache_control: void 0
             });
             break;
           }
@@ -24023,7 +24063,8 @@ async function prepareTools$2({
             betas.add("computer-use-2024-10-22");
             anthropicTools2.push({
               name: "str_replace_editor",
-              type: "text_editor_20241022"
+              type: "text_editor_20241022",
+              cache_control: void 0
             });
             break;
           }
@@ -24031,7 +24072,8 @@ async function prepareTools$2({
             betas.add("computer-use-2025-01-24");
             anthropicTools2.push({
               name: "str_replace_based_edit_tool",
-              type: "text_editor_20250429"
+              type: "text_editor_20250429",
+              cache_control: void 0
             });
             break;
           }
@@ -24043,7 +24085,8 @@ async function prepareTools$2({
             anthropicTools2.push({
               name: "str_replace_based_edit_tool",
               type: "text_editor_20250728",
-              max_characters: args.maxCharacters
+              max_characters: args.maxCharacters,
+              cache_control: void 0
             });
             break;
           }
@@ -24051,7 +24094,8 @@ async function prepareTools$2({
             betas.add("computer-use-2025-01-24");
             anthropicTools2.push({
               name: "bash",
-              type: "bash_20250124"
+              type: "bash_20250124",
+              cache_control: void 0
             });
             break;
           }
@@ -24059,7 +24103,8 @@ async function prepareTools$2({
             betas.add("computer-use-2024-10-22");
             anthropicTools2.push({
               name: "bash",
-              type: "bash_20241022"
+              type: "bash_20241022",
+              cache_control: void 0
             });
             break;
           }
@@ -24084,7 +24129,8 @@ async function prepareTools$2({
               allowed_domains: args.allowedDomains,
               blocked_domains: args.blockedDomains,
               citations: args.citations,
-              max_content_tokens: args.maxContentTokens
+              max_content_tokens: args.maxContentTokens,
+              cache_control: void 0
             });
             break;
           }
@@ -24099,7 +24145,8 @@ async function prepareTools$2({
               max_uses: args.maxUses,
               allowed_domains: args.allowedDomains,
               blocked_domains: args.blockedDomains,
-              user_location: args.userLocation
+              user_location: args.userLocation,
+              cache_control: void 0
             });
             break;
           }
@@ -24299,11 +24346,13 @@ function convertToString(data) {
 async function convertToAnthropicMessagesPrompt({
   prompt,
   sendReasoning,
-  warnings
+  warnings,
+  cacheControlValidator
 }) {
   var _a, _b, _c, _d, _e;
   const betas = /* @__PURE__ */ new Set();
   const blocks = groupIntoBlocks(prompt);
+  const validator = cacheControlValidator || new CacheControlValidator();
   let system = void 0;
   const messages = [];
   async function shouldEnableCitations(providerMetadata) {
@@ -24340,7 +24389,10 @@ async function convertToAnthropicMessagesPrompt({
         system = block.messages.map(({ content, providerOptions }) => ({
           type: "text",
           text: content,
-          cache_control: getCacheControl(providerOptions)
+          cache_control: validator.getCacheControl(providerOptions, {
+            type: "system message",
+            canCache: true
+          })
         }));
         break;
       }
@@ -24353,7 +24405,13 @@ async function convertToAnthropicMessagesPrompt({
               for (let j = 0; j < content.length; j++) {
                 const part = content[j];
                 const isLastPart = j === content.length - 1;
-                const cacheControl = (_a = getCacheControl(part.providerOptions)) != null ? _a : isLastPart ? getCacheControl(message.providerOptions) : void 0;
+                const cacheControl = (_a = validator.getCacheControl(part.providerOptions, {
+                  type: "user message part",
+                  canCache: true
+                })) != null ? _a : isLastPart ? validator.getCacheControl(message.providerOptions, {
+                  type: "user message",
+                  canCache: true
+                }) : void 0;
                 switch (part.type) {
                   case "text": {
                     anthropicContent.push({
@@ -24441,7 +24499,13 @@ async function convertToAnthropicMessagesPrompt({
               for (let i2 = 0; i2 < content.length; i2++) {
                 const part = content[i2];
                 const isLastPart = i2 === content.length - 1;
-                const cacheControl = (_d = getCacheControl(part.providerOptions)) != null ? _d : isLastPart ? getCacheControl(message.providerOptions) : void 0;
+                const cacheControl = (_d = validator.getCacheControl(part.providerOptions, {
+                  type: "tool result part",
+                  canCache: true
+                })) != null ? _d : isLastPart ? validator.getCacheControl(message.providerOptions, {
+                  type: "tool result message",
+                  canCache: true
+                }) : void 0;
                 const output = part.output;
                 let contentValue;
                 switch (output.type) {
@@ -24451,8 +24515,7 @@ async function convertToAnthropicMessagesPrompt({
                         case "text":
                           return {
                             type: "text",
-                            text: contentPart.text,
-                            cache_control: void 0
+                            text: contentPart.text
                           };
                         case "media": {
                           if (contentPart.mediaType.startsWith("image/")) {
@@ -24462,8 +24525,7 @@ async function convertToAnthropicMessagesPrompt({
                                 type: "base64",
                                 media_type: contentPart.mediaType,
                                 data: contentPart.data
-                              },
-                              cache_control: void 0
+                              }
                             };
                           }
                           if (contentPart.mediaType === "application/pdf") {
@@ -24474,8 +24536,7 @@ async function convertToAnthropicMessagesPrompt({
                                 type: "base64",
                                 media_type: contentPart.mediaType,
                                 data: contentPart.data
-                              },
-                              cache_control: void 0
+                              }
                             };
                           }
                           throw new UnsupportedFunctionalityError$1({
@@ -24523,7 +24584,13 @@ async function convertToAnthropicMessagesPrompt({
           for (let k = 0; k < content.length; k++) {
             const part = content[k];
             const isLastContentPart = k === content.length - 1;
-            const cacheControl = (_e = getCacheControl(part.providerOptions)) != null ? _e : isLastContentPart ? getCacheControl(message.providerOptions) : void 0;
+            const cacheControl = (_e = validator.getCacheControl(part.providerOptions, {
+              type: "assistant message part",
+              canCache: true
+            })) != null ? _e : isLastContentPart ? validator.getCacheControl(message.providerOptions, {
+              type: "assistant message",
+              canCache: true
+            }) : void 0;
             switch (part.type) {
               case "text": {
                 anthropicContent.push({
@@ -24547,17 +24614,23 @@ async function convertToAnthropicMessagesPrompt({
                   });
                   if (reasoningMetadata != null) {
                     if (reasoningMetadata.signature != null) {
+                      validator.getCacheControl(part.providerOptions, {
+                        type: "thinking block",
+                        canCache: false
+                      });
                       anthropicContent.push({
                         type: "thinking",
                         thinking: part.text,
-                        signature: reasoningMetadata.signature,
-                        cache_control: cacheControl
+                        signature: reasoningMetadata.signature
                       });
                     } else if (reasoningMetadata.redactedData != null) {
+                      validator.getCacheControl(part.providerOptions, {
+                        type: "redacted thinking block",
+                        canCache: false
+                      });
                       anthropicContent.push({
                         type: "redacted_thinking",
-                        data: reasoningMetadata.redactedData,
-                        cache_control: cacheControl
+                        data: reasoningMetadata.redactedData
                       });
                     } else {
                       warnings.push({
@@ -24886,7 +24959,7 @@ var AnthropicMessagesLanguageModel = class {
     toolChoice,
     providerOptions
   }) {
-    var _a, _b, _c;
+    var _a, _b, _c, _d;
     const warnings = [];
     if (frequencyPenalty != null) {
       warnings.push({
@@ -24932,10 +25005,12 @@ var AnthropicMessagesLanguageModel = class {
       providerOptions,
       schema: anthropicProviderOptions
     });
-    const { prompt: messagesPrompt, betas: messagesBetas } = await convertToAnthropicMessagesPrompt({
+    const cacheControlValidator = new CacheControlValidator();
+    const { prompt: messagesPrompt, betas } = await convertToAnthropicMessagesPrompt({
       prompt,
       sendReasoning: (_a = anthropicOptions == null ? void 0 : anthropicOptions.sendReasoning) != null ? _a : true,
-      warnings
+      warnings,
+      cacheControlValidator
     });
     const isThinking = ((_b = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _b.type) === "enabled";
     const thinkingBudget = (_c = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _c.budgetTokens;
@@ -24953,6 +25028,17 @@ var AnthropicMessagesLanguageModel = class {
       // provider specific settings:
       ...isThinking && {
         thinking: { type: "enabled", budget_tokens: thinkingBudget }
+      },
+      // container with agent skills:
+      ...(anthropicOptions == null ? void 0 : anthropicOptions.container) && {
+        container: {
+          id: anthropicOptions.container.id,
+          skills: (_d = anthropicOptions.container.skills) == null ? void 0 : _d.map((skill) => ({
+            type: skill.type,
+            skill_id: skill.skillId,
+            version: skill.version
+          }))
+        }
       },
       // prompt:
       system: messagesPrompt.system,
@@ -24995,10 +25081,23 @@ var AnthropicMessagesLanguageModel = class {
         warnings.push({
           type: "unsupported-setting",
           setting: "maxOutputTokens",
-          details: `${maxTokens} (maxOutputTokens + thinkingBudget) is greater than ${this.modelId} ${maxOutputTokensForModel} max output tokens. The max output tokens have been limited to ${maxOutputTokensForModel}.`
+          details: `${baseArgs.max_tokens} (maxOutputTokens + thinkingBudget) is greater than ${this.modelId} ${maxOutputTokensForModel} max output tokens. The max output tokens have been limited to ${maxOutputTokensForModel}.`
         });
       }
       baseArgs.max_tokens = maxOutputTokensForModel;
+    }
+    if ((anthropicOptions == null ? void 0 : anthropicOptions.container) && anthropicOptions.container.skills && anthropicOptions.container.skills.length > 0) {
+      betas.add("code-execution-2025-08-25");
+      betas.add("skills-2025-10-02");
+      betas.add("files-api-2025-04-14");
+      if (!(tools == null ? void 0 : tools.some(
+        (tool) => tool.type === "provider-defined" && tool.id === "anthropic.code_execution_20250825"
+      ))) {
+        warnings.push({
+          type: "other",
+          message: "code execution tool is required when using skills"
+        });
+      }
     }
     const {
       tools: anthropicTools2,
@@ -25009,21 +25108,24 @@ var AnthropicMessagesLanguageModel = class {
       jsonResponseTool != null ? {
         tools: [jsonResponseTool],
         toolChoice: { type: "tool", toolName: jsonResponseTool.name },
-        disableParallelToolUse: true
+        disableParallelToolUse: true,
+        cacheControlValidator
       } : {
         tools: tools != null ? tools : [],
         toolChoice,
-        disableParallelToolUse: anthropicOptions == null ? void 0 : anthropicOptions.disableParallelToolUse
+        disableParallelToolUse: anthropicOptions == null ? void 0 : anthropicOptions.disableParallelToolUse,
+        cacheControlValidator
       }
     );
+    const cacheWarnings = cacheControlValidator.getWarnings();
     return {
       args: {
         ...baseArgs,
         tools: anthropicTools2,
         tool_choice: anthropicToolChoice
       },
-      warnings: [...warnings, ...toolWarnings],
-      betas: /* @__PURE__ */ new Set([...messagesBetas, ...toolsBetas]),
+      warnings: [...warnings, ...toolWarnings, ...cacheWarnings],
+      betas: /* @__PURE__ */ new Set([...betas, ...toolsBetas]),
       usesJsonResponseTool: jsonResponseTool != null
     };
   }
