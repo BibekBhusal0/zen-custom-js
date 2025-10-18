@@ -158,8 +158,10 @@ export const browseBotFindbar = {
     this._isExpanded = value;
     if (!this.findbar) return;
     this.findbar.expanded = value;
-    setTimeout(() => this._updateFindbarDimensions(), 2);
-    setTimeout(() => this._updateFindbarDimensions(), 20);
+    if (isChanged){
+      setTimeout(() => this._updateFindbarDimensions(), 2);
+      setTimeout(() => this._updateFindbarDimensions(), 20);
+    }
 
     if (value) {
       this.findbar.classList.add("ai-expanded");
@@ -1248,7 +1250,11 @@ export const browseBotFindbar = {
 
   stopDrag() {
     this._isDragging = false;
-    if (!PREFS.pseudoBg) this.findbar.style.setProperty("transition", "all 0.3s ease", "important");
+    if (!PREFS.pseudoBg) {
+      this.findbar.style.setProperty("transition", "all 0.3s ease", "important");
+      setTimeout(() => this.findbar.style.removeProperty("transition"), 400);
+      setTimeout(() => this._updateFindbarDimensions(), 401); // update dimensions after transition
+    }
     this.snapToClosestCorner();
     this._initialMouseCoor = { x: null, y: null };
     this._initialContainerCoor = { x: null, y: null };
@@ -1257,10 +1263,6 @@ export const browseBotFindbar = {
     this._handleDrag = null;
     this._stopDrag = null;
     setTimeout(() => this._updateFindbarDimensions(), 0);
-    if (!PREFS.pseudoBg) {
-      setTimeout(() => this.findbar.style.removeProperty("transition"), 400);
-      setTimeout(() => this._updateFindbarDimensions(), 401); // update dimensions after transition
-    }
   },
 
   snapToClosestCorner() {
