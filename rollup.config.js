@@ -66,6 +66,21 @@ const browseBotConfig = {
   plugins: commonPlugins,
 };
 
+const browseBotAllConfig = {
+  input: "findbar-ai/browse-bot.uc.js",
+  output: [
+    {
+      file: "dist/browse-bot-all.uc.js",
+      format: "umd",
+      name: "browseBotAll",
+      banner: browseBotHeader,
+      inlineDynamicImports: true,
+    },
+  ],
+  context: "window",
+  plugins: commonPlugins,
+};
+
 const reopenClosedTabsConfig = {
   input: "reopen-closed-tabs/reopen-closed-tabs.uc.js",
   output: [
@@ -107,8 +122,8 @@ if (target === "browsebot") {
 } else if (target === "reopen") {
   config = reopenClosedTabsConfig;
 } else {
-  // If no target is specified, build all
-  config = [browseBotConfig, commandPaletteConfig, reopenClosedTabsConfig];
+  // If no target is specified, build all (including browse bot 2 builds)
+  config = [browseBotConfig, commandPaletteConfig, reopenClosedTabsConfig, browseBotAllConfig];
 }
 
 export default config;
