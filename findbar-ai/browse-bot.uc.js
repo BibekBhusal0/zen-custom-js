@@ -5,7 +5,7 @@
 // ==/UserScript==
 
 
-import { n as number, t as tool, o as object, s as string, a as array, c as createPerplexity, b as createOpenAI, d as createOllama, e as createMistral, x as xai, f as createGoogleGenerativeAI, g as createAnthropic, h as stepCountIs, i as generateText, j as streamText, k as generateObject } from './browse-bot_vercel-ai-sdk.js';
+import { n as number, t as tool, o as object, s as string, a as array, c as createPerplexity, b as createOpenAI, d as createOllama, e as createMistral, x as xai, f as createGoogleGenerativeAI, g as createAnthropic, h as stepCountIs, i as generateText, j as streamText, k as generateObject } from './browse-bot_vercel-ai-sdk.uc.js';
 
 const PREFS = {
   // Findbar
