@@ -1,32 +1,8 @@
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import { string } from "rollup-plugin-string";
-
-// --- Headers ---
-const browseBotHeader = `// ==UserScript==
-// @name            BrowseBot
-// @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface.
-// @author          BibekBhusal
-// ==/UserScript==
-
-`;
-
-const commandPaletteHeader = `// ==UserScript==
-// @name            Zen Command Palette
-// @description     A powerful, extensible command interface for Zen Browser, seamlessly integrated into the URL bar.
-// @author          BibekBhusal
-// @onlyonce
-// ==/UserScript==
-
-`;
-
-const reopenClosedTabsHeader = `// ==UserScript==
-// @name            Reopen Closed Tabs
-// @description     A popup menu to view and restore recently closed tabs. Includes a toolbar button and keyboard shortcut.
-// @author          BibekBhusal
-// ==/UserScript==
-
-`;
+import fs from "fs";
+import path from "path";
 
 // --- Common Plugins ---
 const commonPlugins = [
@@ -37,93 +13,110 @@ const commonPlugins = [
   }),
 ];
 
-// --- Individual Configurations ---
-const browseBotConfig = {
-  input: "findbar-ai/browse-bot.uc.js",
-  output: {
-    dir: "dist",
-    format: "es",
-    banner: browseBotHeader,
-    manualChunks(id) {
-      if (id.includes("node_modules")) {
-        // Bundle Vercel AI SDK, Zod, and other AI libs into a vendor chunk
-        const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider"];
-        if (vendorPackages.some((pkg) => id.includes(pkg))) {
-          return "vercel-ai-sdk";
-        }
-      }
-    },
-    chunkFileNames: (chunkInfo) => {
-      // Remove banner for vercel-ai-sdk chunk
-      return chunkInfo.name === "vercel-ai-sdk" ? "vercel-ai-sdk.js" : "[name]-[hash].js";
-    },
-    entryFileNames: "browse-bot.uc.js",
-    banner: (chunkInfo) => {
-      return chunkInfo.name !== "vercel-ai-sdk" ? browseBotHeader : "";
-    },
-  },
-  context: "window",
-  plugins: commonPlugins,
+// --- Helper Functions ---
+const getSubdirectories = (dir) => {
+  return fs.readdirSync(dir).filter((file) => {
+    const fullPath = path.join(dir, file);
+    return fs.statSync(fullPath).isDirectory() && !file.startsWith('.') && file !== 'node_modules' && file !== 'dist';
+  });
 };
 
-const browseBotAllConfig = {
-  input: "findbar-ai/browse-bot.uc.js",
-  output: [
-    {
-      file: "dist/browse-bot-all.uc.js",
-      format: "umd",
-      name: "browseBotAll",
-      banner: browseBotHeader,
-      inlineDynamicImports: true,
-    },
-  ],
-  context: "window",
-  plugins: commonPlugins,
+const createBanner = (themePath, packagePath) => {
+  const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
+  const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
+
+  let banner = `// ==UserScript==
+// @name            ${theme.name}
+// @description     ${theme.description}
+// @author          ${packageJson.author}
+// @version         ${theme.version}
+// @lastUpdated     ${theme.updatedAt}
+`;
+
+  const standardKeys = ['id', 'name', 'description', 'author', 'version', 'updatedAt', 'entryFile', 'tags', 'fork', 'homepage', 'preferences', 'style', 'js', 'readme', 'image', 'createdAt'];
+
+  for (const key in theme) {
+    if (!standardKeys.includes(key)) {
+      banner += `// @${key.padEnd(15)} ${theme[key]}\n`;
+    }
+  }
+
+  banner += `// ==/UserScript==\n\n`;
+
+  return banner;
 };
 
-const reopenClosedTabsConfig = {
-  input: "reopen-closed-tabs/reopen-closed-tabs.uc.js",
-  output: [
-    {
-      file: "dist/reopen-closed-tabs.uc.js",
-      format: "umd",
-      name: "reopenClosedTabs",
-      banner: reopenClosedTabsHeader,
-      inlineDynamicImports: true,
-    },
-  ],
-  context: "window",
-  plugins: commonPlugins,
-};
+// --- Generate Configurations ---
+const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
+  const themePath = path.join(dir, "theme.json");
+  const packagePath = "package.json";
 
-const commandPaletteConfig = {
-  input: "command-palette/command-palette.uc.js",
-  output: [
-    {
-      file: "dist/zen-command-palette.uc.js",
-      format: "umd",
-      name: "ZenCommandPalette",
-      banner: commandPaletteHeader,
-      inlineDynamicImports: true,
-    },
-  ],
-  context: "window",
-  plugins: commonPlugins,
-};
+  if (fs.existsSync(themePath)) {
+    const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
+    if (!theme.entryFile) return [];
+
+    const banner = createBanner(themePath, packagePath);
+
+    const baseConfig = {
+      input: `${dir}/${theme.entryFile}`,
+      context: "window",
+      plugins: commonPlugins,
+    };
+
+    const umdConfig = {
+      ...baseConfig,
+      output: {
+        file: `dist/${theme.id}.uc.js`,
+        format: "umd",
+        name: theme.id.replace(/-/g, "_"),
+        banner,
+        inlineDynamicImports: true,
+      },
+    };
+
+    if (theme.id === 'browse-bot') {
+      const esmConfig = {
+        ...baseConfig,
+        output: {
+          dir: "dist",
+          format: "es",
+          banner,
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider"];
+              if (vendorPackages.some((pkg) => id.includes(pkg))) {
+                return "vercel-ai-sdk";
+              }
+            }
+          },
+          chunkFileNames: (chunkInfo) => {
+            return chunkInfo.name === "vercel-ai-sdk" ? "vercel-ai-sdk.js" : "[name]-[hash].js";
+          },
+          entryFileNames: "browse-bot.uc.js",
+          banner: (chunkInfo) => {
+            return chunkInfo.name !== "vercel-ai-sdk" ? banner : "";
+          },
+        },
+      };
+      return [umdConfig, esmConfig];
+    }
+    
+    return [umdConfig];
+  }
+  return [];
+});
 
 // --- Export Logic ---
 const target = process.env.TARGET;
-let config;
+let exportConfigs;
 
-if (target === "browsebot") {
-  config = browseBotConfig;
-} else if (target === "palette") {
-  config = commandPaletteConfig;
-} else if (target === "reopen") {
-  config = reopenClosedTabsConfig;
+if (target) {
+  exportConfigs = configs.filter(config => {
+    const inputFileName = path.basename(config.input);
+    return inputFileName.includes(target);
+  });
 } else {
-  // If no target is specified, build all (including browse bot 2 builds)
-  config = [browseBotConfig, commandPaletteConfig, reopenClosedTabsConfig, browseBotAllConfig];
+  exportConfigs = configs;
 }
 
-export default config;
+export default exportConfigs;

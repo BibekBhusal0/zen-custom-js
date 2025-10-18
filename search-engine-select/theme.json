@@ -12,5 +12,6 @@
   "tags": ["Search", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
   "createdAt": "2025-06-23",
   "updatedAt": "2025-07-11",
-  "fork": ["zen"]
+  "fork": ["zen"],
+  "entryFile": "search-engine-select.uc.js"
 }
