@@ -53,7 +53,7 @@ const browseBotConfig = {
         }
       }
     },
-    chunkFileNames: "vercel-ai-sdk.uc.js",
+    chunkFileNames: "vercel-ai-sdk.js",
     entryFileNames: "browse-bot.uc.js",
   },
   context: "window",
