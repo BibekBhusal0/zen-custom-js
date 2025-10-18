@@ -53,8 +53,16 @@ const browseBotConfig = {
         }
       }
     },
-    chunkFileNames: "vercel-ai-sdk.js",
+    chunkFileNames: (chunkInfo) => {
+      // Remove banner for vercel-ai-sdk chunk
+      return chunkInfo.name === "vercel-ai-sdk" 
+        ? "vercel-ai-sdk.js" 
+        : "[name]-[hash].js";
+    },
     entryFileNames: "browse-bot.uc.js",
+    banner: (chunkInfo) => {
+      return chunkInfo.name !== "vercel-ai-sdk" ? browseBotHeader : "";
+    }
   },
   context: "window",
   plugins: commonPlugins,
