@@ -158,7 +158,7 @@ export const browseBotFindbar = {
     this._isExpanded = value;
     if (!this.findbar) return;
     this.findbar.expanded = value;
-    if (isChanged){
+    if (isChanged) {
       setTimeout(() => this._updateFindbarDimensions(), 2);
       setTimeout(() => this._updateFindbarDimensions(), 20);
     }
