@@ -3,6 +3,7 @@ import { parseShortcutString } from "../utils/keyboard.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { timeAgo } from "../utils/timesAgo.js";
 import TabManager from "./utils/tab-manager.js";
+import {startupFinish } from '../utils/startup-finish.js'
 
 const ReopenClosedTabs = {
   _boundToggleMenu: null,
@@ -432,7 +433,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
   }
 }
 
-UC_API.Runtime.startupFinished().then(() => {
+startupFinish(() => {
   ReopenClosedTabs.init();
   setupCommandPaletteIntegration();
 });

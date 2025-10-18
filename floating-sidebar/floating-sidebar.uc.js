@@ -4,9 +4,8 @@
 // @author          BibekBhusal
 // ==/UserScript==
 
-const api_available = typeof UC_API !== "undefined";
+import {startupFinish } from '../utils/startup-finish.js'
 function addButton() {
-  if (!api_available) return;
   const header = document.getElementById("sidebar-header");
 
   if (!header) return;
@@ -27,6 +26,4 @@ function addButton() {
   }
 }
 
-if (api_available) {
-  UC_API.Runtime.startupFinished().then(addButton);
-}
+startupFinish(addButton)

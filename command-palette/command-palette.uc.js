@@ -17,6 +17,7 @@ import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { parseShortcutString } from "../utils/keyboard.js";
+import {startupFinish } from '../utils/startup-finish.js'
 
 export const ZenCommandPalette = {
   /**
@@ -999,7 +1000,7 @@ export const ZenCommandPalette = {
 };
 
 // Initialization
-UC_API.Runtime.startupFinished().then(() => {
+function init() {
   Prefs.setInitialPrefs();
   window.ZenCommandPalette = ZenCommandPalette;
   ZenCommandPalette.init();
@@ -1008,4 +1009,6 @@ UC_API.Runtime.startupFinished().then(() => {
     "Zen Command Palette initialized. Static commands count:",
     window.ZenCommandPalette.staticCommands.length
   );
-});
+}
+
+startupFinish(init)

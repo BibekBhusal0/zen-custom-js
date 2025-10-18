@@ -1,3 +1,5 @@
+import {startupFinish } from '../utils/startup-finish.js'
+
 let currentEngine = null;
 
 function googleFaviconAPI(url) {
@@ -60,4 +62,4 @@ function observeSearchModeIndicator() {
   });
 }
 
-setTimeout(observeSearchModeIndicator, 1000);
+startupFinish(observeSearchModeIndicator);

@@ -4,8 +4,8 @@
 // @description    Adds a floating UI to switch search engines on a search results page.
 // ==/UserScript==
 
-(function () {
-  "use strict";
+import {startupFinish } from '../utils/startup-finish.js'
+
 
   const PREF_ENABLED = "extension.search-engine-select.enabled";
   const PREF_REMEMBER_POSITION = "extension.search-engine-select.remember-position";
@@ -435,7 +435,8 @@
     },
   };
 
-  // --- Initialization and Teardown ---
+  function init() {
+
   const handleEnabledChange = (pref) => {
     SearchEngineSwitcher.handleEnabledChange(pref);
   };
@@ -445,4 +446,5 @@
 
   // Listen for real-time changes
   UC_API.Prefs.addListener(PREF_ENABLED, handleEnabledChange);
-})();
+  }
+  startupFinish(init)
