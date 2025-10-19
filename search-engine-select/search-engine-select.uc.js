@@ -1,4 +1,4 @@
-import { googleFaviconAPI } from "../utils/favicon.js";
+import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 
@@ -87,15 +87,6 @@ const SearchEngineSwitcher = {
     debugLog("Destroyed successfully.");
   },
 
-  getFaviconImg(engine) {
-    const img = document.createElement("img");
-    const fallbackIcon = "chrome://branding/content/icon32.png";
-    const submissionUrl = engine.getSubmission("test_query").uri.spec;
-    img.src = engine.iconURI?.spec || googleFaviconAPI(submissionUrl) || fallbackIcon;
-    img.onerror = () => (img.src = fallbackIcon);
-    return img;
-  },
-
   async buildEngineRegexCache() {
     debugLog("Building engine regex cache...");
     this._engineCache = [];
@@ -166,7 +157,8 @@ const SearchEngineSwitcher = {
   updateSelectedEngineDisplay() {
     if (!this._currentSearchInfo || !this._engineSelect) return;
     const { engine } = this._currentSearchInfo;
-    const img = this.getFaviconImg(engine);
+    const img = parseElement("<img>");
+    img.src = getSearchEngineFavicon(engine);
     const nameSpan = parseElement(`<span>${escapeXmlAttribute(engine.name)}</span>`);
     this._engineSelect.replaceChildren(img, nameSpan);
   },
@@ -331,7 +323,9 @@ const SearchEngineSwitcher = {
           <span>${escapeXmlAttribute(engine.name)}</span>
         </div>
       `);
-      option.prepend(this.getFaviconImg(engine));
+      const img = parseElement("<img>");
+      img.src = getSearchEngineFavicon(engine);
+      option.prepend(img);
       option.addEventListener("mousedown", (e) => this.handleEngineClick(e, engine));
       this._engineOptions.append(option);
     });

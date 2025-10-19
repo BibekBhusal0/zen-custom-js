@@ -1,4 +1,4 @@
-import { googleFaviconAPI } from "../utils/favicon.js";
+import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { debugLog, debugError } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
@@ -72,23 +72,6 @@ const commandChainUtils = {
       alert([title, description], 0);
     }
   },
-};
-
-/**
- * Gets a favicon for a search engine, with fallbacks.
- * @param {object} engine - The search engine object.
- * @returns {string} The URL of the favicon.
- */
-const getSearchEngineFavicon = (engine) => {
-  if (engine.iconURI?.spec) {
-    return engine.iconURI.spec;
-  }
-  try {
-    const submissionUrl = engine.getSubmission("test_query").uri.spec;
-    return googleFaviconAPI(submissionUrl);
-  } catch (e) {
-    return "chrome://browser/skin/search-glass.svg"; // Absolute fallback
-  }
 };
 
 /**

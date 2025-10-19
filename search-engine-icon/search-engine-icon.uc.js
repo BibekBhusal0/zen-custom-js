@@ -1,4 +1,4 @@
-import { googleFaviconAPI } from "../utils/favicon.js";
+import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
 
 let currentEngine = null;
@@ -22,31 +22,14 @@ async function updateFavicon() {
     return false;
   }
 
-  const submissionUrl = engine.getSubmission("test_query").uri.spec;
-  if (!submissionUrl) {
-    resetStyle();
-    return false;
-  }
+  const faviconURL = getSearchEngineFavicon(engine);
 
-  const faviconURL = googleFaviconAPI(submissionUrl);
-  const fallback = "chrome://branding/content/icon32.png";
-
-  const setImage = (url) => {
-    component.style.backgroundImage = `url('${url}')`;
+    component.style.backgroundImage = `url('${faviconURL}')`;
     component.style.backgroundRepeat = "no-repeat";
     component.style.backgroundSize = "16px 16px";
     component.style.paddingLeft = "18px";
     component.style.backgroundPosition = "left center";
-  };
 
-  try {
-    const img = new Image();
-    img.onload = () => setImage(faviconURL);
-    img.onerror = () => setImage(fallback);
-    img.src = faviconURL;
-  } catch (e) {
-    setImage(fallback);
-  }
   return true;
 }
 
