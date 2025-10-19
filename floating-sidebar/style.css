@@ -27,7 +27,8 @@
 }
 
 #sidebar-header {
-  #sidebar-pin-unpin, #sidebar-close {
+  #sidebar-pin-unpin,
+  #sidebar-close {
     width: 22px;
     height: 22px;
     appearance: none !important;

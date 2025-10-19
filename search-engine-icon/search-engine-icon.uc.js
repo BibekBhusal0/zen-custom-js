@@ -24,11 +24,11 @@ async function updateFavicon() {
 
   const faviconURL = getSearchEngineFavicon(engine);
 
-    component.style.backgroundImage = `url('${faviconURL}')`;
-    component.style.backgroundRepeat = "no-repeat";
-    component.style.backgroundSize = "16px 16px";
-    component.style.paddingLeft = "18px";
-    component.style.backgroundPosition = "left center";
+  component.style.backgroundImage = `url('${faviconURL}')`;
+  component.style.backgroundRepeat = "no-repeat";
+  component.style.backgroundSize = "16px 16px";
+  component.style.paddingLeft = "18px";
+  component.style.backgroundPosition = "left center";
 
   return true;
 }
