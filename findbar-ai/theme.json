@@ -25,7 +25,9 @@
     "Claude"
   ],
   "createdAt": "2024-05-22",
-  "updatedAt": "2025-10-18",
-  "fork": ["zen"],
+  "updatedAt": "2025-10-19",
+  "fork": [
+    "zen"
+  ],
   "entryFile": "browse-bot.uc.js"
 }
