@@ -1,5 +1,6 @@
 import { googleFaviconAPI } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
+import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 
 const PREF_ENABLED = "extension.search-engine-select.enabled";
 const PREF_REMEMBER_POSITION = "extension.search-engine-select.remember-position";
@@ -164,12 +165,10 @@ const SearchEngineSwitcher = {
 
   updateSelectedEngineDisplay() {
     if (!this._currentSearchInfo || !this._engineSelect) return;
-    this._engineSelect.innerHTML = "";
     const { engine } = this._currentSearchInfo;
-    this._engineSelect.append(this.getFaviconImg(engine));
-    const nameSpan = document.createElement("span");
-    nameSpan.textContent = engine.name;
-    this._engineSelect.append(nameSpan);
+    const img = this.getFaviconImg(engine);
+    const nameSpan = parseElement(`<span>${escapeXmlAttribute(engine.name)}</span>`);
+    this._engineSelect.replaceChildren(img, nameSpan);
   },
 
   // --- Event Handlers ---
@@ -308,20 +307,17 @@ const SearchEngineSwitcher = {
 
   // --- UI Creation ---
   createUI() {
-    this._container = document.createElement("div");
-    this._container.id = "search-engine-switcher-container";
-    this._container.style.top = this.Y_COOR;
-
-    this._engineSelect = document.createElement("div");
-    this._engineSelect.id = "ses-engine-select";
-
-    this._engineOptions = document.createElement("div");
-    this._engineOptions.id = "ses-engine-options";
-
-    this._dragHandle = document.createElement("div");
-    this._dragHandle.id = "ses-drag-handle";
-
-    this._container.append(this._engineSelect, this._dragHandle, this._engineOptions);
+    const container = parseElement(`
+      <div id="search-engine-switcher-container" style="top: ${this.Y_COOR};">
+        <div id="ses-engine-select"></div>
+        <div id="ses-drag-handle"></div>
+        <div id="ses-engine-options"></div>
+      </div>
+    `);
+    this._container = container;
+    this._engineSelect = container.querySelector("#ses-engine-select");
+    this._dragHandle = container.querySelector("#ses-drag-handle");
+    this._engineOptions = container.querySelector("#ses-engine-options");
     document.documentElement.append(this._container);
     this.populateEngineList();
   },
@@ -330,13 +326,12 @@ const SearchEngineSwitcher = {
     this._engineOptions.innerHTML = "";
     const engines = await Services.search.getVisibleEngines();
     engines.forEach((engine) => {
-      const option = document.createElement("div");
-      option.className = "ses-engine-option";
-      option.title = `Search with ${engine.name}`;
-      option.append(this.getFaviconImg(engine));
-      const name = document.createElement("span");
-      name.textContent = engine.name;
-      option.append(name);
+      const option = parseElement(`
+        <div class="ses-engine-option" title="Search with ${escapeXmlAttribute(engine.name)}">
+          <span>${escapeXmlAttribute(engine.name)}</span>
+        </div>
+      `);
+      option.prepend(this.getFaviconImg(engine));
       option.addEventListener("mousedown", (e) => this.handleEngineClick(e, engine));
       this._engineOptions.append(option);
     });

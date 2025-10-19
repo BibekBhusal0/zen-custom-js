@@ -1,29 +1,26 @@
+import { parseElement } from "../utils/parse.js";
+
 function _setupKeymapSearchUI(groupbox) {
   if (groupbox.querySelector(".zen-keyboard-controls")) return;
 
   // Create search input container
-  const searchContainer = document.createElement("div");
-  searchContainer.className = "zen-keyboard-controls";
-
-  const searchInput = document.createElement("input");
-  searchInput.placeholder = "Search shortcuts...";
-  searchInput.className = "zen-keyboard-search";
-
-  const filterButton = document.createElement("button");
-  filterButton.textContent = "Filter";
-  filterButton.className = "zen-keyboard-filter-button";
-
-  searchContainer.appendChild(searchInput);
-  searchContainer.appendChild(filterButton);
+  const searchContainer = parseElement(`
+    <div class="zen-keyboard-controls">
+      <input placeholder="Search shortcuts..." class="zen-keyboard-search">
+      <button class="zen-keyboard-filter-button">Filter</button>
+    </div>
+  `);
+  const searchInput = searchContainer.querySelector("input");
+  const filterButton = searchContainer.querySelector("button");
 
   const firstHBox = groupbox.querySelector("hbox");
   if (firstHBox) groupbox.insertBefore(searchContainer, firstHBox);
   else groupbox.appendChild(searchContainer);
 
   // Create filter popover
-  const filterPopover = document.createElement("div");
-  filterPopover.className = "zen-keyboard-filter-popover";
-  filterPopover.style.display = "none";
+  const filterPopover = parseElement(
+    `<div class="zen-keyboard-filter-popover" style="display: none;"></div>`
+  );
   document.body.appendChild(filterPopover);
 
   const groupCheckboxes = {};
@@ -34,18 +31,14 @@ function _setupKeymapSearchUI(groupbox) {
     const label = h2.textContent.trim();
 
     if (label) {
-      const wrapper = document.createElement("label");
-      wrapper.className = "zen-keyboard-filter-checkbox";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = true;
-      checkbox.dataset.group = groupId;
-
+      const wrapper = parseElement(`
+        <label class="zen-keyboard-filter-checkbox">
+          <input type="checkbox" data-group="${groupId}" checked>
+          ${label}
+        </label>
+      `);
+      const checkbox = wrapper.querySelector("input");
       groupCheckboxes[groupId] = checkbox;
-
-      wrapper.appendChild(checkbox);
-      wrapper.appendChild(document.createTextNode(label));
       filterPopover.appendChild(wrapper);
     }
   });
