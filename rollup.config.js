@@ -120,7 +120,19 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
           },
         },
       };
-      return [umdConfig, esmConfig];
+
+      const umdAllConfig = {
+        ...baseConfig,
+        output: {
+          file: `dist/browse-bot-all.uc.js`,
+          format: "umd",
+          name: "browse_bot_all",
+          banner,
+          inlineDynamicImports: true,
+        },
+      };
+
+      return [umdConfig, esmConfig, umdAllConfig];
     }
 
     return [umdConfig];
@@ -133,7 +145,7 @@ const target = process.env.TARGET;
 let exportConfigs;
 
 if (target) {
-  exportConfigs = configs.filter((config) => {
+  exportConfigs = configs.filter(config => {
     const inputFileName = path.basename(config.input);
     return inputFileName.includes(target);
   });
