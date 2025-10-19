@@ -10,9 +10,24 @@ async function updateFavicon() {
   if (engineName === currentEngine) return false;
   currentEngine = engineName;
   const engine = await Services.search.getEngineByName(engineName);
-  if (!engine) return false;
+
+  const resetStyle = () => {
+    component.style.backgroundImage = "";
+    component.style.paddingLeft = "";
+    component.style.backgroundPosition = "";
+  };
+
+  if (!engine) {
+    resetStyle();
+    return false;
+  }
+
   const submissionUrl = engine.getSubmission("test_query").uri.spec;
-  if (!submissionUrl) return false;
+  if (!submissionUrl) {
+    resetStyle();
+    return false;
+  }
+
   const faviconURL = googleFaviconAPI(submissionUrl);
   const fallback = "chrome://branding/content/icon32.png";
 
