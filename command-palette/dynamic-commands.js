@@ -1,3 +1,4 @@
+import { googleFaviconAPI } from "../utils/favicon.mjs";
 import { debugLog, debugError } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
@@ -84,8 +85,7 @@ const getSearchEngineFavicon = (engine) => {
   }
   try {
     const submissionUrl = engine.getSubmission("test_query").uri.spec;
-    const hostName = new URL(submissionUrl).hostname;
-    return `https://s2.googleusercontent.com/s2/favicons?domain_url=https://${hostName}&sz=32`;
+    return googleFaviconAPI(submissionUrl);
   } catch (e) {
     return "chrome://browser/skin/search-glass.svg"; // Absolute fallback
   }

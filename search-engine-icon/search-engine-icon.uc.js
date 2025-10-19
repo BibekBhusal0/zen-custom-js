@@ -1,15 +1,7 @@
+import { googleFaviconAPI } from "../utils/favicon.mjs";
 import { startupFinish } from "../utils/startup-finish.js";
 
 let currentEngine = null;
-
-function googleFaviconAPI(url) {
-  try {
-    const hostName = new URL(url).hostname;
-    return `https://s2.googleusercontent.com/s2/favicons?domain_url=https://${hostName}&sz=32`;
-  } catch (e) {
-    return null;
-  }
-}
 
 async function updateFavicon() {
   const component = document.getElementById("urlbar-search-mode-indicator-title");

@@ -4,6 +4,7 @@
 // @description    Adds a floating UI to switch search engines on a search results page.
 // ==/UserScript==
 
+import { googleFaviconAPI } from "../utils/favicon.mjs";
 import { startupFinish } from "../utils/startup-finish.js";
 
 const PREF_ENABLED = "extension.search-engine-select.enabled";
@@ -91,20 +92,11 @@ const SearchEngineSwitcher = {
     debugLog("Destroyed successfully.");
   },
 
-  googleFaviconAPI: (url) => {
-    try {
-      const hostName = new URL(url).hostname;
-      return `https://s2.googleusercontent.com/s2/favicons?domain_url=https://${hostName}&sz=32`;
-    } catch (e) {
-      return null;
-    }
-  },
-
   getFaviconImg(engine) {
     const img = document.createElement("img");
     const fallbackIcon = "chrome://branding/content/icon32.png";
     const submissionUrl = engine.getSubmission("test_query").uri.spec;
-    img.src = engine.iconURI?.spec || this.googleFaviconAPI(submissionUrl) || fallbackIcon;
+    img.src = engine.iconURI?.spec || googleFaviconAPI(submissionUrl) || fallbackIcon;
     img.onerror = () => (img.src = fallbackIcon);
     return img;
   },
