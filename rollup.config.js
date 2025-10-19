@@ -83,6 +83,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
       input: `${dir}/${theme.entryFile}`,
       context: "window",
       plugins: commonPlugins,
+      themeId: theme.id,
     };
 
     const umdConfig = {
@@ -134,7 +135,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
 
       return [umdConfig, esmConfig, umdAllConfig];
     }
-
+    
     return [umdConfig];
   }
   return [];
@@ -146,8 +147,9 @@ let exportConfigs;
 
 if (target) {
   exportConfigs = configs.filter(config => {
-    const inputFileName = path.basename(config.input);
-    return inputFileName.includes(target);
+    const normalizedTarget = target.replace(/-/g, '');
+    const normalizedThemeId = config.themeId.replace(/-/g, '');
+    return normalizedThemeId.includes(normalizedTarget);
   });
 } else {
   exportConfigs = configs;
