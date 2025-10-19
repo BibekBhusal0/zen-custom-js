@@ -86,9 +86,9 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
       themeId: theme.id,
     };
 
-    if (theme.id === 'browse-bot') {
+    if (theme.id === "browse-bot") {
       const buildType = process.env.BUILD_TYPE;
-      const isTargetedBuild = (buildType === 'dev' || buildType === 'targeted');
+      const isTargetedBuild = buildType === "dev" || buildType === "targeted";
 
       const esmConfig = {
         ...baseConfig,
@@ -131,7 +131,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
 
       return [esmConfig, umdAllConfig];
     }
-    
+
     const umdConfig = {
       ...baseConfig,
       output: {
@@ -153,9 +153,9 @@ const target = process.env.TARGET;
 let exportConfigs;
 
 if (target) {
-  exportConfigs = configs.filter(config => {
-    const normalizedTarget = target.replace(/-/g, '');
-    const normalizedThemeId = config.themeId.replace(/-/g, '');
+  exportConfigs = configs.filter((config) => {
+    const normalizedTarget = target.replace(/-/g, "");
+    const normalizedThemeId = config.themeId.replace(/-/g, "");
     return normalizedThemeId.includes(normalizedTarget);
   });
 } else {

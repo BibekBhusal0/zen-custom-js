@@ -26,8 +26,6 @@
   ],
   "createdAt": "2024-05-22",
   "updatedAt": "2025-10-19",
-  "fork": [
-    "zen"
-  ],
+  "fork": ["zen"],
   "entryFile": "browse-bot.uc.js"
 }
