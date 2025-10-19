@@ -8,8 +8,15 @@
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/floating-sidebar/readme.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
-  "tags": ["Sidebar", "Pin", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
+  "tags": [
+    "Sidebar",
+    "Pin",
+    "sine",
+    "fx-autoconfig",
+    "JavaScript",
+    "Bibek Bhusal"
+  ],
   "createdAt": "2025-06-23",
-  "updatedAt": "2025-07-11",
+  "updatedAt": "2025-10-18",
   "entryFile": "floating-sidebar.uc.js"
 }
