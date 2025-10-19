@@ -97,7 +97,14 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
       },
     };
 
-    if (theme.id === "browse-bot") {
+    if (theme.id === 'browse-bot') {
+      const buildType = process.env.BUILD_TYPE;
+      const isTargetedBuild = (buildType === 'dev' || buildType === 'targeted');
+
+      if (isTargetedBuild) {
+        return [umdConfig];
+      }
+
       const esmConfig = {
         ...baseConfig,
         output: {
