@@ -17,7 +17,12 @@ const commonPlugins = [
 const getSubdirectories = (dir) => {
   return fs.readdirSync(dir).filter((file) => {
     const fullPath = path.join(dir, file);
-    return fs.statSync(fullPath).isDirectory() && !file.startsWith('.') && file !== 'node_modules' && file !== 'dist';
+    return (
+      fs.statSync(fullPath).isDirectory() &&
+      !file.startsWith(".") &&
+      file !== "node_modules" &&
+      file !== "dist"
+    );
   });
 };
 
@@ -33,7 +38,24 @@ const createBanner = (themePath, packagePath) => {
 // @lastUpdated     ${theme.updatedAt}
 `;
 
-  const standardKeys = ['id', 'name', 'description', 'author', 'version', 'updatedAt', 'entryFile', 'tags', 'fork', 'homepage', 'preferences', 'style', 'js', 'readme', 'image', 'createdAt'];
+  const standardKeys = [
+    "id",
+    "name",
+    "description",
+    "author",
+    "version",
+    "updatedAt",
+    "entryFile",
+    "tags",
+    "fork",
+    "homepage",
+    "preferences",
+    "style",
+    "js",
+    "readme",
+    "image",
+    "createdAt",
+  ];
 
   for (const key in theme) {
     if (!standardKeys.includes(key)) {
@@ -74,7 +96,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
       },
     };
 
-    if (theme.id === 'browse-bot') {
+    if (theme.id === "browse-bot") {
       const esmConfig = {
         ...baseConfig,
         output: {
@@ -100,7 +122,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
       };
       return [umdConfig, esmConfig];
     }
-    
+
     return [umdConfig];
   }
   return [];
@@ -111,7 +133,7 @@ const target = process.env.TARGET;
 let exportConfigs;
 
 if (target) {
-  exportConfigs = configs.filter(config => {
+  exportConfigs = configs.filter((config) => {
     const inputFileName = path.basename(config.input);
     return inputFileName.includes(target);
   });

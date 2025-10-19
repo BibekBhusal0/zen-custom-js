@@ -17,7 +17,7 @@ import { Prefs, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { parseShortcutString } from "../utils/keyboard.js";
-import {startupFinish } from '../utils/startup-finish.js'
+import { startupFinish } from "../utils/startup-finish.js";
 
 export const ZenCommandPalette = {
   /**
@@ -1011,4 +1011,4 @@ function init() {
   );
 }
 
-startupFinish(init)
+startupFinish(init);

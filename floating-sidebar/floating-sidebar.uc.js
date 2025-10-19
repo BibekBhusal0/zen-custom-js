@@ -4,7 +4,7 @@
 // @author          BibekBhusal
 // ==/UserScript==
 
-import {startupFinish } from '../utils/startup-finish.js'
+import { startupFinish } from "../utils/startup-finish.js";
 function addButton() {
   const header = document.getElementById("sidebar-header");
 
@@ -26,4 +26,4 @@ function addButton() {
   }
 }
 
-startupFinish(addButton)
+startupFinish(addButton);

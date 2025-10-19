@@ -1,4 +1,4 @@
-import {startupFinish } from '../utils/startup-finish.js'
+import { startupFinish } from "../utils/startup-finish.js";
 
 let currentEngine = null;
 
