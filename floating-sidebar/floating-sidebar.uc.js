@@ -1,9 +1,3 @@
-// ==UserScript==
-// @name            Floating sidebar
-// @description     Make firefox sidebar floating and toggle pin unpin easily with a button
-// @author          BibekBhusal
-// ==/UserScript==
-
 import { startupFinish } from "../utils/startup-finish.js";
 import {parseElement,escapeXmlAttribute } from "../utils/parse.js"
 import {svgToUrl, icons} from "../utils/icon.js"

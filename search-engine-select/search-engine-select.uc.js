@@ -1,9 +1,3 @@
-// ==UserScript==
-// @author         Bibek Bhusal
-// @name           Search Engine Select
-// @description    Adds a floating UI to switch search engines on a search results page.
-// ==/UserScript==
-
 import { googleFaviconAPI } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
 

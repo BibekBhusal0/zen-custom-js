@@ -1,9 +1,3 @@
-// ==UserScript==
-// @include   about:preferences*
-// @include   about:settings*
-// @ignorecache
-// ==/UserScript==
-
 function _setupKeymapSearchUI(groupbox) {
   if (groupbox.querySelector(".zen-keyboard-controls")) return;
 
