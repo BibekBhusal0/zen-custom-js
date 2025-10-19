@@ -20,4 +20,4 @@ https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 
 ## Credits
 
-Inspired by and compatible with [Natsumi Browser](https://github.com/greeeen-dev/natsumi-browser)
+Inspired by with [Natsumi Browser](https://github.com/greeeen-dev/natsumi-browser)

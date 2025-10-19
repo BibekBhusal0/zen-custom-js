@@ -5,14 +5,13 @@
 // ==/UserScript==
 
 import { startupFinish } from "../utils/startup-finish.js";
+import {parseElement} from "../utils/parse.js"
 function addButton() {
   const header = document.getElementById("sidebar-header");
 
   if (!header) return;
-  const button = UC_API.Utils.createElement(document, "div", {
-    id: "sidebar-pin-unpin",
-  });
-  const config_flag = "natsumi.sidebar.ff-sidebar-float";
+  const button = parseElement('<div id="sidebar-pin-unpin"><div>')
+  const config_flag = "extension.sidebar-float";
   const pref = UC_API.Prefs.get(config_flag);
 
   const buttonClick = () => pref.setTo(!pref.value);
