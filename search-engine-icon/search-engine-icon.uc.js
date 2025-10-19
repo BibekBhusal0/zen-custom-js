@@ -1,4 +1,4 @@
-import { googleFaviconAPI } from "../utils/favicon.mjs";
+import { googleFaviconAPI } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
 
 let currentEngine = null;

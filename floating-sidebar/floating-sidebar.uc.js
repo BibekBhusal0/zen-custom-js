@@ -5,16 +5,23 @@
 // ==/UserScript==
 
 import { startupFinish } from "../utils/startup-finish.js";
-import {parseElement} from "../utils/parse.js"
+import {parseElement,escapeXmlAttribute } from "../utils/parse.js"
+import {svgToUrl, icons} from "../utils/icon.js"
+
 function addButton() {
   const header = document.getElementById("sidebar-header");
 
   if (!header) return;
-  const button = parseElement('<div id="sidebar-pin-unpin"><div>')
-  const config_flag = "extension.sidebar-float";
-  const pref = UC_API.Prefs.get(config_flag);
+  const button = parseElement(`<toolbarbutton
+  id="sidebar-pin-unpin"
+  image ="${escapeXmlAttribute(svgToUrl(icons["pin"]))}"
+/>`, 'xul')
+  const pref = UC_API.Prefs.get( "extension.sidebar-float");
 
-  const buttonClick = () => pref.setTo(!pref.value);
+  const buttonClick = () => {
+    console.log("Clicked")
+    pref.setTo(!pref.value);
+  }
 
   button.addEventListener("click", buttonClick);
   const children = header.children;

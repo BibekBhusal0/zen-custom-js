@@ -6,7 +6,7 @@ import { xai as createGrok } from "@ai-sdk/xai";
 import { createPerplexity } from "@ai-sdk/perplexity";
 import { createOllama } from "ollama-ai-provider";
 import PREFS from "../utils/prefs.js";
-import { googleFaviconAPI } from "../../utils/favicon.mjs";
+import { googleFaviconAPI } from "../../utils/favicon.js";
 
 // Base object with shared logic for all providers
 const providerPrototype = {
