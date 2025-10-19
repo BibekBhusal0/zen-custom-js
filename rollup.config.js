@@ -86,24 +86,9 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
       themeId: theme.id,
     };
 
-    const umdConfig = {
-      ...baseConfig,
-      output: {
-        file: `dist/${theme.id}.uc.js`,
-        format: "umd",
-        name: theme.id.replace(/-/g, "_"),
-        banner,
-        inlineDynamicImports: true,
-      },
-    };
-
     if (theme.id === 'browse-bot') {
       const buildType = process.env.BUILD_TYPE;
       const isTargetedBuild = (buildType === 'dev' || buildType === 'targeted');
-
-      if (isTargetedBuild) {
-        return [umdConfig];
-      }
 
       const esmConfig = {
         ...baseConfig,
@@ -140,9 +125,24 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
         },
       };
 
-      return [umdConfig, esmConfig, umdAllConfig];
+      if (isTargetedBuild) {
+        return [umdAllConfig];
+      }
+
+      return [esmConfig, umdAllConfig];
     }
     
+    const umdConfig = {
+      ...baseConfig,
+      output: {
+        file: `dist/${theme.id}.uc.js`,
+        format: "umd",
+        name: theme.id.replace(/-/g, "_"),
+        banner,
+        inlineDynamicImports: true,
+      },
+    };
+
     return [umdConfig];
   }
   return [];
