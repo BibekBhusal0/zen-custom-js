@@ -38,6 +38,10 @@ const createBanner = (themePath, packagePath) => {
 // @lastUpdated     ${theme.updatedAt}
 `;
 
+  if (theme.ignoreCache !== false) {
+    banner += `// @ignorecache\n`;
+  }
+
   const standardKeys = [
     "id",
     "name",
@@ -55,11 +59,21 @@ const createBanner = (themePath, packagePath) => {
     "readme",
     "image",
     "createdAt",
+    "ignoreCache",
   ];
 
   for (const key in theme) {
     if (!standardKeys.includes(key)) {
-      banner += `// @${key.padEnd(15)} ${theme[key]}\n`;
+      const value = theme[key];
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          banner += `// @${key.padEnd(15)} ${item}\n`;
+        });
+      } else if (typeof value === "boolean") {
+        if (value) banner += `// @${key}\n`;
+      } else {
+        banner += `// @${key.padEnd(15)} ${value}\n`;
+      }
     }
   }
 
