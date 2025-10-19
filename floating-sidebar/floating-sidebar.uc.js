@@ -15,10 +15,7 @@ function addButton() {
   updateImage();
   pref.addListener(updateImage);
 
-  const buttonClick = () => {
-    console.log("Clicked");
-    pref.setTo(!pref.value);
-  };
+  const buttonClick = () => pref.setTo(!pref.value);
 
   button.addEventListener("click", buttonClick);
   const children = header.children;
