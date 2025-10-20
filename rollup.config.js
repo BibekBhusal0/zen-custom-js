@@ -49,10 +49,8 @@ const createBanner = (themePath, packagePath) => {
     "author",
     "version",
     "updatedAt",
-
     "tags",
     "fork",
-    "homepage",
     "preferences",
     "style",
     "js",
