@@ -526,6 +526,7 @@ export async function generateFolderCommands() {
       },
       icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
       tags: ["folder", "delete", "remove", folder.label.toLowerCase()],
+      allowShortcuts : false,
     });
   });
 
