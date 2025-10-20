@@ -14,7 +14,6 @@ const pasteAndGo = () => {
         openTrustedLinkIn(text, "tab");
       } catch (error) {
         const searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(text)}`;
-        showToast("Searching in DuckDuckGo", "success");
         openTrustedLinkIn(searchURL, "tab");
       }
     }
@@ -217,14 +216,14 @@ const hotkeys = [
     command: () => openTrustedLinkIn("about:preferences", "tab"),
   },
 
-  {
+  { //
     id: "openAdvancedSettings",
     modifiers: "ctrl shift alt",
     key: "S",
     command: () => openTrustedLinkIn("about:config", "tab"),
   },
 
-  {
+  { //
     id: "pasteAndGo",
     modifiers: "alt",
     key: "V",

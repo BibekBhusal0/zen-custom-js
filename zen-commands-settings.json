@@ -1,0 +1,53 @@
+{
+  "hiddenCommands": [
+    "cmd_zenChangeWorkspaceIcon",
+    "cmd_zenChangeWorkspaceName",
+    "cmd_zenClearTabs",
+    "Browser:OpenFile"
+  ],
+  "customIcons": {},
+  "customShortcuts": {
+    "Browser:Forward": "Alt+H",
+    "Browser:Back": "Alt+L",
+    "Browser:PrevTab": "Alt+K",
+    "Browser:NextTab": "Alt+J",
+    "app:clear-startupCache": "Ctrl+Alt+Shift+R",
+    "app:minimize-memory": "Ctrl+Alt+Shift+M",
+    "command-palette:settings-commands": "Ctrl+Alt+Shift+C",
+    "custom:advanced-settings": "Ctrl+Alt+Shift+S",
+    "custom:paste-and-go": "Alt+V",
+    "duplicate-tab": "Alt+D",
+    "move-tab-down": "Ctrl+Alt+K",
+    "move-tab-up": "Ctrl+Alt+J",
+    "toggle-sidebar": "Ctrl+Alt+A",
+    "toggle-toolbar": "Ctrl+Alt+T",
+    "unload-other-tabs": "Ctrl+Alt+U",
+    "unload-tab": "Alt+U",
+    "zen:global-action-settings": "Ctrl+Alt+S"
+  },
+  "toolbarButtons": [],
+  "customCommands": [
+    {
+      "type": "chain",
+      "id": "advanced-settings",
+      "name": "Open Advanced Settings",
+      "commands": [
+        {
+          "action": "openLink",
+          "params": {
+            "link": "about:config",
+            "where": "new tab"
+          }
+        }
+      ],
+      "icon": "chrome://browser/skin/zen-icons/settings.svg"
+    },
+    {
+      "type": "js",
+      "id": "paste-and-go",
+      "name": "Paste and go",
+      "code": "navigator.clipboard.readText().then((text) => {\n  if (text) {\n    try {\n      new URL(text);\n      openTrustedLinkIn(text, \"tab\");\n    } catch (error) {\n      const searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(text)}`;\n      openTrustedLinkIn(searchURL, \"tab\");\n    }\n  }\n});",
+      "icon": "chrome://browser/skin/zen-icons/edit-paste.svg"
+    }
+  ]
+}
