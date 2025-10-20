@@ -15,6 +15,5 @@
   "createdAt": "2025-06-23",
   "updatedAt": "2025-10-19",
   "fork": ["zen"],
-  "entryFile": "settings-shortcuts-search.uc.js",
   "include": ["about:preferences*", "about:settings*"]
 }

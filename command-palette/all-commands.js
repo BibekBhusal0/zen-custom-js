@@ -1,7 +1,7 @@
 // This file is adapted from the command list in ZBar-Zen by Darsh-A
 // https://github.com/Darsh-A/ZBar-Zen/blob/main/command_bar.uc.js
 import { svgToUrl, icons } from "../utils/icon.js";
-import { ZenCommandPalette } from "./command-palette.uc.js";
+import { ZenCommandPalette } from "./index.js";
 
 const isCompactMode = () => gZenCompactModeManager?.preference;
 const ucAvailable = () => typeof UC_API !== "undefined";

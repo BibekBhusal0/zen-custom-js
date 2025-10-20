@@ -2,7 +2,7 @@ import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { debugLog, debugError } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
-import { ZenCommandPalette } from "./command-palette.uc.js";
+import { ZenCommandPalette } from "./index.js";
 
 const commandChainUtils = {
   async openLink(params) {

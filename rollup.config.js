@@ -49,7 +49,7 @@ const createBanner = (themePath, packagePath) => {
     "author",
     "version",
     "updatedAt",
-    "entryFile",
+
     "tags",
     "fork",
     "homepage",
@@ -89,12 +89,13 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
 
   if (fs.existsSync(themePath)) {
     const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
-    if (!theme.entryFile) return [];
+    const entryFile = path.join(dir, "index.js");
+    if (!fs.existsSync(entryFile)) return [];
 
     const banner = createBanner(themePath, packagePath);
 
     const baseConfig = {
-      input: `${dir}/${theme.entryFile}`,
+      input: entryFile,
       context: "window",
       plugins: commonPlugins,
       themeId: theme.id,
@@ -121,7 +122,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
           chunkFileNames: (chunkInfo) => {
             return chunkInfo.name === "vercel-ai-sdk" ? "vercel-ai-sdk.js" : "[name]-[hash].js";
           },
-          entryFileNames: "browse-bot.uc.js",
+          entryFileNames: "index.js",
           banner: (chunkInfo) => {
             return chunkInfo.name !== "vercel-ai-sdk" ? banner : "";
           },

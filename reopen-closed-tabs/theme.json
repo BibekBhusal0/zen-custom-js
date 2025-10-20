@@ -12,6 +12,5 @@
   "tags": ["tabs", "history", "reopen", "closed tabs", "productivity", "zen browser", "sine"],
   "createdAt": "2025-09-22",
   "updatedAt": "2025-10-19",
-  "fork": ["zen"],
-  "entryFile": "reopen-closed-tabs.uc.js"
+  "fork": ["zen"]
 }
