@@ -51,7 +51,7 @@
         width: 100%;
       }
 
-      #zen-media-buttons-hbox>toolbarbutton {
+      #zen-media-buttons-hbox > toolbarbutton {
         opacity: 0 !important;
         transition: opacity 0.3s ease-in-out !important;
         width: 0;
@@ -62,7 +62,7 @@
       }
 
       &:hover {
-        #zen-media-buttons-hbox>toolbarbutton {
+        #zen-media-buttons-hbox > toolbarbutton {
           width: unset;
         }
       }
@@ -85,7 +85,7 @@
       }
     }
 
-    #zen-media-main-vbox>vbox {
+    #zen-media-main-vbox > vbox {
       order: 1 !important;
     }
   }

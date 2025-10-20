@@ -9,18 +9,8 @@
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/README.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
-  "tags": [
-    "tabs",
-    "history",
-    "reopen",
-    "closed tabs",
-    "productivity",
-    "zen browser",
-    "sine"
-  ],
+  "tags": ["tabs", "history", "reopen", "closed tabs", "productivity", "zen browser", "sine"],
   "createdAt": "2025-09-22",
   "updatedAt": "2025-10-20",
-  "fork": [
-    "zen"
-  ]
+  "fork": ["zen"]
 }

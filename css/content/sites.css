@@ -8,13 +8,12 @@
 }
 
 @-moz-document domain("youtube.com"), domain("music.youtube.com") {
-
   ytd-menu-popup-renderer,
   ytd-multi-page-menu-renderer,
   .ytp-contextmenu,
   ytmusic-player-bar,
   ytmusic-multi-page-menu-renderer,
-  ytmusic-menu-popup-renderer>tp-yt-paper-listbox {
+  ytmusic-menu-popup-renderer > tp-yt-paper-listbox {
     background: #00000055 !important;
     backdrop-filter: blur(var(--mat-ga-blur-radius)) !important;
     box-shadow: 0 0 var(--mat-ga-shadow-size) #ffffff22 !important;
@@ -28,13 +27,13 @@
     /* remove extra space and color in bottom */
     background: transparent !important;
 
-    ytmusic-app-layout>#content {
+    ytmusic-app-layout > #content {
       height: calc(100vh - 205px) !important;
       overflow: scroll !important;
     }
 
     &.inactive-player {
-      ytmusic-app-layout>#content {
+      ytmusic-app-layout > #content {
         height: calc(100vh - 112px) !important;
       }
     }
@@ -77,7 +76,6 @@
 }
 
 @-moz-document domain("youtube.com") {
-
   /* header blurry background */
   #container.style-scope.ytd-masthead {
     background: #00000055 !important;
@@ -94,13 +92,13 @@
   /* fix sidebar width  */
 
   #guide-content {
-    >#header {
+    > #header {
       position: absolute !important;
       z-index: 100 !important;
       background: inherit !important;
     }
 
-    &:has(> #header:not([hidden]))>#guide-inner-content {
+    &:has(> #header:not([hidden])) > #guide-inner-content {
       padding-top: 50px !important;
     }
   }
@@ -137,7 +135,6 @@
   }
 
   [theater=""] {
-
     /* Hide columns */
     #columns #secondary {
       position: absolute !important;
@@ -241,7 +238,7 @@
     .home-quicklink,
     .cc-section,
     .cc-modal-body,
-    .popover-wrapper>div,
+    .popover-wrapper > div,
     .sidebar-controller-container,
     .sidebar-component,
     .nav-component,
@@ -268,8 +265,8 @@
       height: calc(100vh - 10px) !important;
     }
 
-    .cc-modal-body>header,
-    .cc-section>.game-mode-top-section-component,
+    .cc-modal-body > header,
+    .cc-section > .game-mode-top-section-component,
     .cc-sidebar-header-component,
     .cc-modal-header-component,
     .sidebar-header-component {
@@ -277,7 +274,7 @@
       border-bottom: 1px solid #ffffff33;
     }
 
-    .cc-section>.footer-actions-component,
+    .cc-section > .footer-actions-component,
     .rated-sidebar-footer-component {
       background: #00000033;
       border-top: 1px solid #ffffff33;
@@ -293,7 +290,7 @@
       }
     }
 
-    .popover-wrapper>div {
+    .popover-wrapper > div {
       background: #000000aa !important;
     }
   }
