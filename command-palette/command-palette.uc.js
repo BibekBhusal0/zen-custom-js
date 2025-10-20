@@ -282,7 +282,7 @@ export const ZenCommandPalette = {
         this._dynamicCommandsCache = dynamicCommands;
       }
     }
-    return dynamicCommands
+    return dynamicCommands;
   },
 
   /**
@@ -291,7 +291,7 @@ export const ZenCommandPalette = {
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
   async generateLiveCommands(useCache = true, isPrefixMode = false) {
-    const dynamicCommands = await this.generateDynamicCommands(useCache)
+    const dynamicCommands = await this.generateDynamicCommands(useCache);
     let allCommands = [...staticCommands, ...dynamicCommands];
 
     if (isPrefixMode && this._globalActions) {
@@ -436,11 +436,11 @@ export const ZenCommandPalette = {
     if (nativeAction) {
       cmdToExecute = { key: nativeAction.commandId, command: nativeAction.command };
     } else {
-      cmdToExecute = findInCommands(staticCommands) 
+      cmdToExecute = findInCommands(staticCommands);
     }
-    if (!cmdToExecute){
-      const dynamicCommands = await this.generateDynamicCommands(false, false) 
-        cmdToExecute = findInCommands(dynamicCommands)
+    if (!cmdToExecute) {
+      const dynamicCommands = await this.generateDynamicCommands(false, false);
+      cmdToExecute = findInCommands(dynamicCommands);
     }
 
     if (cmdToExecute) {

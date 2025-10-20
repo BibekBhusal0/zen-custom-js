@@ -6,7 +6,7 @@
 
 import "./command-palette/command-palette.uc.js";
 import "./floating-sidebar/floating-sidebar.uc.js";
-import "./reopen-closed-tabs/reopen-closed-tabs.uc.js"
+import "./reopen-closed-tabs/reopen-closed-tabs.uc.js";
 import "./search-engine-icon/search-engine-icon.uc.js";
 import "./search-engine-select/search-engine-select.uc.js";
 
