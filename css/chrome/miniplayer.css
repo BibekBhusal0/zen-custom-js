@@ -1,0 +1,92 @@
+/* Simple twicks for media player */
+
+@-moz-document url-prefix("chrome:") {
+  #zen-media-controls-toolbar {
+    height: 80px !important;
+
+    &.playing {
+      toolbaritem {
+        border: 1px var(--zen-primary-color) solid;
+      }
+    }
+
+    & .show-on-hover {
+      max-height: unset !important;
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+      padding-right: 6px;
+      pointer-events: none;
+      transition:
+        max-height 0.2s ease,
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        padding 0.2s ease;
+    }
+
+    & #zen-media-focus-button::after {
+      display: none !important;
+    }
+
+    #zen-media-controls-hbox {
+      order: 0 !important;
+      height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    #zen-media-progress-hbox label {
+      scale: 0 !important;
+      width: 0 !important;
+      transition: all 0.15s ease-in-out 0.15 !important;
+    }
+
+    #zen-media-progress-bar {
+      margin: 0 !important;
+      transition: all 0.15s !important;
+    }
+
+    #zen-media-info-container {
+      position: relative;
+
+      #zen-media-info-vbox {
+        width: 100%;
+      }
+
+      #zen-media-buttons-hbox>toolbarbutton {
+        opacity: 0 !important;
+        transition: opacity 0.3s ease-in-out !important;
+        width: 0;
+
+        &:hover {
+          opacity: 1 !important;
+        }
+      }
+
+      &:hover {
+        #zen-media-buttons-hbox>toolbarbutton {
+          width: unset;
+        }
+      }
+    }
+
+    &:hover {
+      #zen-media-progress-bar {
+        margin: 1em !important;
+        scale: 1 !important;
+      }
+
+      #zen-media-controls-hbox {
+        height: fit-content !important;
+        opacity: 1 !important;
+      }
+
+      #zen-media-progress-hbox label {
+        scale: 1 !important;
+        width: unset !important;
+      }
+    }
+
+    #zen-media-main-vbox>vbox {
+      order: 1 !important;
+    }
+  }
+}

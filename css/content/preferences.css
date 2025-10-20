@@ -1,0 +1,98 @@
+/* Making the sidebar in settings page compact and expand on hover */
+
+/* @-moz-document url-prefix("about:preferences") {
+  #preferences-stack {
+    vbox.navigation {
+      position: absolute !important;
+      height: 100vh !important;
+      z-index: 20 !important;
+      width: auto !important;
+      padding: 10px !important;
+      transition: width 0.3s ease-in-out !important;
+
+      search-textbox#searchInput {
+        transition: width 0.1s ease-in-out !important;
+        overflow-x: hidden !important;
+        margin: 20px 0 !important;
+        padding-left: 12px !important;
+        width: 35px !important;
+
+        &[focused="true"] {
+          width: 200px !important;
+
+          +#categories {
+            width: 200px !important;
+
+            .category>.category-name {
+              display: block;
+            }
+          }
+
+          ~.sidebar-footer-list {
+            .sidebar-footer-label {
+              display: block !important;
+            }
+          }
+        }
+
+        &:hover {
+          width: 200px !important;
+        }
+      }
+
+      #categories {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 30px !important;
+        overflow-x: hidden !important;
+
+        .category {
+          margin-left: 0px !important;
+          padding: 0 8px !important;
+
+          &::before {
+            display: none !important;
+          }
+
+          .category-name {
+            display: none;
+          }
+
+          &[selected="true"] {
+            color: var(--red-40) !important;
+          }
+        }
+      }
+
+      vbox.sidebar-footer-list {
+        .sidebar-footer-icon {
+          margin: 0 8px !important;
+        }
+
+        .sidebar-footer-label {
+          display: none !important;
+        }
+      }
+
+      &:hover {
+        #categories {
+          width: 200px !important;
+
+          .category>.category-name {
+            display: block;
+          }
+        }
+
+        search-textbox#searchInput {
+          width: 200px !important;
+        }
+
+        .sidebar-footer-list {
+          .sidebar-footer-label {
+            display: block !important;
+          }
+        }
+      }
+    }
+  }
+} */
