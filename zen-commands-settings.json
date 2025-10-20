@@ -7,23 +7,25 @@
   ],
   "customIcons": {},
   "customShortcuts": {
-    "Browser:Forward": "Alt+H",
-    "Browser:Back": "Alt+L",
+    "Browser:Back": "Alt+H",
+    "Browser:Forward": "Alt+L",
     "Browser:PrevTab": "Alt+K",
     "Browser:NextTab": "Alt+J",
     "app:clear-startupCache": "Ctrl+Alt+Shift+R",
     "app:minimize-memory": "Ctrl+Alt+Shift+M",
-    "command-palette:settings-commands": "Ctrl+Alt+Shift+C",
-    "custom:advanced-settings": "Ctrl+Alt+Shift+S",
+    "command-palette:settings-commands": "Alt+C",
+    "custom:open-settings": "Ctrl+Alt+S",
     "custom:paste-and-go": "Alt+V",
+    "custom:close-and-prev": "Ctrl+Alt+P",
+    "custom:close-and-next": "Ctrl+Alt+N",
     "duplicate-tab": "Alt+D",
-    "move-tab-down": "Ctrl+Alt+K",
-    "move-tab-up": "Ctrl+Alt+J",
+    "move-tab-up": "Ctrl+Alt+K",
+    "move-tab-down": "Ctrl+Alt+J",
     "toggle-sidebar": "Ctrl+Alt+A",
     "toggle-toolbar": "Ctrl+Alt+T",
     "unload-other-tabs": "Ctrl+Alt+U",
     "unload-tab": "Alt+U",
-    "zen:global-action-settings": "Ctrl+Alt+S"
+    "custom:advanced-settings": "Ctrl+Alt+Shift+S"
   },
   "toolbarButtons": [],
   "customCommands": [
@@ -43,11 +45,40 @@
       "icon": "chrome://browser/skin/zen-icons/settings.svg"
     },
     {
+      "type": "chain",
+      "id": "open-settings",
+      "name": "Open Settings",
+      "commands": [
+        {
+          "action": "openLink",
+          "params": {
+            "link": "about:preferences",
+            "where": "new tab"
+          }
+        }
+      ],
+      "icon": "chrome://browser/skin/zen-icons/settings.svg"
+    },
+    {
       "type": "js",
       "id": "paste-and-go",
       "name": "Paste and go",
       "code": "navigator.clipboard.readText().then((text) => {\n  if (text) {\n    try {\n      new URL(text);\n      openTrustedLinkIn(text, \"tab\");\n    } catch (error) {\n      const searchURL = `https://duckduckgo.com/?q=${encodeURIComponent(text)}`;\n      openTrustedLinkIn(searchURL, \"tab\");\n    }\n  }\n});",
       "icon": "chrome://browser/skin/zen-icons/edit-paste.svg"
+    },
+    {
+      "type": "js",
+      "id": "close-and-prev",
+      "name": "Close Tab and Go Previous",
+      "code": "const tabToClose = gBrowser.selectedTab;\ngBrowser.tabContainer.advanceSelectedTab(-1, true);\ngBrowser.removeTab(tabToClose);",
+      "icon": "chrome://browser/skin/zen-icons/arrow-up.svg"
+    },
+    {
+      "type": "js",
+      "id": "close-and-next",
+      "name": "Close Tab and Go Next",
+      "code": "const tabToClose = gBrowser.selectedTab;\ngBrowser.tabContainer.advanceSelectedTab(1, true);\ngBrowser.removeTab(tabToClose);",
+      "icon": "chrome://browser/skin/zen-icons/arrow-down.svg"
     }
   ]
 }
