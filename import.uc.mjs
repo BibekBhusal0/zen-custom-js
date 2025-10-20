@@ -4,9 +4,6 @@
 // @author          Bibek Bhusal
 // ==/UserScript==
 
-// import "./key.uc.mjs";
-// import "./widgets.uc.mjs";
-
 import "./command-palette/command-palette.uc.js";
 import "./floating-sidebar/floating-sidebar.uc.js";
 import "./reopen-closed-tabs/reopen-closed-tabs.uc.js"
