@@ -204,12 +204,13 @@ Currently available tool calls are:
 
 ## 🙏 Credits and Acknowledgements
 
+- This mod is released through [Vertex Mods](https://github.com/Vertex-Mods/), and I, [Bibek Bhusal](https://github.com/BibekBhusal0), am the creator of this mod.
 - **[natsumi-browser](https://github.com/greeeen-dev/natsumi-browser)**: For inspiration on the modern, floating UI styles in Findbar.
 - **[Arc-2.0](https://github.com/YashjitPal/Arc-2.0)**: For inspiration for animation for URL bar.
 - **[Arcline](https://github.com/ferrocyante/arcline)**: For implementation of pseudo background.
 - **[aminomancer/uc.css.js](https://github.com/aminomancer/uc.css.js)**: The `_overrideFindbarMatchesDisplay` function in `findbar-ai.uc.js` is adapted from `JS/findbarMods.uc.js` under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
 - **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement, styling, and design.
 
-## 📄 License
+## 📜 License
 
 This is licensed under MIT license. Check [License](../LICENSE) for more details.

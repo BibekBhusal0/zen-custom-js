@@ -309,6 +309,8 @@ Another Benifit of this mod, is that this allows setting custom keymaps to comma
 
 ## 🙏 Credits and Acknowledgements
 
+This mod is released through [Vertex Mods](https://github.com/Vertex-Mods/), and I, [Bibek Bhusal](https://github.com/BibekBhusal0), am the creator of this mod.
+
 Thanks to [12th-devs](https://github.com/12th-devs/) and [CompTechGuy](https://github.com/Comp-Tech-Guy) for finding out issues and recommending new features.
 
 Thanks to [Bliwi](https://github.com/Bliwi) for adding commands for Advanced Tab Groups.

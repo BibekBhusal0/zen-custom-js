@@ -1,8 +1,13 @@
-# Zen Browser UserScripts
+<h1 align="center">Zen Browser UserScripts</h1>
+<div align="center">
+    <a href="https://zen-browser.app/">
+        <img width="240" alt="zen-badge-dark" src="https://raw.githubusercontent.com/heyitszenithyt/zen-browser-badges/fb14dcd72694b7176d141c774629df76af87514e/light/zen-badge-light.png" />
+    </a>
+</div>
 
-Personal customization userscripts and css files for enhanceing browsing experience in Zen Browser.
+Personal customization userscripts and css files for enhancing browsing experience in Zen Browser.
 
-## Scripts
+## 🌟 Scripts
 
 ### [Zen Command Palette](/command-palette)
 
@@ -45,12 +50,30 @@ https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 - Zen Browser (Primary Target)
 - Might or might not work on other Firefox based browser
 
-## Installation
+## ⚙️ Installation
 
-1. Clone the repository
-2. Import corresponding `.js` and `.css` files in `userchrome.css`, and any file inside `js` folder
-3. Ensure UserScript/UserChrome support is enabled
+### Easy Install via Sine (Recommended)
 
-## License
+All scripts are also available through [Sine](https://github.com/CosmoCreeper/Sine).
 
-MIT License
+### Manual Install (`fx-autoconfig`)
+
+For advanced users or those not using Sine or who are willing to contribute:
+
+1.  **Setup `fx-autoconfig`**: If you haven't already, follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig).
+
+2.  **Clone this Repository**: Open a terminal or command prompt, navigate to the `js` directory created by `fx-autoconfig` inside your profile folder, and clone the repository with the name `custom`:
+
+    ```bash
+    git clone https://github.com/BibekBhusal0/zen-custom-js.git custom
+    ```
+
+3.  **Import the Script**: In your JS directory, create a new file `import.uc.mjs` , and import scripts you need. Here is example import file importing each script [import.uc.mjs](./import.uc.mjs).
+
+4.  **Import the Styles**: In your `userChrome.css` file, import the styles of related script. Here is example userChrome file importing all styles [userChrome.css](./userChrome.css).
+
+5.  **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
+
+## 📜 License
+
+This is licensed under MIT license. Check [License](LICENSE) for more details.
