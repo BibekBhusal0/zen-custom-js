@@ -255,11 +255,10 @@ export const ZenCommandPalette = {
   },
 
   /**
-   * Generates a complete, up-to-date list of commands by combining static commands
-   * with dynamically generated ones based on current preferences.
+   * Generates a complete, up-to-date list of dynamic commands.
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
-  async generateLiveCommands(useCache = true, isPrefixMode = false) {
+  async generateDynamicCommands(useCache = true) {
     let dynamicCommands;
     if (useCache && this._dynamicCommandsCache) {
       dynamicCommands = this._dynamicCommandsCache;
@@ -283,7 +282,16 @@ export const ZenCommandPalette = {
         this._dynamicCommandsCache = dynamicCommands;
       }
     }
+    return dynamicCommands
+  },
 
+  /**
+   * Generates a complete, up-to-date list of commands by combining static commands
+   * with dynamically generated ones based on current preferences.
+   * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
+   */
+  async generateLiveCommands(useCache = true, isPrefixMode = false) {
+    const dynamicCommands = await this.generateDynamicCommands(useCache)
     let allCommands = [...staticCommands, ...dynamicCommands];
 
     if (isPrefixMode && this._globalActions) {
@@ -418,17 +426,21 @@ export const ZenCommandPalette = {
    * Finds a command by its key and executes it.
    * @param {string} key - The key of the command to execute.
    */
-  executeCommandByKey(key) {
+  async executeCommandByKey(key) {
     if (!key) return;
 
     let cmdToExecute;
     const nativeAction = this._globalActions?.find((a) => a.commandId === key);
 
+    const findInCommands = (arr) => arr?.find((c) => c.key === key);
     if (nativeAction) {
       cmdToExecute = { key: nativeAction.commandId, command: nativeAction.command };
     } else {
-      const findInCommands = (arr) => arr?.find((c) => c.key === key);
-      cmdToExecute = findInCommands(staticCommands) || findInCommands(this._dynamicCommandsCache);
+      cmdToExecute = findInCommands(staticCommands) 
+    }
+    if (!cmdToExecute){
+      const dynamicCommands = await this.generateDynamicCommands(false, false) 
+        cmdToExecute = findInCommands(dynamicCommands)
     }
 
     if (cmdToExecute) {
