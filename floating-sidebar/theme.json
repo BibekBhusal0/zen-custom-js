@@ -5,7 +5,7 @@
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js/tree/main/floating-sidebar",
   "js": true,
   "style": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/floating-sidebar/style.css",
-  "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/floating-sidebar/readme.md",
+  "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/floating-sidebar/README.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
   "tags": ["Sidebar", "Pin", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],

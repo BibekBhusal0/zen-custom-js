@@ -6,7 +6,7 @@
   "preferences": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/preferences.json",
   "style": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/style.css",
   "js": true,
-  "readme": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/readme.md",
+  "readme": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/README.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
   "tags": ["tabs", "history", "reopen", "closed tabs", "productivity", "zen browser", "sine"],
