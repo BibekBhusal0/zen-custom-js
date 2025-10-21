@@ -30,7 +30,7 @@ const reopenClosedTabsHeader = `// ==UserScript==
 
 // --- Common Plugins ---
 const commonPlugins = [
-  resolve(),
+  resolve({ browser: true }),
   commonjs(),
   string({
     include: "**/*.css",
@@ -39,15 +39,45 @@ const commonPlugins = [
 
 // --- Individual Configurations ---
 const browseBotConfig = {
-  input: "findbar-ai/findbar-ai.uc.js",
+  input: "findbar-ai/browse-bot.uc.js",
+  output: {
+    dir: "dist",
+    format: "es",
+    banner: browseBotHeader,
+    manualChunks(id) {
+      if (id.includes("node_modules")) {
+        // Bundle Vercel AI SDK, Zod, and other AI libs into a vendor chunk
+        const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider"];
+        if (vendorPackages.some((pkg) => id.includes(pkg))) {
+          return "vercel-ai-sdk";
+        }
+      }
+    },
+    chunkFileNames: (chunkInfo) => {
+      // Remove banner for vercel-ai-sdk chunk
+      return chunkInfo.name === "vercel-ai-sdk" ? "vercel-ai-sdk.js" : "[name]-[hash].js";
+    },
+    entryFileNames: "browse-bot.uc.js",
+    banner: (chunkInfo) => {
+      return chunkInfo.name !== "vercel-ai-sdk" ? browseBotHeader : "";
+    },
+  },
+  context: "window",
+  plugins: commonPlugins,
+};
+
+const browseBotAllConfig = {
+  input: "findbar-ai/browse-bot.uc.js",
   output: [
     {
-      file: "dist/browse-bot.uc.js",
+      file: "dist/browse-bot-all.uc.js",
       format: "umd",
-      name: "BrowseBot",
+      name: "browseBotAll",
       banner: browseBotHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 
@@ -59,8 +89,10 @@ const reopenClosedTabsConfig = {
       format: "umd",
       name: "reopenClosedTabs",
       banner: reopenClosedTabsHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 
@@ -72,8 +104,10 @@ const commandPaletteConfig = {
       format: "umd",
       name: "ZenCommandPalette",
       banner: commandPaletteHeader,
+      inlineDynamicImports: true,
     },
   ],
+  context: "window",
   plugins: commonPlugins,
 };
 
@@ -88,8 +122,8 @@ if (target === "browsebot") {
 } else if (target === "reopen") {
   config = reopenClosedTabsConfig;
 } else {
-  // If no target is specified, build all
-  config = [browseBotConfig, commandPaletteConfig, reopenClosedTabsConfig];
+  // If no target is specified, build all (including browse bot 2 builds)
+  config = [browseBotConfig, commandPaletteConfig, reopenClosedTabsConfig, browseBotAllConfig];
 }
 
 export default config;

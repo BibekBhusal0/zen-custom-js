@@ -1,6 +1,7 @@
-import { llm } from "./llm/index.js";
-import { PREFS, debugLog } from "./utils/prefs.js";
-import { parseElement, escapeXmlAttribute } from "./utils/parse.js";
+import { browseBotFindbarLLM } from "./llm/index.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { browseBotFindbar } from "./findbar-ai.uc.js";
 
 export const SettingsModal = {
   _modalElement: null,
@@ -15,7 +16,7 @@ export const SettingsModal = {
     const container = parseElement(settingsHtml);
     this._modalElement = container;
 
-    const providerOptionsXUL = Object.entries(llm.AVAILABLE_PROVIDERS)
+    const providerOptionsXUL = Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
       .map(
         ([name, provider]) =>
           `<menuitem
@@ -40,37 +41,7 @@ export const SettingsModal = {
       placeholder.replaceWith(providerSelectorXulElement);
     }
 
-    const positionOptions = {
-      "top-left": "Top Left",
-      "top-right": "Top Right",
-      "bottom-left": "Bottom Left",
-      "bottom-right": "Bottom Right",
-    };
-    const positionOptionsXUL = Object.entries(positionOptions)
-      .map(
-        ([value, label]) =>
-          `<menuitem
-            value="${value}"
-            label="${escapeXmlAttribute(label)}"
-            ${value === PREFS.position ? 'selected="true"' : ""}
-          />`
-      )
-      .join("");
-
-    const positionMenulistXul = `
-      <menulist id="pref-position" data-pref="${PREFS.POSITION}" value="${PREFS.position}">
-        <menupopup>
-          ${positionOptionsXUL}
-        </menupopup>
-      </menulist>`;
-    const positionSelectorXulElement = parseElement(positionMenulistXul, "xul");
-    const positionPlaceholder = this._modalElement.querySelector("#position-selector-placeholder");
-
-    if (positionPlaceholder) {
-      positionPlaceholder.replaceWith(positionSelectorXulElement);
-    }
-
-    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
+    for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = provider.modelPref;
       const currentModel = provider.model;
 
@@ -115,8 +86,8 @@ export const SettingsModal = {
     this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
       this.saveSettings();
       this.hide();
-      if (window.browserBotFindbar.enabled) window.browserBotFindbar.show();
-      else window.browserBotFindbar.destroy();
+      if (browseBotFindbar.enabled) browseBotFindbar.show();
+      else browseBotFindbar.destroy();
     });
 
     this._modalElement.addEventListener("click", (e) => {
@@ -202,17 +173,23 @@ export const SettingsModal = {
     for (const prefKey in this._currentPrefValues) {
       if (Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)) {
         if (prefKey.endsWith("api-key")) {
-          const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
-          debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
+          if (this._currentPrefValues[prefKey]) {
+            const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
+            debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
+          }
         } else {
           debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
         }
-        PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
+        try {
+          PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
+        } catch (e) {
+          debugError(`Error Saving pref for ${prefKey} ${e}`);
+        }
       }
     }
     // Special case: If API key is empty after saving, ensure findbar is collapsed
-    if (!llm.currentProvider.apiKey) {
-      window.browserBotFindbar.expanded = false;
+    if (!browseBotFindbarLLM.currentProvider.apiKey) {
+      browseBotFindbar.expanded = false;
     }
   },
 
@@ -268,7 +245,7 @@ export const SettingsModal = {
         }
       }
       // Update the "Get API Key" link's state for the active provider
-      const provider = llm.AVAILABLE_PROVIDERS[selectedProviderName];
+      const provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[selectedProviderName];
       const getApiKeyLink = activeGroup.querySelector(".get-api-key-link");
       if (getApiKeyLink) {
         if (provider.apiKeyUrl) {
@@ -315,36 +292,79 @@ export const SettingsModal = {
   },
 
   _generateSettingsHtml() {
-    const generalSettings = [
+    // Section 1: Findbar
+    const findbarSettings = [
       { label: "Enable AI Findbar", pref: PREFS.ENABLED },
       { label: "Minimal Mode (similar to arc)", pref: PREFS.MINIMAL },
       { label: "Persist Chat (don't persist when browser closes)", pref: PREFS.PERSIST },
-      { label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE },
       { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
-      { label: "Solid Background", pref: PREFS.SOLID_BG },
+      { label: "Remember Dimensions", pref: PREFS.REMEMBER_DIMENSIONS },
     ];
-    const positionSelectorPlaceholderHtml = `
+    const positionOptions = {
+      "top-left": "Top Left",
+      "top-right": "Top Right",
+      "bottom-left": "Bottom Left",
+      "bottom-right": "Bottom Right",
+    };
+    const positionOptionsHTML = Object.entries(positionOptions)
+      .map(([value, label]) => `<option value="${value}">${escapeXmlAttribute(label)}</option>`)
+      .join("");
+    const positionSelectorHtml = `
       <div class="setting-item">
         <label for="pref-position">Position</label>
-        <div id="position-selector-placeholder"></div>
+        <select id="pref-position" data-pref="${PREFS.POSITION}">
+          ${positionOptionsHTML}
+        </select>
       </div>
     `;
-    const generalSectionHtml = this._createCheckboxSectionHtml(
-      "General",
-      generalSettings,
+
+    const backgroundStyleOptions = {
+      solid: "Solid",
+      acrylic: "Acrylic",
+      pseudo: "Pseudo",
+    };
+    const backgroundStyleOptionsHTML = Object.entries(backgroundStyleOptions)
+      .map(([value, label]) => `<option value="${value}">${escapeXmlAttribute(label)}</option>`)
+      .join("");
+    const backgroundStyleSelectorHtml = `
+      <div class="setting-item">
+        <label for="pref-background-style">Background Style</label>
+        <select id="pref-background-style" data-pref="${PREFS.BACKGROUND_STYLE}">
+          ${backgroundStyleOptionsHTML}
+        </select>
+      </div>
+    `;
+
+    const findbarSectionHtml = this._createCheckboxSectionHtml(
+      "Findbar AI (ctrl + shift + F)",
+      findbarSettings,
       true,
       "",
-      positionSelectorPlaceholderHtml
+      positionSelectorHtml + backgroundStyleSelectorHtml
     );
 
+    // Section 2: URLBar AI
+    const urlbarSettings = [
+      { label: "Enable URLBar AI", pref: PREFS.URLBAR_AI_ENABLED },
+      { label: "Enable Animations", pref: PREFS.URLBAR_AI_ANIMATIONS_ENABLED },
+      { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
+    ];
+    const urlbarSectionHtml = this._createCheckboxSectionHtml(
+      "URLBar AI (ctrl + space)",
+      urlbarSettings,
+      false
+    );
+
+    // Section 3: AI Behavior
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
-      { label: "God Mode (AI can use tool calls)", pref: PREFS.GOD_MODE },
+      { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
+      { label: "Agentic Mode (AI can use tool calls)", pref: PREFS.AGENTIC_MODE },
       { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
     ];
     const aiBehaviorWarningHtml = `
-      <div id="citations-god-mode-warning" class="warning-message" >
-        Warning: Enabling both Citations and God Mode may lead to unexpected behavior or errors.
+      <div id="citations-agentic-mode-warning" class="warning-message" >
+        Warning: Enabling both Citations and Agentic Mode may lead to unexpected behavior or errors.
       </div>
     `;
     const maxToolCallsHtml = `
@@ -362,7 +382,7 @@ export const SettingsModal = {
       maxToolCallsHtml
     );
 
-    // Context Menu Settings
+    // Section 4: Context Menu
     const contextMenuSettings = [
       { label: "Enable Context Menu (right click menu)", pref: PREFS.CONTEXT_MENU_ENABLED },
       {
@@ -370,39 +390,49 @@ export const SettingsModal = {
         pref: PREFS.CONTEXT_MENU_AUTOSEND,
       },
     ];
+    const contextMenuCommandsHtml = `
+      <div class="setting-item">
+        <label for="pref-context-menu-command-no-selection">Command when no text is selected</label>
+        <input type="text" id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" />
+      </div>
+      <div class="setting-item">
+        <label for="pref-context-menu-command-with-selection">Command when text is selected. Use {selection} for the selected text.</label>
+        <textarea id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
+      </div>
+    `;
     const contextMenuSectionHtml = this._createCheckboxSectionHtml(
       "Context Menu",
-      contextMenuSettings
+      contextMenuSettings,
+      false,
+      "",
+      contextMenuCommandsHtml
     );
 
-    const browserFindbarSettings = [
-      { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
-      {
-        label: "Enable sound (when word not found)",
-        pref: "accessibility.typeaheadfind.enablesound",
-      },
-      { label: "Entire Word", pref: "findbar.entireword" },
-      { label: "Highlight All", pref: "findbar.highlightAll" },
-    ];
-    const browserSettingsHtml = this._createCheckboxSectionHtml(
-      "Browser Findbar",
-      browserFindbarSettings,
-      false
-    );
-
+    // Section 5: LLM Providers
     let llmProviderSettingsHtml = "";
-    for (const [name, provider] of Object.entries(llm.AVAILABLE_PROVIDERS)) {
-      const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
-      const modelPrefKey = PREFS[`${name.toUpperCase()}_MODEL`];
+    for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
+      const modelPrefKey = provider.modelPref;
 
-      const apiInputHtml = apiPrefKey
-        ? `
+      let apiInputHtml;
+      if (name === "ollama") {
+        const baseUrlPrefKey = PREFS.OLLAMA_BASE_URL;
+        apiInputHtml = `
+        <div class="setting-item">
+          <label for="pref-ollama-base-url">Base URL</label>
+          <input type="text" id="pref-ollama-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
+        </div>
+      `;
+      } else {
+        const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
+        apiInputHtml = apiPrefKey
+          ? `
         <div class="setting-item">
           <label for="pref-${this._getSafeIdForProvider(name)}-api-key">API Key</label>
           <input type="password" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
         </div>
       `
-        : "";
+          : "";
+      }
 
       // Placeholder for the XUL menulist, which will be inserted dynamically in createModalElement
       const modelSelectPlaceholderHtml = modelPrefKey
@@ -436,6 +466,26 @@ export const SettingsModal = {
         ${llmProviderSettingsHtml}
       </section>`;
 
+    // Section 6: Browser Findbar
+    const browserFindbarSettings = [
+      { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
+      {
+        label: "Enable sound (when word not found)",
+        pref: "accessibility.typeaheadfind.enablesound",
+      },
+      { label: "Entire Word", pref: "findbar.entireword" },
+      { label: "Highlight All", pref: "findbar.highlightAll" },
+    ];
+    const browserSettingsHtml = this._createCheckboxSectionHtml(
+      "Browser Findbar",
+      browserFindbarSettings,
+      false
+    );
+
+    // Section 7: Development
+    const devSettings = [{ label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE }];
+    const devSectionHtml = this._createCheckboxSectionHtml("Development", devSettings, false);
+
     return `
       <div id="ai-settings-modal-overlay">
         <div class="browse-bot-settings-modal">
@@ -447,11 +497,13 @@ export const SettingsModal = {
             </div>
           </div>
           <div class="ai-settings-content">
-            ${generalSectionHtml}
+            ${findbarSectionHtml}
+            ${urlbarSectionHtml}
             ${aiBehaviorSectionHtml}
             ${contextMenuSectionHtml}
             ${llmProvidersSectionHtml}
             ${browserSettingsHtml}
+            ${devSectionHtml}
           </div>
         </div>
       </div>

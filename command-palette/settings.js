@@ -1,7 +1,7 @@
 import { Prefs, debugLog } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
-import { parseElement, escapeXmlAttribute } from "../findbar-ai/utils/parse.js";
-import { icons, svgToUrl } from "./utils/icon.js";
+import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { icons, svgToUrl } from "../utils/icon.js";
 
 const commandChainFunctions = {
   delay: {

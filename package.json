@@ -6,17 +6,32 @@
     "build:browsebot": "cross-env TARGET=browsebot rollup -c --bundleConfigAsCjs",
     "build:palette": "cross-env TARGET=palette rollup -c --bundleConfigAsCjs",
     "build:ropen": "cross-env TARGET=reopen rollup -c --bundleConfigAsCjs",
+    "dev": "cross-env rollup -c --bundleConfigAsCjs --watch",
+    "dev:browsebot": "cross-env TARGET=browsebot rollup -c --bundleConfigAsCjs --watch",
+    "dev:palette": "cross-env TARGET=palette rollup -c --bundleConfigAsCjs --watch",
+    "dev:ropen": "cross-env TARGET=reopen rollup -c --bundleConfigAsCjs --watch",
     "format": "prettier --write ."
   },
   "author": "Bibek Bhusal",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.30",
+    "@ai-sdk/google": "^2.0.23",
+    "@ai-sdk/mistral": "^2.0.19",
+    "@ai-sdk/openai": "^2.0.52",
+    "@ai-sdk/perplexity": "^2.0.13",
+    "@ai-sdk/xai": "^2.0.26",
+    "ai": "^5.0.72",
+    "ollama-ai-provider": "^1.2.0",
+    "zod": "^4.1.12"
+  },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^25.0.8",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "cross-env": "^7.0.3",
-    "prettier": "^3.3.2",
-    "rollup": "^4.18.0",
+    "@rollup/plugin-commonjs": "^28.0.8",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "chokidar-cli": "^3.0.0",
+    "cross-env": "^10.1.0",
+    "prettier": "^3.6.2",
+    "rollup": "^4.52.4",
     "rollup-plugin-string": "^3.0.0"
   }
 }

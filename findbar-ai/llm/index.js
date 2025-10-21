@@ -1,124 +1,212 @@
-import gemini from "./provider/gemini.js";
-import mistral from "./provider/mistral.js";
-import { toolDeclarations, availableTools, getToolSystemPrompt } from "./tools.js";
+import { streamText, generateText, generateObject, stepCountIs } from "ai";
+import { browseBotFindbar } from "../findbar-ai.uc.js";
+import { z } from "zod";
+import { claude, gemini, grok, mistral, ollama, openai, perplexity } from "./providers.js";
+import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
 
-async function executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth = 0) {
-  const maxRecursionDepth = PREFS.maxToolCalls || 3;
-  const functionCalls = modelResponse?.parts?.filter((part) => part.functionCall);
+const citationSchema = z.object({
+  answer: z.string().describe("The conversational answer to the user's query."),
+  citations: z
+    .array(
+      z.object({
+        id: z
+          .number()
+          .describe(
+            "Unique identifier for the citation, corresponding to the marker in the answer text."
+          ),
+        source_quote: z
+          .string()
+          .describe(
+            "The exact, verbatim quote from the source text that supports the information."
+          ),
+      })
+    )
+    .describe("An array of citation objects from the source text."),
+});
 
-  if (!functionCalls || functionCalls.length === 0) {
-    return modelResponse;
+/**
+ * A base class for interacting with language models.
+ * It handles provider management, history, and provides generic methods
+ * for text generation, streaming, and object generation.
+ */
+class LLM {
+  constructor() {
+    this.history = [];
+    this.AVAILABLE_PROVIDERS = {
+      claude: claude,
+      gemini: gemini,
+      grok: grok,
+      mistral: mistral,
+      ollama: ollama,
+      openai: openai,
+      perplexity: perplexity,
+    };
   }
 
-  if (currentDepth >= maxRecursionDepth) {
-    debugLog("Max recursion depth reached. Stopping tool execution.");
-    return modelResponse;
+  get llmProvider() {
+    return PREFS.llmProvider;
   }
 
-  debugLog(`Function call(s) requested by model (depth ${currentDepth}):`, functionCalls);
-
-  // Gather the names of all tools to be called
-  const toolNames = functionCalls.map((call) => call.functionCall.name);
-
-  let confirmed = true;
-  if (PREFS.conformation) {
-    confirmed = await window.browserBotFindbar.createToolConfirmationDialog(toolNames);
-  }
-
-  const functionResponses = [];
-  if (confirmed) {
-    for (const call of functionCalls) {
-      const { name, args } = call.functionCall;
-
-      if (availableTools[name]) {
-        debugLog(`Executing tool: "${name}" with args:`, args);
-        const toolResult = await availableTools[name](args);
-        debugLog(`Tool "${name}" executed. Result:`, toolResult);
-        functionResponses.push({
-          functionResponse: { name, response: toolResult },
-        });
-      } else {
-        debugError(`Tool "${name}" not found!`);
-        functionResponses.push({
-          functionResponse: {
-            name,
-            response: { error: `Tool "${name}" is not available.` },
-          },
-        });
-      }
-    }
-  } else {
-    debugLog("Tool execution cancelled by user.");
-    // Create error responses for all tool calls
-    for (const name of toolNames) {
-      functionResponses.push({
-        functionResponse: {
-          name,
-          response: { error: `Tool "${name}" execution cancelled by user.` },
-        },
-      });
-    }
-  }
-
-  llmInstance.history.push({ role: "tool", parts: functionResponses });
-
-  requestBody = {
-    contents: llmInstance.history,
-    systemInstruction: llmInstance.systemInstruction,
-    generationConfig: PREFS.citationsEnabled ? { responseMimeType: "application/json" } : {},
-  };
-
-  modelResponse = await llmInstance.currentProvider.sendMessage(requestBody);
-  llmInstance.history.push(modelResponse);
-
-  // Only recurse if the model provided a valid response
-  if (modelResponse?.parts?.length > 0) {
-    debugLog("Running tool call", currentDepth + 1, "Time");
-    return executeToolCalls(llmInstance, requestBody, modelResponse, currentDepth + 1);
-  } else {
-    debugLog("Model returned an empty response after tool execution.");
-    return modelResponse;
-  }
-}
-
-const llm = {
-  history: [],
-  systemInstruction: null,
-  AVAILABLE_PROVIDERS: {
-    gemini: gemini,
-    mistral: mistral,
-  },
   get currentProvider() {
-    const providerName = PREFS.llmProvider || "gemini";
-    return this.AVAILABLE_PROVIDERS[providerName];
-  },
+    return (
+      this.AVAILABLE_PROVIDERS[this.llmProvider || "gemini"] || this.AVAILABLE_PROVIDERS["gemini"]
+    );
+  }
+
   setProvider(providerName) {
     if (this.AVAILABLE_PROVIDERS[providerName]) {
       PREFS.llmProvider = providerName;
-      this.clearData();
       debugLog(`Switched LLM provider to: ${providerName}`);
     } else {
       debugError(`Provider "${providerName}" not found.`);
     }
-  },
+  }
+
+  async getSystemPrompt() {
+    // Base implementation. Should be overridden by extending classes.
+    return "";
+  }
+
+  async generateText(options) {
+    const { prompt, ...rest } = options;
+    if (prompt) {
+      this.history.push({ role: "user", content: prompt });
+    }
+
+    const config = {
+      model: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
+      messages: this.history,
+      ...rest,
+    };
+
+    const result = await generateText(config);
+
+    // Only update history if it wasn't overridden in the options
+    if (!rest.messages) {
+      this.history.push(...result.response.messages);
+    }
+    return result;
+  }
+
+  async streamText(options) {
+    const { prompt, onFinish, ...rest } = options;
+    if (prompt) {
+      this.history.push({ role: "user", content: prompt });
+    }
+
+    const self = this;
+    const config = {
+      model: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
+      messages: this.history,
+      ...rest,
+      async onFinish(result) {
+        // Only update history if it wasn't overridden in the options
+        if (!rest.messages) {
+          self.history.push(...result.response.messages);
+        }
+        if (onFinish) onFinish(result);
+      },
+    };
+    return streamText(config);
+  }
+
+  async generateTextWithCitations(options) {
+    const { prompt, ...rest } = options;
+    if (prompt) {
+      this.history.push({ role: "user", content: prompt });
+    }
+
+    const config = {
+      model: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
+      messages: this.history,
+      schema: citationSchema,
+      ...rest,
+    };
+
+    const { object } = await generateObject(config);
+
+    // Only update history if it wasn't overridden in the options
+    if (!rest.messages) {
+      this.history.push({ role: "assistant", content: JSON.stringify(object) });
+    }
+    return object;
+  }
+
+  getHistory() {
+    return [...this.history];
+  }
+
+  clearData() {
+    debugLog("Clearing LLM history and system prompt.");
+    this.history = [];
+  }
+
+  getLastMessage() {
+    return this.history.length > 0 ? this.history[this.history.length - 1] : null;
+  }
+}
+
+/**
+ * An extended LLM class specifically for the BrowseBot Findbar.
+ * It manages application-specific states like agentic, streaming, citations,
+ * and constructs the appropriate system prompts.
+ */
+class BrowseBotLLM extends LLM {
+  constructor() {
+    super();
+    this.systemInstruction = "";
+  }
+
+  get agenticMode() {
+    return PREFS.agenticMode;
+  }
+  get streamEnabled() {
+    return PREFS.streamEnabled;
+  }
+  get citationsEnabled() {
+    return PREFS.citationsEnabled;
+  }
+  get maxToolCalls() {
+    return PREFS.maxToolCalls;
+  }
+
   async updateSystemPrompt() {
     debugLog("Updating system prompt...");
-    const promptText = await this.getSystemPrompt();
-    this.setSystemPrompt(promptText);
-  },
+    this.systemInstruction = await this.getSystemPrompt();
+  }
+
   async getSystemPrompt() {
     let systemPrompt = `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
 
 ## Your Instructions:
 - Be concise, accurate, and helpful.`;
 
-    if (PREFS.godMode) {
+    if (this.agenticMode) {
+      systemPrompt += `
+
+## AGENTIC MODE ENABLED - TOOL USAGE:
+You have access to browser functions. The user knows you have these abilities.
+- **CRITICAL**: When you decide to call a tool, give short summary of what tool are you calling and why?
+- Use tools when the user explicitly asks, or when it is the only logical way to fulfill their request (e.g., "search for...").
+- When asked about your own abilities, describe the functions you can perform based on the tools listed below.
+`;
       systemPrompt += await getToolSystemPrompt();
+      systemPrompt += `
+## More instructions for Running tools
+- While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
+- User will provide URL and title of current of webpage. If you need more context, use the \`getPageTextContent\` or \`getHTMLContent\` tools.
+- When the user asks you to "read the current page", use the \`getPageTextContent()\` or \`getHTMLContent\` tool.
+- Don't use search tool unless user explicitely asks.
+- When user asks you to manage tabs (close/group/move tabs) do it smartly first read tabs and take action don't ask too many question for confirmation.
+- If the user asks you to open a link by its text (e.g., "click the 'About Us' link"), you must first use \`getHTMLContent()\` to find the link's full URL, then use \`openLink()\` to open it.`;
     }
 
-    if (PREFS.citationsEnabled) {
+    if (this.citationsEnabled) {
       systemPrompt += `
 
 ## Citation Instructions
@@ -251,23 +339,18 @@ This example is correct, note that it contain unique \`id\`, and each in text ci
 `;
     }
 
-    if (!PREFS.godMode) {
+    if (!this.agenticMode) {
       systemPrompt += `
 - Strictly base all your answers on the webpage content provided below.
 - If the user's question cannot be answered from the content, state that the information is not available on the page.
 
 Here is the initial info about the current page:
 `;
-      const pageContext = await messageManagerAPI.getPageTextContent(!PREFS.citationsEnabled);
+      const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
       systemPrompt += JSON.stringify(pageContext);
     }
-
     return systemPrompt;
-  },
-  setSystemPrompt(promptText) {
-    this.systemInstruction = promptText ? { parts: [{ text: promptText }] } : null;
-    return this;
-  },
+  }
 
   parseModelResponseText(responseText) {
     let answer = responseText;
@@ -275,7 +358,11 @@ Here is the initial info about the current page:
 
     if (PREFS.citationsEnabled) {
       try {
-        const parsedContent = JSON.parse(responseText);
+        // Find the JSON part of the response
+        const jsonMatch = responseText.match(/```json\s*([\s\S]*?)\s*```/);
+        const jsonString = jsonMatch ? jsonMatch[1] : responseText;
+        const parsedContent = JSON.parse(jsonString);
+
         if (typeof parsedContent.answer === "string") {
           answer = parsedContent.answer;
           if (Array.isArray(parsedContent.citations)) {
@@ -291,65 +378,100 @@ Here is the initial info about the current page:
       }
     }
     return { answer, citations };
-  },
+  }
 
-  async sendMessage(prompt, pageContext) {
-    await this.updateSystemPrompt();
+  async sendMessage(prompt, abortSignal) {
+    debugLog("Current history before sending:", this.history);
 
-    const fullPrompt = `[Current Page Context: ${JSON.stringify(pageContext || {})}] ${prompt}`;
-    this.history.push({ role: "user", parts: [{ text: fullPrompt }] });
-    let requestBody = {
-      contents: this.history,
-      systemInstruction: this.systemInstruction,
+    if (this.citationsEnabled) {
+      const object = await super.generateTextWithCitations({
+        prompt,
+        abortSignal,
+      });
+
+      if (browseBotFindbar?.findbar) {
+        browseBotFindbar.findbar.history = this.getHistory();
+      }
+      return object;
+    }
+
+    if (!this.agenticMode) {
+      if (this.streamEnabled) {
+        const self = this;
+        const streamResult = await super.streamText({ prompt, abortSignal });
+        (async () => {
+          await streamResult.text;
+          if (browseBotFindbar?.findbar) {
+            browseBotFindbar.findbar.history = self.getHistory();
+          }
+        })();
+        return streamResult;
+      } else {
+        const result = await super.generateText({ prompt, abortSignal });
+        if (browseBotFindbar?.findbar) {
+          browseBotFindbar.findbar.history = this.getHistory();
+        }
+        return result;
+      }
+    }
+
+    const shouldToolBeCalled = async (toolName) => {
+      browseBotFindbar._createOrUpdateToolCallUI(toolName, "loading");
+      if (PREFS.conformation) {
+        const friendlyName = toolNameMapping[toolName] || toolName;
+        const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
+        if (!confirmed) {
+          debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+          browseBotFindbar._createOrUpdateToolCallUI(toolName, "declined");
+          return false;
+        }
+      }
+      return true;
     };
-    if (PREFS.citationsEnabled) {
-      requestBody.generationConfig = { responseMimeType: "application/json" };
-    }
 
-    if (PREFS.godMode) {
-      requestBody.tools = toolDeclarations;
-    }
-    let modelResponse = await this.currentProvider.sendMessage(requestBody);
-    if (modelResponse === null) {
-      this.history.pop();
-      return { answer: "The model did not return a valid response." };
-    }
-    this.history.push(modelResponse);
+    const afterToolCall = (toolName, result) => {
+      const status = result.error ? "error" : "success";
+      browseBotFindbar._createOrUpdateToolCallUI(toolName, status, result.error);
+    };
 
-    if (PREFS.godMode) {
-      modelResponse = await executeToolCalls(this, requestBody, modelResponse);
-    }
+    // NOTE: Not using bookmarks group because AI always made bookmark folder when asked to make tab folder
+    const findbarToolGroups = Object.keys(toolGroups).filter(
+      (group) => group !== "bookmarks" && group !== "misc"
+    );
+    const tools = getTools(findbarToolGroups, { shouldToolBeCalled, afterToolCall });
 
-    if (PREFS.citationsEnabled) {
-      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      const parsedResponse = this.parseModelResponseText(responseText);
+    const commonConfig = {
+      prompt,
+      tools,
+      stopWhen: stepCountIs(this.maxToolCalls),
+      abortSignal,
+    };
 
-      debugLog("Parsed AI Response:", parsedResponse);
-
-      if (!parsedResponse.answer) {
-        this.history.pop();
-      }
-      return parsedResponse;
+    if (this.streamEnabled) {
+      const self = this;
+      return super.streamText({
+        ...commonConfig,
+        onFinish: () => {
+          if (browseBotFindbar?.findbar) {
+            browseBotFindbar.findbar.history = self.getHistory();
+          }
+        },
+      });
     } else {
-      const responseText = modelResponse?.parts?.find((part) => part.text)?.text || "";
-      if (!responseText) {
-        this.history.pop();
+      const result = await super.generateText(commonConfig);
+      if (browseBotFindbar?.findbar) {
+        browseBotFindbar.findbar.history = this.getHistory();
       }
-      return {
-        answer: responseText || "I used my tools to complete your request.",
-      };
+      return result;
     }
-  },
-  getHistory() {
-    return [...this.history];
-  },
-  clearData() {
-    this.history = [];
-    this.setSystemPrompt(null);
-  },
-  getLastMessage() {
-    return this.history.length > 0 ? this.history[this.history.length - 1] : null;
-  },
-};
+  }
 
-export { llm };
+  clearData() {
+    super.clearData();
+    this.systemInstruction = "";
+  }
+}
+
+const browseBotFindbarLLM = new BrowseBotLLM();
+window.browseBotFindabrLLM = browseBotFindbarLLM;
+export { LLM, browseBotFindbarLLM };
