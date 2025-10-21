@@ -18,6 +18,7 @@ This GitHub repo contains multiple mods made specifically for Zen Browser, which
 1. Fork the repository on GitHub
 
 2. Clone your fork locally inside the `js` folder of your profile:
+
    ```bash
    cd /path/to/your/profile/chrome/JS
    git clone https://github.com/your-username/zen-custom-js
@@ -25,6 +26,7 @@ This GitHub repo contains multiple mods made specifically for Zen Browser, which
    ```
 
 3. Install dependencies (only required if you are contributing to BrowseBot):
+
    ```bash
    npm install
    ```
@@ -105,7 +107,7 @@ I like code to be modular and split into multiple files. Each file should be no 
 
 ### Formatting
 
-I know formatting is important, but while writing code I want to focus on the logic rather than indentation or quote styles. This repo contains a workflow script that automatically formats code when pushed to GitHub. 
+I know formatting is important, but while writing code I want to focus on the logic rather than indentation or quote styles. This repo contains a workflow script that automatically formats code when pushed to GitHub.
 
 **You don't need to worry about formatting!** Just write your code and let the automation handle it. Focus on functionality and readability rather than manual formatting.
 
