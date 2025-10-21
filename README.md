@@ -60,12 +60,13 @@ All scripts are also available through [Sine](https://github.com/CosmoCreeper/Si
 
 For advanced users or those not using Sine or who are willing to contribute:
 
-1.  **Setup `fx-autoconfig`**: If you haven't already, follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig).
+1.  **Setup `fx-autoconfig`**: If you haven't already, follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig) (If you are using Sine it is already installed).
 
-2.  **Clone this Repository**: Open a terminal or command prompt, navigate to the `js` directory created by `fx-autoconfig` inside your profile folder, and clone the repository with the name `custom`:
+2.  **Clone this Repository**: Open a terminal or command prompt, navigate to the `js` directory created by `fx-autoconfig` inside your profile folder:
 
     ```bash
-    git clone https://github.com/BibekBhusal0/zen-custom-js.git custom
+    cd /path/to/your/profile/chrome/JS
+    git clone https://github.com/BibekBhusal0/zen-custom-js
     ```
 
 3.  **Import the Script**: In your JS directory, create a new file `import.uc.mjs` , and import scripts you need. Here is example import file importing each script [import.uc.mjs](./import.uc.mjs).
