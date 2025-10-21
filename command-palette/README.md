@@ -36,9 +36,15 @@ The Zen Command Palette can be configured via its own settings. Simply type `: C
 
 https://github.com/user-attachments/assets/bdd87f58-f6f7-480c-8ffe-1150d571f482
 
+> [!Note]
+> In current version it don't need restart to get the toolbar icon.
+
 ### Making custom commands
 
 https://github.com/user-attachments/assets/71dae23a-bb0c-4a04-add6-450d344751a0
+
+> [!Note]
+> Custom commands and shortcut keys are stored in JSON file here is [this](../zen-commands-settings.json) is my custom commands and shortcut keys.
 
 > [!Note]
 > You can press delete/blackspace to remove the shortcut key. Changing shortcut key from menu this will not replace/remove existing shortcut keys they have to be done from Zen Settings.
