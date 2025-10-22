@@ -28,7 +28,6 @@
     "@ai-sdk/perplexity": "^2.0.13",
     "@ai-sdk/xai": "^2.0.26",
     "ai": "^5.0.76",
-    "ollama-ai-provider": "^1.2.0",
     "zod": "^3.0.0"
   },
   "devDependencies": {
