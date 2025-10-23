@@ -1,5 +1,5 @@
 export function timeAgo(timestamp) {
-  if (timestamp === Infinity) return "Now"
+  if (timestamp === Infinity) return "Now";
   const now = new Date();
   const then = new Date(timestamp);
   const seconds = Math.round((now - then) / 1000);
