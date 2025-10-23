@@ -1,0 +1,78 @@
+name: Bug Report
+description: Report a bug in Surf
+type: 'bug'
+labels: 'bug :beetle:'
+body:
+  - type: checkboxes
+    attributes:
+      label: Preflight Checklist
+      description: Please ensure you've completed all of the following.
+      options:
+        - label: I have read the [Contributing Guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md) for this project.
+          required: true
+        - label: I have searched the [issue tracker](https://github.com/BibekBhusal0/zen-custom-js/issues) for a bug repoat that matches the one I want to file, without success.
+          required: true
+  - type: dropdown
+    attributes:
+      label: Mod
+      description: Specify which mod needs this feature?
+      options:
+        - BrowseBot (prevoiusly known as findbarAI)
+        - Floating Sidebar
+        - Reopen Closed Tabs
+        - Search Engine Icon
+        - Search Engine Select
+        - Settings Shortcuts Search
+        - Other (not in this list)
+        - All
+  - type: input
+    attributes:
+      label: Mod Version
+      description: |
+        What version of Mod are you using?
+      placeholder: v-1.0
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Zen Version
+      description: |
+        What version of Zen are you using?
+      placeholder: 1.1.0-beta
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: What operating system(s) are you using?
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Ubuntu
+        - Other Linux
+        - Other (specify below)
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Operating System Version
+      description: What operating system version are you using? On Windows, click Start button > Settings > System > About. On macOS, click the Apple Menu > About This Mac. On Linux, use lsb_release or uname -a.
+      placeholder: 'e.g. Windows 10 version 1909, macOS Catalina 10.15.7, or Ubuntu 20.04'
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actual Behavior
+      description: A description of what actually happens.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional Information
+      description: If your problem needs further explanation, please add more information here.
