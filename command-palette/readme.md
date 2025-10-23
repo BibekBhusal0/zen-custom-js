@@ -36,9 +36,15 @@ The Zen Command Palette can be configured via its own settings. Simply type `: C
 
 https://github.com/user-attachments/assets/bdd87f58-f6f7-480c-8ffe-1150d571f482
 
+> [!Note]
+> In current version it don't need restart to get the toolbar icon.
+
 ### Making custom commands
 
 https://github.com/user-attachments/assets/71dae23a-bb0c-4a04-add6-450d344751a0
+
+> [!Note]
+> Custom commands and shortcut keys are stored in JSON file here is [this](../zen-commands-settings.json) is my custom commands and shortcut keys.
 
 > [!Note]
 > You can press delete/blackspace to remove the shortcut key. Changing shortcut key from menu this will not replace/remove existing shortcut keys they have to be done from Zen Settings.
@@ -242,7 +248,7 @@ Adding your own commands from other scripts is straightforward. The `ZenCommandP
 - [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
 - [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
 - [Reopen Closed Tabs Menu](https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu)
-- [Browse Bot (beta)](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
+- [Browse Bot](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
 
 ### Adding a Static Command
 
@@ -308,6 +314,8 @@ Another Benifit of this mod, is that this allows setting custom keymaps to comma
 </details>
 
 ## 🙏 Credits and Acknowledgements
+
+This mod is released through [Vertex Mods](https://github.com/Vertex-Mods/), and I, [Bibek Bhusal](https://github.com/BibekBhusal0), am the creator of this mod.
 
 Thanks to [12th-devs](https://github.com/12th-devs/) and [CompTechGuy](https://github.com/Comp-Tech-Guy) for finding out issues and recommending new features.
 
