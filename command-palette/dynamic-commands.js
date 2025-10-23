@@ -353,7 +353,7 @@ export async function generateActiveTabCommands() {
     }
 
     commands.push({
-      key: `switch-tab:${tab.linkedBrowser.outerWindowID}-${tab.linkedBrowser.tabId}`,
+      key: `switch-tab:${tab.label}`,
       label: `Switch to Tab: ${tab.label}`,
       command: () => {
         if (window.gZenWorkspaces?.workspaceEnabled) {
