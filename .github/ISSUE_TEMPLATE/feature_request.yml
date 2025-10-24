@@ -1,7 +1,7 @@
 name: Feature Request
 description: Suggest a new feature or enhancement
-title: '[FEATURE] '
-labels: 'enhancement'
+title: "[FEATURE] "
+labels: "enhancement"
 body:
   - type: checkboxes
     attributes:
@@ -64,4 +64,3 @@ body:
         - label: I'd be willing to implement this feature
         - label: I'd be willing to test this feature once implemented
         - label: I can provide additional details or clarification if needed
-

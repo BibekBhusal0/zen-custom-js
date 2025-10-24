@@ -13,12 +13,12 @@ export const getPref = (key, defaultValue) => {
   }
 };
 
-export class PREFS  {
-  defaultValues= {}
-  DEBUG_MODE = ""
+export class PREFS {
+  defaultValues = {};
+  DEBUG_MODE = "";
 
   getPref(key) {
-    return getPref(key, PREFS.defaultValues[key])
+    return getPref(key, PREFS.defaultValues[key]);
   }
 
   setInitialPrefs() {
@@ -29,11 +29,11 @@ export class PREFS  {
   }
 
   get debugMode() {
-    if (!this.DEBUG_MODE) return
+    if (!this.DEBUG_MODE) return;
     return this.getPref(this.DEBUG_MODE);
   }
   set debugMode(value) {
-    if (!this.DEBUG_MODE) return
+    if (!this.DEBUG_MODE) return;
     setPref(this.DEBUG_MODE, value);
   }
-};
+}
