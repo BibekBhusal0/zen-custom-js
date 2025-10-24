@@ -1,4 +1,4 @@
-export const Prefs = {
+export const PREFS = {
   DEBUG_MODE: "extensions.reopen-closed-tabs.debug-mode",
   SHORTCUT_KEY: "extensions.reopen-closed-tabs.shortcut-key",
   SHOW_OPEN_TABS: "extensions.reopen-closed-tabs.show-open-tabs",
@@ -14,13 +14,13 @@ export const Prefs = {
   getPref(key, defaultValue = undefined) {
     try {
       const pref = UC_API.Prefs.get(key);
-      if (!pref) return defaultValue !== undefined ? defaultValue : Prefs.defaultValues[key];
+      if (!pref) return defaultValue !== undefined ? defaultValue : PREFS.defaultValues[key];
       if (!pref.exists())
-        return defaultValue !== undefined ? defaultValue : Prefs.defaultValues[key];
+        return defaultValue !== undefined ? defaultValue : PREFS.defaultValues[key];
       return pref.value;
     } catch (e) {
       console.error(`ReopenClosedTabs Prefs: Error getting pref ${key}:`, e);
-      return defaultValue !== undefined ? defaultValue : Prefs.defaultValues[key];
+      return defaultValue !== undefined ? defaultValue : PREFS.defaultValues[key];
     }
   },
 
@@ -29,7 +29,7 @@ export const Prefs = {
   },
 
   setInitialPrefs() {
-    for (const [key, value] of Object.entries(Prefs.defaultValues)) {
+    for (const [key, value] of Object.entries(PREFS.defaultValues)) {
       UC_API.Prefs.setIfUnset(key, value);
     }
   },
@@ -56,20 +56,20 @@ export const Prefs = {
   },
 };
 
-Prefs.defaultValues = {
-  [Prefs.DEBUG_MODE]: false,
-  [Prefs.SHORTCUT_KEY]: "Alt+A",
-  [Prefs.SHOW_OPEN_TABS]: false,
+PREFS.defaultValues = {
+  [PREFS.DEBUG_MODE]: false,
+  [PREFS.SHORTCUT_KEY]: "Alt+A",
+  [PREFS.SHOW_OPEN_TABS]: false,
 };
 
 export const debugLog = (...args) => {
-  if (Prefs.debugMode) {
+  if (PREFS.debugMode) {
     console.log("ReopenClosedTabs :", ...args);
   }
 };
 
 export const debugError = (...args) => {
-  if (Prefs.debugMode) {
+  if (PREFS.debugMode) {
     console.error("ReopenClosedTabs :", ...args);
   }
 };
