@@ -47,7 +47,7 @@ const browseBotConfig = {
     manualChunks(id) {
       if (id.includes("node_modules")) {
         // Bundle Vercel AI SDK, Zod, and other AI libs into a vendor chunk
-        const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider"];
+        const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider-v2"];
         if (vendorPackages.some((pkg) => id.includes(pkg))) {
           return "vercel-ai-sdk";
         }
