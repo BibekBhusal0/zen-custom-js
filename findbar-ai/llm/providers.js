@@ -4,7 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { xai as createGrok } from "@ai-sdk/xai";
 import { createPerplexity } from "@ai-sdk/perplexity";
-import { createOllama } from "ollama-ai-provider";
+import { createOllama } from "ollama-ai-provider-v2";
 import PREFS from "../utils/prefs.js";
 
 // Base object with shared logic for all providers
