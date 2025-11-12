@@ -11,6 +11,7 @@
 - [ ] Other
 
 ### Which mods are changed?
+
 - [ ] BrowseBot
 - [ ] Command Palette
 - [ ] Floating Sidebar
@@ -20,7 +21,6 @@
 ### Description of the changes in your PR
 
 <!-- describe the changes you made -->
-
 
 ### Before/After Screenshots/Screen Record
 
