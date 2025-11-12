@@ -1,29 +1,29 @@
-const renoved_commands=[
-// removed because now those commands are native
- {
+const renoved_commands = [
+  // removed because now those commands are native
+  {
     key: "cmd_zenCompactModeToggle",
-     label: "Toggle Compact Mode",
-   icon: "chrome://browser/skin/zen-icons/fullscreen.svg",
-     tags: ["compact", "mode", "toggle", "ui", "layout", "hide", "sidebar"],
-   },
-   {
-   key: "Tools:Addons",
-   label: "Manage Extensions",
-    icon: "chrome://mozapps/skin/extensions/extension.svg",
-     tags: ["addons", "extensions", "themes", "manage"],
+    label: "Toggle Compact Mode",
+    icon: "chrome://browser/skin/zen-icons/fullscreen.svg",
+    tags: ["compact", "mode", "toggle", "ui", "layout", "hide", "sidebar"],
   },
- {
+  {
+    key: "Tools:Addons",
+    label: "Manage Extensions",
+    icon: "chrome://mozapps/skin/extensions/extension.svg",
+    tags: ["addons", "extensions", "themes", "manage"],
+  },
+  {
     key: "cmd_zenWorkspaceForward",
-   label: "Next Workspace",
-     icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
-   tags: ["workspace", "next", "forward", "navigate"],
-   },
-   {
-   key: "cmd_zenWorkspaceBackward",
+    label: "Next Workspace",
+    icon: "chrome://browser/skin/zen-icons/arrow-right.svg",
+    tags: ["workspace", "next", "forward", "navigate"],
+  },
+  {
+    key: "cmd_zenWorkspaceBackward",
     label: "Previous Workspace",
-     icon: "chrome://browser/skin/zen-icons/arrow-left.svg",
+    icon: "chrome://browser/skin/zen-icons/arrow-left.svg",
     tags: ["workspace", "previous", "backward", "navigate"],
- },
+  },
   // {
   //   key: "cmd_zenOpenZenThemePicker",
   //   label: "Open Theme Picker",
@@ -87,8 +87,8 @@ const renoved_commands=[
   //   condition: isNotEmptyTab,
   //   tags: ["tab", "close", "remove"],
   // },
-//{ 
- //   key: "Browser:PinTab",
+  //{
+  //   key: "Browser:PinTab",
   //   label: "Pin Tab",
   //   command: () => gBrowser.pinTab(gBrowser.selectedTab),
   //   condition: () => gBrowser?.selectedTab && !gBrowser.selectedTab.pinned && isNotEmptyTab,
@@ -161,11 +161,9 @@ const renoved_commands=[
   //   condition: isNotEmptyTab,
   // },
 
+  // removed because not working
 
-// removed because not working
-
-
-// removed because felt useless
+  // removed because felt useless
   {
     key: "key_jsdebugger",
     label: "Open js debugger",
@@ -206,4 +204,4 @@ const renoved_commands=[
     label: "Toggle Work Offline",
     tags: ["offline", "network", "disconnect"],
   },
-]
+];
