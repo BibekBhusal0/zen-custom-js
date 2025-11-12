@@ -1,4 +1,4 @@
-import { Prefs, debugLog } from "./utils/prefs.js";
+import { PREFS, debugLog } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
@@ -137,7 +137,7 @@ const SettingsModal = {
       } else {
         value = control.value;
       }
-      Prefs.setPref(prefKey, value);
+      PREFS.setPref(prefKey, value);
     });
 
     const oldSettings = JSON.parse(this._initialSettingsState);
