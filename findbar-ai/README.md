@@ -38,7 +38,9 @@ https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
 
 ## 🚨 Caution
 
-- **Privacy**: To answer questions about a webpage, this script sends the text content of the page to your selected provider. Please be aware of the privacy implications before using this feature on pages with sensitive information.
+- **Privacy**: To answer questions about a webpage, this script sends the text content of the page to your selected provider. Please be aware of the privacy implications before using this feature on pages with sensitive information. Or if you are using ollama you don't have to worry about this.
+
+- **Prompt Injectation**: Be aware of [prompt injectation](https://en.wikipedia.org/wiki/Prompt_injection) attacks and use this mod only in websites you trust.
 
 ## ⚙️ Installation
 
