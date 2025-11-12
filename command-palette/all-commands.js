@@ -150,7 +150,8 @@ export const commands = [
     icon: "chrome://browser/skin/fullscreen.svg",
     condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
   },
-  {key: "cmd_zenGlanceSplit",
+  {
+    key: "cmd_zenGlanceSplit",
     label: "Split Glance",
     tags: ["glance", "split", "multitask", "peak", "horizontal", "vertical"],
     icon: svgToUrl(icons["splitVz"]),
