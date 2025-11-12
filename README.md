@@ -75,7 +75,6 @@ For advanced users or those not using Sine or who are willing to contribute:
 
 5.  **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
 
-
 ## 🤝 Contribution
 
 Whether you have ideas, design changes or even major code changes, help is always welcome. Mods gets better and better with each contribution, no matter how big or small!
