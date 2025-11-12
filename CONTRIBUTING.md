@@ -113,8 +113,7 @@ I know formatting is important, but while writing code I want to focus on the lo
 
 If you are using Prettier, this repo also contains a [.prettierrc.json](./.prettierrc.json) file, so if you're using the Prettier extension for your IDE it should also format code properly as you work.
 
-
->[!Note]
+> [!Note]
 > These are best practices I like to follow which are not strictly required but are highly recommended.
 
 ### Automation
@@ -222,7 +221,7 @@ If you have questions or run into issues:
 - Check existing issues to see if your question has been answered
 - Feel free to ask for clarification in your PR
 
->[!Note]
+> [!Note]
 > If mod is in beta version or is unreleased issues and bugs are expected,and docs might not be up-to-date you don't need to open issus for it.
 
 ## License
