@@ -1,7 +1,7 @@
 import { streamText, generateText, generateObject, stepCountIs } from "ai";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
-import { claude, gemini, grok, mistral, ollama, openai, perplexity } from "./providers.js";
+import { claude, gemini, grok, mistral, ollama, openai, perplexity, cerebras } from "./providers.js";
 import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS, { debugLog, debugError } from "../utils/prefs.js";
@@ -42,6 +42,7 @@ class LLM {
       ollama: ollama,
       openai: openai,
       perplexity: perplexity,
+      cerebras: cerebras,
     };
   }
 

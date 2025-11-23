@@ -43,6 +43,8 @@ export const PREFS = {
   GROK_MODEL: "extension.browse-bot.grok-model",
   PERPLEXITY_API_KEY: "extension.browse-bot.perplexity-api-key",
   PERPLEXITY_MODEL: "extension.browse-bot.perplexity-model",
+  CEREBRAS_API_KEY: "extension.browse-bot.cerebras-api-key",
+  CEREBRAS_MODEL: "extension.browse-bot.cerebras-model",
   OLLAMA_MODEL: "extension.browse-bot.ollama-model",
   OLLAMA_BASE_URL: "extension.browse-bot.ollama-base-url",
 
@@ -305,6 +307,8 @@ PREFS.defaultValues = {
   [PREFS.GROK_MODEL]: "grok-4",
   [PREFS.PERPLEXITY_API_KEY]: "",
   [PREFS.PERPLEXITY_MODEL]: "sonar",
+  [PREFS.CEREBRAS_API_KEY]: "",
+  [PREFS.CEREBRAS_MODEL]: "llama3.1-8b",
   [PREFS.OLLAMA_MODEL]: "llama2",
   [PREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
   [PREFS.DND_ENABLED]: true,
