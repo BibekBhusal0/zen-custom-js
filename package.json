@@ -16,6 +16,7 @@
   "license": "MIT",
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.30",
+    "@ai-sdk/cerebras": "^1.0.31",
     "@ai-sdk/google": "^2.0.23",
     "@ai-sdk/mistral": "^2.0.19",
     "@ai-sdk/openai": "^2.0.52",

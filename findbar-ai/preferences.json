@@ -60,6 +60,10 @@
         "label": "Anthropic Claude"
       },
       {
+        "value": "cerebras",
+        "label": "Cerebras AI"
+      },
+      {
         "value": "gemini",
         "label": "Google Gemini"
       },
@@ -648,6 +652,63 @@
         "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "perplexity"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.cerebras-api-key",
+    "label": "Cerebras API Key",
+    "type": "string",
+    "placeholder": "Enter your Cerebras API key",
+    "default": "",
+    "description": "Your personal API key from Cerebras AI. Required to use Cerebras models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "cerebras"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.cerebras-model",
+    "label": "Cerebras Model",
+    "type": "dropdown",
+    "default": "llama3.1-8b",
+    "description": "Select the Cerebras model to use.",
+    "options": [
+      {
+        "value": "llama3.1-8b",
+        "label": "Llama 3.1 8B"
+      },
+      {
+        "value": "llama-3.3-70b",
+        "label": "Llama 3.3 70B"
+      },
+      {
+        "value": "gpt-oss-120b",
+        "label": "OpenAI GPT OSS 120B"
+      },
+      {
+        "value": "qwen-3-32b",
+        "label": "Qwen 3 32B"
+      },
+      {
+        "value": "qwen-3-235b-a22b-instruct-2507",
+        "label": "Qwen 3 235B Instruct (Preview)"
+      },
+      {
+        "value": "zai-glm-4.6",
+        "label": "Z.ai GLM 4.6 (Preview)"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "cerebras"
         }
       }
     ]

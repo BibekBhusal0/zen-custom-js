@@ -63,6 +63,7 @@ browser {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -243,7 +244,7 @@ browser {
       height: auto !important;
       row-gap: 10px;
 
-      & > :first-child {
+      &> :first-child {
         width: 100% !important;
         margin-top: 8px !important;
         padding-bottom: 10px !important;
@@ -415,7 +416,7 @@ browser {
         justify-content: center !important;
         gap: 4px !important;
 
-        > label {
+        >label {
           font-size: 15px !important;
           padding-top: 14px !important;
         }
@@ -503,7 +504,7 @@ browser {
         &:empty {
           display: none !important;
 
-          & ~ .ai-chat-input-group {
+          &~.ai-chat-input-group {
             padding-top: 4px !important;
 
             /* When there are no messages, the parent .browse-bot-chat should not have a header or separator line */
@@ -622,12 +623,10 @@ browser {
 
         .message-content {
           animation: pulse 1.5s ease-in-out infinite;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            color-mix(in srgb, var(--browse-bot-primary-bg) 20%, transparent 80%),
-            transparent
-          );
+          background: linear-gradient(90deg,
+              transparent,
+              color-mix(in srgb, var(--browse-bot-primary-bg) 20%, transparent 80%),
+              transparent);
           background-size: 200% 100%;
           animation: shimmer 2s infinite;
         }
@@ -655,6 +654,7 @@ browser {
       flex-direction: column;
       gap: 3px;
       padding: 2px;
+
       .tool-call-status {
         display: inline-flex;
         align-items: center;
@@ -669,6 +669,7 @@ browser {
           display: none !important;
           background-color: var(--browse-bot-muted-bg);
           color: var(--browse-bot-muted);
+
           .tool-call-icon {
             animation: spin 0.7s linear infinite;
           }
@@ -689,6 +690,7 @@ browser {
           color: var(--browse-bot-warning);
           opacity: 0.7;
         }
+
         .tool-call-icon {
           width: 16px;
           height: 16px;
@@ -737,7 +739,7 @@ browser {
         height: 32px !important;
         width: 100% !important;
 
-        & > :first-child {
+        &> :first-child {
           border-bottom: 0 !important;
           width: calc(100% - 33px) !important;
           padding-right: 3px !important;
@@ -862,6 +864,7 @@ browser {
       &:has(.findbar-closebutton:hover),
       &:has(.findbar-drag-handle:active),
       &:has(.ai-chat-header:hover) {
+
         .clear-chat-btn,
         .settings-btn,
         .findbar-collapse-btn,
@@ -914,6 +917,7 @@ browser {
       }
     }
   }
+
   .tool-confirmation-content {
     padding: 20px;
     text-align: center;
@@ -936,10 +940,12 @@ browser {
     .buttons {
       display: flex;
       justify-content: space-between;
+
       .right-side-buttons {
         display: flex !important;
         gap: 10px !important;
       }
+
       button {
         padding: 7px 14px;
         margin: 0 !important;
