@@ -4,6 +4,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { xai as createGrok } from "@ai-sdk/xai";
 import { createPerplexity } from "@ai-sdk/perplexity";
+import { createCerebras } from "@ai-sdk/cerebras";
 import { createOllama } from "ollama-ai-provider-v2";
 import PREFS from "../utils/prefs.js";
 import { googleFaviconAPI } from "../../utils/favicon.js";
@@ -243,6 +244,32 @@ const perplexity = Object.assign(Object.create(providerPrototype), {
   create: createPerplexity,
 });
 
+const cerebras = Object.assign(Object.create(providerPrototype), {
+  name: "cerebras",
+  label: "Cerebras AI",
+  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=cerebras.ai",
+  apiKeyUrl: "https://cerebras.ai",
+  AVAILABLE_MODELS: [
+    "llama3.1-8b",
+    "llama-3.3-70b",
+    "gpt-oss-120b",
+    "qwen-3-32b",
+    "qwen-3-235b-a22b-instruct-2507",
+    "zai-glm-4.6",
+  ],
+  AVAILABLE_MODELS_LABELS: {
+    "llama3.1-8b": "Llama 3.1 8B",
+    "llama-3.3-70b": "Llama 3.3 70B",
+    "gpt-oss-120b": "OpenAI GPT OSS 120B",
+    "qwen-3-32b": "Qwen 3 32B",
+    "qwen-3-235b-a22b-instruct-2507": "Qwen 3 235B Instruct (Preview)",
+    "zai-glm-4.6": "Z.ai GLM 4.6 (Preview)",
+  },
+  modelPref: PREFS.CEREBRAS_MODEL,
+  apiPref: PREFS.CEREBRAS_API_KEY,
+  create: createCerebras,
+});
+
 const ollama = Object.assign(Object.create(providerPrototype), {
   name: "ollama",
   label: "Ollama (local)",
@@ -311,4 +338,4 @@ const ollama = Object.assign(Object.create(providerPrototype), {
   },
 });
 
-export { mistral, gemini, openai, claude, grok, perplexity, ollama };
+export { mistral, gemini, openai, claude, grok, perplexity, cerebras, ollama };
