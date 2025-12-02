@@ -1,8 +1,9 @@
-import { Prefs, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { parseShortcutString } from "../utils/keyboard.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { timeAgo } from "../utils/timesAgo.js";
 import TabManager from "./utils/tab-manager.js";
+import { startupFinish } from "../utils/startup-finish.js";
 
 const ReopenClosedTabs = {
   _boundToggleMenu: null,
@@ -15,17 +16,17 @@ const ReopenClosedTabs = {
    */
   async init() {
     debugLog("Initializing mod.");
-    Prefs.setInitialPrefs();
+    PREFS.setInitialPrefs();
     this._boundToggleMenu = this.toggleMenu.bind(this);
     this._boundHandleItemClick = this._handleItemClick.bind(this);
     this._registerKeyboardShortcut();
     this._registerToolbarButton();
-    UC_API.Prefs.addListener(Prefs.SHORTCUT_KEY, this.onHotkeyChange.bind(this));
+    UC_API.Prefs.addListener(PREFS.SHORTCUT_KEY, this.onHotkeyChange.bind(this));
     debugLog("Mod initialized.");
   },
 
   async _registerKeyboardShortcut() {
-    const shortcutString = Prefs.shortcutKey;
+    const shortcutString = PREFS.shortcutKey;
     if (!shortcutString) {
       debugLog("No shortcut key defined.");
       return;
@@ -160,7 +161,7 @@ const ReopenClosedTabs = {
     mainVbox.appendChild(allItemsContainer);
 
     const closedTabs = await TabManager.getRecentlyClosedTabs();
-    const showOpenTabs = Prefs.showOpenTabs;
+    const showOpenTabs = PREFS.showOpenTabs;
     let openTabs = [];
 
     if (showOpenTabs) {
@@ -432,7 +433,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
   }
 }
 
-UC_API.Runtime.startupFinished().then(() => {
+startupFinish(() => {
   ReopenClosedTabs.init();
   setupCommandPaletteIntegration();
 });

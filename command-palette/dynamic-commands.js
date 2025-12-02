@@ -1,7 +1,8 @@
+import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { debugLog, debugError } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
-import { ZenCommandPalette } from "./command-palette.uc.js";
+import { ZenCommandPalette } from "./index.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -71,24 +72,6 @@ const commandChainUtils = {
       alert([title, description], 0);
     }
   },
-};
-
-/**
- * Gets a favicon for a search engine, with fallbacks.
- * @param {object} engine - The search engine object.
- * @returns {string} The URL of the favicon.
- */
-const getSearchEngineFavicon = (engine) => {
-  if (engine.iconURI?.spec) {
-    return engine.iconURI.spec;
-  }
-  try {
-    const submissionUrl = engine.getSubmission("test_query").uri.spec;
-    const hostName = new URL(submissionUrl).hostname;
-    return `https://s2.googleusercontent.com/s2/favicons?domain_url=https://${hostName}&sz=32`;
-  } catch (e) {
-    return "chrome://browser/skin/search-glass.svg"; // Absolute fallback
-  }
 };
 
 /**
@@ -370,7 +353,7 @@ export async function generateActiveTabCommands() {
     }
 
     commands.push({
-      key: `switch-tab:${tab.linkedBrowser.outerWindowID}-${tab.linkedBrowser.tabId}`,
+      key: `switch-tab:${tab.label}`,
       label: `Switch to Tab: ${tab.label}`,
       command: () => {
         if (window.gZenWorkspaces?.workspaceEnabled) {
@@ -543,6 +526,7 @@ export async function generateFolderCommands() {
       },
       icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
       tags: ["folder", "delete", "remove", folder.label.toLowerCase()],
+      allowShortcuts: false,
     });
   });
 

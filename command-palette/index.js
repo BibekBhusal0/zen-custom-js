@@ -13,10 +13,11 @@ import {
   generateExtensionUninstallCommands,
   generateCustomCommands,
 } from "./dynamic-commands.js";
-import { Prefs, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { parseShortcutString } from "../utils/keyboard.js";
+import { startupFinish } from "../utils/startup-finish.js";
 
 export const ZenCommandPalette = {
   /**
@@ -35,67 +36,67 @@ export const ZenCommandPalette = {
     },
     {
       func: generateSearchEngineCommands,
-      pref: Prefs.KEYS.DYNAMIC_SEARCH_ENGINES,
+      pref: PREFS.KEYS.DYNAMIC_SEARCH_ENGINES,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateSineCommands,
-      pref: Prefs.KEYS.DYNAMIC_SINE_MODS,
+      pref: PREFS.KEYS.DYNAMIC_SINE_MODS,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateWorkspaceMoveCommands,
-      pref: Prefs.KEYS.DYNAMIC_WORKSPACES,
+      pref: PREFS.KEYS.DYNAMIC_WORKSPACES,
       allowIcons: true,
       allowShortcuts: true,
     },
     {
       func: generateFolderCommands,
-      pref: Prefs.KEYS.DYNAMIC_FOLDERS,
+      pref: PREFS.KEYS.DYNAMIC_FOLDERS,
       allowIcons: true,
       allowShortcuts: true,
     },
     {
       func: generateActiveTabCommands,
-      pref: Prefs.KEYS.DYNAMIC_ACTIVE_TABS,
+      pref: PREFS.KEYS.DYNAMIC_ACTIVE_TABS,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateContainerTabCommands,
-      pref: Prefs.KEYS.DYNAMIC_CONTAINER_TABS,
+      pref: PREFS.KEYS.DYNAMIC_CONTAINER_TABS,
       allowIcons: false,
       allowShortcuts: true,
     },
     {
       func: generateUnloadTabCommands,
-      pref: Prefs.KEYS.DYNAMIC_UNLOAD_TABS,
+      pref: PREFS.KEYS.DYNAMIC_UNLOAD_TABS,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateAboutPageCommands,
-      pref: Prefs.KEYS.DYNAMIC_ABOUT_PAGES,
+      pref: PREFS.KEYS.DYNAMIC_ABOUT_PAGES,
       allowIcons: true,
       allowShortcuts: true,
     },
     {
       func: generateExtensionCommands,
-      pref: Prefs.KEYS.DYNAMIC_EXTENSIONS,
+      pref: PREFS.KEYS.DYNAMIC_EXTENSIONS,
       allowIcons: false,
       allowShortcuts: true,
     },
     {
       func: generateExtensionEnableDisableCommands,
-      pref: Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
+      pref: PREFS.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateExtensionUninstallCommands,
-      pref: Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
+      pref: PREFS.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
       allowIcons: false,
       allowShortcuts: false,
     },
@@ -254,11 +255,10 @@ export const ZenCommandPalette = {
   },
 
   /**
-   * Generates a complete, up-to-date list of commands by combining static commands
-   * with dynamically generated ones based on current preferences.
+   * Generates a complete, up-to-date list of dynamic commands.
    * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
    */
-  async generateLiveCommands(useCache = true, isPrefixMode = false) {
+  async generateDynamicCommands(useCache = true) {
     let dynamicCommands;
     if (useCache && this._dynamicCommandsCache) {
       dynamicCommands = this._dynamicCommandsCache;
@@ -266,7 +266,7 @@ export const ZenCommandPalette = {
       const commandSets = await Promise.all(
         this._dynamicCommandProviders.map(async (provider) => {
           const shouldLoad =
-            provider.pref === null ? true : provider.pref ? Prefs.getPref(provider.pref) : false;
+            provider.pref === null ? true : provider.pref ? PREFS.getPref(provider.pref) : false;
           if (!shouldLoad) return [];
           try {
             const commands = await provider.func();
@@ -282,7 +282,16 @@ export const ZenCommandPalette = {
         this._dynamicCommandsCache = dynamicCommands;
       }
     }
+    return dynamicCommands;
+  },
 
+  /**
+   * Generates a complete, up-to-date list of commands by combining static commands
+   * with dynamically generated ones based on current preferences.
+   * @returns {Promise<Array<object>>} A promise that resolves to the full list of commands.
+   */
+  async generateLiveCommands(useCache = true, isPrefixMode = false) {
+    const dynamicCommands = await this.generateDynamicCommands(useCache);
     let allCommands = [...staticCommands, ...dynamicCommands];
 
     if (isPrefixMode && this._globalActions) {
@@ -378,7 +387,7 @@ export const ZenCommandPalette = {
         return [];
       }
     } else {
-      if (cleanQuery.length < Prefs.minQueryLength) {
+      if (cleanQuery.length < PREFS.minQueryLength) {
         return [];
       }
     }
@@ -401,33 +410,37 @@ export const ZenCommandPalette = {
         const score = Math.max(labelScore * 1.5, keyScore, tagsScore * 0.5) + recencyBonus;
         return { cmd, score };
       })
-      .filter((item) => item.score >= Prefs.minScoreThreshold)
+      .filter((item) => item.score >= PREFS.minScoreThreshold)
       .filter((item) => this.commandIsVisible(item.cmd));
 
     scoredCommands.sort((a, b) => b.score - a.score);
     const finalCmds = scoredCommands.map((item) => item.cmd);
 
     if (isPrefixMode) {
-      return finalCmds.slice(0, Prefs.maxCommandsPrefix);
+      return finalCmds.slice(0, PREFS.maxCommandsPrefix);
     }
-    return finalCmds.slice(0, Prefs.maxCommands);
+    return finalCmds.slice(0, PREFS.maxCommands);
   },
 
   /**
    * Finds a command by its key and executes it.
    * @param {string} key - The key of the command to execute.
    */
-  executeCommandByKey(key) {
+  async executeCommandByKey(key) {
     if (!key) return;
 
     let cmdToExecute;
     const nativeAction = this._globalActions?.find((a) => a.commandId === key);
 
+    const findInCommands = (arr) => arr?.find((c) => c.key === key);
     if (nativeAction) {
       cmdToExecute = { key: nativeAction.commandId, command: nativeAction.command };
     } else {
-      const findInCommands = (arr) => arr?.find((c) => c.key === key);
-      cmdToExecute = findInCommands(staticCommands) || findInCommands(this._dynamicCommandsCache);
+      cmdToExecute = findInCommands(staticCommands);
+    }
+    if (!cmdToExecute) {
+      const dynamicCommands = await this.generateDynamicCommands(false, false);
+      cmdToExecute = findInCommands(dynamicCommands);
     }
 
     if (cmdToExecute) {
@@ -740,16 +753,16 @@ export const ZenCommandPalette = {
             }
 
             const input = (context.searchString || "").trim();
-            const isPrefixSearch = input.startsWith(Prefs.prefix);
+            const isPrefixSearch = input.startsWith(PREFS.prefix);
 
             if (context.searchMode?.engineName) {
               return false;
             }
 
             if (isPrefixSearch) return true;
-            if (Prefs.prefixRequired) return false;
+            if (PREFS.prefixRequired) return false;
 
-            if (input.length >= Prefs.minQueryLength) {
+            if (input.length >= PREFS.minQueryLength) {
               const liveCommands = await self.generateLiveCommands(true, false);
               return self.filterCommandsByInput(input, liveCommands, false).length > 0;
             }
@@ -767,20 +780,20 @@ export const ZenCommandPalette = {
             const input = (context.searchString || "").trim();
             debugLog(`startQuery for: "${input}"`);
 
-            const isEnteringPrefixMode = !this._isInPrefixMode && input.startsWith(Prefs.prefix);
+            const isEnteringPrefixMode = !this._isInPrefixMode && input.startsWith(PREFS.prefix);
             let query;
 
             if (isEnteringPrefixMode) {
               this._isInPrefixMode = true;
               gURLBar.setAttribute("zen-cmd-palette-prefix-mode", "true");
-              query = input.substring(Prefs.prefix.length).trim();
+              query = input.substring(PREFS.prefix.length).trim();
               gURLBar.value = query;
             } else {
               query = input;
             }
 
-            if (this._isInPrefixMode) Prefs.setTempMaxRichResults(Prefs.maxCommandsPrefix);
-            else Prefs.resetTempMaxRichResults();
+            if (this._isInPrefixMode) PREFS.setTempMaxRichResults(PREFS.maxCommandsPrefix);
+            else PREFS.resetTempMaxRichResults();
 
             if (context.canceled) return;
 
@@ -813,7 +826,7 @@ export const ZenCommandPalette = {
 
             if (this._isInPrefixMode && !query) {
               let count = 0;
-              const maxResults = Prefs.maxCommandsPrefix;
+              const maxResults = PREFS.maxCommandsPrefix;
               const recentCmds = self._recentCommands
                 .map((key) => liveCommands.find((c) => c.key === key))
                 .filter(Boolean)
@@ -867,7 +880,7 @@ export const ZenCommandPalette = {
         }
 
         dispose() {
-          Prefs.resetTempMaxRichResults();
+          PREFS.resetTempMaxRichResults();
           gURLBar.removeAttribute("zen-cmd-palette-prefix-mode");
           this._isInPrefixMode = false;
           setTimeout(() => {
@@ -999,8 +1012,8 @@ export const ZenCommandPalette = {
 };
 
 // Initialization
-UC_API.Runtime.startupFinished().then(() => {
-  Prefs.setInitialPrefs();
+function init() {
+  PREFS.setInitialPrefs();
   window.ZenCommandPalette = ZenCommandPalette;
   ZenCommandPalette.init();
 
@@ -1008,4 +1021,6 @@ UC_API.Runtime.startupFinished().then(() => {
     "Zen Command Palette initialized. Static commands count:",
     window.ZenCommandPalette.staticCommands.length
   );
-});
+}
+
+startupFinish(init);

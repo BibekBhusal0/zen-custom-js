@@ -7,12 +7,13 @@
   "style": {
     "content": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/settings-shortcuts-search/style.css"
   },
-  "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/settings-shortcuts-search/readme.md",
+  "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/settings-shortcuts-search/README.md",
   "image": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/settings-shortcuts-search/image.png",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
   "tags": ["Search", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
   "createdAt": "2025-06-23",
-  "updatedAt": "2025-07-11",
-  "fork": ["zen"]
+  "updatedAt": "2025-10-24",
+  "fork": ["zen"],
+  "include": ["about:preferences*", "about:settings*"]
 }

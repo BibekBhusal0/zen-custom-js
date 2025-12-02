@@ -1,6 +1,6 @@
 let _originalMaxResults = null;
 
-export const Prefs = {
+export const PREFS = {
   KEYS: {
     PREFIX: "zen-command-palette.prefix",
     PREFIX_REQUIRED: "zen-command-palette.prefix-required",
@@ -109,32 +109,32 @@ export const Prefs = {
   },
 };
 
-Prefs.defaultValues = {
-  [Prefs.KEYS.PREFIX_REQUIRED]: false,
-  [Prefs.KEYS.PREFIX]: ":",
-  [Prefs.KEYS.DEBUG_MODE]: false,
-  [Prefs.KEYS.MAX_COMMANDS]: 3,
-  [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
-  [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
-  [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 150,
-  [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
-  [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
-  [Prefs.KEYS.DYNAMIC_EXTENSIONS]: false,
-  [Prefs.KEYS.DYNAMIC_WORKSPACES]: false,
-  [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
-  [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
-  [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
-  [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
-  [Prefs.KEYS.DYNAMIC_UNLOAD_TABS]: false,
-  [Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
-  [Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL]: false,
-  [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
+PREFS.defaultValues = {
+  [PREFS.KEYS.PREFIX_REQUIRED]: false,
+  [PREFS.KEYS.PREFIX]: ":",
+  [PREFS.KEYS.DEBUG_MODE]: false,
+  [PREFS.KEYS.MAX_COMMANDS]: 3,
+  [PREFS.KEYS.MAX_COMMANDS_PREFIX]: 50,
+  [PREFS.KEYS.MIN_QUERY_LENGTH]: 3,
+  [PREFS.KEYS.MIN_SCORE_THRESHOLD]: 150,
+  [PREFS.KEYS.DYNAMIC_ABOUT_PAGES]: false,
+  [PREFS.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
+  [PREFS.KEYS.DYNAMIC_EXTENSIONS]: false,
+  [PREFS.KEYS.DYNAMIC_WORKSPACES]: false,
+  [PREFS.KEYS.DYNAMIC_SINE_MODS]: true,
+  [PREFS.KEYS.DYNAMIC_FOLDERS]: true,
+  [PREFS.KEYS.DYNAMIC_CONTAINER_TABS]: false,
+  [PREFS.KEYS.DYNAMIC_ACTIVE_TABS]: false,
+  [PREFS.KEYS.DYNAMIC_UNLOAD_TABS]: false,
+  [PREFS.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
+  [PREFS.KEYS.DYNAMIC_EXTENSION_UNINSTALL]: false,
+  [PREFS.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
 };
 
 export const debugLog = (...args) => {
-  if (Prefs.debugMode) console.log("zen-command-palette:", ...args);
+  if (PREFS.debugMode) console.log("zen-command-palette:", ...args);
 };
 
 export const debugError = (...args) => {
-  if (Prefs.debugMode) console.error("zen-command-palette:", ...args);
+  if (PREFS.debugMode) console.error("zen-command-palette:", ...args);
 };

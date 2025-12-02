@@ -1,0 +1,55 @@
+import { getSearchEngineFavicon } from "../utils/favicon.js";
+import { startupFinish } from "../utils/startup-finish.js";
+
+let currentEngine = null;
+
+async function updateFavicon() {
+  const component = document.getElementById("urlbar-search-mode-indicator-title");
+  if (!component) return false;
+  const engineName = component.innerText;
+  if (engineName === currentEngine) return false;
+  currentEngine = engineName;
+  const engine = await Services.search.getEngineByName(engineName);
+
+  const resetStyle = () => {
+    component.style.backgroundImage = "";
+    component.style.paddingLeft = "";
+    component.style.backgroundPosition = "";
+  };
+
+  if (!engine) {
+    resetStyle();
+    return false;
+  }
+
+  const faviconURL = getSearchEngineFavicon(engine);
+
+  component.style.backgroundImage = `url('${faviconURL}')`;
+  component.style.backgroundRepeat = "no-repeat";
+  component.style.backgroundSize = "16px 16px";
+  component.style.paddingLeft = "18px";
+  component.style.backgroundPosition = "left center";
+
+  return true;
+}
+
+function observeSearchModeIndicator() {
+  const component = document.getElementById("urlbar-search-mode-indicator-title");
+  if (!component) return;
+
+  const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      if (mutation.type === "characterData" || mutation.type === "childList") {
+        updateFavicon();
+      }
+    });
+  });
+
+  observer.observe(component, {
+    subtree: true,
+    characterData: true,
+    childList: true,
+  });
+}
+
+startupFinish(observeSearchModeIndicator);

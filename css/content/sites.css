@@ -1,0 +1,297 @@
+/* Adding some blur effects in youtube/youtube music and chess.com  */
+/* to be used with https://addons.mozilla.org/en-US/firefox/addon/zen-internet/ */
+
+:root {
+  --mat-ga-blur-radius: 20px;
+  --mat-ga-shadow-size: 5px;
+  --mat-ga-shadow-color: #00000044;
+}
+
+@-moz-document domain("youtube.com"), domain("music.youtube.com") {
+  ytd-menu-popup-renderer,
+  ytd-multi-page-menu-renderer,
+  .ytp-contextmenu,
+  ytmusic-player-bar,
+  ytmusic-multi-page-menu-renderer,
+  ytmusic-menu-popup-renderer > tp-yt-paper-listbox {
+    background: #00000055 !important;
+    backdrop-filter: blur(var(--mat-ga-blur-radius)) !important;
+    box-shadow: 0 0 var(--mat-ga-shadow-size) #ffffff22 !important;
+    border-radius: 10px;
+    border: 1px solid #ffffff44 !important;
+  }
+}
+
+@-moz-document domain("music.youtube.com") {
+  html {
+    /* remove extra space and color in bottom */
+    background: transparent !important;
+
+    ytmusic-app-layout > #content {
+      height: calc(100vh - 205px) !important;
+      overflow: scroll !important;
+    }
+
+    &.inactive-player {
+      ytmusic-app-layout > #content {
+        height: calc(100vh - 112px) !important;
+      }
+    }
+
+    /* sidebar on always top */
+    #side-panel {
+      z-index: 20000;
+    }
+
+    /* position mini player correctly */
+    #main-panel:has(ytmusic-player[player-ui-state="MINIPLAYER"]) {
+      transform: translateX(-170px) translateY(-100px);
+    }
+
+    /* fixing slider half hidden */
+    ytmusic-player-bar {
+      border: 0 !important;
+      padding-top: 12px !important;
+
+      .tp-yt-paper-slider {
+        top: 6px;
+      }
+    }
+
+    ytmusic-nav-bar {
+      /* blur in navbar for better visibility  */
+      backdrop-filter: blur(60px) !important;
+
+      /* don't hide navbar if input is in focus */
+      &:has(#input:focus) {
+        opacity: 1 !important;
+      }
+    }
+
+    /* transparent header of menu */
+    ytd-simple-menu-header-renderer {
+      background: transparent !important;
+    }
+  }
+}
+
+@-moz-document domain("youtube.com") {
+  /* header blurry background */
+  #container.style-scope.ytd-masthead {
+    background: #00000055 !important;
+    backdrop-filter: blur(var(--mat-ga-blur-radius));
+    border-bottom: 1px solid rgba(20, 20, 20, 0.2) !important;
+    box-shadow: 0 0 var(--mat-ga-shadow-size) var(--mat-ga-shadow-color) !important;
+  }
+
+  /* make header transparent */
+  ytd-simple-menu-header-renderer {
+    background: transparent !important;
+  }
+
+  /* fix sidebar width  */
+
+  #guide-content {
+    > #header {
+      position: absolute !important;
+      z-index: 100 !important;
+      background: inherit !important;
+    }
+
+    &:has(> #header:not([hidden])) > #guide-inner-content {
+      padding-top: 50px !important;
+    }
+  }
+
+  /* better icon for account in sidebar */
+  #header-entry {
+    width: 100% !important;
+
+    #endpoint {
+      width: 100% !important;
+
+      .arrow-icon {
+        position: relative;
+        width: 100% !important;
+
+        * {
+          display: none;
+        }
+
+        &::before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 24px;
+          height: 24px;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-user-icon lucide-user'%3E%3Cpath d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2'%3E%3C/path%3E%3Ccircle cx='12' cy='7' r='4'%3E%3C/circle%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-size: contain;
+        }
+      }
+    }
+  }
+
+  [theater=""] {
+    /* Hide columns */
+    #columns #secondary {
+      position: absolute !important;
+    }
+
+    /* Playlist panel in right side only show in hover */
+    ytd-playlist-panel-renderer {
+      transition: all 0.5s ease-in-out !important;
+      position: fixed !important;
+      z-index: 1000 !important;
+      display: block !important;
+      top: 10vh !important;
+      height: 80vh !important;
+      max-height: 100vh !important;
+      width: 40em !important;
+      /* right: 0 !important;
+         opacity: 1 !important; */
+      right: -35em !important;
+      opacity: 0 !important;
+
+      .header {
+        background: #000000aa !important;
+        backdrop-filter: blur(var(--mat-ga-blur-radius));
+        border-bottom: 1px solid #ffffff44 !important;
+      }
+
+      #items {
+        background: #00000077 !important;
+        backdrop-filter: blur(var(--mat-ga-blur-radius));
+      }
+
+      button[aria-label="Collapse"] {
+        display: none;
+      }
+
+      &:hover {
+        opacity: 1 !important;
+        right: 5px !important;
+      }
+    }
+
+    /* Up next in left side only show in render */
+    #items.style-scope.ytd-watch-next-secondary-results-renderer {
+      transition: all 0.5s ease-in-out !important;
+      position: fixed !important;
+      z-index: 1000 !important;
+      top: 5vh !important;
+      height: 80vh !important;
+      max-height: 100vh !important;
+      width: 45em !important;
+      overflow-y: scroll !important;
+      overflow-x: hidden !important;
+      background: #00000099 !important;
+      backdrop-filter: blur(var(--mat-ga-blur-radius));
+      margin-right: 30px !important;
+      border-radius: 20px !important;
+      padding-right: 0px !important;
+      left: -40em !important;
+      opacity: 0 !important;
+      /* opacity: 1 !important;
+         left: 0 !important; */
+
+      yt-related-chip-cloud-renderer {
+        max-width: 90% !important;
+        margin: 10px 5px 10px 30px !important;
+      }
+
+      ytd-item-section-renderer {
+        height: 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
+
+      &:hover {
+        opacity: 1 !important;
+        left: 5px !important;
+      }
+    }
+  }
+}
+
+/* chess.com board full height */
+/* some parts inspired from https://github.com/chesshelper/chesshelper/blob/b45d83a0cb98f9a22de9b3d158d79d9c736d5422/src/assets/graphs/board_100vh.css */
+@-moz-document domain("chess.com") {
+  body {
+    --gutter: 10px !important;
+    --modifiedBoardWidth: 100vh !important;
+    --boardControlsWidth: 50px !important;
+
+    &:has(.ccHelper-wrapper) {
+      --modifiedBoardWidth: calc(100vh - 66px) !important;
+    }
+
+    .ccHelper-wrapper {
+      width: var(--boardHeight) !important;
+      margin-left: var(--gutter) !important;
+    }
+
+    .home-quicklink,
+    .cc-section,
+    .cc-modal-body,
+    .popover-wrapper > div,
+    .sidebar-controller-container,
+    .sidebar-component,
+    .nav-component,
+    .nav-panel-shade {
+      background: #00000022 !important;
+      backdrop-filter: blur(3px) !important;
+      box-shadow: 0 0 var(--mat-ga-shadow-size) #ffffff22 !important;
+      border-radius: 10px;
+      border: 1px solid #ffffff44 !important;
+    }
+
+    .nav-component {
+      border-left: 0 !important;
+      border-top: 0 !important;
+      border-bottom: 0 !important;
+      border-top-left-radius: 0 !important;
+      border-bottom-left-radius: 0 !important;
+    }
+
+    .nav-panel-shade {
+      background: #00000088 !important;
+      margin-left: 10px !important;
+      margin-top: 5px !important;
+      height: calc(100vh - 10px) !important;
+    }
+
+    .cc-modal-body > header,
+    .cc-section > .game-mode-top-section-component,
+    .cc-sidebar-header-component,
+    .cc-modal-header-component,
+    .sidebar-header-component {
+      background: #00000033;
+      border-bottom: 1px solid #ffffff33;
+    }
+
+    .cc-section > .footer-actions-component,
+    .rated-sidebar-footer-component {
+      background: #00000033;
+      border-top: 1px solid #ffffff33;
+    }
+
+    .home-quicklink {
+      transition: all 200ms ease !important;
+
+      &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 var(--mat-ga-shadow-size) #ffffff88 !important;
+        backdrop-filter: blur(0px) !important;
+      }
+    }
+
+    .popover-wrapper > div {
+      background: #000000aa !important;
+    }
+  }
+}

@@ -6,7 +6,7 @@
   "js": true,
   "preferences": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/search-engine-select/preferences.json",
   "style": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/search-engine-select/style.css",
-  "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/search-engine-select/readme.md",
+  "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/search-engine-select/README.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
   "tags": ["Search", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],

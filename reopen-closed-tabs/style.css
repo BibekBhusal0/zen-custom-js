@@ -136,7 +136,9 @@
   }
 
   .reopen-closed-tab-item-disabled {
-    padding: 4px;
+    padding: 5px;
+    width: 325px;
     color: var(--panel-disabled-text-color);
+    font-size: 14px;
   }
 }

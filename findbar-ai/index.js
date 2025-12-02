@@ -1,6 +1,7 @@
 import { urlbarAI } from "./urlbar.uc.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { startupFinish } from "../utils/startup-finish.js";
 import { SettingsModal } from "./settings.js";
 
 function setupCommandPaletteIntegration(retryCount = 0) {
@@ -56,7 +57,7 @@ function setupCommandPaletteIntegration(retryCount = 0) {
   }
 }
 
-UC_API.Runtime.startupFinished().then(() => {
+function init() {
   // Init findbar-AI
   browseBotFindbar.init();
   UC_API.Prefs.addListener(
@@ -73,4 +74,6 @@ UC_API.Runtime.startupFinished().then(() => {
   );
 
   setupCommandPaletteIntegration();
-});
+}
+
+startupFinish(init);

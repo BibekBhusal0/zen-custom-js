@@ -1,0 +1,96 @@
+/* Just Making buttons big and moving `Minimize Memory Usage` button to start */
+
+@-moz-document url-prefix(about:memory) {
+  .ancillary > div {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 10px !important;
+
+    > div {
+      &:nth-child(3) {
+        order: -1 !important;
+        flex-basis: 100% !important;
+        padding: 10px !important;
+        padding-bottom: 20px !important;
+        margin-top: 20px !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: 0px !important;
+        margin-right: 0 !important;
+
+        > .opsRowLabel {
+          flex-basis: 100% !important;
+          font-size: 25px !important;
+          padding-left: 4px !important;
+          order: 1 !important;
+          margin-bottom: 0px !important;
+        }
+
+        :last-child {
+          background-color: #4caf50 !important;
+          order: 2 !important;
+          color: white !important;
+          border: none !important;
+          font-size: 20px !important;
+          border-radius: 8px !important;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+          transition: all 0.3s ease !important;
+          margin-right: 50px !important;
+
+          &:hover {
+            background-color: #45a049 !important;
+            box-shadow:
+              0 8px 16px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(72, 255, 85, 0.6) !important;
+            transform: scale(1.05) !important;
+          }
+
+          &:active {
+            box-shadow:
+              0 8px 16px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(72, 255, 85, 0.8) !important;
+            transform: scale(0.9) !important;
+          }
+        }
+
+        :nth-child(2) {
+          order: 3;
+        }
+
+        :nth-child(3) {
+          order: 4;
+        }
+      }
+
+      &:not(:nth-child(3)) {
+        flex-basis: calc(33.33% - 25px) !important;
+        margin: 0 !important;
+      }
+
+      > button {
+        font-size: 16px !important;
+        padding: 10px 20px !important;
+        border: 2px solid #795548 !important;
+        border-radius: 4px !important;
+        color: #795548 !important;
+        cursor: pointer !important;
+
+        &:hover {
+          background-color: #795548 !important;
+          color: white !important;
+        }
+
+        &:not(:last-child) {
+          margin-right: 12px !important;
+        }
+      }
+    }
+
+    .opsRowLabel {
+      font-size: 19px !important;
+      margin-bottom: 10px !important;
+    }
+  }
+}

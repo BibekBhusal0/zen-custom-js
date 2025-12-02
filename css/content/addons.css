@@ -1,0 +1,147 @@
+/* Making the addons page sidebar compact (expand on hover) and  make addons as grid */
+/* inspired from https://github.com/MrOtherGuy/firefox-csshacks/blob/master/content/multi_column_addons.css */
+
+@-moz-document url-prefix("about:addons") {
+  #full {
+    --sidebar-collapsed-width: 50px;
+    display: block !important;
+
+    #sidebar {
+      position: absolute !important;
+      width: var(--sidebar-collapsed-width) !important;
+      z-index: 20 !important;
+      background: var(--zen-branding-bg) !important;
+
+      #categories {
+        .category {
+          margin-left: 2px !important;
+
+          .category-name {
+            display: none;
+          }
+
+          &[aria-selected="true"] {
+            color: var(--red-40) !important;
+          }
+        }
+      }
+
+      sidebar-footer {
+        .sidebar-footer-list {
+          margin-left: 2px !important;
+        }
+
+        .sidebar-footer-label {
+          display: none;
+        }
+      }
+
+      &:hover {
+        width: 200px !important;
+
+        #categories {
+          .category {
+            margin-left: 10px !important;
+
+            .category-name {
+              display: block;
+            }
+          }
+        }
+
+        sidebar-footer {
+          .sidebar-footer-list {
+            margin-left: 10px !important;
+          }
+
+          .sidebar-footer-label {
+            display: block;
+          }
+        }
+      }
+    }
+
+    #content {
+      margin-left: calc(var(--sidebar-collapsed-width) + 10px) !important;
+      width: calc(100% - var(--sidebar-collapsed-width) - 20px) !important;
+      max-width: 100vw !important;
+      height: 100vh !important;
+      overflow-y: scroll !important;
+
+      #main {
+        width: 90% !important;
+        max-width: 100vw !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+
+        addon-card[expanded="true"] > div {
+          margin-top: 40px;
+        }
+
+        addon-list {
+          h2 {
+            grid-area: hd;
+          }
+
+          &[type="extension"] > section {
+            padding: 1em;
+            display: grid;
+            grid-auto-columns: 1fr;
+            gap: 1em;
+            grid-template-areas: "hd" "cd";
+
+            addon-card > div {
+              height: 65% !important;
+            }
+
+            @media (min-width: 960px) {
+              grid-template-areas: "hd hd" "cd cd";
+
+              addon-card > div {
+                height: 70% !important;
+              }
+            }
+
+            @media (min-width: 1200px) {
+              grid-template-areas: "hd hd hd" "cd cd cd";
+
+              addon-card > div {
+                height: 80% !important;
+              }
+            }
+          }
+
+          &[type="theme"] > section {
+            addon-card {
+              padding: 2px !important;
+            }
+          }
+
+          .card-contents {
+            width: unset !important;
+            white-space: initial !important;
+          }
+        }
+      }
+    }
+
+    addon-page-header {
+      .sticky-container {
+        border-bottom: 4px solid #888888 !important;
+        position: relative !important;
+
+        .main-heading {
+          max-width: 100vw !important;
+          margin: auto !important;
+          width: 80% !important;
+        }
+
+        .main-search {
+          max-width: 100vw !important;
+          justify-content: center !important;
+          gap: 30px !important;
+        }
+      }
+    }
+  }
+}

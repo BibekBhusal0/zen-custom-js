@@ -1,0 +1,53 @@
+/* Just using custom icons for toolbar icons */
+@-moz-document url-prefix("chrome:") {
+  /* Custom icons for extension icons  */
+  [label="Wappalyzer"] image {
+    list-style-image: url('data:image/svg+xml,<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.36645 2.34562C8.13878 2.21813 7.86122 2.21813 7.63355 2.34562L1.38355 5.84562C1.14669 5.97826 1 6.22853 1 6.5C1 6.77147 1.14669 7.02174 1.38355 7.15438L7.63355 10.6544C7.86122 10.7819 8.13878 10.7819 8.36645 10.6544L14.6165 7.15438C14.8533 7.02174 15 6.77147 15 6.5C15 6.22853 14.8533 5.97826 14.6165 5.84562L8.36645 2.34562ZM8 9.14041L3.28499 6.5L8 3.85959L12.715 6.5L8 9.14041ZM1.63647 9.0766L7.99999 12.6404L14.3255 9.09761L15.0585 10.4063L8.36649 14.1543C8.13881 14.2818 7.86122 14.2819 7.63353 14.1543L0.903534 10.3853L1.63647 9.0766Z" fill="%23c9c8c5"/></svg>') !important;
+  }
+
+  [label="Zen Internet"] image {
+    list-style-image: url("chrome://browser/skin/zen-icons/edit-theme.svg") !important;
+  }
+
+  [label="Clear Active Tabs"] image {
+    list-style-image: url("chrome://browser/skin/zen-icons/close.svg") !important;
+  }
+
+  [label="Webtime Tracker"] image {
+    list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23c9c8c5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>') !important;
+  }
+
+  [label="PopUpOFF - Click to open"] image {
+    list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23c9c8c5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield-check-icon lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>') !important;
+  }
+
+  [label="Dark Reader"] image {
+    list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23c9c8c5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>') !important;
+  }
+
+  /* hiding extension from context menu */
+  menupopup > menu[label="PopUpOFF - Popup and overlay blocker"] {
+    display: none;
+  }
+
+  /* Custom menu button icon*/
+  #PanelUI-menu-button {
+    list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23c9c8c5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu-icon lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>') !important;
+  }
+
+  /*   Screenshot icon */
+  #screenshot-button {
+    list-style-image: url("chrome://browser/skin/zen-icons/camera.svg") !important;
+  }
+
+  /* Hide back and forward history button if disabled */
+
+  :root:not([customizing]) {
+    toolbarbutton#forward-button,
+    toolbarbutton#back-button {
+      &[disabled="true"] {
+        display: none !important;
+      }
+    }
+  }
+}

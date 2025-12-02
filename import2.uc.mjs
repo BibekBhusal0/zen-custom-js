@@ -4,4 +4,4 @@
 // @ignorecache
 // ==/UserScript==
 
-import "./settings-shortcuts-search/settings-shortcuts-search.uc.js";
+import "./settings-shortcuts-search/index.js";

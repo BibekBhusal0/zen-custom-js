@@ -1,4 +1,4 @@
-import { Prefs, debugError, debugLog } from "./prefs.js";
+import { PREFS, debugError, debugLog } from "./prefs.js";
 
 const DEFAULTS = {
   hiddenCommands: [],
@@ -12,7 +12,7 @@ let _settings = null;
 
 export const Storage = {
   _getFilePath() {
-    const relativePath = Prefs.commandSettingsFile;
+    const relativePath = PREFS.commandSettingsFile;
     if (!relativePath) {
       debugError("Settings file path preference is not set.");
       return null;
