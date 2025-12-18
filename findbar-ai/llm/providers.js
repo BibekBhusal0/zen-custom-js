@@ -72,6 +72,8 @@ const gemini = Object.assign(Object.create(providerPrototype), {
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fgemini.google.com",
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
   AVAILABLE_MODELS: [
+    "gemini-3-pro-preview",
+    "gemini-3-flash-preview",
     "gemini-2.5-pro",
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
@@ -85,6 +87,8 @@ const gemini = Object.assign(Object.create(providerPrototype), {
     "gemini-1.5-flash-8b-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
+    "gemini-3-pro-preview": "Gemini 3 Pro (Preview)",
+    "gemini-3-flash-preview": "Gemini 3 Flash (Preview)",
     "gemini-2.5-pro": "Gemini 2.5 Pro",
     "gemini-2.5-flash": "Gemini 2.5 Flash",
     "gemini-2.5-flash-lite": "Gemini 2.5 Flash Lite",
