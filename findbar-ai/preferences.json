@@ -1084,6 +1084,53 @@
   },
   {
     "type": "separator",
+    "id": "browse-bot-advanced-llm-separator",
+    "label": "Advanced LLM Settings"
+  },
+  {
+    "property": "extension.browse-bot.llm.temperature",
+    "label": "Temperature",
+    "type": "number",
+    "default": 0.7,
+    "description": "Controls randomness: Lower values result in less random completions."
+  },
+  {
+    "property": "extension.browse-bot.llm.top-p",
+    "label": "Top P",
+    "type": "number",
+    "default": 1.0,
+    "description": "Nucleus sampling: limits token selection to top cumulative probability."
+  },
+  {
+    "property": "extension.browse-bot.llm.top-k",
+    "label": "Top K",
+    "type": "number",
+    "default": 40,
+    "description": "Limits sampling to the top K tokens."
+  },
+  {
+    "property": "extension.browse-bot.llm.frequency-penalty",
+    "label": "Frequency Penalty",
+    "type": "number",
+    "default": 0.0,
+    "description": "Penalizes new tokens based on their existing frequency in the text so far."
+  },
+  {
+    "property": "extension.browse-bot.llm.presence-penalty",
+    "label": "Presence Penalty",
+    "type": "number",
+    "default": 0.0,
+    "description": "Penalizes new tokens based on whether they appear in the text so far."
+  },
+  {
+    "property": "extension.browse-bot.llm.max-output-tokens",
+    "label": "Max Output Tokens",
+    "type": "number",
+    "default": 2048,
+    "description": "The maximum number of tokens to generate."
+  },
+  {
+    "type": "separator",
     "id": "browse-bot-development-separator",
     "label": "Development"
   },
