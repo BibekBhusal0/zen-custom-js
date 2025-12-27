@@ -8,12 +8,13 @@
   display: none;
   flex-direction: row;
   align-items: center;
-  background-color: #323234;
+  background-color: #1c1b22;
   border: 1px solid #5a5a5e;
   border-right: none;
   border-radius: 30px 0 0 30px;
   padding: var(--container-padding) 4px var(--container-padding) var(--container-padding);
-  gap: 5px;
+  gap: 0px;
+  transform-origin: right center;
 }
 
 #ses-engine-select {
@@ -22,7 +23,6 @@
   gap: 8px;
   cursor: pointer;
   height: 100%;
-  width: 50px;
   box-sizing: border-box;
   transition: all 0.2s ease-in-out;
   overflow: hidden;
@@ -31,12 +31,28 @@
   width: max-content;
 }
 
-#search-engine-switcher-container:hover #ses-engine-select,
-#search-engine-switcher-container.is-dragging #ses-engine-select,
-#search-engine-switcher-container.options-visible #ses-engine-select {
-  width: max-content;
-  max-width: 220px;
-  min-width: 30px;
+#search-engine-switcher-container:hover,
+#search-engine-switcher-container.is-dragging,
+#search-engine-switcher-container.options-visible {
+  #ses-engine-select {
+    width: max-content;
+    max-width: 220px;
+    min-width: 30px;
+  }
+
+  #ses-engine-select span {
+    opacity: 1;
+    scale: 1;
+    width: auto;
+    margin-right: 5px;
+  }
+
+  #ses-drag-handle {
+    opacity: 1;
+    width: 14px;
+    scale: 0.8;
+    margin-left: 5px;
+  }
 }
 
 #ses-engine-select img {
@@ -52,27 +68,24 @@
   text-overflow: ellipsis;
   opacity: 0;
   scale: 0;
+  width: 0;
   transform-origin: right;
   color: #fbfbfe;
   transition: all 0.2s 0.1s ease-in-out;
 }
 
-#search-engine-switcher-container:hover #ses-engine-select span,
-#search-engine-switcher-container.is-dragging #ses-engine-select span,
-#search-engine-switcher-container.options-visible #ses-engine-select span {
-  opacity: 1;
-  scale: 1;
-}
-
 #ses-drag-handle {
   height: 24px;
   cursor: grab;
-  width: 14px;
+  width: 0px;
   background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><g fill="none" stroke="%23959797" stroke-width="2"><circle cx="8" cy="4" r="1" transform="rotate(90 8 4)" /><circle cx="16" cy="4" r="1" transform="rotate(90 16 4)" /><circle cx="8" cy="12" r="1" transform="rotate(90 8 12)" /><circle cx="16" cy="12" r="1" transform="rotate(90 16 12)" /><circle cx="8" cy="20" r="1" transform="rotate(90 8 20)" /><circle cx="16" cy="20" r="1" transform="rotate(90 16 20)" /></g></svg>');
   background-repeat: no-repeat;
   background-position: center;
   z-index: 1;
-  scale: 0.8;
+  scale: 0;
+  opacity: 0;
+  transition: all 0.2s ease;
+  transform-origin: center;
 }
 
 #ses-engine-options {
@@ -120,13 +133,64 @@
   flex-shrink: 0;
 }
 
+/* --- Size Options --- */
+@media -moz-pref("extension.search-engine-select.size", "small") {
+  #search-engine-switcher-container {
+    scale: 0.8;
+  }
+}
+
+@media -moz-pref("extension.search-engine-select.size", "large") {
+  #search-engine-switcher-container {
+    scale: 1.2;
+  }
+}
+
+/* --- Theme Options --- */
+@media -moz-pref("extension.search-engine-select.theme", "light") {
+  #search-engine-switcher-container {
+    background-color: #f0f0f2;
+    border-color: #cfcfd8;
+  }
+  #ses-engine-select span {
+    color: #15141a;
+  }
+  #ses-engine-options {
+    background-color: #ffffff;
+    border-color: #cfcfd8;
+    color: #15141a;
+  }
+  .ses-engine-option:hover {
+    background-color: #e0e0e6;
+  }
+}
+
+@media -moz-pref("extension.search-engine-select.theme", "glass") {
+  #search-engine-switcher-container {
+    background-color: rgba(20, 20, 23, 0.2) !important;
+    backdrop-filter: blur(20px) !important;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  #ses-engine-options {
+    background-color: rgba(20, 20, 23, 0.3) !important;
+    backdrop-filter: blur(20px) !important;
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  .ses-engine-option:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
 @media -moz-pref("zen.tabs.vertical.right-side") {
   #search-engine-switcher-container {
     left: 0 !important;
     right: unset !important;
     border-left: none !important;
+    border-right: 1px solid #5a5a5e;
     border-radius: 0 30px 30px 0;
     flex-direction: row-reverse !important;
+    transform-origin: left center;
   }
   #ses-engine-select {
     flex-direction: row-reverse !important;
@@ -134,5 +198,11 @@
   #ses-engine-options {
     left: 0 !important;
     right: unset !important;
+  }
+
+  @media -moz-pref("extension.search-engine-select.theme", "light") {
+    #search-engine-switcher-container {
+      border-color: #cfcfd8;
+    }
   }
 }

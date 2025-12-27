@@ -13,7 +13,7 @@
     "type": "checkbox",
     "placeholder": false,
     "default": true,
-    "description": "Saves the vertical position of the switcher after you drag it. Disabling this will reset the position to the middle of the screen on each new search.",
+    "description": "Saves the vertical position of the switcher after you drag it.",
     "conditions": [
       {
         "if": {
@@ -24,11 +24,35 @@
     ]
   },
   {
+    "property": "extension.search-engine-select.size",
+    "label": "UI Size",
+    "type": "dropdown",
+    "default": "normal",
+    "options": [
+      { "label": "Small", "value": "small" },
+      { "label": "Normal", "value": "normal" },
+      { "label": "Large", "value": "large" }
+    ],
+    "description": "Adjust the overall size of the search engine switcher."
+  },
+  {
+    "property": "extension.search-engine-select.theme",
+    "label": "UI Theme",
+    "type": "dropdown",
+    "default": "dark",
+    "options": [
+      { "label": "Dark", "value": "dark" },
+      { "label": "Light", "value": "light" },
+      { "label": "Glass (Acrylic)", "value": "glass" }
+    ],
+    "description": "Choose a visual style for the switcher."
+  },
+  {
     "property": "extension.search-engine-select.debug-mode",
     "label": "Enable Debug Mode",
     "type": "checkbox",
     "placeholder": false,
     "default": false,
-    "description": "Outputs detailed script information to the Browser Console (Ctrl+Shift+J) for troubleshooting."
+    "description": "Outputs detailed script information to the Browser Console."
   }
 ]
