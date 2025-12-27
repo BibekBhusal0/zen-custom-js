@@ -51,6 +51,13 @@ https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 2. Import corresponding `.js` and `.css` files in `userchrome.css`, and any file inside `js` folder
 3. Ensure UserScript/UserChrome support is enabled
 
+## Contribution
+
+Contribution are welcome you can request feature or repot bugs from issues and contribute directly with code by opening a Pull Request.
+If you are going to open a pull request you should be opening it in Refactor branch unless it is some hotfix, main is stable branch and refactor branch contains many experimental features and major refactor of code.
+
+Before opening pull request make sure to read [Contributing Guide](https://github.com/BibekBhusal0/zen-custom-js/blob/refactor/CONTRIBUTING.md) properly.
+
 ## License
 
 MIT License
