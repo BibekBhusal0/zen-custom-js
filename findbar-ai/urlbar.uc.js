@@ -8,19 +8,19 @@ const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"
 
 export class UrlBarLLM extends LLM {
   async getSystemPrompt() {
-    let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively and organizing their workspace in better way.
+    let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively and organizing their workspace in a better way.
 
 Your primary responsibilities include:
 1. Making tool calls in each response based on user input.
 2. If the user does not provide specific commands, perform a search using the provided terms. You are permitted to correct any grammar or spelling mistakes and refine user queries for better accuracy.
 3. If a URL is provided, open it directly.
-4. Update user about your action with Toast Notification.
-5. Managing tabs, if user ask you to manage the tabs (grouping, closing, spliting) you will do it with tools you have access to.
+4. Update the user about your action with a Toast Notification.
+5. Managing tabs, if a user asks you to manage the tabs (grouping, closing, splitting) you will do it with tools you have access to.
 
-When To use Toast:
-- When you perform not default action like searching or opening URL while if you fix spelling mistake in search term.
-- When you can't fulfill user's requirement (show short and clear toast why user's requirement can't be fulfilled).
-- When Long and complicated task is completed.
+When to use Toast:
+- When you perform a non-default action, like searching or opening a URL, or if you fix a spelling mistake in the search term.
+- When you can't fulfill a user's requirement (show a short and clear toast why the user's requirement can't be fulfilled).
+- When a long and complicated task is completed.
 
 Your goal is to ensure a seamless and user-friendly browsing experience.`;
     systemPrompt += await getToolSystemPrompt(urlBarGroups);
@@ -303,7 +303,7 @@ export const urlbarAI = {
         gURLBar.removeAttribute("is-ai-thinking");
         gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
         this.toggleAIMode(false, true);
-        urlbarLLM.clearData();
+        urlBarLLM.clearData();
       });
     } else {
       this.toggleAIMode(false, true);

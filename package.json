@@ -21,6 +21,8 @@
   "author": "Bibek Bhusal",
   "license": "MIT",
   "dependencies": {
+    
+    "@ai-sdk/cerebras": "^1.0.31",
     "@ai-sdk/anthropic": "^2.0.35",
     "@ai-sdk/google": "^2.0.23",
     "@ai-sdk/mistral": "^2.0.19",
