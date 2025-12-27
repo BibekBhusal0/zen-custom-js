@@ -658,7 +658,7 @@ export const ZenCommandPalette = {
   destroy() {
     if (this.provider) {
       const { UrlbarProvidersManager } = ChromeUtils.importESModule(
-        "resource:///modules/UrlbarProvidersManager.sys.mjs"
+        "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
       );
       UrlbarProvidersManager.unregisterProvider(this.provider);
       this.provider = null;
@@ -708,12 +708,14 @@ export const ZenCommandPalette = {
     window.addEventListener("unload", () => this.destroy(), { once: true });
 
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
-      "resource:///modules/UrlbarUtils.sys.mjs"
+      "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
     );
     const { UrlbarProvidersManager } = ChromeUtils.importESModule(
-      "resource:///modules/UrlbarProvidersManager.sys.mjs"
+      "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
     );
-    const { UrlbarResult } = ChromeUtils.importESModule("resource:///modules/UrlbarResult.sys.mjs");
+    const { UrlbarResult } = ChromeUtils.importESModule(
+      "moz-src:///browser/components/urlbar/UrlbarResult.sys.mjs"
+    );
 
     if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
       debugError(
@@ -803,7 +805,7 @@ export const ZenCommandPalette = {
             const addResult = (cmd, isHeuristic = false) => {
               if (!cmd) return;
               const shortcut = self.getShortcutForCommand(cmd.key);
-              const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
+              const { payload, payloadHighlights } = UrlbarResult.payloadAndSimpleHighlights([], {
                 suggestion: cmd.label,
                 title: cmd.label,
                 query: input,
@@ -812,12 +814,12 @@ export const ZenCommandPalette = {
                 shortcutContent: shortcut,
                 dynamicType: DYNAMIC_TYPE_NAME,
               });
-              const result = new UrlbarResult(
-                UrlbarUtils.RESULT_TYPE.DYNAMIC,
-                UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
+              const result = new UrlbarResult({
+                type: UrlbarUtils.RESULT_TYPE.DYNAMIC,
+                source: UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
                 payload,
-                payloadHighlights
-              );
+                payloadHighlights,
+              });
               if (isHeuristic) result.heuristic = true;
               result._zenCmd = cmd;
               add(this, result);

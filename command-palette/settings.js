@@ -272,7 +272,7 @@ const SettingsModal = {
 
     for (const label in dynamicGroups) {
       const group = dynamicGroups[label];
-      if (group.pref && !Prefs.getPref(group.pref)) {
+      if (group.pref && !PREFS.getPref(group.pref)) {
         continue;
       }
       renderGroup(label, group.commands);
@@ -950,28 +950,28 @@ const SettingsModal = {
         section: "General",
         items: [
           {
-            key: Prefs.KEYS.PREFIX,
+            key: PREFS.KEYS.PREFIX,
             label: "Command Prefix",
             type: "char",
           },
           {
-            key: Prefs.KEYS.PREFIX_REQUIRED,
+            key: PREFS.KEYS.PREFIX_REQUIRED,
             label: "Require prefix to activate",
             type: "bool",
           },
           {
-            key: Prefs.KEYS.MIN_QUERY_LENGTH,
+            key: PREFS.KEYS.MIN_QUERY_LENGTH,
             label: "Min query length (no prefix)",
             type: "number",
           },
-          { key: Prefs.KEYS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
+          { key: PREFS.KEYS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
           {
-            key: Prefs.KEYS.MAX_COMMANDS_PREFIX,
+            key: PREFS.KEYS.MAX_COMMANDS_PREFIX,
             label: "Max results (with prefix)",
             type: "number",
           },
-          { key: Prefs.KEYS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
-          { key: Prefs.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
+          { key: PREFS.KEYS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
+          { key: PREFS.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
         ],
       },
       {
@@ -985,7 +985,7 @@ const SettingsModal = {
       sectionEl.className = "settings-section";
       sectionEl.innerHTML = `<h4>${escapeXmlAttribute(prefSection.section)}</h4>`;
       for (const item of prefSection.items) {
-        const currentValue = Prefs.getPref(item.key);
+        const currentValue = PREFS.getPref(item.key);
         const safeId = this._sanitizeForId(`pref-${item.key}`);
         let itemHtml;
 
