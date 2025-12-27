@@ -167,6 +167,43 @@ export const SettingsModal = {
 
     // Initial update for provider-specific settings display
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
+
+    // Preset Change Listener - REMOVED
+
+    // Reset Button Listeners
+    this._modalElement.querySelectorAll(".reset-section-btn").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent accordion toggle
+        const prefsToReset = btn.dataset.resetPrefs.split(",");
+        prefsToReset.forEach(prefKey => {
+          if (!prefKey) return; // skip empty
+          const defVal = PREFS.defaultValues[prefKey];
+
+          // Update internal state
+          this._currentPrefValues[prefKey] = defVal;
+
+          // Update UI
+          const control = this._modalElement.querySelector(`[data-pref="${prefKey}"]`);
+          if (control) {
+            if (control.type === "checkbox") {
+              control.checked = defVal;
+            } else if (control.tagName.toLowerCase() === "menulist") {
+              control.value = defVal;
+            } else {
+              control.value = defVal;
+            }
+
+            // Special logic for provider reset
+            if (prefKey === PREFS.LLM_PROVIDER) {
+              this._updateProviderSpecificSettings(
+                this._modalElement,
+                defVal
+              );
+            }
+          }
+        });
+      });
+    });
   },
 
   saveSettings() {
@@ -269,19 +306,51 @@ export const SettingsModal = {
     `;
   },
 
+  _generateNumberSettingHtml(label, prefConstant, min, max, step, tooltip) {
+    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
+    const infoIconHtml = tooltip
+      ? `<span class="info-icon-wrapper" data-tooltip="${escapeXmlAttribute(tooltip)}"><img class="info-icon" src="chrome://global/skin/icons/info.svg" /></span>`
+      : "";
+
+    return `
+      <div class="setting-item">
+        <label for="${prefId}" style="display: flex; align-items: center; gap: 6px;">
+          ${label}
+          ${infoIconHtml}
+        </label>
+        <input type="number" id="${prefId}" data-pref="${prefConstant}" min="${min}" max="${max}" step="${step}" />
+      </div>
+    `;
+  },
+
   _createCheckboxSectionHtml(
     title,
     settingsArray,
     expanded = true,
     contentBefore = "",
-    contentAfter = ""
+    contentAfter = "",
+    resetPrefs = []
   ) {
     const settingsHtml = settingsArray
-      .map((s) => this._generateCheckboxSettingHtml(s.label, s.pref))
+      .map((s) => {
+        if (s.type === 'number') {
+          return this._generateNumberSettingHtml(s.label, s.pref, s.min, s.max, s.step, s.tooltip);
+        }
+        return this._generateCheckboxSettingHtml(s.label, s.pref);
+      })
       .join("");
+
+    // If no explicit resetPrefs passed, try to infer from settingsArray
+    const prefsToReset = (resetPrefs.length > 0 ? resetPrefs : settingsArray.map(s => s.pref)).join(",");
+
     return `
     <section class="settings-section settings-accordion" data-expanded="${expanded}" >
-      <h4 class="accordion-header">${title}</h4>
+      <h4 class="accordion-header">
+        ${title}
+        <div class="reset-section-btn" data-reset-prefs="${prefsToReset}" title="Reset Section" role="button">
+            <img src="chrome://global/skin/icons/reload.svg" />
+        </div>
+      </h4>
       <div class="accordion-content">
         ${contentBefore}
         ${settingsHtml}
@@ -335,12 +404,14 @@ export const SettingsModal = {
       </div>
     `;
 
+    const findbarResetPrefs = [...findbarSettings.map(s => s.pref), PREFS.POSITION, PREFS.BACKGROUND_STYLE];
     const findbarSectionHtml = this._createCheckboxSectionHtml(
       "Findbar AI (ctrl + shift + F)",
       findbarSettings,
       true,
       "",
-      positionSelectorHtml + backgroundStyleSelectorHtml
+      positionSelectorHtml + backgroundStyleSelectorHtml,
+      findbarResetPrefs
     );
 
     // Section 2: URLBar AI
@@ -352,7 +423,10 @@ export const SettingsModal = {
     const urlbarSectionHtml = this._createCheckboxSectionHtml(
       "URLBar AI (ctrl + space)",
       urlbarSettings,
-      false
+      false,
+      "",
+      "",
+      urlbarSettings.map(s => s.pref)
     );
 
     // Section 3: AI Behavior
@@ -374,12 +448,14 @@ export const SettingsModal = {
   </div>
 `;
 
+    const aiBehaviorResetPrefs = [...aiBehaviorSettings.map(s => s.pref), PREFS.MAX_TOOL_CALLS];
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
       aiBehaviorSettings,
       true,
       aiBehaviorWarningHtml,
-      maxToolCallsHtml
+      maxToolCallsHtml,
+      aiBehaviorResetPrefs
     );
 
     // Section 4: Context Menu
@@ -400,12 +476,14 @@ export const SettingsModal = {
         <textarea id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
       </div>
     `;
+    const contextMenuResetPrefs = [...contextMenuSettings.map(s => s.pref), PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION, PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION];
     const contextMenuSectionHtml = this._createCheckboxSectionHtml(
       "Context Menu",
       contextMenuSettings,
       false,
       "",
-      contextMenuCommandsHtml
+      contextMenuCommandsHtml,
+      contextMenuResetPrefs
     );
 
     // Section 5: LLM Providers
@@ -456,15 +534,78 @@ export const SettingsModal = {
       `;
     }
 
+    const llmProvidersResetPrefs = [
+      PREFS.LLM_PROVIDER,
+      PREFS.OLLAMA_BASE_URL,
+      ...Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS).flatMap(p => [p.modelPref, PREFS[`${p.name.toUpperCase()}_API_KEY`]]).filter(Boolean)
+    ];
+
     const llmProvidersSectionHtml = `
       <section class="settings-section settings-accordion" data-expanded="false">
-        <h4 class="accordion-header">LLM Providers</h4>
+        <h4 class="accordion-header">
+            LLM Providers
+            <div class="reset-section-btn" data-reset-prefs="${llmProvidersResetPrefs.join(",")}" title="Reset Section" role="button">
+                <img src="chrome://global/skin/icons/reload.svg" />
+            </div>
+        </h4>
         <div class="setting-item accordion-content" class="">
           <label for="pref-llm-provider">Select Provider</label>
           <div id="llm-provider-selector-placeholder"></div>
         </div>
         ${llmProviderSettingsHtml}
       </section>`;
+
+    // Section 8: Advanced LLM
+    const advancedLLMSettings = [
+      {
+        label: "Temperature",
+        pref: PREFS.LLM_TEMPERATURE,
+        type: "number", step: 0.1, min: 0, max: 2,
+        tooltip: "Temperature setting. The value is passed through to the provider. The range depends on the provider and model. It is recommended to set either `temperature` or `topP`, but not both."
+      },
+      {
+        label: "Top P",
+        pref: PREFS.LLM_TOP_P,
+        type: "number", step: 0.1, min: 0, max: 1,
+        tooltip: "Nucleus sampling. The value is passed through to the provider. The range depends on the provider and model. It is recommended to set either `temperature` or `topP`, but not both."
+      },
+      {
+        label: "Top K",
+        pref: PREFS.LLM_TOP_K,
+        type: "number", step: 1, min: 0, max: 200,
+        tooltip: "Only sample from the top K options for each subsequent token. Used to remove \"long tail\" low probability responses. Recommended for advanced use cases only. You usually only need to use temperature."
+      },
+      {
+        label: "Presence Penalty",
+        pref: PREFS.LLM_PRESENCE_PENALTY,
+        type: "number", step: 0.1, min: -2, max: 2,
+        tooltip: "Presence penalty setting. It affects the likelihood of the model to repeat information that is already in the prompt. The value is passed through to the provider. The range depends on the provider and model."
+      },
+      {
+        label: "Frequency Penalty",
+        pref: PREFS.LLM_FREQUENCY_PENALTY,
+        type: "number", step: 0.1, min: -2, max: 2,
+        tooltip: "Frequency penalty setting. It affects the likelihood of the model to repeatedly use the same words or phrases. The value is passed through to the provider. The range depends on the provider and model."
+      },
+      {
+        label: "Max Output Tokens",
+        pref: PREFS.LLM_MAX_OUTPUT_TOKENS,
+        type: "number", step: 1, min: 1, max: 32000,
+        tooltip: "Maximum number of tokens to generate."
+      },
+    ];
+
+    // Preset removed as per user request
+    const advancedLLMResetPrefs = advancedLLMSettings.map(s => s.pref);
+
+    const advancedLLMSectionHtml = this._createCheckboxSectionHtml(
+      "Advanced LLM Settings",
+      advancedLLMSettings,
+      false,
+      "", // No preset selector
+      "",
+      advancedLLMResetPrefs
+    );
 
     // Section 6: Browser Findbar
     const browserFindbarSettings = [
@@ -479,7 +620,10 @@ export const SettingsModal = {
     const browserSettingsHtml = this._createCheckboxSectionHtml(
       "Browser Findbar",
       browserFindbarSettings,
-      false
+      false,
+      "",
+      "",
+      browserFindbarSettings.map(s => s.pref)
     );
 
     // Section 7: Development
@@ -502,6 +646,7 @@ export const SettingsModal = {
             ${aiBehaviorSectionHtml}
             ${contextMenuSectionHtml}
             ${llmProvidersSectionHtml}
+            ${advancedLLMSectionHtml}
             ${browserSettingsHtml}
             ${devSectionHtml}
           </div>
