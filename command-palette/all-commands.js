@@ -176,6 +176,13 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/link.svg",
     tags: ["copy", "url", "markdown", "format", "clipboard"],
   },
+  {
+    key: "toggle-single-toolbar-mode",
+    label: "Toggle Single toolbar mode",
+    icon: "chrome://browser/skin/zen-icons/sidebar.svg",
+    tags: ["toggle", "toolbar", "single", "double", "sidebar"],
+    command: () => togglePref("zen.view.use-single-toolbar")
+  },
 
   // ----------- Folder Management -----------
   {
