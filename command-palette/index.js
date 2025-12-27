@@ -713,7 +713,9 @@ export const ZenCommandPalette = {
     const { UrlbarProvidersManager } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
     );
-    const { UrlbarResult } = ChromeUtils.importESModule("moz-src:///browser/components/urlbar/UrlbarResult.sys.mjs");
+    const { UrlbarResult } = ChromeUtils.importESModule(
+      "moz-src:///browser/components/urlbar/UrlbarResult.sys.mjs"
+    );
 
     if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
       debugError(
@@ -812,12 +814,12 @@ export const ZenCommandPalette = {
                 shortcutContent: shortcut,
                 dynamicType: DYNAMIC_TYPE_NAME,
               });
-              const result = new UrlbarResult(
-                { type: UrlbarUtils.RESULT_TYPE.DYNAMIC,
-                  source: UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
+              const result = new UrlbarResult({
+                type: UrlbarUtils.RESULT_TYPE.DYNAMIC,
+                source: UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
                 payload,
-                payloadHighlights }
-              );
+                payloadHighlights,
+              });
               if (isHeuristic) result.heuristic = true;
               result._zenCmd = cmd;
               add(this, result);
