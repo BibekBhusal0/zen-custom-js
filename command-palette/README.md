@@ -78,6 +78,10 @@ Here are all Preferences which can be configured from `about:config` (also from 
 <details>
 <summary>Click to view the full list of commands</summary>
 
+
+> [!Note]
+> Some commands have been removed due to multiple reasons you can full list of those command in this [file](./removed_commands.js).
+
 ### Native Commands
 
 Some commands that were previously part of this mod are now natively available in Zen Browser. To avoid duplication, they have been removed from the default command list. They can be modified/hidden from settings.
@@ -118,6 +122,7 @@ The following commands are now native:
 - **Other**:
   - Toggle Sidebar Width
   - Copy Current URL as Markdown
+  - Toggle Single toolbar mode
 
 ### Tab Management
 
@@ -126,6 +131,7 @@ The following commands are now native:
 - Rename Tab
 - Move Tab Up
 - Move Tab Down
+- Move Tab to New Window
 - Toggle Mute Tab
 - Show All Tabs Panel
 - Reopen Closed Tab
@@ -181,11 +187,6 @@ The following commands are now native:
 - Toggle Responsive Design Mode
 - Open web inspector
 - Open web console
-- Open js debugger
-- Open network monitor
-- Open style editor
-- Open performance panel
-- Open storage panel
 
 ### Media & Files
 
@@ -199,7 +200,6 @@ The following commands are now native:
 
 - Clear Recent History...
 - Customize Toolbar...
-- Toggle Work Offline
 - Quit Browser
 - Restart Browser
 - Clear Startup Cache
