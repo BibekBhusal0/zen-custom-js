@@ -803,7 +803,7 @@ export const ZenCommandPalette = {
             const addResult = (cmd, isHeuristic = false) => {
               if (!cmd) return;
               const shortcut = self.getShortcutForCommand(cmd.key);
-              const [payload, payloadHighlights] = UrlbarResult.payloadAndSimpleHighlights([], {
+              const { payload, payloadHighlights } = UrlbarResult.payloadAndSimpleHighlights([], {
                 suggestion: cmd.label,
                 title: cmd.label,
                 query: input,
