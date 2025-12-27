@@ -658,7 +658,7 @@ export const ZenCommandPalette = {
   destroy() {
     if (this.provider) {
       const { UrlbarProvidersManager } = ChromeUtils.importESModule(
-        "resource:///modules/UrlbarProvidersManager.sys.mjs"
+        "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
       );
       UrlbarProvidersManager.unregisterProvider(this.provider);
       this.provider = null;
@@ -708,12 +708,12 @@ export const ZenCommandPalette = {
     window.addEventListener("unload", () => this.destroy(), { once: true });
 
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
-      "resource:///modules/UrlbarUtils.sys.mjs"
+      "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
     );
     const { UrlbarProvidersManager } = ChromeUtils.importESModule(
-      "resource:///modules/UrlbarProvidersManager.sys.mjs"
+      "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
     );
-    const { UrlbarResult } = ChromeUtils.importESModule("resource:///modules/UrlbarResult.sys.mjs");
+    const { UrlbarResult } = ChromeUtils.importESModule("moz-src:///browser/components/urlbar/UrlbarResult.sys.mjs");
 
     if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
       debugError(
