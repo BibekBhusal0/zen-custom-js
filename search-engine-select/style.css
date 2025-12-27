@@ -13,6 +13,13 @@
     --ses-hover-bg: #e0e0e6;
   }
 
+  @media -moz-pref("extension.search-engine-select.theme", "amoled") {
+    --ses-bg-color: #000000;
+    --ses-text-color: #ffffff;
+    --ses-border-color: #333333;
+    --ses-hover-bg: #1a1a1a;
+  }
+
   @media -moz-pref("extension.search-engine-select.size", "small") {
     --ses-scale: 0.8;
   }
