@@ -73,7 +73,7 @@ Each mod is in its own directory. Some important files each mod contains are:
 - **`README.md`**: Documentation for the mod
 - **`style.css`**: Styles for the mod
 - **`index.js`**: JavaScript for the mod (it is important to name this file `index.js` for bundling)
-- **`theme.json`**: Metadata for Sine installation and fx-autoconfig header generation (see [fx-autoconfig documentation](https://github.com/MrOtherGuy/fx-autoconfig/tree/master?tab=readme-ov-file#script-scope))
+- **`theme.json`**: Metadata for Sine installation. Fx-autoconfig header is also dynimically generated from this file (see [fx-autoconfig documentation](https://github.com/MrOtherGuy/fx-autoconfig/tree/master?tab=readme-ov-file#script-scope))
 - **`preferences.json`** (optional): Settings to adjust prefs for the mod (see [Sine preferences documentation](https://github.com/CosmoCreeper/Sine/wiki/Preferences))
 
 > [!NOTE]

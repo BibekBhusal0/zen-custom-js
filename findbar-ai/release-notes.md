@@ -13,7 +13,7 @@
 - Improved documentation
 
 # Contributers
-Thanks to all developers who are supporting in this project.
+Thanks to all developers who are supporting in this project by making contribution.
 
 @Tymon3310 made his first contribution by adding Gemini 3.
 @NostraThomas99 made their first contribution by fixing Ollama.
