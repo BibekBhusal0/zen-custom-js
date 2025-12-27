@@ -68,7 +68,7 @@ export const commands = [
   {
     key: "cmd_zenChangeWorkspaceName",
     label: "Change Workspace Name",
-    icon: "chrome://browser/skin/zen-icons/edit.svg",
+    icon: "chrome://global/skin/icons/edit.svg",
     tags: ["workspace", "name", "rename", "edit", "management"],
   },
   {
@@ -209,7 +209,7 @@ export const commands = [
       }
     },
     condition: () => gBrowser.selectedTab?.group?.isZenFolder,
-    icon: "chrome://browser/skin/zen-icons/edit.svg",
+    icon: "chrome://global/skin/icons/edit.svg",
     tags: ["folder", "rename", "change", "tab", "group"],
   },
 
@@ -228,7 +228,7 @@ export const commands = [
       tab.dispatchEvent(dblClickEvent);
     },
     condition: () => gBrowser?.selectedTab?.pinned,
-    icon: "chrome://browser/skin/zen-icons/edit.svg",
+    icon: "chrome://global/skin/icons/edit.svg",
     tags: ["rename", "tab", "title", "edit", "pinned"],
   },
   {
@@ -331,7 +331,7 @@ export const commands = [
         window.gBrowser.discardBrowser(current);
       }, 500);
     },
-    icon: "chrome://browser/skin/zen-icons/close-all.svg",
+    icon: "chrome://browser/skin/zen-icons/close.svg",
     // HACK:  include multiple tags so that this appears on top when typed `unload`
     tags: ["unload", "sleep", "unload", "unload"],
   },
@@ -343,7 +343,7 @@ export const commands = [
         if (!tab.selected) window.gBrowser.discardBrowser(tab);
       }
     },
-    icon: "chrome://browser/skin/zen-icons/close-all.svg",
+    icon: "chrome://browser/skin/zen-icons/close.svg",
     tags: ["unload", "sleep"],
   },
 
@@ -497,7 +497,7 @@ export const commands = [
   {
     key: "View:PageSource",
     label: "View Page Source",
-    icon: "chrome://browser/skin/zen-icons/source-code.svg",
+    icon: svgToUrl(icons["code"]),
     tags: ["source", "code", "html", "view"],
     condition: isNotEmptyTab,
   },
@@ -552,7 +552,7 @@ export const commands = [
   {
     key: "View:PictureInPicture",
     label: "Toggle Picture-in-Picture",
-    icon: "chrome://browser/skin/zen-icons/media-pip.svg",
+    icon: "chrome://global/skin/media/picture-in-picture-open.svg",
     tags: ["picture", "pip", "video", "floating"],
   },
 
