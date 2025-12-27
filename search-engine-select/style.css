@@ -3,7 +3,6 @@
   --ses-text-color: #fbfbfe;
   --ses-border-color: #5a5a5e;
   --ses-hover-bg: #424246;
-  --ses-backdrop-filter: none;
   --ses-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
   --ses-scale: 1;
 
@@ -12,14 +11,6 @@
     --ses-text-color: #15141a;
     --ses-border-color: #cfcfd8;
     --ses-hover-bg: #e0e0e6;
-  }
-
-  @media -moz-pref("extension.search-engine-select.theme", "glass") {
-    --ses-bg-color: #1c1b2255;
-    --ses-border-color: rgba(255, 255, 255, 0.1);
-    --ses-backdrop-filter: blur(20px);
-    --ses-hover-bg: rgba(255, 255, 255, 0.1);
-    --ses-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   }
 
   @media -moz-pref("extension.search-engine-select.size", "small") {
@@ -46,7 +37,6 @@
   background-color: var(--ses-bg-color) !important;
   border: 1px solid var(--ses-border-color);
   padding: var(--container-padding) 4px var(--container-padding) var(--container-padding);
-  backdrop-filter: var(--ses-backdrop-filter) !important;
   gap: 0px;
   transform-origin: right center;
 }
@@ -127,7 +117,6 @@
   border: 1px solid var(--ses-border-color);
   color: var(--ses-text-color);
   box-shadow: var(--ses-shadow);
-  backdrop-filter: 20px !important;
   position: absolute;
   right: 0;
   width: 220px;

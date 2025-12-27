@@ -42,8 +42,7 @@
     "default": "dark",
     "options": [
       { "label": "Dark", "value": "dark" },
-      { "label": "Light", "value": "light" },
-      { "label": "Glass (Acrylic)", "value": "glass" }
+      { "label": "Light", "value": "light" }
     ],
     "description": "Choose a visual style for the switcher."
   },
