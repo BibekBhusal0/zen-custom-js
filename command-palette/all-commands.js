@@ -351,12 +351,6 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/window.svg",
     tags: ["window", "Maximize", "fullscreen"],
   },
-  // {
-  //   key: "Tools:PrivateBrowsing",
-  //   label: "Open Private Window",
-  //   icon: svgToUrl(icons["incognito"]),
-  //   tags: ["private", "browsing", "incognito", "window"],
-  // },
   {
     key: "History:UndoCloseWindow",
     label: "Reopen Closed Window",
