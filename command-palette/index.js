@@ -813,10 +813,10 @@ export const ZenCommandPalette = {
                 dynamicType: DYNAMIC_TYPE_NAME,
               });
               const result = new UrlbarResult(
-                UrlbarUtils.RESULT_TYPE.DYNAMIC,
-                UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
+                { type: UrlbarUtils.RESULT_TYPE.DYNAMIC,
+                  source: UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
                 payload,
-                payloadHighlights
+                payloadHighlights }
               );
               if (isHeuristic) result.heuristic = true;
               result._zenCmd = cmd;
