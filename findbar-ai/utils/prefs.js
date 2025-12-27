@@ -48,6 +48,14 @@ export const PREFS = {
   OLLAMA_MODEL: "extension.browse-bot.ollama-model",
   OLLAMA_BASE_URL: "extension.browse-bot.ollama-base-url",
 
+  // Advanced LLM Settings
+  LLM_TEMPERATURE: "extension.browse-bot.llm.temperature",
+  LLM_TOP_P: "extension.browse-bot.llm.top-p",
+  LLM_TOP_K: "extension.browse-bot.llm.top-k",
+  LLM_FREQUENCY_PENALTY: "extension.browse-bot.llm.frequency-penalty",
+  LLM_PRESENCE_PENALTY: "extension.browse-bot.llm.presence-penalty",
+  LLM_MAX_OUTPUT_TOKENS: "extension.browse-bot.llm.max-output-tokens",
+
   //TODO: Not yet implimented
   COPY_BTN_ENABLED: "extension.browse-bot.findbar-ai.copy-btn-enabled",
   MARKDOWN_ENABLED: "extension.browse-bot.findbar-ai.markdown-enabled",
@@ -264,6 +272,48 @@ export const PREFS = {
   set ollamaBaseUrl(value) {
     this.setPref(this.OLLAMA_BASE_URL, value);
   },
+
+  get llmTemperature() {
+    return this.getPref(this.LLM_TEMPERATURE);
+  },
+  set llmTemperature(value) {
+    this.setPref(this.LLM_TEMPERATURE, value);
+  },
+
+  get llmTopP() {
+    return this.getPref(this.LLM_TOP_P);
+  },
+  set llmTopP(value) {
+    this.setPref(this.LLM_TOP_P, value);
+  },
+
+  get llmTopK() {
+    return this.getPref(this.LLM_TOP_K);
+  },
+  set llmTopK(value) {
+    this.setPref(this.LLM_TOP_K, value);
+  },
+
+  get llmFrequencyPenalty() {
+    return this.getPref(this.LLM_FREQUENCY_PENALTY);
+  },
+  set llmFrequencyPenalty(value) {
+    this.setPref(this.LLM_FREQUENCY_PENALTY, value);
+  },
+
+  get llmPresencePenalty() {
+    return this.getPref(this.LLM_PRESENCE_PENALTY);
+  },
+  set llmPresencePenalty(value) {
+    this.setPref(this.LLM_PRESENCE_PENALTY, value);
+  },
+
+  get llmMaxOutputTokens() {
+    return this.getPref(this.LLM_MAX_OUTPUT_TOKENS);
+  },
+  set llmMaxOutputTokens(value) {
+    this.setPref(this.LLM_MAX_OUTPUT_TOKENS, value);
+  },
 };
 
 export const debugLog = (...args) => {
@@ -317,7 +367,16 @@ PREFS.defaultValues = {
   [PREFS.WIDTH]: 500,
   [PREFS.MAX_TOOL_CALLS]: 5,
   [PREFS.CONFORMATION]: true,
+  [PREFS.CONFORMATION]: true,
   [PREFS.BACKGROUND_STYLE]: "solid",
+
+  // Advanced LLM Defaults
+  [PREFS.LLM_TEMPERATURE]: 0.7,
+  [PREFS.LLM_TOP_P]: 1.0,
+  [PREFS.LLM_TOP_K]: 40,
+  [PREFS.LLM_FREQUENCY_PENALTY]: 0.0,
+  [PREFS.LLM_PRESENCE_PENALTY]: 0.0,
+  [PREFS.LLM_MAX_OUTPUT_TOKENS]: 2048,
   // [PREFS.COPY_BTN_ENABLED]: true,
   // [PREFS.MARKDOWN_ENABLED]: true,
   // [PREFS.SHOW_TOOL_CALL]: false,

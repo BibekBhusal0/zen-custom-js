@@ -80,6 +80,12 @@ class LLM {
       model: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
       messages: this.history,
+      temperature: PREFS.llmTemperature,
+      topP: PREFS.llmTopP,
+      topK: PREFS.llmTopK,
+      frequencyPenalty: PREFS.llmFrequencyPenalty,
+      presencePenalty: PREFS.llmPresencePenalty,
+      maxOutputTokens: PREFS.llmMaxOutputTokens,
       ...rest,
     };
 
@@ -103,6 +109,12 @@ class LLM {
       model: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
       messages: this.history,
+      temperature: PREFS.llmTemperature,
+      topP: PREFS.llmTopP,
+      topK: PREFS.llmTopK,
+      frequencyPenalty: PREFS.llmFrequencyPenalty,
+      presencePenalty: PREFS.llmPresencePenalty,
+      maxOutputTokens: PREFS.llmMaxOutputTokens,
       ...rest,
       async onFinish(result) {
         // Only update history if it wasn't overridden in the options
@@ -126,6 +138,12 @@ class LLM {
       system: await this.getSystemPrompt(),
       messages: this.history,
       schema: citationSchema,
+      temperature: PREFS.llmTemperature,
+      topP: PREFS.llmTopP,
+      topK: PREFS.llmTopK,
+      frequencyPenalty: PREFS.llmFrequencyPenalty,
+      presencePenalty: PREFS.llmPresencePenalty,
+      maxOutputTokens: PREFS.llmMaxOutputTokens,
       ...rest,
     };
 

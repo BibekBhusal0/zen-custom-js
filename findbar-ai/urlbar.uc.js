@@ -303,7 +303,11 @@ export const urlbarAI = {
         gURLBar.removeAttribute("is-ai-thinking");
         gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
         this.toggleAIMode(false, true);
-        urlBarLLM.clearData();
+
+// clear data after 4 seconds
+    setTimeout(() => 
+urlBarLLM.clearData()
+, 4000);
       });
     } else {
       this.toggleAIMode(false, true);
