@@ -1,4 +1,4 @@
-<!-- Hey there. Thank you so much for contributing , and filling out the details. Having roughly the same layout helps everyone considerably, feel free to remove sections which are not relavent :)  -->
+<!-- Hey there. Thank you so much for contributing , and filling out the details. Having roughly the same layout helps everyone considerably, feel free to remove sections which are not relavent starting from this comment  -->
 
 - [ ] I have read and agreed to the [contribution guidelines](https://github.com/BibekBhusal/zen-custom-js/blob/main/CONTRIBUTING.md).
 

@@ -9,10 +9,10 @@ body:
       description: Please ensure you've completed all of the following.
       options:
         - label: I have read the [Contributing Guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md) for this project.
-          required: true
+          required: false
         - label: I have searched the [issue tracker](https://github.com/BibekBhusal0/zen-custom-js/issues) for a bug repoat that matches the one I want to file, without success.
-          required: true
-        - label: I have checked the boxes without reading.
+          required: false
+        - label: I have checked all the boxes without reading.
           required: false
         - label: I have made sure that I'm on latest version of mod and also tested bete version for fix.
           required: false
@@ -75,6 +75,10 @@ body:
       description: A description of what actually happens.
     validations:
       required: true
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: How can this bug be reproduced?
   - type: textarea
     attributes:
       label: Additional Information
