@@ -561,31 +561,31 @@ export const SettingsModal = {
         label: "Temperature",
         pref: PREFS.LLM_TEMPERATURE,
         type: "number", step: 0.1, min: 0, max: 2,
-        tooltip: "Temperature setting. The value is passed through to the provider. The range depends on the provider and model. It is recommended to set either `temperature` or `topP`, but not both."
+        tooltip: "Controls randomness. Lower values are more deterministic."
       },
       {
-        label: "Top P",
+        label: "Top P  -----",// :HACK: adding space so that tooltip stay under container
         pref: PREFS.LLM_TOP_P,
         type: "number", step: 0.1, min: 0, max: 1,
-        tooltip: "Nucleus sampling. The value is passed through to the provider. The range depends on the provider and model. It is recommended to set either `temperature` or `topP`, but not both."
+        tooltip: "Nucleus sampling. Limits token selection to top cumulative probability."
       },
       {
-        label: "Top K",
+        label: "Top K  ----- ", // :HACK: adding space so that tooltip stay under container
         pref: PREFS.LLM_TOP_K,
         type: "number", step: 1, min: 0, max: 200,
-        tooltip: "Only sample from the top K options for each subsequent token. Used to remove \"long tail\" low probability responses. Recommended for advanced use cases only. You usually only need to use temperature."
+        tooltip: "Limits sampling to the top K tokens. Removes low probability responses."
       },
       {
         label: "Presence Penalty",
         pref: PREFS.LLM_PRESENCE_PENALTY,
         type: "number", step: 0.1, min: -2, max: 2,
-        tooltip: "Presence penalty setting. It affects the likelihood of the model to repeat information that is already in the prompt. The value is passed through to the provider. The range depends on the provider and model."
+        tooltip: "Penalizes repeated tokens. Reduces repetition of information already in the context."
       },
       {
         label: "Frequency Penalty",
         pref: PREFS.LLM_FREQUENCY_PENALTY,
         type: "number", step: 0.1, min: -2, max: 2,
-        tooltip: "Frequency penalty setting. It affects the likelihood of the model to repeatedly use the same words or phrases. The value is passed through to the provider. The range depends on the provider and model."
+        tooltip: "Penalizes frequent tokens. Discourages repetition of the same words/phrases."
       },
       {
         label: "Max Output Tokens",
