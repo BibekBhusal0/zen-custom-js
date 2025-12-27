@@ -268,6 +268,14 @@ export const commands = [
     tags: ["move", "tab", "down", "forward", "reorder", "next"],
   },
   {
+    key: "move-tab-to-new-window",
+    label: "Move Tab to New Window",
+    command: () => window.gBrowser.replaceTabWithWindow(window.gBrowser.selectedTab),
+    condition: isNotEmptyTab,
+    icon: "chrome://browser/skin/window.svg",
+    tags: ["move", "tab", "new", "window", "detach", "popout"],
+  },
+  {
     key: "cmd_toggleMute",
     label: "Toggle Mute Tab",
     icon: "chrome://browser/skin/zen-icons/media-mute.svg",

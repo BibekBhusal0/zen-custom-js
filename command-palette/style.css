@@ -636,6 +636,17 @@
                 .chain-item-selector {
                   flex-grow: 1;
                 }
+                .chain-item-arrow-controls {
+                  display: flex;
+                  gap: 2px;
+                  opacity: 0;
+                  transition: opacity 0.2s ease;
+                  min-width: 48px;
+                  justify-content: center;
+                }
+                &:hover .chain-item-arrow-controls {
+                  opacity: 1;
+                }
               }
             }
           }

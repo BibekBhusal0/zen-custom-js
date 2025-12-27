@@ -735,6 +735,41 @@ const SettingsModal = {
           itemContainer.appendChild(functionStepEl);
         }
 
+        const arrowControls = parseElement(`<div class="chain-item-arrow-controls"></div>`);
+
+        if (index > 0) {
+          const upButton = parseElement(
+            `<button class="move-up-button icon-button" title="Move Up">
+               <img src="chrome://global/skin/icons/arrow-up.svg" />
+             </button>`
+          );
+          upButton.addEventListener("click", () => {
+            [currentChain[index - 1], currentChain[index]] = [
+              currentChain[index],
+              currentChain[index - 1],
+            ];
+            renderChainList();
+          });
+          arrowControls.appendChild(upButton);
+        }
+
+        if (index < currentChain.length - 1) {
+          const downButton = parseElement(
+            `<button class="move-down-button icon-button" title="Move Down">
+               <img src="chrome://global/skin/icons/arrow-down.svg" />
+             </button>`
+          );
+          downButton.addEventListener("click", () => {
+            [currentChain[index + 1], currentChain[index]] = [
+              currentChain[index],
+              currentChain[index + 1],
+            ];
+            renderChainList();
+          });
+          arrowControls.appendChild(downButton);
+        }
+        itemContainer.appendChild(arrowControls);
+
         const deleteButton = parseElement(
           `<button class="delete-button icon-button" title="Remove Command">
              <img src="chrome://browser/skin/zen-icons/edit-delete.svg" />
