@@ -227,3 +227,25 @@ If you have questions or run into issues:
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT license as the project (see [LICENSE](LICENSE) for more details).
+
+## Publishing & Automation
+
+This repository uses a GitHub Actions workflow to automate the publishing of mods.
+
+### How it Works
+
+The workflow detects changes in the `version` field of a mod's `theme.json` file.
+1.  **Version Bump**: When you increment the version in `theme.json` and push to `main`, the automation script runs.
+2.  **Beta vs Stable**:
+    -   Versions ending in `b` (e.g., `1.0.1b`) are published to the `beta` branch of the child repository.
+    -   Standard versions (e.g., `1.0.1`) are published to the `main` branch.
+3.  **Release Notes**: If you modify `release-notes.md` with new content, a GitHub Release is automatically created in the child repository. After publishing, this file is reset to its template.
+4.  **Sine Store**: For stable releases, the workflow automatically opens a Pull Request to the Sine Store to update the mod there.
+
+### Triggers
+
+-   **`theme.json`**: The primary trigger. Ensure the `version` is updated.
+-   **`release-notes.md`**: Optional. If populated, triggers a GitHub Release.
+-   **`js: false`**: Set this in `theme.json` for CSS-only mods to skip JS bundling.
+-   **`vertex: false`**: Set this to skip automation entirely for a specific mod.
+

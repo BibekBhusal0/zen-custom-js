@@ -92,6 +92,8 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
 
   if (fs.existsSync(themePath)) {
     const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
+    if (theme.js === false) return [];
+
     const entryFile = path.join(dir, "index.js");
     if (!fs.existsSync(entryFile)) return [];
 
@@ -123,9 +125,9 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
             }
           },
           chunkFileNames: (chunkInfo) => {
-            return chunkInfo.name === "vercel-ai-sdk" ? "vercel-ai-sdk.js" : "[name]-[hash].js";
+            return chunkInfo.name === "vercel-ai-sdk" ? "vercel-ai-sdk.uc.js" : "[name]-[hash].uc.js";
           },
-          entryFileNames: "index.js",
+          entryFileNames: "browse-bot.uc.js",
           banner: (chunkInfo) => {
             return chunkInfo.name !== "vercel-ai-sdk" ? banner : "";
           },
