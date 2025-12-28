@@ -12,7 +12,7 @@
 # Others
 - Improved documentation
 
-# Contributers
+# Contributes
 Thanks to all developers who are supporting in this project by making contribution.
 
 @Tymon3310 made his first contribution by adding Gemini 3.
