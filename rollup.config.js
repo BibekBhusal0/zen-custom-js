@@ -28,12 +28,11 @@ const getSubdirectories = (dir) => {
 
 const createBanner = (themePath, packagePath) => {
   const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
-  const packageJson = JSON.parse(fs.readFileSync(packagePath, "utf-8"));
 
   let banner = `// ==UserScript==
 // @name            ${theme.name}
 // @description     ${theme.description}
-// @author          ${packageJson.author}
+// @author          ${theme.author}
 // @version         ${theme.version}
 // @lastUpdated     ${theme.updatedAt}
 `;
