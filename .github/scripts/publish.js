@@ -8,8 +8,8 @@ const MODS_DIR = path.resolve(__dirname, '../../');
 const TEMPLATES_DIR = path.join(MODS_DIR, 'templates');
 const ORG_NAME = 'Vertex-Mods';
 const MAIN_REPO = 'BibekBhusal0/zen-custom-js';
-const SINE_STORE_REPO = 'bibekBhusal0/sine-store'; // Use fork for testing
-// const SINE_STORE_REPO = 'sineorg/store'; // Production
+// const SINE_STORE_REPO = 'bibekBhusal0/sine-store'; // Use fork for testing
+const SINE_STORE_REPO = 'sineorg/store'; // Production
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_ACTOR = process.env.GITHUB_ACTOR || 'github-actions[bot]';

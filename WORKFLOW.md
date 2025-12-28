@@ -66,7 +66,7 @@ The **BrowseBot** mod (`browse-bot`) has specific build logic:
 
 ## Sine Store Integration
 
-For stable releases (and where `"js"` is not false), the workflow checks the configured Sine Store repository (`bibekBhusal0/sine-store` for testing, `sineorg/store` for production).
+For stable releases (and where `"js"` is not false), the workflow checks the configured Sine Store repository (`sineorg/store`).
 
 -   It creates a new branch `update-{mod-id}-{version}`.
 -   It copies the bundled scripts to the `mods/{mod-id}/` folder.
