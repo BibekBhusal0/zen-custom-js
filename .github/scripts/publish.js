@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const https = require('https');
 
 // Configuration
 const MODS_DIR = path.resolve(__dirname, '../../');
@@ -28,6 +29,57 @@ function run(command, cwd = MODS_DIR) {
     console.error(e.stderr);
     throw e;
   }
+}
+
+// Helper to make HTTP requests (replaces curl)
+function githubRequest(url, method = 'GET', body = null) {
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url);
+    const options = {
+      hostname: urlObj.hostname,
+      path: urlObj.pathname + urlObj.search,
+      method: method,
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'User-Agent': GITHUB_ACTOR,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    };
+
+    if (body) {
+      options.headers['Content-Type'] = 'application/json';
+    }
+
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+             // Some responses might not be JSON or empty
+             resolve(data ? JSON.parse(data) : {});
+          } catch(e) {
+             resolve(data); // Return raw text if not JSON
+          }
+        } else {
+          // If 404, we might want to handle it specifically, but generally it's an error for the caller
+          // Unless checking if repo exists
+          if (res.statusCode === 404) {
+             reject(new Error('404 Not Found')); 
+          } else {
+             reject(new Error(`Request failed with status ${res.statusCode}: ${data}`));
+          }
+        }
+      });
+    });
+
+    req.on('error', (e) => reject(e));
+
+    if (body) {
+      req.write(JSON.stringify(body));
+    }
+    req.end();
+  });
 }
 
 // Helper to configure git
@@ -76,8 +128,9 @@ async function getUpdatedMods() {
     try {
       // Try to fetch the theme.json from the remote repository's target branch
       const remoteThemeUrl = `https://raw.githubusercontent.com/${ORG_NAME}/${repoName}/${branch}/theme.json`;
-      const response = run(`curl -s -f -H "Authorization: token ${GITHUB_TOKEN}" ${remoteThemeUrl}`);
-      const remoteTheme = JSON.parse(response);
+      console.log(`Checking remote version: ${remoteThemeUrl}`);
+      // Use githubRequest instead of curl
+      const remoteTheme = await githubRequest(remoteThemeUrl);
       remoteVersion = remoteTheme.version;
     } catch (e) {
       console.log(`Could not fetch remote version for ${repoName} on branch ${branch}. Assuming new mod or branch.`);
@@ -158,13 +211,7 @@ async function processMod(modData) {
     if (fs.existsSync(distDir)) {
       const distFiles = fs.readdirSync(distDir);
       for (const file of distFiles) {
-        // Filter relevant files? The build command should have cleaned dist or we trust the output names
-        // browse-bot beta: browse-bot-all.uc.js
-        // browse-bot stable: browse-bot.uc.js, vercel-ai-sdk.uc.js
-        // others: [id].uc.js
-        
-        // We need to copy files that were just built.
-        // Since we run build per mod, we can copy everything in dist that matches expectation.
+        // Filter relevant files
         if (theme.id === 'browse-bot') {
              if (isBeta && file === 'browse-bot-all.uc.js') {
                  fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
@@ -215,16 +262,8 @@ async function processMod(modData) {
 
   if (isBeta) {
       if (theme.js !== false) {
-           // Set js to raw URL
-           // browse-bot beta uses browse-bot-all.uc.js
-           const filename = theme.id === 'browse-bot' ? 'browse-bot-all.uc.js' : `${theme.id}.uc.js`; // Warning: naming convention in rollup
-           // Actually, rollup uses theme.id.replace(/-/g, "_") for name, but output file is `dist/${theme.id}.uc.js`.
-           // Browse-bot beta is `dist/browse-bot-all.uc.js`.
-           // So for beta we assume file is there.
-           
            let jsFile = `${theme.id}.uc.js`;
            if (theme.id === 'browse-bot') jsFile = 'browse-bot-all.uc.js';
-           
            newTheme.js = `https://raw.githubusercontent.com/${ORG_NAME}/${repoName}/${branch}/${jsFile}`;
       }
   } else {
@@ -234,14 +273,13 @@ async function processMod(modData) {
   }
   fs.writeFileSync(path.join(workDir, 'theme.json'), JSON.stringify(newTheme, null, 2));
 
-  // README update links (if relative)
+  // README update links
   if (fs.existsSync(path.join(workDir, 'README.md'))) {
       let readme = fs.readFileSync(path.join(workDir, 'README.md'), 'utf8');
       if (isBeta) {
           const warning = `> [!WARNING]\n> This is a beta version and may contain issues. Some bugs and breaking changes are expected.\n\n`;
           readme = warning + readme;
       }
-      // Replace relative links to contributing/license if any (simple heuristic)
       readme = readme.replace(/\(\.\.\/CONTRIBUTING\.md\)/g, '(./CONTRIBUTING.md)');
       readme = readme.replace(/\(\.\.\/LICENSE\)/g, '(./LICENSE)');
       fs.writeFileSync(path.join(workDir, 'README.md'), readme);
@@ -250,13 +288,21 @@ async function processMod(modData) {
   // Publish
   const remoteUrl = `https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${ORG_NAME}/${repoName}.git`;
   
-  // Create repo if not exists (using curl/gh api)
+  // Create repo if not exists
   try {
-      // Check if repo exists
-       run(`curl -f -H "Authorization: token ${GITHUB_TOKEN}" https://api.github.com/repos/${ORG_NAME}/${repoName}`);
+      console.log(`Checking if repo ${repoName} exists...`);
+      await githubRequest(`https://api.github.com/repos/${ORG_NAME}/${repoName}`);
   } catch (e) {
-      console.log(`Repo ${repoName} does not exist. Creating...`);
-      run(`curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" -d "{\"name\":\"${repoName}\", \"description\":\"${theme.description}\"}" https://api.github.com/orgs/${ORG_NAME}/repos`);
+      if (e.message.includes('404')) {
+          console.log(`Repo ${repoName} does not exist. Creating...`);
+          await githubRequest(`https://api.github.com/orgs/${ORG_NAME}/repos`, 'POST', {
+            name: repoName,
+            description: theme.description
+          });
+      } else {
+          console.error('Error checking/creating repo:', e);
+          throw e;
+      }
   }
 
   const repoDir = path.join(process.env.RUNNER_TEMP || '/tmp', `repo-${folder}-${Date.now()}`);
@@ -270,8 +316,6 @@ async function processMod(modData) {
   }
 
   // Copy files to repoDir
-  // We use rsync or manual copy. Since we are in node, manual copy.
-  // First clear repoDir (except .git)
   const repoFiles = fs.readdirSync(repoDir);
   for (const file of repoFiles) {
       if (file === '.git') continue;
@@ -304,17 +348,14 @@ async function processMod(modData) {
       if (releaseNotes && releaseNotes !== templateContent) {
            console.log('Creating release...');
            const tag = `v${version}`;
-           const releaseBody = {
+           await githubRequest(`https://api.github.com/repos/${ORG_NAME}/${repoName}/releases`, 'POST', {
                tag_name: tag,
                name: `${theme.name} ${tag}`,
                body: releaseNotes,
                prerelease: isBeta
-           };
+           });
            
-           run(`curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" -d '${JSON.stringify(releaseBody)}' https://api.github.com/repos/${ORG_NAME}/${repoName}/releases`);
-           
-           // Reset release notes in parent using the template
-           // We write the raw template content (read again to preserve newlines if trim removed them from variable)
+           // Reset release notes in parent
            const rawTemplate = fs.existsSync(releaseTemplatePath) ? fs.readFileSync(releaseTemplatePath, 'utf8') : '';
            fs.writeFileSync(releaseNotesPath, rawTemplate);
            run(`git add ${releaseNotesPath}`, MODS_DIR);
@@ -350,8 +391,6 @@ async function createSineStorePR(modData, preparedDir) {
     run(`git checkout -b ${branchName}`, storeDir);
     
     // Copy bundled files
-    // Browse-bot stable: browse-bot.uc.js, vercel-ai-sdk.uc.js
-    // Others: [id].uc.js
     if (theme.id === 'browse-bot') {
         fs.copyFileSync(path.join(preparedDir, 'browse-bot.uc.js'), path.join(storeModDir, 'browse-bot.uc.js'));
         fs.copyFileSync(path.join(preparedDir, 'vercel-ai-sdk.uc.js'), path.join(storeModDir, 'vercel-ai-sdk.uc.js'));
@@ -366,17 +405,15 @@ async function createSineStorePR(modData, preparedDir) {
         run(`git push origin ${branchName}`, storeDir);
         
         // Create PR
+        const [owner, repo] = SINE_STORE_REPO.split('/');
         const prBody = {
             title: `Update ${theme.name} to version ${theme.version}`,
             body: `Update ${theme.name} to version ${theme.version}\n\n[Vertex-Mods Repository](https://github.com/${ORG_NAME}/${getRepoName(theme)})`,
             head: branchName,
             base: 'main'
         };
-        // Assuming SINE_STORE_REPO is the target (if I am owner, head is branch. If fork, head is user:branch)
-        // Since I'm using fork for now:
-        const [owner, repo] = SINE_STORE_REPO.split('/');
         
-        run(`curl -X POST -H "Authorization: token ${GITHUB_TOKEN}" -d '${JSON.stringify(prBody)}' https://api.github.com/repos/${owner}/${repo}/pulls`);
+        await githubRequest(`https://api.github.com/repos/${owner}/${repo}/pulls`, 'POST', prBody);
         
     } catch (e) {
         console.log('Failed to create PR (maybe no changes or error)', e);
