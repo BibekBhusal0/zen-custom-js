@@ -113,6 +113,16 @@ I know formatting is important, but while writing code I want to focus on the lo
 
 If you are using Prettier, this repo also contains a [.prettierrc.json](./.prettierrc.json) file, so if you're using the Prettier extension for your IDE it should also format code properly as you work.
 
+### Linting
+
+This project uses ESLint to maintain code quality and catch common errors. A GitHub Actions workflow will automatically check for linting errors on every pull request.
+
+It's a good practice to run the linter locally before submitting your changes:
+```bash
+npm run lint
+```
+This will help you find and fix issues before they are caught by the CI.
+
 > [!Note]
 > These are best practices I like to follow which are not strictly required but are highly recommended.
 
@@ -121,6 +131,7 @@ If you are using Prettier, this repo also contains a [.prettierrc.json](./.prett
 I like to automate things whenever possible. This repo contains automation scripts for:
 
 - **Code formatting**: Automatically formats code when pushed to GitHub
+- **Linting**: Automatically checks for code quality issues on pull requests.
 - **Timestamp updates**: Updates the `updatedAt` attribute in `theme.json` files when pushed
 - **Header generation**: The fx-autoconfig header is generated based on `theme.json` (see [rollup.config.js](./rollup.config.js) for details)
 
@@ -151,6 +162,9 @@ npm run dev:search
 
 # Format code manually
 npm run format
+
+# Run the linter
+npm run lint
 ```
 
 ### Utility Functions You Should Be Using
@@ -206,6 +220,7 @@ The scope is typically the mod that was changed. You can omit the scope if multi
 Before submitting your pull request:
 
 - [ ] Test your changes thoroughly (more closely if it's vibecoded!)
+- [ ] Run the linter (`npm run lint`) and fix any errors.
 - [ ] Update relevant documentation
 - [ ] Follow the file size guidelines (under 1.5k lines per file)
 - [ ] Use descriptive commit messages

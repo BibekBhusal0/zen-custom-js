@@ -2,7 +2,6 @@ name: Lint Codebase
 
 on:
   pull_request:
-    branches:
 
 jobs:
   lint:

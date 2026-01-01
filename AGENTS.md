@@ -64,6 +64,7 @@ Each mod is a self-contained unit within its own directory (e.g., `command-palet
 ### Code Style
 
 *   **Formatting**: The project uses Prettier for automatic code formatting. A GitHub Action enforces this, so you don't need to worry about it during development.
+*   **Linting**: The project uses ESLint for code quality and to enforce best practices. Like formatting, this is checked automatically by a GitHub Action on pull requests.
 *   **Modularity**: Code should be modular and split into multiple files where appropriate. Rollup handles the bundling.
 *   **DRY (Don't Repeat Yourself)**: Avoid code duplication. Use utility functions for common tasks.
 *   **Utility Functions**: Reusable functions are located in the `utils/` directory. The `parseElement` function in `utils/parse.js` is particularly useful for creating DOM elements from strings.
