@@ -312,7 +312,7 @@ export const commands = [
   {
     key: "History:UndoCloseTab",
     label: "Reopen Closed Tab",
-    icon: "chrome://browser/skin/zen-icons/edit-undo.svg",
+    icon: "chrome://browser/skin/zen-icons/history.svg",
     tags: ["undo", "close", "tab", "reopen", "restore"],
   },
   {
@@ -369,7 +369,7 @@ export const commands = [
   {
     key: "History:UndoCloseWindow",
     label: "Reopen Closed Window",
-    icon: "chrome://browser/skin/zen-icons/edit-undo.svg",
+    icon: "chrome://browser/skin/zen-icons/history.svg",
     tags: ["undo", "close", "window", "reopen", "restore"],
   },
 

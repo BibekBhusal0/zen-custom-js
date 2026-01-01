@@ -13,7 +13,7 @@
     "Browser:NextTab": "Alt+J",
     "app:clear-startupCache": "Ctrl+Alt+Shift+R",
     "app:minimize-memory": "Ctrl+Alt+Shift+M",
-    "command-palette:settings-commands": "Alt+C",
+    "command-palette:settings-commands": "Ctrl+Shift+Alt+C",
     "custom:open-settings": "Ctrl+Alt+S",
     "custom:paste-and-go": "Alt+V",
     "custom:close-and-prev": "Ctrl+Alt+P",

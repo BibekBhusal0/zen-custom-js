@@ -48,7 +48,7 @@ const SettingsModal = {
   _boundCloseOnEscape: null,
   _boundEditorClickHandler: null,
   // BUG: I can't figure out way to control size of icon for menulist, not including icon till fixed, turn this variable to true when fixed
-  _showCommandIconsInSelect: true,
+  _showCommandIconsInSelect: false,
 
   init(mainModule) {
     this._mainModule = mainModule;
@@ -530,7 +530,7 @@ const SettingsModal = {
           <span class="custom-command-name">${escapeXmlAttribute(cmd.name)}</span>
           <span class="custom-command-type">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
-            <button class="edit-custom-cmd icon-button" title="Edit Command"><img src="chrome://browser/skin/zen-icons/edit.svg" /></button>
+            <button class="edit-custom-cmd icon-button" title="Edit Command"><img src="chrome://global/skin/icons/edit.svg" /></button>
             <button class="delete-custom-cmd delete-button icon-button" title="Delete Command"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
           </div>
         </div>
