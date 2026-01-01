@@ -16,14 +16,15 @@
     "dev:sidebar": "cross-env TARGET=sidebar BUILD_TYPE=dev rollup -c --bundleConfigAsCjs --watch",
     "dev:select": "cross-env TARGET=select BUILD_TYPE=dev rollup -c --bundleConfigAsCjs --watch",
     "dev:search": "cross-env TARGET=search BUILD_TYPE=dev rollup -c --bundleConfigAsCjs --watch",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "lint": "eslint ."
   },
   "author": "Bibek Bhusal",
   "license": "MIT",
+  "type": "module",
   "dependencies": {
-    
-    "@ai-sdk/cerebras": "^2.0.2",
     "@ai-sdk/anthropic": "^3.0.1",
+    "@ai-sdk/cerebras": "^2.0.2",
     "@ai-sdk/google": "^3.0.1",
     "@ai-sdk/mistral": "^3.0.1",
     "@ai-sdk/openai": "^3.0.1",
@@ -38,6 +39,9 @@
     "@rollup/plugin-node-resolve": "^16.0.3",
     "chokidar-cli": "^3.0.0",
     "cross-env": "^10.1.0",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.7.4",
     "rollup": "^4.54.0",
     "rollup-plugin-string": "^3.0.0"
