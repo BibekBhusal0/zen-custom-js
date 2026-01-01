@@ -927,13 +927,13 @@ const SettingsModal = {
 
     const helpItems = [
       {
-        url: "https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette",
+        url: "https://github.com/Vertex-Mods/Zen-Command-Palette/tree/main/command-palette",
         icon: svgToUrl(icons["book"]),
         title: "View Documentation",
         description: "Read the full guide on GitHub.",
       },
       {
-        url: "https://github.com/BibekBhusal0/zen-custom-js",
+        url: "https://github.com/Vertex-Mods/Zen-Command-Palette",
         icon: svgToUrl(icons["star"]),
         title: "Star on GitHub",
         description: "Enjoying the mod? Leave a star!",
