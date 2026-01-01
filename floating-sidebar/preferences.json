@@ -1,0 +1,8 @@
+[
+  {
+    "type": "checkbox",
+    "property": "extension.sidebar-right",
+    "label": "Float on the right side",
+    "default": false
+  }
+]
