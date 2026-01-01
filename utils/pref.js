@@ -29,7 +29,7 @@ export class PREFS {
   }
 
   get debugMode() {
-    if (!this.DEBUG_MODE) return;
+    if (!this.DEBUG_MODE) return false;
     return this.getPref(this.DEBUG_MODE);
   }
   set debugMode(value) {

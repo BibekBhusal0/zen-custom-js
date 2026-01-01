@@ -7,7 +7,7 @@ export function googleFaviconAPI(domainOrUrl, size = 32) {
   let domain;
   try {
     domain = new URL(domainOrUrl).hostname;
-  } catch (e) {
+  } catch {
     domain = domainOrUrl;
   }
   return `https://s2.googleusercontent.com/s2/favicons?domain_url=https://${domain}&sz=${size}`;
@@ -28,8 +28,8 @@ export function getSearchEngineFavicon(engine) {
     if (submissionUrl) {
       return googleFaviconAPI(submissionUrl);
     }
-  } catch (e) {
-    // ignore
+  } catch {
+    return fallbackIcon;
   }
-  return fallbackIcon;
+    return fallbackIcon;
 }

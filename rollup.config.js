@@ -26,7 +26,7 @@ const getSubdirectories = (dir) => {
   });
 };
 
-const createBanner = (themePath, packagePath) => {
+const createBanner = (themePath) => {
   const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
 
   let banner = `// ==UserScript==
@@ -115,7 +115,6 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
         output: {
           dir: "dist",
           format: "es",
-          banner,
           manualChunks(id) {
             if (id.includes("node_modules")) {
               const vendorPackages = ["@ai-sdk", "ai", "zod", "ollama-ai-provider"];

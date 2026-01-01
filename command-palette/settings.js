@@ -595,7 +595,7 @@ const SettingsModal = {
             value="${escapeXmlAttribute(currentValue)}"
           />`;
           break;
-        case "select":
+        case "select": {
           const optionsHtml = param.options
             .map(
               (opt) =>
@@ -606,6 +606,7 @@ const SettingsModal = {
             .join("");
           inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;
           break;
+        }
       }
       paramWrapper.appendChild(parseElement(inputHtml));
       wrapper.appendChild(paramWrapper);

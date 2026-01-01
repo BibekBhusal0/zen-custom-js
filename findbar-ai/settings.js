@@ -140,7 +140,7 @@ export const SettingsModal = {
           } else if (control.type === "number") {
             try {
               this._currentPrefValues[prefKey] = Number(e.target.value);
-            } catch (error) {
+            } catch  {
               this._currentPrefValues[prefKey] = 0;
             }
           } else {

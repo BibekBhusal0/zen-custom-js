@@ -7,7 +7,7 @@ const https = require('https');
 const MODS_DIR = path.resolve(__dirname, '../../');
 const TEMPLATES_DIR = path.join(MODS_DIR, 'templates');
 const ORG_NAME = 'Vertex-Mods';
-const MAIN_REPO = 'BibekBhusal0/zen-custom-js';
+// const MAIN_REPO = 'BibekBhusal0/zen-custom-js';
 // const SINE_STORE_REPO = 'bibekBhusal0/sine-store'; // Use fork for testing
 const SINE_STORE_REPO = 'sineorg/store'; // Production
 
@@ -58,7 +58,7 @@ function githubRequest(url, method = 'GET', body = null) {
           try {
              // Some responses might not be JSON or empty
              resolve(data ? JSON.parse(data) : {});
-          } catch(e) {
+          } catch {
              resolve(data); // Return raw text if not JSON
           }
         } else {
@@ -132,7 +132,7 @@ async function getUpdatedMods() {
       // Use githubRequest instead of curl
       const remoteTheme = await githubRequest(remoteThemeUrl);
       remoteVersion = remoteTheme.version;
-    } catch (e) {
+    } catch  {
       console.log(`Could not fetch remote version for ${repoName} on branch ${branch}. Assuming new mod or branch.`);
     }
 
@@ -311,7 +311,7 @@ async function processMod(modData) {
   // Checkout branch
   try {
       run(`git checkout ${branch}`, repoDir);
-  } catch (e) {
+  } catch  {
       run(`git checkout -b ${branch}`, repoDir);
   }
 
@@ -329,7 +329,7 @@ async function processMod(modData) {
   try {
       run(`git commit -m "Update to v${version}"`, repoDir);
       run(`git push origin ${branch}`, repoDir);
-  } catch (e) {
+  } catch  {
       console.log('No changes to commit.');
   }
 
@@ -442,7 +442,7 @@ async function main() {
   // Push changes to parent repo (release notes reset)
   try {
      run(`git push`);
-  } catch (e) {
+  } catch  {
      console.log('Nothing to push to parent repo');
   }
 }

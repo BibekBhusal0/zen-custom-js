@@ -1,4 +1,10 @@
-const renoved_commands = [
+import { svgToUrl, icons } from "../utils/icon.js";
+
+function isNotEmptyTab() {
+  return !window.gBrowser.selectedTab.hasAttribute("zen-empty-tab");
+}
+
+export const renoved_commands = [
   // removed because now those commands are native
   {
     key: "cmd_zenCompactModeToggle",

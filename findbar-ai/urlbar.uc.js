@@ -199,7 +199,9 @@ export const urlbarAI = {
       textbox.style.removeProperty("transition");
       textbox.style.removeProperty("overflow");
       textbox.style.removeProperty("height");
-    } catch {}
+    } catch {
+      // ignore
+    }
   },
 
   toggleAIMode(forceState, forceClose = false) {

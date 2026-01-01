@@ -1,6 +1,6 @@
 import { debugError } from "./utils/prefs.js";
 
-function frameScript() {
+async function frameScript() {
   const getUrlAndTitle = () => {
     return {
       url: content.location.href,
@@ -63,59 +63,56 @@ function frameScript() {
     }
 
     function waitForSelectorWithObserver(selector, timeout = 5000) {
-      return new Promise(async (resolve, reject) => {
-        try {
-          await ensureBodyAvailable();
-          const el = doc.querySelector(selector);
-          if (el) return resolve(el);
-
-          const observer = new win.MutationObserver(() => {
+      return new Promise((resolve, reject) => {
+        ensureBodyAvailable()
+          .then(() => {
             const el = doc.querySelector(selector);
-            if (el) {
+            if (el) return resolve(el);
+
+            const observer = new win.MutationObserver(() => {
+              const el = doc.querySelector(selector);
+              if (el) {
+                observer.disconnect();
+                resolve(el);
+              }
+            });
+
+            observer.observe(doc.body, {
+              childList: true,
+              subtree: true,
+            });
+
+            win.setTimeout(() => {
               observer.disconnect();
-              resolve(el);
-            }
+              reject(new Error(`Timeout waiting for ${selector}`));
+            }, timeout);
+          })
+          .catch((e) => {
+            reject(new Error(`waitForSelectorWithObserver failed: ${e.message}`));
           });
-
-          observer.observe(doc.body, {
-            childList: true,
-            subtree: true,
-          });
-
-          win.setTimeout(() => {
-            observer.disconnect();
-            reject(new Error(`Timeout waiting for ${selector}`));
-          }, timeout);
-        } catch (e) {
-          reject(new Error(`waitForSelectorWithObserver failed: ${e.message}`));
-        }
       });
     }
 
-    try {
-      if (!doc.querySelector("ytd-transcript-renderer")) {
-        const button = doc.querySelector('button[aria-label="Show transcript"]');
-        if (!button)
-          throw new Error('"Show transcript" button not found — transcript may not be available.');
-        button.click();
-        await waitForSelectorWithObserver("ytd-transcript-renderer", 5000);
-      }
-
-      await waitForSelectorWithObserver("ytd-transcript-segment-renderer .segment-text", 5000);
-
-      const segments = Array.from(
-        doc.querySelectorAll("ytd-transcript-segment-renderer .segment-text")
-      );
-      if (!segments.length) throw new Error("Transcript segments found, but all are empty.");
-
-      const transcript = segments
-        .map((el) => el.textContent.trim())
-        .filter(Boolean)
-        .join("\n");
-      return transcript;
-    } catch (err) {
-      throw err;
+    if (!doc.querySelector("ytd-transcript-renderer")) {
+      const button = doc.querySelector('button[aria-label="Show transcript"]');
+      if (!button)
+        throw new Error('"Show transcript" button not found — transcript may not be available.');
+      button.click();
+      await waitForSelectorWithObserver("ytd-transcript-renderer", 5000);
     }
+
+    await waitForSelectorWithObserver("ytd-transcript-segment-renderer .segment-text", 5000);
+
+    const segments = Array.from(
+      doc.querySelectorAll("ytd-transcript-segment-renderer .segment-text")
+    );
+    if (!segments.length) throw new Error("Transcript segments found, but all are empty.");
+
+    const transcript = segments
+      .map((el) => el.textContent.trim())
+      .filter(Boolean)
+      .join("\n");
+    return transcript;
   }
 
   const getYoutubeDescription = async () => {
@@ -270,78 +267,65 @@ export const messageManagerAPI = {
   },
 
   async getHTMLContent() {
-    try {
-      return await this.send("GetPageHTMLContent");
-    } catch (error) {
+    return this.send("GetPageHTMLContent").catch((error) => {
       debugError("Failed to get page HTML content:", error);
       return {};
-    }
+    });
   },
 
   async getSelectedText() {
-    try {
-      const result = await this.send("GetSelectedText");
-      if (!result || !result.hasSelection) {
+    return this.send("GetSelectedText")
+      .then((result) => {
+        if (!result || !result.hasSelection) {
+          return this.getUrlAndTitle();
+        }
+        return result;
+      })
+      .catch((error) => {
+        debugError("Failed to get selected text:", error);
         return this.getUrlAndTitle();
-      }
-      return result;
-    } catch (error) {
-      debugError("Failed to get selected text:", error);
-      return this.getUrlAndTitle();
-    }
+      });
   },
 
   async getPageTextContent(trimWhiteSpace = true) {
-    try {
-      return await this.send("GetPageTextContent", { trimWhiteSpace });
-    } catch (error) {
+    return this.send("GetPageTextContent", { trimWhiteSpace }).catch((error) => {
       debugError("Failed to get page text content:", error);
       return this.getUrlAndTitle();
-    }
+    });
   },
 
   async clickElement(selector) {
-    try {
-      return await this.send("ClickElement", { selector });
-    } catch (error) {
+    return this.send("ClickElement", { selector }).catch((error) => {
       debugError(`Failed to click element with selector "${selector}":`, error);
       return { error: `Failed to click element with selector "${selector}".` };
-    }
+    });
   },
 
   async fillForm(selector, value) {
-    try {
-      return await this.send("FillForm", { selector, value });
-    } catch (error) {
+    return this.send("FillForm", { selector, value }).catch((error) => {
       debugError(`Failed to fill form with selector "${selector}":`, error);
       return { error: `Failed to fill form with selector "${selector}".` };
-    }
+    });
   },
 
   async getYoutubeTranscript() {
-    try {
-      return await this.send("GetYoutubeTranscript");
-    } catch (error) {
+    return this.send("GetYoutubeTranscript").catch((error) => {
       debugError("Failed to get youtube transcript:", error);
       return { error: `Failed to get youtube transcript: ${error.message}` };
-    }
+    });
   },
 
   async getYoutubeDescription() {
-    try {
-      return await this.send("GetYoutubeDescription");
-    } catch (error) {
+    return this.send("GetYoutubeDescription").catch((error) => {
       debugError("Failed to get youtube description:", error);
       return { error: `Failed to get youtube description: ${error.message}` };
-    }
+    });
   },
 
   async getYoutubeComments(count) {
-    try {
-      return await this.send("GetYoutubeComments", { count });
-    } catch (error) {
+    return this.send("GetYoutubeComments", { count }).catch((error) => {
       debugError("Failed to get youtube comments:", error);
       return { error: `Failed to get youtube comments: ${error.message}` };
-    }
+    });
   },
 };
