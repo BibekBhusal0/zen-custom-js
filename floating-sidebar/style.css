@@ -8,10 +8,11 @@
     height: calc(100% - 40px);
     min-width: 180px !important;
     min-height: 180px !important;
-    right: 15px;
+    left: 15px;
     margin-top: 15px;
     z-index: 999;
     opacity: 1;
+    order: 1;
     transition:
       left 0.2s ease,
       right 0.2s ease,
@@ -24,9 +25,23 @@
       animation-fill-mode: forwards !important;
     }
   }
+
+}
+
+@media -moz-pref("extension.sidebar-right") {
+  #sidebar-box {
+    order: 8 !important;
+  }
+  @media -moz-pref("extension.sidebar-float") {
+    #sidebar-box{
+      right: 15px !important;
+      left: unset !important;
+    }
+  }
 }
 
 #sidebar-header {
+
   #sidebar-pin-unpin,
   #sidebar-close {
     width: 22px;
@@ -46,6 +61,7 @@
       scale: 0.9 !important;
     }
   }
+
   #sidebar-pin-unpin {
     margin-right: 4px !important;
   }
