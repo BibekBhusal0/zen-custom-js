@@ -415,7 +415,7 @@ export async function generateWorkspaceCommands() {
   if (!workspacesData || !workspacesData.workspaces) return [];
 
   return workspacesData.workspaces.map((workspace) => {
-    const icon = window.gZenWorkspaces.getWorkspaceIcon(workspace);
+    const icon = workspace.icon;
     let iconUrl = "chrome://browser/skin/zen-icons/workspace.svg"; // Default icon
 
     if (icon) {
@@ -575,7 +575,6 @@ export async function generateFolderCommands() {
             currentTab && !currentTab.hasAttribute("zen-essential") && currentTab.group !== folder
           );
         },
-        icon: "chrome://browser/skin/zen-icons/move-tab.svg",
         tags: ["folder", "move", "tab", folder.label.toLowerCase()],
       });
     });
@@ -621,7 +620,6 @@ export async function generateWorkspaceMoveCommands() {
             currentTab.getAttribute("zen-workspace-id") !== workspace.uuid
           );
         },
-        icon: "chrome://browser/skin/zen-icons/move-tab.svg",
         tags: ["workspace", "move", "tab", workspace.name.toLowerCase()],
       });
     });
