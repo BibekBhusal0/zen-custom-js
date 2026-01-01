@@ -52,16 +52,30 @@ This GitHub repo contains multiple mods made specifically for Zen Browser, which
 │   ├── preferences.json
 │   ├── index.js
 │   ├── theme.json
+│   ├── release-notes.md
 │   └── utils/
 │       └── prefs.js
 ├── floating-sidebar/
 │   ├── README.md
 │   ├── index.js
 │   ├── style.css
-│   └── theme.json
+│   ├── theme.json
+│   └── release-notes.md
 ├── utils/
 │   ├── parse.js
 │   └── favicon.js
+├── templates/
+│   ├── CONTRIBUTING.template.md
+│   ├── config.template.yml
+│   ├── pull_request_template.template.md
+│   ├── close-pull-requests.template.yml
+│   └── release-notes.template.md
+├── .github/
+│   ├── scripts/
+│   │   └── publish.js
+│   └── workflows/
+│       ├── publish-mods.yml
+│       └── format-code.yml
 ├── dist/
 ├── CONTRIBUTING.md
 ├── LICENSE
@@ -73,8 +87,9 @@ Each mod is in its own directory. Some important files each mod contains are:
 - **`README.md`**: Documentation for the mod
 - **`style.css`**: Styles for the mod
 - **`index.js`**: JavaScript for the mod (it is important to name this file `index.js` for bundling)
-- **`theme.json`**: Metadata for Sine installation. Fx-autoconfig header is also dynimically generated from this file (see [fx-autoconfig documentation](https://github.com/MrOtherGuy/fx-autoconfig/tree/master?tab=readme-ov-file#script-scope))
+- **`theme.json`**: Metadata for Sine installation. Fx-autoconfig header is also dynamically generated from this file (see [fx-autoconfig documentation](https://github.com/MrOtherGuy/fx-autoconfig/tree/master?tab=readme-ov-file#script-scope))
 - **`preferences.json`** (optional): Settings to adjust prefs for the mod (see [Sine preferences documentation](https://github.com/CosmoCreeper/Sine/wiki/Preferences))
+- **`release-notes.md`** (optional): Release notes for the next version. Used by automation to create GitHub releases
 
 > [!NOTE]
 > If you define functions that could be potentially useful for other mods, they should be placed in the root `utils/` folder. This folder contains important functions used across multiple mods.
@@ -125,15 +140,6 @@ This will help you find and fix issues before they are caught by the CI.
 
 > [!Note]
 > These are best practices I like to follow which are not strictly required but are highly recommended.
-
-### Automation
-
-I like to automate things whenever possible. This repo contains automation scripts for:
-
-- **Code formatting**: Automatically formats code when pushed to GitHub
-- **Linting**: Automatically checks for code quality issues on pull requests.
-- **Timestamp updates**: Updates the `updatedAt` attribute in `theme.json` files when pushed
-- **Header generation**: The fx-autoconfig header is generated based on `theme.json` (see [rollup.config.js](./rollup.config.js) for details)
 
 ### Build Scripts
 
@@ -193,10 +199,89 @@ const button = parseElement(
 );
 ```
 
+## Publishing
+
+This repository uses GitHub Actions workflows to automate publishing and maintenance tasks.
+
+### Automated Publishing Workflow
+
+The publishing workflow automatically handles releasing mods to individual repositories when you update versions.
+
+#### How It Works
+
+1. **Version Detection**: The workflow monitors the `version` field in each mod's `theme.json` file
+2. **Automatic Publishing**: When a version changes, the mod is automatically published to its individual repository under the `Vertex-Mods` organization
+3. **Beta vs Stable Releases**:
+   - Versions ending with `b` (e.g., `1.0.1b`) → published to `beta` branch
+   - Standard versions (e.g., `1.0.1`) → published to `main` branch with release tag
+4. **Release Notes**: If `release-notes.md` contains actual content (not just the template), a GitHub release is created automatically
+5. **Sine Store Integration**: Stable releases automatically create a Pull Request to the Sine Store repository
+
+#### Updating a Mod
+
+To publish a new version:
+
+1. **Update `theme.json`**: Increment the `version` field
+```json
+   {
+     "version": "1.0.1"  // or "1.0.1b" for beta
+   }
+```
+
+2. **Add Release Notes** (optional): Edit `release-notes.md` in the mod folder
+```markdown
+   # New Features
+   - Added feature X
+   - Improved feature Y
+   
+   # Fixes
+   - Fixed bug Z
+   
+   # Others
+   - Updated documentation
+   
+   # Contributors
+   Thanks to @username for their contributions!
+```
+
+3. **Push to Main**: Commit and push your changes to the main branch
+```bash
+   git add .
+   git commit -m "feat(mod-name): version 1.0.1"
+   git push
+```
+
+4. **Manual Trigger**: You can also manually run the workflow from the Actions tab
+
+#### What Gets Published
+
+Each individual mod repository contains:
+- Bundled JavaScript files (if `js` is not `false`)
+- Filtered `theme.json` (only specific keys)
+- `README.md` with updated links
+- `CONTRIBUTING.md` generated from template
+- `LICENSE` file
+- `.github/` folder with:
+  - Issue templates that redirect to main repo
+  - PR template that warns contributors
+  - Auto-close workflow for PRs
+
+#### Special Configuration
+
+In `theme.json`, you can use these flags:
+
+- **`"js": false`**: Skip JavaScript bundling (CSS-only mods)
+- **`"vertex": false`**: Skip automation entirely for this mod
+
+### Other Automation
+
+- **Code Formatting**: Automatically formats code on push using Prettier
+- **Timestamp Updates**: Updates `updatedAt` in `theme.json` files
+- **Header Generation**: Fx-autoconfig headers are generated from `theme.json` metadata
+
 ## Opening a Pull Request
 
 Pull request and commit names generally follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary):
-
 ```
 <type>(<optional scope>): <present tense description>
 
@@ -220,7 +305,6 @@ The scope is typically the mod that was changed. You can omit the scope if multi
 Before submitting your pull request:
 
 - [ ] Test your changes thoroughly (more closely if it's vibecoded!)
-- [ ] Run the linter (`npm run lint`) and fix any errors.
 - [ ] Update relevant documentation
 - [ ] Follow the file size guidelines (under 1.5k lines per file)
 - [ ] Use descriptive commit messages
@@ -237,30 +321,8 @@ If you have questions or run into issues:
 - Feel free to ask for clarification in your PR
 
 > [!Note]
-> If mod is in beta version or is unreleased issues and bugs are expected,and docs might not be up-to-date you don't need to open issus for it.
+> If mod is in beta version or is unreleased, issues and bugs are expected, and docs might not be up-to-date—you don't need to open issues for it.
 
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT license as the project (see [LICENSE](LICENSE) for more details).
-
-## Publishing & Automation
-
-This repository uses a GitHub Actions workflow to automate the publishing of mods.
-
-### How it Works
-
-The workflow detects changes in the `version` field of a mod's `theme.json` file.
-1.  **Version Bump**: When you increment the version in `theme.json` and push to `main`, the automation script runs.
-2.  **Beta vs Stable**:
-    -   Versions ending in `b` (e.g., `1.0.1b`) are published to the `beta` branch of the child repository.
-    -   Standard versions (e.g., `1.0.1`) are published to the `main` branch.
-3.  **Release Notes**: If you modify `release-notes.md` with new content, a GitHub Release is automatically created in the child repository. After publishing, this file is reset to its template.
-4.  **Sine Store**: For stable releases, the workflow automatically opens a Pull Request to the Sine Store to update the mod there.
-
-### Triggers
-
--   **`theme.json`**: The primary trigger. Ensure the `version` is updated.
--   **`release-notes.md`**: Optional. If populated, triggers a GitHub Release.
--   **`js: false`**: Set this in `theme.json` for CSS-only mods to skip JS bundling.
--   **`vertex: false`**: Set this to skip automation entirely for a specific mod.
-
