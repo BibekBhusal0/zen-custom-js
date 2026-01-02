@@ -25,7 +25,6 @@
       animation-fill-mode: forwards !important;
     }
   }
-
 }
 
 @media -moz-pref("extension.sidebar-right") {
@@ -33,7 +32,7 @@
     order: 8 !important;
   }
   @media -moz-pref("extension.sidebar-float") {
-    #sidebar-box{
+    #sidebar-box {
       right: 15px !important;
       left: unset !important;
     }
@@ -41,7 +40,6 @@
 }
 
 #sidebar-header {
-
   #sidebar-pin-unpin,
   #sidebar-close {
     width: 22px;

@@ -9,7 +9,7 @@
     list-style-image: url("chrome://browser/skin/zen-icons/edit-theme.svg") !important;
   }
 
-  [label="Bitwarden"] image{
+  [label="Bitwarden"] image {
     list-style-image: url("chrome://browser/skin/zen-icons/passwords.svg") !important;
   }
 
@@ -26,7 +26,7 @@
   }
 
   [label="Dark Reader"] image {
-    list-style-image: url('chrome://browser/skin/zen-icons/moon-stars.svg') !important;
+    list-style-image: url("chrome://browser/skin/zen-icons/moon-stars.svg") !important;
   }
 
   /* hiding extension from context menu */

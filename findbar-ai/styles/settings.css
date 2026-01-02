@@ -193,56 +193,54 @@
     align-items: center;
     margin-left: 4px;
     height: 16px;
-    padding-left: 8px ;
-     .info-icon {
-    width: 14px;
-    height: 14px;
-    opacity: 0.6;
-    cursor: help;
-    -moz-context-properties: fill;
-    fill: currentColor;
-  }
+    padding-left: 8px;
+    .info-icon {
+      width: 14px;
+      height: 14px;
+      opacity: 0.6;
+      cursor: help;
+      -moz-context-properties: fill;
+      fill: currentColor;
+    }
     &:hover .info-icon {
-    opacity: 1;
+      opacity: 1;
+    }
+
+    &[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 125%;
+      /* Position above */
+      left: 50%;
+      transform: translateX(-50%);
+
+      background-color: var(--browser-themed-toolbar-bg, #2b2a33);
+      color: var(--text-color, white);
+      border: 1px solid rgba(127, 127, 127, 0.3);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      line-height: 1.4;
+      white-space: normal;
+      max-width: 140px;
+      width: max-content;
+      text-align: center;
+
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition:
+        opacity 0.2s ease,
+        visibility 0.2s;
+      z-index: 10000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    &:hover::after {
+      opacity: 1;
+      visibility: visible;
+    }
   }
-    
-  &[data-tooltip]::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 125%;
-    /* Position above */
-    left: 50%;
-    transform: translateX(-50%);
 
-    background-color: var(--browser-themed-toolbar-bg, #2b2a33);
-    color: var(--text-color, white);
-    border: 1px solid rgba(127, 127, 127, 0.3);
-    padding: 6px 10px;
-    border-radius: 4px;
-    font-size: 11px;
-    line-height: 1.4;
-    white-space: normal;
-    max-width: 140px;
-    width: max-content;
-    text-align: center;
-
-    opacity: 0;
-    pointer-events: none;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s;
-    z-index: 10000;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  }
-  &:hover::after {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  }
-
-
-
-  
   .provider-settings-group {
     margin-top: 15px;
     padding-top: 10px;
@@ -290,7 +288,6 @@
 
   /* When Findbar AI is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.enabled:not(:checked)) {
-
     /* Hide other options Findbar section */
     .settings-section:first-of-type .setting-item:not(:first-child) {
       display: none !important;
@@ -298,7 +295,6 @@
 
     /* Hide findbar sections */
     .settings-section {
-
       &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode),
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled),
       &:has([data-pref="accessibility.typeaheadfind"]) {
@@ -309,10 +305,8 @@
 
   /* When URLBar AI is disabled */
   &:has(#pref-extension\.browse-bot\.urlbar-ai-enabled:not(:checked)) {
-
     /* Hide URLBar AI dependent settings */
     .setting-item {
-
       &:has([data-pref="extension.browse-bot.urlbar-ai.animations-enabled"]),
       &:has([data-pref="extension.browse-bot.urlbar-ai.hide-suggestions"]) {
         display: none !important;
@@ -323,7 +317,6 @@
   /* When agentic Mode is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:not(:checked)) {
     .setting-item {
-
       &:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
       &:has(#pref-max-tool-calls) {
         display: none !important;
@@ -333,10 +326,8 @@
 
   /* When Context Menu is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled:not(:checked)) {
-
     /* Hide Context Menu dependent settings */
     .setting-item {
-
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-autosend),
       &:has(#pref-context-menu-command-no-selection),
       &:has(#pref-context-menu-command-with-selection) {
@@ -346,14 +337,14 @@
   }
 
   /* When Drag and Drop is disabled */
-  &:has(#pref-extension\.browse-bot\.findbar-ai\.dnd-enabled:not(:checked)) .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.remember-dimensions) {
+  &:has(#pref-extension\.browse-bot\.findbar-ai\.dnd-enabled:not(:checked))
+    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.remember-dimensions) {
     display: none !important;
   }
 }
 
 findbar,
 .browse-bot-settings-modal {
-
   input[type="text"],
   input[type="password"],
   input[type="number"],

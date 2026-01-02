@@ -140,7 +140,7 @@ export const SettingsModal = {
           } else if (control.type === "number") {
             try {
               this._currentPrefValues[prefKey] = Number(e.target.value);
-            } catch  {
+            } catch {
               this._currentPrefValues[prefKey] = 0;
             }
           } else {
@@ -171,11 +171,11 @@ export const SettingsModal = {
     // Preset Change Listener - REMOVED
 
     // Reset Button Listeners
-    this._modalElement.querySelectorAll(".reset-section-btn").forEach(btn => {
+    this._modalElement.querySelectorAll(".reset-section-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation(); // Prevent accordion toggle
         const prefsToReset = btn.dataset.resetPrefs.split(",");
-        prefsToReset.forEach(prefKey => {
+        prefsToReset.forEach((prefKey) => {
           if (!prefKey) return; // skip empty
           const defVal = PREFS.defaultValues[prefKey];
 
@@ -195,10 +195,7 @@ export const SettingsModal = {
 
             // Special logic for provider reset
             if (prefKey === PREFS.LLM_PROVIDER) {
-              this._updateProviderSpecificSettings(
-                this._modalElement,
-                defVal
-              );
+              this._updateProviderSpecificSettings(this._modalElement, defVal);
             }
           }
         });
@@ -333,7 +330,7 @@ export const SettingsModal = {
   ) {
     const settingsHtml = settingsArray
       .map((s) => {
-        if (s.type === 'number') {
+        if (s.type === "number") {
           return this._generateNumberSettingHtml(s.label, s.pref, s.min, s.max, s.step, s.tooltip);
         }
         return this._generateCheckboxSettingHtml(s.label, s.pref);
@@ -341,7 +338,9 @@ export const SettingsModal = {
       .join("");
 
     // If no explicit resetPrefs passed, try to infer from settingsArray
-    const prefsToReset = (resetPrefs.length > 0 ? resetPrefs : settingsArray.map(s => s.pref)).join(",");
+    const prefsToReset = (
+      resetPrefs.length > 0 ? resetPrefs : settingsArray.map((s) => s.pref)
+    ).join(",");
 
     return `
     <section class="settings-section settings-accordion" data-expanded="${expanded}" >
@@ -404,7 +403,11 @@ export const SettingsModal = {
       </div>
     `;
 
-    const findbarResetPrefs = [...findbarSettings.map(s => s.pref), PREFS.POSITION, PREFS.BACKGROUND_STYLE];
+    const findbarResetPrefs = [
+      ...findbarSettings.map((s) => s.pref),
+      PREFS.POSITION,
+      PREFS.BACKGROUND_STYLE,
+    ];
     const findbarSectionHtml = this._createCheckboxSectionHtml(
       "Findbar AI (ctrl + shift + F)",
       findbarSettings,
@@ -426,7 +429,7 @@ export const SettingsModal = {
       false,
       "",
       "",
-      urlbarSettings.map(s => s.pref)
+      urlbarSettings.map((s) => s.pref)
     );
 
     // Section 3: AI Behavior
@@ -448,7 +451,7 @@ export const SettingsModal = {
   </div>
 `;
 
-    const aiBehaviorResetPrefs = [...aiBehaviorSettings.map(s => s.pref), PREFS.MAX_TOOL_CALLS];
+    const aiBehaviorResetPrefs = [...aiBehaviorSettings.map((s) => s.pref), PREFS.MAX_TOOL_CALLS];
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
       aiBehaviorSettings,
@@ -476,7 +479,11 @@ export const SettingsModal = {
         <textarea id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
       </div>
     `;
-    const contextMenuResetPrefs = [...contextMenuSettings.map(s => s.pref), PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION, PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION];
+    const contextMenuResetPrefs = [
+      ...contextMenuSettings.map((s) => s.pref),
+      PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION,
+      PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION,
+    ];
     const contextMenuSectionHtml = this._createCheckboxSectionHtml(
       "Context Menu",
       contextMenuSettings,
@@ -537,7 +544,9 @@ export const SettingsModal = {
     const llmProvidersResetPrefs = [
       PREFS.LLM_PROVIDER,
       PREFS.OLLAMA_BASE_URL,
-      ...Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS).flatMap(p => [p.modelPref, PREFS[`${p.name.toUpperCase()}_API_KEY`]]).filter(Boolean)
+      ...Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
+        .flatMap((p) => [p.modelPref, PREFS[`${p.name.toUpperCase()}_API_KEY`]])
+        .filter(Boolean),
     ];
 
     const llmProvidersSectionHtml = `
@@ -560,43 +569,62 @@ export const SettingsModal = {
       {
         label: "Temperature",
         pref: PREFS.LLM_TEMPERATURE,
-        type: "number", step: 0.1, min: 0, max: 2,
-        tooltip: "Controls randomness. Lower values are more deterministic."
+        type: "number",
+        step: 0.1,
+        min: 0,
+        max: 2,
+        tooltip: "Controls randomness. Lower values are more deterministic.",
       },
       {
-        label: "Top P  -----",// :HACK: adding space so that tooltip stay under container
+        label: "Top P  -----", // :HACK: adding space so that tooltip stay under container
         pref: PREFS.LLM_TOP_P,
-        type: "number", step: 0.1, min: 0, max: 1,
-        tooltip: "Nucleus sampling. Limits token selection to top cumulative probability."
+        type: "number",
+        step: 0.1,
+        min: 0,
+        max: 1,
+        tooltip: "Nucleus sampling. Limits token selection to top cumulative probability.",
       },
       {
         label: "Top K  ----- ", // :HACK: adding space so that tooltip stay under container
         pref: PREFS.LLM_TOP_K,
-        type: "number", step: 1, min: 0, max: 200,
-        tooltip: "Limits sampling to the top K tokens. Removes low probability responses."
+        type: "number",
+        step: 1,
+        min: 0,
+        max: 200,
+        tooltip: "Limits sampling to the top K tokens. Removes low probability responses.",
       },
       {
         label: "Presence Penalty",
         pref: PREFS.LLM_PRESENCE_PENALTY,
-        type: "number", step: 0.1, min: -2, max: 2,
-        tooltip: "Penalizes repeated tokens. Reduces repetition of information already in the context."
+        type: "number",
+        step: 0.1,
+        min: -2,
+        max: 2,
+        tooltip:
+          "Penalizes repeated tokens. Reduces repetition of information already in the context.",
       },
       {
         label: "Frequency Penalty",
         pref: PREFS.LLM_FREQUENCY_PENALTY,
-        type: "number", step: 0.1, min: -2, max: 2,
-        tooltip: "Penalizes frequent tokens. Discourages repetition of the same words/phrases."
+        type: "number",
+        step: 0.1,
+        min: -2,
+        max: 2,
+        tooltip: "Penalizes frequent tokens. Discourages repetition of the same words/phrases.",
       },
       {
         label: "Max Output Tokens",
         pref: PREFS.LLM_MAX_OUTPUT_TOKENS,
-        type: "number", step: 1, min: 1, max: 32000,
-        tooltip: "Maximum number of tokens to generate."
+        type: "number",
+        step: 1,
+        min: 1,
+        max: 32000,
+        tooltip: "Maximum number of tokens to generate.",
       },
     ];
 
     // Preset removed as per user request
-    const advancedLLMResetPrefs = advancedLLMSettings.map(s => s.pref);
+    const advancedLLMResetPrefs = advancedLLMSettings.map((s) => s.pref);
 
     const advancedLLMSectionHtml = this._createCheckboxSectionHtml(
       "Advanced LLM Settings",
@@ -623,7 +651,7 @@ export const SettingsModal = {
       false,
       "",
       "",
-      browserFindbarSettings.map(s => s.pref)
+      browserFindbarSettings.map((s) => s.pref)
     );
 
     // Section 7: Development

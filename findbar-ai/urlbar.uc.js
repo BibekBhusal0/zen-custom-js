@@ -306,10 +306,8 @@ export const urlbarAI = {
         gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
         this.toggleAIMode(false, true);
 
-// clear data after 4 seconds
-    setTimeout(() => 
-urlBarLLM.clearData()
-, 4000);
+        // clear data after 4 seconds
+        setTimeout(() => urlBarLLM.clearData(), 4000);
       });
     } else {
       this.toggleAIMode(false, true);

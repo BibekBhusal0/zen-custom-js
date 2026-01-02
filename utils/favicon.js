@@ -31,5 +31,5 @@ export function getSearchEngineFavicon(engine) {
   } catch {
     return fallbackIcon;
   }
-    return fallbackIcon;
+  return fallbackIcon;
 }

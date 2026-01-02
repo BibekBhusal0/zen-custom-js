@@ -20,10 +20,10 @@ https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 
 You can customize the script's behavior via `about:config` or the settings UI.
 
-| Preference                | Type    | Default | Description                                  |
-| ------------------------- | ------- | ------- | -------------------------------------------- |
-| `extension.sidebar-float` | Boolean | `false` | Enables or disables the floating sidebar.    |
-| `extension.sidebar-right` | Boolean | `false` | Moves the floating sidebar to the right side.|
+| Preference                | Type    | Default | Description                                   |
+| ------------------------- | ------- | ------- | --------------------------------------------- |
+| `extension.sidebar-float` | Boolean | `false` | Enables or disables the floating sidebar.     |
+| `extension.sidebar-right` | Boolean | `false` | Moves the floating sidebar to the right side. |
 
 ## 📦 Installation Guide
 

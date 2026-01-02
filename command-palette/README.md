@@ -78,7 +78,6 @@ Here are all Preferences which can be configured from `about:config` (also from 
 <details>
 <summary>Click to view the full list of commands</summary>
 
-
 > [!Note]
 > Some commands have been removed due to multiple reasons you can full list of those command in this [file](./removed_commands.js).
 

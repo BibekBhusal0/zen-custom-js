@@ -121,7 +121,7 @@ const SearchEngineSwitcher = {
           const term = decodeURIComponent(match[1].replace(/\+/g, " "));
           debugLog(`Matched: Engine='${item.engine.name}', Term='${term}'`);
           return { engine: item.engine, term };
-        } catch  {
+        } catch {
           continue;
         }
       }
@@ -192,7 +192,7 @@ const SearchEngineSwitcher = {
         .getElementById("urlbar-search-mode-indicator-title")
         .innerText.trim();
       engine = await Services.search.getEngineByName(engineName);
-    } catch  {
+    } catch {
       debugLog("Search indicator not found. Using default engine.");
       engine = await Services.search.getDefault();
     }

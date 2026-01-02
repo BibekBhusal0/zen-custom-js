@@ -862,7 +862,7 @@ export const browseBotFindbar = {
         e.preventDefault();
         try {
           openTrustedLinkIn(e.target.href, "tab");
-        } catch  {}
+        } catch {}
       }
     });
 

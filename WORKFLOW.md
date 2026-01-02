@@ -39,41 +39,41 @@ To publish a new version of a mod:
 
 The workflow respects the following keys in `theme.json`:
 
--   **`"vertex": false`**: Skips the mod entirely. It will not be processed or published.
--   **`"js": false`**: Skips the JavaScript build process. Useful for CSS-only mods. The mod will still be published, but no bundled JS files will be generated.
--   **`"id"`**: Used to determine the build target and output filenames.
--   **`"name"`**: Used to determine the child repository name (slugified).
+- **`"vertex": false`**: Skips the mod entirely. It will not be processed or published.
+- **`"js": false`**: Skips the JavaScript build process. Useful for CSS-only mods. The mod will still be published, but no bundled JS files will be generated.
+- **`"id"`**: Used to determine the build target and output filenames.
+- **`"name"`**: Used to determine the child repository name (slugified).
 
 ## Beta vs. Stable Releases
 
--   **Beta (`vX.Y.Zb`)**:
-    -   Published to the `beta` branch of the child repository.
-    -   JavaScript files are linked via raw GitHub URLs in `theme.json`.
-    -   A warning banner is added to `README.md`.
-    -   **No** Pull Request is created for the Sine Store.
+- **Beta (`vX.Y.Zb`)**:
+  - Published to the `beta` branch of the child repository.
+  - JavaScript files are linked via raw GitHub URLs in `theme.json`.
+  - A warning banner is added to `README.md`.
+  - **No** Pull Request is created for the Sine Store.
 
--   **Stable (`vX.Y.Z`)**:
-    -   Published to the `main` branch of the child repository.
-    -   JavaScript files are set to `true` in `theme.json` (implying local/bundled files).
-    -   A Pull Request is automatically created in the Sine Store repository to update the mod.
+- **Stable (`vX.Y.Z`)**:
+  - Published to the `main` branch of the child repository.
+  - JavaScript files are set to `true` in `theme.json` (implying local/bundled files).
+  - A Pull Request is automatically created in the Sine Store repository to update the mod.
 
 ## BrowsBot Special Handling
 
 The **BrowseBot** mod (`browse-bot`) has specific build logic:
 
--   **Beta**: Builds a single bundled file (`browse-bot-all.uc.js`).
--   **Stable**: Builds two separate files (`browse-bot.uc.js` and `vercel-ai-sdk.uc.js`).
+- **Beta**: Builds a single bundled file (`browse-bot-all.uc.js`).
+- **Stable**: Builds two separate files (`browse-bot.uc.js` and `vercel-ai-sdk.uc.js`).
 
 ## Sine Store Integration
 
 For stable releases (and where `"js"` is not false), the workflow checks the configured Sine Store repository (`sineorg/store`).
 
--   It creates a new branch `update-{mod-id}-{version}`.
--   It copies the bundled scripts to the `mods/{mod-id}/` folder.
--   It creates a Pull Request with the update details.
+- It creates a new branch `update-{mod-id}-{version}`.
+- It copies the bundled scripts to the `mods/{mod-id}/` folder.
+- It creates a Pull Request with the update details.
 
 ## Troubleshooting
 
--   **Workflow Fails**: Check the Action logs. Common issues include missing secrets (`PAT_TOKEN`), build errors, or git conflicts.
--   **Repo Creation Failed**: Ensure the `PAT_TOKEN` has `repo` and `delete_repo` (optional) permissions and the user has access to the `Vertex-Mods` organization.
--   **No Changes Detected**: Ensure you incremented the version in `theme.json`. The workflow compares the current version with the version in the previous commit.
+- **Workflow Fails**: Check the Action logs. Common issues include missing secrets (`PAT_TOKEN`), build errors, or git conflicts.
+- **Repo Creation Failed**: Ensure the `PAT_TOKEN` has `repo` and `delete_repo` (optional) permissions and the user has access to the `Vertex-Mods` organization.
+- **No Changes Detected**: Ensure you incremented the version in `theme.json`. The workflow compares the current version with the version in the previous commit.

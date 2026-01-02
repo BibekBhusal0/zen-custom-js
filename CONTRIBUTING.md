@@ -133,9 +133,11 @@ If you are using Prettier, this repo also contains a [.prettierrc.json](./.prett
 This project uses ESLint to maintain code quality and catch common errors. A GitHub Actions workflow will automatically check for linting errors on every pull request.
 
 It's a good practice to run the linter locally before submitting your changes:
+
 ```bash
 npm run lint
 ```
+
 This will help you find and fix issues before they are caught by the CI.
 
 > [!Note]
@@ -222,29 +224,36 @@ The publishing workflow automatically handles releasing mods to individual repos
 To publish a new version:
 
 1. **Update `theme.json`**: Increment the `version` field
+
 ```json
-   {
-     "version": "1.0.1"  // or "1.0.1b" for beta
-   }
+{
+  "version": "1.0.1" // or "1.0.1b" for beta
+}
 ```
 
 2. **Add Release Notes** (optional): Edit `release-notes.md` in the mod folder
+
 ```markdown
-   # New Features
-   - Added feature X
-   - Improved feature Y
-   
-   # Fixes
-   - Fixed bug Z
-   
-   # Others
-   - Updated documentation
-   
-   # Contributors
-   Thanks to @username for their contributions!
+# New Features
+
+- Added feature X
+- Improved feature Y
+
+# Fixes
+
+- Fixed bug Z
+
+# Others
+
+- Updated documentation
+
+# Contributors
+
+Thanks to @username for their contributions!
 ```
 
 3. **Push to Main**: Commit and push your changes to the main branch
+
 ```bash
    git add .
    git commit -m "feat(mod-name): version 1.0.1"
@@ -256,6 +265,7 @@ To publish a new version:
 #### What Gets Published
 
 Each individual mod repository contains:
+
 - Bundled JavaScript files (if `js` is not `false`)
 - Filtered `theme.json` (only specific keys)
 - `README.md` with updated links
@@ -282,6 +292,7 @@ In `theme.json`, you can use these flags:
 ## Opening a Pull Request
 
 Pull request and commit names generally follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/#summary):
+
 ```
 <type>(<optional scope>): <present tense description>
 

@@ -50,7 +50,7 @@ export default [
       "no-unused-vars": "warn",
       "no-undef": "warn",
       "no-empty": "off",
-    }
+    },
   },
   {
     files: ["rollup.config.js", ".github/scripts/publish.js"],

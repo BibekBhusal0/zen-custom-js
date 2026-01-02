@@ -1,4 +1,5 @@
 # New Features
+
 - All newer models Gemini-3, GPT-5.2 and Claude-4.5
 - Support for Cerebras
 - Advanced Parameter controls for LLM like temperature, top-k, frequency penalty
@@ -6,13 +7,16 @@
 - Customize keyboard shortcuts
 
 # Fixes
+
 - URL bar AI finally works
 - Ollama provider is fixed.
 
 # Others
+
 - Improved documentation
 
 # Contributes
+
 Thanks to all developers who are supporting in this project by making contribution.
 
 @Tymon3310 made his first contribution by adding Gemini 3.
