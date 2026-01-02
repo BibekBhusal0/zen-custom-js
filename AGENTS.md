@@ -10,70 +10,204 @@ The project is structured as a monorepo, with each feature residing in its own d
 
 ### Key Technologies
 
-*   **JavaScript (ESM)**: The core language for the user scripts.
-*   **CSS**: For styling the custom UI elements.
-*   **Rollup.js**: To bundle multiple script files into a single `.uc.js` file for each mod.
-*   **Node.js/npm**: For managing dependencies and running build scripts.
-*   **GitHub Actions**: For automating builds, formatting, and publishing.
+- **JavaScript (ESM)**: The core language for the user scripts.
+- **CSS**: For styling the custom UI elements.
+- **Rollup.js**: To bundle multiple script files into a single `.uc.js` file for each mod.
+- **Node.js/npm**: For managing dependencies and running build scripts.
+- **GitHub Actions**: For automating builds, formatting, and publishing.
 
-## Building and Running
+## Build and Development Commands
 
-The project uses `npm` scripts for building and development.
+```bash
+# Build all mods
+npm run build
 
-### Installation
+# Build a specific mod (palette, browsebot, reopen, sidebar, select, search)
+npm run build:palette
 
-1.  Clone the repository.
-2.  Install dependencies:
-    ```bash
-    npm install
-    ```
+# Development mode with auto-rebuild for all mods
+npm run dev
 
-### Build Scripts
+# Development mode for a specific mod
+npm run dev:palette
 
-*   **Build all mods**:
-    ```bash
-    npm run build
-    ```
-*   **Build a specific mod** (e.g., the command palette):
-    ```bash
-    npm run build:palette
-    ```
-*   **Development mode with auto-rebuild**:
-    ```bash
-    npm run dev
-    ```
-*   **Development mode for a specific mod**:
-    ```bash
-    npm run dev:palette
-    ```
+# Format code
+npm run format
+
+# Lint code
+npm run lint
+```
 
 The bundled files are placed in the `dist/` directory.
 
-## Development Conventions
+## Code Style Guidelines
+
+### Imports and Modules
+
+- Use ES6 modules (`import`/`export`)
+- Import Firefox browser globals from ChromeUtils (e.g., `ChromeUtils.importESModule`)
+- Import utility functions from `utils/` directory
+- Relative imports use `../utils/` for shared utilities, `./utils/` for mod-specific utilities
+
+### Formatting
+
+The project uses Prettier with these settings:
+
+- Print width: 100 characters
+- Tab width: 2 spaces (no tabs)
+- Semicolons: required
+- Quotes: double quotes (single quotes: false)
+- Trailing commas: ES5
+- Arrow function parentheses: always
+
+Run `npm run format` before committing.
+
+### Types and Documentation
+
+- No TypeScript - use JSDoc comments for type documentation
+- Document functions with `@param` and `@returns` tags
+- Include `@type {Type}` comments for complex types
+- Example:
+  ```javascript
+  /**
+   * Executes a command by its key.
+   * @param {string} key - The command identifier.
+   * @returns {Promise<void>}
+   */
+  async executeCommandByKey(key) { ... }
+  ```
+
+### Naming Conventions
+
+- **Variables and functions**: `camelCase` (e.g., `getPreference`, `userConfig`)
+- **Classes**: `PascalCase` (e.g., `ZenCommandProvider`)
+- **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_RECENT_COMMANDS`, `PREFS`)
+- **Private methods**: prefix with underscore (e.g., `_closeUrlBar`, `_validateInput`)
+- **Event handlers**: descriptive names like `handleUrlbarClose`, `onUrlbarClose`
+- **DOM elements**: descriptive names like `inputField`, `resultElement`
+
+### Error Handling
+
+- Wrap potentially failing code in try-catch blocks
+- Use `debugError(...)` for logging errors (only logs in debug mode)
+- Return fallback values on errors (e.g., return default config, null, or empty array)
+- Example pattern:
+  ```javascript
+  try {
+    const pref = UC_API.Prefs.get(key);
+    if (!pref.exists()) return defaultValues[key];
+    return pref.value;
+  } catch (e) {
+    debugError("Error getting preference:", e);
+    return defaultValues[key];
+  }
+  ```
+
+### Debug Logging
+
+- Use `debugLog(...)` for debug output (only logs in debug mode)
+- Use `debugError(...)` for errors
+- Prefix logs with mod name for clarity (e.g., `console.log("BrowseBot:", ...args)`)
+- Debug mode is controlled by a preference key (e.g., `PREFS.DEBUG_MODE`)
+
+### Utility Functions
+
+The `utils/` directory contains reusable utilities:
+
+- `parseElement()` from `utils/parse.js` - creates DOM elements from HTML/XUL strings
+- `startupFinish()` from `utils/startup-finish.js` - ensures browser is ready before init
+- `parseShortcutString()` from `utils/keyboard.js` - parses keyboard shortcuts
+
+### Preferences Pattern
+
+Each mod uses a `PREFS` object to manage settings:
+
+- Define preference keys as constants (e.g., `KEYS.ENABLED`, `KEYS.DEBUG_MODE`)
+- Implement getter/setter pairs for commonly accessed prefs
+- Store default values in `defaultValues` object
+- Use `getPref(key)` and `setPref(key, value)` methods
+- Example:
+  ```javascript
+  export const PREFS = {
+    KEYS: {
+      ENABLED: "mod-name.enabled",
+      DEBUG_MODE: "mod-name.debug-mode",
+    },
+    getPref(key) { ... },
+    setPref(key, value) { ... },
+    get enabled() { return this.getPref(this.KEYS.ENABLED); },
+    defaultValues: { [PREFS.KEYS.ENABLED]: true },
+  };
+  ```
 
 ### File Structure
 
-Each mod is a self-contained unit within its own directory (e.g., `command-palette/`, `findbar-ai/`). A typical mod directory includes:
+Each mod is self-contained in its directory:
 
-*   `index.js`: The main entry point for the script.
-*   `style.css`: Styles for the mod.
-*   `theme.json`: Metadata for the mod, including its name, version, and description. This file is also used to generate the UserScript header.
-*   `preferences.json`: (Optional) Default settings for the mod.
-*   `README.md`: Documentation for the mod.
+- `index.js` - Main entry point and initialization
+- `style.css` - Mod-specific styles
+- `theme.json` - Metadata (name, version, description) for UserScript header
+- `preferences.json` - Optional default settings
+- `utils/` - Mod-specific utilities (optional)
+- `README.md` - Documentation
+- `release-notes.md` - Version history
 
-### Code Style
+### Command Pattern
 
-*   **Formatting**: The project uses Prettier for automatic code formatting. A GitHub Action enforces this, so you don't need to worry about it during development.
-*   **Linting**: The project uses ESLint for code quality and to enforce best practices. Like formatting, this is checked automatically by a GitHub Action on pull requests.
-*   **Modularity**: Code should be modular and split into multiple files where appropriate. Rollup handles the bundling.
-*   **DRY (Don't Repeat Yourself)**: Avoid code duplication. Use utility functions for common tasks.
-*   **Utility Functions**: Reusable functions are located in the `utils/` directory. The `parseElement` function in `utils/parse.js` is particularly useful for creating DOM elements from strings.
+For command palette integration, commands follow this structure:
+
+```javascript
+{
+  key: "mod:action",           // Unique identifier
+  label: "Display Name",      // User-visible text
+  icon: "path/to/icon.svg",   // Optional icon
+  command: () => {},          // Function to execute
+  condition: () => true,     // Optional visibility condition
+  tags: ["tag1", "tag2"],     // Optional search tags
+}
+```
+
+### DOM Manipulation
+
+- Use `parseElement()` from `utils/parse.js` for creating elements from HTML strings
+- Use `MozXULElement.parseXULToFragment()` for Firefox XUL elements
+- Avoid direct string concatenation for HTML - use template literals or parseElement
+- Example:
+  ```javascript
+  const element = parseElement(`<div class="my-class">Content</div>`);
+  container.appendChild(element);
+  ```
+
+### Asynchronous Patterns
+
+- Use `async/await` for asynchronous operations
+- Handle promises properly with try-catch
+- Use `Promise.all()` for parallel operations
+- Clean up listeners and resources in destroy/teardown methods
+
+### Firefox Integration
+
+- Use `ChromeUtils.importESModule()` for loading Firefox modules
+- Use `UC_API` for accessing Zen Browser API (prefs, widgets, hotkeys)
+- Firefox globals are pre-defined in eslint.config.js (gBrowser, Services, etc.)
+- Common modules:
+  - `browser/components/urlbar/UrlbarUtils.sys.mjs`
+  - `browser/components/urlbar/UrlbarProvidersManager.sys.mjs`
+
+### Linting
+
+Run `npm run lint` before committing. The project uses ESLint with these rules:
+
+- `no-unused-vars`: warn
+- `no-undef`: warn
+- `no-empty`: off
 
 ### Commits and Pull Requests
 
-*   **Conventional Commits**: Commit messages should follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification (e.g., `feat(command-palette): add new feature`).
-*   **Pull Requests**: Before submitting a pull request, ensure your changes have been tested and any relevant documentation has been updated.
+- Commit messages follow Conventional Commits: `feat(mod-name): description`
+- Run `npm run format` and `npm run lint` before committing
+- Ensure changes are tested before submitting PRs
 
 ### Publishing
 
-The project uses GitHub Actions to automate the publishing of mods to separate repositories and the Sine Store. The workflow is triggered by changes to the `version` field in a mod's `theme.json` file.
+Publishing is automated via GitHub Actions. To trigger a release, increment the `version` field in a mod's `theme.json` file.
