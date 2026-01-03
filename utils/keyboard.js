@@ -366,3 +366,35 @@ export class ShortcutRegistry {
     this._shortcuts.clear();
   }
 }
+
+
+/**
+ * Registers a single keyboard shortcut using event listeners (simplified version).
+ * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+Shift+K").
+ * @param {string} id - A unique identifier for this shortcut.
+ * @param {Function} callback - The function to execute when shortcut is triggered.
+ * @param {EventTarget} [target=window] - The event target to attach listeners to.
+ * @returns {{success: boolean, unregister: Function}} An object with success status and unregister function.
+ */
+export function registerShortcut(shortcutStr, id, callback, target = window) {
+  if (!shortcutStr || !id || typeof callback !== "function") {
+    console.error("registerShortcut: Invalid arguments", { shortcutStr, id, callback });
+    return { success: false, unregister: () => {} };
+  }
+
+  const signature = shortcutStringToSignature(shortcutStr);
+  const handler = (event) => {
+    if (eventToShortcutSignature(event) === signature) {
+      event.preventDefault();
+      event.stopPropagation();
+      callback(event);
+    }
+  };
+
+  target.addEventListener("keydown", handler, true);
+
+  return {
+    success: true,
+    unregister: () => target.removeEventListener("keydown", handler, true),
+  };
+}

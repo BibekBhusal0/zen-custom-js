@@ -1,5 +1,5 @@
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
-import { parseShortcutString } from "../utils/keyboard.js";
+import { registerShortcut } from "../utils/keyboard.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { timeAgo } from "../utils/timesAgo.js";
 import TabManager from "./utils/tab-manager.js";
@@ -9,7 +9,7 @@ const ReopenClosedTabs = {
   _boundToggleMenu: null,
   _boundHandleItemClick: null,
   _allTabsCache: [],
-  _registeredHotkey: null,
+  _unregisterShortcut: null,
 
   /**
    * Initializes the Reopen Closed Tabs mod.
@@ -25,46 +25,34 @@ const ReopenClosedTabs = {
     debugLog("Mod initialized.");
   },
 
-  async _registerKeyboardShortcut() {
+  _registerKeyboardShortcut() {
     const shortcutString = PREFS.shortcutKey;
     if (!shortcutString) {
       debugLog("No shortcut key defined.");
       return;
     }
 
-    const { key, modifiers } = parseShortcutString(shortcutString);
-    if (!key) {
-      debugError("Invalid shortcut string:", shortcutString);
-      return;
-    }
+    const result = registerShortcut(
+      shortcutString,
+      "reopen-closed-tabs-hotkey",
+      this._boundToggleMenu
+    );
 
-    try {
-      const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(",", " ");
-
-      const hotkey = {
-        id: "reopen-closed-tabs-hotkey",
-        modifiers: translatedModifiers,
-        key: key,
-        command: this._boundToggleMenu,
-      };
-      this._registeredHotkey = await UC_API.Hotkeys.define(hotkey);
-      if (this._registeredHotkey) {
-        this._registeredHotkey.autoAttach({ suppressOriginal: true });
-        debugLog(`Registered shortcut: ${shortcutString}`);
-      }
-    } catch (e) {
-      debugError("Failed to register keyboard shortcut:", e);
+    if (result.success) {
+      this._unregisterShortcut = result.unregister;
+      debugLog(`Registered shortcut: ${shortcutString}`);
+    } else {
+      debugError("Failed to register keyboard shortcut");
     }
   },
 
   onHotkeyChange() {
-    // TODO: Figure out how to apply changes real time (without restart)
-    if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
-      window.ucAPI.showToast(
-        ["Hotkey Changed", "A restart is required for changes to take effect."],
-        1 // Restart button preset
-      );
+    if (this._unregisterShortcut) {
+      this._unregisterShortcut();
+      debugLog("Unregistered previous shortcut");
     }
+    this._registerKeyboardShortcut();
+    debugLog("Registered new shortcut");
   },
 
   _registerToolbarButton() {
