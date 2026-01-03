@@ -38,10 +38,6 @@ const KEY_MAP = {
   scroll_lock: "VK_SCROLL",
 };
 
-const REVERSE_KEY_MAP = Object.fromEntries(
-  Object.entries(KEY_MAP).map(([key, value]) => [value, key])
-);
-
 /**
  * Parses a shortcut string (e.g., "Ctrl+Shift+K") into an object for a <key> element.
  * @param {string} str - The shortcut string.
@@ -94,43 +90,6 @@ export function parseShortcutString(str) {
 }
 
 /**
- * Converts a shortcut object (as returned by parseShortcutString) back into a human-readable string.
- * @param {{key: string|null, keycode: string|null, modifiers: string}} shortcutObject - The shortcut object.
- * @returns {string} The formatted shortcut string (e.g., "Ctrl+Shift+K").
- */
-export function shortcutToString(shortcutObject) {
-  if (!shortcutObject) return "";
-
-  const parts = [];
-
-  // Modifiers are added in a consistent order for display.
-  const modifierMap = {
-    accel: "Ctrl",
-    alt: "Alt",
-    shift: "Shift",
-    meta: "Meta",
-  };
-
-  if (shortcutObject.modifiers) {
-    const mods = shortcutObject.modifiers.split(",").map((m) => m.trim());
-    for (const mod of ["accel", "shift", "alt", "meta"]) {
-      if (mods.includes(mod)) {
-        parts.push(modifierMap[mod]);
-      }
-    }
-  }
-
-  if (shortcutObject.keycode) {
-    const keyName = REVERSE_KEY_MAP[shortcutObject.keycode] || shortcutObject.keycode;
-    parts.push(keyName.charAt(0).toUpperCase() + keyName.slice(1));
-  } else if (shortcutObject.key) {
-    parts.push(shortcutObject.key.toUpperCase());
-  }
-
-  return parts.join("+");
-}
-
-/**
  * Creates a unique signature for a keyboard shortcut.
  * @param {KeyboardEvent} event - The keyboard event.
  * @returns {string} A unique signature string.
@@ -155,21 +114,6 @@ export function shortcutStringToSignature(shortcutStr) {
     .toLowerCase()
     .replace(/control/g, "ctrl")
     .replace(/option/g, "alt");
-}
-
-/**
- * Parses a keyboard event into a normalized key name.
- * @param {KeyboardEvent} event - The keyboard event.
- * @returns {{key: string, ctrl: boolean, alt: boolean, shift: boolean, meta: boolean}}
- */
-export function parseEventToShortcut(event) {
-  return {
-    key: event.key.toLowerCase(),
-    ctrl: event.ctrlKey || event.metaKey,
-    alt: event.altKey,
-    shift: event.shiftKey,
-    meta: event.metaKey,
-  };
 }
 
 /**

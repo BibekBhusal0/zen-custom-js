@@ -1,4 +1,4 @@
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS, debugLog } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
