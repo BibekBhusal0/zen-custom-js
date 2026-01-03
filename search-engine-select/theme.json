@@ -9,8 +9,16 @@
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Search-Engine-Select/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
-  "tags": ["Search", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
+  "tags": [
+    "Search",
+    "sine",
+    "fx-autoconfig",
+    "JavaScript",
+    "Bibek Bhusal"
+  ],
   "createdAt": "2025-06-23",
-  "updatedAt": "2025-10-24",
-  "fork": ["zen"]
+  "updatedAt": "2026-01-02",
+  "fork": [
+    "zen"
+  ]
 }
