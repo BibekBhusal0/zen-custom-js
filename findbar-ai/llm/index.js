@@ -1,4 +1,4 @@
-import { streamText, generateText, generateObject, stepCountIs } from "ai";
+import { streamText, generateText, Output, stepCountIs } from "ai";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
 import {
@@ -146,7 +146,7 @@ class LLM {
       model: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
       messages: this.history,
-      schema: citationSchema,
+      output: Output.object({ schema: citationSchema }),
       temperature: PREFS.llmTemperature,
       topP: PREFS.llmTopP,
       topK: PREFS.llmTopK,
@@ -156,13 +156,13 @@ class LLM {
       ...rest,
     };
 
-    const { object } = await generateObject(config);
+    const { output } = await generateText(config);
 
     // Only update history if it wasn't overridden in the options
     if (!rest.messages) {
-      this.history.push({ role: "assistant", content: JSON.stringify(object) });
+      this.history.push({ role: "assistant", content: JSON.stringify(output) });
     }
-    return object;
+    return output;
   }
 
   getHistory() {
