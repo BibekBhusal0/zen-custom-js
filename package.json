@@ -23,16 +23,16 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.1",
-    "@ai-sdk/cerebras": "^2.0.2",
-    "@ai-sdk/google": "^3.0.1",
-    "@ai-sdk/mistral": "^3.0.1",
-    "@ai-sdk/openai": "^3.0.1",
-    "@ai-sdk/perplexity": "^3.0.1",
-    "@ai-sdk/xai": "^3.0.1",
-    "ai": "^6.0.3",
-    "ollama-ai-provider-v2": "^1.5.5",
-    "zod": "^4.2.1"
+    "@ai-sdk/anthropic": "^3.0.2",
+    "@ai-sdk/cerebras": "^2.0.3",
+    "@ai-sdk/google": "^3.0.2",
+    "@ai-sdk/mistral": "^3.0.2",
+    "@ai-sdk/openai": "^3.0.2",
+    "@ai-sdk/perplexity": "^3.0.2",
+    "@ai-sdk/xai": "^3.0.3",
+    "ai": "^6.0.6",
+    "ollama-ai-provider-v2": "^2.0.0",
+    "zod": "^4.3.4"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.0",
