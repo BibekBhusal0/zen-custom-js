@@ -20,6 +20,10 @@ export const PREFS = {
     "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
   BACKGROUND_STYLE: "extension.browse-bot.findbar-ai.background-style",
 
+  // Keyboard Shortcuts
+  SHORTCUT_FINDBAR: "extension.browse-bot.findbar-ai.shortcut-findbar",
+  SHORTCUT_URLBAR: "extension.browse-bot.urlbar-ai.shortcut-urlbar",
+
   // URL Bar
   URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
   URLBAR_AI_HIDE_SUGGESTIONS: "extension.browse-bot.urlbar-ai.hide-suggestions",
@@ -314,6 +318,20 @@ export const PREFS = {
   set llmMaxOutputTokens(value) {
     this.setPref(this.LLM_MAX_OUTPUT_TOKENS, value);
   },
+
+  get shortcutFindbar() {
+    return this.getPref(this.SHORTCUT_FINDBAR);
+  },
+  set shortcutFindbar(value) {
+    this.setPref(this.SHORTCUT_FINDBAR, value);
+  },
+
+  get shortcutUrlbar() {
+    return this.getPref(this.SHORTCUT_URLBAR);
+  },
+  set shortcutUrlbar(value) {
+    this.setPref(this.SHORTCUT_URLBAR, value);
+  },
 };
 
 export const debugLog = (...args) => {
@@ -369,6 +387,10 @@ PREFS.defaultValues = {
   [PREFS.CONFORMATION]: true,
   [PREFS.CONFORMATION]: true,
   [PREFS.BACKGROUND_STYLE]: "solid",
+
+  // Keyboard Shortcuts Defaults
+  [PREFS.SHORTCUT_FINDBAR]: "ctrl+shift+f",
+  [PREFS.SHORTCUT_URLBAR]: "ctrl+space",
 
   // Advanced LLM Defaults
   [PREFS.LLM_TEMPERATURE]: 0.7,

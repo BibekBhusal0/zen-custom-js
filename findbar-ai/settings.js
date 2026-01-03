@@ -6,12 +6,80 @@ import { browseBotFindbar } from "./findbar-ai.uc.js";
 export const SettingsModal = {
   _modalElement: null,
   _currentPrefValues: {},
+  _currentShortcutTarget: null,
+  _boundHandleShortcutKeyDown: null,
 
   _getSafeIdForProvider(providerName) {
     return providerName.replace(/\./g, "-");
   },
 
+  _initShortcutHandler() {
+    this._boundHandleShortcutKeyDown = this._handleShortcutKeyDown.bind(this);
+  },
+
+  _handleShortcutKeyDown(event) {
+    if (!this._currentShortcutTarget) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const targetInput = this._currentShortcutTarget;
+    const prefKey = targetInput.dataset.pref;
+
+    if (event.key === "Escape") {
+      targetInput.value = PREFS.getPref(prefKey);
+      targetInput.classList.remove("recording");
+      targetInput.placeholder = "Click to set";
+      this._currentShortcutTarget = null;
+      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      return;
+    }
+
+    if (event.key === "Backspace" || event.key === "Delete") {
+      targetInput.value = "";
+      this._currentPrefValues[prefKey] = "";
+      targetInput.classList.remove("recording");
+      targetInput.placeholder = "Click to set";
+      this._currentShortcutTarget = null;
+      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      return;
+    }
+
+    if (["Control", "Alt", "Shift", "Meta"].includes(event.key)) {
+      return;
+    }
+
+    let shortcutString = "";
+    if (event.ctrlKey || event.metaKey) shortcutString += "Ctrl+";
+    if (event.altKey) shortcutString += "Alt+";
+    if (event.shiftKey) shortcutString += "Shift+";
+    shortcutString += event.key.toUpperCase();
+
+    targetInput.value = shortcutString;
+    this._currentPrefValues[prefKey] = shortcutString;
+    debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`);
+
+    targetInput.classList.remove("recording");
+    targetInput.placeholder = "Click to set";
+    this._currentShortcutTarget = null;
+    window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+  },
+
+  _generateShortcutInputHtml(prefConstant, label) {
+    const currentValue = PREFS.getPref(prefConstant);
+    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
+    return `
+      <div class="setting-item">
+        <label for="${prefId}">${label}</label>
+        <input type="text" id="${prefId}" data-pref="${prefConstant}" value="${escapeXmlAttribute(
+          currentValue
+        )}" readonly placeholder="Click to set" class="shortcut-input" />
+      </div>
+    `;
+  },
+
   createModalElement() {
+    this._initShortcutHandler();
     const settingsHtml = this._generateSettingsHtml();
     const container = parseElement(settingsHtml);
     this._modalElement = container;
@@ -165,10 +233,33 @@ export const SettingsModal = {
       });
     });
 
+    // Attach event listeners for shortcut inputs
+    this._modalElement.querySelectorAll(".shortcut-input").forEach((input) => {
+      input.addEventListener("focus", (e) => {
+        this._currentShortcutTarget = e.target;
+        e.target.classList.add("recording");
+        e.target.placeholder = "Press keys...";
+        window.addEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      });
+
+      input.addEventListener("blur", () => {
+        if (this._currentShortcutTarget) {
+          const prefKey = this._currentShortcutTarget.dataset.pref;
+          this._currentShortcutTarget.classList.remove("recording");
+          this._currentShortcutTarget.placeholder = "Click to set";
+          this._currentShortcutTarget = null;
+          window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+        }
+      });
+
+      input.addEventListener("keydown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
     // Initial update for provider-specific settings display
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
-
-    // Preset Change Listener - REMOVED
 
     // Reset Button Listeners
     this._modalElement.querySelectorAll(".reset-section-btn").forEach((btn) => {
@@ -409,7 +500,7 @@ export const SettingsModal = {
       PREFS.BACKGROUND_STYLE,
     ];
     const findbarSectionHtml = this._createCheckboxSectionHtml(
-      "Findbar AI (ctrl + shift + F)",
+      "Findbar AI",
       findbarSettings,
       true,
       "",
@@ -424,13 +515,37 @@ export const SettingsModal = {
       { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
     ];
     const urlbarSectionHtml = this._createCheckboxSectionHtml(
-      "URLBar AI (ctrl + space)",
+      "URLBar AI",
       urlbarSettings,
       false,
       "",
       "",
       urlbarSettings.map((s) => s.pref)
     );
+
+    // Section 1.5: Keyboard Shortcuts
+    const shortcutFindbarHtml = this._generateShortcutInputHtml(
+      PREFS.SHORTCUT_FINDBAR,
+      "Open Findbar AI"
+    );
+    const shortcutUrlbarHtml = this._generateShortcutInputHtml(
+      PREFS.SHORTCUT_URLBAR,
+      "Toggle URLBar AI"
+    );
+    const shortcutsSectionHtml = `
+      <section class="settings-section settings-accordion" data-expanded="true">
+        <h4 class="accordion-header">
+          Keyboard Shortcuts
+          <div class="reset-section-btn" data-reset-prefs="${PREFS.SHORTCUT_FINDBAR},${PREFS.SHORTCUT_URLBAR}" title="Reset Section" role="button">
+            <img src="chrome://global/skin/icons/reload.svg" />
+          </div>
+        </h4>
+        <div class="accordion-content">
+          ${shortcutFindbarHtml}
+          ${shortcutUrlbarHtml}
+        </div>
+      </section>
+    `;
 
     // Section 3: AI Behavior
     const aiBehaviorSettings = [
@@ -670,6 +785,7 @@ export const SettingsModal = {
           </div>
           <div class="ai-settings-content">
             ${findbarSectionHtml}
+            ${shortcutsSectionHtml}
             ${urlbarSectionHtml}
             ${aiBehaviorSectionHtml}
             ${contextMenuSectionHtml}

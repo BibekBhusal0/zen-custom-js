@@ -3,6 +3,7 @@ import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
 import { stepCountIs } from "ai";
 import { parseElement } from "../utils/parse.js";
+import { eventToShortcutSignature, shortcutStringToSignature } from "../utils/keyboard.js";
 
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
 
@@ -229,8 +230,11 @@ export const urlbarAI = {
   },
 
   handleGlobalKeyDown(e) {
-    if (e.ctrlKey && e.code === "Space" && !e.altKey && !e.shiftKey) {
-      debugLog("urlbarAI: Ctrl+Space detected globally");
+    const currentShortcut = shortcutStringToSignature(PREFS.shortcutUrlbar);
+    const eventSignature = eventToShortcutSignature(e);
+
+    if (eventSignature === currentShortcut) {
+      debugLog("urlbarAI: Custom shortcut detected");
       e.preventDefault();
       e.stopPropagation();
       gURLBar.focus();

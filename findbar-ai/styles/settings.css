@@ -413,4 +413,28 @@ findbar,
   menulist {
     padding: 4px !important;
   }
+
+  /* Shortcut input styles */
+  .shortcut-input {
+    text-align: center !important;
+    font-weight: 600 !important;
+    min-width: 120px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+
+    &:focus,
+    &.recording {
+      border-color: var(--browse-bot-primary) !important;
+      background-color: color-mix(
+        in srgb,
+        var(--browser-primary-color) 20%,
+        transparent 80%
+      ) !important;
+    }
+
+    &::placeholder {
+      font-style: italic !important;
+      opacity: 0.7 !important;
+    }
+  }
 }
