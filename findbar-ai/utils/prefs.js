@@ -19,8 +19,8 @@ export const PREFS = {
   CONTEXT_MENU_COMMAND_NO_SELECTION:
     "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
   BACKGROUND_STYLE: "extension.browse-bot.findbar-ai.background-style",
+  CUSTOM_SYSTEM_PROMPT: "extension.browse-bot.custom-system-prompt",
 
-  // Keyboard Shortcuts
   SHORTCUT_FINDBAR: "extension.browse-bot.findbar-ai.shortcut-findbar",
   SHORTCUT_URLBAR: "extension.browse-bot.urlbar-ai.shortcut-urlbar",
 
@@ -332,6 +332,13 @@ export const PREFS = {
   set shortcutUrlbar(value) {
     this.setPref(this.SHORTCUT_URLBAR, value);
   },
+
+  get customSystemPrompt() {
+    return this.getPref(this.CUSTOM_SYSTEM_PROMPT);
+  },
+  set customSystemPrompt(value) {
+    this.setPref(this.CUSTOM_SYSTEM_PROMPT, value);
+  },
 };
 
 export const debugLog = (...args) => {
@@ -388,11 +395,10 @@ PREFS.defaultValues = {
   [PREFS.CONFORMATION]: true,
   [PREFS.BACKGROUND_STYLE]: "solid",
 
-  // Keyboard Shortcuts Defaults
   [PREFS.SHORTCUT_FINDBAR]: "ctrl+shift+f",
   [PREFS.SHORTCUT_URLBAR]: "ctrl+space",
 
-  // Advanced LLM Defaults
+  [PREFS.CUSTOM_SYSTEM_PROMPT]: "",
   [PREFS.LLM_TEMPERATURE]: 0.7,
   [PREFS.LLM_TOP_P]: 1.0,
   [PREFS.LLM_TOP_K]: 40,

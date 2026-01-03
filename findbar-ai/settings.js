@@ -522,7 +522,7 @@ export const SettingsModal = {
       urlbarSettings.map((s) => s.pref)
     );
 
-    // Section 1.5: Keyboard Shortcuts
+    // Section 3: Keyboard Shortcuts
     const shortcutFindbarHtml = this._generateShortcutInputHtml(
       PREFS.SHORTCUT_FINDBAR,
       "Open Findbar AI"
@@ -546,7 +546,7 @@ export const SettingsModal = {
       </section>
     `;
 
-    // Section 3: AI Behavior
+    // Section 4: AI Behavior
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
@@ -559,23 +559,33 @@ export const SettingsModal = {
       </div>
     `;
     const maxToolCallsHtml = `
-  <div class="setting-item">
-    <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
-    <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
-  </div>
-`;
+   <div class="setting-item">
+     <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
+     <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
+   </div>
+ `;
+    const customSystemPromptHtml = `
+   <div class="setting-item">
+     <label for="pref-custom-system-prompt">Custom System Prompt</label>
+     <textarea id="pref-custom-system-prompt" data-pref="${PREFS.CUSTOM_SYSTEM_PROMPT}" rows="3" placeholder="Pretend like ...."></textarea>
+   </div>
+ `;
 
-    const aiBehaviorResetPrefs = [...aiBehaviorSettings.map((s) => s.pref), PREFS.MAX_TOOL_CALLS];
+    const aiBehaviorResetPrefs = [
+      ...aiBehaviorSettings.map((s) => s.pref),
+      PREFS.MAX_TOOL_CALLS,
+      PREFS.CUSTOM_SYSTEM_PROMPT,
+    ];
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
       aiBehaviorSettings,
       true,
       aiBehaviorWarningHtml,
-      maxToolCallsHtml,
+      maxToolCallsHtml + customSystemPromptHtml,
       aiBehaviorResetPrefs
     );
 
-    // Section 4: Context Menu
+    // Section 5: Context Menu
     const contextMenuSettings = [
       { label: "Enable Context Menu (right click menu)", pref: PREFS.CONTEXT_MENU_ENABLED },
       {
@@ -586,7 +596,7 @@ export const SettingsModal = {
     const contextMenuCommandsHtml = `
       <div class="setting-item">
         <label for="pref-context-menu-command-no-selection">Command when no text is selected</label>
-        <input type="text" id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" />
+        <textarea id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" rows="3"></textarea>
       </div>
       <div class="setting-item">
         <label for="pref-context-menu-command-with-selection">Command when text is selected. Use {selection} for the selected text.</label>
@@ -607,7 +617,7 @@ export const SettingsModal = {
       contextMenuResetPrefs
     );
 
-    // Section 5: LLM Providers
+    // Section 6: LLM Providers
     let llmProviderSettingsHtml = "";
     for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = provider.modelPref;
@@ -678,7 +688,7 @@ export const SettingsModal = {
         ${llmProviderSettingsHtml}
       </section>`;
 
-    // Section 8: Advanced LLM
+    // Section 7: Advanced LLM
     const advancedLLMSettings = [
       {
         label: "Temperature",
@@ -749,7 +759,7 @@ export const SettingsModal = {
       advancedLLMResetPrefs
     );
 
-    // Section 6: Browser Findbar
+    // Section 8: Browser Findbar
     const browserFindbarSettings = [
       { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
       {
@@ -768,7 +778,7 @@ export const SettingsModal = {
       browserFindbarSettings.map((s) => s.pref)
     );
 
-    // Section 7: Development
+    // Section 9: Development
     const devSettings = [{ label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE }];
     const devSectionHtml = this._createCheckboxSectionHtml("Development", devSettings, false);
 
@@ -784,8 +794,8 @@ export const SettingsModal = {
           </div>
           <div class="ai-settings-content">
             ${findbarSectionHtml}
-            ${shortcutsSectionHtml}
             ${urlbarSectionHtml}
+            ${shortcutsSectionHtml}
             ${aiBehaviorSectionHtml}
             ${contextMenuSectionHtml}
             ${llmProvidersSectionHtml}

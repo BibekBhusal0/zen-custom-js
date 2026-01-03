@@ -209,7 +209,13 @@ class BrowseBotLLM extends LLM {
   }
 
   async getSystemPrompt() {
-    let systemPrompt = `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
+    let systemPrompt = "";
+
+    if (PREFS.customSystemPrompt) {
+      systemPrompt = PREFS.customSystemPrompt + "\n\n";
+    }
+
+    systemPrompt += `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
 
 ## Your Instructions:
 - Be concise, accurate, and helpful.`;

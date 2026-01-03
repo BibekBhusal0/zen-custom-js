@@ -811,6 +811,14 @@
     ]
   },
   {
+    "property": "extension.browse-bot.custom-system-prompt",
+    "label": "Custom System Prompt",
+    "type": "textarea",
+    "default": "",
+    "rows": 6,
+    "description": "Custom system prompt."
+  },
+  {
     "property": "extension.browse-bot.findbar-ai.conform-before-tool-call",
     "label": "Ask before tool call",
     "type": "checkbox",

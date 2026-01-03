@@ -9,7 +9,13 @@ const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"
 
 export class UrlBarLLM extends LLM {
   async getSystemPrompt() {
-    let systemPrompt = `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively and organizing their workspace in a better way.
+    let systemPrompt = "";
+
+    if (PREFS.customSystemPrompt) {
+      systemPrompt = PREFS.customSystemPrompt + "\n\n";
+    }
+
+    systemPrompt += `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively and organizing their workspace in a better way.
 
 Your primary responsibilities include:
 1. Making tool calls in each response based on user input.
