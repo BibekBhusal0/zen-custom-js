@@ -244,7 +244,6 @@ export const SettingsModal = {
 
       input.addEventListener("blur", () => {
         if (this._currentShortcutTarget) {
-          const prefKey = this._currentShortcutTarget.dataset.pref;
           this._currentShortcutTarget.classList.remove("recording");
           this._currentShortcutTarget.placeholder = "Click to set";
           this._currentShortcutTarget = null;

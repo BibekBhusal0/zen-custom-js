@@ -222,7 +222,9 @@
             align-items: center;
             padding: 8px;
             border-radius: 6px;
-            transition: background-color 0.2s, box-shadow 0.2s;
+            transition:
+              background-color 0.2s,
+              box-shadow 0.2s;
 
             &:hover {
               background-color: rgba(127, 127, 127, 0.05);
@@ -276,13 +278,16 @@
               padding: 6px 10px !important;
               font-size: 13px !important;
               text-align: center !important;
-              border-radius:4px !important;
-              border:1px solid rgba(127, 127, 127, 0.3) !important;
+              border-radius: 4px !important;
+              border: 1px solid rgba(127, 127, 127, 0.3) !important;
               background-color: rgba(0, 0, 0, 0.2) !important;
-              transition: border-color 0.2s ease, outline-color 0.2s ease, background-color 0.2s ease;
+              transition:
+                border-color 0.2s ease,
+                outline-color 0.2s ease,
+                background-color 0.2s ease;
 
               &:disabled {
-                opacity:0.5 !important;
+                opacity: 0.5 !important;
                 cursor: not-allowed !important;
               }
 

@@ -367,7 +367,6 @@ export class ShortcutRegistry {
   }
 }
 
-
 /**
  * Registers a single keyboard shortcut using event listeners (simplified version).
  * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+Shift+K").
