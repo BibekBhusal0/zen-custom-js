@@ -158,6 +158,70 @@ export function shortcutStringToSignature(shortcutStr) {
 }
 
 /**
+ * Parses a keyboard event into a normalized key name.
+ * @param {KeyboardEvent} event - The keyboard event.
+ * @returns {{key: string, ctrl: boolean, alt: boolean, shift: boolean, meta: boolean}}
+ */
+export function parseEventToShortcut(event) {
+  return {
+    key: event.key.toLowerCase(),
+    ctrl: event.ctrlKey || event.metaKey,
+    alt: event.altKey,
+    shift: event.shiftKey,
+    meta: event.metaKey,
+  };
+}
+
+/**
+ * Parses a shortcut string into a normalized object.
+ * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+Shift+K").
+ * @returns {{key: string, ctrl: boolean, alt: boolean, shift: boolean, meta: boolean}}
+ */
+export function parseStringToShortcut(shortcutStr) {
+  const parts = shortcutStr
+    .toLowerCase()
+    .split("+")
+    .map((p) => p.trim());
+  const keyPart = parts.pop();
+
+  return {
+    key: keyPart?.toLowerCase() || "",
+    ctrl: parts.includes("ctrl") || parts.includes("control"),
+    alt: parts.includes("alt"),
+    shift: parts.includes("shift"),
+    meta: parts.includes("meta") || parts.includes("cmd") || parts.includes("win"),
+  };
+}
+
+/**
+ * Checks if two shortcuts are equal (platform-aware).
+ * @param {{key: string, ctrl: boolean, alt: boolean, shift: boolean, meta: boolean}} shortcut1
+ * @param {{key: string, ctrl: boolean, alt: boolean, shift: boolean, meta: boolean}} shortcut2
+ * @returns {boolean}
+ */
+export function shortcutsEqual(shortcut1, shortcut2) {
+  const isMacOS = navigator.platform.indexOf("Mac") === 0;
+
+  if (shortcut1.key !== shortcut2.key) {
+    return false;
+  }
+
+  if (shortcut1.alt !== shortcut2.alt || shortcut1.shift !== shortcut2.shift) {
+    return false;
+  }
+
+  if (isMacOS) {
+    const ctrl1 = shortcut1.ctrl || shortcut1.meta;
+    const ctrl2 = shortcut2.ctrl || shortcut2.meta;
+    return ctrl1 === ctrl2;
+  } else {
+    const ctrl1 = shortcut1.ctrl || shortcut1.meta;
+    const ctrl2 = shortcut2.ctrl || shortcut2.meta;
+    return ctrl1 === ctrl2 && shortcut1.meta === shortcut2.meta;
+  }
+}
+
+/**
  * A registry for managing keyboard shortcuts using event listeners.
  */
 export class ShortcutRegistry {
@@ -201,27 +265,62 @@ export class ShortcutRegistry {
   }
 
   /**
+   * Checks for conflicts with Zen's native shortcuts.
+   * @param {string} shortcutStr - The shortcut string to check.
+   * @param {string} excludeId - The ID to exclude from conflict check (usually the current shortcut's ID).
+   * @returns {{hasConflict: boolean, conflictInfo?: {shortcut: string, id: string}}}
+   */
+  _checkZenConflict(shortcutStr, excludeId = null) {
+    if (
+      !window.gZenKeyboardShortcutsManager ||
+      !window.gZenKeyboardShortcutsManager._currentShortcutList
+    ) {
+      return { hasConflict: false };
+    }
+
+    const parsed = parseStringToShortcut(shortcutStr);
+
+    for (const shortcut of window.gZenKeyboardShortcutsManager._currentShortcutList) {
+      if (shortcut.getID() === excludeId) {
+        continue;
+      }
+
+      const zenShortcut = {
+        key: shortcut.getKeyName()?.toLowerCase() || "",
+        ctrl: shortcut.getModifiers().control || shortcut.getModifiers().accel,
+        alt: shortcut.getModifiers().alt,
+        shift: shortcut.getModifiers().shift,
+        meta: shortcut.getModifiers().meta,
+      };
+
+      if (shortcutsEqual(parsed, zenShortcut)) {
+        return {
+          hasConflict: true,
+          conflictInfo: {
+            shortcut: shortcut.toDisplayString(),
+            id: shortcut.getID(),
+          },
+        };
+      }
+    }
+
+    return { hasConflict: false };
+  }
+
+  /**
    * Registers a new keyboard shortcut.
    * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+Shift+K").
    * @param {string} id - A unique identifier for this shortcut.
    * @param {Function} callback - The function to execute when the shortcut is triggered.
-   * @param {boolean} [allowConflict=false] - Whether to allow conflicts with existing shortcuts.
    * @returns {boolean} True if registration was successful, false otherwise.
    */
-  register(shortcutStr, id, callback, allowConflict = false) {
+  register(shortcutStr, id, callback) {
     if (!shortcutStr || !id || typeof callback !== "function") {
       console.error("ShortcutRegistry.register: Invalid arguments", { shortcutStr, id, callback });
       return false;
     }
 
     const signature = shortcutStringToSignature(shortcutStr);
-    const existing = this._shortcuts.get(signature);
-
-    if (existing && !allowConflict) {
-      console.warn(`Shortcut conflict: "${shortcutStr}" is already registered by "${existing.id}"`);
-      return false;
-    }
-
     this._shortcuts.set(signature, { id, callback, shortcutStr });
     return true;
   }
@@ -277,6 +376,31 @@ export class ShortcutRegistry {
     const signature = shortcutStringToSignature(shortcutStr);
     const shortcut = this._shortcuts.get(signature);
     return shortcut ? shortcut.id : null;
+  }
+
+  /**
+   * Checks for conflicts with a given shortcut string.
+   * @param {string} shortcutStr - The shortcut string to check.
+   * @param {string} [excludeId] - An ID to exclude from conflict checking.
+   * @returns {{hasConflict: boolean, conflicts: Array<{shortcut: string, id: string}>}}
+   */
+  checkConflicts(shortcutStr, excludeId = null) {
+    const conflicts = [];
+
+    const existingShortcut = this._shortcuts.get(shortcutStringToSignature(shortcutStr));
+    if (existingShortcut && existingShortcut.id !== excludeId) {
+      conflicts.push({ shortcut: shortcutStr, id: existingShortcut.id, source: "custom" });
+    }
+
+    const zenConflict = this._checkZenConflict(shortcutStr, excludeId);
+    if (zenConflict.hasConflict) {
+      conflicts.push({ ...zenConflict.conflictInfo, source: "zen" });
+    }
+
+    return {
+      hasConflict: conflicts.length > 0,
+      conflicts,
+    };
   }
 
   /**

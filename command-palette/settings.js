@@ -307,7 +307,7 @@ const SettingsModal = {
       <input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
         shortcutValue
       )}" ${!allowShortcutChange ? "readonly" : ""} />
-      <span class="shortcut-conflict-warning" hidden>Conflict!</span>
+      <span class="shortcut-conflict-warning" hidden title="Shortcut conflict"></span>
     </div>`;
 
     const visibilityToggleHtml = `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
@@ -360,16 +360,22 @@ const SettingsModal = {
 
     if (allowShortcutChange) {
       const shortcutInput = item.querySelector(".shortcut-input");
+      const conflictWarning = item.querySelector(".shortcut-conflict-warning");
+
       shortcutInput.addEventListener("focus", (e) => {
         this._currentShortcutTarget = e.target;
-        e.target.value = "Press keys...";
-        e.target.placeholder = "";
+        e.target.placeholder = "Press keys...";
+        if (conflictWarning) conflictWarning.hidden = true;
         window.addEventListener("keydown", this._boundHandleShortcutKeyDown, true);
       });
       shortcutInput.addEventListener("blur", () => {
         if (this._currentShortcutTarget) {
-          this._currentShortcutTarget.value =
-            this._currentSettings.customShortcuts[cmd.key] || nativeShortcut || "";
+          if (this._currentShortcutTarget.classList.contains("conflict")) {
+            this._currentShortcutTarget.value =
+              this._currentSettings.customShortcuts[cmd.key] || nativeShortcut || "";
+          }
+          this._currentShortcutTarget.classList.remove("conflict");
+          if (conflictWarning) conflictWarning.hidden = true;
           this._currentShortcutTarget = null;
         }
         window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
@@ -453,48 +459,34 @@ const SettingsModal = {
     if (event.metaKey) shortcutString += "Meta+";
     shortcutString += key.toUpperCase();
 
-    let hasConflict = false;
-
-    if (window.gZenKeyboardShortcutsManager) {
-      try {
-        const modifiers = new nsKeyShortcutModifiers(
-          event.ctrlKey,
-          event.altKey,
-          event.shiftKey,
-          event.metaKey,
-          false
-        );
-        hasConflict = window.gZenKeyboardShortcutsManager.checkForConflicts(
-          key,
-          modifiers,
-          commandKey
-        );
-      } catch (e) {
-        debugError("Error checking Zen shortcut conflicts:", e);
-      }
-    }
-
-    if (!hasConflict) {
-      for (const [otherCmdKey, otherShortcutStr] of Object.entries(
-        this._currentSettings.customShortcuts || {}
-      )) {
-        if (otherCmdKey !== commandKey && otherShortcutStr === shortcutString) {
-          hasConflict = true;
-          break;
-        }
-      }
-    }
+    const conflictCheck = this._mainModule._shortcutRegistry.checkConflicts(
+      shortcutString,
+      commandKey
+    );
 
     targetInput.value = shortcutString;
 
-    if (hasConflict) {
+    if (conflictCheck.hasConflict) {
       targetInput.classList.add("conflict");
-      if (conflictWarning) conflictWarning.hidden = false;
-      debugLog(`Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`);
+      if (conflictWarning) {
+        const conflictDetails = conflictCheck.conflicts
+          .map((c) => (c.source === "zen" ? `Zen: ${c.id}` : `Custom: ${c.id}`))
+          .join(", ");
+        conflictWarning.textContent = `⚠️ Conflict: ${conflictDetails}`;
+        conflictWarning.title = `Conflicts with: ${conflictDetails}`;
+        conflictWarning.setAttribute("aria-label", `Conflicts with: ${conflictDetails}`);
+        conflictWarning.hidden = false;
+        targetInput.title = `Shortcut conflicts with: ${conflictDetails}`;
+      }
+      debugLog(
+        `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}":`,
+        conflictCheck.conflicts
+      );
       delete this._currentSettings.customShortcuts[commandKey];
     } else {
       clearConflict();
       this._currentSettings.customShortcuts[commandKey] = shortcutString;
+      targetInput.title = "";
     }
   },
 

@@ -514,15 +514,12 @@ export const ZenCommandPalette = {
     debugLog(`addHotkey called for command "${commandKey}" with shortcut "${shortcutStr}"`);
     if (!shortcutStr) {
       debugError(`addHotkey: Empty shortcut string for command "${commandKey}"`);
-      return false;
+      return { success: false };
     }
 
     const shortcutId = `zen-cmd-palette-shortcut-for-${commandKey}`;
-    const success = this._shortcutRegistry.register(
-      shortcutStr,
-      shortcutId,
-      () => this.executeCommandByKey(commandKey),
-      false
+    const success = this._shortcutRegistry.register(shortcutStr, shortcutId, () =>
+      this.executeCommandByKey(commandKey)
     );
 
     if (success) {
@@ -530,7 +527,7 @@ export const ZenCommandPalette = {
     } else {
       debugError(`Failed to register shortcut for command "${commandKey}": ${shortcutStr}`);
     }
-    return success;
+    return { success };
   },
 
   removeHotkey(commandKey) {
@@ -642,11 +639,24 @@ export const ZenCommandPalette = {
       return;
     }
 
+    let appliedCount = 0;
+    let conflictCount = 0;
+
     for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
       if (!shortcutStr) continue;
-      this.addHotkey(commandKey, shortcutStr);
+      const result = this.addHotkey(commandKey, shortcutStr);
+      if (result.success) {
+        appliedCount++;
+      } else {
+        conflictCount++;
+        debugError(
+          `Skipping shortcut for "${commandKey}" due to conflict: ${shortcutStr}`,
+          result.conflictInfo
+        );
+      }
     }
-    debugLog("Applied initial custom shortcuts.");
+
+    debugLog(`Applied ${appliedCount} shortcuts, skipped ${conflictCount} due to conflicts.`);
   },
 
   async applyToolbarButtons() {

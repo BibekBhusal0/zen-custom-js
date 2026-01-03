@@ -222,11 +222,16 @@
             align-items: center;
             padding: 8px;
             border-radius: 6px;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, box-shadow 0.2s;
 
             &:hover {
               background-color: rgba(127, 127, 127, 0.05);
             }
+          }
+
+          .command-item:has(.shortcut-input.conflict) {
+            background-color: rgba(255, 107, 107, 0.1);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15);
           }
 
           .command-icon {
@@ -263,6 +268,7 @@
               position: relative;
               display: flex;
               flex-direction: column;
+              margin-bottom: 4px;
             }
 
             .shortcut-input {
@@ -270,14 +276,70 @@
               padding: 6px 10px !important;
               font-size: 13px !important;
               text-align: center !important;
-              border-radius: 4px !important;
-              border: 1px solid rgba(127, 127, 127, 0.3) !important;
+              border-radius:4px !important;
+              border:1px solid rgba(127, 127, 127, 0.3) !important;
               background-color: rgba(0, 0, 0, 0.2) !important;
+              transition: border-color 0.2s ease, outline-color 0.2s ease, background-color 0.2s ease;
 
               &:disabled {
-                opacity: 0.5 !important;
+                opacity:0.5 !important;
                 cursor: not-allowed !important;
               }
+
+              &.conflict {
+                border-color: #ff6b6b !important;
+                outline: 2px solid #ff6b6b !important;
+                background-color: rgba(255, 107, 107, 0.1) !important;
+              }
+            }
+
+            .shortcut-conflict-warning {
+              position: absolute;
+              bottom: -22px;
+              left: 0;
+              width: 100%;
+              min-width: 200px;
+              text-align: center;
+              font-size: 11px;
+              color: #ff6b6b;
+              font-weight: 600;
+              padding: 4px 8px;
+              background-color: var(--modal-bg);
+              border-radius: 4px;
+              border: 1px solid rgba(255, 107, 107, 0.4);
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+              z-index: 10;
+              opacity: 0;
+              transition: opacity 0.2s ease;
+              pointer-events: none;
+
+              &:not([hidden]) {
+                opacity: 1;
+              }
+            }
+
+              &.conflict {
+                border-color: #ff6b6b !important;
+                outline:2px solid #ff6b6b !important;
+                background-color: rgba(255, 107, 107, 0.1) !important;
+              }
+            }
+              50% {
+                outline-offset: 4px;
+              }
+            }
+
+            @keyframes shake {
+              0%, 100% {
+                transform: translateX(0);
+              }
+              25% {
+                transform: translateX(-4px);
+              }
+              75% {
+                transform: translateX(4px);
+              }
+            }
 
               &.conflict {
                 border-color: #ff6b6b !important;
