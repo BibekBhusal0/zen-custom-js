@@ -16,10 +16,11 @@ import {
 import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
-import { parseShortcutString } from "../utils/keyboard.js";
+import { ShortcutRegistry } from "../utils/keyboard.js";
 import { startupFinish } from "../utils/startup-finish.js";
 
 export const ZenCommandPalette = {
+  _shortcutRegistry: new ShortcutRegistry(),
   /**
    * An array of dynamic command providers. Each provider is an object
    * containing a function to generate commands and an optional preference for enabling/disabling.
@@ -509,31 +510,36 @@ export const ZenCommandPalette = {
     }
   },
 
-  async addHotkey(commandKey, shortcutStr) {
+  addHotkey(commandKey, shortcutStr) {
     debugLog(`addHotkey called for command "${commandKey}" with shortcut "${shortcutStr}"`);
-    const { key, keycode, modifiers } = parseShortcutString(shortcutStr);
-    const useKey = key || keycode;
-    if (!useKey) {
-      debugError(`addHotkey: Invalid shortcut string "${shortcutStr}" for command "${commandKey}"`);
-      return;
+    if (!shortcutStr) {
+      debugError(`addHotkey: Empty shortcut string for command "${commandKey}"`);
+      return false;
     }
 
-    const translatedModifiers = modifiers.replace(/accel/g, "ctrl").replace(/,/g, " ");
-    try {
-      const hotkey = {
-        id: `zen-cmd-palette-shortcut-for-${commandKey}`,
-        modifiers: translatedModifiers,
-        key: useKey,
-        command: () => this.executeCommandByKey(commandKey),
-      };
-      const registeredHotkey = await UC_API.Hotkeys.define(hotkey);
-      if (registeredHotkey) {
-        registeredHotkey.autoAttach({ suppressOriginal: true });
-        debugLog(`Successfully defined hotkey for command "${commandKey}"`);
-      }
-    } catch (e) {
-      debugError(`Failed to register new shortcut for ${commandKey}:`, e);
+    const shortcutId = `zen-cmd-palette-shortcut-for-${commandKey}`;
+    const success = this._shortcutRegistry.register(
+      shortcutStr,
+      shortcutId,
+      () => this.executeCommandByKey(commandKey),
+      false
+    );
+
+    if (success) {
+      debugLog(`Successfully registered shortcut for command "${commandKey}": ${shortcutStr}`);
+    } else {
+      debugError(`Failed to register shortcut for command "${commandKey}": ${shortcutStr}`);
     }
+    return success;
+  },
+
+  removeHotkey(commandKey) {
+    const shortcutId = `zen-cmd-palette-shortcut-for-${commandKey}`;
+    const success = this._shortcutRegistry.unregisterById(shortcutId);
+    if (success) {
+      debugLog(`Successfully unregistered shortcut for command "${commandKey}"`);
+    }
+    return success;
   },
 
   /**
@@ -592,7 +598,7 @@ export const ZenCommandPalette = {
   /**
    * Applies user-configured settings, such as custom shortcuts.
    */
-  applyUserConfig() {
+  async applyUserConfig() {
     this.applyCustomShortcuts();
     this.applyToolbarButtons();
     this.applyNativeOverrides();
@@ -628,9 +634,9 @@ export const ZenCommandPalette = {
   },
 
   /**
-   * Creates <key> elements for custom shortcuts and adds them to the document.
+   * Applies custom shortcuts using event listeners.
    */
-  async applyCustomShortcuts() {
+  applyCustomShortcuts() {
     if (!this._userConfig.customShortcuts) {
       debugLog("No custom shortcuts to apply on initial load.");
       return;
@@ -638,7 +644,7 @@ export const ZenCommandPalette = {
 
     for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
       if (!shortcutStr) continue;
-      await this.addHotkey(commandKey, shortcutStr);
+      this.addHotkey(commandKey, shortcutStr);
     }
     debugLog("Applied initial custom shortcuts.");
   },
@@ -656,6 +662,10 @@ export const ZenCommandPalette = {
   },
 
   destroy() {
+    if (this._shortcutRegistry) {
+      this._shortcutRegistry.destroy();
+      debugLog("Shortcut registry destroyed.");
+    }
     if (this.provider) {
       const { UrlbarProvidersManager } = ChromeUtils.importESModule(
         "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
@@ -693,6 +703,9 @@ export const ZenCommandPalette = {
     await this.loadUserConfig();
     this.applyUserConfig();
     debugLog("User config loaded and applied.");
+
+    this._shortcutRegistry.init();
+    debugLog("Shortcut registry initialized.");
 
     this.attachUrlbarCloseListeners();
 

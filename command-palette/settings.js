@@ -1,4 +1,4 @@
-import { PREFS, debugLog } from "./utils/prefs.js";
+import { PREFS, debugLog, debugError } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
@@ -168,13 +168,26 @@ const SettingsModal = {
     const newShortcutsJSON = JSON.stringify(newSettings.customShortcuts || {});
 
     if (oldShortcutsJSON !== newShortcutsJSON) {
-      if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
-        window.ucAPI.showToast(
-          ["Shortcut Changed", "A restart is required for shortcut changes to take effect."],
-          1 // Restart preset
-        );
-      } else {
-        alert("Please restart Zen for shortcut changes to take effect.");
+      const oldShortcuts = oldSettings.customShortcuts || {};
+      const newShortcuts = newSettings.customShortcuts || {};
+
+      // Remove old shortcuts
+      for (const [commandKey] of Object.entries(oldShortcuts)) {
+        if (!newShortcuts[commandKey]) {
+          this._mainModule.removeHotkey(commandKey);
+        }
+      }
+
+      // Add/update new shortcuts
+      for (const [commandKey, shortcutStr] of Object.entries(newShortcuts)) {
+        if (oldShortcuts[commandKey] !== shortcutStr) {
+          if (oldShortcuts[commandKey]) {
+            this._mainModule.removeHotkey(commandKey);
+          }
+          if (shortcutStr) {
+            this._mainModule.addHotkey(commandKey, shortcutStr);
+          }
+        }
       }
     }
   },
@@ -350,6 +363,7 @@ const SettingsModal = {
       shortcutInput.addEventListener("focus", (e) => {
         this._currentShortcutTarget = e.target;
         e.target.value = "Press keys...";
+        e.target.placeholder = "";
         window.addEventListener("keydown", this._boundHandleShortcutKeyDown, true);
       });
       shortcutInput.addEventListener("blur", () => {
@@ -359,6 +373,10 @@ const SettingsModal = {
           this._currentShortcutTarget = null;
         }
         window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      });
+      shortcutInput.addEventListener("keydown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
       });
     }
 
@@ -384,7 +402,7 @@ const SettingsModal = {
     }
   },
 
-  async _handleShortcutKeyDown(event) {
+  _handleShortcutKeyDown(event) {
     if (!this._currentShortcutTarget) return;
 
     event.preventDefault();
@@ -393,12 +411,12 @@ const SettingsModal = {
     const key = event.key;
     const targetInput = this._currentShortcutTarget;
     const commandItem = targetInput.closest(".command-item");
-    const commandKey = commandItem.dataset.key;
-    const conflictWarning = commandItem.querySelector(".shortcut-conflict-warning");
+    const commandKey = commandItem?.dataset.key;
+    const conflictWarning = commandItem?.querySelector(".shortcut-conflict-warning");
 
     const clearConflict = () => {
       targetInput.classList.remove("conflict");
-      conflictWarning.hidden = true;
+      if (conflictWarning) conflictWarning.hidden = true;
     };
 
     if (key === "Escape") {
@@ -409,7 +427,9 @@ const SettingsModal = {
 
     if (key === "Backspace" || key === "Delete") {
       targetInput.value = "";
-      delete this._currentSettings.customShortcuts[commandKey];
+      if (commandKey) {
+        delete this._currentSettings.customShortcuts[commandKey];
+      }
       clearConflict();
       window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
       this._currentShortcutTarget = null;
@@ -417,7 +437,11 @@ const SettingsModal = {
       return;
     }
 
-    // Ignore modifier-only key presses
+    if (!commandKey) {
+      targetInput.blur();
+      return;
+    }
+
     if (["Control", "Alt", "Shift", "Meta"].includes(key)) {
       return;
     }
@@ -429,23 +453,30 @@ const SettingsModal = {
     if (event.metaKey) shortcutString += "Meta+";
     shortcutString += key.toUpperCase();
 
-    const modifiers = new nsKeyShortcutModifiers(
-      event.ctrlKey,
-      event.altKey,
-      event.shiftKey,
-      event.metaKey,
-      false
-    );
+    let hasConflict = false;
 
-    let hasConflict = window.gZenKeyboardShortcutsManager.checkForConflicts(
-      key,
-      modifiers,
-      commandKey
-    );
+    if (window.gZenKeyboardShortcutsManager) {
+      try {
+        const modifiers = new nsKeyShortcutModifiers(
+          event.ctrlKey,
+          event.altKey,
+          event.shiftKey,
+          event.metaKey,
+          false
+        );
+        hasConflict = window.gZenKeyboardShortcutsManager.checkForConflicts(
+          key,
+          modifiers,
+          commandKey
+        );
+      } catch (e) {
+        debugError("Error checking Zen shortcut conflicts:", e);
+      }
+    }
 
     if (!hasConflict) {
       for (const [otherCmdKey, otherShortcutStr] of Object.entries(
-        this._currentSettings.customShortcuts
+        this._currentSettings.customShortcuts || {}
       )) {
         if (otherCmdKey !== commandKey && otherShortcutStr === shortcutString) {
           hasConflict = true;
@@ -458,7 +489,7 @@ const SettingsModal = {
 
     if (hasConflict) {
       targetInput.classList.add("conflict");
-      conflictWarning.hidden = false;
+      if (conflictWarning) conflictWarning.hidden = false;
       debugLog(`Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`);
       delete this._currentSettings.customShortcuts[commandKey];
     } else {
