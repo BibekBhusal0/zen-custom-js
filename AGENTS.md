@@ -1,213 +1,135 @@
 # Code Assistant Context
 
-This document provides context for the code assistant to understand the project structure, conventions, and goals.
+This document provides context for code assistants working on this Zen Browser customization repository.
 
 ## Project Overview
 
-This is a collection of user scripts and CSS modifications for the [Zen Browser](https://zen-browser.app/), a Firefox-based browser. The project enhances the browsing experience with features like a command palette, AI integration in the findbar, and UI tweaks.
+Collection of user scripts and CSS modifications for Zen Browser (Firefox-based). Each feature is self-contained in its own directory. Uses Node.js + Rollup to bundle scripts into `.uc.js` files.
 
-The project is structured as a monorepo, with each feature residing in its own directory. It uses Node.js and Rollup to bundle and manage the scripts.
+**Key Technologies**: JavaScript (ESM), CSS, Rollup.js, Node.js/npm
 
-### Key Technologies
-
-- **JavaScript (ESM)**: The core language for the user scripts.
-- **CSS**: For styling the custom UI elements.
-- **Rollup.js**: To bundle multiple script files into a single `.uc.js` file for each mod.
-- **Node.js/npm**: For managing dependencies and running build scripts.
-- **GitHub Actions**: For automating builds, formatting, and publishing.
-
-## Build and Development Commands
+## Build Commands
 
 ```bash
-# Build all mods
-npm run build
-
-# Build a specific mod (palette, browsebot, reopen, sidebar, select, search)
-npm run build:palette
-
-# Development mode with auto-rebuild for all mods
-npm run dev
-
-# Development mode for a specific mod
-npm run dev:palette
-
-# Format code
-npm run format
-
-# Lint code
-npm run lint
+npm run build                  # Build all mods
+npm run build:palette          # Build specific mod
+npm run build:browsebot
+npm run build:reopen
+npm run build:sidebar
+npm run build:select
+npm run build:search
+npm run dev                    # Watch mode for all mods
+npm run dev:palette            # Watch specific mod
+npm run dev:browsebot
+npm run format                 # Format code with Prettier
+npm run lint                   # Run ESLint
 ```
 
-The bundled files are placed in the `dist/` directory.
+**No test framework exists** - manual testing in browser required. Bundled files go to `dist/`.
 
 ## Code Style Guidelines
 
 ### Imports and Modules
 
 - Use ES6 modules (`import`/`export`)
-- Import Firefox browser globals from ChromeUtils (e.g., `ChromeUtils.importESModule`)
-- Import utility functions from `utils/` directory
-- Relative imports use `../utils/` for shared utilities, `./utils/` for mod-specific utilities
+- Import Firefox globals via `ChromeUtils.importESModule`
+- Shared utilities from `utils/` directory
+- Relative imports: `../utils/` for shared, `./utils/` for mod-specific
 
-### Formatting
+### Formatting (Prettier)
 
-The project uses Prettier with these settings:
+```json
+{
+  "printWidth": 100,
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "es5",
+  "arrowParens": "always"
+}
+```
 
-- Print width: 100 characters
-- Tab width: 2 spaces (no tabs)
-- Semicolons: required
-- Quotes: double quotes (single quotes: false)
-- Trailing commas: ES5
-- Arrow function parentheses: always
-
-Run `npm run format` before committing.
-
-### Types and Documentation
-
-- No TypeScript - use JSDoc comments for type documentation
-- Document functions with `@param` and `@returns` tags
-- Include `@type {Type}` comments for complex types
-- Example:
-  ```javascript
-  /**
-   * Executes a command by its key.
-   * @param {string} key - The command identifier.
-   * @returns {Promise<void>}
-   */
-  async executeCommandByKey(key) { ... }
-  ```
+Run `npm run format` before committing. Formatting is also automated on push.
 
 ### Naming Conventions
 
-- **Variables and functions**: `camelCase` (e.g., `getPreference`, `userConfig`)
-- **Classes**: `PascalCase` (e.g., `ZenCommandProvider`)
-- **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_RECENT_COMMANDS`, `PREFS`)
-- **Private methods**: prefix with underscore (e.g., `_closeUrlBar`, `_validateInput`)
-- **Event handlers**: descriptive names like `handleUrlbarClose`, `onUrlbarClose`
-- **DOM elements**: descriptive names like `inputField`, `resultElement`
+- **Variables/functions**: `camelCase` (`getPreference`, `userConfig`)
+- **Classes**: `PascalCase` (`ZenCommandProvider`)
+- **Constants**: `UPPER_SNAKE_CASE` (`MAX_RECENT_COMMANDS`, `PREFS`)
+- **Private methods**: underscore prefix (`_closeUrlBar`, `_validateInput`)
+- **Event handlers**: descriptive (`handleUrlbarClose`, `onUrlbarClose`)
+- **DOM elements**: descriptive (`inputField`, `resultElement`)
+
+### Types and Documentation
+
+No TypeScript - use JSDoc comments:
+
+```javascript
+/**
+ * Executes a command by its key.
+ * @param {string} key - The command identifier.
+ * @returns {Promise<void>}
+ */
+async executeCommandByKey(key) { ... }
+```
 
 ### Error Handling
 
-- Wrap potentially failing code in try-catch blocks
-- Use `debugError(...)` for logging errors (only logs in debug mode)
-- Return fallback values on errors (e.g., return default config, null, or empty array)
-- Example pattern:
-  ```javascript
-  try {
-    const pref = UC_API.Prefs.get(key);
-    if (!pref.exists()) return defaultValues[key];
-    return pref.value;
-  } catch (e) {
-    debugError("Error getting preference:", e);
-    return defaultValues[key];
-  }
-  ```
+Wrap potentially failing code in try-catch. Use `debugError(...)` for logging. Return fallback values on errors.
+
+```javascript
+try {
+  const pref = UC_API.Prefs.get(key);
+  if (!pref.exists()) return defaultValues[key];
+  return pref.value;
+} catch (e) {
+  debugError("Error getting preference:", e);
+  return defaultValues[key];
+}
+```
 
 ### Debug Logging
 
-- Use `debugLog(...)` for debug output (only logs in debug mode)
-- Use `debugError(...)` for errors
-- Prefix logs with mod name for clarity (e.g., `console.log("BrowseBot:", ...args)`)
-- Debug mode is controlled by a preference key (e.g., `PREFS.DEBUG_MODE`)
+- `debugLog(...)` for debug output (only in debug mode)
+- `debugError(...)` for errors
+- Prefix logs with mod name: `console.log("Palette:", ...args)`
+- Debug mode controlled by preference key (`PREFS.DEBUG_MODE`)
 
-### Utility Functions
+### Firefox Integration
 
-The `utils/` directory contains reusable utilities:
-
-- `parseElement()` from `utils/parse.js` - creates DOM elements from HTML/XUL strings
-- `startupFinish()` from `utils/startup-finish.js` - ensures browser is ready before init
-- `parseShortcutString()` from `utils/keyboard.js` - parses keyboard shortcuts
+- Use `ChromeUtils.importESModule()` for Firefox modules
+- Use `UC_API` for Zen Browser API (prefs, widgets, hotkeys)
+- Pre-defined globals (eslint.config.js): `gBrowser`, `Services`, `ChromeUtils`, etc.
 
 ### Preferences Pattern
 
-Each mod uses a `PREFS` object to manage settings:
-
-- Define preference keys as constants (e.g., `KEYS.ENABLED`, `KEYS.DEBUG_MODE`)
-- Implement getter/setter pairs for commonly accessed prefs
-- Store default values in `defaultValues` object
-- Use `getPref(key)` and `setPref(key, value)` methods
-- Example:
-  ```javascript
-  export const PREFS = {
-    KEYS: {
-      ENABLED: "mod-name.enabled",
-      DEBUG_MODE: "mod-name.debug-mode",
-    },
-    getPref(key) { ... },
-    setPref(key, value) { ... },
-    get enabled() { return this.getPref(this.KEYS.ENABLED); },
-    defaultValues: { [PREFS.KEYS.ENABLED]: true },
-  };
-  ```
-
-### File Structure
-
-Each mod is self-contained in its directory:
-
-- `index.js` - Main entry point and initialization
-- `style.css` - Mod-specific styles
-- `theme.json` - Metadata (name, version, description) for UserScript header
-- `preferences.json` - Optional default settings
-- `utils/` - Mod-specific utilities (optional)
-- `README.md` - Documentation
-- `release-notes.md` - Version history
-
-### Command Pattern
-
-For command palette integration, commands follow this structure:
-
 ```javascript
-{
-  key: "mod:action",           // Unique identifier
-  label: "Display Name",      // User-visible text
-  icon: "path/to/icon.svg",   // Optional icon
-  command: () => {},          // Function to execute
-  condition: () => true,     // Optional visibility condition
-  tags: ["tag1", "tag2"],     // Optional search tags
-}
+export const PREFS = {
+  KEYS: { ENABLED: "mod-name.enabled", DEBUG_MODE: "mod-name.debug-mode" },
+  getPref(key) { ... },
+  setPref(key, value) { ... },
+  get enabled() { return this.getPref(this.KEYS.ENABLED); },
+  defaultValues: { [PREFS.KEYS.ENABLED]: true },
+};
 ```
 
 ### DOM Manipulation
 
-- Use `parseElement()` from `utils/parse.js` for creating elements from HTML strings
-- Use `MozXULElement.parseXULToFragment()` for Firefox XUL elements
-- Avoid direct string concatenation for HTML - use template literals or parseElement
-- Example:
-  ```javascript
-  const element = parseElement(`<div class="my-class">Content</div>`);
-  container.appendChild(element);
-  ```
+Use `parseElement()` from `utils/parse.js`:
 
-### Asynchronous Patterns
+```javascript
+import { parseElement } from "../utils/parse.js";
+const element = parseElement(`<div class="my-class">Content</div>`);
+```
 
-- Use `async/await` for asynchronous operations
-- Handle promises properly with try-catch
-- Use `Promise.all()` for parallel operations
-- Clean up listeners and resources in destroy/teardown methods
+### File Structure
 
-### Firefox Integration
+Each mod directory contains: `index.js`, `style.css`, `theme.json`, `preferences.json`, `README.md`, optional `utils/`, optional `release-notes.md`.
 
-- Use `ChromeUtils.importESModule()` for loading Firefox modules
-- Use `UC_API` for accessing Zen Browser API (prefs, widgets, hotkeys)
-- Firefox globals are pre-defined in eslint.config.js (gBrowser, Services, etc.)
-- Common modules:
-  - `browser/components/urlbar/UrlbarUtils.sys.mjs`
-  - `browser/components/urlbar/UrlbarProvidersManager.sys.mjs`
+### Commits and PRs
 
-### Linting
-
-Run `npm run lint` before committing. The project uses ESLint with these rules:
-
-- `no-unused-vars`: warn
-- `no-undef`: warn
-- `no-empty`: off
-
-### Commits and Pull Requests
-
-- Commit messages follow Conventional Commits: `feat(mod-name): description`
-- Run `npm run format` and `npm run lint` before committing
-- Ensure changes are tested before submitting PRs
+Follow Conventional Commits: `feat(mod-name): description`, `fix(mod-name): description`. Run `npm run format && npm run lint` before committing.
 
 ### Publishing
 
-Publishing is automated via GitHub Actions. To trigger a release, increment the `version` field in a mod's `theme.json` file.
+Automated via GitHub Actions. Increment `version` in `theme.json` to trigger release. Versions ending with `b` (e.g., `1.0.1b`) go to beta branch.
