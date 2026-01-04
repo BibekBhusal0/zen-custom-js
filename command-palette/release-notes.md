@@ -9,9 +9,6 @@
 
 - Made compactable with latest zen version.
 - Updated some icons which were not rendering properly.
-
----
-
 - Keyboard shortcut working in all mac
 - Keyboard shortcut no longer requires restart
 
