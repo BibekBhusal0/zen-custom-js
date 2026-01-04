@@ -8,7 +8,7 @@
   "js": true,
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Browse-Bot/main/README.md",
   "author": "Bibek Bhusal",
-  "version": "2.0.0",
+  "version": "2.5.0",
   "tags": [
     "ai",
     "findbar",
@@ -16,7 +16,6 @@
     "gemini",
     "Artificial Intelligence",
     "LLM",
-    "sine",
     "zen browser",
     "chat",
     "BrowseBot",
