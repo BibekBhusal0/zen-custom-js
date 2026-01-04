@@ -541,10 +541,7 @@ const SettingsModal = {
     }
 
     customCommands.forEach((cmd) => {
-      const defaultIcon =
-        cmd.type === "js"
-          ? "chrome://browser/skin/zen-icons/source-code.svg"
-          : "chrome://browser/skin/zen-icons/settings.svg";
+      const defaultIcon = "chrome://browser/skin/trending.svg"
       const icon = cmd.icon || defaultIcon;
 
       const item = parseElement(`

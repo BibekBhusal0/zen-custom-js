@@ -85,7 +85,8 @@
       "type": "js",
       "id": "custom-js-1767548301113",
       "name": "Toggle transparency",
-      "code": "(async function() {\n\n  const browserTransparent = UC_API.Prefs.get(\"browser.tabs.allow_transparent_browser\").value\n\n  const prefs = [\n    \"browser.tabs.allow_transparent_browser\",\n    \"mod.sameerasw.zen_transparent_glance_enabled\",\n    \"widget.transparent-windows\",\n    \"zen.widget.linux.transparency\",\n  ]\n\n  for (let pref of prefs) {\n    UC_API.Prefs.set(pref, !browserTransparent)\n  }\n\n  const zenInternetId = \"{91aa3897-2634-4a8a-9092-279db23a7689}\"\n  const transparentZenId = \"642854b5-88b4-4c40-b256-e035532109df\"\n  const zenInternet = await AddonManager.getAddonByID(zenInternetId)\n\n\n  if (browserTransparent) {\n    zenInternet?.disable()\n    SineAPI.manager.disableMod(transparentZenId)\n  } else {\n    zenInternet?.enable()\n    SineAPI.manager.enableMod(transparentZenId)\n  }\n})();"
+      "code": "(async function() {\n\n  const browserTransparent = UC_API.Prefs.get(\"browser.tabs.allow_transparent_browser\").value\n\n  const prefs = [\n    \"browser.tabs.allow_transparent_browser\",\n    \"mod.sameerasw.zen_transparent_glance_enabled\",\n    \"widget.transparent-windows\",\n    \"zen.widget.linux.transparency\",\n  ]\n\n  for (let pref of prefs) {\n    UC_API.Prefs.set(pref, !browserTransparent)\n  }\n\n  const zenInternetId = \"{91aa3897-2634-4a8a-9092-279db23a7689}\"\n  const transparentZenId = \"642854b5-88b4-4c40-b256-e035532109df\"\n  const zenInternet = await AddonManager.getAddonByID(zenInternetId)\n\n\n  if (browserTransparent) {\n    zenInternet?.disable()\n    SineAPI.manager.disableMod(transparentZenId)\n  } else {\n    zenInternet?.enable()\n    SineAPI.manager.enableMod(transparentZenId)\n  }\n})();",
+      "icon" : "chrome://browser/skin/trending.svg"
     }
   ]
 }
