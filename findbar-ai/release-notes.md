@@ -5,6 +5,7 @@
 - Advanced Parameter controls for LLM like temperature, top-k, frequency penalty
 - Reset button in each section to reset the settings to default
 - Customize keyboard shortcuts
+- Customize system prompts
 
 # Fixes
 
