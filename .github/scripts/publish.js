@@ -220,7 +220,7 @@ async function processMod(modData) {
         if (theme.id === "browse-bot") {
           if (isBeta && file === "browse-bot-all.uc.js") {
             fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
-          } else if (!isBeta && (file === "browse-bot.uc.js" || file === "vercel-ai-sdk.uc.js")) {
+          } else if (!isBeta && (file === "browse-bot.uc.mjs" || file === "vercel-ai-sdk.uc.js")) {
             fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
           }
         } else {
@@ -418,13 +418,21 @@ async function createSineStorePR(modData, preparedDir) {
   // Copy bundled files
   if (theme.id === "browse-bot") {
     fs.copyFileSync(
-      path.join(preparedDir, "browse-bot.uc.js"),
-      path.join(storeModDir, "browse-bot.uc.js")
+      path.join(preparedDir, "browse-bot.uc.mjs"),
+      path.join(storeModDir, "browse-bot.uc.mjs")
     );
     fs.copyFileSync(
       path.join(preparedDir, "vercel-ai-sdk.uc.js"),
       path.join(storeModDir, "vercel-ai-sdk.uc.js")
     );
+
+    // Update import path in browse-bot.uc.mjs
+    const browseBotFile = path.join(storeModDir, "browse-bot.uc.mjs");
+    if (fs.existsSync(browseBotFile)) {
+      let content = fs.readFileSync(browseBotFile, "utf8");
+      content = content.replace(/from\s+["']\.\/vercel-ai-sdk\.uc\.js["']/g, 'from "./browse-bot_vercel-ai-sdk.uc.js"');
+      fs.writeFileSync(browseBotFile, content);
+    }
   } else {
     const jsFile = `${theme.id}.uc.js`;
     fs.copyFileSync(path.join(preparedDir, jsFile), path.join(storeModDir, jsFile));

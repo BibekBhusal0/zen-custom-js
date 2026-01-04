@@ -128,7 +128,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
               ? "vercel-ai-sdk.uc.js"
               : "[name]-[hash].uc.js";
           },
-          entryFileNames: "browse-bot.uc.js",
+          entryFileNames: "browse-bot.uc.mjs",
           banner: (chunkInfo) => {
             return chunkInfo.name !== "vercel-ai-sdk" ? banner : "";
           },
