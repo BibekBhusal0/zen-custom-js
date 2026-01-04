@@ -107,7 +107,7 @@
           align-items: start !important;
           textarea{
             width: calc(100% - 40px) !important;
-            margin-left: 15px !important;
+            margin: 8px 0 0 15px  !important;
           }
         }
 
@@ -383,6 +383,9 @@ findbar,
     max-width: 50px !important;
     text-align: center !important;
     font-size: 16px !important;
+    &#pref-extension\.browse-bot\.llm\.max-output-tokens {
+      max-width: 90px !important;
+    }
   }
 
   select {
