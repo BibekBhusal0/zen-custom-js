@@ -9,8 +9,14 @@
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Search-Engine-Select/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.1.0",
-  "tags": ["Search", "Search Engine", "Google"],
+  "tags": [
+    "Search",
+    "Search Engine",
+    "Google"
+  ],
   "createdAt": "2025-06-23",
-  "updatedAt": "2026-01-02",
-  "fork": ["zen"]
+  "updatedAt": "2026-01-04",
+  "fork": [
+    "zen"
+  ]
 }
