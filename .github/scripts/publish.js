@@ -12,8 +12,7 @@ const MODS_DIR = path.resolve(__dirname, "../../");
 const TEMPLATES_DIR = path.join(MODS_DIR, "templates");
 const ORG_NAME = "Vertex-Mods";
 // const MAIN_REPO = 'BibekBhusal0/zen-custom-js';
-// const SINE_STORE_REPO = 'bibekBhusal0/sine-store'; // Use fork for testing
-const SINE_STORE_REPO = "sineorg/store"; // Production
+// const SINE_STORE_REPO = 'bibekBhusal0/sine-store';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_ACTOR = process.env.GITHUB_ACTOR || "github-actions[bot]";
@@ -397,8 +396,11 @@ async function createSineStorePR(modData, preparedDir) {
   console.log(`Creating Sine Store PR for ${folder}...`);
 
   const storeDir = path.join(process.env.RUNNER_TEMP || "/tmp", `store-${folder}-${Date.now()}`);
+  const myFork = "bibekBhusal0/sine-store";
+  const upstream = "sineorg/store";
+  
   run(
-    `git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${SINE_STORE_REPO}.git ${storeDir}`
+    `git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${myFork}.git ${storeDir}`
   );
 
   const modId = theme.id;
@@ -433,16 +435,16 @@ async function createSineStorePR(modData, preparedDir) {
     run(`git commit -m "Update ${theme.name} to version ${theme.version}"`, storeDir);
     run(`git push origin ${branchName}`, storeDir);
 
-    // Create PR
-    const [owner, repo] = SINE_STORE_REPO.split("/");
+    const [upstreamOwner, upstreamRepo] = upstream.split("/");
     const prBody = {
       title: `Update ${theme.name} to version ${theme.version}`,
       body: `Update ${theme.name} to version ${theme.version}\n\n[Vertex-Mods Repository](https://github.com/${ORG_NAME}/${getRepoName(theme)})`,
-      head: branchName,
+      head: `bibekBhusal0:${branchName}`,
       base: "main",
     };
 
-    await githubRequest(`https://api.github.com/repos/${owner}/${repo}/pulls`, "POST", prBody);
+    await githubRequest(`https://api.github.com/repos/${upstreamOwner}/${upstreamRepo}/pulls`, "POST", prBody);
+    console.log(`PR created successfully for ${theme.name}`);
   } catch (e) {
     console.log("Failed to create PR (maybe no changes or error)", e);
   }
