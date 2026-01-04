@@ -398,10 +398,8 @@ async function createSineStorePR(modData, preparedDir) {
   const storeDir = path.join(process.env.RUNNER_TEMP || "/tmp", `store-${folder}-${Date.now()}`);
   const myFork = "bibekBhusal0/sine-store";
   const upstream = "sineorg/store";
-  
-  run(
-    `git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${myFork}.git ${storeDir}`
-  );
+
+  run(`git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${myFork}.git ${storeDir}`);
 
   const modId = theme.id;
   const storeModDir = path.join(storeDir, "mods", modId);
@@ -430,7 +428,10 @@ async function createSineStorePR(modData, preparedDir) {
     const browseBotFile = path.join(storeModDir, "browse-bot.uc.mjs");
     if (fs.existsSync(browseBotFile)) {
       let content = fs.readFileSync(browseBotFile, "utf8");
-      content = content.replace(/from\s+["']\.\/vercel-ai-sdk\.uc\.js["']/g, 'from "./browse-bot_vercel-ai-sdk.uc.js"');
+      content = content.replace(
+        /from\s+["']\.\/vercel-ai-sdk\.uc\.js["']/g,
+        'from "./browse-bot_vercel-ai-sdk.uc.js"'
+      );
       fs.writeFileSync(browseBotFile, content);
     }
   } else {
@@ -451,7 +452,11 @@ async function createSineStorePR(modData, preparedDir) {
       base: "main",
     };
 
-    await githubRequest(`https://api.github.com/repos/${upstreamOwner}/${upstreamRepo}/pulls`, "POST", prBody);
+    await githubRequest(
+      `https://api.github.com/repos/${upstreamOwner}/${upstreamRepo}/pulls`,
+      "POST",
+      prBody
+    );
     console.log(`PR created successfully for ${theme.name}`);
   } catch (e) {
     console.log("Failed to create PR (maybe no changes or error)", e);
@@ -485,4 +490,3 @@ async function main() {
 }
 
 main();
-
