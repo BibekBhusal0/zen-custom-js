@@ -745,7 +745,7 @@ browser {
           border-bottom: 0 !important;
           width: calc(100% - 35px) !important;
           padding-right: 3px !important;
-          
+
           &::before {
             margin-top: 5px !important;
             margin-right: 10px;

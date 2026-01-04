@@ -101,13 +101,13 @@
         align-items: center;
         padding: 8px 0;
         border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
-        
-        &:has(textarea){
+
+        &:has(textarea) {
           flex-direction: column !important;
           align-items: start !important;
-          textarea{
+          textarea {
             width: calc(100% - 40px) !important;
-            margin: 8px 0 0 15px  !important;
+            margin: 8px 0 0 15px !important;
           }
         }
 

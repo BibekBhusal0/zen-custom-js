@@ -9,10 +9,7 @@
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Floating-Sidebar/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.1.0",
-  "tags": [
-    "Sidebar",
-    "Pin"
-  ],
+  "tags": ["Sidebar", "Pin"],
   "createdAt": "2025-06-23",
   "updatedAt": "2026-01-04"
 }

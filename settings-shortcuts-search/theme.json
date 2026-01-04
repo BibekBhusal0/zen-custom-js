@@ -11,20 +11,9 @@
   "image": "https://raw.githubusercontent.com/Vertex-Mods/Search-Keyboard-Shortcuts/main/image.png",
   "author": "Bibek Bhusal",
   "version": "1.1.0",
-  "tags": [
-    "Search",
-    "sine",
-    "fx-autoconfig",
-    "JavaScript",
-    "Bibek Bhusal"
-  ],
+  "tags": ["Search", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
   "createdAt": "2025-06-23",
   "updatedAt": "2026-01-04",
-  "fork": [
-    "zen"
-  ],
-  "include": [
-    "about:preferences*",
-    "about:settings*"
-  ]
+  "fork": ["zen"],
+  "include": ["about:preferences*", "about:settings*"]
 }
