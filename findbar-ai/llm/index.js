@@ -303,87 +303,28 @@ Here are some examples demonstrating the correct JSON output format.
       ]
     }
     \`\`\`
-
-**Example 3: The WRONG way (What NOT to do)**
-This is incorrect because it uses one citation \`[1]\` for three different facts. This is lazy and unhelpful.
--   **Your JSON Response (Incorrect):**
-    \`\`\`json
-    {
-      "answer": "This project is a toolkit for loading custom JavaScript into the browser [1]. Its main features include a modern UI [1] and an API for managing hotkeys and notifications [1].",
-      "citations": [
-        {
-          "id": 1,
-          "source_quote": "...a toolkit for loading custom JavaScript... It has features like a modern UI... provides an API for hotkeys and notifications..."
-        }
-      ]
-    }
-    \`\`\`
-
-**Example 4: The WRONG way (What NOT to do)**
-This is incorrect because it uses one citation same id for all facts.
-\`\`\`json
-{
-  "answer": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion [1]. It is built with Tiptap and Vercel AI SDK [1]. You can install it using npm [1]. Features include a slash menu, bubble menu, AI autocomplete, and image uploads [1].",
-  "citations": [
-    {
-      "id": 1,
-      "source_quote": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion."
-    },
-    {
-      "id": 1,
-      "source_quote": "Built with Tiptap + Vercel AI SDK."
-    },
-    {
-      "id": 1,
-      "source_quote": "Installation npm i novel"
-    },
-    {
-      "id": 1,
-      "source_quote": "Features Slash menu & bubble menu AI autocomplete (type ++ to activate, or select from slash menu) Image uploads (drag & drop / copy & paste, or select from slash menu)"
-    }
-  ]
-}
-\`\`\`
-
-**Example 5: The correct format of previous example**
-This example is correct, note that it contain unique \`id\`, and each in text citation match to each citation \`id\`.
-\`\`\`json
-{
-  "answer": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion [1]. It is built with Tiptap and Vercel AI SDK [2]. You can install it using npm [3]. Features include a slash menu, bubble menu, AI autocomplete, and image uploads [4].",
-  "citations": [
-    {
-      "id": 1,
-      "source_quote": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion."
-    },
-    {
-      "id": 2,
-      "source_quote": "Built with Tiptap + Vercel AI SDK."
-    },
-    {
-      "id": 3,
-      "source_quote": "Installation npm i novel"
-    },
-    {
-      "id": 4,
-      "source_quote": "Features Slash menu & bubble menu AI autocomplete (type ++ to activate, or select from slash menu) Image uploads (drag & drop / copy & paste, or select from slash menu)"
-    }
-  ]
-}
-\`\`\`
 `;
     }
 
     if (!this.agenticMode) {
       systemPrompt += `
 - Strictly base all your answers on the webpage content provided below.
-- If the user's question cannot be answered from the content, state that the information is not available on the page.
-
-Here is the initial info about the current page:
-`;
-      const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
-      systemPrompt += JSON.stringify(pageContext);
+- If the user's question cannot be answered from the content, state that the information is not available on the page.`;
     }
     return systemPrompt;
+  }
+
+  async _addUserPromptWithContext(prompt) {
+    let contextString = "";
+    if (this.agenticMode) {
+      const pageContext = messageManagerAPI.getUrlAndTitle();
+      contextString = `Page URL: ${pageContext.url}\nPage Title: ${pageContext.title}`;
+    } else {
+      const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
+      contextString = `Page URL: ${pageContext.url}\nPage Title: ${pageContext.title}\nPage Content: """\n${pageContext.textContent}\n"""`;
+    }
+
+    return `Use the following page context to answer the user's question.\n${contextString}\n\nUser Question: ${prompt}`;
   }
 
   parseModelResponseText(responseText) {
@@ -429,19 +370,31 @@ Here is the initial info about the current page:
       return object;
     }
 
+    const userPromptWithContext = await this._addUserPromptWithContext(prompt);
+    this.history.push({ role: "user", content: prompt });
+    const llmHistory = [...this.history];
+    llmHistory[llmHistory.length - 1] = { role: "user", content: userPromptWithContext };
+
     if (!this.agenticMode) {
       if (this.streamEnabled) {
         const self = this;
-        const streamResult = await super.streamText({ prompt, abortSignal });
-        (async () => {
-          await streamResult.text;
-          if (browseBotFindbar?.findbar) {
-            browseBotFindbar.findbar.history = self.getHistory();
-          }
-        })();
+        const streamResult = await super.streamText({
+          abortSignal,
+          messages: llmHistory,
+          onFinish: (result) => {
+            self.history.push(...result.response.messages);
+            if (browseBotFindbar?.findbar) {
+              browseBotFindbar.findbar.history = self.getHistory();
+            }
+          },
+        });
         return streamResult;
       } else {
-        const result = await super.generateText({ prompt, abortSignal });
+        const result = await super.generateText({
+          abortSignal,
+          messages: llmHistory,
+        });
+        this.history.push(...result.response.messages);
         if (browseBotFindbar?.findbar) {
           browseBotFindbar.findbar.history = this.getHistory();
         }
@@ -475,17 +428,18 @@ Here is the initial info about the current page:
     const tools = getTools(findbarToolGroups, { shouldToolBeCalled, afterToolCall });
 
     const commonConfig = {
-      prompt,
       tools,
       stopWhen: stepCountIs(this.maxToolCalls),
       abortSignal,
+      messages: llmHistory,
     };
 
     if (this.streamEnabled) {
       const self = this;
       return super.streamText({
         ...commonConfig,
-        onFinish: () => {
+        onFinish: (result) => {
+          self.history.push(...result.response.messages);
           if (browseBotFindbar?.findbar) {
             browseBotFindbar.findbar.history = self.getHistory();
           }
@@ -493,6 +447,7 @@ Here is the initial info about the current page:
       });
     } else {
       const result = await super.generateText(commonConfig);
+      this.history.push(...result.response.messages);
       if (browseBotFindbar?.findbar) {
         browseBotFindbar.findbar.history = this.getHistory();
       }

@@ -13,7 +13,6 @@
     "Browser:NextTab": "Alt+J",
     "app:clear-startupCache": "Ctrl+Alt+Shift+R",
     "app:minimize-memory": "Ctrl+Alt+Shift+M",
-    "command-palette:settings-commands": "Ctrl+Shift+Alt+C",
     "custom:open-settings": "Ctrl+Alt+S",
     "custom:paste-and-go": "Alt+V",
     "custom:close-and-prev": "Ctrl+Alt+P",
@@ -25,7 +24,9 @@
     "toggle-toolbar": "Ctrl+Alt+T",
     "unload-other-tabs": "Ctrl+Alt+U",
     "unload-tab": "Alt+U",
-    "custom:advanced-settings": "Ctrl+Alt+Shift+S"
+    "custom:advanced-settings": "Ctrl+Alt+Shift+S",
+    "command-palette:settings-commands": "Alt+E",
+    "browsebot:settings": "Ctrl+,"
   },
   "toolbarButtons": [],
   "customCommands": [
