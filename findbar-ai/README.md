@@ -111,7 +111,7 @@ For advanced users or those not using Sine or who are willing to contribute:
 
 BrowseBot integrates with Zen Command Palette to provide quick access to common actions:
 
-1.  Press `Ctrl+L`  to open the palette.
+1.  Press `Ctrl+L` to open the palette.
 2.  Available BrowseBot commands:
     - **Summarize Page**: Opens the findbar AI and prompts to summarize the current page.
     - **Open BrowseBot Settings**: Opens the BrowseBot settings modal.
@@ -142,11 +142,11 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.cerebras-api-key`                               | String  | _(empty)_                                                   | Your API key for Cerebras AI.                                                                                           |
 | `extension.browse-bot.cerebras-model`                                 | String  | `"llama3.1-8b"`                                             | The specific Cerebras model to use.                                                                                     |
 | `extension.browse-bot.gemini-api-key`                                 | String  | _(empty)_                                                   | Your API key for Google Gemini.                                                                                         |
-| `extension.browse-bot.gemini-model`                                   | String  | `"gemini-2.0-flash"`                                        | The specific Gemini model to use.                                                                                       |
+| `extension.browse-bot.gemini-model`                                   | String  | `"gemini-2.5-flash"`                                        | The specific Gemini model to use.                                                                                       |
 | `extension.browse-bot.mistral-api-key`                                | String  | _(empty)_                                                   | Your API key for Mistral AI.                                                                                            |
 | `extension.browse-bot.mistral-model`                                  | String  | `"mistral-medium-latest"`                                   | The specific Mistral model to use.                                                                                      |
 | `extension.browse-bot.openai-api-key`                                 | String  | _(empty)_                                                   | Your API key for OpenAI.                                                                                                |
-| `extension.browse-bot.openai-model`                                   | String  | `"gpt-4o"`                                                  | The specific OpenAI model to use.                                                                                       |
+| `extension.browse-bot.openai-model`                                   | String  | `"gpt-5.2"`                                                 | The specific OpenAI model to use.                                                                                       |
 | `extension.browse-bot.claude-api-key`                                 | String  | _(empty)_                                                   | Your API key for Anthropic Claude.                                                                                      |
 | `extension.browse-bot.claude-model`                                   | String  | `"claude-opus-4-5"`                                         | The specific Claude model to use.                                                                                       |
 | `extension.browse-bot.grok-api-key`                                   | String  | _(empty)_                                                   | Your API key for xAI Grok.                                                                                              |

@@ -174,7 +174,7 @@
     "property": "extension.browse-bot.gemini-model",
     "label": "Gemini Model",
     "type": "dropdown",
-    "default": "gemini-2.0-flash",
+    "default": "gemini-2.5-flash",
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
       {
@@ -530,7 +530,7 @@
     "property": "extension.browse-bot.openai-model",
     "label": "OpenAI Model",
     "type": "dropdown",
-    "default": "gpt-4o",
+    "default": "gpt-5.2",
     "description": "Select the OpenAI model to use.",
     "options": [
       {
