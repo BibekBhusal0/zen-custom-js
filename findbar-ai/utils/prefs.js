@@ -114,6 +114,11 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.LLM_MAX_OUTPUT_TOKENS]: 2048,
   };
 
+  setInitialPrefs() {
+    this.migratePrefs()
+    super.setInitialPrefs();
+  }
+
   static migratePrefs() {
     const migrationMap = {
       "extension.browse-bot.enabled": this.ENABLED,
