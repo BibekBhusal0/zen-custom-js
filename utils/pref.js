@@ -13,6 +13,10 @@ export const getPref = (key, defaultValue) => {
   }
 };
 
+export const setPrefIfUnset = (key, value) => {
+  UC_API.Prefs.setIfUnset(key, value);
+};
+
 export class PREFS {
   defaultValues = {};
   DEBUG_MODE = "";

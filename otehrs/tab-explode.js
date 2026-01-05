@@ -1,8 +1,14 @@
 // https://github.com/sineorg/store/blob/main/mods/53cfe9d6-9079-46f8-b42f-453c46ebf0fa/mod.uc.js#L424
 
+import { getPref, setPrefIfUnset } from "../utils/pref.js";
+import { startupFinish } from "../utils/startup-finish.js";
+
+const ENABLED = "tab-explode-animation-enabled";
 const TAB_EXPLODE_ANIMATION_ID = "tab-explode-animation-styles";
 const BUBBLE_COUNT = 25; // Number of bubbles
 const ANIMATION_DURATION = 600; // Milliseconds
+
+setPrefIfUnset(ENABLED, true);
 
 function injectStyles() {
   if (document.getElementById(TAB_EXPLODE_ANIMATION_ID)) {
@@ -53,6 +59,7 @@ function injectStyles() {
 
 function animateElementClose(element) {
   if (!element || !element.isConnected) return;
+  if (!getPref(ENABLED, true)) return;
 
   const elementRect = element.getBoundingClientRect(); // Viewport-relative
   const explosionContainer = document.createElement("div");
@@ -166,33 +173,16 @@ function onTabClose(event) {
   }
 }
 
-function onTabGroupRemove(event) {
-  const group = event.target;
-  if (group && group.localName === "tab-group" && group.isConnected) {
-    animateElementClose(group);
-  }
-}
+let attempts = 0;
 
 function init() {
   injectStyles();
   if (typeof gBrowser !== "undefined" && gBrowser.tabContainer) {
     gBrowser.tabContainer.addEventListener("TabClose", onTabClose, false);
-
-    // Add multiple event listeners to catch tab group removal
-    gBrowser.tabContainer.addEventListener("TabGroupRemove", onTabGroupRemove, false);
-    gBrowser.tabContainer.addEventListener("TabGroupClosed", onTabGroupRemove, false);
-    gBrowser.tabContainer.addEventListener("TabGroupRemoved", onTabGroupRemove, false);
-
-    // Also listen for the custom event that might be used
-    document.addEventListener("TabGroupRemoved", onTabGroupRemove, false);
-  } else {
+  } else if (attempts < 5) {
+    attempts++;
     setTimeout(init, 1000);
   }
 }
 
-// Wait for the browser to be fully loaded
-if (document.readyState === "complete") {
-  init();
-} else {
-  window.addEventListener("load", init, { once: true });
-}
+startupFinish(init);
