@@ -18,26 +18,48 @@ export const setPrefIfUnset = (key, value) => {
 };
 
 export class PREFS {
-  defaultValues = {};
-  DEBUG_MODE = "";
+  static MOD_NAME = "BasePrefs";
+  static DEBUG_MODE = "";
 
-  getPref(key) {
-    return getPref(key, PREFS.defaultValues[key]);
+  static defaultValues = {};
+
+  static getPref(key, defaultValue = undefined) {
+    const defaultVal = defaultValue !== undefined ? defaultValue : PREFS.defaultValues[key];
+    return getPref(key, defaultVal);
   }
 
-  setInitialPrefs() {
+  static setPref(prefKey, value) {
+    setPref(prefKey, value);
+  }
+
+  static setInitialPrefs() {
     this.migratePrefs();
     for (const [key, value] of Object.entries(PREFS.defaultValues)) {
       UC_API.Prefs.setIfUnset(key, value);
     }
   }
 
-  get debugMode() {
-    if (!this.DEBUG_MODE) return false;
-    return this.getPref(this.DEBUG_MODE);
+  static migratePrefs() {}
+
+  static get debugMode() {
+    if (!PREFS.DEBUG_MODE) return false;
+    return this.getPref(PREFS.DEBUG_MODE);
   }
-  set debugMode(value) {
-    if (!this.DEBUG_MODE) return;
-    setPref(this.DEBUG_MODE, value);
+
+  static set debugMode(value) {
+    if (!PREFS.DEBUG_MODE) return;
+    this.setPref(PREFS.DEBUG_MODE, value);
+  }
+
+  static debugLog(...args) {
+    if (this.debugMode) {
+      console.log(`${PREFS.MOD_NAME}:`, ...args);
+    }
+  }
+
+  static debugError(...args) {
+    if (this.debugMode) {
+      console.error(`${PREFS.MOD_NAME}:`, ...args);
+    }
   }
 }

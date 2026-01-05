@@ -1,4 +1,4 @@
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { registerShortcut } from "../utils/keyboard.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { timeAgo } from "../utils/timesAgo.js";
@@ -15,20 +15,20 @@ const ReopenClosedTabs = {
    * Initializes the Reopen Closed Tabs mod.
    */
   async init() {
-    debugLog("Initializing mod.");
+    PREFS.debugLog("Initializing mod.");
     PREFS.setInitialPrefs();
     this._boundToggleMenu = this.toggleMenu.bind(this);
     this._boundHandleItemClick = this._handleItemClick.bind(this);
     this._registerKeyboardShortcut();
     this._registerToolbarButton();
     UC_API.Prefs.addListener(PREFS.SHORTCUT_KEY, this.onHotkeyChange.bind(this));
-    debugLog("Mod initialized.");
+    PREFS.debugLog("Mod initialized.");
   },
 
   _registerKeyboardShortcut() {
     const shortcutString = PREFS.shortcutKey;
     if (!shortcutString) {
-      debugLog("No shortcut key defined.");
+      PREFS.debugLog("No shortcut key defined.");
       return;
     }
 
@@ -40,19 +40,19 @@ const ReopenClosedTabs = {
 
     if (result.success) {
       this._unregisterShortcut = result.unregister;
-      debugLog(`Registered shortcut: ${shortcutString}`);
+      PREFS.debugLog(`Registered shortcut: ${shortcutString}`);
     } else {
-      debugError("Failed to register keyboard shortcut");
+      PREFS.debugError("Failed to register keyboard shortcut");
     }
   },
 
   onHotkeyChange() {
     if (this._unregisterShortcut) {
       this._unregisterShortcut();
-      debugLog("Unregistered previous shortcut");
+      PREFS.debugLog("Unregistered previous shortcut");
     }
     this._registerKeyboardShortcut();
-    debugLog("Registered new shortcut");
+    PREFS.debugLog("Registered new shortcut");
   },
 
   _registerToolbarButton() {
@@ -67,14 +67,14 @@ const ReopenClosedTabs = {
         type: "toolbarbutton",
         callback: this.toggleMenu.bind(this),
       });
-      debugLog(`Registered toolbar button: ${buttonId}`);
+      PREFS.debugLog(`Registered toolbar button: ${buttonId}`);
     } catch (e) {
-      debugError("Failed to register toolbar button:", e);
+      PREFS.debugError("Failed to register toolbar button:", e);
     }
   },
 
   async toggleMenu(event) {
-    debugLog("Toggle menu called.");
+    PREFS.debugLog("Toggle menu called.");
     let button;
     if (event && event.target && event.target.id === "reopen-closed-tabs-button") {
       button = event.target;
@@ -84,7 +84,7 @@ const ReopenClosedTabs = {
     }
 
     if (!button) {
-      debugError("Reopen Closed Tabs button not found.");
+      PREFS.debugError("Reopen Closed Tabs button not found.");
       return;
     }
 
@@ -104,9 +104,9 @@ const ReopenClosedTabs = {
       if (mainPopupSet) {
         mainPopupSet.appendChild(panel);
         button._reopenClosedTabsPanel = panel; // Store panel on the button
-        debugLog(`Created panel: ${panelId} for button: ${button.id}`);
+        PREFS.debugLog(`Created panel: ${panelId} for button: ${button.id}`);
       } else {
-        debugError("Could not find #mainPopupSet to append panel.");
+        PREFS.debugError("Could not find #mainPopupSet to append panel.");
         return;
       }
     }
@@ -122,7 +122,7 @@ const ReopenClosedTabs = {
   },
 
   async _populatePanel(panel) {
-    debugLog("Populating panel.");
+    PREFS.debugLog("Populating panel.");
     while (panel.firstChild) {
       panel.removeChild(panel.firstChild);
     }
@@ -274,7 +274,7 @@ const ReopenClosedTabs = {
       tabItem.remove();
       this._allTabsCache = this._allTabsCache.filter((tab) => tab !== tabItem.tabData);
     } else {
-      debugError("Cannot remove tab: Tab data not found or tab is not closed.", tabItem);
+      PREFS.debugError("Cannot remove tab: Tab data not found or tab is not closed.", tabItem);
     }
   },
 
@@ -389,17 +389,17 @@ const ReopenClosedTabs = {
       if (panel) {
         panel.hidePopup();
       } else {
-        debugError("Could not find parent panel to hide.");
+        PREFS.debugError("Could not find parent panel to hide.");
       }
     } else {
-      debugError("Cannot reopen tab: Tab data not found on menu item.", event.target);
+      PREFS.debugError("Cannot reopen tab: Tab data not found on menu item.", event.target);
     }
   },
 };
 
 function setupCommandPaletteIntegration(retryCount = 0) {
   if (window.ZenCommandPalette) {
-    debugLog("Integrating with Zen Command Palette...");
+    PREFS.debugLog("Integrating with Zen Command Palette...");
     window.ZenCommandPalette.addCommands([
       {
         key: "reopen:closed-tabs-menu",
@@ -410,13 +410,13 @@ function setupCommandPaletteIntegration(retryCount = 0) {
       },
     ]);
 
-    debugLog("Zen Command Palette integration successful.");
+    PREFS.debugLog("Zen Command Palette integration successful.");
   } else {
-    debugLog("Zen Command Palette not found, retrying in 1000ms");
+    PREFS.debugLog("Zen Command Palette not found, retrying in 1000ms");
     if (retryCount < 10) {
       setTimeout(() => setupCommandPaletteIntegration(retryCount + 1), 1000);
     } else {
-      debugError("Could not integrate with Zen Command Palette after 10 retries.");
+      PREFS.debugError("Could not integrate with Zen Command Palette after 10 retries.");
     }
   }
 }

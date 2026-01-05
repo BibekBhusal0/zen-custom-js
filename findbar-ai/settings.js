@@ -1,5 +1,5 @@
 import { browseBotFindbarLLM } from "./llm/index.js";
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
 
@@ -57,7 +57,7 @@ export const SettingsModal = {
 
     targetInput.value = shortcutString;
     this._currentPrefValues[prefKey] = shortcutString;
-    debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`);
+    PREFS.debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`);
 
     targetInput.classList.remove("recording");
     targetInput.placeholder = "Click to set";
@@ -191,7 +191,7 @@ export const SettingsModal = {
       if (control.tagName.toLowerCase() === "menulist") {
         control.addEventListener("command", (e) => {
           this._currentPrefValues[prefKey] = e.target.value;
-          debugLog(
+          PREFS.debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
           if (prefKey === PREFS.LLM_PROVIDER) {
@@ -214,7 +214,7 @@ export const SettingsModal = {
           } else {
             this._currentPrefValues[prefKey] = e.target.value;
           }
-          debugLog(
+          PREFS.debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
         });
@@ -299,15 +299,15 @@ export const SettingsModal = {
         if (prefKey.endsWith("api-key")) {
           if (this._currentPrefValues[prefKey]) {
             const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
-            debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
+            PREFS.debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
           }
         } else {
-          debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
+          PREFS.debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
         }
         try {
           PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
         } catch (e) {
-          debugError(`Error Saving pref for ${prefKey} ${e}`);
+          PREFS.debugError(`Error Saving pref for ${prefKey} ${e}`);
         }
       }
     }

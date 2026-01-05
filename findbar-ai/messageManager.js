@@ -1,4 +1,4 @@
-import { debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 
 async function frameScript() {
   const getUrlAndTitle = () => {
@@ -239,7 +239,7 @@ export const messageManagerAPI = {
   send(cmd, data = {}) {
     updateMessageManager();
     if (!currentMessageManager) {
-      debugError("No message manager available.");
+      PREFS.debugError("No message manager available.");
       return Promise.reject(new Error("No message manager available."));
     }
 
@@ -268,7 +268,7 @@ export const messageManagerAPI = {
 
   async getHTMLContent() {
     return this.send("GetPageHTMLContent").catch((error) => {
-      debugError("Failed to get page HTML content:", error);
+      PREFS.debugError("Failed to get page HTML content:", error);
       return {};
     });
   },
@@ -282,49 +282,49 @@ export const messageManagerAPI = {
         return result;
       })
       .catch((error) => {
-        debugError("Failed to get selected text:", error);
+        PREFS.debugError("Failed to get selected text:", error);
         return this.getUrlAndTitle();
       });
   },
 
   async getPageTextContent(trimWhiteSpace = true) {
     return this.send("GetPageTextContent", { trimWhiteSpace }).catch((error) => {
-      debugError("Failed to get page text content:", error);
+      PREFS.debugError("Failed to get page text content:", error);
       return this.getUrlAndTitle();
     });
   },
 
   async clickElement(selector) {
     return this.send("ClickElement", { selector }).catch((error) => {
-      debugError(`Failed to click element with selector "${selector}":`, error);
+      PREFS.debugError(`Failed to click element with selector "${selector}":`, error);
       return { error: `Failed to click element with selector "${selector}".` };
     });
   },
 
   async fillForm(selector, value) {
     return this.send("FillForm", { selector, value }).catch((error) => {
-      debugError(`Failed to fill form with selector "${selector}":`, error);
+      PREFS.debugError(`Failed to fill form with selector "${selector}":`, error);
       return { error: `Failed to fill form with selector "${selector}".` };
     });
   },
 
   async getYoutubeTranscript() {
     return this.send("GetYoutubeTranscript").catch((error) => {
-      debugError("Failed to get youtube transcript:", error);
+      PREFS.debugError("Failed to get youtube transcript:", error);
       return { error: `Failed to get youtube transcript: ${error.message}` };
     });
   },
 
   async getYoutubeDescription() {
     return this.send("GetYoutubeDescription").catch((error) => {
-      debugError("Failed to get youtube description:", error);
+      PREFS.debugError("Failed to get youtube description:", error);
       return { error: `Failed to get youtube description: ${error.message}` };
     });
   },
 
   async getYoutubeComments(count) {
     return this.send("GetYoutubeComments", { count }).catch((error) => {
-      debugError("Failed to get youtube comments:", error);
+      PREFS.debugError("Failed to get youtube comments:", error);
       return { error: `Failed to get youtube comments: ${error.message}` };
     });
   },

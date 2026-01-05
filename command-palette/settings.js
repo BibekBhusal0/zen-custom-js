@@ -1,4 +1,4 @@
-import { PREFS, debugLog } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
@@ -478,7 +478,7 @@ const SettingsModal = {
         conflictWarning.hidden = false;
         targetInput.title = `Shortcut conflicts with: ${conflictDetails}`;
       }
-      debugLog(
+      PREFS.debugLog(
         `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}":`,
         conflictCheck.conflicts
       );
@@ -719,10 +719,10 @@ const SettingsModal = {
     editorContainer.replaceChildren(parseElement(fullEditorHtml));
 
     const renderChainList = async () => {
-      debugLog("renderChainList called");
+      PREFS.debugLog("renderChainList called");
       const listContainer = editorContainer.querySelector("#current-chain-list");
       if (!listContainer) {
-        debugLog("renderChainList: listContainer not found");
+        PREFS.debugLog("renderChainList: listContainer not found");
         return;
       }
       listContainer.innerHTML = "";
@@ -733,7 +733,7 @@ const SettingsModal = {
       }
 
       const allCommands = await this._mainModule.getAllCommandsForConfig();
-      debugLog(`renderChainList: building list with ${currentChain.length} items`);
+      PREFS.debugLog(`renderChainList: building list with ${currentChain.length} items`);
 
       const menuitemsXUL = this._createCommandMenuItems(allCommands);
 
@@ -751,7 +751,7 @@ const SettingsModal = {
           });
           itemContainer.appendChild(menulistElement);
         } else if (typeof step === "object" && step.action) {
-          debugLog(`Rendering function step: ${step.action}`);
+          PREFS.debugLog(`Rendering function step: ${step.action}`);
           const functionStepEl = self._renderFunctionStep(step, index, currentChain);
           itemContainer.appendChild(functionStepEl);
         }
@@ -816,7 +816,7 @@ const SettingsModal = {
         const functionSchema = commandChainFunctions[action];
         if (!functionSchema) return;
 
-        debugLog(`Function button clicked: ${action}`);
+        PREFS.debugLog(`Function button clicked: ${action}`);
 
         const newStep = { action, params: {} };
         functionSchema.params.forEach((p) => {
@@ -855,14 +855,14 @@ const SettingsModal = {
 
     if (cmd.type === "chain") {
       // Initial population of the command selector dropdown
-      debugLog("Chain editor: getting all commands...");
+      PREFS.debugLog("Chain editor: getting all commands...");
       this._mainModule
         .getAllCommandsForConfig()
         .then((allCommands) => {
-          debugLog(`Chain editor: received ${allCommands.length} commands.`);
+          PREFS.debugLog(`Chain editor: received ${allCommands.length} commands.`);
           const placeholder = editorContainer.querySelector("#chain-command-selector-placeholder");
           if (!placeholder) {
-            debugLog("Chain editor: placeholder DIV not found!");
+            PREFS.debugLog("Chain editor: placeholder DIV not found!");
             return;
           }
 
@@ -876,14 +876,14 @@ const SettingsModal = {
           try {
             const menulistElement = parseElement(menulistXUL, "xul");
             placeholder.replaceWith(menulistElement);
-            debugLog("Chain editor: XUL menulist successfully created and inserted.");
+            PREFS.debugLog("Chain editor: XUL menulist successfully created and inserted.");
           } catch (e) {
-            debugLog("Chain editor: Failed to parse or insert XUL menulist.", e);
+            PREFS.debugLog("Chain editor: Failed to parse or insert XUL menulist.", e);
             placeholder.textContent = "Error creating command list.";
           }
         })
         .catch((err) => {
-          debugLog("Chain editor: getAllCommandsForConfig promise rejected.", err);
+          PREFS.debugLog("Chain editor: getAllCommandsForConfig promise rejected.", err);
           const placeholder = editorContainer.querySelector("#chain-command-selector-placeholder");
           if (placeholder) {
             placeholder.textContent = "Error loading commands.";
@@ -1006,28 +1006,28 @@ const SettingsModal = {
         section: "General",
         items: [
           {
-            key: PREFS.KEYS.PREFIX,
+            key: PREFS.PREFIX,
             label: "Command Prefix",
             type: "char",
           },
           {
-            key: PREFS.KEYS.PREFIX_REQUIRED,
+            key: PREFS.PREFIX_REQUIRED,
             label: "Require prefix to activate",
             type: "bool",
           },
           {
-            key: PREFS.KEYS.MIN_QUERY_LENGTH,
+            key: PREFS.MIN_QUERY_LENGTH,
             label: "Min query length (no prefix)",
             type: "number",
           },
-          { key: PREFS.KEYS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
+          { key: PREFS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
           {
-            key: PREFS.KEYS.MAX_COMMANDS_PREFIX,
+            key: PREFS.MAX_COMMANDS_PREFIX,
             label: "Max results (with prefix)",
             type: "number",
           },
-          { key: PREFS.KEYS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
-          { key: PREFS.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
+          { key: PREFS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
+          { key: PREFS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
         ],
       },
       {

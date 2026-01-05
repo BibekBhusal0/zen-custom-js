@@ -1,12 +1,12 @@
 import { urlbarAI } from "./urlbar.uc.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { SettingsModal } from "./settings.js";
 
 function setupCommandPaletteIntegration(retryCount = 0) {
   if (window.ZenCommandPalette) {
-    debugLog("Integrating with Zen Command Palette...");
+    PREFS.debugLog("Integrating with Zen Command Palette...");
 
     window.ZenCommandPalette.addCommands([
       {
@@ -46,13 +46,13 @@ function setupCommandPaletteIntegration(retryCount = 0) {
       },
     ]);
 
-    debugLog("Zen Command Palette integration successful.");
+    PREFS.debugLog("Zen Command Palette integration successful.");
   } else {
-    debugLog("Zen Command Palette not found, retrying in 1000ms");
+    PREFS.debugLog("Zen Command Palette not found, retrying in 1000ms");
     if (retryCount < 10) {
       setTimeout(() => setupCommandPaletteIntegration(retryCount + 1), 1000);
     } else {
-      debugError("Could not integrate with Zen Command Palette after 10 retries.");
+      PREFS.debugError("Could not integrate with Zen Command Palette after 10 retries.");
     }
   }
 }

@@ -13,7 +13,7 @@ import {
 } from "./providers.js";
 import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
-import PREFS, { debugLog, debugError } from "../utils/prefs.js";
+import PREFS from "../utils/prefs.js";
 
 const citationSchema = z.object({
   answer: z.string().describe("The conversational answer to the user's query."),
@@ -68,9 +68,9 @@ class LLM {
   setProvider(providerName) {
     if (this.AVAILABLE_PROVIDERS[providerName]) {
       PREFS.llmProvider = providerName;
-      debugLog(`Switched LLM provider to: ${providerName}`);
+      PREFS.debugLog(`Switched LLM provider to: ${providerName}`);
     } else {
-      debugError(`Provider "${providerName}" not found.`);
+      PREFS.debugError(`Provider "${providerName}" not found.`);
     }
   }
 
@@ -170,7 +170,7 @@ class LLM {
   }
 
   clearData() {
-    debugLog("Clearing LLM history and system prompt.");
+    PREFS.debugLog("Clearing LLM history and system prompt.");
     this.history = [];
   }
 
@@ -204,7 +204,7 @@ class BrowseBotLLM extends LLM {
   }
 
   async updateSystemPrompt() {
-    debugLog("Updating system prompt...");
+    PREFS.debugLog("Updating system prompt...");
     this.systemInstruction = await this.getSystemPrompt();
   }
 
@@ -345,18 +345,23 @@ Here are some examples demonstrating the correct JSON output format.
           }
         } else {
           // Parsed JSON but 'answer' field is missing or not a string.
-          debugLog("AI response JSON missing 'answer' field or not a string:", parsedContent);
+          PREFS.debugLog("AI response JSON missing 'answer' field or not a string:", parsedContent);
         }
       } catch (e) {
         // JSON parsing failed, keep rawText as answer.
-        debugError("Failed to parse AI message content as JSON:", e, "Raw Text:", responseText);
+        PREFS.debugError(
+          "Failed to parse AI message content as JSON:",
+          e,
+          "Raw Text:",
+          responseText
+        );
       }
     }
     return { answer, citations };
   }
 
   async sendMessage(prompt, abortSignal) {
-    debugLog("Current history before sending:", this.history);
+    PREFS.debugLog("Current history before sending:", this.history);
 
     if (this.citationsEnabled) {
       const object = await super.generateTextWithCitations({
@@ -408,7 +413,7 @@ Here are some examples demonstrating the correct JSON output format.
         const friendlyName = toolNameMapping[toolName] || toolName;
         const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
         if (!confirmed) {
-          debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+          PREFS.debugLog(`Tool execution for '${toolName}' cancelled by user.`);
           browseBotFindbar._createOrUpdateToolCallUI(toolName, "declined");
           return false;
         }

@@ -13,7 +13,7 @@ import {
   generateExtensionUninstallCommands,
   generateCustomCommands,
 } from "./dynamic-commands.js";
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { ShortcutRegistry } from "../utils/keyboard.js";
@@ -37,67 +37,67 @@ export const ZenCommandPalette = {
     },
     {
       func: generateSearchEngineCommands,
-      pref: PREFS.KEYS.DYNAMIC_SEARCH_ENGINES,
+      pref: PREFS.DYNAMIC_SEARCH_ENGINES,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateSineCommands,
-      pref: PREFS.KEYS.DYNAMIC_SINE_MODS,
+      pref: PREFS.DYNAMIC_SINE_MODS,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateWorkspaceMoveCommands,
-      pref: PREFS.KEYS.DYNAMIC_WORKSPACES,
+      pref: PREFS.DYNAMIC_WORKSPACES,
       allowIcons: true,
       allowShortcuts: true,
     },
     {
       func: generateFolderCommands,
-      pref: PREFS.KEYS.DYNAMIC_FOLDERS,
+      pref: PREFS.DYNAMIC_FOLDERS,
       allowIcons: true,
       allowShortcuts: true,
     },
     {
       func: generateActiveTabCommands,
-      pref: PREFS.KEYS.DYNAMIC_ACTIVE_TABS,
+      pref: PREFS.DYNAMIC_ACTIVE_TABS,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateContainerTabCommands,
-      pref: PREFS.KEYS.DYNAMIC_CONTAINER_TABS,
+      pref: PREFS.DYNAMIC_CONTAINER_TABS,
       allowIcons: false,
       allowShortcuts: true,
     },
     {
       func: generateUnloadTabCommands,
-      pref: PREFS.KEYS.DYNAMIC_UNLOAD_TABS,
+      pref: PREFS.DYNAMIC_UNLOAD_TABS,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateAboutPageCommands,
-      pref: PREFS.KEYS.DYNAMIC_ABOUT_PAGES,
+      pref: PREFS.DYNAMIC_ABOUT_PAGES,
       allowIcons: true,
       allowShortcuts: true,
     },
     {
       func: generateExtensionCommands,
-      pref: PREFS.KEYS.DYNAMIC_EXTENSIONS,
+      pref: PREFS.DYNAMIC_EXTENSIONS,
       allowIcons: false,
       allowShortcuts: true,
     },
     {
       func: generateExtensionEnableDisableCommands,
-      pref: PREFS.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
+      pref: PREFS.DYNAMIC_EXTENSION_ENABLE_DISABLE,
       allowIcons: false,
       allowShortcuts: false,
     },
     {
       func: generateExtensionUninstallCommands,
-      pref: PREFS.KEYS.DYNAMIC_EXTENSION_UNINSTALL,
+      pref: PREFS.DYNAMIC_EXTENSION_UNINSTALL,
       allowIcons: false,
       allowShortcuts: false,
     },
@@ -135,7 +135,7 @@ export const ZenCommandPalette = {
         gURLBar.view.close();
       }
     } catch (e) {
-      debugError("Error in _closeUrlBar", e);
+      PREFS.debugError("Error in _closeUrlBar", e);
     }
   },
 
@@ -188,7 +188,7 @@ export const ZenCommandPalette = {
 
       return isVisible;
     } catch (e) {
-      debugError("Error evaluating condition for", cmd && cmd.key, e);
+      PREFS.debugError("Error evaluating condition for", cmd && cmd.key, e);
       return false;
     }
   },
@@ -273,7 +273,7 @@ export const ZenCommandPalette = {
             const commands = await provider.func();
             return commands.map((c) => ({ ...c, providerFunc: provider.func }));
           } catch (e) {
-            debugError(`Error executing dynamic provider ${provider.func.name}`, e);
+            PREFS.debugError(`Error executing dynamic provider ${provider.func.name}`, e);
             return [];
           }
         })
@@ -445,7 +445,7 @@ export const ZenCommandPalette = {
     }
 
     if (cmdToExecute) {
-      debugLog("Executing command via key:", key);
+      PREFS.debugLog("Executing command via key:", key);
       this.addRecentCommand(cmdToExecute);
       if (typeof cmdToExecute.command === "function") {
         cmdToExecute.command(window);
@@ -454,30 +454,30 @@ export const ZenCommandPalette = {
         if (commandEl?.doCommand) {
           commandEl.doCommand();
         } else {
-          debugError(`Command element not found for key: ${key}`);
+          PREFS.debugError(`Command element not found for key: ${key}`);
         }
       }
     } else {
-      debugError(`executeCommandByKey: Command with key "${key}" could not be found.`);
+      PREFS.debugError(`executeCommandByKey: Command with key "${key}" could not be found.`);
     }
   },
 
   async addWidget(key) {
-    debugLog(`addWidget called for key: ${key}`);
+    PREFS.debugLog(`addWidget called for key: ${key}`);
     const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
     const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
 
     const existingWidget = document.getElementById(widgetId);
     if (existingWidget) {
       existingWidget.hidden = false;
-      debugLog(`Widget "${widgetId}" already exists, un-hiding it.`);
+      PREFS.debugLog(`Widget "${widgetId}" already exists, un-hiding it.`);
       return;
     }
 
     const allCommands = await this.getAllCommandsForConfig();
     const cmd = allCommands.find((c) => c.key === key);
     if (!cmd) {
-      debugLog(`addWidget: Command with key "${key}" not found.`);
+      PREFS.debugLog(`addWidget: Command with key "${key}" not found.`);
       return;
     }
 
@@ -491,29 +491,29 @@ export const ZenCommandPalette = {
         image: cmd.icon || "chrome://browser/skin/trending.svg",
         callback: () => this.executeCommandByKey(key),
       });
-      debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
+      PREFS.debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
     } catch (e) {
-      debugError(`Failed to create widget for ${key}:`, e);
+      PREFS.debugError(`Failed to create widget for ${key}:`, e);
     }
   },
 
   removeWidget(key) {
-    debugLog(`removeWidget: Hiding widget for key: ${key}`);
+    PREFS.debugLog(`removeWidget: Hiding widget for key: ${key}`);
     const sanitizedKey = key.replace(/[^a-zA-Z0-9-_]/g, "-");
     const widgetId = `zen-cmd-palette-widget-${sanitizedKey}`;
     const widget = document.getElementById(widgetId);
     if (widget) {
       widget.hidden = true;
-      debugLog(`Successfully hid widget: ${widgetId}`);
+      PREFS.debugLog(`Successfully hid widget: ${widgetId}`);
     } else {
-      debugLog(`removeWidget: Widget "${widgetId}" not found, nothing to hide.`);
+      PREFS.debugLog(`removeWidget: Widget "${widgetId}" not found, nothing to hide.`);
     }
   },
 
   addHotkey(commandKey, shortcutStr) {
-    debugLog(`addHotkey called for command "${commandKey}" with shortcut "${shortcutStr}"`);
+    PREFS.debugLog(`addHotkey called for command "${commandKey}" with shortcut "${shortcutStr}"`);
     if (!shortcutStr) {
-      debugError(`addHotkey: Empty shortcut string for command "${commandKey}"`);
+      PREFS.debugError(`addHotkey: Empty shortcut string for command "${commandKey}"`);
       return { success: false };
     }
 
@@ -523,9 +523,11 @@ export const ZenCommandPalette = {
     );
 
     if (success) {
-      debugLog(`Successfully registered shortcut for command "${commandKey}": ${shortcutStr}`);
+      PREFS.debugLog(
+        `Successfully registered shortcut for command "${commandKey}": ${shortcutStr}`
+      );
     } else {
-      debugError(`Failed to register shortcut for command "${commandKey}": ${shortcutStr}`);
+      PREFS.debugError(`Failed to register shortcut for command "${commandKey}": ${shortcutStr}`);
     }
     return { success };
   },
@@ -534,7 +536,7 @@ export const ZenCommandPalette = {
     const shortcutId = `zen-cmd-palette-shortcut-for-${commandKey}`;
     const success = this._shortcutRegistry.unregisterById(shortcutId);
     if (success) {
-      debugLog(`Successfully unregistered shortcut for command "${commandKey}"`);
+      PREFS.debugLog(`Successfully unregistered shortcut for command "${commandKey}"`);
     }
     return success;
   },
@@ -578,7 +580,7 @@ export const ZenCommandPalette = {
     gURLBar.inputField.addEventListener("blur", onUrlbarClose);
     gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
     this._closeListenersAttached = true;
-    debugLog("URL bar close listeners attached.");
+    PREFS.debugLog("URL bar close listeners attached.");
   },
 
   /**
@@ -588,7 +590,7 @@ export const ZenCommandPalette = {
     Storage.reset();
     this._userConfig = await Storage.loadSettings();
     this.clearDynamicCommandsCache();
-    debugLog("User config loaded:", this._userConfig);
+    PREFS.debugLog("User config loaded:", this._userConfig);
     this.applyNativeOverrides();
   },
 
@@ -627,7 +629,7 @@ export const ZenCommandPalette = {
         }
       }
     }
-    debugLog("Applied native command overrides (icons and visibility).");
+    PREFS.debugLog("Applied native command overrides (icons and visibility).");
   },
 
   /**
@@ -635,7 +637,7 @@ export const ZenCommandPalette = {
    */
   applyCustomShortcuts() {
     if (!this._userConfig.customShortcuts) {
-      debugLog("No custom shortcuts to apply on initial load.");
+      PREFS.debugLog("No custom shortcuts to apply on initial load.");
       return;
     }
 
@@ -649,32 +651,32 @@ export const ZenCommandPalette = {
         appliedCount++;
       } else {
         conflictCount++;
-        debugError(
+        PREFS.debugError(
           `Skipping shortcut for "${commandKey}" due to conflict: ${shortcutStr}`,
           result.conflictInfo
         );
       }
     }
 
-    debugLog(`Applied ${appliedCount} shortcuts, skipped ${conflictCount} due to conflicts.`);
+    PREFS.debugLog(`Applied ${appliedCount} shortcuts, skipped ${conflictCount} due to conflicts.`);
   },
 
   async applyToolbarButtons() {
     if (!this._userConfig?.toolbarButtons) {
-      debugLog("No toolbar buttons to apply on initial load.");
+      PREFS.debugLog("No toolbar buttons to apply on initial load.");
       return;
     }
 
     for (const key of this._userConfig.toolbarButtons) {
       await this.addWidget(key);
     }
-    debugLog("Applied initial toolbar buttons.");
+    PREFS.debugLog("Applied initial toolbar buttons.");
   },
 
   destroy() {
     if (this._shortcutRegistry) {
       this._shortcutRegistry.destroy();
-      debugLog("Shortcut registry destroyed.");
+      PREFS.debugLog("Shortcut registry destroyed.");
     }
     if (this.provider) {
       const { UrlbarProvidersManager } = ChromeUtils.importESModule(
@@ -682,7 +684,7 @@ export const ZenCommandPalette = {
       );
       UrlbarProvidersManager.unregisterProvider(this.provider);
       this.provider = null;
-      debugLog("Urlbar provider unregistered.");
+      PREFS.debugLog("Urlbar provider unregistered.");
     }
   },
 
@@ -695,7 +697,7 @@ export const ZenCommandPalette = {
    * This is the main entry point for the script.
    */
   async init() {
-    debugLog("Starting ZenCommandPalette init...");
+    PREFS.debugLog("Starting ZenCommandPalette init...");
 
     try {
       const { globalActions } = ChromeUtils.importESModule(
@@ -703,19 +705,22 @@ export const ZenCommandPalette = {
       );
       this._globalActions = globalActions;
     } catch (e) {
-      debugError("Could not load native globalActions, native commands will be unavailable.", e);
+      PREFS.debugError(
+        "Could not load native globalActions, native commands will be unavailable.",
+        e
+      );
     }
 
     this.Settings = SettingsModal;
     this.Settings.init(this);
-    debugLog("Settings modal initialized.");
+    PREFS.debugLog("Settings modal initialized.");
 
     await this.loadUserConfig();
     this.applyUserConfig();
-    debugLog("User config loaded and applied.");
+    PREFS.debugLog("User config loaded and applied.");
 
     this._shortcutRegistry.init();
-    debugLog("Shortcut registry initialized.");
+    PREFS.debugLog("Shortcut registry initialized.");
 
     this.attachUrlbarCloseListeners();
 
@@ -741,16 +746,16 @@ export const ZenCommandPalette = {
     );
 
     if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
-      debugError(
+      PREFS.debugError(
         "UrlbarProvider or UrlbarProvidersManager not available; provider not registered."
       );
       return;
     }
-    debugLog("Urlbar modules imported.");
+    PREFS.debugLog("Urlbar modules imported.");
 
     const DYNAMIC_TYPE_NAME = "ZenCommandPalette";
     UrlbarResult.addDynamicResultType(DYNAMIC_TYPE_NAME);
-    debugLog(`Dynamic result type "${DYNAMIC_TYPE_NAME}" added.`);
+    PREFS.debugLog(`Dynamic result type "${DYNAMIC_TYPE_NAME}" added.`);
 
     try {
       const self = this;
@@ -794,7 +799,7 @@ export const ZenCommandPalette = {
 
             return false;
           } catch (e) {
-            debugError("isActive error:", e);
+            PREFS.debugError("isActive error:", e);
             return false;
           }
         }
@@ -803,7 +808,7 @@ export const ZenCommandPalette = {
           try {
             if (context.canceled) return;
             const input = (context.searchString || "").trim();
-            debugLog(`startQuery for: "${input}"`);
+            PREFS.debugLog(`startQuery for: "${input}"`);
 
             const isEnteringPrefixMode = !this._isInPrefixMode && input.startsWith(PREFS.prefix);
             let query;
@@ -900,7 +905,7 @@ export const ZenCommandPalette = {
 
             matches.forEach((cmd, index) => addResult(cmd, index === 0));
           } catch (e) {
-            debugError("startQuery unexpected error:", e);
+            PREFS.debugError("startQuery unexpected error:", e);
           }
         }
 
@@ -916,7 +921,7 @@ export const ZenCommandPalette = {
         onEngagement(queryContext, controller, details) {
           const cmd = details.result._zenCmd;
           if (cmd) {
-            debugLog("Executing command from onEngagement:", cmd.key);
+            PREFS.debugLog("Executing command from onEngagement:", cmd.key);
             self._closeUrlBar();
             self.addRecentCommand(cmd);
             setTimeout(() => self.executeCommandByKey(cmd.key), 0);
@@ -950,9 +955,9 @@ export const ZenCommandPalette = {
 
       this.provider = new ZenCommandProvider();
       UrlbarProvidersManager.registerProvider(this.provider);
-      debugLog("Zen Command Palette provider registered.");
+      PREFS.debugLog("Zen Command Palette provider registered.");
     } catch (e) {
-      debugError("Failed to create/register Urlbar provider:", e);
+      PREFS.debugError("Failed to create/register Urlbar provider:", e);
     }
   },
 
@@ -985,7 +990,7 @@ export const ZenCommandPalette = {
         addedCount++;
       }
     }
-    debugLog(
+    PREFS.debugLog(
       "addCommands: added",
       addedCount,
       "items. total static commands:",
@@ -1007,7 +1012,7 @@ export const ZenCommandPalette = {
     if (idx >= 0) {
       const [removed] = this.staticCommands.splice(idx, 1);
       this.clearDynamicCommandsCache();
-      debugLog("removeCommand:", removed && removed.key);
+      PREFS.debugLog("removeCommand:", removed && removed.key);
       return removed;
     }
     return null;
@@ -1023,7 +1028,7 @@ export const ZenCommandPalette = {
    */
   addDynamicCommandsProvider(func, pref, { allowIcons = true, allowShortcuts = true } = {}) {
     if (typeof func !== "function") {
-      debugError("addDynamicCommandsProvider: func must be a function.");
+      PREFS.debugError("addDynamicCommandsProvider: func must be a function.");
       return;
     }
     this._dynamicCommandProviders.push({
@@ -1042,7 +1047,7 @@ function init() {
   window.ZenCommandPalette = ZenCommandPalette;
   ZenCommandPalette.init();
 
-  debugLog(
+  PREFS.debugLog(
     "Zen Command Palette initialized. Static commands count:",
     window.ZenCommandPalette.staticCommands.length
   );

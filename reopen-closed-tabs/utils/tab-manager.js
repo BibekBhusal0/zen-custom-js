@@ -1,4 +1,4 @@
-import { debugLog, debugError } from "./prefs.js";
+import { PREFS } from "./prefs.js";
 
 const TabManager = {
   /**
@@ -6,7 +6,7 @@ const TabManager = {
    * @returns {Promise<Array<object>>} A promise resolving to an array of closed tab data.
    */
   async getRecentlyClosedTabs() {
-    debugLog("Fetching recently closed tabs.");
+    PREFS.debugLog("Fetching recently closed tabs.");
     try {
       if (typeof SessionStore !== "undefined" && SessionStore.getClosedTabData) {
         const closedTabsData = SessionStore.getClosedTabData(window);
@@ -24,14 +24,14 @@ const TabManager = {
             };
           })
           .sort((a, b) => b.closedAt - a.closedAt);
-        debugLog("Recently closed tabs fetched:", closedTabs);
+        PREFS.debugLog("Recently closed tabs fetched:", closedTabs);
         return closedTabs;
       } else {
-        debugError("SessionStore.getClosedTabData not available.");
+        PREFS.debugError("SessionStore.getClosedTabData not available.");
         return [];
       }
     } catch (e) {
-      debugError("Error fetching recently closed tabs:", e);
+      PREFS.debugError("Error fetching recently closed tabs:", e);
       return [];
     }
   },
@@ -41,16 +41,16 @@ const TabManager = {
    * @param {object} tabData - The data of the closed tab to remove, specifically containing sessionIndex.
    */
   removeClosedTab(tabData) {
-    debugLog("Removing closed tab from session store:", tabData);
+    PREFS.debugLog("Removing closed tab from session store:", tabData);
     try {
       if (typeof SessionStore !== "undefined" && SessionStore.forgetClosedTab) {
         SessionStore.forgetClosedTab(window, tabData.sessionIndex);
-        debugLog("Closed tab removed successfully.");
+        PREFS.debugLog("Closed tab removed successfully.");
       } else {
-        debugError("SessionStore.forgetClosedTab not available.");
+        PREFS.debugError("SessionStore.forgetClosedTab not available.");
       }
     } catch (e) {
-      debugError("Error removing closed tab:", e);
+      PREFS.debugError("Error removing closed tab:", e);
     }
   },
 
@@ -69,7 +69,7 @@ const TabManager = {
    * @returns {Promise<Array<object>>} A promise resolving to an array of open tab data.
    */
   async getOpenTabs() {
-    debugLog("Fetching open tabs.");
+    PREFS.debugLog("Fetching open tabs.");
     const openTabs = [];
     try {
       const workspaceTabs = gZenWorkspaces.allStoredTabs;
@@ -106,10 +106,10 @@ const TabManager = {
 
       openTabs.sort((a, b) => b.lastAccessed - a.lastAccessed);
 
-      debugLog("Open tabs fetched:", openTabs);
+      PREFS.debugLog("Open tabs fetched:", openTabs);
       return openTabs;
     } catch (e) {
-      debugError("Error fetching open tabs:", e);
+      PREFS.debugError("Error fetching open tabs:", e);
       return [];
     }
   },
@@ -120,7 +120,7 @@ const TabManager = {
    * @param {object} tabData - The data of the tab to reopen.
    */
   async reopenTab(tabData) {
-    debugLog("Reopening tab:", tabData);
+    PREFS.debugLog("Reopening tab:", tabData);
     try {
       // If the tab is already open, switch to it.
       if (!tabData.isClosed && tabData.tabElement) {
@@ -135,7 +135,7 @@ const TabManager = {
         const tabState = tabData.sessionData.state;
         const url = tabState.entries[0]?.url;
         if (!url) {
-          debugError("Cannot reopen tab: URL not found in session data.", tabData);
+          PREFS.debugError("Cannot reopen tab: URL not found in session data.", tabData);
           return;
         }
 
@@ -180,10 +180,10 @@ const TabManager = {
         });
         gBrowser.selectedTab = newTab;
       } else {
-        debugError("Cannot reopen tab: missing URL or session data.", tabData);
+        PREFS.debugError("Cannot reopen tab: missing URL or session data.", tabData);
       }
     } catch (e) {
-      debugError("Error reopening tab:", e);
+      PREFS.debugError("Error reopening tab:", e);
     }
   },
 };

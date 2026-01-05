@@ -1,7 +1,7 @@
 import { tool } from "ai";
 import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
-import { debugLog, debugError } from "../utils/prefs.js";
+import { PREFS } from "../utils/prefs.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
@@ -120,17 +120,17 @@ async function getSearchURL(engineName, searchTerm) {
   try {
     const engine = await Services.search.getEngineByName(engineName);
     if (!engine) {
-      debugError(`No search engine found with name: ${engineName}`);
+      PREFS.debugError(`No search engine found with name: ${engineName}`);
       return null;
     }
     const submission = engine.getSubmission(searchTerm.trim());
     if (!submission) {
-      debugError(`No submission found for term: ${searchTerm} and engine: ${engineName}`);
+      PREFS.debugError(`No submission found for term: ${searchTerm} and engine: ${engineName}`);
       return null;
     }
     return submission.uri.spec;
   } catch (e) {
-    debugError(`Error getting search URL for engine "${engineName}".`, e);
+    PREFS.debugError(`Error getting search URL for engine "${engineName}".`, e);
     return null;
   }
 }
@@ -206,7 +206,7 @@ async function openLink(args) {
     }
     return { result: `Successfully opened ${link} in ${where}.` };
   } catch (e) {
-    debugError(`Failed to open link "${link}" in "${where}".`, e);
+    PREFS.debugError(`Failed to open link "${link}" in "${where}".`, e);
     return { error: `Failed to open link.` };
   }
 }
@@ -241,7 +241,7 @@ async function newSplit(args) {
       result: `Successfully created split view with ${links.length} tabs.`,
     };
   } catch (e) {
-    debugError("Failed to create split view.", e);
+    PREFS.debugError("Failed to create split view.", e);
     return { error: "Failed to create split view." };
   }
 }
@@ -255,7 +255,7 @@ async function getAllTabs() {
     const allTabs = gZenWorkspaces.allStoredTabs.map(mapTabToObject).filter(Boolean);
     return { tabs: allTabs };
   } catch (e) {
-    debugError("Failed to get all tabs:", e);
+    PREFS.debugError("Failed to get all tabs:", e);
     return { error: "Failed to retrieve tabs." };
   }
 }
@@ -276,7 +276,7 @@ async function closeTabs(args) {
     gBrowser.removeTabs(tabsToClose);
     return { result: `Successfully closed ${tabsToClose.length} tab(s).` };
   } catch (e) {
-    debugError("Failed to close tabs:", e);
+    PREFS.debugError("Failed to close tabs:", e);
     return { error: "An error occurred while closing tabs." };
   }
 }
@@ -312,7 +312,7 @@ async function splitExistingTabs(args) {
     gZenViewSplitter.splitTabs(tabs, gridType);
     return { result: `Successfully created split view with ${tabs.length} tabs.` };
   } catch (e) {
-    debugError("Failed to split existing tabs.", e);
+    PREFS.debugError("Failed to split existing tabs.", e);
     return { error: "Failed to create split view." };
   }
 }
@@ -341,7 +341,7 @@ async function searchTabs(args) {
 
     return { tabs: results };
   } catch (e) {
-    debugError(`Error searching tabs for query "${query}":`, e);
+    PREFS.debugError(`Error searching tabs for query "${query}":`, e);
     return { error: `Failed to search tabs.` };
   }
 }
@@ -373,7 +373,7 @@ async function addTabsToFolder(args) {
     folder.addTabs(tabs);
     return { result: `Successfully added ${tabs.length} tab(s) to folder "${folder.label}".` };
   } catch (e) {
-    debugError("Failed to add tabs to folder:", e);
+    PREFS.debugError("Failed to add tabs to folder:", e);
     return { error: "Failed to add tabs to folder." };
   }
 }
@@ -401,7 +401,7 @@ async function removeTabsFromFolder(args) {
     });
     return { result: `Successfully ungrouped ${ungroupedCount} tab(s).` };
   } catch (e) {
-    debugError("Failed to remove tabs from folder:", e);
+    PREFS.debugError("Failed to remove tabs from folder:", e);
     return { error: "Failed to remove tabs from folder." };
   }
 }
@@ -425,7 +425,7 @@ async function createTabFolder(args) {
       },
     };
   } catch (e) {
-    debugError("Failed to create tab folder:", e);
+    PREFS.debugError("Failed to create tab folder:", e);
     return { error: "Failed to create tab folder." };
   }
 }
@@ -448,7 +448,7 @@ async function reorderTab(args) {
     gBrowser.moveTabTo(tab, { tabIndex: newIndex });
     return { result: `Successfully moved tab to index ${newIndex}.` };
   } catch (e) {
-    debugError("Failed to reorder tab:", e);
+    PREFS.debugError("Failed to reorder tab:", e);
     return { error: "Failed to reorder tab." };
   }
 }
@@ -473,7 +473,7 @@ async function addTabsToEssentials(args) {
       return { error: "Essentials manager is not available." };
     }
   } catch (e) {
-    debugError("Failed to add tabs to essentials:", e);
+    PREFS.debugError("Failed to add tabs to essentials:", e);
     return { error: "An error occurred while adding tabs to essentials." };
   }
 }
@@ -498,7 +498,7 @@ async function removeTabsFromEssentials(args) {
       return { error: "Essentials manager is not available." };
     }
   } catch (e) {
-    debugError("Failed to remove tabs from essentials:", e);
+    PREFS.debugError("Failed to remove tabs from essentials:", e);
     return { error: "An error occurred while removing tabs from essentials." };
   }
 }
@@ -529,10 +529,10 @@ async function searchBookmarks(args) {
       parentID: bookmark.parentGuid,
     }));
 
-    debugLog(`Found ${results.length} bookmarks for query "${query}":`, results);
+    PREFS.debugLog(`Found ${results.length} bookmarks for query "${query}":`, results);
     return { bookmarks: results };
   } catch (e) {
-    debugError(`Error searching bookmarks for query "${query}":`, e);
+    PREFS.debugError(`Error searching bookmarks for query "${query}":`, e);
     return { error: `Failed to search bookmarks.` };
   }
 }
@@ -553,10 +553,10 @@ async function getAllBookmarks() {
       parentID: bookmark.parentGuid,
     }));
 
-    debugLog(`Read ${results.length} total bookmarks.`);
+    PREFS.debugLog(`Read ${results.length} total bookmarks.`);
     return { bookmarks: results };
   } catch (e) {
-    debugError(`Error reading all bookmarks:`, e);
+    PREFS.debugError(`Error reading all bookmarks:`, e);
     return { error: `Failed to read all bookmarks.` };
   }
 }
@@ -582,10 +582,10 @@ async function createBookmark(args) {
 
     const bm = await PlacesUtils.bookmarks.insert(bookmarkInfo);
 
-    debugLog(`Bookmark created successfully:`, JSON.stringify(bm));
+    PREFS.debugLog(`Bookmark created successfully:`, JSON.stringify(bm));
     return { result: `Successfully bookmarked "${bm.title}".` };
   } catch (e) {
-    debugError(`Error creating bookmark for URL "${url}":`, e);
+    PREFS.debugError(`Error creating bookmark for URL "${url}":`, e);
     return { error: `Failed to create bookmark.` };
   }
 }
@@ -610,10 +610,10 @@ async function addBookmarkFolder(args) {
 
     const folder = await PlacesUtils.bookmarks.insert(folderInfo);
 
-    debugLog(`Bookmark folder created successfully:`, JSON.stringify(folderInfo));
+    PREFS.debugLog(`Bookmark folder created successfully:`, JSON.stringify(folderInfo));
     return { result: `Successfully created folder "${folder.title}".` };
   } catch (e) {
-    debugError(`Error creating bookmark folder "${title}":`, e);
+    PREFS.debugError(`Error creating bookmark folder "${title}":`, e);
     return { error: `Failed to create folder.` };
   }
 }
@@ -649,10 +649,10 @@ async function updateBookmark(args) {
       parentGuid: parentID || oldBookmark.parentGuid,
     });
 
-    debugLog(`Bookmark updated successfully:`, JSON.stringify(bm));
+    PREFS.debugLog(`Bookmark updated successfully:`, JSON.stringify(bm));
     return { result: `Successfully updated bookmark to "${bm.title}".` };
   } catch (e) {
-    debugError(`Error updating bookmark with id "${id}":`, e);
+    PREFS.debugError(`Error updating bookmark with id "${id}":`, e);
     return { error: `Failed to update bookmark.` };
   }
 }
@@ -669,10 +669,10 @@ async function deleteBookmark(args) {
   if (!id) return { error: "deleteBookmark requires a bookmark id (guid)." };
   try {
     await PlacesUtils.bookmarks.remove(id);
-    debugLog(`Bookmark with id "${id}" deleted successfully.`);
+    PREFS.debugLog(`Bookmark with id "${id}" deleted successfully.`);
     return { result: `Successfully deleted bookmark.` };
   } catch (e) {
-    debugError(`Error deleting bookmark with id "${id}":`, e);
+    PREFS.debugError(`Error deleting bookmark with id "${id}":`, e);
     return { error: `Failed to delete bookmark.` };
   }
 }
@@ -697,7 +697,7 @@ async function getAllWorkspaces() {
     }));
     return { workspaces: result };
   } catch (e) {
-    debugError("Failed to get all workspaces:", e);
+    PREFS.debugError("Failed to get all workspaces:", e);
     return { error: "Failed to retrieve workspaces." };
   }
 }
@@ -719,7 +719,7 @@ async function createWorkspace(args) {
       workspace: { id: ws.uuid, name: ws.name, icon: ws.icon },
     };
   } catch (e) {
-    debugError("Failed to create workspace:", e);
+    PREFS.debugError("Failed to create workspace:", e);
     return { error: "Failed to create workspace." };
   }
 }
@@ -744,7 +744,7 @@ async function updateWorkspace(args) {
     await gZenWorkspaces.saveWorkspace(workspace);
     return { result: `Successfully updated workspace.` };
   } catch (e) {
-    debugError("Failed to update workspace:", e);
+    PREFS.debugError("Failed to update workspace:", e);
     return { error: "Failed to update workspace." };
   }
 }
@@ -762,7 +762,7 @@ async function deleteWorkspace(args) {
     await gZenWorkspaces.removeWorkspace(id);
     return { result: "Successfully deleted workspace." };
   } catch (e) {
-    debugError("Failed to delete workspace:", e);
+    PREFS.debugError("Failed to delete workspace:", e);
     return { error: "Failed to delete workspace." };
   }
 }
@@ -784,7 +784,7 @@ async function moveTabsToWorkspace(args) {
     gZenWorkspaces.moveTabsToWorkspace(tabs, workspaceId);
     return { result: `Successfully moved ${tabs.length} tab(s) to workspace.` };
   } catch (e) {
-    debugError("Failed to move tabs to workspace:", e);
+    PREFS.debugError("Failed to move tabs to workspace:", e);
     return { error: "Failed to move tabs to workspace." };
   }
 }
@@ -805,7 +805,7 @@ async function reorderWorkspace(args) {
     await gZenWorkspaces.reorderWorkspace(id, newPosition);
     return { result: "Successfully reordered workspace." };
   } catch (e) {
-    debugError("Failed to reorder workspace:", e);
+    PREFS.debugError("Failed to reorder workspace:", e);
     return { error: "Failed to reorder workspace." };
   }
 }
@@ -863,11 +863,11 @@ async function showToast(args) {
       window.ucAPI.showToast([title, description], 0);
       return { result: "Toast displayed successfully." };
     } else {
-      debugError("ucAPI.showToast is not available.");
+      PREFS.debugError("ucAPI.showToast is not available.");
       return { error: "Toast functionality is not available." };
     }
   } catch (e) {
-    debugError("Failed to show toast:", e);
+    PREFS.debugError("Failed to show toast:", e);
     return { error: "An error occurred while displaying the toast." };
   }
 }
@@ -1352,7 +1352,7 @@ const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
     const originalExecute = originalTool.execute;
     newTool.execute = async (args) => {
       if (shouldToolBeCalled && !(await shouldToolBeCalled(toolName))) {
-        debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
+        PREFS.debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
         return { error: `Tool execution for '${toolName}' was denied by user.` };
       }
       const result = await originalExecute(args);
@@ -1420,7 +1420,7 @@ ${toolExamples.join("\n\n")}
 
     return systemPrompt;
   } catch (error) {
-    debugError("Error in getToolSystemPrompt:", error);
+    PREFS.debugError("Error in getToolSystemPrompt:", error);
     return "";
   }
 };

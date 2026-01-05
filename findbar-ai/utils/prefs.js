@@ -1,102 +1,134 @@
-export const PREFS = {
-  // Findbar
-  ENABLED: "extension.browse-bot.findbar-ai.enabled",
-  MINIMAL: "extension.browse-bot.findbar-ai.minimal",
-  PERSIST: "extension.browse-bot.findbar-ai.persist-chat",
-  DND_ENABLED: "extension.browse-bot.findbar-ai.dnd-enabled",
-  POSITION: "extension.browse-bot.findbar-ai.position",
-  REMEMBER_DIMENSIONS: "extension.browse-bot.findbar-ai.remember-dimensions",
-  WIDTH: "extension.browse-bot.findbar-ai.width",
-  STREAM_ENABLED: "extension.browse-bot.findbar-ai.stream-enabled",
-  AGENTIC_MODE: "extension.browse-bot.findbar-ai.agentic-mode",
-  CITATIONS_ENABLED: "extension.browse-bot.findbar-ai.citations-enabled",
-  MAX_TOOL_CALLS: "extension.browse-bot.findbar-ai.max-tool-calls",
-  CONFORMATION: "extension.browse-bot.findbar-ai.conform-before-tool-call",
-  CONTEXT_MENU_ENABLED: "extension.browse-bot.findbar-ai.context-menu-enabled",
-  CONTEXT_MENU_AUTOSEND: "extension.browse-bot.findbar-ai.context-menu-autosend",
-  CONTEXT_MENU_COMMAND_WITH_SELECTION:
-    "extension.browse-bot.findbar-ai.context-menu-command-with-selection",
-  CONTEXT_MENU_COMMAND_NO_SELECTION:
-    "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
-  BACKGROUND_STYLE: "extension.browse-bot.findbar-ai.background-style",
-  CUSTOM_SYSTEM_PROMPT: "extension.browse-bot.custom-system-prompt",
+import { PREFS as BasePREFS } from "../../utils/pref.js";
 
-  SHORTCUT_FINDBAR: "extension.browse-bot.findbar-ai.shortcut-findbar",
-  SHORTCUT_URLBAR: "extension.browse-bot.urlbar-ai.shortcut-urlbar",
+class BrowseBotPREFS extends BasePREFS {
+  static MOD_NAME = "BrowseBot";
+  static DEBUG_MODE = "extension.browse-bot.debug-mode";
 
-  // URL Bar
-  URLBAR_AI_ENABLED: "extension.browse-bot.urlbar-ai-enabled",
-  URLBAR_AI_HIDE_SUGGESTIONS: "extension.browse-bot.urlbar-ai.hide-suggestions",
-  URLBAR_AI_ANIMATIONS_ENABLED: "extension.browse-bot.urlbar-ai.animations-enabled",
+  static ENABLED = "extension.browse-bot.findbar-ai.enabled";
+  static MINIMAL = "extension.browse-bot.findbar-ai.minimal";
+  static PERSIST = "extension.browse-bot.findbar-ai.persist-chat";
+  static DND_ENABLED = "extension.browse-bot.findbar-ai.dnd-enabled";
+  static POSITION = "extension.browse-bot.findbar-ai.position";
+  static REMEMBER_DIMENSIONS = "extension.browse-bot.findbar-ai.remember-dimensions";
+  static WIDTH = "extension.browse-bot.findbar-ai.width";
+  static STREAM_ENABLED = "extension.browse-bot.findbar-ai.stream-enabled";
+  static AGENTIC_MODE = "extension.browse-bot.findbar-ai.agentic-mode";
+  static CITATIONS_ENABLED = "extension.browse-bot.findbar-ai.citations-enabled";
+  static MAX_TOOL_CALLS = "extension.browse-bot.findbar-ai.max-tool-calls";
+  static CONFORMATION = "extension.browse-bot.findbar-ai.conform-before-tool-call";
+  static CONTEXT_MENU_ENABLED = "extension.browse-bot.findbar-ai.context-menu-enabled";
+  static CONTEXT_MENU_AUTOSEND = "extension.browse-bot.findbar-ai.context-menu-autosend";
+  static CONTEXT_MENU_COMMAND_WITH_SELECTION =
+    "extension.browse-bot.findbar-ai.context-menu-command-with-selection";
+  static CONTEXT_MENU_COMMAND_NO_SELECTION =
+    "extension.browse-bot.findbar-ai.context-menu-command-no-selection";
+  static BACKGROUND_STYLE = "extension.browse-bot.findbar-ai.background-style";
+  static CUSTOM_SYSTEM_PROMPT = "extension.browse-bot.custom-system-prompt";
 
-  // Other
-  DEBUG_MODE: "extension.browse-bot.debug-mode",
-  SOLID_BG: "extension.browse-bot.solid-bg",
+  static SHORTCUT_FINDBAR = "extension.browse-bot.findbar-ai.shortcut-findbar";
+  static SHORTCUT_URLBAR = "extension.browse-bot.urlbar-ai.shortcut-urlbar";
 
-  // Shared LLM
-  LLM_PROVIDER: "extension.browse-bot.llm-provider",
-  MISTRAL_API_KEY: "extension.browse-bot.mistral-api-key",
-  MISTRAL_MODEL: "extension.browse-bot.mistral-model",
-  GEMINI_API_KEY: "extension.browse-bot.gemini-api-key",
-  GEMINI_MODEL: "extension.browse-bot.gemini-model",
-  OPENAI_API_KEY: "extension.browse-bot.openai-api-key",
-  OPENAI_MODEL: "extension.browse-bot.openai-model",
-  CLAUDE_API_KEY: "extension.browse-bot.claude-api-key",
-  CLAUDE_MODEL: "extension.browse-bot.claude-model",
-  GROK_API_KEY: "extension.browse-bot.grok-api-key",
-  GROK_MODEL: "extension.browse-bot.grok-model",
-  PERPLEXITY_API_KEY: "extension.browse-bot.perplexity-api-key",
-  PERPLEXITY_MODEL: "extension.browse-bot.perplexity-model",
-  CEREBRAS_API_KEY: "extension.browse-bot.cerebras-api-key",
-  CEREBRAS_MODEL: "extension.browse-bot.cerebras-model",
-  OLLAMA_MODEL: "extension.browse-bot.ollama-model",
-  OLLAMA_BASE_URL: "extension.browse-bot.ollama-base-url",
+  static URLBAR_AI_ENABLED = "extension.browse-bot.urlbar-ai-enabled";
+  static URLBAR_AI_HIDE_SUGGESTIONS = "extension.browse-bot.urlbar-ai.hide-suggestions";
+  static URLBAR_AI_ANIMATIONS_ENABLED = "extension.browse-bot.urlbar-ai.animations-enabled";
 
-  // Advanced LLM Settings
-  LLM_TEMPERATURE: "extension.browse-bot.llm.temperature",
-  LLM_TOP_P: "extension.browse-bot.llm.top-p",
-  LLM_TOP_K: "extension.browse-bot.llm.top-k",
-  LLM_FREQUENCY_PENALTY: "extension.browse-bot.llm.frequency-penalty",
-  LLM_PRESENCE_PENALTY: "extension.browse-bot.llm.presence-penalty",
-  LLM_MAX_OUTPUT_TOKENS: "extension.browse-bot.llm.max-output-tokens",
+  static SOLID_BG = "extension.browse-bot.solid-bg";
 
-  //TODO: Not yet implimented
-  COPY_BTN_ENABLED: "extension.browse-bot.findbar-ai.copy-btn-enabled",
-  MARKDOWN_ENABLED: "extension.browse-bot.findbar-ai.markdown-enabled",
-  SHOW_TOOL_CALL: "extension.browse-bot.findbar-ai.show-tool-call",
+  static LLM_PROVIDER = "extension.browse-bot.llm-provider";
+  static MISTRAL_API_KEY = "extension.browse-bot.mistral-api-key";
+  static MISTRAL_MODEL = "extension.browse-bot.mistral-model";
+  static GEMINI_API_KEY = "extension.browse-bot.gemini-api-key";
+  static GEMINI_MODEL = "extension.browse-bot.gemini-model";
+  static OPENAI_API_KEY = "extension.browse-bot.openai-api-key";
+  static OPENAI_MODEL = "extension.browse-bot.openai-model";
+  static CLAUDE_API_KEY = "extension.browse-bot.claude-api-key";
+  static CLAUDE_MODEL = "extension.browse-bot.claude-model";
+  static GROK_API_KEY = "extension.browse-bot.grok-api-key";
+  static GROK_MODEL = "extension.browse-bot.grok-model";
+  static PERPLEXITY_API_KEY = "extension.browse-bot.perplexity-api-key";
+  static PERPLEXITY_MODEL = "extension.browse-bot.perplexity-model";
+  static CEREBRAS_API_KEY = "extension.browse-bot.cerebras-api-key";
+  static CEREBRAS_MODEL = "extension.browse-bot.cerebras-model";
+  static OLLAMA_MODEL = "extension.browse-bot.ollama-model";
+  static OLLAMA_BASE_URL = "extension.browse-bot.ollama-base-url";
 
-  defaultValues: {},
+  static LLM_TEMPERATURE = "extension.browse-bot.llm.temperature";
+  static LLM_TOP_P = "extension.browse-bot.llm.top-p";
+  static LLM_TOP_K = "extension.browse-bot.llm.top-k";
+  static LLM_FREQUENCY_PENALTY = "extension.browse-bot.llm.frequency-penalty";
+  static LLM_PRESENCE_PENALTY = "extension.browse-bot.llm.presence-penalty";
+  static LLM_MAX_OUTPUT_TOKENS = "extension.browse-bot.llm.max-output-tokens";
 
-  getPref(key) {
-    try {
-      const pref = UC_API.Prefs.get(key);
-      if (!pref) return PREFS.defaultValues[key];
-      if (!pref.exists()) return PREFS.defaultValues[key];
-      return pref.value;
-    } catch {
-      return PREFS.defaultValues[key];
-    }
-  },
+  // static COPY_BTN_ENABLED = "extension.browse-bot.findbar-ai.copy-btn-enabled";
+  // static MARKDOWN_ENABLED = "extension.browse-bot.findbar-ai.markdown-enabled";
+  // static SHOW_TOOL_CALL = "extension.browse-bot.findbar-ai.show-tool-call";
 
-  setPref(prefKey, value) {
-    UC_API.Prefs.set(prefKey, value);
-  },
+  static defaultValues = {
+    [BrowseBotPREFS.ENABLED]: true,
+    [BrowseBotPREFS.URLBAR_AI_ENABLED]: true,
+    [BrowseBotPREFS.URLBAR_AI_HIDE_SUGGESTIONS]: true,
+    [BrowseBotPREFS.URLBAR_AI_ANIMATIONS_ENABLED]: true,
+    [BrowseBotPREFS.MINIMAL]: true,
+    [BrowseBotPREFS.AGENTIC_MODE]: false,
+    [BrowseBotPREFS.DEBUG_MODE]: false,
+    [BrowseBotPREFS.PERSIST]: false,
+    [BrowseBotPREFS.STREAM_ENABLED]: true,
+    [BrowseBotPREFS.CITATIONS_ENABLED]: false,
+    [BrowseBotPREFS.CONTEXT_MENU_ENABLED]: true,
+    [BrowseBotPREFS.CONTEXT_MENU_AUTOSEND]: true,
+    [BrowseBotPREFS.CONTEXT_MENU_COMMAND_NO_SELECTION]: "Summarize current page",
+    [BrowseBotPREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION]:
+      "Explain this in context of current page:\n\n{selection}",
+    [BrowseBotPREFS.LLM_PROVIDER]: "gemini",
+    [BrowseBotPREFS.MISTRAL_API_KEY]: "",
+    [BrowseBotPREFS.MISTRAL_MODEL]: "mistral-medium-latest",
+    [BrowseBotPREFS.GEMINI_API_KEY]: "",
+    [BrowseBotPREFS.GEMINI_MODEL]: "gemini-2.5-flash",
+    [BrowseBotPREFS.OPENAI_API_KEY]: "",
+    [BrowseBotPREFS.OPENAI_MODEL]: "gpt-5.2",
+    [BrowseBotPREFS.CLAUDE_API_KEY]: "",
+    [BrowseBotPREFS.CLAUDE_MODEL]: "claude-4-opus",
+    [BrowseBotPREFS.GROK_API_KEY]: "",
+    [BrowseBotPREFS.GROK_MODEL]: "grok-4",
+    [BrowseBotPREFS.PERPLEXITY_API_KEY]: "",
+    [BrowseBotPREFS.PERPLEXITY_MODEL]: "sonar",
+    [BrowseBotPREFS.CEREBRAS_API_KEY]: "",
+    [BrowseBotPREFS.CEREBRAS_MODEL]: "llama3.1-8b",
+    [BrowseBotPREFS.OLLAMA_MODEL]: "llama2",
+    [BrowseBotPREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
+    [BrowseBotPREFS.DND_ENABLED]: true,
+    [BrowseBotPREFS.POSITION]: "top-right",
+    [BrowseBotPREFS.REMEMBER_DIMENSIONS]: true,
+    [BrowseBotPREFS.WIDTH]: 500,
+    [BrowseBotPREFS.MAX_TOOL_CALLS]: 5,
+    [BrowseBotPREFS.CONFORMATION]: true,
+    [BrowseBotPREFS.BACKGROUND_STYLE]: "solid",
+    [BrowseBotPREFS.SHORTCUT_FINDBAR]: "ctrl+shift+f",
+    [BrowseBotPREFS.SHORTCUT_URLBAR]: "ctrl+space",
+    [BrowseBotPREFS.CUSTOM_SYSTEM_PROMPT]: "",
+    [BrowseBotPREFS.LLM_TEMPERATURE]: 0.7,
+    [BrowseBotPREFS.LLM_TOP_P]: 1.0,
+    [BrowseBotPREFS.LLM_TOP_K]: 40,
+    [BrowseBotPREFS.LLM_FREQUENCY_PENALTY]: 0.0,
+    [BrowseBotPREFS.LLM_PRESENCE_PENALTY]: 0.0,
+    [BrowseBotPREFS.LLM_MAX_OUTPUT_TOKENS]: 2048,
+  };
 
-  migratePrefs() {
+  static migratePrefs() {
     const migrationMap = {
-      "extension.browse-bot.enabled": PREFS.ENABLED,
-      "extension.browse-bot.minimal": PREFS.MINIMAL,
-      "extension.browse-bot.persist-chat": PREFS.PERSIST,
-      "extension.browse-bot.dnd-enabled": PREFS.DND_ENABLED,
-      "extension.browse-bot.position": PREFS.POSITION,
-      "extension.browse-bot.stream-enabled": PREFS.STREAM_ENABLED,
-      "extension.browse-bot.god-mode": PREFS.AGENTIC_MODE,
-      "extension.browse-bot.findbar-god-mode": PREFS.AGENTIC_MODE,
-      "extension.browse-bot.citations-enabled": PREFS.CITATIONS_ENABLED,
-      "extension.browse-bot.max-tool-calls": PREFS.MAX_TOOL_CALLS,
-      "extension.browse-bot.conform-before-tool-call": PREFS.CONFORMATION,
-      "extension.browse-bot.context-menu-enabled": PREFS.CONTEXT_MENU_ENABLED,
-      "extension.browse-bot.context-menu-autosend": PREFS.CONTEXT_MENU_AUTOSEND,
+      "extension.browse-bot.enabled": this.ENABLED,
+      "extension.browse-bot.minimal": this.MINIMAL,
+      "extension.browse-bot.persist-chat": this.PERSIST,
+      "extension.browse-bot.dnd-enabled": this.DND_ENABLED,
+      "extension.browse-bot.position": this.POSITION,
+      "extension.browse-bot.stream-enabled": this.STREAM_ENABLED,
+      "extension.browse-bot.god-mode": this.AGENTIC_MODE,
+      "extension.browse-bot.findbar-god-mode": this.AGENTIC_MODE,
+      "extension.browse-bot.citations-enabled": this.CITATIONS_ENABLED,
+      "extension.browse-bot.max-tool-calls": this.MAX_TOOL_CALLS,
+      "extension.browse-bot.conform-before-tool-call": this.CONFORMATION,
+      "extension.browse-bot.context-menu-enabled": this.CONTEXT_MENU_ENABLED,
+      "extension.browse-bot.context-menu-autosend": this.CONTEXT_MENU_AUTOSEND,
     };
 
     for (const [oldKey, newKey] of Object.entries(migrationMap)) {
@@ -104,310 +136,264 @@ export const PREFS = {
         const oldPref = UC_API.Prefs.get(oldKey);
         if (oldPref && oldPref.exists()) {
           const value = oldPref.value;
-          debugLog(`Migrating pref ${oldKey} to ${newKey} with value: ${value}`);
+          this.debugLog(`Migrating pref ${oldKey} to ${newKey} with value: ${value}`);
           UC_API.Prefs.set(newKey, value);
           oldPref.reset();
         }
       } catch (e) {
-        // It's fine if it fails, just log it in debug mode
-        debugError(`Could not migrate pref ${oldKey}:`, e);
+        this.debugError(`Could not migrate pref ${oldKey}:`, e);
       }
     }
-  },
+  }
 
-  setInitialPrefs() {
-    this.migratePrefs();
-    for (const [key, value] of Object.entries(PREFS.defaultValues)) {
-      UC_API.Prefs.setIfUnset(key, value);
-    }
-  },
-
-  get enabled() {
+  static get enabled() {
     return this.getPref(this.ENABLED);
-  },
-  set enabled(value) {
+  }
+
+  static set enabled(value) {
     this.setPref(this.ENABLED, value);
-  },
+  }
 
-  get minimal() {
+  static get minimal() {
     return this.getPref(this.MINIMAL);
-  },
-  set minimal(value) {
+  }
+
+  static set minimal(value) {
     this.setPref(this.MINIMAL, value);
-  },
+  }
 
-  get streamEnabled() {
+  static get streamEnabled() {
     return this.getPref(this.STREAM_ENABLED);
-  },
-  set streamEnabled(value) {
+  }
+
+  static set streamEnabled(value) {
     this.setPref(this.STREAM_ENABLED, value);
-  },
+  }
 
-  set agenticMode(value) {
+  static set agenticMode(value) {
     this.setPref(this.AGENTIC_MODE, value);
-  },
-  get agenticMode() {
+  }
+
+  static get agenticMode() {
     return this.getPref(this.AGENTIC_MODE);
-  },
+  }
 
-  get citationsEnabled() {
+  static get citationsEnabled() {
     return this.getPref(this.CITATIONS_ENABLED);
-  },
-  set citationsEnabled(value) {
+  }
+
+  static set citationsEnabled(value) {
     this.setPref(this.CITATIONS_ENABLED, value);
-  },
+  }
 
-  get contextMenuEnabled() {
+  static get contextMenuEnabled() {
     return this.getPref(this.CONTEXT_MENU_ENABLED);
-  },
-  set contextMenuEnabled(value) {
+  }
+
+  static set contextMenuEnabled(value) {
     this.setPref(this.CONTEXT_MENU_ENABLED, value);
-  },
+  }
 
-  get contextMenuAutoSend() {
+  static get contextMenuAutoSend() {
     return this.getPref(this.CONTEXT_MENU_AUTOSEND);
-  },
-  set contextMenuAutoSend(value) {
+  }
+
+  static set contextMenuAutoSend(value) {
     this.setPref(this.CONTEXT_MENU_AUTOSEND, value);
-  },
+  }
 
-  get contextMenuCommandWithSelection() {
+  static get contextMenuCommandWithSelection() {
     return this.getPref(this.CONTEXT_MENU_COMMAND_WITH_SELECTION);
-  },
-  set contextMenuCommandWithSelection(value) {
+  }
+
+  static set contextMenuCommandWithSelection(value) {
     this.setPref(this.CONTEXT_MENU_COMMAND_WITH_SELECTION, value);
-  },
+  }
 
-  get contextMenuCommandNoSelection() {
+  static get contextMenuCommandNoSelection() {
     return this.getPref(this.CONTEXT_MENU_COMMAND_NO_SELECTION);
-  },
-  set contextMenuCommandNoSelection(value) {
+  }
+
+  static set contextMenuCommandNoSelection(value) {
     this.setPref(this.CONTEXT_MENU_COMMAND_NO_SELECTION, value);
-  },
+  }
 
-  get llmProvider() {
+  static get llmProvider() {
     return this.getPref(this.LLM_PROVIDER);
-  },
-  set llmProvider(value) {
+  }
+
+  static set llmProvider(value) {
     this.setPref(this.LLM_PROVIDER, value);
-  },
+  }
 
-  get persistChat() {
+  static get persistChat() {
     return this.getPref(this.PERSIST);
-  },
-  set persistChat(value) {
+  }
+
+  static set persistChat(value) {
     this.setPref(this.PERSIST, value);
-  },
+  }
 
-  get backgroundStyle() {
+  static get backgroundStyle() {
     return this.getPref(this.BACKGROUND_STYLE);
-  },
+  }
 
-  get pseudoBg() {
+  static get pseudoBg() {
     return this.backgroundStyle === "pseudo";
-  },
+  }
 
-  get maxToolCalls() {
+  static get maxToolCalls() {
     return this.getPref(this.MAX_TOOL_CALLS);
-  },
-  set maxToolCalls(value) {
+  }
+
+  static set maxToolCalls(value) {
     this.setPref(this.MAX_TOOL_CALLS, value);
-  },
+  }
 
-  get copyBtnEnabled() {
-    return this.getPref(this.COPY_BTN_ENABLED);
-  },
-  set copyBtnEnabled(value) {
-    this.setPref(this.COPY_BTN_ENABLED, value);
-  },
+  // static get copyBtnEnabled() {
+  //   return this.getPref(this.COPY_BTN_ENABLED);
+  // }
+  //
+  // static set copyBtnEnabled(value) {
+  //   this.setPref(this.COPY_BTN_ENABLED, value);
+  // }
+  //
+  // static get markdownEnabled() {
+  //   return this.getPref(this.MARKDOWN_ENABLED);
+  // }
+  //
+  // static set markdownEnabled(value) {
+  //   this.setPref(this.MARKDOWN_ENABLED, value);
+  // }
 
-  get markdownEnabled() {
-    return this.getPref(this.MARKDOWN_ENABLED);
-  },
-  set markdownEnabled(value) {
-    this.setPref(this.MARKDOWN_ENABLED, value);
-  },
-
-  get conformation() {
+  static get conformation() {
     return this.getPref(this.CONFORMATION);
-  },
-  set conformation(value) {
+  }
+
+  static set conformation(value) {
     this.setPref(this.CONFORMATION, value);
-  },
+  }
 
-  get showToolCall() {
-    return this.getPref(this.SHOW_TOOL_CALL);
-  },
-  set showToolCall(value) {
-    this.setPref(this.SHOW_TOOL_CALL, value);
-  },
+  // static get showToolCall() {
+  //   return this.getPref(this.SHOW_TOOL_CALL);
+  // }
+  //
+  // static set showToolCall(value) {
+  //   this.setPref(this.SHOW_TOOL_CALL, value);
+  // }
 
-  get dndEnabled() {
+  static get dndEnabled() {
     return this.getPref(this.DND_ENABLED);
-  },
-  set dndEnabled(value) {
+  }
+
+  static set dndEnabled(value) {
     this.setPref(this.DND_ENABLED, value);
-  },
+  }
 
-  get position() {
+  static get position() {
     return this.getPref(this.POSITION);
-  },
-  set position(value) {
+  }
+
+  static set position(value) {
     this.setPref(this.POSITION, value);
-  },
+  }
 
-  get rememberDimensions() {
+  static get rememberDimensions() {
     return this.getPref(this.REMEMBER_DIMENSIONS);
-  },
-  set rememberDimensions(value) {
+  }
+
+  static set rememberDimensions(value) {
     this.setPref(this.REMEMBER_DIMENSIONS, value);
-  },
+  }
 
-  get width() {
+  static get width() {
     return this.getPref(this.WIDTH);
-  },
-  set width(value) {
+  }
+
+  static set width(value) {
     this.setPref(this.WIDTH, value);
-  },
+  }
 
-  get ollamaBaseUrl() {
+  static get ollamaBaseUrl() {
     return this.getPref(this.OLLAMA_BASE_URL);
-  },
-  set ollamaBaseUrl(value) {
+  }
+
+  static set ollamaBaseUrl(value) {
     this.setPref(this.OLLAMA_BASE_URL, value);
-  },
+  }
 
-  get llmTemperature() {
+  static get llmTemperature() {
     return this.getPref(this.LLM_TEMPERATURE);
-  },
-  set llmTemperature(value) {
+  }
+
+  static set llmTemperature(value) {
     this.setPref(this.LLM_TEMPERATURE, value);
-  },
+  }
 
-  get llmTopP() {
+  static get llmTopP() {
     return this.getPref(this.LLM_TOP_P);
-  },
-  set llmTopP(value) {
+  }
+
+  static set llmTopP(value) {
     this.setPref(this.LLM_TOP_P, value);
-  },
+  }
 
-  get llmTopK() {
+  static get llmTopK() {
     return this.getPref(this.LLM_TOP_K);
-  },
-  set llmTopK(value) {
+  }
+
+  static set llmTopK(value) {
     this.setPref(this.LLM_TOP_K, value);
-  },
+  }
 
-  get llmFrequencyPenalty() {
+  static get llmFrequencyPenalty() {
     return this.getPref(this.LLM_FREQUENCY_PENALTY);
-  },
-  set llmFrequencyPenalty(value) {
+  }
+
+  static set llmFrequencyPenalty(value) {
     this.setPref(this.LLM_FREQUENCY_PENALTY, value);
-  },
+  }
 
-  get llmPresencePenalty() {
+  static get llmPresencePenalty() {
     return this.getPref(this.LLM_PRESENCE_PENALTY);
-  },
-  set llmPresencePenalty(value) {
+  }
+
+  static set llmPresencePenalty(value) {
     this.setPref(this.LLM_PRESENCE_PENALTY, value);
-  },
+  }
 
-  get llmMaxOutputTokens() {
+  static get llmMaxOutputTokens() {
     return this.getPref(this.LLM_MAX_OUTPUT_TOKENS);
-  },
-  set llmMaxOutputTokens(value) {
+  }
+
+  static set llmMaxOutputTokens(value) {
     this.setPref(this.LLM_MAX_OUTPUT_TOKENS, value);
-  },
+  }
 
-  get shortcutFindbar() {
+  static get shortcutFindbar() {
     return this.getPref(this.SHORTCUT_FINDBAR);
-  },
-  set shortcutFindbar(value) {
+  }
+
+  static set shortcutFindbar(value) {
     this.setPref(this.SHORTCUT_FINDBAR, value);
-  },
+  }
 
-  get shortcutUrlbar() {
+  static get shortcutUrlbar() {
     return this.getPref(this.SHORTCUT_URLBAR);
-  },
-  set shortcutUrlbar(value) {
+  }
+
+  static set shortcutUrlbar(value) {
     this.setPref(this.SHORTCUT_URLBAR, value);
-  },
+  }
 
-  get customSystemPrompt() {
+  static get customSystemPrompt() {
     return this.getPref(this.CUSTOM_SYSTEM_PROMPT);
-  },
-  set customSystemPrompt(value) {
+  }
+
+  static set customSystemPrompt(value) {
     this.setPref(this.CUSTOM_SYSTEM_PROMPT, value);
-  },
-};
-
-export const debugLog = (...args) => {
-  if (PREFS.getPref(PREFS.DEBUG_MODE, false)) {
-    console.log("BrowseBot :", ...args);
   }
-};
+}
 
-export const debugError = (...args) => {
-  if (PREFS.getPref(PREFS.DEBUG_MODE, false)) {
-    console.error("BrowseBot :", ...args);
-  }
-};
-
-PREFS.defaultValues = {
-  [PREFS.ENABLED]: true,
-  [PREFS.URLBAR_AI_ENABLED]: true,
-  [PREFS.URLBAR_AI_HIDE_SUGGESTIONS]: true,
-  [PREFS.URLBAR_AI_ANIMATIONS_ENABLED]: true,
-  [PREFS.MINIMAL]: true,
-  [PREFS.AGENTIC_MODE]: false,
-  [PREFS.DEBUG_MODE]: false,
-  [PREFS.PERSIST]: false,
-  [PREFS.STREAM_ENABLED]: true,
-  [PREFS.CITATIONS_ENABLED]: false,
-  [PREFS.CONTEXT_MENU_ENABLED]: true,
-  [PREFS.CONTEXT_MENU_AUTOSEND]: true,
-  [PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION]: "Summarize current page",
-  [PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION]:
-    "Explain this in context of current page:\n\n{selection}",
-  [PREFS.LLM_PROVIDER]: "gemini",
-  [PREFS.MISTRAL_API_KEY]: "",
-  [PREFS.MISTRAL_MODEL]: "mistral-medium-latest",
-  [PREFS.GEMINI_API_KEY]: "",
-  [PREFS.GEMINI_MODEL]: "gemini-2.5-flash",
-  [PREFS.OPENAI_API_KEY]: "",
-  [PREFS.OPENAI_MODEL]: "gpt-5.2",
-  [PREFS.CLAUDE_API_KEY]: "",
-  [PREFS.CLAUDE_MODEL]: "claude-4-opus",
-  [PREFS.GROK_API_KEY]: "",
-  [PREFS.GROK_MODEL]: "grok-4",
-  [PREFS.PERPLEXITY_API_KEY]: "",
-  [PREFS.PERPLEXITY_MODEL]: "sonar",
-  [PREFS.CEREBRAS_API_KEY]: "",
-  [PREFS.CEREBRAS_MODEL]: "llama3.1-8b",
-  [PREFS.OLLAMA_MODEL]: "llama2",
-  [PREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
-  [PREFS.DND_ENABLED]: true,
-  [PREFS.POSITION]: "top-right",
-  [PREFS.REMEMBER_DIMENSIONS]: true,
-  [PREFS.WIDTH]: 500,
-  [PREFS.MAX_TOOL_CALLS]: 5,
-  [PREFS.CONFORMATION]: true,
-  [PREFS.CONFORMATION]: true,
-  [PREFS.BACKGROUND_STYLE]: "solid",
-
-  [PREFS.SHORTCUT_FINDBAR]: "ctrl+shift+f",
-  [PREFS.SHORTCUT_URLBAR]: "ctrl+space",
-
-  [PREFS.CUSTOM_SYSTEM_PROMPT]: "",
-  [PREFS.LLM_TEMPERATURE]: 0.7,
-  [PREFS.LLM_TOP_P]: 1.0,
-  [PREFS.LLM_TOP_K]: 40,
-  [PREFS.LLM_FREQUENCY_PENALTY]: 0.0,
-  [PREFS.LLM_PRESENCE_PENALTY]: 0.0,
-  [PREFS.LLM_MAX_OUTPUT_TOKENS]: 2048,
-  // [PREFS.COPY_BTN_ENABLED]: true,
-  // [PREFS.MARKDOWN_ENABLED]: true,
-  // [PREFS.SHOW_TOOL_CALL]: false,
-};
-
+export const PREFS = BrowseBotPREFS;
 export default PREFS;

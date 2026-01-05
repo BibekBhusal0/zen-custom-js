@@ -103,15 +103,41 @@ try {
 
 ### Preferences Pattern
 
+Use the base `PREFS` class from `utils/pref.js` and extend it for each mod:
+
 ```javascript
-export const PREFS = {
-  KEYS: { ENABLED: "mod-name.enabled", DEBUG_MODE: "mod-name.debug-mode" },
-  getPref(key) { ... },
-  setPref(key, value) { ... },
-  get enabled() { return this.getPref(this.KEYS.ENABLED); },
-  defaultValues: { [PREFS.KEYS.ENABLED]: true },
-};
+import { PREFS as BasePREFS } from "../../utils/pref.js";
+
+class ModNamePREFS extends BasePREFS {
+  static MOD_NAME = "ModName";
+  static DEBUG_MODE = "mod-name.debug-mode";
+  static ENABLED = "mod-name.enabled";
+
+  static defaultValues = {
+    [ModNamePREFS.DEBUG_MODE]: false,
+    [ModNamePREFS.ENABLED]: true,
+  };
+
+  static get enabled() {
+    return this.getPref(this.ENABLED);
+  }
+
+  static set enabled(value) {
+    this.setPref(this.ENABLED, value);
+  }
+}
+
+export const PREFS = ModNamePREFS;
 ```
+
+The base class provides:
+
+- `getPref(key, defaultValue)` - Get a preference value
+- `setPref(key, value)` - Set a preference value
+- `setInitialPrefs()` - Initialize default preferences
+- `debugMode` getter/setter - Access debug mode preference
+- `debugLog(...args)` - Log debug messages (only when debugMode is true)
+- `debugError(...args)` - Log error messages (only when debugMode is true)
 
 ### DOM Manipulation
 

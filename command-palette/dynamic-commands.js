@@ -1,5 +1,5 @@
 import { getSearchEngineFavicon } from "../utils/favicon.js";
-import { debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
 import { ZenCommandPalette } from "./index.js";
@@ -54,7 +54,7 @@ const commandChainUtils = {
           openTrustedLinkIn(link, "tab");
       }
     } catch (e) {
-      debugError(`Command Chain: Failed to open link "${link}" in "${where}".`, e);
+      PREFS.debugError(`Command Chain: Failed to open link "${link}" in "${where}".`, e);
     }
   },
   async delay(params) {
@@ -68,7 +68,7 @@ const commandChainUtils = {
     if (window.ucAPI?.showToast) {
       window.ucAPI.showToast([title || "", description || ""], 0);
     } else {
-      debugError("ucAPI.showToast is not available.");
+      PREFS.debugError("ucAPI.showToast is not available.");
       alert([title, description], 0);
     }
   },
@@ -443,7 +443,7 @@ export async function generateWorkspaceCommands() {
 export async function generateSineCommands() {
   // SineAPI is required for both installing and uninstalling.
   if (!window.SineAPI) {
-    debugLog("SineAPI not found, skipping Sine command generation.");
+    PREFS.debugLog("SineAPI not found, skipping Sine command generation.");
     return [];
   }
 
@@ -467,7 +467,7 @@ export async function generateSineCommands() {
       }
     }
   } else {
-    debugLog(
+    PREFS.debugLog(
       "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
     );
   } */
@@ -646,7 +646,7 @@ export async function generateCustomCommands() {
           });
           Cu.evalInSandbox(cmd.code, sandbox);
         } catch (e) {
-          debugError(`Error executing custom JS command "${cmd.name}":`, e);
+          PREFS.debugError(`Error executing custom JS command "${cmd.name}":`, e);
           if (window.ucAPI?.showToast) {
             window.ucAPI.showToast(`Custom command error: ${e.message}`);
           }

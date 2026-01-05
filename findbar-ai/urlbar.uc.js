@@ -1,5 +1,5 @@
 import { LLM } from "./llm/index.js";
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
 import { stepCountIs } from "ai";
 import { parseElement } from "../utils/parse.js";
@@ -35,7 +35,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
   }
 
   async sendMessage(prompt) {
-    debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
+    PREFS.debugLog(`urlBarLLM: Sending prompt: "${prompt}"`);
 
     const shouldToolBeCalled = async (toolName) => {
       const friendlyName = toolNameMapping[toolName] || toolName;
@@ -83,23 +83,23 @@ export const urlbarAI = {
 
   init() {
     if (!this.enabled) {
-      debugLog("urlbarAI: Disabled by preference.");
+      PREFS.debugLog("urlbarAI: Disabled by preference.");
       return;
     }
-    debugLog("urlbarAI: Initializing");
+    PREFS.debugLog("urlbarAI: Initializing");
     if (this._initialized) {
-      debugLog("urlbarAI: Already initialized.");
+      PREFS.debugLog("urlbarAI: Already initialized.");
       return;
     }
     this._originalPlaceholder = gURLBar.inputField.getAttribute("placeholder");
     this.addAskButton();
     this.addListeners();
     this._initialized = true;
-    debugLog("urlbarAI: Initialization complete");
+    PREFS.debugLog("urlbarAI: Initialization complete");
   },
 
   destroy() {
-    debugLog("urlbarAI: Destroying");
+    PREFS.debugLog("urlbarAI: Destroying");
     this.removeAskButton();
     this.removeListeners();
     if (this._isAIMode) {
@@ -109,7 +109,7 @@ export const urlbarAI = {
     gURLBar.removeAttribute("is-ai-thinking");
     gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
     this._initialized = false;
-    debugLog("urlbarAI: Destruction complete");
+    PREFS.debugLog("urlbarAI: Destruction complete");
   },
 
   _closeUrlBar() {
@@ -127,7 +127,7 @@ export const urlbarAI = {
         gURLBar.view.close();
       }
     } catch (e) {
-      debugError("urlbarAI: Error in _closeUrlBar", e);
+      PREFS.debugError("urlbarAI: Error in _closeUrlBar", e);
     }
   },
 
@@ -157,7 +157,7 @@ export const urlbarAI = {
       setTimeout(() => textbox.style.setProperty("height", inputHeight + "px", "important"), 1);
       setTimeout(() => this._hideSuggestions(), 151);
     } catch (e) {
-      debugError("Error while animating", e);
+      PREFS.debugError("Error while animating", e);
       return false;
     }
     return true;
@@ -193,7 +193,7 @@ export const urlbarAI = {
         this._resetHideSuggestions();
       }, 151);
     } catch (e) {
-      debugError("Error while animating", e);
+      PREFS.debugError("Error while animating", e);
       return false;
     }
     return true;
@@ -215,7 +215,7 @@ export const urlbarAI = {
     const newState = typeof forceState === "boolean" ? forceState : !this._isAIMode;
     if (newState === this._isAIMode) return;
 
-    debugLog(`urlbarAI: Toggling AI mode. Current: ${this._isAIMode}, New: ${newState}`);
+    PREFS.debugLog(`urlbarAI: Toggling AI mode. Current: ${this._isAIMode}, New: ${newState}`);
     this._isAIMode = newState;
 
     if (this._isAIMode) {
@@ -232,7 +232,7 @@ export const urlbarAI = {
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
       gURLBar.value = "";
     }
-    debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
+    PREFS.debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
   },
 
   handleGlobalKeyDown(e) {
@@ -240,7 +240,7 @@ export const urlbarAI = {
     const eventSignature = eventToShortcutSignature(e);
 
     if (eventSignature === currentShortcut) {
-      debugLog("urlbarAI: Custom shortcut detected");
+      PREFS.debugLog("urlbarAI: Custom shortcut detected");
       e.preventDefault();
       e.stopPropagation();
       gURLBar.focus();
@@ -259,7 +259,7 @@ export const urlbarAI = {
         return;
       }
       if (e.key === "Enter") {
-        debugLog("urlbarAI: Enter key pressed in AI mode");
+        PREFS.debugLog("urlbarAI: Enter key pressed in AI mode");
         e.preventDefault();
         e.stopPropagation();
         this.send();
@@ -268,13 +268,13 @@ export const urlbarAI = {
   },
 
   addListeners() {
-    debugLog("urlbarAI: Adding event listeners");
+    PREFS.debugLog("urlbarAI: Adding event listeners");
     this._boundHandleGlobalKeyDown = this.handleGlobalKeyDown.bind(this);
     this._boundHandleUrlbarKeyDown = this.handleUrlbarKeyDown.bind(this);
     this._boundDisableAIMode = () => {
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
       if (this._isAIMode) {
-        debugLog("urlbarAI: Disabling AI mode due to blur or popup hide");
+        PREFS.debugLog("urlbarAI: Disabling AI mode due to blur or popup hide");
         this.toggleAIMode(false);
         this.clearAnimationPropertiesInUrlBar();
         this._resetHideSuggestions();
@@ -288,7 +288,7 @@ export const urlbarAI = {
   },
 
   removeListeners() {
-    debugLog("urlbarAI: Removing event listeners");
+    PREFS.debugLog("urlbarAI: Removing event listeners");
     if (this._boundHandleGlobalKeyDown) {
       document.removeEventListener("keydown", this._boundHandleGlobalKeyDown, true);
       this._boundHandleGlobalKeyDown = null;
@@ -307,7 +307,7 @@ export const urlbarAI = {
   send() {
     const prompt = gURLBar.value.trim();
     if (prompt) {
-      debugLog(`URLbar: Sending prompt: "${prompt}"`);
+      PREFS.debugLog(`URLbar: Sending prompt: "${prompt}"`);
       gURLBar.value = "";
       gURLBar.setAttribute("is-ai-thinking", "true");
       gURLBar.inputField.setAttribute("placeholder", "AI thinking...");
@@ -325,9 +325,9 @@ export const urlbarAI = {
   },
 
   addAskButton() {
-    debugLog("urlbarAI: Adding 'Ask' button");
+    PREFS.debugLog("urlbarAI: Adding 'Ask' button");
     if (document.getElementById("urlbar-ask-ai-button")) {
-      debugLog("urlbarAI: 'Ask' button already exists.");
+      PREFS.debugLog("urlbarAI: 'Ask' button already exists.");
       return;
     }
 
@@ -343,16 +343,16 @@ export const urlbarAI = {
       const inputContainer = document.querySelector("#urlbar .urlbar-input-container");
       if (inputContainer) {
         inputContainer.appendChild(button);
-        debugLog("urlbarAI: 'Ask' button added successfully to .urlbar-input-container");
+        PREFS.debugLog("urlbarAI: 'Ask' button added successfully to .urlbar-input-container");
       } else if (retryCount < 10) {
-        debugError(
+        PREFS.debugError(
           `Could not find #urlbar .urlbar-input-container to add the 'Ask' button. Retrying in 500ms... (attempt ${
             retryCount + 1
           })`
         );
         setTimeout(() => insertButton(retryCount + 1), 500);
       } else {
-        debugError(
+        PREFS.debugError(
           "Could not find #urlbar .urlbar-input-container after multiple attempts. Giving up."
         );
       }
@@ -362,11 +362,11 @@ export const urlbarAI = {
   },
 
   removeAskButton() {
-    debugLog("urlbarAI: Removing 'Ask' button");
+    PREFS.debugLog("urlbarAI: Removing 'Ask' button");
     const button = document.getElementById("urlbar-ask-ai-button");
     if (button) {
       button.remove();
-      debugLog("urlbarAI: 'Ask' button removed.");
+      PREFS.debugLog("urlbarAI: 'Ask' button removed.");
     }
   },
 
