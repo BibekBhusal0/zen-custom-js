@@ -1,37 +1,9 @@
 import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
-
-const PREF_ENABLED = "extension.search-engine-select.enabled";
-const PREF_REMEMBER_POSITION = "extension.search-engine-select.remember-position";
-const PREF_Y_COOR = "extension.search-engine-select.y-coor";
-const PREF_DEBUG_MODE = "extension.search-engine-select.debug-mode";
-
-const getPref = (key, defaultValue) => {
-  try {
-    const pref = UC_API.Prefs.get(key);
-    if (!pref) return defaultValue;
-    if (!pref.exists()) return defaultValue;
-    return pref.value;
-  } catch {
-    return defaultValue;
-  }
-};
-
-const debugLog = (...args) => {
-  if (getPref(PREF_DEBUG_MODE, false)) {
-    console.log("extension.search-engine-select:", ...args);
-  }
-};
-
-const debugError = (...args) => {
-  if (getPref(PREF_DEBUG_MODE, false)) {
-    console.error("extension.search-engine-select:", ...args);
-  }
-};
+import { PREFS } from "./utils/prefs.js";
 
 const SearchEngineSwitcher = {
-  // --- Internal State ---
   _container: null,
   _engineSelect: null,
   _engineOptions: null,
@@ -44,33 +16,12 @@ const SearchEngineSwitcher = {
   _boundListeners: {},
   _progressListener: null,
 
-  // --- Preference Management ---
-  get enabled() {
-    return getPref(PREF_ENABLED, true);
-  },
-  set enabled(value) {
-    UC_API.Prefs.set(PREF_ENABLED, value);
-  },
-  get rememberPosition() {
-    return getPref(PREF_REMEMBER_POSITION, true);
-  },
-  set rememberPosition(value) {
-    UC_API.Prefs.set(PREF_REMEMBER_POSITION, value);
-  },
-  get Y_COOR() {
-    return getPref(PREF_Y_COOR, "60%");
-  },
-  set Y_COOR(value) {
-    UC_API.Prefs.set(PREF_Y_COOR, value);
-  },
-
-  // --- Core Methods ---
   async init() {
-    if (!this.enabled) {
-      debugLog("Initialization aborted: feature is disabled.");
+    if (!PREFS.enabled) {
+      PREFS.debugLog("Initialization aborted: feature is disabled.");
       return;
     }
-    debugLog("Initializing...");
+    PREFS.debugLog("Initializing...");
     await this.buildEngineRegexCache();
     this.createUI();
     this.attachEventListeners();
@@ -84,11 +35,11 @@ const SearchEngineSwitcher = {
     this._engineSelect = null;
     this._engineOptions = null;
     this._dragHandle = null;
-    debugLog("Destroyed successfully.");
+    PREFS.debugLog("Destroyed successfully.");
   },
 
   async buildEngineRegexCache() {
-    debugLog("Building engine regex cache...");
+    PREFS.debugLog("Building engine regex cache...");
     this._engineCache = [];
     const engines = await Services.search.getVisibleEngines();
     const PLACEHOLDER = "SEARCH_TERM_PLACEHOLDER_E6A8D";
@@ -107,7 +58,7 @@ const SearchEngineSwitcher = {
           regex: new RegExp(`^${regexString}`),
         });
       } catch (e) {
-        debugError(`Failed to process engine ${engine.name}`, e);
+        PREFS.debugError(`Failed to process engine ${engine.name}`, e);
       }
     }
   },
@@ -119,7 +70,7 @@ const SearchEngineSwitcher = {
       if (match && match[1]) {
         try {
           const term = decodeURIComponent(match[1].replace(/\+/g, " "));
-          debugLog(`Matched: Engine='${item.engine.name}', Term='${term}'`);
+          PREFS.debugLog(`Matched: Engine='${item.engine.name}', Term='${term}'`);
           return { engine: item.engine, term };
         } catch {
           continue;
@@ -163,7 +114,6 @@ const SearchEngineSwitcher = {
     this._engineSelect.replaceChildren(img, nameSpan);
   },
 
-  // --- Event Handlers ---
   handleEnabledChange(pref) {
     if (pref.value) this.init();
     else this.destroy();
@@ -193,12 +143,12 @@ const SearchEngineSwitcher = {
         .innerText.trim();
       engine = await Services.search.getEngineByName(engineName);
     } catch {
-      debugLog("Search indicator not found. Using default engine.");
+      PREFS.debugLog("Search indicator not found. Using default engine.");
       engine = await Services.search.getDefault();
     }
 
     if (engine && term) {
-      debugLog(`URL bar search detected. Engine: ${engine.name}, Term: ${term}`);
+      PREFS.debugLog(`URL bar search detected. Engine: ${engine.name}, Term: ${term}`);
       this._currentSearchInfo = { engine, term };
       this._show();
     }
@@ -208,9 +158,8 @@ const SearchEngineSwitcher = {
     event.preventDefault();
     event.stopPropagation();
 
-    // If clicking the same engine, just close the menu.
     if (newEngine.name === this._currentSearchInfo?.engine.name) {
-      debugLog(`Clicked on same engine ('${newEngine.name}'). Closing menu.`);
+      PREFS.debugLog(`Clicked on same engine ('${newEngine.name}'). Closing menu.`);
       this._engineOptions.style.display = "none";
       this._container.classList.remove("options-visible");
       return;
@@ -222,22 +171,19 @@ const SearchEngineSwitcher = {
     const newUrl = newEngine.getSubmission(term).uri.spec;
     let actionTaken = false;
 
-    // Ctrl+Click (no other modifiers) -> Split View
     if (event.button === 0 && event.ctrlKey && !event.altKey && !event.shiftKey) {
-      debugLog("Action: Split View");
+      PREFS.debugLog("Action: Split View");
       if (window.gZenViewSplitter) {
         const previousTab = gBrowser.selectedTab;
         await openTrustedLinkIn(newUrl, "tab");
         const currentTab = gBrowser.selectedTab;
         gZenViewSplitter.splitTabs([currentTab, previousTab], "vsep", 1);
       } else {
-        openTrustedLinkIn(newUrl, "tab"); // Fallback
+        openTrustedLinkIn(newUrl, "tab");
       }
       actionTaken = true;
-
-      // Alt+Click -> Glance
     } else if (event.button === 0 && event.altKey) {
-      debugLog("Action: Glance");
+      PREFS.debugLog("Action: Glance");
       if (window.gZenGlanceManager) {
         const rect = gBrowser.selectedBrowser.getBoundingClientRect();
         window.gZenGlanceManager.openGlance({
@@ -248,22 +194,17 @@ const SearchEngineSwitcher = {
           height: 10,
         });
       } else {
-        openTrustedLinkIn(newUrl, "tab"); // Fallback
+        openTrustedLinkIn(newUrl, "tab");
       }
       actionTaken = true;
-
-      // Middle Click -> Background Tab
     } else if (event.button === 1) {
-      debugLog("Action: Background Tab");
+      PREFS.debugLog("Action: Background Tab");
       openTrustedLinkIn(newUrl, "tab", {
         inBackground: true,
         relatedToCurrent: true,
       });
-      /// action take but in background tab no need to update here
-
-      // Left Click -> Current Tab
     } else if (event.button === 0) {
-      debugLog("Action: Current Tab");
+      PREFS.debugLog("Action: Current Tab");
       openTrustedLinkIn(newUrl, "current");
       actionTaken = true;
     }
@@ -297,10 +238,9 @@ const SearchEngineSwitcher = {
     this._container.classList.remove("options-visible");
   },
 
-  // --- UI Creation ---
   createUI() {
     const container = parseElement(`
-      <div id="search-engine-switcher-container" style="top: ${this.Y_COOR};">
+      <div id="search-engine-switcher-container" style="top: ${PREFS.yCoor};">
         <div id="ses-engine-select"></div>
         <div id="ses-drag-handle"></div>
         <div id="ses-engine-options"></div>
@@ -331,7 +271,6 @@ const SearchEngineSwitcher = {
     });
   },
 
-  // --- Drag Functionality ---
   startDrag(e) {
     if (e.button !== 0) return;
     e.preventDefault();
@@ -358,16 +297,14 @@ const SearchEngineSwitcher = {
     this._isDragging = false;
     this._container.classList.remove("is-dragging");
     this._dragHandle.style.cursor = "grab";
-    if (this.rememberPosition) {
-      this.Y_COOR = this._container.style.top;
+    if (PREFS.rememberPosition) {
+      PREFS.yCoor = this._container.style.top;
     }
     document.removeEventListener("mousemove", this._boundListeners.doDrag);
     document.removeEventListener("mouseup", this._boundListeners.stopDrag);
   },
 
-  // --- Event Listener Management ---
   attachEventListeners() {
-    // Create a specific listener object for the progress listener
     this._progressListener = {
       onLocationChange: this.onLocationChange.bind(this),
       QueryInterface: ChromeUtils.generateQI([
@@ -376,7 +313,6 @@ const SearchEngineSwitcher = {
       ]),
     };
 
-    // Bind all other listeners
     this._boundListeners.handleTabSelect = this.handleTabSelect.bind(this);
     this._boundListeners.handleURLBarKey = this.handleURLBarKey.bind(this);
     this._boundListeners.toggleOptions = this.toggleOptions.bind(this);
@@ -414,10 +350,10 @@ function init() {
     SearchEngineSwitcher.handleEnabledChange(pref);
   };
 
-  // Initial check on load
-  if (getPref(PREF_ENABLED, true)) SearchEngineSwitcher.init();
+  PREFS.setInitialPrefs();
 
-  // Listen for real-time changes
-  UC_API.Prefs.addListener(PREF_ENABLED, handleEnabledChange);
+  if (PREFS.enabled) SearchEngineSwitcher.init();
+
+  UC_API.Prefs.addListener(PREFS.ENABLED, handleEnabledChange);
 }
 startupFinish(init);
