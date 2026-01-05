@@ -47,10 +47,7 @@ export class InvertPDFButtonChild extends JSWindowActorChild {
     if (container && !this.document.getElementById("editorInvert")) {
       this.addButton(container);
     }
-    let inverted = Services.prefs.getBoolPref(
-      "userChrome.invertPDFButton.inverted",
-      false
-    );
+    let inverted = Services.prefs.getBoolPref("userChrome.invertPDFButton.inverted", false);
     this.filter = Services.prefs.getStringPref(
       "userChrome.invertPDFButton.filter",
       InvertPDFButtonChild.config.filter
@@ -177,16 +174,11 @@ export class InvertPDFButtonParent extends JSWindowActorParent {
 }
 
 if (Services.appinfo.processType === Services.appinfo.PROCESS_TYPE_DEFAULT) {
-  Services.prefs
-    .getDefaultBranch("")
-    .setBoolPref("userChrome.invertPDFButton.inverted", false);
+  Services.prefs.getDefaultBranch("").setBoolPref("userChrome.invertPDFButton.inverted", false);
 
   Services.prefs
     .getDefaultBranch("")
-    .setStringPref(
-      "userChrome.invertPDFButton.filter",
-      InvertPDFButtonChild.config.filter
-    );
+    .setStringPref("userChrome.invertPDFButton.filter", InvertPDFButtonChild.config.filter);
 
   let esModuleURI = import.meta.url;
   ChromeUtils.registerWindowActor("InvertPDFButton", {

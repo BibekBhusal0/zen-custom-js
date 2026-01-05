@@ -11,8 +11,8 @@ import "./search-engine-icon/index.js";
 import "./search-engine-select/index.js";
 
 // Otehr scripts
-import "./others/tab-explode.js"
-import "./others/invert-pdf.js"
+import "./others/tab-explode.js";
+import "./others/invert-pdf.js";
 
 // Make sure to run npm run Build before importing
 import "./dist/browse-bot-all.uc.js";

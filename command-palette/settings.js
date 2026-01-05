@@ -541,7 +541,7 @@ const SettingsModal = {
     }
 
     customCommands.forEach((cmd) => {
-      const defaultIcon = "chrome://browser/skin/trending.svg"
+      const defaultIcon = "chrome://browser/skin/trending.svg";
       const icon = cmd.icon || defaultIcon;
 
       const item = parseElement(`
