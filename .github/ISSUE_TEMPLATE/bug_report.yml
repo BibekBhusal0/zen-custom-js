@@ -8,13 +8,15 @@ body:
       label: Preflight Checklist
       description: Please ensure you've completed all of the following.
       options:
+        - label: I have read the documentation for the mod properly.
+          required: false
         - label: I have read the [Contributing Guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md) for this project.
           required: false
         - label: I have searched the [issue tracker](https://github.com/BibekBhusal0/zen-custom-js/issues) for a bug repoat that matches the one I want to file, without success.
           required: false
         - label: I have checked all the boxes without reading.
           required: false
-        - label: I have made sure that I'm on latest version of mod and also tested bete version for fix.
+        - label: I have made sure that I'm on latest version of mod and also tested beta version for fix.
           required: false
   - type: dropdown
     attributes:
