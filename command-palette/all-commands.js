@@ -1,14 +1,14 @@
 // This file is adapted from the command list in ZBar-Zen by Darsh-A
 // https://github.com/Darsh-A/ZBar-Zen/blob/main/command_bar.uc.js
 import { svgToUrl, icons } from "../utils/icon.js";
+import { getPref, setPref } from "../utils/pref.js";
 import { ZenCommandPalette } from "./index.js";
 
 const isCompactMode = () => gZenCompactModeManager?.preference;
-const ucAvailable = () => typeof UC_API !== "undefined";
 const togglePref = (prefName) => {
-  const pref = UC_API.Prefs.get(prefName);
-  if (!pref || pref.type !== "boolean") return;
-  pref.setTo(!pref.value);
+  const pref = getPref(prefName)
+  if (typeof pref === 'boolean') return;
+  setPref(!pref);
 };
 
 function isNotEmptyTab() {
@@ -46,7 +46,7 @@ export const commands = [
     key: "toggle-sidebar",
     label: "Toggle Sidebar",
     command: () => togglePref("zen.view.compact.hide-tabbar"),
-    condition: () => isCompactMode() && ucAvailable(),
+    condition: () => isCompactMode() ,
     icon: "chrome://browser/skin/zen-icons/expand-sidebar.svg",
     tags: ["compact", "sidebar", "hide", "ui"],
   },
@@ -54,7 +54,7 @@ export const commands = [
     key: "toggle-toolbar",
     label: "Toggle Toolbar",
     command: () => togglePref("zen.view.compact.hide-toolbar"),
-    condition: () => isCompactMode() && ucAvailable(),
+    condition: () => isCompactMode() ,
     tags: ["compact", "toolbar", "hide", "ui"],
   },
 
@@ -611,7 +611,6 @@ export const commands = [
     key: "app:restart",
     label: "Restart Browser",
     command: () => UC_API.Runtime.restart(),
-    condition: ucAvailable,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["restart", "reopen", "close"],
   },
@@ -619,7 +618,6 @@ export const commands = [
     key: "app:clear-startupCache",
     label: "Clear Startup Cache",
     command: () => UC_API.Runtime.restart(true),
-    condition: ucAvailable,
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["restart", "reopen", "close", "clear", "cache"],
   },

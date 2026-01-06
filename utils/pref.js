@@ -1,21 +1,48 @@
-export function setPref(prefKey, value) {
-  UC_API.Prefs.set(prefKey, value);
+export function setPref(key, value) {
+  try {
+    const prefService = Services.prefs;
+    if (typeof value === "boolean") {
+      prefService.setBoolPref(key, value);
+    } else if (typeof value === "number") {
+      prefService.setIntPref(key, value);
+    } else {
+      prefService.setStringPref(key, value);
+    }
+  } catch {
+    //ignore
+  }
 }
 
 export const getPref = (key, defaultValue) => {
   try {
-    const pref = UC_API.Prefs.get(key);
-    if (!pref) return defaultValue;
-    if (!pref.exists()) return defaultValue;
-    return pref.value;
-  } catch {
+    const prefService = Services.prefs;
+    if (prefService.prefHasUserValue(key)) {
+      switch (prefService.getPrefType(key)) {
+        case prefService.PREF_STRING:
+          return prefService.getStringPref(key);
+        case prefService.PREF_INT:
+          return prefService.getIntPref(key);
+        case prefService.PREF_BOOL:
+          return prefService.getBoolPref(key);
+      }
+    }
+  } catch (e) {
     return defaultValue;
   }
+  return defaultValue;
 };
 
 export const setPrefIfUnset = (key, value) => {
-  UC_API.Prefs.setIfUnset(key, value);
+  if (Services.prefs.getPrefType(key) === 0) {
+    setPref(key, value)
+  }
 };
+
+export const resetPref = (key) =>{
+  if (Services.prefs.getPrefType(key) !== 0) {
+    Services.prefs.clearUserPref(key)
+  }
+}
 
 export class PREFS {
   static MOD_NAME = "BasePrefs";
@@ -34,7 +61,7 @@ export class PREFS {
 
   static setInitialPrefs() {
     for (const [key, value] of Object.entries(this.defaultValues)) {
-      UC_API.Prefs.setIfUnset(key, value);
+      setPrefIfUnset(key, value)
     }
   }
 

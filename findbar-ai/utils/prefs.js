@@ -1,4 +1,4 @@
-import { PREFS as BasePREFS } from "../../utils/pref.js";
+import { PREFS as BasePREFS, resetPref } from "../../utils/pref.js";
 
 class BrowseBotPREFS extends BasePREFS {
   static MOD_NAME = "BrowseBot";
@@ -138,12 +138,12 @@ class BrowseBotPREFS extends BasePREFS {
 
     for (const [oldKey, newKey] of Object.entries(migrationMap)) {
       try {
-        const oldPref = UC_API.Prefs.get(oldKey);
-        if (oldPref && oldPref.exists()) {
-          const value = oldPref.value;
+        const oldPref = this.getPref(oldKey);
+        if (oldPref != undefined) {
+          const value = oldPref
           this.debugLog(`Migrating pref ${oldKey} to ${newKey} with value: ${value}`);
-          UC_API.Prefs.set(newKey, value);
-          oldPref.reset();
+          this.setPref(newKey, value)
+          resetPref(oldPref)
         }
       } catch (e) {
         this.debugError(`Could not migrate pref ${oldKey}:`, e);
