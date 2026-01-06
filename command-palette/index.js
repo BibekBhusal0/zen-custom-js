@@ -18,6 +18,7 @@ import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import { ShortcutRegistry } from "../utils/keyboard.js";
 import { startupFinish } from "../utils/startup-finish.js";
+import { addWidget } from "../utils/widget.js";
 
 export const ZenCommandPalette = {
   _shortcutRegistry: new ShortcutRegistry(),
@@ -482,14 +483,13 @@ export const ZenCommandPalette = {
     }
 
     try {
-      UC_API.Utils.createWidget({
+      addWidget({
         id: widgetId,
-        type: "toolbarbutton",
         label: cmd.label,
-        tooltip: cmd.label,
+        tooltiptext: cmd.label,
         class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
-        image: cmd.icon || "chrome://browser/skin/trending.svg",
-        callback: () => this.executeCommandByKey(key),
+        icon: cmd.icon || "chrome://browser/skin/trending.svg",
+        onClick: () => this.executeCommandByKey(key),
       });
       PREFS.debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
     } catch (e) {

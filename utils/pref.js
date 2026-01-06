@@ -46,10 +46,13 @@ export const resetPref = (key) =>{
 
 export function addPrefListener (name, callback){
   Services.prefs.addObserver(name, callback);
+  return { name, callback };
 }
 
-export function removePrefListener(name, callback){
-  Services.prefs.removeListener(name, callback)
+export function removePrefListener(listener) {
+  if (listener && listener.name && listener.callback) {
+    Services.prefs.removeObserver(listener.name, listener.callback);
+  }
 }
 
 export class PREFS {
@@ -69,7 +72,7 @@ export class PREFS {
 
   static setInitialPrefs() {
     for (const [key, value] of Object.entries(this.defaultValues)) {
-      setPrefIfUnset(key, value)
+      setPrefIfUnset(key, value);
     }
   }
 

@@ -5,6 +5,7 @@ import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
 import { eventToShortcutSignature, shortcutStringToSignature } from "../utils/keyboard.js";
+import { addPrefListener, removePrefListener } from "../utils/pref.js";
 
 const icons = {
   loading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
@@ -1378,23 +1379,23 @@ export const browseBotFindbar = {
     this._handleFindbarCloseEvent = this.handleFindbarCloseEvent.bind(this);
     window.addEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.addEventListener("findbarclose", this._handleFindbarCloseEvent);
-    this._agenticModeListener = UC_API.Prefs.addListener(PREFS.AGENTIC_MODE, _clearLLMData);
-    this._backgroundStylesListener = UC_API.Prefs.addListener(
+    this._agenticModeListener = addPrefListener(PREFS.AGENTIC_MODE, _clearLLMData);
+    this._backgroundStylesListener = addPrefListener(
       PREFS.BACKGROUND_STYLE,
       _handleBackgroundStyleChange
     );
-    this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
-    this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
-    this._contextMenuEnabledListener = UC_API.Prefs.addListener(
+    this._citationsListener = addPrefListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
+    this._minimalListener = addPrefListener(PREFS.MINIMAL, _handleMinimalPrefChange);
+    this._contextMenuEnabledListener = addPrefListener(
       PREFS.CONTEXT_MENU_ENABLED,
       _handleContextMenuPrefChange
     );
-    this._persistListener = UC_API.Prefs.addListener(PREFS.PERSIST, (pref) => {
+    this._persistListener = addPrefListener(PREFS.PERSIST, (pref) => {
       if (!this.findbar) return;
       if (pref.value) this.findbar.history = browseBotFindbarLLM.history;
       else this.findbar.history = null;
     });
-    this._dndListener = UC_API.Prefs.addListener(PREFS.DND_ENABLED, (pref) => {
+    this._dndListener = addPrefListener(PREFS.DND_ENABLED, (pref) => {
       if (pref.value) {
         this.enableDND();
         this.enableResize();
@@ -1414,13 +1415,13 @@ export const browseBotFindbar = {
     document.removeEventListener("keydown", this._addKeymaps);
     window.removeEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.removeEventListener("findbarclose", this._handleFindbarCloseEvent);
-    UC_API.Prefs.removeListener(this._agenticModeListener);
-    UC_API.Prefs.removeListener(this._backgroundStylesListener);
-    UC_API.Prefs.removeListener(this._citationsListener);
-    UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
-    UC_API.Prefs.removeListener(this._minimalListener);
-    UC_API.Prefs.removeListener(this._persistListener);
-    UC_API.Prefs.removeListener(this._dndListener);
+    removePrefListener(this._agenticModeListener);
+    removePrefListener(this._backgroundStylesListener);
+    removePrefListener(this._citationsListener);
+    removePrefListener(this._contextMenuEnabledListener);
+    removePrefListener(this._minimalListener);
+    removePrefListener(this._persistListener);
+    removePrefListener(this._dndListener);
     this.disableDND();
 
     this._handleInputKeyPress = null;

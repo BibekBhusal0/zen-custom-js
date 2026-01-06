@@ -4,6 +4,8 @@ import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { timeAgo } from "../utils/timesAgo.js";
 import TabManager from "./utils/tab-manager.js";
 import { startupFinish } from "../utils/startup-finish.js";
+import { addPrefListener } from "../utils/pref.js";
+import { addWidget } from "../utils/widget.js";
 
 const ReopenClosedTabs = {
   _boundToggleMenu: null,
@@ -21,7 +23,7 @@ const ReopenClosedTabs = {
     this._boundHandleItemClick = this._handleItemClick.bind(this);
     this._registerKeyboardShortcut();
     this._registerToolbarButton();
-    UC_API.Prefs.addListener(PREFS.SHORTCUT_KEY, this.onHotkeyChange.bind(this));
+    addPrefListener(PREFS.SHORTCUT_KEY, this.onHotkeyChange.bind(this));
     PREFS.debugLog("Mod initialized.");
   },
 
@@ -59,13 +61,12 @@ const ReopenClosedTabs = {
     const buttonId = "reopen-closed-tabs-button";
 
     try {
-      UC_API.Utils.createWidget({
+      addWidget({
         id: buttonId,
         label: "Reopen Closed Tabs",
-        tooltip: "View and reopen recently closed tabs",
-        image: "chrome://browser/skin/zen-icons/history.svg",
-        type: "toolbarbutton",
-        callback: this.toggleMenu.bind(this),
+        tooltiptext: "View and reopen recently closed tabs",
+        icon: "chrome://browser/skin/zen-icons/history.svg",
+        onClick: this.toggleMenu.bind(this),
       });
       PREFS.debugLog(`Registered toolbar button: ${buttonId}`);
     } catch (e) {

@@ -2,6 +2,7 @@ import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { PREFS } from "./utils/prefs.js";
+import { addPrefListener } from "../utils/pref.js";
 
 const SearchEngineSwitcher = {
   _container: null,
@@ -354,6 +355,6 @@ function init() {
 
   if (PREFS.enabled) SearchEngineSwitcher.init();
 
-  UC_API.Prefs.addListener(PREFS.ENABLED, handleEnabledChange);
+  addPrefListener(PREFS.ENABLED, handleEnabledChange);
 }
 startupFinish(init);

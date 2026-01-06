@@ -3,6 +3,7 @@ import { browseBotFindbar } from "./findbar-ai.uc.js";
 import { PREFS } from "./utils/prefs.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { SettingsModal } from "./settings.js";
+import { addPrefListener } from "../utils/pref.js";
 
 function setupCommandPaletteIntegration(retryCount = 0) {
   if (window.ZenCommandPalette) {
@@ -60,15 +61,12 @@ function setupCommandPaletteIntegration(retryCount = 0) {
 function init() {
   // Init findbar-AI
   browseBotFindbar.init();
-  UC_API.Prefs.addListener(
-    PREFS.ENABLED,
-    browseBotFindbar.handleEnabledChange.bind(browseBotFindbar)
-  );
+  addPrefListener(PREFS.ENABLED, browseBotFindbar.handleEnabledChange.bind(browseBotFindbar));
   window.browseBotFindbar = browseBotFindbar;
 
   // Init URL bar-AI
   urlbarAI.init();
-  urlbarAI._prefListener = UC_API.Prefs.addListener(
+  urlbarAI._prefListener = addPrefListener(
     PREFS.URLBAR_AI_ENABLED,
     urlbarAI.handlePrefChange.bind(urlbarAI)
   );

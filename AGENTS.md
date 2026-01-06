@@ -79,7 +79,7 @@ Wrap potentially failing code in try-catch. Use `debugError(...)` for logging. R
 
 ```javascript
 try {
-  const pref = UC_API.Prefs.get(key);
+  const pref = getPref(key);
   if (!pref.exists()) return defaultValues[key];
   return pref.value;
 } catch (e) {
@@ -98,7 +98,7 @@ try {
 ### Firefox Integration
 
 - Use `ChromeUtils.importESModule()` for Firefox modules
-- Use `UC_API` for Zen Browser API (prefs, widgets, hotkeys)
+- Use utility functions from `utils/` for prefs, widgets, and other browser integration
 - Pre-defined globals (eslint.config.js): `gBrowser`, `Services`, `ChromeUtils`, etc.
 
 ### Preferences Pattern
@@ -106,7 +106,7 @@ try {
 Use the base `PREFS` class from `utils/pref.js` and extend it for each mod:
 
 ```javascript
-import { PREFS as BasePREFS } from "../../utils/pref.js";
+import { PREFS as BasePREFS, addPrefListener, removePrefListener } from "../../utils/pref.js";
 
 class ModNamePREFS extends BasePREFS {
   static MOD_NAME = "ModName";
@@ -138,6 +138,18 @@ The base class provides:
 - `debugMode` getter/setter - Access debug mode preference
 - `debugLog(...args)` - Log debug messages (only when debugMode is true)
 - `debugError(...args)` - Log error messages (only when debugMode is true)
+
+For preference listeners, use the standalone functions:
+
+```javascript
+// Add a listener - returns an object with name and callback
+const listener = addPrefListener(PREFS.ENABLED, (pref) => {
+  console.log("Enabled changed:", pref.value);
+});
+
+// Remove the listener later
+removePrefListener(listener);
+```
 
 ### DOM Manipulation
 
