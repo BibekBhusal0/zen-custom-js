@@ -175,13 +175,8 @@ async function openLink(args) {
         break;
       case "glance":
         if (window.gZenGlanceManager) {
-          const rect = gBrowser.selectedBrowser.getBoundingClientRect();
           window.gZenGlanceManager.openGlance({
             url: link,
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-            width: 10,
-            height: 10,
           });
         } else {
           openTrustedLinkIn(link, "tab");

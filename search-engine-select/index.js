@@ -186,13 +186,8 @@ const SearchEngineSwitcher = {
     } else if (event.button === 0 && event.altKey) {
       PREFS.debugLog("Action: Glance");
       if (window.gZenGlanceManager) {
-        const rect = gBrowser.selectedBrowser.getBoundingClientRect();
         window.gZenGlanceManager.openGlance({
           url: newUrl,
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-          width: 10,
-          height: 10,
         });
       } else {
         openTrustedLinkIn(newUrl, "tab");
