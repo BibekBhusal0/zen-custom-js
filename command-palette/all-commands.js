@@ -4,6 +4,23 @@ import { svgToUrl, icons } from "../utils/icon.js";
 import { getPref, setPref } from "../utils/pref.js";
 import { ZenCommandPalette } from "./index.js";
 
+function restartApplication(clearCache){
+  clearCache && Services.appinfo.invalidateCachesOnRestart();
+  let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(Ci.nsISupportsPRBool);
+  Services.obs.notifyObservers(
+    cancelQuit,
+    "quit-application-requested",
+    "restart"
+  );
+  if (!cancelQuit.data) {
+    Services.startup.quit(
+      Services.startup.eAttemptQuit | Services.startup.eRestart
+    );
+    return true
+  }
+  return false
+}
+
 const isCompactMode = () => gZenCompactModeManager?.preference;
 const togglePref = (prefName) => {
   const pref = getPref(prefName)
@@ -610,14 +627,14 @@ export const commands = [
   {
     key: "app:restart",
     label: "Restart Browser",
-    command: () => UC_API.Runtime.restart(),
+    command: () => restartApplication(),
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["restart", "reopen", "close"],
   },
   {
     key: "app:clear-startupCache",
     label: "Clear Startup Cache",
-    command: () => UC_API.Runtime.restart(true),
+    command: () => restartApplication(true),
     icon: "chrome://browser/skin/zen-icons/reload.svg",
     tags: ["restart", "reopen", "close", "clear", "cache"],
   },

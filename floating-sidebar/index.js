@@ -1,21 +1,23 @@
 import { startupFinish } from "../utils/startup-finish.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { svgToUrl, icons } from "../utils/icon.js";
+import { addPrefListener, getPref, setPref } from "../utils/pref.js";
 
 function addButton() {
   const header = document.getElementById("sidebar-header");
 
   if (!header) return;
   const button = parseElement(`<toolbarbutton id="sidebar-pin-unpin"/>`, "xul");
-  const pref = UC_API.Prefs.get("extension.sidebar-float");
+  const PREF_KEY = "extension.sidebar-float"
+  const floating = ()=> getPref(PREF_KEY, false)
   function updateImage() {
-    const icon = pref.value ? icons["pin"] : icons["unpin"];
+    const icon = floating() ? icons["pin"] : icons["unpin"];
     button.setAttribute("image", escapeXmlAttribute(svgToUrl(icon)));
   }
   updateImage();
-  pref.addListener(updateImage);
+  addPrefListener(PREF_KEY, updateImage);
 
-  const buttonClick = () => pref.setTo(!pref.value);
+  const buttonClick = () => setPref(PREF_KEY, !floating());
 
   button.addEventListener("click", buttonClick);
   const children = header.children;

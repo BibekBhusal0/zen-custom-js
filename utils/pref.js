@@ -44,6 +44,14 @@ export const resetPref = (key) =>{
   }
 }
 
+export function addPrefListener (name, callback){
+  Services.prefs.addObserver(name, callback);
+}
+
+export function removePrefListener(name, callback){
+  Services.prefs.removeListener(name, callback)
+}
+
 export class PREFS {
   static MOD_NAME = "BasePrefs";
   static DEBUG_MODE = "";
