@@ -4,27 +4,21 @@ import { svgToUrl, icons } from "../utils/icon.js";
 import { getPref, setPref } from "../utils/pref.js";
 import { ZenCommandPalette } from "./index.js";
 
-function restartApplication(clearCache){
+function restartApplication(clearCache) {
   clearCache && Services.appinfo.invalidateCachesOnRestart();
   let cancelQuit = Cc["@mozilla.org/supports-PRBool;1"].createInstance(Ci.nsISupportsPRBool);
-  Services.obs.notifyObservers(
-    cancelQuit,
-    "quit-application-requested",
-    "restart"
-  );
+  Services.obs.notifyObservers(cancelQuit, "quit-application-requested", "restart");
   if (!cancelQuit.data) {
-    Services.startup.quit(
-      Services.startup.eAttemptQuit | Services.startup.eRestart
-    );
-    return true
+    Services.startup.quit(Services.startup.eAttemptQuit | Services.startup.eRestart);
+    return true;
   }
-  return false
+  return false;
 }
 
 const isCompactMode = () => gZenCompactModeManager?.preference;
 const togglePref = (prefName) => {
-  const pref = getPref(prefName)
-  if (typeof pref === 'boolean') return;
+  const pref = getPref(prefName);
+  if (typeof pref === "boolean") return;
   setPref(!pref);
 };
 
@@ -63,7 +57,7 @@ export const commands = [
     key: "toggle-sidebar",
     label: "Toggle Sidebar",
     command: () => togglePref("zen.view.compact.hide-tabbar"),
-    condition: () => isCompactMode() ,
+    condition: () => isCompactMode(),
     icon: "chrome://browser/skin/zen-icons/expand-sidebar.svg",
     tags: ["compact", "sidebar", "hide", "ui"],
   },
@@ -71,7 +65,7 @@ export const commands = [
     key: "toggle-toolbar",
     label: "Toggle Toolbar",
     command: () => togglePref("zen.view.compact.hide-toolbar"),
-    condition: () => isCompactMode() ,
+    condition: () => isCompactMode(),
     tags: ["compact", "toolbar", "hide", "ui"],
   },
 

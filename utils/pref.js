@@ -34,17 +34,17 @@ export const getPref = (key, defaultValue) => {
 
 export const setPrefIfUnset = (key, value) => {
   if (Services.prefs.getPrefType(key) === 0) {
-    setPref(key, value)
+    setPref(key, value);
   }
 };
 
-export const resetPref = (key) =>{
+export const resetPref = (key) => {
   if (Services.prefs.getPrefType(key) !== 0) {
-    Services.prefs.clearUserPref(key)
+    Services.prefs.clearUserPref(key);
   }
-}
+};
 
-export function addPrefListener (name, callback){
+export function addPrefListener(name, callback) {
   Services.prefs.addObserver(name, callback);
   return { name, callback };
 }

@@ -109,7 +109,7 @@ class CommandPalettePREFS extends BasePREFS {
 
   static setTempMaxRichResults(value) {
     if (_originalMaxResults === null) {
-      _originalMaxResults = this.getPref("browser.urlbar.maxRichResults", 10)
+      _originalMaxResults = this.getPref("browser.urlbar.maxRichResults", 10);
     }
     this.setPref("browser.urlbar.maxRichResults", value);
   }

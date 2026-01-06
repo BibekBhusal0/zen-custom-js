@@ -115,7 +115,7 @@ class BrowseBotPREFS extends BasePREFS {
   };
 
   setInitialPrefs() {
-    this.migratePrefs()
+    this.migratePrefs();
     super.setInitialPrefs();
   }
 
@@ -140,10 +140,10 @@ class BrowseBotPREFS extends BasePREFS {
       try {
         const oldPref = this.getPref(oldKey);
         if (oldPref != undefined) {
-          const value = oldPref
+          const value = oldPref;
           this.debugLog(`Migrating pref ${oldKey} to ${newKey} with value: ${value}`);
-          this.setPref(newKey, value)
-          resetPref(oldPref)
+          this.setPref(newKey, value);
+          resetPref(oldPref);
         }
       } catch (e) {
         this.debugError(`Could not migrate pref ${oldKey}:`, e);

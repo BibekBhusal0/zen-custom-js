@@ -8,8 +8,8 @@ function addButton() {
 
   if (!header) return;
   const button = parseElement(`<toolbarbutton id="sidebar-pin-unpin"/>`, "xul");
-  const PREF_KEY = "extension.sidebar-float"
-  const floating = ()=> getPref(PREF_KEY, false)
+  const PREF_KEY = "extension.sidebar-float";
+  const floating = () => getPref(PREF_KEY, false);
   function updateImage() {
     const icon = floating() ? icons["pin"] : icons["unpin"];
     button.setAttribute("image", escapeXmlAttribute(svgToUrl(icon)));

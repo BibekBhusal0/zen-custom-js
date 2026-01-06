@@ -5,7 +5,7 @@ function defineModuleGettersWithFallback(target, modules) {
     Object.defineProperty(target, key, {
       configurable: true,
       enumerable: true,
-      get: function() {
+      get: function () {
         try {
           let module = ChromeUtils.importESModule(spec.url);
           delete target[key];
@@ -37,7 +37,7 @@ export function addWidget(options) {
       removable: true,
       label: options.label,
       tooltiptext: options.tooltiptext || options.label,
-      onCreated: function(node) {
+      onCreated: function (node) {
         if (options.icon) {
           node.style.listStyleImage = `url("${options.icon}")`;
         }
