@@ -95,6 +95,7 @@ const SearchEngineSwitcher = {
     if (!this._container) return;
     this._container.style.display = "flex";
     this.updateSelectedEngineDisplay();
+    this.updateSwitcherPositionForSplitView();
   },
 
   _hide() {
@@ -123,12 +124,42 @@ const SearchEngineSwitcher = {
   handleTabSelect() {
     this._hide();
     this.updateSwitcherVisibility();
+    this.updateSwitcherPositionForSplitView();
   },
 
   onLocationChange(browser) {
     if (browser === gBrowser.selectedBrowser) {
       this.updateSwitcherVisibility();
+      this.updateSwitcherPositionForSplitView();
     }
+  },
+
+  updateSwitcherPositionForSplitView() {
+    if (!this._container) return;
+
+    const isVerticalSplit =
+      window.gZenViewSplitter?.currentView >= 0 &&
+      window.gZenViewSplitter._data[window.gZenViewSplitter.currentView]?.gridType === "vsep";
+
+    if (!isVerticalSplit) {
+      this._container.style.removeProperty("--ses-pane-x");
+      this._container.style.removeProperty("--ses-pane-width");
+      this._container.classList.remove("in-split-view");
+      return;
+    }
+
+    const activeBrowser = gBrowser.selectedBrowser;
+    if (!activeBrowser) {
+      this._container.style.removeProperty("--ses-pane-x");
+      this._container.style.removeProperty("--ses-pane-width");
+      return;
+    }
+
+    this._container.classList.add("in-split-view");
+
+    const rect = activeBrowser.getBoundingClientRect();
+    this._container.style.setProperty("--ses-pane-x", `${rect.x}px`);
+    this._container.style.setProperty("--ses-pane-width", `${rect.width}px`);
   },
 
   async handleURLBarKey(event) {
@@ -316,6 +347,9 @@ const SearchEngineSwitcher = {
     this._boundListeners.startDrag = this.startDrag.bind(this);
     this._boundListeners.doDrag = this.doDrag.bind(this);
     this._boundListeners.stopDrag = this.stopDrag.bind(this);
+    this._boundListeners.onSplitViewActivated = this.updateSwitcherPositionForSplitView.bind(this);
+    this._boundListeners.onSplitViewDeactivated =
+      this.updateSwitcherPositionForSplitView.bind(this);
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._boundListeners.handleTabSelect);
     gBrowser.addTabsProgressListener(this._progressListener);
@@ -323,6 +357,15 @@ const SearchEngineSwitcher = {
     this._engineSelect.addEventListener("click", this._boundListeners.toggleOptions);
     document.addEventListener("click", this._boundListeners.hideOptionsOnClickOutside);
     this._dragHandle.addEventListener("mousedown", this._boundListeners.startDrag);
+
+    window.addEventListener(
+      "ZenViewSplitter:SplitViewActivated",
+      this._boundListeners.onSplitViewActivated
+    );
+    window.addEventListener(
+      "ZenViewSplitter:SplitViewDeactivated",
+      this._boundListeners.onSplitViewDeactivated
+    );
   },
 
   removeEventListeners() {
@@ -337,6 +380,16 @@ const SearchEngineSwitcher = {
     this._dragHandle?.removeEventListener("mousedown", this._boundListeners.startDrag);
     document.removeEventListener("mousemove", this._boundListeners.doDrag);
     document.removeEventListener("mouseup", this._boundListeners.stopDrag);
+
+    window.removeEventListener(
+      "ZenViewSplitter:SplitViewActivated",
+      this._boundListeners.onSplitViewActivated
+    );
+    window.removeEventListener(
+      "ZenViewSplitter:SplitViewDeactivated",
+      this._boundListeners.onSplitViewDeactivated
+    );
+
     this._boundListeners = {};
   },
 };
