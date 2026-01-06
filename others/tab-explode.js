@@ -1,4 +1,10 @@
-// https://github.com/sineorg/store/blob/main/mods/53cfe9d6-9079-46f8-b42f-453c46ebf0fa/mod.uc.js#L424
+// ==UserScript==
+// @name           Tab Explode animation
+// @author         ferrocyante
+// @description    Adds beautiful explode animation while closing tab
+// @source         https://github.com/sineorg/store/blob/main/mods/53cfe9d6-9079-46f8-b42f-453c46ebf0fa/mod.uc.js#L424
+// @license        GNU General Public License v3.0
+// ==UserScript==
 
 import { getPref, setPrefIfUnset } from "../utils/pref.js";
 import { startupFinish } from "../utils/startup-finish.js";
