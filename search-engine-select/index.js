@@ -154,9 +154,9 @@ const SearchEngineSwitcher = {
     this._container.classList.add("in-split-view");
   },
 
-  updatePosition () {
+  updatePosition() {
     const activeBrowser = gBrowser.selectedBrowser;
-    if (!activeBrowser || !this._container) {
+    if (!activeBrowser || !this._container|| !this._container.classList.contains("in-split-view")) {
       this._container.style.removeProperty("--ses-pane-x");
       this._container.style.removeProperty("--ses-pane-width");
       return;
@@ -357,6 +357,7 @@ const SearchEngineSwitcher = {
       this.handleSplitOrGlance.bind(this);
     this._boundListeners.onCompactModeToggled = this.updatePosition.bind(this);
     this._boundListeners.onResize = this.updatePosition.bind(this);
+    this._boundListeners.onTabClose = this.updatePosition.bind(this);
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._boundListeners.handleTabSelect);
     gBrowser.addTabsProgressListener(this._progressListener);
@@ -364,6 +365,7 @@ const SearchEngineSwitcher = {
     this._engineSelect.addEventListener("click", this._boundListeners.toggleOptions);
     document.addEventListener("click", this._boundListeners.hideOptionsOnClickOutside);
     this._dragHandle.addEventListener("mousedown", this._boundListeners.startDrag);
+    gBrowser.tabContainer.addEventListener("TabClose", this._boundListeners.onTabClose);
 
     window.addEventListener(
       "ZenViewSplitter:SplitViewActivated",
@@ -389,6 +391,7 @@ const SearchEngineSwitcher = {
     this._dragHandle?.removeEventListener("mousedown", this._boundListeners.startDrag);
     document.removeEventListener("mousemove", this._boundListeners.doDrag);
     document.removeEventListener("mouseup", this._boundListeners.stopDrag);
+    gBrowser.tabContainer.removeEventListener("TabClose", this._boundListeners.onTabClose);
 
     window.removeEventListener(
       "ZenViewSplitter:SplitViewActivated",
