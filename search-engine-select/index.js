@@ -357,7 +357,10 @@ const SearchEngineSwitcher = {
       this.handleSplitOrGlance.bind(this);
     this._boundListeners.onCompactModeToggled = this.updatePosition.bind(this);
     this._boundListeners.onResize = this.updatePosition.bind(this);
-    this._boundListeners.onTabClose = this.updatePosition.bind(this);
+    this._boundListeners.onTabClose = () => {
+      this.updatePosition()
+      setTimeout(() => this.updatePosition(), 500);
+    };
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._boundListeners.handleTabSelect);
     gBrowser.addTabsProgressListener(this._progressListener);
