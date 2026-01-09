@@ -7,9 +7,7 @@
   "style": "style.css",
   "scripts": {
     "command-palette.uc.js": {
-      "include": [
-        "chrome://browser/content/browser.xhtml"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml"]
     }
   },
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/command-palette/README.md",
