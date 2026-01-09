@@ -203,7 +203,7 @@ async function processMod(modData) {
   }
 
   // Copy bundled JS
-  if (mod.theme.scripts) {
+  if (theme.scripts) {
     const distDir = path.join(MODS_DIR, "dist");
     if (fs.existsSync(distDir)) {
       const distFiles = fs.readdirSync(distDir);
