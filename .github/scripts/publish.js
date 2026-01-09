@@ -355,6 +355,7 @@ async function processMod(modData) {
     } else {
       console.log("Release notes empty or match template. Skipping release creation.");
     }
+  }
 }
 
 // Main
