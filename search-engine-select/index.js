@@ -95,6 +95,7 @@ const SearchEngineSwitcher = {
     if (!this._container) return;
     this._container.style.display = "flex";
     this.updateSelectedEngineDisplay();
+    this.handleSplitOrGlance();
   },
 
   _hide() {
@@ -123,12 +124,48 @@ const SearchEngineSwitcher = {
   handleTabSelect() {
     this._hide();
     this.updateSwitcherVisibility();
+    this.handleSplitOrGlance();
+    if (gBrowser.selectedTab?.hasAttribute("zen-glance-tab")) {
+      setTimeout(() => this.updatePosition(), 500);
+    }
   },
 
   onLocationChange(browser) {
     if (browser === gBrowser.selectedBrowser) {
       this.updateSwitcherVisibility();
     }
+  },
+
+  handleSplitOrGlance() {
+    if (!this._container) return;
+
+    const isVerticalSplit =
+      window.gZenViewSplitter?.currentView >= 0 &&
+      window.gZenViewSplitter._data[window.gZenViewSplitter.currentView]?.gridType === "vsep";
+
+    const isGlance = gBrowser.selectedTab?.hasAttribute("zen-glance-tab");
+    if (!isVerticalSplit && !isGlance) {
+      this._container.style.removeProperty("--ses-pane-x");
+      this._container.style.removeProperty("--ses-pane-width");
+      this._container.classList.remove("in-split-view");
+      return;
+    }
+    this.updatePosition()
+    this._container.classList.add("in-split-view");
+  },
+
+  updatePosition() {
+    const activeBrowser = gBrowser.selectedBrowser;
+    if (!activeBrowser || !this._container|| !this._container.classList.contains("in-split-view")) {
+      this._container.style.removeProperty("--ses-pane-x");
+      this._container.style.removeProperty("--ses-pane-width");
+      return;
+    }
+
+
+    const rect = activeBrowser.getBoundingClientRect();
+    this._container.style.setProperty("--ses-pane-x", `${rect.x}px`);
+    this._container.style.setProperty("--ses-pane-width", `${rect.width}px`);
   },
 
   async handleURLBarKey(event) {
@@ -206,7 +243,6 @@ const SearchEngineSwitcher = {
     }
 
     if (actionTaken) {
-      this._currentSearchInfo.engine = newEngine;
       this.updateSelectedEngineDisplay();
     }
 
@@ -316,6 +352,15 @@ const SearchEngineSwitcher = {
     this._boundListeners.startDrag = this.startDrag.bind(this);
     this._boundListeners.doDrag = this.doDrag.bind(this);
     this._boundListeners.stopDrag = this.stopDrag.bind(this);
+    this._boundListeners.onSplitViewActivated = this.handleSplitOrGlance.bind(this);
+    this._boundListeners.onSplitViewDeactivated =
+      this.handleSplitOrGlance.bind(this);
+    this._boundListeners.onCompactModeToggled = this.updatePosition.bind(this);
+    this._boundListeners.onResize = this.updatePosition.bind(this);
+    this._boundListeners.onTabClose = () => {
+      this.updatePosition()
+      setTimeout(() => this.updatePosition(), 500);
+    };
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._boundListeners.handleTabSelect);
     gBrowser.addTabsProgressListener(this._progressListener);
@@ -323,6 +368,18 @@ const SearchEngineSwitcher = {
     this._engineSelect.addEventListener("click", this._boundListeners.toggleOptions);
     document.addEventListener("click", this._boundListeners.hideOptionsOnClickOutside);
     this._dragHandle.addEventListener("mousedown", this._boundListeners.startDrag);
+    gBrowser.tabContainer.addEventListener("TabClose", this._boundListeners.onTabClose);
+
+    window.addEventListener(
+      "ZenViewSplitter:SplitViewActivated",
+      this._boundListeners.onSplitViewActivated
+    );
+    window.addEventListener(
+      "ZenViewSplitter:SplitViewDeactivated",
+      this._boundListeners.onSplitViewDeactivated
+    );
+    window.addEventListener("ZenCompactMode:Toggled", this._boundListeners.onCompactModeToggled);
+    window.addEventListener("resize", this._boundListeners.onResize);
   },
 
   removeEventListeners() {
@@ -337,6 +394,19 @@ const SearchEngineSwitcher = {
     this._dragHandle?.removeEventListener("mousedown", this._boundListeners.startDrag);
     document.removeEventListener("mousemove", this._boundListeners.doDrag);
     document.removeEventListener("mouseup", this._boundListeners.stopDrag);
+    gBrowser.tabContainer.removeEventListener("TabClose", this._boundListeners.onTabClose);
+
+    window.removeEventListener(
+      "ZenViewSplitter:SplitViewActivated",
+      this._boundListeners.onSplitViewActivated
+    );
+    window.removeEventListener(
+      "ZenViewSplitter:SplitViewDeactivated",
+      this._boundListeners.onSplitViewDeactivated
+    );
+    window.removeEventListener("ZenCompactMode:Toggled", this._boundListeners.onCompactModeToggled);
+    window.removeEventListener("resize", this._boundListeners.onResize);
+
     this._boundListeners = {};
   },
 };

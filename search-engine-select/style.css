@@ -47,6 +47,10 @@
   gap: 0px;
   transform-origin: right center;
 
+  &.in-split-view {
+    right: calc(100% - var(--ses-pane-x) - var(--ses-pane-width));
+  }
+
   /* Hover and Active States */
   &:hover,
   &.is-dragging,
@@ -175,6 +179,11 @@
     flex-direction: row-reverse !important;
     transform-origin: left center;
 
+    &.in-split-view {
+      left: var(--ses-pane-x) !important;
+      right: unset !important;
+    }
+
     #ses-engine-select {
       flex-direction: row-reverse !important;
     }
@@ -182,6 +191,11 @@
     #ses-engine-options {
       left: 0 !important;
       right: unset !important;
+    }
+
+    #ses-drag-handle {
+      margin-left: 0 !important;
+      margin-right: 5px !important;
     }
   }
 }
