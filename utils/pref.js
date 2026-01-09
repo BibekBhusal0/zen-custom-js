@@ -46,7 +46,7 @@ export const resetPref = (key) => {
 
 export function addPrefListener(name, callback) {
   const modified_callback = () => {
-    callback({value: getPref(name)});
+    callback({ value: getPref(name) });
   };
   Services.prefs.addObserver(name, modified_callback);
   return { name, callback };

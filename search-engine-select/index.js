@@ -150,18 +150,21 @@ const SearchEngineSwitcher = {
       this._container.classList.remove("in-split-view");
       return;
     }
-    this.updatePosition()
+    this.updatePosition();
     this._container.classList.add("in-split-view");
   },
 
   updatePosition() {
     const activeBrowser = gBrowser.selectedBrowser;
-    if (!activeBrowser || !this._container|| !this._container.classList.contains("in-split-view")) {
+    if (
+      !activeBrowser ||
+      !this._container ||
+      !this._container.classList.contains("in-split-view")
+    ) {
       this._container.style.removeProperty("--ses-pane-x");
       this._container.style.removeProperty("--ses-pane-width");
       return;
     }
-
 
     const rect = activeBrowser.getBoundingClientRect();
     this._container.style.setProperty("--ses-pane-x", `${rect.x}px`);
@@ -353,12 +356,11 @@ const SearchEngineSwitcher = {
     this._boundListeners.doDrag = this.doDrag.bind(this);
     this._boundListeners.stopDrag = this.stopDrag.bind(this);
     this._boundListeners.onSplitViewActivated = this.handleSplitOrGlance.bind(this);
-    this._boundListeners.onSplitViewDeactivated =
-      this.handleSplitOrGlance.bind(this);
+    this._boundListeners.onSplitViewDeactivated = this.handleSplitOrGlance.bind(this);
     this._boundListeners.onCompactModeToggled = this.updatePosition.bind(this);
     this._boundListeners.onResize = this.updatePosition.bind(this);
     this._boundListeners.onTabClose = () => {
-      this.updatePosition()
+      this.updatePosition();
       setTimeout(() => this.updatePosition(), 500);
     };
 
