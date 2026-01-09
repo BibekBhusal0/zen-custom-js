@@ -5,7 +5,13 @@
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette",
   "preferences": "preferences.json",
   "style": "style.css",
-  "js": true,
+  "scripts": {
+    "command-palette.uc.js": {
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ]
+    }
+  },
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/command-palette/README.md",
   "author": "Bibek Bhusal",
   "version": "1.7.3",
