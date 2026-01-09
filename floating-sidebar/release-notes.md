@@ -1,7 +1,3 @@
 # New Features
 
-# Fixes
-
-# Others
-
-# Contributes
+- Support for Sine v2.3

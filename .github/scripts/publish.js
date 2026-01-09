@@ -129,10 +129,8 @@ async function getUpdatedMods() {
 
     let remoteVersion = null;
     try {
-      // Try to fetch the theme.json from the remote repository's target branch
       const remoteThemeUrl = `https://raw.githubusercontent.com/${ORG_NAME}/${repoName}/${branch}/theme.json`;
       console.log(`Checking remote version: ${remoteThemeUrl}`);
-      // Use githubRequest instead of curl
       const remoteTheme = await githubRequest(remoteThemeUrl);
       remoteVersion = remoteTheme.version;
     } catch {
@@ -153,9 +151,9 @@ async function getUpdatedMods() {
 }
 
 // Build Mod
-function buildMod(mod, isBeta) {
-  if (mod.theme.js === false) {
-    console.log(`Skipping build for ${mod.folder}: js is false`);
+function buildMod(mod) {
+  if (!mod.theme.scripts) {
+    console.log(`Skipping build for ${mod.folder}: no scripts`);
     return;
   }
 
@@ -164,13 +162,7 @@ function buildMod(mod, isBeta) {
   let command = `npx cross-env TARGET=${themeId} rollup -c --bundleConfigAsCjs`;
 
   if (themeId === "browse-bot") {
-    if (isBeta) {
-      // Beta: Single bundled file
-      command = `npx cross-env TARGET=${themeId} BUILD_TYPE=targeted rollup -c --bundleConfigAsCjs`;
-    } else {
-      // Stable: Two separate files (default rollup config for browse-bot without BUILD_TYPE)
-      command = `npx cross-env TARGET=${themeId} rollup -c --bundleConfigAsCjs`;
-    }
+    command = `npx cross-env TARGET=${themeId} rollup -c --bundleConfigAsCjs`;
   }
 
   run(command);
@@ -187,7 +179,7 @@ async function processMod(modData) {
   console.log(`Processing ${folder} (v${version}, ${branch})...`);
 
   // Build
-  buildMod(modData, isBeta);
+  buildMod(modData);
 
   // Prepare files
   const workDir = path.join(process.env.RUNNER_TEMP || "/tmp", `${folder}-${Date.now()}`);
@@ -211,22 +203,13 @@ async function processMod(modData) {
   }
 
   // Copy bundled JS
-  if (theme.js !== false) {
+  if (mod.theme.scripts) {
     const distDir = path.join(MODS_DIR, "dist");
     if (fs.existsSync(distDir)) {
       const distFiles = fs.readdirSync(distDir);
       for (const file of distFiles) {
-        // Filter relevant files
-        if (theme.id === "browse-bot") {
-          if (isBeta && file === "browse-bot-all.uc.js") {
-            fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
-          } else if (!isBeta && (file === "browse-bot.uc.mjs" || file === "vercel-ai-sdk.uc.js")) {
-            fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
-          }
-        } else {
-          if (file.includes(theme.id.replace(/-/g, "_")) || file.includes(theme.id)) {
-            fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
-          }
+        if (file.includes(theme.id.replace(/-/g, "_")) || file.includes(theme.id)) {
+          fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
         }
       }
     }
@@ -268,7 +251,7 @@ async function processMod(modData) {
     "fork",
     "preferences",
     "style",
-    "js",
+    "scripts",
     "readme",
     "image",
     "createdAt",
@@ -278,17 +261,6 @@ async function processMod(modData) {
     if (theme[key] !== undefined) newTheme[key] = theme[key];
   }
 
-  if (isBeta) {
-    if (theme.js !== false) {
-      let jsFile = `${theme.id}.uc.js`;
-      if (theme.id === "browse-bot") jsFile = "browse-bot-all.uc.js";
-      newTheme.js = `https://raw.githubusercontent.com/${ORG_NAME}/${repoName}/${branch}/${jsFile}`;
-    }
-  } else {
-    if (theme.js !== false) {
-      newTheme.js = true;
-    }
-  }
   fs.writeFileSync(path.join(workDir, "theme.json"), JSON.stringify(newTheme, null, 2));
 
   // README update links
@@ -383,84 +355,6 @@ async function processMod(modData) {
     } else {
       console.log("Release notes empty or match template. Skipping release creation.");
     }
-  }
-
-  // Sine Store PR (Stable only, js != false)
-  if (!isBeta && theme.js !== false) {
-    await createSineStorePR(modData, workDir);
-  }
-}
-
-async function createSineStorePR(modData, preparedDir) {
-  const { folder, theme } = modData;
-  console.log(`Creating Sine Store PR for ${folder}...`);
-
-  const storeDir = path.join(process.env.RUNNER_TEMP || "/tmp", `store-${folder}-${Date.now()}`);
-  const myFork = "bibekBhusal0/sine-store";
-  const upstream = "sineorg/store";
-
-  run(`git clone https://${GITHUB_ACTOR}:${GITHUB_TOKEN}@github.com/${myFork}.git ${storeDir}`);
-
-  const modId = theme.id;
-  const storeModDir = path.join(storeDir, "mods", modId);
-
-  if (!fs.existsSync(storeModDir)) {
-    console.log(`Mod folder ${modId} does not exist in store. Skipping.`);
-    return;
-  }
-
-  // Create branch
-  const branchName = `update-${modId}-${theme.version}`;
-  run(`git checkout -b ${branchName}`, storeDir);
-
-  // Copy bundled files
-  if (theme.id === "browse-bot") {
-    fs.copyFileSync(
-      path.join(preparedDir, "browse-bot.uc.mjs"),
-      path.join(storeModDir, "browse-bot.uc.mjs")
-    );
-    fs.copyFileSync(
-      path.join(preparedDir, "vercel-ai-sdk.uc.js"),
-      path.join(storeModDir, "vercel-ai-sdk.uc.js")
-    );
-
-    // Update import path in browse-bot.uc.mjs
-    const browseBotFile = path.join(storeModDir, "browse-bot.uc.mjs");
-    if (fs.existsSync(browseBotFile)) {
-      let content = fs.readFileSync(browseBotFile, "utf8");
-      content = content.replace(
-        /from\s+["']\.\/vercel-ai-sdk\.uc\.js["']/g,
-        'from "./browse-bot_vercel-ai-sdk.uc.js"'
-      );
-      fs.writeFileSync(browseBotFile, content);
-    }
-  } else {
-    const jsFile = `${theme.id}.uc.js`;
-    fs.copyFileSync(path.join(preparedDir, jsFile), path.join(storeModDir, jsFile));
-  }
-
-  run(`git add .`, storeDir);
-  try {
-    run(`git commit -m "Update ${theme.name} to version ${theme.version}"`, storeDir);
-    run(`git push origin ${branchName}`, storeDir);
-
-    const [upstreamOwner, upstreamRepo] = upstream.split("/");
-    const prBody = {
-      title: `Update ${theme.name} to version ${theme.version}`,
-      body: `Update ${theme.name} to version ${theme.version}\n\n[Vertex-Mods Repository](https://github.com/${ORG_NAME}/${getRepoName(theme)})`,
-      head: `bibekBhusal0:${branchName}`,
-      base: "main",
-    };
-
-    await githubRequest(
-      `https://api.github.com/repos/${upstreamOwner}/${upstreamRepo}/pulls`,
-      "POST",
-      prBody
-    );
-    console.log(`PR created successfully for ${theme.name}`);
-  } catch (e) {
-    console.log("Failed to create PR (maybe no changes or error)", e);
-  }
 }
 
 // Main

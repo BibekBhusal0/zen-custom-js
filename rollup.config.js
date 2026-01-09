@@ -52,7 +52,7 @@ const createBanner = (themePath) => {
     "fork",
     "preferences",
     "style",
-    "js",
+    "scripts",
     "readme",
     "image",
     "createdAt",
@@ -92,7 +92,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
 
   if (fs.existsSync(themePath)) {
     const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
-    if (theme.js === false) return [];
+    if (!theme.scripts) return [];
 
     const entryFile = path.join(dir, "index.js");
     if (!fs.existsSync(entryFile)) return [];
@@ -107,9 +107,6 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
     };
 
     if (theme.id === "browse-bot") {
-      const buildType = process.env.BUILD_TYPE;
-      const isTargetedBuild = buildType === "dev" || buildType === "targeted";
-
       const esmConfig = {
         ...baseConfig,
         output: {
@@ -145,10 +142,6 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
           inlineDynamicImports: true,
         },
       };
-
-      if (isTargetedBuild) {
-        return [umdAllConfig];
-      }
 
       return [esmConfig, umdAllConfig];
     }
