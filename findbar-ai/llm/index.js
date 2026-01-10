@@ -309,22 +309,14 @@ Here are some examples demonstrating the correct JSON output format.
     if (!this.agenticMode) {
       systemPrompt += `
 - Strictly base all your answers on the webpage content provided below.
-- If the user's question cannot be answered from the content, state that the information is not available on the page.`;
+- If the user's question cannot be answered from the content, state that the information is not available on the page.
+
+Here is the initial info about the current page:
+`;
+      const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
+      systemPrompt += JSON.stringify(pageContext);
     }
     return systemPrompt;
-  }
-
-  async _addUserPromptWithContext(prompt) {
-    let contextString = "";
-    if (this.agenticMode) {
-      const pageContext = messageManagerAPI.getUrlAndTitle();
-      contextString = `Page URL: ${pageContext.url}\nPage Title: ${pageContext.title}`;
-    } else {
-      const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
-      contextString = `Page URL: ${pageContext.url}\nPage Title: ${pageContext.title}\nPage Content: """\n${pageContext.textContent}\n"""`;
-    }
-
-    return `Use the following page context to answer the user's question.\n${contextString}\n\nUser Question: ${prompt}`;
   }
 
   parseModelResponseText(responseText) {
@@ -375,31 +367,19 @@ Here are some examples demonstrating the correct JSON output format.
       return object;
     }
 
-    const userPromptWithContext = await this._addUserPromptWithContext(prompt);
-    this.history.push({ role: "user", content: prompt });
-    const llmHistory = [...this.history];
-    llmHistory[llmHistory.length - 1] = { role: "user", content: userPromptWithContext };
-
     if (!this.agenticMode) {
       if (this.streamEnabled) {
         const self = this;
-        const streamResult = await super.streamText({
-          abortSignal,
-          messages: llmHistory,
-          onFinish: (result) => {
-            self.history.push(...result.response.messages);
-            if (browseBotFindbar?.findbar) {
-              browseBotFindbar.findbar.history = self.getHistory();
-            }
-          },
-        });
+        const streamResult = await super.streamText({ prompt, abortSignal });
+        (async () => {
+          await streamResult.text;
+          if (browseBotFindbar?.findbar) {
+            browseBotFindbar.findbar.history = self.getHistory();
+          }
+        })();
         return streamResult;
       } else {
-        const result = await super.generateText({
-          abortSignal,
-          messages: llmHistory,
-        });
-        this.history.push(...result.response.messages);
+        const result = await super.generateText({ prompt, abortSignal });
         if (browseBotFindbar?.findbar) {
           browseBotFindbar.findbar.history = this.getHistory();
         }
@@ -433,18 +413,17 @@ Here are some examples demonstrating the correct JSON output format.
     const tools = getTools(findbarToolGroups, { shouldToolBeCalled, afterToolCall });
 
     const commonConfig = {
+      prompt,
       tools,
       stopWhen: stepCountIs(this.maxToolCalls),
       abortSignal,
-      messages: llmHistory,
     };
 
     if (this.streamEnabled) {
       const self = this;
       return super.streamText({
         ...commonConfig,
-        onFinish: (result) => {
-          self.history.push(...result.response.messages);
+        onFinish: () => {
           if (browseBotFindbar?.findbar) {
             browseBotFindbar.findbar.history = self.getHistory();
           }
@@ -452,7 +431,6 @@ Here are some examples demonstrating the correct JSON output format.
       });
     } else {
       const result = await super.generateText(commonConfig);
-      this.history.push(...result.response.messages);
       if (browseBotFindbar?.findbar) {
         browseBotFindbar.findbar.history = this.getHistory();
       }
