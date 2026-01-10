@@ -311,6 +311,8 @@ docs: add installation instructions
 
 The scope is typically the mod that was changed. You can omit the scope if multiple mods or root-level files are substantially changed.
 
+If you’re feeling a bit nerdy, feel free to use emojis in your commit messages! 🎉 This tool makes it easy: [Devmoji](https://github.com/folke/devmoji).
+
 ### PR Checklist
 
 Before submitting your pull request:
