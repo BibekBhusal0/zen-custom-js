@@ -4,9 +4,9 @@
 // @author          BibekBhusal
 // ==/UserScript==
 
-const api_available = typeof UC_API !== "undefined";
+const UC_API = ChromeUtils.importESModule("chrome://userchromejs/content/uc_api.sys.mjs");
+
 function addButton() {
-  if (!api_available) return;
   const header = document.getElementById("sidebar-header");
 
   if (!header) return;
@@ -26,7 +26,4 @@ function addButton() {
     header.appendChild(button);
   }
 }
-
-if (api_available) {
   UC_API.Runtime.startupFinished().then(addButton);
-}
