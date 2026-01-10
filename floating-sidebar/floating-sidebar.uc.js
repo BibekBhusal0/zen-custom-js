@@ -26,4 +26,4 @@ function addButton() {
     header.appendChild(button);
   }
 }
-  UC_API.Runtime.startupFinished().then(addButton);
+UC_API.Runtime.startupFinished().then(addButton);
