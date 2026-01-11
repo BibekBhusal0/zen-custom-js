@@ -1,17 +1,85 @@
 import { browseBotFindbarLLM } from "./llm/index.js";
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
 
 export const SettingsModal = {
   _modalElement: null,
   _currentPrefValues: {},
+  _currentShortcutTarget: null,
+  _boundHandleShortcutKeyDown: null,
 
   _getSafeIdForProvider(providerName) {
     return providerName.replace(/\./g, "-");
   },
 
+  _initShortcutHandler() {
+    this._boundHandleShortcutKeyDown = this._handleShortcutKeyDown.bind(this);
+  },
+
+  _handleShortcutKeyDown(event) {
+    if (!this._currentShortcutTarget) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const targetInput = this._currentShortcutTarget;
+    const prefKey = targetInput.dataset.pref;
+
+    if (event.key === "Escape") {
+      targetInput.value = PREFS.getPref(prefKey);
+      targetInput.classList.remove("recording");
+      targetInput.placeholder = "Click to set";
+      this._currentShortcutTarget = null;
+      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      return;
+    }
+
+    if (event.key === "Backspace" || event.key === "Delete") {
+      targetInput.value = "";
+      this._currentPrefValues[prefKey] = "";
+      targetInput.classList.remove("recording");
+      targetInput.placeholder = "Click to set";
+      this._currentShortcutTarget = null;
+      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      return;
+    }
+
+    if (["Control", "Alt", "Shift", "Meta"].includes(event.key)) {
+      return;
+    }
+
+    let shortcutString = "";
+    if (event.ctrlKey || event.metaKey) shortcutString += "Ctrl+";
+    if (event.altKey) shortcutString += "Alt+";
+    if (event.shiftKey) shortcutString += "Shift+";
+    shortcutString += event.key.toUpperCase();
+
+    targetInput.value = shortcutString;
+    this._currentPrefValues[prefKey] = shortcutString;
+    PREFS.debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`);
+
+    targetInput.classList.remove("recording");
+    targetInput.placeholder = "Click to set";
+    this._currentShortcutTarget = null;
+    window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+  },
+
+  _generateShortcutInputHtml(prefConstant, label) {
+    const currentValue = PREFS.getPref(prefConstant);
+    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
+    return `
+      <div class="setting-item">
+        <label for="${prefId}">${label}</label>
+        <input type="text" id="${prefId}" data-pref="${prefConstant}" value="${escapeXmlAttribute(
+          currentValue
+        )}" readonly placeholder="Click to set" class="shortcut-input" />
+      </div>
+    `;
+  },
+
   createModalElement() {
+    this._initShortcutHandler();
     const settingsHtml = this._generateSettingsHtml();
     const container = parseElement(settingsHtml);
     this._modalElement = container;
@@ -123,7 +191,7 @@ export const SettingsModal = {
       if (control.tagName.toLowerCase() === "menulist") {
         control.addEventListener("command", (e) => {
           this._currentPrefValues[prefKey] = e.target.value;
-          debugLog(
+          PREFS.debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
           if (prefKey === PREFS.LLM_PROVIDER) {
@@ -140,13 +208,13 @@ export const SettingsModal = {
           } else if (control.type === "number") {
             try {
               this._currentPrefValues[prefKey] = Number(e.target.value);
-            } catch (error) {
+            } catch {
               this._currentPrefValues[prefKey] = 0;
             }
           } else {
             this._currentPrefValues[prefKey] = e.target.value;
           }
-          debugLog(
+          PREFS.debugLog(
             `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
           );
         });
@@ -165,8 +233,64 @@ export const SettingsModal = {
       });
     });
 
+    // Attach event listeners for shortcut inputs
+    this._modalElement.querySelectorAll(".shortcut-input").forEach((input) => {
+      input.addEventListener("focus", (e) => {
+        this._currentShortcutTarget = e.target;
+        e.target.classList.add("recording");
+        e.target.placeholder = "Press keys...";
+        window.addEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      });
+
+      input.addEventListener("blur", () => {
+        if (this._currentShortcutTarget) {
+          this._currentShortcutTarget.classList.remove("recording");
+          this._currentShortcutTarget.placeholder = "Click to set";
+          this._currentShortcutTarget = null;
+          window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+        }
+      });
+
+      input.addEventListener("keydown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
     // Initial update for provider-specific settings display
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
+
+    // Reset Button Listeners
+    this._modalElement.querySelectorAll(".reset-section-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation(); // Prevent accordion toggle
+        const prefsToReset = btn.dataset.resetPrefs.split(",");
+        prefsToReset.forEach((prefKey) => {
+          if (!prefKey) return; // skip empty
+          const defVal = PREFS.defaultValues[prefKey];
+
+          // Update internal state
+          this._currentPrefValues[prefKey] = defVal;
+
+          // Update UI
+          const control = this._modalElement.querySelector(`[data-pref="${prefKey}"]`);
+          if (control) {
+            if (control.type === "checkbox") {
+              control.checked = defVal;
+            } else if (control.tagName.toLowerCase() === "menulist") {
+              control.value = defVal;
+            } else {
+              control.value = defVal;
+            }
+
+            // Special logic for provider reset
+            if (prefKey === PREFS.LLM_PROVIDER) {
+              this._updateProviderSpecificSettings(this._modalElement, defVal);
+            }
+          }
+        });
+      });
+    });
   },
 
   saveSettings() {
@@ -175,15 +299,15 @@ export const SettingsModal = {
         if (prefKey.endsWith("api-key")) {
           if (this._currentPrefValues[prefKey]) {
             const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
-            debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
+            PREFS.debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
           }
         } else {
-          debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
+          PREFS.debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
         }
         try {
           PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
         } catch (e) {
-          debugError(`Error Saving pref for ${prefKey} ${e}`);
+          PREFS.debugError(`Error Saving pref for ${prefKey} ${e}`);
         }
       }
     }
@@ -269,19 +393,53 @@ export const SettingsModal = {
     `;
   },
 
+  _generateNumberSettingHtml(label, prefConstant, min, max, step, tooltip) {
+    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
+    const infoIconHtml = tooltip
+      ? `<span class="info-icon-wrapper" data-tooltip="${escapeXmlAttribute(tooltip)}"><img class="info-icon" src="chrome://global/skin/icons/info.svg" /></span>`
+      : "";
+
+    return `
+      <div class="setting-item">
+        <label for="${prefId}" style="display: flex; align-items: center; gap: 6px;">
+          ${label}
+          ${infoIconHtml}
+        </label>
+        <input type="number" id="${prefId}" data-pref="${prefConstant}" min="${min}" max="${max}" step="${step}" />
+      </div>
+    `;
+  },
+
   _createCheckboxSectionHtml(
     title,
     settingsArray,
     expanded = true,
     contentBefore = "",
-    contentAfter = ""
+    contentAfter = "",
+    resetPrefs = []
   ) {
     const settingsHtml = settingsArray
-      .map((s) => this._generateCheckboxSettingHtml(s.label, s.pref))
+      .map((s) => {
+        if (s.type === "number") {
+          return this._generateNumberSettingHtml(s.label, s.pref, s.min, s.max, s.step, s.tooltip);
+        }
+        return this._generateCheckboxSettingHtml(s.label, s.pref);
+      })
       .join("");
+
+    // If no explicit resetPrefs passed, try to infer from settingsArray
+    const prefsToReset = (
+      resetPrefs.length > 0 ? resetPrefs : settingsArray.map((s) => s.pref)
+    ).join(",");
+
     return `
     <section class="settings-section settings-accordion" data-expanded="${expanded}" >
-      <h4 class="accordion-header">${title}</h4>
+      <h4 class="accordion-header">
+        ${title}
+        <div class="reset-section-btn" data-reset-prefs="${prefsToReset}" title="Reset Section" role="button">
+            <img src="chrome://global/skin/icons/reload.svg" />
+        </div>
+      </h4>
       <div class="accordion-content">
         ${contentBefore}
         ${settingsHtml}
@@ -335,12 +493,18 @@ export const SettingsModal = {
       </div>
     `;
 
+    const findbarResetPrefs = [
+      ...findbarSettings.map((s) => s.pref),
+      PREFS.POSITION,
+      PREFS.BACKGROUND_STYLE,
+    ];
     const findbarSectionHtml = this._createCheckboxSectionHtml(
-      "Findbar AI (ctrl + shift + F)",
+      "Findbar AI",
       findbarSettings,
       true,
       "",
-      positionSelectorHtml + backgroundStyleSelectorHtml
+      positionSelectorHtml + backgroundStyleSelectorHtml,
+      findbarResetPrefs
     );
 
     // Section 2: URLBar AI
@@ -350,12 +514,39 @@ export const SettingsModal = {
       { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
     ];
     const urlbarSectionHtml = this._createCheckboxSectionHtml(
-      "URLBar AI (ctrl + space)",
+      "URLBar AI",
       urlbarSettings,
-      false
+      false,
+      "",
+      "",
+      urlbarSettings.map((s) => s.pref)
     );
 
-    // Section 3: AI Behavior
+    // Section 3: Keyboard Shortcuts
+    const shortcutFindbarHtml = this._generateShortcutInputHtml(
+      PREFS.SHORTCUT_FINDBAR,
+      "Open Findbar AI"
+    );
+    const shortcutUrlbarHtml = this._generateShortcutInputHtml(
+      PREFS.SHORTCUT_URLBAR,
+      "Toggle URLBar AI"
+    );
+    const shortcutsSectionHtml = `
+      <section class="settings-section settings-accordion" data-expanded="true">
+        <h4 class="accordion-header">
+          Keyboard Shortcuts
+          <div class="reset-section-btn" data-reset-prefs="${PREFS.SHORTCUT_FINDBAR},${PREFS.SHORTCUT_URLBAR}" title="Reset Section" role="button">
+            <img src="chrome://global/skin/icons/reload.svg" />
+          </div>
+        </h4>
+        <div class="accordion-content">
+          ${shortcutFindbarHtml}
+          ${shortcutUrlbarHtml}
+        </div>
+      </section>
+    `;
+
+    // Section 4: AI Behavior
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
@@ -368,21 +559,33 @@ export const SettingsModal = {
       </div>
     `;
     const maxToolCallsHtml = `
-  <div class="setting-item">
-    <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
-    <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
-  </div>
-`;
+   <div class="setting-item">
+     <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
+     <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
+   </div>
+ `;
+    const customSystemPromptHtml = `
+   <div class="setting-item">
+     <label for="pref-custom-system-prompt">Custom System Prompt</label>
+     <textarea id="pref-custom-system-prompt" data-pref="${PREFS.CUSTOM_SYSTEM_PROMPT}" rows="3" placeholder="Pretend like ...."></textarea>
+   </div>
+ `;
 
+    const aiBehaviorResetPrefs = [
+      ...aiBehaviorSettings.map((s) => s.pref),
+      PREFS.MAX_TOOL_CALLS,
+      PREFS.CUSTOM_SYSTEM_PROMPT,
+    ];
     const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
       "AI Behavior",
       aiBehaviorSettings,
       true,
       aiBehaviorWarningHtml,
-      maxToolCallsHtml
+      maxToolCallsHtml + customSystemPromptHtml,
+      aiBehaviorResetPrefs
     );
 
-    // Section 4: Context Menu
+    // Section 5: Context Menu
     const contextMenuSettings = [
       { label: "Enable Context Menu (right click menu)", pref: PREFS.CONTEXT_MENU_ENABLED },
       {
@@ -393,22 +596,28 @@ export const SettingsModal = {
     const contextMenuCommandsHtml = `
       <div class="setting-item">
         <label for="pref-context-menu-command-no-selection">Command when no text is selected</label>
-        <input type="text" id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" />
+        <textarea id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" rows="3"></textarea>
       </div>
       <div class="setting-item">
         <label for="pref-context-menu-command-with-selection">Command when text is selected. Use {selection} for the selected text.</label>
         <textarea id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
       </div>
     `;
+    const contextMenuResetPrefs = [
+      ...contextMenuSettings.map((s) => s.pref),
+      PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION,
+      PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION,
+    ];
     const contextMenuSectionHtml = this._createCheckboxSectionHtml(
       "Context Menu",
       contextMenuSettings,
       false,
       "",
-      contextMenuCommandsHtml
+      contextMenuCommandsHtml,
+      contextMenuResetPrefs
     );
 
-    // Section 5: LLM Providers
+    // Section 6: LLM Providers
     let llmProviderSettingsHtml = "";
     for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = provider.modelPref;
@@ -456,9 +665,22 @@ export const SettingsModal = {
       `;
     }
 
+    const llmProvidersResetPrefs = [
+      PREFS.LLM_PROVIDER,
+      PREFS.OLLAMA_BASE_URL,
+      ...Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
+        .flatMap((p) => [p.modelPref, PREFS[`${p.name.toUpperCase()}_API_KEY`]])
+        .filter(Boolean),
+    ];
+
     const llmProvidersSectionHtml = `
       <section class="settings-section settings-accordion" data-expanded="false">
-        <h4 class="accordion-header">LLM Providers</h4>
+        <h4 class="accordion-header">
+            LLM Providers
+            <div class="reset-section-btn" data-reset-prefs="${llmProvidersResetPrefs.join(",")}" title="Reset Section" role="button">
+                <img src="chrome://global/skin/icons/reload.svg" />
+            </div>
+        </h4>
         <div class="setting-item accordion-content" class="">
           <label for="pref-llm-provider">Select Provider</label>
           <div id="llm-provider-selector-placeholder"></div>
@@ -466,7 +688,78 @@ export const SettingsModal = {
         ${llmProviderSettingsHtml}
       </section>`;
 
-    // Section 6: Browser Findbar
+    // Section 7: Advanced LLM
+    const advancedLLMSettings = [
+      {
+        label: "Temperature",
+        pref: PREFS.LLM_TEMPERATURE,
+        type: "number",
+        step: 0.1,
+        min: 0,
+        max: 2,
+        tooltip: "Controls randomness. Lower values are more deterministic.",
+      },
+      {
+        label: "Top P  -----", // :HACK: adding space so that tooltip stay under container
+        pref: PREFS.LLM_TOP_P,
+        type: "number",
+        step: 0.1,
+        min: 0,
+        max: 1,
+        tooltip: "Nucleus sampling. Limits token selection to top cumulative probability.",
+      },
+      {
+        label: "Top K  ----- ", // :HACK: adding space so that tooltip stay under container
+        pref: PREFS.LLM_TOP_K,
+        type: "number",
+        step: 1,
+        min: 0,
+        max: 200,
+        tooltip: "Limits sampling to the top K tokens. Removes low probability responses.",
+      },
+      {
+        label: "Presence Penalty",
+        pref: PREFS.LLM_PRESENCE_PENALTY,
+        type: "number",
+        step: 0.1,
+        min: -2,
+        max: 2,
+        tooltip:
+          "Penalizes repeated tokens. Reduces repetition of information already in the context.",
+      },
+      {
+        label: "Frequency Penalty",
+        pref: PREFS.LLM_FREQUENCY_PENALTY,
+        type: "number",
+        step: 0.1,
+        min: -2,
+        max: 2,
+        tooltip: "Penalizes frequent tokens. Discourages repetition of the same words/phrases.",
+      },
+      {
+        label: "Max Output Tokens",
+        pref: PREFS.LLM_MAX_OUTPUT_TOKENS,
+        type: "number",
+        step: 1,
+        min: 1,
+        max: 32000,
+        tooltip: "Maximum number of tokens to generate.",
+      },
+    ];
+
+    // Preset removed as per user request
+    const advancedLLMResetPrefs = advancedLLMSettings.map((s) => s.pref);
+
+    const advancedLLMSectionHtml = this._createCheckboxSectionHtml(
+      "Advanced LLM Settings",
+      advancedLLMSettings,
+      false,
+      "", // No preset selector
+      "",
+      advancedLLMResetPrefs
+    );
+
+    // Section 8: Browser Findbar
     const browserFindbarSettings = [
       { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
       {
@@ -479,10 +772,13 @@ export const SettingsModal = {
     const browserSettingsHtml = this._createCheckboxSectionHtml(
       "Browser Findbar",
       browserFindbarSettings,
-      false
+      false,
+      "",
+      "",
+      browserFindbarSettings.map((s) => s.pref)
     );
 
-    // Section 7: Development
+    // Section 9: Development
     const devSettings = [{ label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE }];
     const devSectionHtml = this._createCheckboxSectionHtml("Development", devSettings, false);
 
@@ -499,9 +795,11 @@ export const SettingsModal = {
           <div class="ai-settings-content">
             ${findbarSectionHtml}
             ${urlbarSectionHtml}
+            ${shortcutsSectionHtml}
             ${aiBehaviorSectionHtml}
             ${contextMenuSectionHtml}
             ${llmProvidersSectionHtml}
+            ${advancedLLMSectionHtml}
             ${browserSettingsHtml}
             ${devSectionHtml}
           </div>

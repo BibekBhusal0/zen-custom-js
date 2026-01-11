@@ -1,10 +1,19 @@
-import { streamText, generateText, generateObject, stepCountIs } from "ai";
+import { streamText, generateText, Output, stepCountIs } from "ai";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import { z } from "zod";
-import { claude, gemini, grok, mistral, ollama, openai, perplexity } from "./providers.js";
+import {
+  claude,
+  gemini,
+  grok,
+  mistral,
+  ollama,
+  openai,
+  perplexity,
+  cerebras,
+} from "./providers.js";
 import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
-import PREFS, { debugLog, debugError } from "../utils/prefs.js";
+import PREFS from "../utils/prefs.js";
 
 const citationSchema = z.object({
   answer: z.string().describe("The conversational answer to the user's query."),
@@ -42,6 +51,7 @@ class LLM {
       ollama: ollama,
       openai: openai,
       perplexity: perplexity,
+      cerebras: cerebras,
     };
   }
 
@@ -58,9 +68,9 @@ class LLM {
   setProvider(providerName) {
     if (this.AVAILABLE_PROVIDERS[providerName]) {
       PREFS.llmProvider = providerName;
-      debugLog(`Switched LLM provider to: ${providerName}`);
+      PREFS.debugLog(`Switched LLM provider to: ${providerName}`);
     } else {
-      debugError(`Provider "${providerName}" not found.`);
+      PREFS.debugError(`Provider "${providerName}" not found.`);
     }
   }
 
@@ -79,6 +89,12 @@ class LLM {
       model: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
       messages: this.history,
+      temperature: PREFS.llmTemperature,
+      topP: PREFS.llmTopP,
+      topK: PREFS.llmTopK,
+      frequencyPenalty: PREFS.llmFrequencyPenalty,
+      presencePenalty: PREFS.llmPresencePenalty,
+      maxOutputTokens: PREFS.llmMaxOutputTokens,
       ...rest,
     };
 
@@ -102,6 +118,12 @@ class LLM {
       model: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
       messages: this.history,
+      temperature: PREFS.llmTemperature,
+      topP: PREFS.llmTopP,
+      topK: PREFS.llmTopK,
+      frequencyPenalty: PREFS.llmFrequencyPenalty,
+      presencePenalty: PREFS.llmPresencePenalty,
+      maxOutputTokens: PREFS.llmMaxOutputTokens,
       ...rest,
       async onFinish(result) {
         // Only update history if it wasn't overridden in the options
@@ -124,17 +146,23 @@ class LLM {
       model: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
       messages: this.history,
-      schema: citationSchema,
+      output: Output.object({ schema: citationSchema }),
+      temperature: PREFS.llmTemperature,
+      topP: PREFS.llmTopP,
+      topK: PREFS.llmTopK,
+      frequencyPenalty: PREFS.llmFrequencyPenalty,
+      presencePenalty: PREFS.llmPresencePenalty,
+      maxOutputTokens: PREFS.llmMaxOutputTokens,
       ...rest,
     };
 
-    const { object } = await generateObject(config);
+    const { output } = await generateText(config);
 
     // Only update history if it wasn't overridden in the options
     if (!rest.messages) {
-      this.history.push({ role: "assistant", content: JSON.stringify(object) });
+      this.history.push({ role: "assistant", content: JSON.stringify(output) });
     }
-    return object;
+    return output;
   }
 
   getHistory() {
@@ -142,7 +170,7 @@ class LLM {
   }
 
   clearData() {
-    debugLog("Clearing LLM history and system prompt.");
+    PREFS.debugLog("Clearing LLM history and system prompt.");
     this.history = [];
   }
 
@@ -176,12 +204,18 @@ class BrowseBotLLM extends LLM {
   }
 
   async updateSystemPrompt() {
-    debugLog("Updating system prompt...");
+    PREFS.debugLog("Updating system prompt...");
     this.systemInstruction = await this.getSystemPrompt();
   }
 
   async getSystemPrompt() {
-    let systemPrompt = `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
+    let systemPrompt = "";
+
+    if (PREFS.customSystemPrompt) {
+      systemPrompt = PREFS.customSystemPrompt + "\n\n";
+    }
+
+    systemPrompt += `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
 
 ## Your Instructions:
 - Be concise, accurate, and helpful.`;
@@ -269,73 +303,6 @@ Here are some examples demonstrating the correct JSON output format.
       ]
     }
     \`\`\`
-
-**Example 3: The WRONG way (What NOT to do)**
-This is incorrect because it uses one citation \`[1]\` for three different facts. This is lazy and unhelpful.
--   **Your JSON Response (Incorrect):**
-    \`\`\`json
-    {
-      "answer": "This project is a toolkit for loading custom JavaScript into the browser [1]. Its main features include a modern UI [1] and an API for managing hotkeys and notifications [1].",
-      "citations": [
-        {
-          "id": 1,
-          "source_quote": "...a toolkit for loading custom JavaScript... It has features like a modern UI... provides an API for hotkeys and notifications..."
-        }
-      ]
-    }
-    \`\`\`
-
-**Example 4: The WRONG way (What NOT to do)**
-This is incorrect because it uses one citation same id for all facts.
-\`\`\`json
-{
-  "answer": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion [1]. It is built with Tiptap and Vercel AI SDK [1]. You can install it using npm [1]. Features include a slash menu, bubble menu, AI autocomplete, and image uploads [1].",
-  "citations": [
-    {
-      "id": 1,
-      "source_quote": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion."
-    },
-    {
-      "id": 1,
-      "source_quote": "Built with Tiptap + Vercel AI SDK."
-    },
-    {
-      "id": 1,
-      "source_quote": "Installation npm i novel"
-    },
-    {
-      "id": 1,
-      "source_quote": "Features Slash menu & bubble menu AI autocomplete (type ++ to activate, or select from slash menu) Image uploads (drag & drop / copy & paste, or select from slash menu)"
-    }
-  ]
-}
-\`\`\`
-
-**Example 5: The correct format of previous example**
-This example is correct, note that it contain unique \`id\`, and each in text citation match to each citation \`id\`.
-\`\`\`json
-{
-  "answer": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion [1]. It is built with Tiptap and Vercel AI SDK [2]. You can install it using npm [3]. Features include a slash menu, bubble menu, AI autocomplete, and image uploads [4].",
-  "citations": [
-    {
-      "id": 1,
-      "source_quote": "Novel is a Notion-style WYSIWYG editor with AI-powered autocompletion."
-    },
-    {
-      "id": 2,
-      "source_quote": "Built with Tiptap + Vercel AI SDK."
-    },
-    {
-      "id": 3,
-      "source_quote": "Installation npm i novel"
-    },
-    {
-      "id": 4,
-      "source_quote": "Features Slash menu & bubble menu AI autocomplete (type ++ to activate, or select from slash menu) Image uploads (drag & drop / copy & paste, or select from slash menu)"
-    }
-  ]
-}
-\`\`\`
 `;
     }
 
@@ -370,18 +337,23 @@ Here is the initial info about the current page:
           }
         } else {
           // Parsed JSON but 'answer' field is missing or not a string.
-          debugLog("AI response JSON missing 'answer' field or not a string:", parsedContent);
+          PREFS.debugLog("AI response JSON missing 'answer' field or not a string:", parsedContent);
         }
       } catch (e) {
         // JSON parsing failed, keep rawText as answer.
-        debugError("Failed to parse AI message content as JSON:", e, "Raw Text:", responseText);
+        PREFS.debugError(
+          "Failed to parse AI message content as JSON:",
+          e,
+          "Raw Text:",
+          responseText
+        );
       }
     }
     return { answer, citations };
   }
 
   async sendMessage(prompt, abortSignal) {
-    debugLog("Current history before sending:", this.history);
+    PREFS.debugLog("Current history before sending:", this.history);
 
     if (this.citationsEnabled) {
       const object = await super.generateTextWithCitations({
@@ -421,7 +393,7 @@ Here is the initial info about the current page:
         const friendlyName = toolNameMapping[toolName] || toolName;
         const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
         if (!confirmed) {
-          debugLog(`Tool execution for '${toolName}' cancelled by user.`);
+          PREFS.debugLog(`Tool execution for '${toolName}' cancelled by user.`);
           browseBotFindbar._createOrUpdateToolCallUI(toolName, "declined");
           return false;
         }

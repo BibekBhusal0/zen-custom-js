@@ -1,0 +1,49 @@
+name: Close Pull Requests
+
+on:
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  close-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Comment and Close PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const message = `# ⚠️ Pull Requests Are Not Accepted Here
+
+            Thank you for your interest in contributing! However, this repository is automatically maintained and synchronized from the main repository.
+
+            ## 🔗 Please contribute to the main repository instead:
+
+            **Main Repository**: [BibekBhusal0/zen-custom-js/{MOD_FOLDER}](https://github.com/BibekBhusal0/zen-custom-js/tree/main/{MOD_FOLDER})
+
+            ## 📝 How to Contribute:
+
+            1. **Fork** the main repository: https://github.com/BibekBhusal0/zen-custom-js
+            2. **Make your changes** in the ` + '`' + `{MOD_FOLDER}` + '`' + ` directory
+            3. **Open a pull request** in the main repository
+
+            For detailed contribution guidelines, see [CONTRIBUTING.md](https://github.com/BibekBhusal0/zen-custom-js/blob/main/{MOD_FOLDER}/CONTRIBUTING.md).
+
+            ---
+
+            This pull request will be automatically closed. Thank you for understanding! 🙏`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: message
+            });
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              state: 'closed'
+            });

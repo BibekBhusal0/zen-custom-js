@@ -1,4 +1,4 @@
-import { Prefs, debugError, debugLog } from "./prefs.js";
+import { PREFS } from "./prefs.js";
 
 const DEFAULTS = {
   hiddenCommands: [],
@@ -12,9 +12,9 @@ let _settings = null;
 
 export const Storage = {
   _getFilePath() {
-    const relativePath = Prefs.commandSettingsFile;
+    const relativePath = PREFS.commandSettingsFile;
     if (!relativePath) {
-      debugError("Settings file path preference is not set.");
+      PREFS.debugError("Settings file path preference is not set.");
       return null;
     }
     try {
@@ -27,7 +27,7 @@ export const Storage = {
       }
       return file.path;
     } catch (e) {
-      debugError("Could not construct file path:", e);
+      PREFS.debugError("Could not construct file path:", e);
       return null;
     }
   },
@@ -45,13 +45,13 @@ export const Storage = {
       if (await IOUtils.exists(path)) {
         const content = await IOUtils.readJSON(path);
         _settings = { ...DEFAULTS, ...content };
-        debugLog("Command palette settings loaded from", path);
+        PREFS.debugLog("Command palette settings loaded from", path);
       } else {
-        debugLog("No settings file found at", path, ". Using defaults.");
+        PREFS.debugLog("No settings file found at", path, ". Using defaults.");
         _settings = { ...DEFAULTS };
       }
     } catch (e) {
-      debugError("Error loading command palette settings:", e);
+      PREFS.debugError("Error loading command palette settings:", e);
       _settings = { ...DEFAULTS };
     }
     return _settings;
@@ -60,7 +60,7 @@ export const Storage = {
   async saveSettings(newSettings) {
     const path = this._getFilePath();
     if (!path) {
-      debugError("Settings file path preference is not set. Cannot save.");
+      PREFS.debugError("Settings file path preference is not set. Cannot save.");
       return;
     }
 
@@ -70,9 +70,9 @@ export const Storage = {
       await IOUtils.write(path, data, { tmpPath: path + ".tmp" });
 
       _settings = newSettings;
-      debugLog("Command palette settings saved to", path);
+      PREFS.debugLog("Command palette settings saved to", path);
     } catch (e) {
-      debugError("Error saving command palette settings:", e);
+      PREFS.debugError("Error saving command palette settings:", e);
     }
   },
 

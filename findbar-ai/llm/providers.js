@@ -4,8 +4,10 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { xai as createGrok } from "@ai-sdk/xai";
 import { createPerplexity } from "@ai-sdk/perplexity";
+import { createCerebras } from "@ai-sdk/cerebras";
 import { createOllama } from "ollama-ai-provider-v2";
 import PREFS from "../utils/prefs.js";
+import { googleFaviconAPI } from "../../utils/favicon.js";
 
 // Base object with shared logic for all providers
 const providerPrototype = {
@@ -29,7 +31,7 @@ const providerPrototype = {
 const mistral = Object.assign(Object.create(providerPrototype), {
   name: "mistral",
   label: "Mistral AI",
-  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fmistral.ai%2F",
+  faviconUrl: googleFaviconAPI("mistral.ai"),
   apiKeyUrl: "https://console.mistral.ai/api-keys/",
   AVAILABLE_MODELS: [
     "pixtral-large-latest",
@@ -69,15 +71,13 @@ const mistral = Object.assign(Object.create(providerPrototype), {
 const gemini = Object.assign(Object.create(providerPrototype), {
   name: "gemini",
   label: "Google Gemini",
-  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=https%3A%2F%2Fgemini.google.com",
+  faviconUrl: googleFaviconAPI("gemini.google.com"),
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
   AVAILABLE_MODELS: [
     "gemini-3-pro-preview",
-    "gemini-3-flash-preview",
     "gemini-2.5-pro",
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
-    "gemini-2.5-flash-lite-preview-06-17",
     "gemini-2.0-flash",
     "gemini-1.5-pro",
     "gemini-1.5-pro-latest",
@@ -87,12 +87,10 @@ const gemini = Object.assign(Object.create(providerPrototype), {
     "gemini-1.5-flash-8b-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
-    "gemini-3-pro-preview": "Gemini 3 Pro (Preview)",
-    "gemini-3-flash-preview": "Gemini 3 Flash (Preview)",
+    "gemini-3-pro-preview": "Gemini 3 Pro Preview",
     "gemini-2.5-pro": "Gemini 2.5 Pro",
     "gemini-2.5-flash": "Gemini 2.5 Flash",
     "gemini-2.5-flash-lite": "Gemini 2.5 Flash Lite",
-    "gemini-2.5-flash-lite-preview-06-17": "Gemini 2.5 Flash Lite (preview)",
     "gemini-2.0-flash": "Gemini 2.0 Flash",
     "gemini-1.5-pro": "Gemini 1.5 Pro",
     "gemini-1.5-pro-latest": "Gemini 1.5 Pro Latest",
@@ -109,9 +107,17 @@ const gemini = Object.assign(Object.create(providerPrototype), {
 const openai = Object.assign(Object.create(providerPrototype), {
   name: "openai",
   label: "OpenAI GPT",
-  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=chatgpt.com/",
+  faviconUrl: googleFaviconAPI("chatgpt.com"),
   apiKeyUrl: "https://platform.openai.com/account/api-keys",
   AVAILABLE_MODELS: [
+    "gpt-5.2-pro",
+    "gpt-5.2-chat-latest",
+    "gpt-5.2",
+    "gpt-5.1-codex-mini",
+    "gpt-5.1-codex",
+    "gpt-5.1-chat-latest",
+    "gpt-5.1",
+    "gpt-5-pro",
     "gpt-4.1",
     "gpt-4.1-mini",
     "gpt-4.1-nano",
@@ -131,6 +137,14 @@ const openai = Object.assign(Object.create(providerPrototype), {
     "gpt-5-codex",
   ],
   AVAILABLE_MODELS_LABELS: {
+    "gpt-5.2-pro": "GPT 5.2 Pro",
+    "gpt-5.2-chat-latest": "GPT 5.2 Latest",
+    "gpt-5.2": "GPT 5.2",
+    "gpt-5.1-codex-mini": "GPT 5.1 Mini",
+    "gpt-5.1-codex": "GPT 5.1 Codex",
+    "gpt-5.1-chat-latest": "GPT 5.1 Latest",
+    "gpt-5.1": "GPT 5.1",
+    "gpt-5-pro": "GPT 5 Pro",
     "gpt-4.1": "GPT 4.1",
     "gpt-4.1-mini": "GPT 4.1 Mini",
     "gpt-4.1-nano": "GPT 4.1 Nano",
@@ -157,9 +171,11 @@ const openai = Object.assign(Object.create(providerPrototype), {
 const claude = Object.assign(Object.create(providerPrototype), {
   name: "claude",
   label: "Anthropic Claude",
-  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=anthropic.com",
+  faviconUrl: googleFaviconAPI("anthropic.com"),
   apiKeyUrl: "https://console.anthropic.com/dashboard",
   AVAILABLE_MODELS: [
+    "claude-opus-4-5",
+    "claude-hiku-4-5",
     "claude-sonnet-4-5",
     "claude-opus-4-1",
     "claude-opus-4-0",
@@ -168,6 +184,8 @@ const claude = Object.assign(Object.create(providerPrototype), {
     "claude-3-5-haiku-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
+    "claude-opus-4-5": "Claude Opus 4.5",
+    "claude-hiku-4-5": "Claude Hiku 4.5",
     "claude-sonnet-4-5": "Claude Sonnet 4.5",
     "claude-opus-4-1": "Claude Opus 4.1",
     "claude-opus-4-0": "Claude Opus 4.0",
@@ -183,7 +201,7 @@ const claude = Object.assign(Object.create(providerPrototype), {
 const grok = Object.assign(Object.create(providerPrototype), {
   name: "grok",
   label: "xAI Grok",
-  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=x.ai",
+  faviconUrl: googleFaviconAPI("x.ai"),
   apiKeyUrl: "https://x.ai/api",
   AVAILABLE_MODELS: [
     "grok-4-fast-non-reasoning",
@@ -225,7 +243,7 @@ const grok = Object.assign(Object.create(providerPrototype), {
 const perplexity = Object.assign(Object.create(providerPrototype), {
   name: "perplexity",
   label: "Perplexity AI",
-  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=perplexity.ai",
+  faviconUrl: googleFaviconAPI("perplexity.ai"),
   apiKeyUrl: "https://perplexity.ai",
   AVAILABLE_MODELS: [
     "sonar-deep-research",
@@ -246,10 +264,36 @@ const perplexity = Object.assign(Object.create(providerPrototype), {
   create: createPerplexity,
 });
 
+const cerebras = Object.assign(Object.create(providerPrototype), {
+  name: "cerebras",
+  label: "Cerebras AI",
+  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=cerebras.ai",
+  apiKeyUrl: "https://cerebras.ai",
+  AVAILABLE_MODELS: [
+    "llama3.1-8b",
+    "llama-3.3-70b",
+    "gpt-oss-120b",
+    "qwen-3-32b",
+    "qwen-3-235b-a22b-instruct-2507",
+    "zai-glm-4.6",
+  ],
+  AVAILABLE_MODELS_LABELS: {
+    "llama3.1-8b": "Llama 3.1 8B",
+    "llama-3.3-70b": "Llama 3.3 70B",
+    "gpt-oss-120b": "OpenAI GPT OSS 120B",
+    "qwen-3-32b": "Qwen 3 32B",
+    "qwen-3-235b-a22b-instruct-2507": "Qwen 3 235B Instruct (Preview)",
+    "zai-glm-4.6": "Z.ai GLM 4.6 (Preview)",
+  },
+  modelPref: PREFS.CEREBRAS_MODEL,
+  apiPref: PREFS.CEREBRAS_API_KEY,
+  create: createCerebras,
+});
+
 const ollama = Object.assign(Object.create(providerPrototype), {
   name: "ollama",
   label: "Ollama (local)",
-  faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=ollama.com/",
+  faviconUrl: googleFaviconAPI("ollama.com"),
   apiKeyUrl: "",
   baseUrlPref: PREFS.OLLAMA_BASE_URL,
   get baseUrl() {
@@ -314,4 +358,4 @@ const ollama = Object.assign(Object.create(providerPrototype), {
   },
 });
 
-export { mistral, gemini, openai, claude, grok, perplexity, ollama };
+export { mistral, gemini, openai, claude, grok, perplexity, cerebras, ollama };

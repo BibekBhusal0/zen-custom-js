@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report Issues or Contribute
+    url: https://github.com/BibekBhusal0/zen-custom-js/tree/main/{MOD_FOLDER}
+    about: Please open issues and pull requests in the main repository.

@@ -1,140 +1,125 @@
+import { PREFS as BasePREFS } from "../../utils/pref.js";
+
 let _originalMaxResults = null;
 
-export const Prefs = {
-  KEYS: {
-    PREFIX: "zen-command-palette.prefix",
-    PREFIX_REQUIRED: "zen-command-palette.prefix-required",
-    DEBUG_MODE: "zen-command-palette.debug-mode",
-    MAX_COMMANDS: "zen-command-palette.max-commands",
-    MAX_COMMANDS_PREFIX: "zen-command-palette.max-commands-prefix",
-    MIN_QUERY_LENGTH: "zen-command-palette.min-query-length",
-    MIN_SCORE_THRESHOLD: "zen-command-palette.min-score-threshold",
-    DYNAMIC_ABOUT_PAGES: "zen-command-palette.dynamic.about-pages",
-    DYNAMIC_SEARCH_ENGINES: "zen-command-palette.dynamic.search-engines",
-    DYNAMIC_EXTENSIONS: "zen-command-palette.dynamic.extensions",
-    DYNAMIC_WORKSPACES: "zen-command-palette.dynamic.workspaces",
-    DYNAMIC_SINE_MODS: "zen-command-palette.dynamic.sine-mods",
-    DYNAMIC_FOLDERS: "zen-command-palette.dynamic.folders",
-    DYNAMIC_CONTAINER_TABS: "zen-command-palette.dynamic.container-tabs",
-    DYNAMIC_ACTIVE_TABS: "zen-command-palette.dynamic.active-tabs",
-    DYNAMIC_UNLOAD_TABS: "zen-command-palette.dynamic.unload-tab",
-    DYNAMIC_EXTENSION_ENABLE_DISABLE: "zen-command-palette.dynamic.extension-enable-disable",
-    DYNAMIC_EXTENSION_UNINSTALL: "zen-command-palette.dynamic.extension-uninstall",
-    COMMAND_SETTINGS_FILE: "zen-command-palette.settings-file-path",
-  },
+class CommandPalettePREFS extends BasePREFS {
+  static MOD_NAME = "zen-command-palette";
+  static DEBUG_MODE = "zen-command-palette.debug-mode";
 
-  defaultValues: {},
+  static PREFIX = "zen-command-palette.prefix";
+  static PREFIX_REQUIRED = "zen-command-palette.prefix-required";
+  static MAX_COMMANDS = "zen-command-palette.max-commands";
+  static MAX_COMMANDS_PREFIX = "zen-command-palette.max-commands-prefix";
+  static MIN_QUERY_LENGTH = "zen-command-palette.min-query-length";
+  static MIN_SCORE_THRESHOLD = "zen-command-palette.min-score-threshold";
+  static DYNAMIC_ABOUT_PAGES = "zen-command-palette.dynamic.about-pages";
+  static DYNAMIC_SEARCH_ENGINES = "zen-command-palette.dynamic.search-engines";
+  static DYNAMIC_EXTENSIONS = "zen-command-palette.dynamic.extensions";
+  static DYNAMIC_WORKSPACES = "zen-command-palette.dynamic.workspaces";
+  static DYNAMIC_SINE_MODS = "zen-command-palette.dynamic.sine-mods";
+  static DYNAMIC_FOLDERS = "zen-command-palette.dynamic.folders";
+  static DYNAMIC_CONTAINER_TABS = "zen-command-palette.dynamic.container-tabs";
+  static DYNAMIC_ACTIVE_TABS = "zen-command-palette.dynamic.active-tabs";
+  static DYNAMIC_UNLOAD_TABS = "zen-command-palette.dynamic.unload-tab";
+  static DYNAMIC_EXTENSION_ENABLE_DISABLE = "zen-command-palette.dynamic.extension-enable-disable";
+  static DYNAMIC_EXTENSION_UNINSTALL = "zen-command-palette.dynamic.extension-uninstall";
+  static COMMAND_SETTINGS_FILE = "zen-command-palette.settings-file-path";
 
-  getPref(key) {
-    try {
-      const pref = UC_API.Prefs.get(key);
-      if (!pref || !pref.exists()) return this.defaultValues[key];
-      return pref.value;
-    } catch {
-      return this.defaultValues[key];
-    }
-  },
+  static defaultValues = {
+    [CommandPalettePREFS.PREFIX_REQUIRED]: false,
+    [CommandPalettePREFS.PREFIX]: ":",
+    [CommandPalettePREFS.DEBUG_MODE]: false,
+    [CommandPalettePREFS.MAX_COMMANDS]: 3,
+    [CommandPalettePREFS.MAX_COMMANDS_PREFIX]: 50,
+    [CommandPalettePREFS.MIN_QUERY_LENGTH]: 3,
+    [CommandPalettePREFS.MIN_SCORE_THRESHOLD]: 150,
+    [CommandPalettePREFS.DYNAMIC_ABOUT_PAGES]: false,
+    [CommandPalettePREFS.DYNAMIC_SEARCH_ENGINES]: true,
+    [CommandPalettePREFS.DYNAMIC_EXTENSIONS]: false,
+    [CommandPalettePREFS.DYNAMIC_WORKSPACES]: false,
+    [CommandPalettePREFS.DYNAMIC_SINE_MODS]: true,
+    [CommandPalettePREFS.DYNAMIC_FOLDERS]: true,
+    [CommandPalettePREFS.DYNAMIC_CONTAINER_TABS]: false,
+    [CommandPalettePREFS.DYNAMIC_ACTIVE_TABS]: false,
+    [CommandPalettePREFS.DYNAMIC_UNLOAD_TABS]: false,
+    [CommandPalettePREFS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
+    [CommandPalettePREFS.DYNAMIC_EXTENSION_UNINSTALL]: false,
+    [CommandPalettePREFS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
+  };
 
-  setPref(prefKey, value) {
-    UC_API.Prefs.set(prefKey, value);
-  },
+  static get prefix() {
+    return this.getPref(this.PREFIX);
+  }
 
-  setInitialPrefs() {
-    for (const [key, value] of Object.entries(this.defaultValues)) {
-      UC_API.Prefs.setIfUnset(key, value);
-    }
-  },
+  static get prefixRequired() {
+    return this.getPref(this.PREFIX_REQUIRED);
+  }
 
-  get prefix() {
-    return this.getPref(this.KEYS.PREFIX);
-  },
-  get prefixRequired() {
-    return this.getPref(this.KEYS.PREFIX_REQUIRED);
-  },
-  get debugMode() {
-    return this.getPref(this.KEYS.DEBUG_MODE);
-  },
-  get maxCommands() {
-    return this.getPref(this.KEYS.MAX_COMMANDS);
-  },
-  get maxCommandsPrefix() {
-    return this.getPref(this.KEYS.MAX_COMMANDS_PREFIX);
-  },
-  get minQueryLength() {
-    return this.getPref(this.KEYS.MIN_QUERY_LENGTH);
-  },
-  get minScoreThreshold() {
-    return this.getPref(this.KEYS.MIN_SCORE_THRESHOLD);
-  },
-  get loadAboutPages() {
-    return this.getPref(this.KEYS.DYNAMIC_ABOUT_PAGES);
-  },
-  get loadSearchEngines() {
-    return this.getPref(this.KEYS.DYNAMIC_SEARCH_ENGINES);
-  },
-  get loadExtensions() {
-    return this.getPref(this.KEYS.DYNAMIC_EXTENSIONS);
-  },
-  get loadWorkspaces() {
-    return this.getPref(this.KEYS.DYNAMIC_WORKSPACES);
-  },
-  get loadSineMods() {
-    return this.getPref(this.KEYS.DYNAMIC_SINE_MODS);
-  },
-  get loadFolders() {
-    return this.getPref(this.KEYS.DYNAMIC_FOLDERS);
-  },
-  get loadContainerTabs() {
-    return this.getPref(this.KEYS.DYNAMIC_CONTAINER_TABS);
-  },
-  get loadActiveTabs() {
-    return this.getPref(this.KEYS.DYNAMIC_ACTIVE_TABS);
-  },
-  get commandSettingsFile() {
-    return this.getPref(this.KEYS.COMMAND_SETTINGS_FILE);
-  },
+  static get maxCommands() {
+    return this.getPref(this.MAX_COMMANDS);
+  }
 
-  setTempMaxRichResults(value) {
+  static get maxCommandsPrefix() {
+    return this.getPref(this.MAX_COMMANDS_PREFIX);
+  }
+
+  static get minQueryLength() {
+    return this.getPref(this.MIN_QUERY_LENGTH);
+  }
+
+  static get minScoreThreshold() {
+    return this.getPref(this.MIN_SCORE_THRESHOLD);
+  }
+
+  static get loadAboutPages() {
+    return this.getPref(this.DYNAMIC_ABOUT_PAGES);
+  }
+
+  static get loadSearchEngines() {
+    return this.getPref(this.DYNAMIC_SEARCH_ENGINES);
+  }
+
+  static get loadExtensions() {
+    return this.getPref(this.DYNAMIC_EXTENSIONS);
+  }
+
+  static get loadWorkspaces() {
+    return this.getPref(this.DYNAMIC_WORKSPACES);
+  }
+
+  static get loadSineMods() {
+    return this.getPref(this.DYNAMIC_SINE_MODS);
+  }
+
+  static get loadFolders() {
+    return this.getPref(this.DYNAMIC_FOLDERS);
+  }
+
+  static get loadContainerTabs() {
+    return this.getPref(this.DYNAMIC_CONTAINER_TABS);
+  }
+
+  static get loadActiveTabs() {
+    return this.getPref(this.DYNAMIC_ACTIVE_TABS);
+  }
+
+  static get commandSettingsFile() {
+    return this.getPref(this.COMMAND_SETTINGS_FILE);
+  }
+
+  static setTempMaxRichResults(value) {
     if (_originalMaxResults === null) {
-      _originalMaxResults = UC_API.Prefs.get("browser.urlbar.maxRichResults")?.value ?? 10;
+      _originalMaxResults = this.getPref("browser.urlbar.maxRichResults", 10);
     }
-    UC_API.Prefs.set("browser.urlbar.maxRichResults", value);
-  },
+    this.setPref("browser.urlbar.maxRichResults", value);
+  }
 
-  resetTempMaxRichResults() {
+  static resetTempMaxRichResults() {
     if (_originalMaxResults !== null) {
-      UC_API.Prefs.set("browser.urlbar.maxRichResults", _originalMaxResults);
+      this.setPref("browser.urlbar.maxRichResults", _originalMaxResults);
       _originalMaxResults = null;
     }
-  },
-};
+  }
+}
 
-Prefs.defaultValues = {
-  [Prefs.KEYS.PREFIX_REQUIRED]: false,
-  [Prefs.KEYS.PREFIX]: ":",
-  [Prefs.KEYS.DEBUG_MODE]: false,
-  [Prefs.KEYS.MAX_COMMANDS]: 3,
-  [Prefs.KEYS.MAX_COMMANDS_PREFIX]: 50,
-  [Prefs.KEYS.MIN_QUERY_LENGTH]: 3,
-  [Prefs.KEYS.MIN_SCORE_THRESHOLD]: 150,
-  [Prefs.KEYS.DYNAMIC_ABOUT_PAGES]: false,
-  [Prefs.KEYS.DYNAMIC_SEARCH_ENGINES]: true,
-  [Prefs.KEYS.DYNAMIC_EXTENSIONS]: false,
-  [Prefs.KEYS.DYNAMIC_WORKSPACES]: false,
-  [Prefs.KEYS.DYNAMIC_SINE_MODS]: true,
-  [Prefs.KEYS.DYNAMIC_FOLDERS]: true,
-  [Prefs.KEYS.DYNAMIC_CONTAINER_TABS]: false,
-  [Prefs.KEYS.DYNAMIC_ACTIVE_TABS]: false,
-  [Prefs.KEYS.DYNAMIC_UNLOAD_TABS]: false,
-  [Prefs.KEYS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
-  [Prefs.KEYS.DYNAMIC_EXTENSION_UNINSTALL]: false,
-  [Prefs.KEYS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
-};
-
-export const debugLog = (...args) => {
-  if (Prefs.debugMode) console.log("zen-command-palette:", ...args);
-};
-
-export const debugError = (...args) => {
-  if (Prefs.debugMode) console.error("zen-command-palette:", ...args);
-};
+export const PREFS = CommandPalettePREFS;

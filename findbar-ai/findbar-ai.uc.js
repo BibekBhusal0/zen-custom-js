@@ -1,9 +1,11 @@
 import { messageManagerAPI } from "./messageManager.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
-import { PREFS, debugLog, debugError } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
+import { eventToShortcutSignature, shortcutStringToSignature } from "../utils/keyboard.js";
+import { addPrefListener, removePrefListener } from "../utils/pref.js";
 
 const icons = {
   loading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
@@ -605,7 +607,7 @@ export const browseBotFindbar = {
           try {
             contentDiv.innerHTML = parseMD(fullText, false);
           } catch (e) {
-            debugError("innerHTML assignment failed:", e.message);
+            PREFS.debugError("innerHTML assignment failed:", e.message);
           }
           setTimeout(() => this._updateFindbarDimensions(), 0);
           if (messagesContainer) {
@@ -620,11 +622,11 @@ export const browseBotFindbar = {
       }
     } catch (e) {
       if (e.name !== "AbortError") {
-        debugError("Error sending message:", e);
+        PREFS.debugError("Error sending message:", e);
         if (aiMessageDiv) aiMessageDiv.remove();
         this.addChatMessage({ role: "error", content: `**Error**: ${e.message}` });
       } else {
-        debugLog("Streaming aborted by user.");
+        PREFS.debugLog("Streaming aborted by user.");
         if (aiMessageDiv) aiMessageDiv.remove();
       }
     } finally {
@@ -662,28 +664,28 @@ export const browseBotFindbar = {
   // Source: https://github.com/aminomancer/uc.css.js
   // License: http://creativecommons.org/licenses/by-nc-sa/4.0/
   _overrideFindbarMatchesDisplay(retry = 0) {
-    debugLog(`_overrideFindbarMatchesDisplay called, retry: ${retry}`);
+    PREFS.debugLog(`_overrideFindbarMatchesDisplay called, retry: ${retry}`);
     if (this._originalOnMatchesCountResult) {
-      debugLog("Prototype already overridden.");
+      PREFS.debugLog("Prototype already overridden.");
       return;
     }
 
     const findbarClass = customElements.get("findbar")?.prototype;
 
     if (!findbarClass) {
-      debugLog("findbarClass not found.");
+      PREFS.debugLog("findbarClass not found.");
       if (retry < 10) {
         setTimeout(() => this._overrideFindbarMatchesDisplay(retry + 1), 100);
-        debugLog(`Retrying _overrideFindbarMatchesDisplay in 100ms, retry: ${retry + 1}`);
+        PREFS.debugLog(`Retrying _overrideFindbarMatchesDisplay in 100ms, retry: ${retry + 1}`);
       } else {
-        debugError(
+        PREFS.debugError(
           "Failed to override findbar matches display: findbar custom element not found after multiple retries."
         );
       }
       return;
     }
 
-    debugLog("findbarClass found. Overriding onMatchesCountResult.");
+    PREFS.debugLog("findbarClass found. Overriding onMatchesCountResult.");
     this._originalOnMatchesCountResult = findbarClass.onMatchesCountResult;
 
     findbarClass.onMatchesCountResult = function (result) {
@@ -720,7 +722,7 @@ export const browseBotFindbar = {
       const newLabel = `${result.current}/${result.total}`;
       foundMatchesElement.setAttribute("value", newLabel);
     };
-    debugLog("onMatchesCountResult successfully overridden.");
+    PREFS.debugLog("onMatchesCountResult successfully overridden.");
   },
 
   _restoreFindbarMatchesDisplay() {
@@ -851,7 +853,7 @@ export const browseBotFindbar = {
           const citations = JSON.parse(messageEl.dataset.citations);
           const citation = citations.find((c) => c.id == citationId);
           if (citation && citation.source_quote) {
-            debugLog(
+            PREFS.debugLog(
               `Citation [${citationId}] clicked. Requesting highlight for:`,
               citation.source_quote
             );
@@ -862,7 +864,7 @@ export const browseBotFindbar = {
         e.preventDefault();
         try {
           openTrustedLinkIn(e.target.href, "tab");
-        } catch (e) {}
+        } catch {}
       }
     });
 
@@ -1084,10 +1086,12 @@ export const browseBotFindbar = {
 
     if (!contextMenu) {
       if (retryCount < 5) {
-        debugLog(`Context menu not found, retrying... (attempt ${retryCount + 1}/5)`);
+        PREFS.debugLog(`Context menu not found, retrying... (attempt ${retryCount + 1}/5)`);
         setTimeout(() => this.addContextMenuItem(retryCount + 1), 200);
       } else {
-        debugError("Failed to add context menu item after 5 attempts: Context menu not found.");
+        PREFS.debugError(
+          "Failed to add context menu item after 5 attempts: Context menu not found."
+        );
       }
       return;
     }
@@ -1327,7 +1331,10 @@ export const browseBotFindbar = {
   },
 
   addKeymaps: function (e) {
-    if (e.key && e.key.toLowerCase() === "f" && e.ctrlKey && e.shiftKey && !e.altKey) {
+    const currentShortcut = shortcutStringToSignature(PREFS.shortcutFindbar);
+    const eventSignature = eventToShortcutSignature(e);
+
+    if (eventSignature === currentShortcut) {
       e.preventDefault();
       e.stopPropagation();
       this.expanded = true;
@@ -1372,23 +1379,23 @@ export const browseBotFindbar = {
     this._handleFindbarCloseEvent = this.handleFindbarCloseEvent.bind(this);
     window.addEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.addEventListener("findbarclose", this._handleFindbarCloseEvent);
-    this._agenticModeListener = UC_API.Prefs.addListener(PREFS.AGENTIC_MODE, _clearLLMData);
-    this._backgroundStylesListener = UC_API.Prefs.addListener(
+    this._agenticModeListener = addPrefListener(PREFS.AGENTIC_MODE, _clearLLMData);
+    this._backgroundStylesListener = addPrefListener(
       PREFS.BACKGROUND_STYLE,
       _handleBackgroundStyleChange
     );
-    this._citationsListener = UC_API.Prefs.addListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
-    this._minimalListener = UC_API.Prefs.addListener(PREFS.MINIMAL, _handleMinimalPrefChange);
-    this._contextMenuEnabledListener = UC_API.Prefs.addListener(
+    this._citationsListener = addPrefListener(PREFS.CITATIONS_ENABLED, _clearLLMData);
+    this._minimalListener = addPrefListener(PREFS.MINIMAL, _handleMinimalPrefChange);
+    this._contextMenuEnabledListener = addPrefListener(
       PREFS.CONTEXT_MENU_ENABLED,
       _handleContextMenuPrefChange
     );
-    this._persistListener = UC_API.Prefs.addListener(PREFS.PERSIST, (pref) => {
+    this._persistListener = addPrefListener(PREFS.PERSIST, (pref) => {
       if (!this.findbar) return;
       if (pref.value) this.findbar.history = browseBotFindbarLLM.history;
       else this.findbar.history = null;
     });
-    this._dndListener = UC_API.Prefs.addListener(PREFS.DND_ENABLED, (pref) => {
+    this._dndListener = addPrefListener(PREFS.DND_ENABLED, (pref) => {
       if (pref.value) {
         this.enableDND();
         this.enableResize();
@@ -1408,13 +1415,13 @@ export const browseBotFindbar = {
     document.removeEventListener("keydown", this._addKeymaps);
     window.removeEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.removeEventListener("findbarclose", this._handleFindbarCloseEvent);
-    UC_API.Prefs.removeListener(this._agenticModeListener);
-    UC_API.Prefs.removeListener(this._backgroundStylesListener);
-    UC_API.Prefs.removeListener(this._citationsListener);
-    UC_API.Prefs.removeListener(this._contextMenuEnabledListener);
-    UC_API.Prefs.removeListener(this._minimalListener);
-    UC_API.Prefs.removeListener(this._persistListener);
-    UC_API.Prefs.removeListener(this._dndListener);
+    removePrefListener(this._agenticModeListener);
+    removePrefListener(this._backgroundStylesListener);
+    removePrefListener(this._citationsListener);
+    removePrefListener(this._contextMenuEnabledListener);
+    removePrefListener(this._minimalListener);
+    removePrefListener(this._persistListener);
+    removePrefListener(this._dndListener);
     this.disableDND();
 
     this._handleInputKeyPress = null;
@@ -1431,7 +1438,7 @@ export const browseBotFindbar = {
 
   handleFindbarOpenEvent: function () {
     if (this.enabled) {
-      debugLog("Findbar is being opened");
+      PREFS.debugLog("Findbar is being opened");
       setTimeout(() => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"), 100);
       setTimeout(() => this._updateFindbarDimensions(), 1);
     }
@@ -1439,7 +1446,7 @@ export const browseBotFindbar = {
 
   handleFindbarCloseEvent: function () {
     if (this.enabled) {
-      debugLog("Findbar is being closed");
+      PREFS.debugLog("Findbar is being closed");
       if (this._isStreaming) {
         this._abortController?.abort();
       }

@@ -1,7 +1,8 @@
-import { debugLog, debugError } from "./utils/prefs.js";
+import { getSearchEngineFavicon } from "../utils/favicon.js";
+import { PREFS } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
-import { ZenCommandPalette } from "./command-palette.uc.js";
+import { ZenCommandPalette } from "./index.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -25,13 +26,8 @@ const commandChainUtils = {
           break;
         case "glance":
           if (window.gZenGlanceManager) {
-            const rect = gBrowser.selectedBrowser.getBoundingClientRect();
             window.gZenGlanceManager.openGlance({
               url: link,
-              x: rect.left + rect.width / 2,
-              y: rect.top + rect.height / 2,
-              width: 10,
-              height: 10,
             });
           } else {
             openTrustedLinkIn(link, "tab");
@@ -53,7 +49,7 @@ const commandChainUtils = {
           openTrustedLinkIn(link, "tab");
       }
     } catch (e) {
-      debugError(`Command Chain: Failed to open link "${link}" in "${where}".`, e);
+      PREFS.debugError(`Command Chain: Failed to open link "${link}" in "${where}".`, e);
     }
   },
   async delay(params) {
@@ -67,28 +63,10 @@ const commandChainUtils = {
     if (window.ucAPI?.showToast) {
       window.ucAPI.showToast([title || "", description || ""], 0);
     } else {
-      debugError("ucAPI.showToast is not available.");
+      PREFS.debugError("ucAPI.showToast is not available.");
       alert([title, description], 0);
     }
   },
-};
-
-/**
- * Gets a favicon for a search engine, with fallbacks.
- * @param {object} engine - The search engine object.
- * @returns {string} The URL of the favicon.
- */
-const getSearchEngineFavicon = (engine) => {
-  if (engine.iconURI?.spec) {
-    return engine.iconURI.spec;
-  }
-  try {
-    const submissionUrl = engine.getSubmission("test_query").uri.spec;
-    const hostName = new URL(submissionUrl).hostname;
-    return `https://s2.googleusercontent.com/s2/favicons?domain_url=https://${hostName}&sz=32`;
-  } catch (e) {
-    return "chrome://browser/skin/search-glass.svg"; // Absolute fallback
-  }
 };
 
 /**
@@ -370,7 +348,7 @@ export async function generateActiveTabCommands() {
     }
 
     commands.push({
-      key: `switch-tab:${tab.linkedBrowser.outerWindowID}-${tab.linkedBrowser.tabId}`,
+      key: `switch-tab:${tab.label}`,
       label: `Switch to Tab: ${tab.label}`,
       command: () => {
         if (window.gZenWorkspaces?.workspaceEnabled) {
@@ -432,7 +410,7 @@ export async function generateWorkspaceCommands() {
   if (!workspacesData || !workspacesData.workspaces) return [];
 
   return workspacesData.workspaces.map((workspace) => {
-    const icon = window.gZenWorkspaces.getWorkspaceIcon(workspace);
+    const icon = workspace.icon;
     let iconUrl = "chrome://browser/skin/zen-icons/workspace.svg"; // Default icon
 
     if (icon) {
@@ -460,7 +438,7 @@ export async function generateWorkspaceCommands() {
 export async function generateSineCommands() {
   // SineAPI is required for both installing and uninstalling.
   if (!window.SineAPI) {
-    debugLog("SineAPI not found, skipping Sine command generation.");
+    PREFS.debugLog("SineAPI not found, skipping Sine command generation.");
     return [];
   }
 
@@ -484,7 +462,7 @@ export async function generateSineCommands() {
       }
     }
   } else {
-    debugLog(
+    PREFS.debugLog(
       "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
     );
   } */
@@ -543,6 +521,7 @@ export async function generateFolderCommands() {
       },
       icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
       tags: ["folder", "delete", "remove", folder.label.toLowerCase()],
+      allowShortcuts: false,
     });
   });
 
@@ -591,7 +570,6 @@ export async function generateFolderCommands() {
             currentTab && !currentTab.hasAttribute("zen-essential") && currentTab.group !== folder
           );
         },
-        icon: "chrome://browser/skin/zen-icons/move-tab.svg",
         tags: ["folder", "move", "tab", folder.label.toLowerCase()],
       });
     });
@@ -637,7 +615,6 @@ export async function generateWorkspaceMoveCommands() {
             currentTab.getAttribute("zen-workspace-id") !== workspace.uuid
           );
         },
-        icon: "chrome://browser/skin/zen-icons/move-tab.svg",
         tags: ["workspace", "move", "tab", workspace.name.toLowerCase()],
       });
     });
@@ -664,7 +641,7 @@ export async function generateCustomCommands() {
           });
           Cu.evalInSandbox(cmd.code, sandbox);
         } catch (e) {
-          debugError(`Error executing custom JS command "${cmd.name}":`, e);
+          PREFS.debugError(`Error executing custom JS command "${cmd.name}":`, e);
           if (window.ucAPI?.showToast) {
             window.ucAPI.showToast(`Custom command error: ${e.message}`);
           }

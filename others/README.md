@@ -1,0 +1,1 @@
+These are other scirps which enhance my browsing experience in zen browser. These scripts **are not owned by me**. MIT license will not be applied to these script, each script contains information about license and owner.

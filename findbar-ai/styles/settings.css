@@ -102,6 +102,15 @@
         padding: 8px 0;
         border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
 
+        &:has(textarea) {
+          flex-direction: column !important;
+          align-items: start !important;
+          textarea {
+            width: calc(100% - 40px) !important;
+            margin: 8px 0 0 15px !important;
+          }
+        }
+
         &:last-child {
           border-bottom: none;
         }
@@ -123,11 +132,12 @@
       padding-top: 0 !important;
       transition: max-height 0.3s ease !important;
       max-height: 500px !important;
-      overflow: hidden !important;
+      overflow: hidden;
 
       .accordion-header {
         cursor: pointer;
         padding-top: 8px !important;
+        padding-right: 45px !important;
         position: relative;
 
         &::after {
@@ -142,13 +152,101 @@
         }
       }
 
+      .reset-section-btn {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%) rotate(-90deg);
+        padding: 4px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.6;
+        cursor: pointer;
+        z-index: 10;
+        border-radius: 4px;
+
+        img {
+          width: 14px;
+          height: 14px;
+          -moz-context-properties: fill;
+          fill: light-dark(black, white);
+          pointer-events: none;
+          /* Ensure click hits the button div */
+        }
+
+        &:hover {
+          opacity: 1;
+          background-color: rgba(127, 127, 127, 0.1) !important;
+        }
+      }
+
       &[data-expanded="false"] {
         max-height: 22px !important;
 
         .accordion-header::after {
           transform: translateY(-50%) rotate(270deg);
         }
+
+        .reset-section-btn {
+          display: none !important;
+        }
       }
+    }
+  }
+
+  /* Info Icon Wrapper & Tooltip */
+  .info-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 4px;
+    height: 16px;
+    padding-left: 8px;
+    .info-icon {
+      width: 14px;
+      height: 14px;
+      opacity: 0.6;
+      cursor: help;
+      -moz-context-properties: fill;
+      fill: currentColor;
+    }
+    &:hover .info-icon {
+      opacity: 1;
+    }
+
+    &[data-tooltip]::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 125%;
+      /* Position above */
+      left: 50%;
+      transform: translateX(-50%);
+
+      background-color: var(--browser-themed-toolbar-bg, #2b2a33);
+      color: var(--text-color, white);
+      border: 1px solid rgba(127, 127, 127, 0.3);
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      line-height: 1.4;
+      white-space: normal;
+      max-width: 140px;
+      width: max-content;
+      text-align: center;
+
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+      transition:
+        opacity 0.2s ease,
+        visibility 0.2s;
+      z-index: 10000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    &:hover::after {
+      opacity: 1;
+      visibility: visible;
     }
   }
 
@@ -182,6 +280,7 @@
     .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
       display: none !important;
     }
+
     /* When citations and agentic mode enabled showing warning*/
     :has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:checked) {
       #citations-agentic-mode-warning {
@@ -264,6 +363,7 @@ findbar,
     padding: 8px 12px !important;
     font-size: 14px !important;
     transition: all 0.2s ease !important;
+    margin: 0 !important;
     border: 2px solid color-mix(in srgb, var(--browser-primary-color) 30%, transparent 70%) !important;
     background-color: var(--acrylic-glass-bg) !important;
     backdrop-filter: var(--acrylic-glass-blur) brightness(0.8);
@@ -273,20 +373,21 @@ findbar,
       border: 2px solid var(--browser-primary-color) !important;
     }
   }
+
   menupopup {
     --panel-background: var(--acrylic-bg) !important;
   }
+
   input[type="number"] {
-    padding: 8px 0px !important;
+    padding: 4px 6px !important;
     max-width: 50px !important;
     text-align: center !important;
     font-size: 16px !important;
-    &::-moz-number-spin-box,
-    &::-moz-number-spin-up,
-    &::-moz-number-spin-down {
-      display: none !important;
+    &#pref-extension\.browse-bot\.llm\.max-output-tokens {
+      max-width: 90px !important;
     }
   }
+
   select {
     padding: 6px 8px !important;
     max-width: 200px !important;
@@ -323,5 +424,29 @@ findbar,
 
   menulist {
     padding: 4px !important;
+  }
+
+  /* Shortcut input styles */
+  .shortcut-input {
+    text-align: center !important;
+    font-weight: 600 !important;
+    min-width: 120px !important;
+    cursor: pointer !important;
+    user-select: none !important;
+
+    &:focus,
+    &.recording {
+      border-color: var(--browse-bot-primary) !important;
+      background-color: color-mix(
+        in srgb,
+        var(--browser-primary-color) 20%,
+        transparent 80%
+      ) !important;
+    }
+
+    &::placeholder {
+      font-style: italic !important;
+      opacity: 0.7 !important;
+    }
   }
 }

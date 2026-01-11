@@ -63,6 +63,7 @@ browser {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -655,6 +656,7 @@ browser {
       flex-direction: column;
       gap: 3px;
       padding: 2px;
+
       .tool-call-status {
         display: inline-flex;
         align-items: center;
@@ -669,6 +671,7 @@ browser {
           display: none !important;
           background-color: var(--browse-bot-muted-bg);
           color: var(--browse-bot-muted);
+
           .tool-call-icon {
             animation: spin 0.7s linear infinite;
           }
@@ -689,6 +692,7 @@ browser {
           color: var(--browse-bot-warning);
           opacity: 0.7;
         }
+
         .tool-call-icon {
           width: 16px;
           height: 16px;
@@ -739,7 +743,7 @@ browser {
 
         & > :first-child {
           border-bottom: 0 !important;
-          width: calc(100% - 33px) !important;
+          width: calc(100% - 35px) !important;
           padding-right: 3px !important;
 
           &::before {
@@ -914,6 +918,7 @@ browser {
       }
     }
   }
+
   .tool-confirmation-content {
     padding: 20px;
     text-align: center;
@@ -936,10 +941,12 @@ browser {
     .buttons {
       display: flex;
       justify-content: space-between;
+
       .right-side-buttons {
         display: flex !important;
         gap: 10px !important;
       }
+
       button {
         padding: 7px 14px;
         margin: 0 !important;

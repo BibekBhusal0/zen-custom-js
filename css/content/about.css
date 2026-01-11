@@ -1,0 +1,27 @@
+/* Making frequently visited pages in about:about red */
+
+@-moz-document url-prefix(about:about) {
+  ul.columns {
+    padding: 40px !important;
+    border: 2px solid white !important;
+    margin: 0 !important;
+    margin-top: 30px !important;
+    column-count: 3 !important;
+  }
+
+  div.container {
+    max-width: 100% !important;
+    width: 80% !important;
+  }
+
+  a[href="about:addons"],
+  a[href="about:config"],
+  a[href="about:downloads"],
+  a[href="about:memory"],
+  a[href="about:newtab"],
+  a[href="about:preferences"],
+  a[href="about:serviceworkers"],
+  a[href="about:processes"] {
+    color: red !important;
+  }
+}

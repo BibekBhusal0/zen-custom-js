@@ -176,14 +176,17 @@
           z-index: 1;
 
           #command-search-input {
-            width: calc(100% - 24px);
-            padding: 8px 12px unset !important;
+            width: calc(100% - 34px);
+            padding: 8px 8px 8px 30px !important;
             font-size: 14px !important;
             border: 1px solid rgba(127, 127, 127, 0.3) !important;
             border-radius: 6px !important;
-            background: rgba(0, 0, 0, 0.2) !important;
+            background-color: rgba(0, 0, 0, 0.2) !important;
             color: inherit !important;
-            position: relative;
+            background-repeat: no-repeat !important;
+            background-position: 8px 8px !important;
+            background-size: 16px 16px !important;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="%239b9a9a" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21l-4.343-4.343m0 0A8 8 0 1 0 5.343 5.343a8 8 0 0 0 11.314 11.314"/></svg>') !important;
 
             &:focus {
               outline: none !important;
@@ -219,11 +222,18 @@
             align-items: center;
             padding: 8px;
             border-radius: 6px;
-            transition: background-color 0.2s;
+            transition:
+              background-color 0.2s,
+              box-shadow 0.2s;
 
             &:hover {
               background-color: rgba(127, 127, 127, 0.05);
             }
+          }
+
+          .command-item:has(.shortcut-input.conflict) {
+            background-color: rgba(255, 107, 107, 0.1);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15);
           }
 
           .command-icon {
@@ -260,6 +270,7 @@
               position: relative;
               display: flex;
               flex-direction: column;
+              margin-bottom: 4px;
             }
 
             .shortcut-input {
@@ -270,6 +281,10 @@
               border-radius: 4px !important;
               border: 1px solid rgba(127, 127, 127, 0.3) !important;
               background-color: rgba(0, 0, 0, 0.2) !important;
+              transition:
+                border-color 0.2s ease,
+                outline-color 0.2s ease,
+                background-color 0.2s ease;
 
               &:disabled {
                 opacity: 0.5 !important;
@@ -278,7 +293,8 @@
 
               &.conflict {
                 border-color: #ff6b6b !important;
-                outline-color: #ff6b6b !important;
+                outline: 2px solid #ff6b6b !important;
+                background-color: rgba(255, 107, 107, 0.1) !important;
               }
             }
 
@@ -286,7 +302,7 @@
               position: absolute;
               bottom: -16px;
               left: 0;
-              width: 100%;
+              width: 150%;
               text-align: center;
               font-size: 10px;
               color: #ff6b6b;
@@ -632,6 +648,17 @@
                 gap: 8px;
                 .chain-item-selector {
                   flex-grow: 1;
+                }
+                .chain-item-arrow-controls {
+                  display: flex;
+                  gap: 2px;
+                  opacity: 0;
+                  transition: opacity 0.2s ease;
+                  min-width: 48px;
+                  justify-content: center;
+                }
+                &:hover .chain-item-arrow-controls {
+                  opacity: 1;
                 }
               }
             }

@@ -1,4 +1,4 @@
-import { Prefs, debugLog } from "./utils/prefs.js";
+import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
@@ -48,7 +48,7 @@ const SettingsModal = {
   _boundCloseOnEscape: null,
   _boundEditorClickHandler: null,
   // BUG: I can't figure out way to control size of icon for menulist, not including icon till fixed, turn this variable to true when fixed
-  _showCommandIconsInSelect: true,
+  _showCommandIconsInSelect: false,
 
   init(mainModule) {
     this._mainModule = mainModule;
@@ -137,7 +137,7 @@ const SettingsModal = {
       } else {
         value = control.value;
       }
-      Prefs.setPref(prefKey, value);
+      PREFS.setPref(prefKey, value);
     });
 
     const oldSettings = JSON.parse(this._initialSettingsState);
@@ -168,13 +168,26 @@ const SettingsModal = {
     const newShortcutsJSON = JSON.stringify(newSettings.customShortcuts || {});
 
     if (oldShortcutsJSON !== newShortcutsJSON) {
-      if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
-        window.ucAPI.showToast(
-          ["Shortcut Changed", "A restart is required for shortcut changes to take effect."],
-          1 // Restart preset
-        );
-      } else {
-        alert("Please restart Zen for shortcut changes to take effect.");
+      const oldShortcuts = oldSettings.customShortcuts || {};
+      const newShortcuts = newSettings.customShortcuts || {};
+
+      // Remove old shortcuts
+      for (const [commandKey] of Object.entries(oldShortcuts)) {
+        if (!newShortcuts[commandKey]) {
+          this._mainModule.removeHotkey(commandKey);
+        }
+      }
+
+      // Add/update new shortcuts
+      for (const [commandKey, shortcutStr] of Object.entries(newShortcuts)) {
+        if (oldShortcuts[commandKey] !== shortcutStr) {
+          if (oldShortcuts[commandKey]) {
+            this._mainModule.removeHotkey(commandKey);
+          }
+          if (shortcutStr) {
+            this._mainModule.addHotkey(commandKey, shortcutStr);
+          }
+        }
       }
     }
   },
@@ -272,7 +285,7 @@ const SettingsModal = {
 
     for (const label in dynamicGroups) {
       const group = dynamicGroups[label];
-      if (group.pref && !Prefs.getPref(group.pref)) {
+      if (group.pref && !PREFS.getPref(group.pref)) {
         continue;
       }
       renderGroup(label, group.commands);
@@ -294,7 +307,7 @@ const SettingsModal = {
       <input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
         shortcutValue
       )}" ${!allowShortcutChange ? "readonly" : ""} />
-      <span class="shortcut-conflict-warning" hidden>Conflict!</span>
+      <span class="shortcut-conflict-warning" hidden title="Shortcut conflict"></span>
     </div>`;
 
     const visibilityToggleHtml = `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
@@ -347,18 +360,29 @@ const SettingsModal = {
 
     if (allowShortcutChange) {
       const shortcutInput = item.querySelector(".shortcut-input");
+      const conflictWarning = item.querySelector(".shortcut-conflict-warning");
+
       shortcutInput.addEventListener("focus", (e) => {
         this._currentShortcutTarget = e.target;
-        e.target.value = "Press keys...";
+        e.target.placeholder = "Press keys...";
+        if (conflictWarning) conflictWarning.hidden = true;
         window.addEventListener("keydown", this._boundHandleShortcutKeyDown, true);
       });
       shortcutInput.addEventListener("blur", () => {
         if (this._currentShortcutTarget) {
-          this._currentShortcutTarget.value =
-            this._currentSettings.customShortcuts[cmd.key] || nativeShortcut || "";
+          if (this._currentShortcutTarget.classList.contains("conflict")) {
+            this._currentShortcutTarget.value =
+              this._currentSettings.customShortcuts[cmd.key] || nativeShortcut || "";
+          }
+          this._currentShortcutTarget.classList.remove("conflict");
+          if (conflictWarning) conflictWarning.hidden = true;
           this._currentShortcutTarget = null;
         }
         window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
+      });
+      shortcutInput.addEventListener("keydown", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
       });
     }
 
@@ -384,7 +408,7 @@ const SettingsModal = {
     }
   },
 
-  async _handleShortcutKeyDown(event) {
+  _handleShortcutKeyDown(event) {
     if (!this._currentShortcutTarget) return;
 
     event.preventDefault();
@@ -393,12 +417,12 @@ const SettingsModal = {
     const key = event.key;
     const targetInput = this._currentShortcutTarget;
     const commandItem = targetInput.closest(".command-item");
-    const commandKey = commandItem.dataset.key;
-    const conflictWarning = commandItem.querySelector(".shortcut-conflict-warning");
+    const commandKey = commandItem?.dataset.key;
+    const conflictWarning = commandItem?.querySelector(".shortcut-conflict-warning");
 
     const clearConflict = () => {
       targetInput.classList.remove("conflict");
-      conflictWarning.hidden = true;
+      if (conflictWarning) conflictWarning.hidden = true;
     };
 
     if (key === "Escape") {
@@ -409,7 +433,9 @@ const SettingsModal = {
 
     if (key === "Backspace" || key === "Delete") {
       targetInput.value = "";
-      delete this._currentSettings.customShortcuts[commandKey];
+      if (commandKey) {
+        delete this._currentSettings.customShortcuts[commandKey];
+      }
       clearConflict();
       window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
       this._currentShortcutTarget = null;
@@ -417,7 +443,11 @@ const SettingsModal = {
       return;
     }
 
-    // Ignore modifier-only key presses
+    if (!commandKey) {
+      targetInput.blur();
+      return;
+    }
+
     if (["Control", "Alt", "Shift", "Meta"].includes(key)) {
       return;
     }
@@ -429,41 +459,34 @@ const SettingsModal = {
     if (event.metaKey) shortcutString += "Meta+";
     shortcutString += key.toUpperCase();
 
-    const modifiers = new nsKeyShortcutModifiers(
-      event.ctrlKey,
-      event.altKey,
-      event.shiftKey,
-      event.metaKey,
-      false
-    );
-
-    let hasConflict = window.gZenKeyboardShortcutsManager.checkForConflicts(
-      key,
-      modifiers,
+    const conflictCheck = this._mainModule._shortcutRegistry.checkConflicts(
+      shortcutString,
       commandKey
     );
 
-    if (!hasConflict) {
-      for (const [otherCmdKey, otherShortcutStr] of Object.entries(
-        this._currentSettings.customShortcuts
-      )) {
-        if (otherCmdKey !== commandKey && otherShortcutStr === shortcutString) {
-          hasConflict = true;
-          break;
-        }
-      }
-    }
-
     targetInput.value = shortcutString;
 
-    if (hasConflict) {
+    if (conflictCheck.hasConflict) {
       targetInput.classList.add("conflict");
-      conflictWarning.hidden = false;
-      debugLog(`Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}".`);
+      if (conflictWarning) {
+        const conflictDetails = conflictCheck.conflicts
+          .map((c) => (c.source === "zen" ? `Zen: ${c.id}` : `Custom: ${c.id}`))
+          .join(", ");
+        conflictWarning.textContent = `⚠️ Conflict: ${conflictDetails}`;
+        conflictWarning.title = `Conflicts with: ${conflictDetails}`;
+        conflictWarning.setAttribute("aria-label", `Conflicts with: ${conflictDetails}`);
+        conflictWarning.hidden = false;
+        targetInput.title = `Shortcut conflicts with: ${conflictDetails}`;
+      }
+      PREFS.debugLog(
+        `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}":`,
+        conflictCheck.conflicts
+      );
       delete this._currentSettings.customShortcuts[commandKey];
     } else {
       clearConflict();
       this._currentSettings.customShortcuts[commandKey] = shortcutString;
+      targetInput.title = "";
     }
   },
 
@@ -518,10 +541,7 @@ const SettingsModal = {
     }
 
     customCommands.forEach((cmd) => {
-      const defaultIcon =
-        cmd.type === "js"
-          ? "chrome://browser/skin/zen-icons/source-code.svg"
-          : "chrome://browser/skin/zen-icons/settings.svg";
+      const defaultIcon = "chrome://browser/skin/trending.svg";
       const icon = cmd.icon || defaultIcon;
 
       const item = parseElement(`
@@ -530,7 +550,7 @@ const SettingsModal = {
           <span class="custom-command-name">${escapeXmlAttribute(cmd.name)}</span>
           <span class="custom-command-type">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
-            <button class="edit-custom-cmd icon-button" title="Edit Command"><img src="chrome://browser/skin/zen-icons/edit.svg" /></button>
+            <button class="edit-custom-cmd icon-button" title="Edit Command"><img src="chrome://global/skin/icons/edit.svg" /></button>
             <button class="delete-custom-cmd delete-button icon-button" title="Delete Command"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
           </div>
         </div>
@@ -595,7 +615,7 @@ const SettingsModal = {
             value="${escapeXmlAttribute(currentValue)}"
           />`;
           break;
-        case "select":
+        case "select": {
           const optionsHtml = param.options
             .map(
               (opt) =>
@@ -606,6 +626,7 @@ const SettingsModal = {
             .join("");
           inputHtml = `<select class="param-input" data-param="${param.name}">${optionsHtml}</select>`;
           break;
+        }
       }
       paramWrapper.appendChild(parseElement(inputHtml));
       wrapper.appendChild(paramWrapper);
@@ -698,10 +719,10 @@ const SettingsModal = {
     editorContainer.replaceChildren(parseElement(fullEditorHtml));
 
     const renderChainList = async () => {
-      debugLog("renderChainList called");
+      PREFS.debugLog("renderChainList called");
       const listContainer = editorContainer.querySelector("#current-chain-list");
       if (!listContainer) {
-        debugLog("renderChainList: listContainer not found");
+        PREFS.debugLog("renderChainList: listContainer not found");
         return;
       }
       listContainer.innerHTML = "";
@@ -712,7 +733,7 @@ const SettingsModal = {
       }
 
       const allCommands = await this._mainModule.getAllCommandsForConfig();
-      debugLog(`renderChainList: building list with ${currentChain.length} items`);
+      PREFS.debugLog(`renderChainList: building list with ${currentChain.length} items`);
 
       const menuitemsXUL = this._createCommandMenuItems(allCommands);
 
@@ -730,10 +751,45 @@ const SettingsModal = {
           });
           itemContainer.appendChild(menulistElement);
         } else if (typeof step === "object" && step.action) {
-          debugLog(`Rendering function step: ${step.action}`);
+          PREFS.debugLog(`Rendering function step: ${step.action}`);
           const functionStepEl = self._renderFunctionStep(step, index, currentChain);
           itemContainer.appendChild(functionStepEl);
         }
+
+        const arrowControls = parseElement(`<div class="chain-item-arrow-controls"></div>`);
+
+        if (index > 0) {
+          const upButton = parseElement(
+            `<button class="move-up-button icon-button" title="Move Up">
+               <img src="chrome://global/skin/icons/arrow-up.svg" />
+             </button>`
+          );
+          upButton.addEventListener("click", () => {
+            [currentChain[index - 1], currentChain[index]] = [
+              currentChain[index],
+              currentChain[index - 1],
+            ];
+            renderChainList();
+          });
+          arrowControls.appendChild(upButton);
+        }
+
+        if (index < currentChain.length - 1) {
+          const downButton = parseElement(
+            `<button class="move-down-button icon-button" title="Move Down">
+               <img src="chrome://global/skin/icons/arrow-down.svg" />
+             </button>`
+          );
+          downButton.addEventListener("click", () => {
+            [currentChain[index + 1], currentChain[index]] = [
+              currentChain[index],
+              currentChain[index + 1],
+            ];
+            renderChainList();
+          });
+          arrowControls.appendChild(downButton);
+        }
+        itemContainer.appendChild(arrowControls);
 
         const deleteButton = parseElement(
           `<button class="delete-button icon-button" title="Remove Command">
@@ -760,7 +816,7 @@ const SettingsModal = {
         const functionSchema = commandChainFunctions[action];
         if (!functionSchema) return;
 
-        debugLog(`Function button clicked: ${action}`);
+        PREFS.debugLog(`Function button clicked: ${action}`);
 
         const newStep = { action, params: {} };
         functionSchema.params.forEach((p) => {
@@ -799,14 +855,14 @@ const SettingsModal = {
 
     if (cmd.type === "chain") {
       // Initial population of the command selector dropdown
-      debugLog("Chain editor: getting all commands...");
+      PREFS.debugLog("Chain editor: getting all commands...");
       this._mainModule
         .getAllCommandsForConfig()
         .then((allCommands) => {
-          debugLog(`Chain editor: received ${allCommands.length} commands.`);
+          PREFS.debugLog(`Chain editor: received ${allCommands.length} commands.`);
           const placeholder = editorContainer.querySelector("#chain-command-selector-placeholder");
           if (!placeholder) {
-            debugLog("Chain editor: placeholder DIV not found!");
+            PREFS.debugLog("Chain editor: placeholder DIV not found!");
             return;
           }
 
@@ -820,14 +876,14 @@ const SettingsModal = {
           try {
             const menulistElement = parseElement(menulistXUL, "xul");
             placeholder.replaceWith(menulistElement);
-            debugLog("Chain editor: XUL menulist successfully created and inserted.");
+            PREFS.debugLog("Chain editor: XUL menulist successfully created and inserted.");
           } catch (e) {
-            debugLog("Chain editor: Failed to parse or insert XUL menulist.", e);
+            PREFS.debugLog("Chain editor: Failed to parse or insert XUL menulist.", e);
             placeholder.textContent = "Error creating command list.";
           }
         })
         .catch((err) => {
-          debugLog("Chain editor: getAllCommandsForConfig promise rejected.", err);
+          PREFS.debugLog("Chain editor: getAllCommandsForConfig promise rejected.", err);
           const placeholder = editorContainer.querySelector("#chain-command-selector-placeholder");
           if (placeholder) {
             placeholder.textContent = "Error loading commands.";
@@ -892,13 +948,13 @@ const SettingsModal = {
 
     const helpItems = [
       {
-        url: "https://github.com/BibekBhusal0/zen-custom-js/tree/main/command-palette",
+        url: "https://github.com/Vertex-Mods/Zen-Command-Palette/tree/main/command-palette",
         icon: svgToUrl(icons["book"]),
         title: "View Documentation",
         description: "Read the full guide on GitHub.",
       },
       {
-        url: "https://github.com/BibekBhusal0/zen-custom-js",
+        url: "https://github.com/Vertex-Mods/Zen-Command-Palette",
         icon: svgToUrl(icons["star"]),
         title: "Star on GitHub",
         description: "Enjoying the mod? Leave a star!",
@@ -950,28 +1006,28 @@ const SettingsModal = {
         section: "General",
         items: [
           {
-            key: Prefs.KEYS.PREFIX,
+            key: PREFS.PREFIX,
             label: "Command Prefix",
             type: "char",
           },
           {
-            key: Prefs.KEYS.PREFIX_REQUIRED,
+            key: PREFS.PREFIX_REQUIRED,
             label: "Require prefix to activate",
             type: "bool",
           },
           {
-            key: Prefs.KEYS.MIN_QUERY_LENGTH,
+            key: PREFS.MIN_QUERY_LENGTH,
             label: "Min query length (no prefix)",
             type: "number",
           },
-          { key: Prefs.KEYS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
+          { key: PREFS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
           {
-            key: Prefs.KEYS.MAX_COMMANDS_PREFIX,
+            key: PREFS.MAX_COMMANDS_PREFIX,
             label: "Max results (with prefix)",
             type: "number",
           },
-          { key: Prefs.KEYS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
-          { key: Prefs.KEYS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
+          { key: PREFS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
+          { key: PREFS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
         ],
       },
       {
@@ -985,7 +1041,7 @@ const SettingsModal = {
       sectionEl.className = "settings-section";
       sectionEl.innerHTML = `<h4>${escapeXmlAttribute(prefSection.section)}</h4>`;
       for (const item of prefSection.items) {
-        const currentValue = Prefs.getPref(item.key);
+        const currentValue = PREFS.getPref(item.key);
         const safeId = this._sanitizeForId(`pref-${item.key}`);
         let itemHtml;
 
