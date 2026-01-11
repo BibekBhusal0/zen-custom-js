@@ -43,7 +43,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.7.4",
-    "rollup": "^4.54.0",
+    "rollup": "^4.55.1",
     "rollup-plugin-string": "^3.0.0"
   }
 }
