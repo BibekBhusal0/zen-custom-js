@@ -9,7 +9,7 @@
     }
   },
   "style": {
-    "content": "https://raw.githubusercontent.com/Vertex-Mods/Search-Keyboard-Shortcuts/main/style.css"
+    "content": "style.css"
   },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Search-Keyboard-Shortcuts/main/README.md",
   "image": "https://raw.githubusercontent.com/Vertex-Mods/Search-Keyboard-Shortcuts/main/image.png",
