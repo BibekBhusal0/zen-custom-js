@@ -8,8 +8,10 @@
       "include": ["chrome://browser/content/browser.xhtml"]
     }
   },
-  "preferences": "https://raw.githubusercontent.com/Vertex-Mods/Search-Engine-Select/main/preferences.json",
-  "style": "https://raw.githubusercontent.com/Vertex-Mods/Search-Engine-Select/main/style.css",
+  "preferences": "preferences.json",
+  "style": {
+    "chrome": "style.css"
+  },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Search-Engine-Select/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.1.1b",
