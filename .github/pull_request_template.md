@@ -1,6 +1,6 @@
 <!-- Hey there. Thank you so much for contributing , and filling out the details. Having roughly the same layout helps everyone considerably, feel free to remove sections which are not relavent starting from this comment  -->
 
-- [ ] I have read and agreed to the [contribution guidelines](https://github.com/BibekBhusal/zen-custom-js/blob/main/CONTRIBUTING.md).
+- [ ] I have read and agreed to the [contribution guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md).
 
 ### What is it?
 
@@ -17,6 +17,8 @@
 - [ ] Floating Sidebar
 - [ ] Search Engine Select
 - [ ] Settings shortcut search
+
+<!-- If other mods are chagned add their name here-->
 
 ### Description of the changes in your PR
 
