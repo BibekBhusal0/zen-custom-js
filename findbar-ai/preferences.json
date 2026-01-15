@@ -3,21 +3,21 @@
     "property": "extension.browse-bot.findbar-ai.enabled",
     "label": "Enable Findbar AI",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "Globally enables or disables the AI-powered findbar."
   },
   {
     "property": "extension.browse-bot.urlbar-ai-enabled",
     "label": "Enable URLBar AI",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "Enables or disables the AI features in the URL bar."
   },
   {
     "property": "extension.browse-bot.urlbar-ai.hide-suggestions",
     "label": "Hide Suggestions in URLBar AI",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "Hides the autocomplete suggestions when URLBar AI is active.",
     "conditions": [
       {
@@ -32,7 +32,7 @@
     "property": "extension.browse-bot.urlbar-ai.animations-enabled",
     "label": "Enable Animations in URLBar AI",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "Enables animations for the URLBar AI interface.",
     "conditions": [
       {
@@ -52,7 +52,7 @@
     "property": "extension.browse-bot.llm-provider",
     "label": "AI Provider",
     "type": "dropdown",
-    "default": "gemini",
+    "defaultValue": "gemini",
     "description": "Select the AI service provider to use.",
     "options": [
       {
@@ -94,7 +94,7 @@
     "label": "Claude API Key",
     "type": "string",
     "placeholder": "Enter your Anthropic Claude API key",
-    "default": "",
+    "defaultValue": "",
     "description": "Your personal API key from Anthropic. Required to use Claude models.",
     "conditions": [
       {
@@ -109,7 +109,7 @@
     "property": "extension.browse-bot.claude-model",
     "label": "Claude Model",
     "type": "dropdown",
-    "default": "claude-opus-4-1",
+    "defaultValue": "claude-opus-4-1",
     "description": "Select the Claude model to use.",
     "options": [
       {
@@ -159,7 +159,7 @@
     "label": "Gemini API Key",
     "type": "string",
     "placeholder": "Enter your Google Gemini API key",
-    "default": "",
+    "defaultValue": "",
     "description": "Your personal API key from Google AI Studio. Required to use Gemini models.",
     "conditions": [
       {
@@ -174,7 +174,7 @@
     "property": "extension.browse-bot.gemini-model",
     "label": "Gemini Model",
     "type": "dropdown",
-    "default": "gemini-2.5-flash",
+    "defaultValue": "gemini-2.5-flash",
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
       {
@@ -236,7 +236,7 @@
     "label": "Grok API Key",
     "type": "string",
     "placeholder": "Enter your xAI Grok API key",
-    "default": "",
+    "defaultValue": "",
     "description": "Your personal API key from xAI. Required to use Grok models.",
     "conditions": [
       {
@@ -251,7 +251,7 @@
     "property": "extension.browse-bot.grok-model",
     "label": "Grok Model",
     "type": "dropdown",
-    "default": "grok-4",
+    "defaultValue": "grok-4",
     "description": "Select the Grok model to use.",
     "options": [
       {
@@ -325,7 +325,7 @@
     "label": "Mistral API Key",
     "type": "string",
     "placeholder": "Enter your Mistral API key",
-    "default": "",
+    "defaultValue": "",
     "description": "Your personal API key from Mistral AI. Required to use Mistral models.",
     "conditions": [
       {
@@ -340,7 +340,7 @@
     "property": "extension.browse-bot.mistral-model",
     "label": "Mistral Model",
     "type": "dropdown",
-    "default": "mistral-medium-latest",
+    "defaultValue": "mistral-medium-latest",
     "description": "Select the Mistral model to use.",
     "options": [
       {
@@ -410,7 +410,7 @@
     "label": "Ollama Base URL",
     "type": "string",
     "placeholder": "http://localhost:11434/api",
-    "default": "http://localhost:11434/api",
+    "defaultValue": "http://localhost:11434/api",
     "description": "The base URL for your local Ollama API.",
     "conditions": [
       {
@@ -425,7 +425,7 @@
     "property": "extension.browse-bot.ollama-model",
     "label": "Ollama Model",
     "type": "dropdown",
-    "default": "mixtral:8x7b",
+    "defaultValue": "mixtral:8x7b",
     "description": "Select the Ollama model to use. You must have this model installed locally.",
     "options": [
       {
@@ -515,7 +515,7 @@
     "label": "OpenAI API Key",
     "type": "string",
     "placeholder": "Enter your OpenAI API key",
-    "default": "",
+    "defaultValue": "",
     "description": "Your personal API key from OpenAI. Required to use GPT models.",
     "conditions": [
       {
@@ -530,7 +530,7 @@
     "property": "extension.browse-bot.openai-model",
     "label": "OpenAI Model",
     "type": "dropdown",
-    "default": "gpt-5.2",
+    "defaultValue": "gpt-5.2",
     "description": "Select the OpenAI model to use.",
     "options": [
       {
@@ -640,7 +640,7 @@
     "label": "Perplexity API Key",
     "type": "string",
     "placeholder": "Enter your Perplexity API key",
-    "default": "",
+    "defaultValue": "",
     "description": "Your personal API key from Perplexity AI. Required to use Perplexity models.",
     "conditions": [
       {
@@ -655,7 +655,7 @@
     "property": "extension.browse-bot.perplexity-model",
     "label": "Perplexity Model",
     "type": "dropdown",
-    "default": "sonar",
+    "defaultValue": "sonar",
     "description": "Select the Perplexity model to use.",
     "options": [
       {
@@ -693,7 +693,7 @@
     "label": "Cerebras API Key",
     "type": "string",
     "placeholder": "Enter your Cerebras API key",
-    "default": "",
+    "defaultValue": "",
     "description": "Your personal API key from Cerebras AI. Required to use Cerebras models.",
     "conditions": [
       {
@@ -708,7 +708,7 @@
     "property": "extension.browse-bot.cerebras-model",
     "label": "Cerebras Model",
     "type": "dropdown",
-    "default": "llama3.1-8b",
+    "defaultValue": "llama3.1-8b",
     "description": "Select the Cerebras model to use.",
     "options": [
       {
@@ -762,7 +762,7 @@
     "property": "extension.browse-bot.findbar-ai.stream-enabled",
     "label": "Stream Response",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "AI response will be streamed in chunks for a smoother experience.",
     "conditions": [
       {
@@ -784,7 +784,7 @@
     "property": "extension.browse-bot.findbar-ai.citations-enabled",
     "label": "Citations (*EXPERIMENTAL*)",
     "type": "checkbox",
-    "default": false,
+    "defaultValue": false,
     "description": "The AI will provide a link in its response pointing to the source text on the page.",
     "conditions": [
       {
@@ -799,7 +799,7 @@
     "property": "extension.browse-bot.findbar-ai.agentic-mode",
     "label": "Agentic Mode (Enable Tools)",
     "type": "checkbox",
-    "default": false,
+    "defaultValue": false,
     "description": "Allows the AI to use tools, such as performing searches or opening links.",
     "conditions": [
       {
@@ -814,7 +814,7 @@
     "property": "extension.browse-bot.custom-system-prompt",
     "label": "Custom System Prompt",
     "type": "textarea",
-    "default": "",
+    "defaultValue": "",
     "rows": 6,
     "description": "Custom system prompt."
   },
@@ -822,7 +822,7 @@
     "property": "extension.browse-bot.findbar-ai.conform-before-tool-call",
     "label": "Ask before tool call",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "If unchecked, AI tools will run automatically without asking for permission.",
     "conditions": [
       {
@@ -844,7 +844,7 @@
     "property": "extension.browse-bot.findbar-ai.max-tool-calls",
     "label": "Max Tool Calls",
     "type": "number",
-    "default": 5,
+    "defaultValue": 5,
     "description": "The maximum number of consecutive tool calls the AI can make in one turn.",
     "conditions": [
       {
@@ -879,7 +879,7 @@
     "property": "extension.browse-bot.findbar-ai.minimal",
     "label": "Enable Minimal Mode (Arc-style)",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "conditions": [
       {
         "if": {
@@ -893,7 +893,7 @@
     "property": "extension.browse-bot.findbar-ai.persist-chat",
     "label": "Persist Chat History per Tab",
     "type": "checkbox",
-    "default": false,
+    "defaultValue": false,
     "description": "Saves the chat history for each tab. History is lost when the browser is closed.",
     "conditions": [
       {
@@ -908,7 +908,7 @@
     "property": "extension.browse-bot.findbar-ai.dnd-enabled",
     "label": "Enable Drag & Drop and Resizing",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "Allows the AI chat panel to be moved around the screen and resized.",
     "conditions": [
       {
@@ -923,7 +923,7 @@
     "property": "extension.browse-bot.findbar-ai.remember-dimensions",
     "label": "Remember Dimensions",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "Automatically saves and restores the findbar's size.",
     "conditions": [
       {
@@ -938,7 +938,7 @@
     "property": "extension.browse-bot.findbar-ai.position",
     "label": "Snap-to Corner",
     "type": "dropdown",
-    "default": "top-right",
+    "defaultValue": "top-right",
     "description": "The corner the findbar will snap to after being dragged.",
     "options": [
       {
@@ -971,7 +971,7 @@
     "property": "extension.browse-bot.findbar-ai.background-style",
     "label": "Background Style",
     "type": "dropdown",
-    "default": "solid",
+    "defaultValue": "solid",
     "description": "The background style of the findbar.",
     "options": [
       {
@@ -1013,7 +1013,7 @@
     "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
     "label": "Enable Context Menu Item",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "Adds an 'Ask AI' / 'Summarize with AI' option to the right-click context menu.",
     "conditions": [
       {
@@ -1028,7 +1028,7 @@
     "property": "extension.browse-bot.findbar-ai.context-menu-autosend",
     "label": "Automatically Send Query from Context Menu",
     "type": "checkbox",
-    "default": true,
+    "defaultValue": true,
     "description": "If enabled, clicking the context menu item immediately sends the query. If disabled, it only populates the input field.",
     "conditions": [
       {
@@ -1050,7 +1050,7 @@
     "property": "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
     "label": "Context Menu Command (No Selection)",
     "type": "string",
-    "default": "Summarize current page",
+    "defaultValue": "Summarize current page",
     "description": "The command to send to the AI when the context menu is used without any text selected.",
     "conditions": [
       {
@@ -1072,7 +1072,7 @@
     "property": "extension.browse-bot.findbar-ai.context-menu-command-with-selection",
     "label": "Context Menu Command (With Selection)",
     "type": "string",
-    "default": "Explain this in context of current page:\n\n{selection}",
+    "defaultValue": "Explain this in context of current page:\n\n{selection}",
     "description": "The command to send to the AI when text is selected. Use {selection} as a placeholder.",
     "conditions": [
       {
@@ -1099,42 +1099,42 @@
     "property": "extension.browse-bot.llm.temperature",
     "label": "Temperature",
     "type": "number",
-    "default": 0.7,
+    "defaultValue": 0.7,
     "description": "Controls randomness: Lower values result in less random completions."
   },
   {
     "property": "extension.browse-bot.llm.top-p",
     "label": "Top P",
     "type": "number",
-    "default": 1.0,
+    "defaultValue": 1.0,
     "description": "Nucleus sampling: limits token selection to top cumulative probability."
   },
   {
     "property": "extension.browse-bot.llm.top-k",
     "label": "Top K",
     "type": "number",
-    "default": 40,
+    "defaultValue": 40,
     "description": "Limits sampling to the top K tokens."
   },
   {
     "property": "extension.browse-bot.llm.frequency-penalty",
     "label": "Frequency Penalty",
     "type": "number",
-    "default": 0.0,
+    "defaultValue": 0.0,
     "description": "Penalizes new tokens based on their existing frequency in the text so far."
   },
   {
     "property": "extension.browse-bot.llm.presence-penalty",
     "label": "Presence Penalty",
     "type": "number",
-    "default": 0.0,
+    "defaultValue": 0.0,
     "description": "Penalizes new tokens based on whether they appear in the text so far."
   },
   {
     "property": "extension.browse-bot.llm.max-output-tokens",
     "label": "Max Output Tokens",
     "type": "number",
-    "default": 2048,
+    "defaultValue": 2048,
     "description": "The maximum number of tokens to generate."
   },
   {
@@ -1146,7 +1146,7 @@
     "property": "extension.browse-bot.debug-mode",
     "label": "Enable Debug Mode",
     "type": "checkbox",
-    "default": false,
+    "defaultValue": false,
     "description": "Enables verbose logging in the Browser Console for troubleshooting."
   }
 ]
