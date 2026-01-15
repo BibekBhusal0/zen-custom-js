@@ -5,7 +5,9 @@
   "homepage": "https://github.com/Vertex-Mods/Search-Engine-Select",
   "scripts": {
     "search-engine-select.uc.js": {
-      "include": ["chrome://browser/content/browser.xhtml"]
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ]
     }
   },
   "preferences": "preferences.json",
@@ -15,8 +17,14 @@
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Search-Engine-Select/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.1.1b",
-  "tags": ["Search", "Search Engine", "Google"],
+  "tags": [
+    "Search",
+    "Search Engine",
+    "Google"
+  ],
   "createdAt": "2025-06-23",
-  "updatedAt": "2026-01-09",
-  "fork": ["zen"]
+  "updatedAt": "2026-01-12",
+  "fork": [
+    "zen"
+  ]
 }
