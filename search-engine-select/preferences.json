@@ -4,7 +4,7 @@
     "label": "Enable Search Engine Select",
     "type": "checkbox",
     "placeholder": false,
-    "default": true,
+    "defaultValue": true,
     "description": "Globally enables or disables the floating search engine switcher UI."
   },
   {
@@ -12,7 +12,7 @@
     "label": "Remember UI Position",
     "type": "checkbox",
     "placeholder": false,
-    "default": true,
+    "defaultValue": true,
     "description": "Saves the vertical position of the switcher after you drag it.",
     "conditions": [
       {
@@ -27,7 +27,7 @@
     "property": "extension.search-engine-select.size",
     "label": "UI Size",
     "type": "dropdown",
-    "default": "normal",
+    "defaultValue": "normal",
     "options": [
       { "label": "Small", "value": "small" },
       { "label": "Normal", "value": "normal" },
@@ -39,7 +39,7 @@
     "property": "extension.search-engine-select.theme",
     "label": "UI Theme",
     "type": "dropdown",
-    "default": "dark",
+    "defaultValue": "dark",
     "options": [
       { "label": "Dark", "value": "dark" },
       { "label": "Light", "value": "light" },
@@ -52,7 +52,7 @@
     "label": "Enable Debug Mode",
     "type": "checkbox",
     "placeholder": false,
-    "default": false,
+    "defaultValue": false,
     "description": "Outputs detailed script information to the Browser Console."
   }
 ]
