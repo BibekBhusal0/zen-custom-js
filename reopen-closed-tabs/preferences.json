@@ -12,13 +12,13 @@
     "type": "checkbox",
     "property": "extensions.reopen-closed-tabs.show-open-tabs",
     "label": "Show Open Tabs in Menu",
-    "default": false
+    "defaultValue": false
   },
   {
     "type": "text",
     "property": "extensions.reopen-closed-tabs.shortcut-key",
     "label": "Activation Shortcut",
-    "default": "Alt+A"
+    "defaultValue": "Alt+A"
   },
   {
     "type": "separator",
@@ -29,6 +29,6 @@
     "type": "checkbox",
     "property": "extensions.reopen-closed-tabs.debug-mode",
     "label": "Enable debug logging in Browser Console",
-    "default": false
+    "defaultValue": false
   }
 ]
