@@ -9,14 +9,25 @@
   },
   "scripts": {
     "reopen-closed-tabs.uc.js": {
-      "include": ["chrome://browser/content/browser.xhtml"]
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ]
     }
   },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/main/readme.md",
   "author": "Bibek Bhusal",
   "version": "1.1.1b",
-  "tags": ["tabs", "history", "reopen", "closed tabs", "productivity", "zen browser"],
+  "tags": [
+    "tabs",
+    "history",
+    "reopen",
+    "closed tabs",
+    "productivity",
+    "zen browser"
+  ],
   "createdAt": "2025-09-22",
-  "updatedAt": "2026-01-12",
-  "fork": ["zen"]
+  "updatedAt": "2026-01-15",
+  "fork": [
+    "zen"
+  ]
 }
