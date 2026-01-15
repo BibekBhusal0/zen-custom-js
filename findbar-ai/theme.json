@@ -3,8 +3,10 @@
   "name": "Browse Bot",
   "description": "Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.",
   "homepage": "https://github.com/Vertex-Mods/Browse-Bot",
-  "preferences": "https://raw.githubusercontent.com/Vertex-Mods/Browse-Bot/main/preferences.json",
-  "style": "https://raw.githubusercontent.com/Vertex-Mods/Browse-Bot/main/style.css",
+  "preferences": "preferences.json",
+  "style": {
+    "chrome": "style.css"
+  },
   "scripts": {
     "browse-bot.uc.mjs": {
       "include": ["chrome://browser/content/browser.xhtml"]

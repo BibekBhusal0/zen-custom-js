@@ -3,8 +3,10 @@
   "name": "Reopen Closed Tabs Menu",
   "description": "A popup menu to view and restore recently closed tabs. Includes a toolbar button and keyboard shortcut.",
   "homepage": "https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu",
-  "preferences": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/main/preferences.json",
-  "style": "https://raw.githubusercontent.com/Vertex-Mods/Reopen-Closed-Tabs-Menu/main/style.css",
+  "preferences": "preferences.json",
+  "style": {
+    "chrome": "style.css"
+  },
   "scripts": {
     "reopen-closed-tabs.uc.js": {
       "include": ["chrome://browser/content/browser.xhtml"]

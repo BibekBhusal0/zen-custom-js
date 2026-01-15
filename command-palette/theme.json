@@ -3,8 +3,10 @@
   "name": "Zen Command Palette",
   "description": "A powerful, extensible command interface for Zen Browser, seamlessly integrated into the URL bar. Inspired by Raycast and Arc.",
   "homepage": "https://github.com/Vertex-Mods/Zen-Command-Palette",
-  "preferences": "https://raw.githubusercontent.com/Vertex-Mods/Zen-Command-Palette/main/preferences.json",
-  "style": "https://raw.githubusercontent.com/Vertex-Mods/Zen-Command-Palette/main/style.css",
+  "preferences": "preferences.json",
+  "style": {
+    "chrome": "style.css"
+  },
   "scripts": {
     "zen-command-palette.uc.js": {
       "include": ["chrome://browser/content/browser.xhtml"]

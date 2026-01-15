@@ -242,6 +242,7 @@ async function processMod(modData) {
   // Theme.json filtering
   const themeKeys = [
     "id",
+    "homepage",
     "name",
     "description",
     "author",
