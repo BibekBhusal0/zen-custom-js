@@ -125,7 +125,7 @@ async function getUpdatedMods() {
     const repoName = getRepoName(theme);
     const version = theme.version;
     const isBeta = version.endsWith("b");
-    const branch = isBeta ? "beta" : "test";
+    const branch = isBeta ? "test" : "test";
 
     let remoteVersion = null;
     try {
@@ -139,7 +139,7 @@ async function getUpdatedMods() {
       );
     }
 
-    if (version !== remoteVersion) {
+    if (true) {
       console.log(`Mod ${modFolder} needs update: Remote(${remoteVersion}) -> Local(${version})`);
       updatedMods.push({ folder: modFolder, theme, prevVersion: remoteVersion });
     } else {
