@@ -125,7 +125,7 @@ async function getUpdatedMods() {
     const repoName = getRepoName(theme);
     const version = theme.version;
     const isBeta = version.endsWith("b");
-    const branch = isBeta ? "beta" : "main";
+    const branch = isBeta ? "beta" : "test";
 
     let remoteVersion = null;
     try {
