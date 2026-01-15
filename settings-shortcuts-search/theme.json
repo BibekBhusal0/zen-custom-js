@@ -5,10 +5,7 @@
   "homepage": "https://github.com/Vertex-Mods/Search-Keyboard-Shortcuts",
   "scripts": {
     "settings-shortcuts-search.uc.js": {
-      "include": [
-        "about:preferences*",
-        "about:settings*"
-      ]
+      "include": ["about:preferences*", "about:settings*"]
     }
   },
   "style": {
@@ -18,20 +15,9 @@
   "image": "https://raw.githubusercontent.com/Vertex-Mods/Search-Keyboard-Shortcuts/main/image.png",
   "author": "Bibek Bhusal",
   "version": "1.1.1b",
-  "tags": [
-    "Search",
-    "sine",
-    "fx-autoconfig",
-    "JavaScript",
-    "Bibek Bhusal"
-  ],
+  "tags": ["Search", "sine", "fx-autoconfig", "JavaScript", "Bibek Bhusal"],
   "createdAt": "2025-06-23",
   "updatedAt": "2026-01-15",
-  "fork": [
-    "zen"
-  ],
-  "include": [
-    "about:preferences*",
-    "about:settings*"
-  ]
+  "fork": ["zen"],
+  "include": ["about:preferences*", "about:settings*"]
 }

@@ -9,14 +9,10 @@
   },
   "scripts": {
     "browse-bot.uc.mjs": {
-      "include": [
-        "chrome://browser/content/browser.xhtml"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml"]
     },
     "vercel-ai-sdk.uc.js": {
-      "include": [
-        "chrome://browser/content/browser.xhtml"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml"]
     }
   },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Browse-Bot/main/README.md",
@@ -38,7 +34,5 @@
   ],
   "createdAt": "2024-05-22",
   "updatedAt": "2026-01-15",
-  "fork": [
-    "zen"
-  ]
+  "fork": ["zen"]
 }
