@@ -14,9 +14,9 @@
   },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Search-Engine-Select/main/README.md",
   "author": "Bibek Bhusal",
-  "version": "1.1.1b",
+  "version": "1.1.2b",
   "tags": ["Search", "Search Engine", "Google"],
   "createdAt": "2025-06-23",
-  "updatedAt": "2026-01-15",
+  "updatedAt": "2026-01-16",
   "fork": ["zen"]
 }
