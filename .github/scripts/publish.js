@@ -162,7 +162,7 @@ function buildMod(mod) {
   let command = `npx cross-env TARGET=${themeId} rollup -c --bundleConfigAsCjs`;
 
   if (themeId === "browse-bot") {
-    command = `npx cross-env TARGET=${themeId} rollup -c --bundleConfigAsCjs`;
+    command = `npx cross-env TARGET=${themeId} BUILD_TYPE=dev rollup -c --bundleConfigAsCjs`;
   }
 
   run(command);
@@ -208,7 +208,11 @@ async function processMod(modData) {
     if (fs.existsSync(distDir)) {
       const distFiles = fs.readdirSync(distDir);
       for (const file of distFiles) {
-        if (file.includes(theme.id.replace(/-/g, "_")) || file.includes(theme.id)) {
+        const normalizedId = theme.id.replace(/-/g, "_");
+        // For browse-bot, also copy the vendor chunk (vercel-ai-sdk)
+        if (file.startsWith(`${theme.id}.`) || file.startsWith(`${normalizedId}.`)) {
+          fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
+        } else if (theme.id === "browse-bot" && file.startsWith("vercel-ai-sdk")) {
           fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
         }
       }
