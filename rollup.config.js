@@ -107,6 +107,9 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
     };
 
     if (theme.id === "browse-bot") {
+      const buildType = process.env.BUILD_TYPE;
+      const isTargetedBuild = buildType === "dev" || buildType === "targeted";
+
       const esmConfig = {
         ...baseConfig,
         output: {
@@ -142,6 +145,10 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
           inlineDynamicImports: true,
         },
       };
+
+      if (isTargetedBuild) {
+        return [umdAllConfig];
+      }
 
       return [esmConfig, umdAllConfig];
     }
