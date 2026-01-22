@@ -1,0 +1,25 @@
+{
+  "id": "Zen Custom JS",
+  "name": "Zen Custom JS",
+  "description": "My Custom JS and CSS. Contains 6 mods and other scripts.",
+  "homepage": "https://github.com/BibekBhusal0/zen-custom-js",
+  "style": {
+    "chrome": "userChrome.css",
+    "content": "userContent.css"
+  },
+  "scripts": {
+    "import.uc.mjs": {
+      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
+    },
+    "import2.uc.mjs": {
+      "include": ["about:preferences*", "about:settings*"]
+    }
+  },
+  "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/README.md",
+  "author": "Bibek Bhusal",
+  "version": "1.0.0",
+  "tags": ["Scripts", "Zen"],
+  "createdAt": "2024-05-22",
+  "updatedAt": "2026-01-20",
+  "fork": ["zen"]
+}
