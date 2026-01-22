@@ -4,6 +4,8 @@ import { svgToUrl, icons } from "../utils/icon.js";
 import { addPrefListener, getPref, setPref } from "../utils/pref.js";
 
 function addButton() {
+  if (document.getElementById("sidebar-pin-unpin")) return;
+
   const header = document.getElementById("sidebar-header");
 
   if (!header) return;
