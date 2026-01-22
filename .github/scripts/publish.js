@@ -34,6 +34,36 @@ function run(command, cwd = MODS_DIR) {
   }
 }
 
+// Helper to copy directories recursively, excluding JS files and empty folders
+function copyDirectoryExcludingJs(src, dest) {
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+  let hasFiles = false;
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      const subDirHasFiles = copyDirectoryExcludingJs(srcPath, destPath);
+      if (!subDirHasFiles) {
+        fs.rmSync(destPath, { recursive: true, force: true });
+      } else {
+        hasFiles = true;
+      }
+    } else {
+      if (entry.name.endsWith(".js") || entry.name.endsWith(".mjs")) continue;
+      fs.copyFileSync(srcPath, destPath);
+      hasFiles = true;
+    }
+  }
+
+  return hasFiles;
+}
+
 // Helper to make HTTP requests (replaces curl)
 function githubRequest(url, method = "GET", body = null) {
   return new Promise((resolve, reject) => {
@@ -190,14 +220,13 @@ async function processMod(modData) {
   const files = fs.readdirSync(sourceDir);
   for (const file of files) {
     if (file === "release-notes.md") continue;
-    if (file.endsWith(".js") || file.endsWith(".mjs")) continue; // Skip source JS
 
     const srcPath = path.join(sourceDir, file);
     const destPath = path.join(workDir, file);
     if (fs.statSync(srcPath).isDirectory()) {
-      // Recursive copy for subdirectories (like .github if present, or css dirs)
-      fs.cpSync(srcPath, destPath, { recursive: true });
+      copyDirectoryExcludingJs(srcPath, destPath);
     } else {
+      if (file.endsWith(".js") || file.endsWith(".mjs")) continue;
       fs.copyFileSync(srcPath, destPath);
     }
   }
