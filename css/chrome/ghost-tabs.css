@@ -15,7 +15,10 @@
   }
 
   /* Ghost folders only when every child tab is pending and not being renamed */
-  zen-folder:not(:has(.tab-label-container-editing)):not( :has(.tabbrowser-tab:not([pending="true"]))) :is(.tab-group-label, .tab-label-container, .tab-group-folder-icon) {
+  zen-folder:not(:has(.tab-label-container-editing)):not(
+      :has(.tabbrowser-tab:not([pending="true"]))
+    )
+    :is(.tab-group-label, .tab-label-container, .tab-group-folder-icon) {
     filter: var(--ghost-filter);
     opacity: var(--ghost-opacity);
   }
