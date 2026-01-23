@@ -6,7 +6,9 @@
   "preferences": "preferences.json",
   "scripts": {
     "floating-sidebar.uc.js": {
-      "include": ["chrome://browser/content/browser.xhtml"]
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ]
     }
   },
   "style": {
@@ -15,7 +17,10 @@
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Floating-Sidebar/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.1.2b",
-  "tags": ["Sidebar", "Pin"],
+  "tags": [
+    "Sidebar",
+    "Pin"
+  ],
   "createdAt": "2025-06-23",
-  "updatedAt": "2026-01-16"
+  "updatedAt": "2026-01-22"
 }
