@@ -16,7 +16,6 @@ This repository uses GitHub Actions workflows to automate code formatting, linti
 - **Actions**:
   - Updates `updatedAt` field in all `theme.json` files based on git history
   - Runs Prettier formatting (`npm run format`)
-  - Auto-commits changes
 
 ### 3. Publish Mods (`.github/workflows/publish-mods.yml`)
 
@@ -63,6 +62,21 @@ The workflow respects the following keys in `theme.json`:
 - **`"js": false`**: Skips the JavaScript build process. Useful for CSS-only mods. The mod will still be published, but no bundled JS files will be generated.
 - **`"id"`**: Used to determine the build target and output filenames.
 - **`"name"`**: Used to determine the child repository name (slugified).
+
+## Automated Resource Updates
+
+The repository includes an automated workflow (`.github/workflows/build-and-update.yml`) that runs on every push to main:
+
+### Build BrowseBot Automatically
+
+- **Trigger**: On push to main branch
+- **Files Built**: `browse-bot.uc.mjs` and `vercel-ai-sdk.uc.js` in `dist/` folder
+- **Why?**: Well those files are required for installing everything together with sine so it will be hard to manually update them.
+
+### Combine Preferences Automatically
+
+- **Trigger**: On push to main branch
+- **Action**: Combines all `preferences.json` from mod directories into root `preferences.json`
 
 ## Beta vs. Stable Releases
 

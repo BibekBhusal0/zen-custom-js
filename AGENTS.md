@@ -25,6 +25,7 @@ npm run dev:reopen             # Watch reopen-closed-tabs mod
 npm run dev:sidebar            # Watch floating-sidebar mod
 npm run dev:select             # Watch search-engine-select mod
 npm run dev:search             # Watch settings-shortcuts-search mod
+npm run combine-preferences   # Combine all preferences into root file
 npm run format                 # Format code with Prettier
 npm run lint                   # Run ESLint
 ```

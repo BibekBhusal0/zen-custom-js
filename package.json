@@ -16,6 +16,7 @@
     "dev:sidebar": "cross-env TARGET=sidebar BUILD_TYPE=dev rollup -c --bundleConfigAsCjs --watch",
     "dev:select": "cross-env TARGET=select BUILD_TYPE=dev rollup -c --bundleConfigAsCjs --watch",
     "dev:search": "cross-env TARGET=search BUILD_TYPE=dev rollup -c --bundleConfigAsCjs --watch",
+    "combine-preferences": "node .github/scripts/combine-preferences.js",
     "format": "prettier --write .",
     "lint": "eslint ."
   },
