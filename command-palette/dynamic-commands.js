@@ -63,7 +63,7 @@ const commandChainUtils = {
     if (!title || !description) return;
 
     try {
-      showToast({title: title, description: description});
+      showToast({ title: title, description: description });
     } catch (e) {
       PREFS.debugError("Failed to show toast:", e);
       alert([title, description], 0);
@@ -447,17 +447,20 @@ export async function generateSineCommands() {
   const commands = [];
   const installedMods = await SineAPI.utils.getMods();
 
-  // TODO: complete this when Sine api will be globally available
-  // Generate "Install" commands. This requires the main `Sine` object to be available.
-  /* if (window.Sine?.marketplace) {
-    const marketplaceMods = window.Sine.marketplace;
-    for (const modId in marketplaceMods) {
+  const marketplace = window.SineAPI?.manager?.marketplace
+
+  if (marketplace) {
+    if (!marketplace.items) marketplace.init()
+    const mods = marketplace.items
+    for (const modId in mods) {
       if (!installedMods[modId]) {
-        const mod = marketplaceMods[modId];
+        const mod = mods[modId];
         commands.push({
           key: `sine:install:${modId}`,
           label: `Install Sine Mod: ${mod.name}`,
-          command: () => Sine.installMod(mod.homepage),
+          command: () => {
+            SineAPI.manager.installMod(mod.homepage)
+          },
           icon: svgToUrl(icons.sine),
           tags: ["sine", "install", "mod", mod.name.toLowerCase()],
         });
@@ -467,7 +470,7 @@ export async function generateSineCommands() {
     PREFS.debugLog(
       "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
     );
-  } */
+  }
 
   // Generate "Uninstall" commands for installed mods.
   for (const modId in installedMods) {
