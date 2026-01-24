@@ -57,16 +57,19 @@ const sidebarWidthUpdate = function () {
 sidebarWidthUpdate();
 
 function parseMD(markdown, convertHTML = true) {
-  const markedOptions = { breaks: true, gfm: true };
-  let content = window.marked ? window.marked.parse(markdown, markedOptions) : markdown;
-  content = content
-    .replace(/<img([^>]*?)(?<!\/)>/gi, "<img$1 />")
-    .replace(/<hr([^>]*?)(?<!\/)>/gi, "<hr$1 />")
-    .replace(/<br([^>]*?)(?<!\/)>/gi, "<br$1 />");
-  if (!convertHTML) return content;
-  let htmlContent = parseElement(`<div class="markdown-body">${content}</div>`);
+  let htmlContent = parseElement(`<div class="markdown-body"></div>`);
+  try {
+    const parse = ChromeUtils.importESModule("chrome://userscripts/content/engine/utils/dom.mjs")
+      .default.parseMD;
+    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+    parse(htmlContent, markdown, "", browserWindow || window);
+  } catch {
+    PREFS.debugLog("Parsing markdown failed");
+    htmlContent.innerHTML = markdown;
+  }
 
-  return htmlContent;
+  if (convertHTML) return htmlContent;
+  else return htmlContent.innerHTML;
 }
 
 PREFS.setInitialPrefs();
