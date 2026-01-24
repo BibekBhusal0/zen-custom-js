@@ -60,9 +60,12 @@ function showToast(options = {}) {
     ucAPI.showToast(showToastOptions);
     debugLog("ucAPI.showToast called successfully");
 
-    // Wait a bit for the toast to be created, then modify it
-    setTimeout(() => {
-      debugLog("Starting text replacement process...");
+    let retryCount = 0;
+    const maxRetries = 10;
+    const retryInterval = 50;
+
+    const tryReplaceText = () => {
+      debugLog(`Starting text replacement attempt ${retryCount + 1}/${maxRetries}...`);
 
       // Get all browser windows
       const windows = Services.wm.getEnumerator("navigator:browser");
@@ -137,31 +140,33 @@ function showToast(options = {}) {
           }
 
           debugLog("Text replacement completed for this toast");
+          return; // Success, exit function
         }
       }
 
       debugLog(`Checked ${windowCount} windows, found toast: ${foundToast}`);
 
-      if (!foundToast) {
-        debugLog("No toast found with ID:", toastId);
-        // Try to find any sineToast elements for debugging
-        const allToasts = [];
-        const windows = Services.wm.getEnumerator("navigator:browser");
-        while (windows.hasMoreElements()) {
-          const win = windows.getNext();
-          const toasts = win.document.querySelectorAll(".sineToast");
-          if (toasts.length > 0) {
-            allToasts.push(
-              ...Array.from(toasts).map((t) => ({
-                id: t.dataset.id,
-                text: t.textContent,
-              }))
-            );
-          }
+      if (!foundToast && retryCount < maxRetries) {
+        retryCount++;
+        debugLog("Toast not found, retrying...");
+        // Get most recent browser window for retry
+        const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+        if (browserWindow) {
+          browserWindow.setTimeout(tryReplaceText, retryInterval);
+        } else {
+          debugLog("No browser window found for retry");
         }
-        debugLog("All existing toasts:", allToasts);
+      } else if (!foundToast) {
+        debugLog("Max retries reached or no toast found with ID:", toastId);
       }
-    }, 100); // Wait 100ms for toast to be created
+    };
+
+    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+    if (browserWindow) {
+      browserWindow.setTimeout(tryReplaceText, 50);
+    } else {
+      debugLog("No browser window found for setTimeout");
+    }
   } catch (error) {
     debugLog("Error in showToast:", error);
     console.error("Toast API error:", error);
