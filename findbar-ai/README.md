@@ -18,7 +18,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 - 👑 **Powerful AI Tool-belt**: Empowers the AI to control the browser—manage tabs, workspaces, bookmarks, perform searches, and interact with page elements.
 - 🖱️ **Context Menu Integration**: Right-click to quickly ask the AI about selected text or summarize the current page.
 - 📚 **Citation Support**: Get direct quotes from the page text that support the AI's answer.
-- 🔧 **Highly Customizable**: Fine-tune every aspect through an extensive in-app settings panel or `about:config`.
+- 🔧 **Highly Customizable**: Fine-tune every aspect through an sine settings or `about:config`.
 - ⌨️ **Custom Shortcuts**: Configure keyboard shortcuts to open the AI chat and URL bar commands.
 
 ## Demo Videos
@@ -45,7 +45,7 @@ https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
 
 ## ⚙️ Installation
 
-### Easy Install via Sine (Recommended)
+### Sine
 
 1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).
 2. Restart Zen Browser.
@@ -54,6 +54,9 @@ https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
 5. Click Install.
 6. A toast for restart should appear — click on that to restart Zen.
 7. Enjoy your new AI assistant! ✨
+
+> [!NOTE]
+> If you want to try Early Beta version you can use the beta branch `https://github.com/Vertex-Mods/Browse-Bot/tree/beta`
 
 ### Manual Install (`fx-autoconfig`)
 
@@ -99,11 +102,11 @@ For advanced users or those not using Sine or who are willing to contribute:
     - Press `Ctrl+F` to open the standard findbar.
     - In the default (non-minimal) view, click the "Expand" button to switch to AI chat. In Minimal Mode, just enter your query and click "Ask".
     - Type your questions about the current page and press on send button.
-    - Use `Ctrl+Shift+F` to open the AI chat directly, using any text you have selected on the page as the initial prompt.
+    - Use `Ctrl+Shift+F` to open the AI chat directly, using any text you have selected on the page as the initial prompt (this shortcut will not work if it has been changed).
 
 ### URL Bar AI Commands
 
-1.  Press `Ctrl+Space` to activate AI mode in the URL bar.
+1.  Press `Ctrl+Space` to activate AI mode in the URL bar (this shortcut will not work if has been changed).
 2.  Type your command directly (e.g., "search for red pandas", "open github", "close all youtube tabs").
 3.  Press `Enter` to execute the command. The AI will perform the action, often providing feedback via a small toast notification.
 
@@ -191,7 +194,8 @@ Default keyboard shortcuts:
 | `Escape`       | If the AI interface is expanded, it collapses to the standard findbar. If not expanded, closes the findbar. |
 | `Alt + Enter`  | Sends the text from the standard findbar to the AI, expanding the view.                                     |
 
-> **Note**: You can customize these shortcuts in the Settings modal under "Keyboard Shortcuts".
+> [!NOTE]
+> You can customize these shortcuts in the Settings modal under "Keyboard Shortcuts".
 
 ## 🔨 Tool-calls
 
@@ -215,7 +219,7 @@ Currently available tool calls are:
 
 - [ ] Pin/unpin the findbar
 - [x] Context Menu integration
-- [ ] Different themes (glass, light, dark, etc.)
+- [x] Different themes (glass, light, dark, etc.)
 - [ ] Smooth animations for all interactions
 - [x] Custom system prompts
 - [x] Add Settings.
@@ -231,7 +235,8 @@ Currently available tool calls are:
 
 ## 🐛 Bugs and potential issues (I am working on fixing them)
 
-- If AI makes tool call to open tab, history might not persist correctly.
+- If AI makes tool call to open tab or change workspace, history might not persist correctly.
+- In settings text encoding is broken (for chinese text).
 - Styles in glance
 
 ## 🙏 Credits and Acknowledgements

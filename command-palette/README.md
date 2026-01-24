@@ -28,6 +28,9 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 6. A toast for restart should appear — click on that to restart Zen.
 7. Feel productive !
 
+> [!NOTE]
+> If you want to try Early Beta version you can use the beta branch `https://github.com/Vertex-Mods/Zen-Command-Palette/tree/beta`
+
 ## 🎨 Customization & Preferences
 
 The Zen Command Palette can be configured via its own settings. Simply type `: Command palette configure` in the command palette and you will see commands like `Command Palette: Configure Settings` run the command which will open settings Popup. Which will allow adding more commands and configuration like keyboard shortcut, icon, hiding commands, creating toolbar icon.
@@ -44,7 +47,7 @@ https://github.com/user-attachments/assets/bdd87f58-f6f7-480c-8ffe-1150d571f482
 https://github.com/user-attachments/assets/71dae23a-bb0c-4a04-add6-450d344751a0
 
 > [!Note]
-> Custom commands and shortcut keys are stored in JSON file here is [this](../zen-commands-settings.json) is my custom commands and shortcut keys.
+> Custom commands and shortcut keys are stored in JSON file here is [this](https://github.com/bibekbhusal0/zen-custom-js/blob/main/zen-commands-settings.json) is my custom commands and shortcut keys.
 
 > [!Note]
 > You can press delete/blackspace to remove the shortcut key. Changing shortcut key from menu this will not replace/remove existing shortcut keys they have to be done from Zen Settings.
@@ -67,7 +70,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.           |
 | `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.     |
 | `zen-command-palette.dynamic.folders`                  | Boolean | `true`                              | Automatically generate commands for managing Folders.                        |
-| `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for uninstalling sine mods.                  |
+| `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for installing/uninstalling sine mods.                  |
 | `zen-command-palette.dynamic.container-tabs`           | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.          |
 | `zen-command-palette.dynamic.active-tabs`              | Boolean | `false`                             | Automatically generate commands for switching between active tabs.           |
 | `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |
@@ -231,7 +234,7 @@ The following commands are now native:
 - **Active Tabs**: `Switch to Tab: [Tab Title]` to quickly switch to any open tab, even across workspaces.
 - **Unload Tabs**: `Unload Tab: [Tab Title]` to quickly unload tab (to save memory).
 - **Workspaces**: `Switch to workspace: [Workspace Name]` and `Move Tab to Workspace: [Workspace Name]`.
-- **Sine Mods**: `Uninstall Sine Mod: [Mod Name]`.
+- **Sine Mods**: `Uninstall Sine Mod: [Mod Name]` and `Install Sine Mod: [Mod Name]`.
 - **Folders**: `Delete Folder: [Folder Name]` and `Move Tab to Folder: [Folder Name]`.
 - **Addons**: `Enable Extension: [Addon Name]`, `Disable Extension: [Addon Name]`, and `Uninstall Extension: [Addon Name]`.
 

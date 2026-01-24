@@ -7,7 +7,7 @@
 
 Personal customization userscripts and css files for enhancing browsing experience in Zen Browser.
 
-## 🌟 Scripts
+## 🌟 Mods
 
 ### [Zen Command Palette](/command-palette)
 
@@ -17,13 +17,13 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 ### [Findbar AI/BrowseBot](/findbar-ai)
 
-Advanced AI functionality inside browser builtin findbar.
+Advanced AI functionality inside browser builtin findbar and URL bar.
 
 https://github.com/user-attachments/assets/258d2643-6135-4b2b-accc-c1d59f3f76fc
 
 ### [Reopen Closed Tabs Menu](reopen-closed-tabs)
 
-Menu to search through recently closed tabs.
+Menu to search through recently closed tabs (and active tabs too).
 
 https://github.com/user-attachments/assets/be2880c6-21e5-42ce-b8ed-ed45dc1942ad
 
@@ -35,13 +35,13 @@ https://github.com/user-attachments/assets/01b14b7b-04a7-49d8-a719-83ad7fc8c603
 
 ### [Search Engine Select](/search-engine-select)
 
-Quick search engine switching with advanced interaction modes
+Quick search engine switching with advanced interaction modes.
 
 https://github.com/user-attachments/assets/52a6b810-77ee-4a04-b239-8d59e01478ef
 
 ### [Floating Sidebar](/floating-sidebar)
 
-Make sidebar floating also option to pin and unpin the sidebar.
+Make sidebar floating also option to keep it in left or right.
 
 https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 
@@ -56,13 +56,19 @@ https://github.com/user-attachments/assets/40e66251-236d-4766-a53d-dd22ecaa455e
 
 All scripts are also available through [Sine](https://github.com/CosmoCreeper/Sine).
 
+If you want to install everything(all mods in this reop + some extra scripts) you can paste the repo link:
+
+```md
+https://github.com/BibekBhusal0/zen-custom-js
+```
+
 ### Manual Install (`fx-autoconfig`)
 
 For advanced users or those not using Sine or who are willing to contribute:
 
-1.  **Setup `fx-autoconfig`**: If you haven't already, follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig) (If you are using Sine it is already installed).
+1.  **Setup `fx-autoconfig`**: If you haven't already, follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig).
 
-2.  **Clone this Repository**: Open a terminal or command prompt, navigate to the `js` directory created by `fx-autoconfig` inside your profile folder:
+2.  **Clone this Repository**: Open a terminal, navigate to the `JS` directory created by `fx-autoconfig` inside your profile folder:
 
     ```bash
     cd /path/to/your/profile/chrome/JS
@@ -79,7 +85,7 @@ For advanced users or those not using Sine or who are willing to contribute:
 
 Whether you have ideas, design changes or even major code changes, help is always welcome. Mods gets better and better with each contribution, no matter how big or small!
 
-If you'd like to get involved See [CONTRIBUTING.md](./CONTRIBUTING.md) for the guidelines.
+If you'd like to get involved, see [CONTRIBUTING.md](./CONTRIBUTING.md) for the code structure, guidelines and best practices.
 
 ## 📜 License
 
