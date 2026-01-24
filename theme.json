@@ -1,18 +1,49 @@
 {
   "id": "zen-custom-js",
   "name": "Zen Custom JS",
-  "description": "My Custom JS and CSS. Contains 6 mods and other scripts.",
+  "description": "My Custom JS and CSS. Contains 6 mods some other scripts to enhance experience with zen browser.",
+  "preferences": "preferences.json",
   "homepage": "https://github.com/BibekBhusal0/zen-custom-js",
   "style": {
     "chrome": "userChrome.css",
     "content": "userContent.css"
   },
   "scripts": {
-    "import.uc.mjs": {
-      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
+    "command-palette/index.js": {
+      "include": [
+        "chrome://browser/content/browser.xhtml",
+        "chrome://browser/content/browser.xul"
+      ]
     },
-    "import2.uc.mjs": {
-      "include": ["about:preferences*", "about:settings*"]
+    "floating-sidebar/index.js": {
+      "include": [
+        "chrome://browser/content/browser.xhtml",
+        "chrome://browser/content/browser.xul"
+      ]
+    },
+    "reopen-closed-tabs/index.js": {
+      "include": [
+        "chrome://browser/content/browser.xhtml",
+        "chrome://browser/content/browser.xul"
+      ]
+    },
+    "search-engine-select/index.js": {
+      "include": [
+        "chrome://browser/content/browser.xhtml",
+        "chrome://browser/content/browser.xul"
+      ]
+    },
+    "dist/browse-bot.uc.mjs": {
+      "include": [
+        "chrome://browser/content/browser.xhtml",
+        "chrome://browser/content/browser.xul"
+      ]
+    },
+    "settings-shortcuts-search/index.js": {
+      "include": [
+        "about:preferences*",
+        "about:settings*"
+      ]
     }
   },
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/README.md",
