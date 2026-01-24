@@ -1,0 +1,1788 @@
+[
+  {
+    "type": "text",
+    "label": "**Zen Command Palette**",
+    "size": "18px",
+    "margin": "20px 0 10px 0"
+  },
+  {
+    "type": "separator",
+    "margin": "0 0 15px 0"
+  },
+  {
+    "type": "text",
+    "label": "Configure the behavior of the command palette. All changes real time (no need to restart)"
+  },
+  {
+    "type": "separator",
+    "label": "General Behavior",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.prefix-required",
+    "label": "Require prefix to show commands",
+    "defaultValue": false
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.max-commands",
+    "label": "Maximum Results (without )",
+    "value": "number",
+    "defaultValue": 3,
+    "placeholder": false,
+    "options": [
+      {
+        "label": "1 Command",
+        "value": 1
+      },
+      {
+        "label": "2 Commands",
+        "value": 2
+      },
+      {
+        "label": "3 Commands",
+        "value": 3
+      },
+      {
+        "label": "4 Commands",
+        "value": 4
+      },
+      {
+        "label": "5 Commands",
+        "value": 5
+      }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.max-commands-prefix",
+    "label": "Maximum Results. You can scroll so keep this value high.",
+    "value": "number",
+    "defaultValue": 50,
+    "placeholder": false,
+    "options": [
+      {
+        "label": "20 Commands",
+        "value": 20
+      },
+      {
+        "label": "30 Commands",
+        "value": 30
+      },
+      {
+        "label": "50 Commands",
+        "value": 50
+      },
+      {
+        "label": "80 Commands",
+        "value": 80
+      },
+      {
+        "label": "100 Commands",
+        "value": 100
+      }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.min-query-length",
+    "label": "Activation Length (without )",
+    "value": "number",
+    "defaultValue": 3,
+    "placeholder": false,
+    "options": [
+      {
+        "label": "2 Characters",
+        "value": 2
+      },
+      {
+        "label": "3 Characters",
+        "value": 3
+      },
+      {
+        "label": "4 Characters",
+        "value": 4
+      },
+      {
+        "label": "5 Characters",
+        "value": 5
+      }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "property": "zen-command-palette.min-score-threshold",
+    "label": "Fuzzy Search Sensitivity",
+    "value": "number",
+    "defaultValue": 150,
+    "placeholder": false,
+    "options": [
+      {
+        "label": "Super Strict (350)",
+        "value": 350
+      },
+      {
+        "label": "Very Strict (300)",
+        "value": 300
+      },
+      {
+        "label": "Strict (250)",
+        "value": 250
+      },
+      {
+        "label": "Balanced (200)",
+        "value": 200
+      },
+      {
+        "label": "Loose (150)",
+        "value": 150
+      },
+      {
+        "label": "Very Loose (100)",
+        "value": 100
+      }
+    ]
+  },
+  {
+    "type": "dropdown",
+    "value": "number",
+    "property": "browser.urlbar.maxRichResults",
+    "label": "The number of search suggestions",
+    "defaultValue": 1,
+    "placeholder": false,
+    "options": [
+      {
+        "label": "5",
+        "value": 5
+      },
+      {
+        "label": "6",
+        "value": 6
+      },
+      {
+        "label": "7",
+        "value": 7
+      },
+      {
+        "label": "8",
+        "value": 8
+      },
+      {
+        "label": "9",
+        "value": 9
+      },
+      {
+        "label": "10",
+        "value": 10
+      },
+      {
+        "label": "12",
+        "value": 12
+      }
+    ]
+  },
+  {
+    "type": "separator",
+    "label": "Dynamic Commands",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.search-engines",
+    "label": "Enable Search Engine commands",
+    "defaultValue": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extensions",
+    "label": "Enable Extension Options commands",
+    "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.workspaces",
+    "label": "Enable Workspace commands",
+    "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.folders",
+    "label": "Enable Folder Management commands",
+    "defaultValue": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.sine-mods",
+    "label": "Enable Sine Mod Management commands",
+    "defaultValue": true
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.container-tabs",
+    "label": "Enable Container Tab commands",
+    "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.active-tabs",
+    "label": "Enable Active Tab switching commands",
+    "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.unload-tab",
+    "label": "Enable Active Tab unloading commands",
+    "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-enable-disable",
+    "label": "Enable Extension Enable/Disable commands",
+    "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.extension-uninstall",
+    "label": "Enable Extension Uninstall commands",
+    "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.about-pages",
+    "label": "Enable `about:` page commands",
+    "defaultValue": false
+  },
+  {
+    "type": "separator",
+    "label": "Development",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.debug-mode",
+    "label": "Enable debug logging in Browser Console",
+    "defaultValue": false
+  },
+  {
+    "type": "text",
+    "label": "",
+    "margin": "30px 0 0 0"
+  },
+  {
+    "type": "text",
+    "label": "**Browse Bot**",
+    "size": "18px",
+    "margin": "20px 0 10px 0"
+  },
+  {
+    "type": "separator",
+    "margin": "0 0 15px 0"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.enabled",
+    "label": "Enable Findbar AI",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Globally enables or disables the AI-powered findbar."
+  },
+  {
+    "property": "extension.browse-bot.urlbar-ai-enabled",
+    "label": "Enable URLBar AI",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Enables or disables the AI features in the URL bar."
+  },
+  {
+    "property": "extension.browse-bot.urlbar-ai.hide-suggestions",
+    "label": "Hide Suggestions in URLBar AI",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Hides the autocomplete suggestions when URLBar AI is active.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.urlbar-ai-enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.urlbar-ai.animations-enabled",
+    "label": "Enable Animations in URLBar AI",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Enables animations for the URLBar AI interface.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.urlbar-ai-enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-api-separator",
+    "label": "API Configuration"
+  },
+  {
+    "property": "extension.browse-bot.llm-provider",
+    "label": "AI Provider",
+    "type": "dropdown",
+    "defaultValue": "gemini",
+    "description": "Select the AI service provider to use.",
+    "options": [
+      {
+        "value": "claude",
+        "label": "Anthropic Claude"
+      },
+      {
+        "value": "cerebras",
+        "label": "Cerebras AI"
+      },
+      {
+        "value": "gemini",
+        "label": "Google Gemini"
+      },
+      {
+        "value": "grok",
+        "label": "xAI Grok"
+      },
+      {
+        "value": "mistral",
+        "label": "Mistral AI"
+      },
+      {
+        "value": "ollama",
+        "label": "Ollama (local)"
+      },
+      {
+        "value": "openai",
+        "label": "OpenAI GPT"
+      },
+      {
+        "value": "perplexity",
+        "label": "Perplexity AI"
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.claude-api-key",
+    "label": "Claude API Key",
+    "type": "string",
+    "placeholder": "Enter your Anthropic Claude API key",
+    "defaultValue": "",
+    "description": "Your personal API key from Anthropic. Required to use Claude models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "claude"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.claude-model",
+    "label": "Claude Model",
+    "type": "dropdown",
+    "defaultValue": "claude-opus-4-1",
+    "description": "Select the Claude model to use.",
+    "options": [
+      {
+        "value": "claude-hiku-4-5",
+        "label": "Claude Hiku 4.5"
+      },
+      {
+        "value": "claude-sonnet-4-5",
+        "label": "Claude Sonnet 4.5"
+      },
+      {
+        "value": "claude-sonnet-4-5",
+        "label": "Claude Sonnet 4.5"
+      },
+      {
+        "value": "claude-opus-4-1",
+        "label": "Claude Opus 4.1"
+      },
+      {
+        "value": "claude-opus-4-0",
+        "label": "Claude Opus 4.0"
+      },
+      {
+        "value": "claude-sonnet-4-0",
+        "label": "Claude Sonnet 4.0"
+      },
+      {
+        "value": "claude-3-7-sonnet-latest",
+        "label": "Claude 3.7 Sonnet Latest"
+      },
+      {
+        "value": "claude-3-5-haiku-latest",
+        "label": "Claude 3.5 Haiku Latest"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "claude"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.gemini-api-key",
+    "label": "Gemini API Key",
+    "type": "string",
+    "placeholder": "Enter your Google Gemini API key",
+    "defaultValue": "",
+    "description": "Your personal API key from Google AI Studio. Required to use Gemini models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "gemini"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.gemini-model",
+    "label": "Gemini Model",
+    "type": "dropdown",
+    "defaultValue": "gemini-2.5-flash",
+    "description": "Select the Gemini model to use for chat responses.",
+    "options": [
+      {
+        "value": "gemini-3-pro-preview",
+        "label": "Gemini 3 Pro (Preview)"
+      },
+      {
+        "value": "gemini-2.5-pro",
+        "label": "Gemini 2.5 Pro"
+      },
+      {
+        "value": "gemini-2.5-flash",
+        "label": "Gemini 2.5 Flash"
+      },
+      {
+        "value": "gemini-2.5-flash-lite",
+        "label": "Gemini 2.5 Flash Lite"
+      },
+      {
+        "value": "gemini-2.0-flash",
+        "label": "Gemini 2.0 Flash"
+      },
+      {
+        "value": "gemini-1.5-pro",
+        "label": "Gemini 1.5 Pro"
+      },
+      {
+        "value": "gemini-1.5-pro-latest",
+        "label": "Gemini 1.5 Pro Latest"
+      },
+      {
+        "value": "gemini-1.5-flash",
+        "label": "Gemini 1.5 Flash"
+      },
+      {
+        "value": "gemini-1.5-flash-latest",
+        "label": "Gemini 1.5 Flash Latest"
+      },
+      {
+        "value": "gemini-1.5-flash-8b",
+        "label": "Gemini 1.5 Flash 8B"
+      },
+      {
+        "value": "gemini-1.5-flash-8b-latest",
+        "label": "Gemini 1.5 Flash 8B Latest"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "gemini"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.grok-api-key",
+    "label": "Grok API Key",
+    "type": "string",
+    "placeholder": "Enter your xAI Grok API key",
+    "defaultValue": "",
+    "description": "Your personal API key from xAI. Required to use Grok models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "grok"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.grok-model",
+    "label": "Grok Model",
+    "type": "dropdown",
+    "defaultValue": "grok-4",
+    "description": "Select the Grok model to use.",
+    "options": [
+      {
+        "value": "grok-4-fast-non-reasoning",
+        "label": "Grok 4 Fast (Non-Reasoning)"
+      },
+      {
+        "value": "grok-4-fast-reasoning",
+        "label": "Grok 4 Fast (Reasoning)"
+      },
+      {
+        "value": "grok-code-fast-1",
+        "label": "Grok Code Fast 1"
+      },
+      {
+        "value": "grok-4",
+        "label": "Grok 4"
+      },
+      {
+        "value": "grok-3",
+        "label": "Grok 3"
+      },
+      {
+        "value": "grok-3-latest",
+        "label": "Grok 3 Latest"
+      },
+      {
+        "value": "grok-3-fast",
+        "label": "Grok 3 Fast"
+      },
+      {
+        "value": "grok-3-fast-latest",
+        "label": "Grok 3 Fast Latest"
+      },
+      {
+        "value": "grok-3-mini",
+        "label": "Grok 3 Mini"
+      },
+      {
+        "value": "grok-3-mini-latest",
+        "label": "Grok 3 Mini Latest"
+      },
+      {
+        "value": "grok-3-mini-fast",
+        "label": "Grok 3 Mini Fast"
+      },
+      {
+        "value": "grok-3-mini-fast-latest",
+        "label": "Grok 3 Mini Fast Latest"
+      },
+      {
+        "value": "grok-2",
+        "label": "Grok 2"
+      },
+      {
+        "value": "grok-2-latest",
+        "label": "Grok 2 Latest"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "grok"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.mistral-api-key",
+    "label": "Mistral API Key",
+    "type": "string",
+    "placeholder": "Enter your Mistral API key",
+    "defaultValue": "",
+    "description": "Your personal API key from Mistral AI. Required to use Mistral models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "mistral"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.mistral-model",
+    "label": "Mistral Model",
+    "type": "dropdown",
+    "defaultValue": "mistral-medium-latest",
+    "description": "Select the Mistral model to use.",
+    "options": [
+      {
+        "value": "pixtral-large-latest",
+        "label": "Pixtral Large (Latest)"
+      },
+      {
+        "value": "mistral-large-latest",
+        "label": "Mistral Large (Latest)"
+      },
+      {
+        "value": "mistral-medium-latest",
+        "label": "Mistral Medium (Latest)"
+      },
+      {
+        "value": "mistral-medium-2505",
+        "label": "Mistral Medium (2505)"
+      },
+      {
+        "value": "mistral-small-latest",
+        "label": "Mistral Small(Latest)"
+      },
+      {
+        "value": "magistral-small-2506",
+        "label": "Magistral Small (2506)"
+      },
+      {
+        "value": "magistral-medium-2506",
+        "label": "Magistral Medium (2506)"
+      },
+      {
+        "value": "ministral-3b-latest",
+        "label": "Ministral 3B (Latest)"
+      },
+      {
+        "value": "ministral-8b-latest",
+        "label": "Ministral 8B (Latest)"
+      },
+      {
+        "value": "pixtral-12b-2409",
+        "label": "Pixtral 12B (2409)"
+      },
+      {
+        "value": "open-mistral-7b",
+        "label": "Open Mistral 7B"
+      },
+      {
+        "value": "open-mixtral-8x7b",
+        "label": "Open Mixtral 8x7B"
+      },
+      {
+        "value": "open-mixtral-8x22b",
+        "label": "Open Mixtral 8x22B"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "mistral"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.ollama-base-url",
+    "label": "Ollama Base URL",
+    "type": "string",
+    "placeholder": "http://localhost:11434/api",
+    "defaultValue": "http://localhost:11434/api",
+    "description": "The base URL for your local Ollama API.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "ollama"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.ollama-model",
+    "label": "Ollama Model",
+    "type": "dropdown",
+    "defaultValue": "mixtral:8x7b",
+    "description": "Select the Ollama model to use. You must have this model installed locally.",
+    "options": [
+      {
+        "value": "deepseek-r1:8b",
+        "label": "DeepSeek R1 (8B parameters)"
+      },
+      {
+        "value": "deepseek-r1:1.5b",
+        "label": "DeepSeek R1 (1.5B parameters)"
+      },
+      {
+        "value": "deepseek-r1:7b",
+        "label": "DeepSeek R1 (7B parameters)"
+      },
+      {
+        "value": "deepseek-r1:14b",
+        "label": "DeepSeek R1 (14B parameters)"
+      },
+      {
+        "value": "deepseek-r1:32b",
+        "label": "DeepSeek R1 (32B parameters)"
+      },
+      {
+        "value": "deepseek-r1:70b",
+        "label": "DeepSeek R1 (70B parameters)"
+      },
+      {
+        "value": "mixtral:8x22b",
+        "label": "Mixtral (8x22B)"
+      },
+      {
+        "value": "mixtral:8x7b",
+        "label": "Mixtral (8x7B)"
+      },
+      {
+        "value": "qwen3:0.6b",
+        "label": "Qwen3 (0.6B parameters)"
+      },
+      {
+        "value": "qwen3:1.7b",
+        "label": "Qwen3 (1.7B parameters)"
+      },
+      {
+        "value": "qwen3:4b",
+        "label": "Qwen3 (4B parameters)"
+      },
+      {
+        "value": "qwen3:8b",
+        "label": "Qwen3 (8B parameters)"
+      },
+      {
+        "value": "qwen3:14b",
+        "label": "Qwen3 (14B parameters)"
+      },
+      {
+        "value": "qwen3:32b",
+        "label": "Qwen3 (32B parameters)"
+      },
+      {
+        "value": "qwen3:30b-a3b",
+        "label": "Qwen3 (30B-A3B)"
+      },
+      {
+        "value": "qwen3:235b-a22b",
+        "label": "Qwen3 (235B-A22B)"
+      },
+      {
+        "value": "llama4:scout",
+        "label": "Llama 4 Scout"
+      },
+      {
+        "value": "llama4:maverick",
+        "label": "Llama 4 Maverick"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "ollama"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.openai-api-key",
+    "label": "OpenAI API Key",
+    "type": "string",
+    "placeholder": "Enter your OpenAI API key",
+    "defaultValue": "",
+    "description": "Your personal API key from OpenAI. Required to use GPT models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openai"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.openai-model",
+    "label": "OpenAI Model",
+    "type": "dropdown",
+    "defaultValue": "gpt-5.2",
+    "description": "Select the OpenAI model to use.",
+    "options": [
+      {
+        "value": "gpt-5.2-pro",
+        "label": "GPT 5.2 Pro"
+      },
+      {
+        "value": "gpt-5.2-chat-latest",
+        "label": "GPT 5.2 Latest"
+      },
+      {
+        "value": "gpt-5.2",
+        "label": "GPT 5.2"
+      },
+      {
+        "value": "gpt-5.1-codex-mini",
+        "label": "GPT 5.1 Mini"
+      },
+      {
+        "value": "gpt-5.1-codex",
+        "label": "GPT 5.1 Codex"
+      },
+      {
+        "value": "gpt-5.1-chat-latest",
+        "label": "GPT 5.1 Latest"
+      },
+      {
+        "value": "gpt-4.1",
+        "label": "GPT 4.1"
+      },
+      {
+        "value": "gpt-4.1-mini",
+        "label": "GPT 4.1 Mini"
+      },
+      {
+        "value": "gpt-4.1-nano",
+        "label": "GPT 4.1 Nano"
+      },
+      {
+        "value": "gpt-4o",
+        "label": "GPT 4o"
+      },
+      {
+        "value": "gpt-4o-mini",
+        "label": "GPT 4o Mini"
+      },
+      {
+        "value": "gpt-4-turbo",
+        "label": "GPT 4 Turbo"
+      },
+      {
+        "value": "gpt-4",
+        "label": "GPT 4"
+      },
+      {
+        "value": "gpt-3.5-turbo",
+        "label": "GPT 3.5 Turbo"
+      },
+      {
+        "value": "o1",
+        "label": "O1"
+      },
+      {
+        "value": "o3-mini",
+        "label": "O3 Mini"
+      },
+      {
+        "value": "o3",
+        "label": "O3"
+      },
+      {
+        "value": "o4-mini",
+        "label": "O4 Mini"
+      },
+      {
+        "value": "gpt-5",
+        "label": "GPT 5"
+      },
+      {
+        "value": "gpt-5-mini",
+        "label": "GPT 5 Mini"
+      },
+      {
+        "value": "gpt-5-nano",
+        "label": "GPT 5 Nano"
+      },
+      {
+        "value": "gpt-5-chat-latest",
+        "label": "GPT 5 Latest"
+      },
+      {
+        "value": "gpt-5-codex",
+        "label": "GPT 5 Codex"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openai"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.perplexity-api-key",
+    "label": "Perplexity API Key",
+    "type": "string",
+    "placeholder": "Enter your Perplexity API key",
+    "defaultValue": "",
+    "description": "Your personal API key from Perplexity AI. Required to use Perplexity models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "perplexity"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.perplexity-model",
+    "label": "Perplexity Model",
+    "type": "dropdown",
+    "defaultValue": "sonar",
+    "description": "Select the Perplexity model to use.",
+    "options": [
+      {
+        "value": "sonar-deep-research",
+        "label": "Sonar Deep Research"
+      },
+      {
+        "value": "sonar-reasoning-pro",
+        "label": "Sonar Reasoning Pro"
+      },
+      {
+        "value": "sonar-reasoning",
+        "label": "Sonar Reasoning"
+      },
+      {
+        "value": "sonar-pro",
+        "label": "Sonar Pro"
+      },
+      {
+        "value": "sonar",
+        "label": "Sonar"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "perplexity"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.cerebras-api-key",
+    "label": "Cerebras API Key",
+    "type": "string",
+    "placeholder": "Enter your Cerebras API key",
+    "defaultValue": "",
+    "description": "Your personal API key from Cerebras AI. Required to use Cerebras models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "cerebras"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.cerebras-model",
+    "label": "Cerebras Model",
+    "type": "dropdown",
+    "defaultValue": "llama3.1-8b",
+    "description": "Select the Cerebras model to use.",
+    "options": [
+      {
+        "value": "llama3.1-8b",
+        "label": "Llama 3.1 8B"
+      },
+      {
+        "value": "llama-3.3-70b",
+        "label": "Llama 3.3 70B"
+      },
+      {
+        "value": "gpt-oss-120b",
+        "label": "OpenAI GPT OSS 120B"
+      },
+      {
+        "value": "qwen-3-32b",
+        "label": "Qwen 3 32B"
+      },
+      {
+        "value": "qwen-3-235b-a22b-instruct-2507",
+        "label": "Qwen 3 235B Instruct (Preview)"
+      },
+      {
+        "value": "zai-glm-4.6",
+        "label": "Z.ai GLM 4.6 (Preview)"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "cerebras"
+        }
+      }
+    ]
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-response-separator",
+    "label": "AI Response",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.stream-enabled",
+    "label": "Stream Response",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "AI response will be streamed in chunks for a smoother experience.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "not": {
+          "property": "extension.browse-bot.findbar-ai.citations-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.citations-enabled",
+    "label": "Citations",
+    "type": "checkbox",
+    "defaultValue": false,
+    "description": "The AI will provide a link in its response pointing to the source text on the page.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.agentic-mode",
+    "label": "Agentic Mode (Enable Tools)",
+    "type": "checkbox",
+    "defaultValue": false,
+    "description": "Allows the AI to use tools, such as performing searches or opening links.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.custom-system-prompt",
+    "label": "Custom System Prompt",
+    "type": "textarea",
+    "defaultValue": "",
+    "rows": 6,
+    "description": "Custom system prompt."
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.conform-before-tool-call",
+    "label": "Ask before tool call",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "If unchecked, AI tools will run automatically without asking for permission.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.agentic-mode",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.max-tool-calls",
+    "label": "Max Tool Calls",
+    "type": "dropdown",
+    "defaultValue": 5,
+    "description": "The maximum number of consecutive tool calls the AI can make in one turn.",
+    "options": [
+      {
+        "value": 1,
+        "label": "1"
+      },
+      {
+        "value": 2,
+        "label": "2"
+      },
+      {
+        "value": 3,
+        "label": "3"
+      },
+      {
+        "value": 5,
+        "label": "5"
+      },
+      {
+        "value": 10,
+        "label": "10"
+      },
+      {
+        "value": 20,
+        "label": "20"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.agentic-mode",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-appearance-separator",
+    "label": "Appearance & Behavior",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.minimal",
+    "label": "Enable Minimal Mode (Arc-style)",
+    "type": "checkbox",
+    "defaultValue": true,
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.persist-chat",
+    "label": "Persist Chat History per Tab",
+    "type": "checkbox",
+    "defaultValue": false,
+    "description": "Saves the chat history for each tab. History is lost when the browser is closed.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.dnd-enabled",
+    "label": "Enable Drag & Drop and Resizing",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Allows the AI chat panel to be moved around the screen and resized.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.remember-dimensions",
+    "label": "Remember Dimensions",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Automatically saves and restores the findbar's size.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.position",
+    "label": "Corner Position",
+    "type": "dropdown",
+    "defaultValue": "top-right",
+    "description": "The corner the findbar will snap to after being dragged.",
+    "options": [
+      {
+        "value": "top-left",
+        "label": "Top Left"
+      },
+      {
+        "value": "top-right",
+        "label": "Top Right"
+      },
+      {
+        "value": "bottom-left",
+        "label": "Bottom Left"
+      },
+      {
+        "value": "bottom-right",
+        "label": "Bottom Right"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.background-style",
+    "label": "Background Style",
+    "type": "dropdown",
+    "defaultValue": "solid",
+    "description": "The background style of the findbar.",
+    "options": [
+      {
+        "value": "solid",
+        "label": "Solid"
+      },
+      {
+        "value": "acrylic",
+        "label": "Acrylic"
+      },
+      {
+        "value": "pseudo",
+        "label": "Pseudo"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-context-menu-separator",
+    "label": "Context Menu",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+    "label": "Enable Context Menu Item",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Adds an 'Ask AI' / 'Summarize with AI' option to the right-click context menu.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.context-menu-autosend",
+    "label": "Automatically Send Query from Context Menu",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "If enabled, clicking the context menu item immediately sends the query. If disabled, it only populates the input field.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.context-menu-command-no-selection",
+    "label": "Context Menu Command (No Selection)",
+    "type": "string",
+    "defaultValue": "Summarize current page",
+    "description": "The command to send to the AI when the context menu is used without any text selected.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "property": "extension.browse-bot.findbar-ai.context-menu-command-with-selection",
+    "label": "Context Menu Command (With Selection)",
+    "type": "string",
+    "defaultValue": "Explain this in context of current page:\n\n{selection}",
+    "description": "The command to send to the AI when text is selected. Use {selection} as a placeholder.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      },
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.context-menu-enabled",
+          "value": true
+        }
+      }
+    ],
+    "operator": "AND"
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-advanced-llm-separator",
+    "label": "Advanced LLM Settings"
+  },
+  {
+    "property": "extension.browse-bot.llm.temperature",
+    "label": "Temperature",
+    "type": "dropdown",
+    "defaultValue": 0.7,
+    "description": "Controls randomness: Lower values result in less random completions.",
+    "options": [
+      {
+        "value": 0,
+        "label": "0.0 (Very Deterministic)"
+      },
+      {
+        "value": 0.1,
+        "label": "0.1"
+      },
+      {
+        "value": 0.3,
+        "label": "0.3"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 0.7,
+        "label": "0.7 (Balanced)"
+      },
+      {
+        "value": 1,
+        "label": "1.0 (Very Creative)"
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.llm.top-p",
+    "label": "Top P",
+    "type": "dropdown",
+    "defaultValue": 1,
+    "description": "Nucleus sampling: limits token selection to top cumulative probability.",
+    "options": [
+      {
+        "value": 0.1,
+        "label": "0.1 (Very Restrictive)"
+      },
+      {
+        "value": 0.3,
+        "label": "0.3"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 0.7,
+        "label": "0.7"
+      },
+      {
+        "value": 0.9,
+        "label": "0.9"
+      },
+      {
+        "value": 0.95,
+        "label": "0.95"
+      },
+      {
+        "value": 1,
+        "label": "1.0 (No Limit)"
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.llm.top-k",
+    "label": "Top K",
+    "type": "dropdown",
+    "defaultValue": 40,
+    "description": "Limits sampling to the top K tokens.",
+    "options": [
+      {
+        "value": 0,
+        "label": "0 (Disabled)"
+      },
+      {
+        "value": 10,
+        "label": "10"
+      },
+      {
+        "value": 20,
+        "label": "20"
+      },
+      {
+        "value": 40,
+        "label": "40 (Default)"
+      },
+      {
+        "value": 50,
+        "label": "50"
+      },
+      {
+        "value": 100,
+        "label": "100"
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.llm.frequency-penalty",
+    "label": "Frequency Penalty",
+    "type": "dropdown",
+    "defaultValue": 0,
+    "description": "Penalizes new tokens based on their existing frequency in the text so far.",
+    "options": [
+      {
+        "value": -2,
+        "label": "-2.0 (Encourage Repetition)"
+      },
+      {
+        "value": -1,
+        "label": "-1.0"
+      },
+      {
+        "value": 0,
+        "label": "0.0 (No Penalty)"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 1,
+        "label": "1.0"
+      },
+      {
+        "value": 1.5,
+        "label": "1.5"
+      },
+      {
+        "value": 2,
+        "label": "2.0 (Strong Penalty)"
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.llm.presence-penalty",
+    "label": "Presence Penalty",
+    "type": "dropdown",
+    "defaultValue": 0,
+    "description": "Penalizes new tokens based on whether they appear in the text so far.",
+    "options": [
+      {
+        "value": -2,
+        "label": "-2.0 (Encourage New Topics)"
+      },
+      {
+        "value": -1,
+        "label": "-1.0"
+      },
+      {
+        "value": 0,
+        "label": "0.0 (No Penalty)"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 1,
+        "label": "1.0"
+      },
+      {
+        "value": 1.5,
+        "label": "1.5"
+      },
+      {
+        "value": 2,
+        "label": "2.0 (Strong Penalty)"
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.llm.max-output-tokens",
+    "label": "Max Output Tokens",
+    "type": "dropdown",
+    "defaultValue": 2048,
+    "description": "The maximum number of tokens to generate.",
+    "options": [
+      {
+        "value": 512,
+        "label": "512 (Short)"
+      },
+      {
+        "value": 1024,
+        "label": "1024"
+      },
+      {
+        "value": 2048,
+        "label": "2048 (Default)"
+      },
+      {
+        "value": 4096,
+        "label": "4096"
+      },
+      {
+        "value": 8192,
+        "label": "8192"
+      },
+      {
+        "value": 16384,
+        "label": "16384 (Long)"
+      }
+    ]
+  },
+  {
+    "type": "separator",
+    "id": "browse-bot-development-separator",
+    "label": "Development"
+  },
+  {
+    "property": "extension.browse-bot.debug-mode",
+    "label": "Enable Debug Mode",
+    "type": "checkbox",
+    "defaultValue": false,
+    "description": "Enables verbose logging in the Browser Console for troubleshooting."
+  },
+  {
+    "type": "text",
+    "label": "",
+    "margin": "30px 0 0 0"
+  },
+  {
+    "type": "text",
+    "label": "**Floating Sidebar**",
+    "size": "18px",
+    "margin": "20px 0 10px 0"
+  },
+  {
+    "type": "separator",
+    "margin": "0 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "extension.sidebar-right",
+    "label": "Float on the right side",
+    "defaultValue": false
+  },
+  {
+    "type": "text",
+    "label": "",
+    "margin": "30px 0 0 0"
+  },
+  {
+    "type": "text",
+    "label": "**Reopen Closed Tabs Menu**",
+    "size": "18px",
+    "margin": "20px 0 10px 0"
+  },
+  {
+    "type": "separator",
+    "margin": "0 0 15px 0"
+  },
+  {
+    "type": "text",
+    "label": "Configure the behavior of the Reopen Closed Tabs menu."
+  },
+  {
+    "type": "separator",
+    "label": "General Behavior",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "extensions.reopen-closed-tabs.show-open-tabs",
+    "label": "Show Open Tabs in Menu",
+    "defaultValue": false
+  },
+  {
+    "type": "text",
+    "property": "extensions.reopen-closed-tabs.shortcut-key",
+    "label": "Activation Shortcut",
+    "defaultValue": "Alt+A"
+  },
+  {
+    "type": "separator",
+    "label": "Development",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "checkbox",
+    "property": "extensions.reopen-closed-tabs.debug-mode",
+    "label": "Enable debug logging in Browser Console",
+    "defaultValue": false
+  },
+  {
+    "type": "text",
+    "label": "",
+    "margin": "30px 0 0 0"
+  },
+  {
+    "type": "text",
+    "label": "**Search Engine Select**",
+    "size": "18px",
+    "margin": "20px 0 10px 0"
+  },
+  {
+    "type": "separator",
+    "margin": "0 0 15px 0"
+  },
+  {
+    "property": "extension.search-engine-select.enabled",
+    "label": "Enable Search Engine Select",
+    "type": "checkbox",
+    "placeholder": false,
+    "defaultValue": true,
+    "description": "Globally enables or disables the floating search engine switcher UI."
+  },
+  {
+    "property": "extension.search-engine-select.remember-position",
+    "label": "Remember UI Position",
+    "type": "checkbox",
+    "placeholder": false,
+    "defaultValue": true,
+    "description": "Saves the vertical position of the switcher after you drag it.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.search-engine-select.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.search-engine-select.size",
+    "label": "UI Size",
+    "type": "dropdown",
+    "defaultValue": "normal",
+    "options": [
+      {
+        "label": "Small",
+        "value": "small"
+      },
+      {
+        "label": "Normal",
+        "value": "normal"
+      },
+      {
+        "label": "Large",
+        "value": "large"
+      }
+    ],
+    "description": "Adjust the overall size of the search engine switcher."
+  },
+  {
+    "property": "extension.search-engine-select.theme",
+    "label": "UI Theme",
+    "type": "dropdown",
+    "defaultValue": "dark",
+    "options": [
+      {
+        "label": "Dark",
+        "value": "dark"
+      },
+      {
+        "label": "Light",
+        "value": "light"
+      },
+      {
+        "label": "AMOLED",
+        "value": "amoled"
+      }
+    ],
+    "description": "Choose a visual style for the switcher."
+  },
+  {
+    "property": "extension.search-engine-select.debug-mode",
+    "label": "Enable Debug Mode",
+    "type": "checkbox",
+    "placeholder": false,
+    "defaultValue": false,
+    "description": "Outputs detailed script information to the Browser Console."
+  },
+  {
+    "type": "text",
+    "label": "",
+    "margin": "30px 0 0 0"
+  }
+]
