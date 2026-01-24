@@ -1,19 +1,38 @@
-# Mod Publishing Workflow
+# Development and Publishing Workflow
 
-This repository uses a GitHub Actions workflow to automate the publishing of mods to individual repositories in the [Vertex-Mods](https://github.com/Vertex-Mods) organization and to the Sine Store.
+This repository uses GitHub Actions workflows to automate code formatting, linting, and publishing of mods to individual repositories in the [Vertex-Mods](https://github.com/Vertex-Mods) organization.
 
-## Overview
+## Automated Workflows
 
-The workflow (`.github/workflows/publish-mods.yml`) runs a Node.js script (`.github/scripts/publish.js`) that detects changes in mod versions and performs the following actions:
+### 1. Code Quality (`.github/workflows/lint.yml`)
+
+- **Trigger**: Pull requests
+- **Actions**: Runs ESLint to ensure code quality
+- **Command**: `npm run lint`
+
+### 2. Auto Format and Theme Update (`.github/workflows/update-theme-and-format.yml`)
+
+- **Trigger**: Push to main branch, manual dispatch
+- **Actions**:
+  - Updates `updatedAt` field in all `theme.json` files based on git history
+  - Runs Prettier formatting (`npm run format`)
+  - Auto-commits changes
+
+### 3. Publish Mods (`.github/workflows/publish-mods.yml`)
+
+- **Trigger**: Manual dispatch only
+- **Actions**: Runs Node.js script (`.github/scripts/publish.js`) for publishing
+
+## Publishing Overview
+
+The publish workflow detects changes in mod versions and performs the following actions:
 
 1.  **Builds** the mod (if it involves JavaScript).
 2.  **Publishes** the mod to its dedicated repository under `Vertex-Mods`.
 3.  **Creates a GitHub Release** in the dedicated repository (if release notes are provided).
 4.  **Submits a Pull Request** to the Sine Store (for stable releases).
 
-## How to Publish a Mod
-
-To publish a new version of a mod:
+### Publishing a Mod
 
 1.  **Update `theme.json`**:
     - Increment the `"version"` field in the mod's `theme.json` file.
@@ -27,10 +46,11 @@ To publish a new version of a mod:
     - After publishing, the workflow will automatically clear this file in the main repository.
 
 3.  **Commit and Push**:
-    - Commit your changes.
+    - Commit your changes (formatting will be auto-applied if needed).
     - Push to the `main` branch.
+    - Wait for auto-format and lint workflows to complete.
 
-4.  **Trigger the Workflow**:
+4.  **Trigger the Publish Workflow**:
     - Go to the **Actions** tab in the GitHub repository.
     - Select **Publish Mods**.
     - Click **Run workflow**.
@@ -74,6 +94,6 @@ For stable releases (and where `"js"` is not false), the workflow checks the con
 
 ## Troubleshooting
 
-- **Workflow Fails**: Check the Action logs. Common issues include missing secrets (`PAT_TOKEN`), build errors, or git conflicts.
-- **Repo Creation Failed**: Ensure the `PAT_TOKEN` has `repo` and `delete_repo` (optional) permissions and the user has access to the `Vertex-Mods` organization.
+- **Workflow Fails**: Check the Action logs. Common issues include missing secrets (`GITHUB_TOKEN`), build errors, or git conflicts.
+- **Repo Creation Failed**: Ensure the `GITHUB_TOKEN` has `repo` and `delete_repo` permissions and the user has access to the `Vertex-Mods` organization.
 - **No Changes Detected**: Ensure you incremented the version in `theme.json`. The workflow compares the current version with the version in the previous commit.
