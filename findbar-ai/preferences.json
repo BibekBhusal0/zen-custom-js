@@ -782,7 +782,7 @@
   },
   {
     "property": "extension.browse-bot.findbar-ai.citations-enabled",
-    "label": "Citations (*EXPERIMENTAL*)",
+    "label": "Citations",
     "type": "checkbox",
     "defaultValue": false,
     "description": "The AI will provide a link in its response pointing to the source text on the page.",
@@ -843,9 +843,35 @@
   {
     "property": "extension.browse-bot.findbar-ai.max-tool-calls",
     "label": "Max Tool Calls",
-    "type": "number",
+    "type": "dropdown",
     "defaultValue": 5,
     "description": "The maximum number of consecutive tool calls the AI can make in one turn.",
+    "options": [
+      {
+        "value": 1,
+        "label": "1"
+      },
+      {
+        "value": 2,
+        "label": "2"
+      },
+      {
+        "value": 3,
+        "label": "3"
+      },
+      {
+        "value": 5,
+        "label": "5"
+      },
+      {
+        "value": 10,
+        "label": "10"
+      }
+      ,{
+        "value": 20,
+        "label": "20"
+      }
+    ],
     "conditions": [
       {
         "if": {
@@ -936,7 +962,7 @@
   },
   {
     "property": "extension.browse-bot.findbar-ai.position",
-    "label": "Snap-to Corner",
+    "label": "Corner Position",
     "type": "dropdown",
     "defaultValue": "top-right",
     "description": "The corner the findbar will snap to after being dragged.",
@@ -1098,44 +1124,212 @@
   {
     "property": "extension.browse-bot.llm.temperature",
     "label": "Temperature",
-    "type": "number",
+    "type": "dropdown",
     "defaultValue": 0.7,
-    "description": "Controls randomness: Lower values result in less random completions."
+    "description": "Controls randomness: Lower values result in less random completions.",
+    "options": [
+      {
+        "value": 0.0,
+        "label": "0.0 (Very Deterministic)"
+      },
+      {
+        "value": 0.1,
+        "label": "0.1"
+      },
+      {
+        "value": 0.3,
+        "label": "0.3"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 0.7,
+        "label": "0.7 (Balanced)"
+      },
+      {
+        "value": 1.0,
+        "label": "1.0 (Very Creative)"
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.llm.top-p",
     "label": "Top P",
-    "type": "number",
+    "type": "dropdown",
     "defaultValue": 1.0,
-    "description": "Nucleus sampling: limits token selection to top cumulative probability."
+    "description": "Nucleus sampling: limits token selection to top cumulative probability.",
+    "options": [
+      {
+        "value": 0.1,
+        "label": "0.1 (Very Restrictive)"
+      },
+      {
+        "value": 0.3,
+        "label": "0.3"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 0.7,
+        "label": "0.7"
+      },
+      {
+        "value": 0.9,
+        "label": "0.9"
+      },
+      {
+        "value": 0.95,
+        "label": "0.95"
+      },
+      {
+        "value": 1.0,
+        "label": "1.0 (No Limit)"
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.llm.top-k",
     "label": "Top K",
-    "type": "number",
+    "type": "dropdown",
     "defaultValue": 40,
-    "description": "Limits sampling to the top K tokens."
+    "description": "Limits sampling to the top K tokens.",
+    "options": [
+      {
+        "value": 0,
+        "label": "0 (Disabled)"
+      },
+      {
+        "value": 10,
+        "label": "10"
+      },
+      {
+        "value": 20,
+        "label": "20"
+      },
+      {
+        "value": 40,
+        "label": "40 (Default)"
+      },
+      {
+        "value": 50,
+        "label": "50"
+      },
+      {
+        "value": 100,
+        "label": "100"
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.llm.frequency-penalty",
     "label": "Frequency Penalty",
-    "type": "number",
+    "type": "dropdown",
     "defaultValue": 0.0,
-    "description": "Penalizes new tokens based on their existing frequency in the text so far."
+    "description": "Penalizes new tokens based on their existing frequency in the text so far.",
+    "options": [
+      {
+        "value": -2.0,
+        "label": "-2.0 (Encourage Repetition)"
+      },
+      {
+        "value": -1.0,
+        "label": "-1.0"
+      },
+      {
+        "value": 0.0,
+        "label": "0.0 (No Penalty)"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 1.0,
+        "label": "1.0"
+      },
+      {
+        "value": 1.5,
+        "label": "1.5"
+      },
+      {
+        "value": 2.0,
+        "label": "2.0 (Strong Penalty)"
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.llm.presence-penalty",
     "label": "Presence Penalty",
-    "type": "number",
+    "type": "dropdown",
     "defaultValue": 0.0,
-    "description": "Penalizes new tokens based on whether they appear in the text so far."
+    "description": "Penalizes new tokens based on whether they appear in the text so far.",
+    "options": [
+      {
+        "value": -2.0,
+        "label": "-2.0 (Encourage New Topics)"
+      },
+      {
+        "value": -1.0,
+        "label": "-1.0"
+      },
+      {
+        "value": 0.0,
+        "label": "0.0 (No Penalty)"
+      },
+      {
+        "value": 0.5,
+        "label": "0.5"
+      },
+      {
+        "value": 1.0,
+        "label": "1.0"
+      },
+      {
+        "value": 1.5,
+        "label": "1.5"
+      },
+      {
+        "value": 2.0,
+        "label": "2.0 (Strong Penalty)"
+      }
+    ]
   },
   {
     "property": "extension.browse-bot.llm.max-output-tokens",
     "label": "Max Output Tokens",
-    "type": "number",
+    "type": "dropdown",
     "defaultValue": 2048,
-    "description": "The maximum number of tokens to generate."
+    "description": "The maximum number of tokens to generate.",
+    "options": [
+      {
+        "value": 512,
+        "label": "512 (Short)"
+      },
+      {
+        "value": 1024,
+        "label": "1024"
+      },
+      {
+        "value": 2048,
+        "label": "2048 (Default)"
+      },
+      {
+        "value": 4096,
+        "label": "4096"
+      },
+      {
+        "value": 8192,
+        "label": "8192"
+      },
+      {
+        "value": 16384,
+        "label": "16384 (Long)"
+      }
+    ]
   },
   {
     "type": "separator",
