@@ -3340,16 +3340,18 @@ sidebarWidthUpdate();
 
 function parseMD(markdown, convertHTML = true) {
   let htmlContent = parseElement(`<div class="markdown-body"></div>`);
-  // try {
-  const parse = ChromeUtils.importESModule("chrome://userscripts/content/engine/utils/dom.mjs")
-    .default.parseMD;
-  const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
-  parse(htmlContent, markdown, "", browserWindow || window);
-  // } catch {
-  //   PREFS.debugLog("Parsing markdown failed");
-  //   htmlContent.innerHTML = markdown;
-  // }
-  return htmlContent;
+  try {
+    const parse = ChromeUtils.importESModule("chrome://userscripts/content/engine/utils/dom.mjs")
+      .default.parseMD;
+    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+    parse(htmlContent, markdown, "", browserWindow || window);
+  } catch {
+    PREFS.debugLog("Parsing markdown failed");
+    htmlContent.innerHTML = markdown;
+  }
+
+  if (convertHTML) return htmlContent;
+  else return htmlContent.innerHTML;
 }
 
 PREFS.setInitialPrefs();
