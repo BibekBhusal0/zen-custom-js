@@ -447,11 +447,11 @@ export async function generateSineCommands() {
   const commands = [];
   const installedMods = await SineAPI.utils.getMods();
 
-  const marketplace = window.SineAPI?.manager?.marketplace
+  const marketplace = window.SineAPI?.manager?.marketplace;
 
   if (marketplace) {
-    if (!marketplace.items) marketplace.init()
-    const mods = marketplace.items
+    if (!marketplace.items) marketplace.init();
+    const mods = marketplace.items;
     for (const modId in mods) {
       if (!installedMods[modId]) {
         const mod = mods[modId];
@@ -459,7 +459,7 @@ export async function generateSineCommands() {
           key: `sine:install:${modId}`,
           label: `Install Sine Mod: ${mod.name}`,
           command: () => {
-            SineAPI.manager.installMod(mod.homepage)
+            SineAPI.manager.installMod(mod.homepage);
           },
           icon: svgToUrl(icons.sine),
           tags: ["sine", "install", "mod", mod.name.toLowerCase()],

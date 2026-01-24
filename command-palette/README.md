@@ -70,7 +70,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.           |
 | `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.     |
 | `zen-command-palette.dynamic.folders`                  | Boolean | `true`                              | Automatically generate commands for managing Folders.                        |
-| `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for installing/uninstalling sine mods.                  |
+| `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for installing/uninstalling sine mods.       |
 | `zen-command-palette.dynamic.container-tabs`           | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.          |
 | `zen-command-palette.dynamic.active-tabs`              | Boolean | `false`                             | Automatically generate commands for switching between active tabs.           |
 | `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |

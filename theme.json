@@ -10,40 +10,22 @@
   },
   "scripts": {
     "command-palette/index.js": {
-      "include": [
-        "chrome://browser/content/browser.xhtml",
-        "chrome://browser/content/browser.xul"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
     },
     "floating-sidebar/index.js": {
-      "include": [
-        "chrome://browser/content/browser.xhtml",
-        "chrome://browser/content/browser.xul"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
     },
     "reopen-closed-tabs/index.js": {
-      "include": [
-        "chrome://browser/content/browser.xhtml",
-        "chrome://browser/content/browser.xul"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
     },
     "search-engine-select/index.js": {
-      "include": [
-        "chrome://browser/content/browser.xhtml",
-        "chrome://browser/content/browser.xul"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
     },
     "dist/browse-bot.uc.mjs": {
-      "include": [
-        "chrome://browser/content/browser.xhtml",
-        "chrome://browser/content/browser.xul"
-      ]
+      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
     },
     "settings-shortcuts-search/index.js": {
-      "include": [
-        "about:preferences*",
-        "about:settings*"
-      ]
+      "include": ["about:preferences*", "about:settings*"]
     }
   },
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/README.md",
