@@ -9,15 +9,27 @@
   },
   "scripts": {
     "zen-command-palette.uc.js": {
-      "include": ["chrome://browser/content/browser.xhtml"]
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ]
     }
   },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Zen-Command-Palette/main/readme.md",
   "author": "Bibek Bhusal",
   "version": "1.8.2b",
-  "tags": ["command", "palette", "raycast", "arc", "productivity", "zen browser", "urlbar"],
+  "tags": [
+    "command",
+    "palette",
+    "raycast",
+    "arc",
+    "productivity",
+    "zen browser",
+    "urlbar"
+  ],
   "createdAt": "2024-09-07",
-  "updatedAt": "2026-01-16",
-  "fork": ["zen"],
+  "updatedAt": "2026-01-24",
+  "fork": [
+    "zen"
+  ],
   "onlyonce": true
 }
