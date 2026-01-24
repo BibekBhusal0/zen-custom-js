@@ -26,7 +26,7 @@ export const getPref = (key, defaultValue) => {
           return prefService.getBoolPref(key);
       }
     }
-  } catch (e) {
+  } catch {
     return defaultValue;
   }
   return defaultValue;

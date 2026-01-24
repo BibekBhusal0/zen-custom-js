@@ -92,6 +92,7 @@ function combinePreferences() {
   return combinedPreferences;
 }
 
+// eslint-disable-next-line no-undef
 if (import.meta.url === `file://${process.argv[1]}`) {
   combinePreferences();
 }

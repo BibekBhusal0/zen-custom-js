@@ -38,6 +38,8 @@ export default [
         content: "readonly",
         addMessageListener: "readonly",
         sendAsyncMessage: "readonly",
+        JSWindowActorChild: "readonly",
+        JSWindowActorParent: "readonly",
       },
     },
   },

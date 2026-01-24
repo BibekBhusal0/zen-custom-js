@@ -11,7 +11,7 @@ function defineModuleGettersWithFallback(target, modules) {
           delete target[key];
           target[key] = module[key];
           return module[key];
-        } catch (err) {
+        } catch {
           let module = ChromeUtils.importESModule(spec.fallback);
           delete target[key];
           target[key] = module[key];
