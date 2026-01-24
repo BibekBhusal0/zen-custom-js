@@ -3,6 +3,7 @@ import { PREFS } from "./utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
 import { ZenCommandPalette } from "./index.js";
+import { showToast } from "../utils/toast.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -60,10 +61,11 @@ const commandChainUtils = {
   async showToast(params) {
     const { title, description } = params;
     if (!title || !description) return;
-    if (window.ucAPI?.showToast) {
-      window.ucAPI.showToast([title || "", description || ""], 0);
-    } else {
-      PREFS.debugError("ucAPI.showToast is not available.");
+
+    try {
+      showToast({title: title, description: description});
+    } catch (e) {
+      PREFS.debugError("Failed to show toast:", e);
       alert([title, description], 0);
     }
   },
@@ -473,17 +475,25 @@ export async function generateSineCommands() {
     commands.push({
       key: `sine:uninstall:${modId}`,
       label: `Uninstall Sine Mod: ${mod.name}`,
-      command: () => {
-        if (window.confirm(`Are you sure you want to remove the Sine mod "${mod.name}"?`)) {
-          SineAPI.manager.removeMod(mod.id).then(() => {
+      command: async () => {
+        if (window.confirm(`Are you sure you want to remove Sine mod "${mod.name}"?`)) {
+          try {
+            await SineAPI.manager.removeMod(mod.id);
             SineAPI.manager.rebuildMods();
             if (mod.js) {
-              ucAPI.showToast([
-                `"${mod.name}" has been removed.`,
-                "A restart is recommended to fully unload its scripts.",
-              ]);
+              try {
+                showToast({
+                  title: `"${mod.name}" has been removed.`,
+                  description: "A restart is recommended to fully unload its scripts.",
+                  preset: 1,
+                });
+              } catch (e) {
+                PREFS.debugError("Failed to show toast:", e);
+              }
             }
-          });
+          } catch (e) {
+            PREFS.debugError("Failed to remove mod:", e);
+          }
         }
       },
       icon: svgToUrl(icons.sine),
@@ -632,7 +642,7 @@ export async function generateCustomCommands() {
   return customCommands.map((cmd) => {
     let commandFunc;
     if (cmd.type === "js") {
-      commandFunc = () => {
+      commandFunc = async () => {
         try {
           const Cu = Components.utils;
           const sandbox = Cu.Sandbox(window, {
@@ -641,9 +651,13 @@ export async function generateCustomCommands() {
           });
           Cu.evalInSandbox(cmd.code, sandbox);
         } catch (e) {
-          PREFS.debugError(`Error executing custom JS command "${cmd.name}":`, e);
-          if (window.ucAPI?.showToast) {
-            window.ucAPI.showToast(`Custom command error: ${e.message}`);
+          try {
+            showToast({
+              title: `Custom command error: ${e.message}`,
+              preset: 0,
+            });
+          } catch (toastError) {
+            PREFS.debugError("Failed to show toast:", toastError);
           }
         }
       };

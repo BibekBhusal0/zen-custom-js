@@ -2,6 +2,7 @@ import { tool } from "ai";
 import { z } from "zod";
 import { messageManagerAPI } from "../messageManager.js";
 import { PREFS } from "../utils/prefs.js";
+import { showToast } from "../../utils/toast.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
@@ -846,27 +847,22 @@ async function fillForm(args) {
  * @param {string} [args.description] - Optional secondary text for the toast.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
-async function showToast(args) {
+async function showCustomToast(args) {
   const { title, description } = args;
   if (!title) return { error: "showToast requires a title." };
 
   try {
-    if (window.ucAPI && typeof window.ucAPI.showToast === "function") {
-      // ucAPI.showToast takes an array [title, description] and a preset.
-      // Preset 0 means no button will be shown.
-      // https://github.com/CosmoCreeper/Sine/blob/main/engine/utils/uc_api.js#L102
-      window.ucAPI.showToast([title, description], 0);
-      return { result: "Toast displayed successfully." };
-    } else {
-      PREFS.debugError("ucAPI.showToast is not available.");
-      return { error: "Toast functionality is not available." };
-    }
+    showToast({
+      title,
+      description,
+      preset: 0,
+    });
+    return { result: "Toast displayed successfully." };
   } catch (e) {
     PREFS.debugError("Failed to show toast:", e);
     return { error: "An error occurred while displaying the toast." };
   }
 }
-
 // ╭─────────────────────────────────────────────────────────╮
 // │                         YOUTUBE                         │
 // ╰─────────────────────────────────────────────────────────╯
@@ -1284,7 +1280,7 @@ If tab is essential which means does not belong to any specific workspace.
           title: createStringParameter("The main title of the toast message."),
           description: createStringParameter("Optional secondary text for the toast.", true),
         },
-        showToast
+        showCustomToast
       ),
     },
     example: async () => `#### Showing a Toast Notification:

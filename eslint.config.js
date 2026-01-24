@@ -19,7 +19,6 @@ export default [
         gZenFolders: "readonly",
         gZenWorkspaces: "readonly",
         gContextMenu: "readonly",
-        ucAPI: "readonly",
         SineAPI: "readonly",
         openTrustedLinkIn: "readonly",
         switchToTabHavingURI: "readonly",

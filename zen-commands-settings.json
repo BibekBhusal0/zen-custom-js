@@ -41,6 +41,13 @@
             "link": "about:config",
             "where": "new tab"
           }
+        },
+        {
+          "action": "showToast",
+          "params": {
+            "title": "Advanced settings opened",
+            "description": "Be careful while changing settings"
+          }
         }
       ],
       "icon": "chrome://browser/skin/zen-icons/settings.svg"
