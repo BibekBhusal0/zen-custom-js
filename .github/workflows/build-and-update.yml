@@ -40,7 +40,7 @@ jobs:
           commit_message: "chore: Update browsebot build"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           file_pattern: "dist/browse-bot*.uc.*"
 
       - name: Commit preferences changes
@@ -49,5 +49,5 @@ jobs:
           commit_message: "chore: Update combined preferences"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           file_pattern: "preferences.json"
