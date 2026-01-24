@@ -468,7 +468,7 @@ export async function generateSineCommands() {
     }
   } else {
     PREFS.debugLog(
-      "zen-command-palette: Global Sine object not found. 'Install' commands will be unavailable."
+      "Sine marketplace object not found. 'Install' commands will be unavailable."
     );
   }
 
