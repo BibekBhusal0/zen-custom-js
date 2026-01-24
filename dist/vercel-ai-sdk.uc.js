@@ -1,8 +1,8 @@
 // src/errors/ai-sdk-error.ts
-var marker$b = "vercel.ai.error";
-var symbol$b = Symbol.for(marker$b);
-var _a$c, _b$a;
-var AISDKError$6 = class _AISDKError extends (_b$a = Error, _a$c = symbol$b, _b$a) {
+var marker$3 = "vercel.ai.error";
+var symbol$3 = Symbol.for(marker$3);
+var _a$4, _b$2;
+var AISDKError = class _AISDKError extends (_b$2 = Error, _a$4 = symbol$3, _b$2) {
   /**
    * Creates an AI SDK Error.
    *
@@ -17,7 +17,7 @@ var AISDKError$6 = class _AISDKError extends (_b$a = Error, _a$c = symbol$b, _b$
     cause
   }) {
     super(message);
-    this[_a$c] = true;
+    this[_a$4] = true;
     this.name = name14;
     this.cause = cause;
   }
@@ -27,7 +27,7 @@ var AISDKError$6 = class _AISDKError extends (_b$a = Error, _a$c = symbol$b, _b$
    * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
    */
   static isInstance(error) {
-    return _AISDKError.hasMarker(error, marker$b);
+    return _AISDKError.hasMarker(error, marker$3);
   }
   static hasMarker(error, marker15) {
     const markerSymbol = Symbol.for(marker15);
@@ -36,11 +36,11 @@ var AISDKError$6 = class _AISDKError extends (_b$a = Error, _a$c = symbol$b, _b$
 };
 
 // src/errors/api-call-error.ts
-var name$b = "AI_APICallError";
-var marker2$7 = `vercel.ai.error.${name$b}`;
-var symbol2$7 = Symbol.for(marker2$7);
-var _a2$7, _b2$7;
-var APICallError$6 = class APICallError extends (_b2$7 = AISDKError$6, _a2$7 = symbol2$7, _b2$7) {
+var name$3 = "AI_APICallError";
+var marker2$1 = `vercel.ai.error.${name$3}`;
+var symbol2$1 = Symbol.for(marker2$1);
+var _a2$1, _b2$1;
+var APICallError = class extends (_b2$1 = AISDKError, _a2$1 = symbol2$1, _b2$1) {
   constructor({
     message,
     url,
@@ -56,8 +56,8 @@ var APICallError$6 = class APICallError extends (_b2$7 = AISDKError$6, _a2$7 = s
     // server error
     data
   }) {
-    super({ name: name$b, message, cause });
-    this[_a2$7] = true;
+    super({ name: name$3, message, cause });
+    this[_a2$1] = true;
     this.url = url;
     this.requestBodyValues = requestBodyValues;
     this.statusCode = statusCode;
@@ -67,28 +67,28 @@ var APICallError$6 = class APICallError extends (_b2$7 = AISDKError$6, _a2$7 = s
     this.data = data;
   }
   static isInstance(error) {
-    return AISDKError$6.hasMarker(error, marker2$7);
+    return AISDKError.hasMarker(error, marker2$1);
   }
 };
 
 // src/errors/empty-response-body-error.ts
-var name2$5 = "AI_EmptyResponseBodyError";
-var marker3$6 = `vercel.ai.error.${name2$5}`;
-var symbol3$6 = Symbol.for(marker3$6);
-var _a3$6, _b3$5;
-var EmptyResponseBodyError$4 = class EmptyResponseBodyError extends (_b3$5 = AISDKError$6, _a3$6 = symbol3$6, _b3$5) {
+var name2$1 = "AI_EmptyResponseBodyError";
+var marker3$2 = `vercel.ai.error.${name2$1}`;
+var symbol3$2 = Symbol.for(marker3$2);
+var _a3$2, _b3$1;
+var EmptyResponseBodyError = class extends (_b3$1 = AISDKError, _a3$2 = symbol3$2, _b3$1) {
   // used in isInstance
   constructor({ message = "Empty response body" } = {}) {
-    super({ name: name2$5, message });
-    this[_a3$6] = true;
+    super({ name: name2$1, message });
+    this[_a3$2] = true;
   }
   static isInstance(error) {
-    return AISDKError$6.hasMarker(error, marker3$6);
+    return AISDKError.hasMarker(error, marker3$2);
   }
 };
 
 // src/errors/get-error-message.ts
-function getErrorMessage$7(error) {
+function getErrorMessage$1(error) {
   if (error == null) {
     return "unknown error";
   }
@@ -102,64 +102,163 @@ function getErrorMessage$7(error) {
 }
 
 // src/errors/invalid-argument-error.ts
-var name3$8 = "AI_InvalidArgumentError";
-var marker4$8 = `vercel.ai.error.${name3$8}`;
-var symbol4$8 = Symbol.for(marker4$8);
-var _a4$8, _b4$7;
-var InvalidArgumentError$7 = class InvalidArgumentError extends (_b4$7 = AISDKError$6, _a4$8 = symbol4$8, _b4$7) {
+var name3$2 = "AI_InvalidArgumentError";
+var marker4$2 = `vercel.ai.error.${name3$2}`;
+var symbol4$2 = Symbol.for(marker4$2);
+var _a4$2, _b4$1;
+var InvalidArgumentError$1 = class InvalidArgumentError extends (_b4$1 = AISDKError, _a4$2 = symbol4$2, _b4$1) {
   constructor({
     message,
     cause,
     argument
   }) {
-    super({ name: name3$8, message, cause });
-    this[_a4$8] = true;
+    super({ name: name3$2, message, cause });
+    this[_a4$2] = true;
     this.argument = argument;
   }
   static isInstance(error) {
-    return AISDKError$6.hasMarker(error, marker4$8);
+    return AISDKError.hasMarker(error, marker4$2);
+  }
+};
+
+// src/errors/invalid-prompt-error.ts
+var name4$2 = "AI_InvalidPromptError";
+var marker5$2 = `vercel.ai.error.${name4$2}`;
+var symbol5$2 = Symbol.for(marker5$2);
+var _a5$2, _b5$1;
+var InvalidPromptError = class extends (_b5$1 = AISDKError, _a5$2 = symbol5$2, _b5$1) {
+  constructor({
+    prompt,
+    message,
+    cause
+  }) {
+    super({ name: name4$2, message: `Invalid prompt: ${message}`, cause });
+    this[_a5$2] = true;
+    this.prompt = prompt;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker5$2);
+  }
+};
+
+// src/errors/invalid-response-data-error.ts
+var name5$2 = "AI_InvalidResponseDataError";
+var marker6$2 = `vercel.ai.error.${name5$2}`;
+var symbol6$2 = Symbol.for(marker6$2);
+var _a6$2, _b6$1;
+var InvalidResponseDataError = class extends (_b6$1 = AISDKError, _a6$2 = symbol6$2, _b6$1) {
+  constructor({
+    data,
+    message = `Invalid response data: ${JSON.stringify(data)}.`
+  }) {
+    super({ name: name5$2, message });
+    this[_a6$2] = true;
+    this.data = data;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker6$2);
   }
 };
 
 // src/errors/json-parse-error.ts
-var name6$8 = "AI_JSONParseError";
-var marker7$7 = `vercel.ai.error.${name6$8}`;
-var symbol7$7 = Symbol.for(marker7$7);
-var _a7$7, _b7$7;
-var JSONParseError$6 = class JSONParseError extends (_b7$7 = AISDKError$6, _a7$7 = symbol7$7, _b7$7) {
+var name6$2 = "AI_JSONParseError";
+var marker7$1 = `vercel.ai.error.${name6$2}`;
+var symbol7$1 = Symbol.for(marker7$1);
+var _a7$1, _b7$1;
+var JSONParseError = class extends (_b7$1 = AISDKError, _a7$1 = symbol7$1, _b7$1) {
   constructor({ text, cause }) {
     super({
-      name: name6$8,
+      name: name6$2,
       message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage$7(cause)}`,
+Error message: ${getErrorMessage$1(cause)}`,
       cause
     });
-    this[_a7$7] = true;
+    this[_a7$1] = true;
     this.text = text;
   }
   static isInstance(error) {
-    return AISDKError$6.hasMarker(error, marker7$7);
+    return AISDKError.hasMarker(error, marker7$1);
+  }
+};
+
+// src/errors/load-api-key-error.ts
+var name7 = "AI_LoadAPIKeyError";
+var marker8$1 = `vercel.ai.error.${name7}`;
+var symbol8$1 = Symbol.for(marker8$1);
+var _a8$1, _b8;
+var LoadAPIKeyError = class extends (_b8 = AISDKError, _a8$1 = symbol8$1, _b8) {
+  // used in isInstance
+  constructor({ message }) {
+    super({ name: name7, message });
+    this[_a8$1] = true;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker8$1);
+  }
+};
+
+// src/errors/no-such-model-error.ts
+var name10$1 = "AI_NoSuchModelError";
+var marker11$1 = `vercel.ai.error.${name10$1}`;
+var symbol11$1 = Symbol.for(marker11$1);
+var _a11$1, _b11;
+var NoSuchModelError = class extends (_b11 = AISDKError, _a11$1 = symbol11$1, _b11) {
+  constructor({
+    errorName = name10$1,
+    modelId,
+    modelType,
+    message = `No such ${modelType}: ${modelId}`
+  }) {
+    super({ name: errorName, message });
+    this[_a11$1] = true;
+    this.modelId = modelId;
+    this.modelType = modelType;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker11$1);
+  }
+};
+
+// src/errors/too-many-embedding-values-for-call-error.ts
+var name11$1 = "AI_TooManyEmbeddingValuesForCallError";
+var marker12$1 = `vercel.ai.error.${name11$1}`;
+var symbol12$1 = Symbol.for(marker12$1);
+var _a12$1, _b12;
+var TooManyEmbeddingValuesForCallError = class extends (_b12 = AISDKError, _a12$1 = symbol12$1, _b12) {
+  constructor(options) {
+    super({
+      name: name11$1,
+      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+    });
+    this[_a12$1] = true;
+    this.provider = options.provider;
+    this.modelId = options.modelId;
+    this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
+    this.values = options.values;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker12$1);
   }
 };
 
 // src/errors/type-validation-error.ts
-var name12$7 = "AI_TypeValidationError";
-var marker13$6 = `vercel.ai.error.${name12$7}`;
-var symbol13$6 = Symbol.for(marker13$6);
-var _a13$6, _b13$6;
-var TypeValidationError$6 = class _TypeValidationError extends (_b13$6 = AISDKError$6, _a13$6 = symbol13$6, _b13$6) {
+var name12$1 = "AI_TypeValidationError";
+var marker13 = `vercel.ai.error.${name12$1}`;
+var symbol13 = Symbol.for(marker13);
+var _a13, _b13;
+var TypeValidationError = class _TypeValidationError extends (_b13 = AISDKError, _a13 = symbol13, _b13) {
   constructor({ value, cause }) {
     super({
-      name: name12$7,
+      name: name12$1,
       message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$7(cause)}`,
+Error message: ${getErrorMessage$1(cause)}`,
       cause
     });
-    this[_a13$6] = true;
+    this[_a13] = true;
     this.value = value;
   }
   static isInstance(error) {
-    return AISDKError$6.hasMarker(error, marker13$6);
+    return AISDKError.hasMarker(error, marker13);
   }
   /**
    * Wraps an error into a TypeValidationError.
@@ -176,6 +275,25 @@ Error message: ${getErrorMessage$7(cause)}`,
     cause
   }) {
     return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
+  }
+};
+
+// src/errors/unsupported-functionality-error.ts
+var name13 = "AI_UnsupportedFunctionalityError";
+var marker14$1 = `vercel.ai.error.${name13}`;
+var symbol14$1 = Symbol.for(marker14$1);
+var _a14$1, _b14;
+var UnsupportedFunctionalityError = class extends (_b14 = AISDKError, _a14$1 = symbol14$1, _b14) {
+  constructor({
+    functionality,
+    message = `'${functionality}' functionality not supported.`
+  }) {
+    super({ name: name13, message });
+    this[_a14$1] = true;
+    this.functionality = functionality;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker14$1);
   }
 };
 
@@ -744,7 +862,7 @@ function formatError(error, mapper = (issue) => issue.message) {
     return fieldErrors;
 }
 
-const _parse$7 = (_Err) => (schema, value, _ctx, _params) => {
+const _parse$1 = (_Err) => (schema, value, _ctx, _params) => {
     const ctx = _ctx ? Object.assign(_ctx, { async: false }) : { async: false };
     const result = schema._zod.run({ value, issues: [] }, ctx);
     if (result instanceof Promise) {
@@ -798,10 +916,10 @@ const _safeParseAsync = (_Err) => async (schema, value, _ctx) => {
 const safeParseAsync$1 = /* @__PURE__*/ _safeParseAsync($ZodRealError);
 const _encode = (_Err) => (schema, value, _ctx) => {
     const ctx = _ctx ? Object.assign(_ctx, { direction: "backward" }) : { direction: "backward" };
-    return _parse$7(_Err)(schema, value, ctx);
+    return _parse$1(_Err)(schema, value, ctx);
 };
 const _decode = (_Err) => (schema, value, _ctx) => {
-    return _parse$7(_Err)(schema, value, _ctx);
+    return _parse$1(_Err)(schema, value, _ctx);
 };
 const _encodeAsync = (_Err) => async (schema, value, _ctx) => {
     const ctx = _ctx ? Object.assign(_ctx, { direction: "backward" }) : { direction: "backward" };
@@ -1353,7 +1471,7 @@ class Doc {
 const version = {
     major: 4,
     minor: 3,
-    patch: 5,
+    patch: 6,
 };
 
 const $ZodType = /*@__PURE__*/ $constructor("$ZodType", (inst, def) => {
@@ -2541,11 +2659,9 @@ const $ZodRecord = /*@__PURE__*/ $constructor("$ZodRecord", (inst, def) => {
                 if (keyResult instanceof Promise) {
                     throw new Error("Async schemas not supported in object keys currently");
                 }
-                // Numeric string fallback: if key failed with "expected number", retry with Number(key)
-                const checkNumericKey = typeof key === "string" &&
-                    number$2.test(key) &&
-                    keyResult.issues.length &&
-                    keyResult.issues.some((iss) => iss.code === "invalid_type" && iss.expected === "number");
+                // Numeric string fallback: if key is a numeric string and failed, retry with Number(key)
+                // This handles z.number(), z.literal([1, 2, 3]), and unions containing numeric literals
+                const checkNumericKey = typeof key === "string" && number$2.test(key) && keyResult.issues.length;
                 if (checkNumericKey) {
                     const retryResult = def.keyType._zod.run({ value: Number(key), issues: [] }, ctx);
                     if (retryResult instanceof Promise) {
@@ -2936,7 +3052,7 @@ function handleRefineResult(result, payload, input, inst) {
     }
 }
 
-var _a$b;
+var _a$3;
 class $ZodRegistry {
     constructor() {
         this._map = new WeakMap();
@@ -2983,7 +3099,7 @@ class $ZodRegistry {
 function registry() {
     return new $ZodRegistry();
 }
-(_a$b = globalThis).__zod_globalRegistry ?? (_a$b.__zod_globalRegistry = registry());
+(_a$3 = globalThis).__zod_globalRegistry ?? (_a$3.__zod_globalRegistry = registry());
 const globalRegistry = globalThis.__zod_globalRegistry;
 
 // @__NO_SIDE_EFFECTS__
@@ -3790,7 +3906,7 @@ function finalize(ctx, schema) {
                 }
             }
             // When ref was extracted to $defs, remove properties that match the definition
-            if (refSchema.$ref) {
+            if (refSchema.$ref && refSeen.def) {
                 for (const key in schema) {
                     if (key === "$ref" || key === "allOf")
                         continue;
@@ -4641,7 +4757,7 @@ const ZodRealError = $constructor("ZodError", initializer, {
 // /** @deprecated Use `z.core.$ZodErrorMapCtx` instead. */
 // export type ErrorMapCtx = core.$ZodErrorMapCtx;
 
-const parse = /* @__PURE__ */ _parse$7(ZodRealError);
+const parse = /* @__PURE__ */ _parse$1(ZodRealError);
 const parseAsync = /* @__PURE__ */ _parseAsync(ZodRealError);
 const safeParse = /* @__PURE__ */ _safeParse(ZodRealError);
 const safeParseAsync = /* @__PURE__ */ _safeParseAsync(ZodRealError);
@@ -5794,7 +5910,7 @@ class EventSourceParserStream extends TransformStream {
 }
 
 // src/combine-headers.ts
-function combineHeaders$5(...headers) {
+function combineHeaders(...headers) {
   return headers.reduce(
     (combinedHeaders, currentHeaders) => ({
       ...combinedHeaders,
@@ -5804,21 +5920,198 @@ function combineHeaders$5(...headers) {
   );
 }
 
+// src/create-tool-name-mapping.ts
+function createToolNameMapping({
+  tools = [],
+  providerToolNames
+}) {
+  const customToolNameToProviderToolName = {};
+  const providerToolNameToCustomToolName = {};
+  for (const tool2 of tools) {
+    if (tool2.type === "provider" && tool2.id in providerToolNames) {
+      const providerToolName = providerToolNames[tool2.id];
+      customToolNameToProviderToolName[tool2.name] = providerToolName;
+      providerToolNameToCustomToolName[providerToolName] = tool2.name;
+    }
+  }
+  return {
+    toProviderToolName: (customToolName) => {
+      var _a2;
+      return (_a2 = customToolNameToProviderToolName[customToolName]) != null ? _a2 : customToolName;
+    },
+    toCustomToolName: (providerToolName) => {
+      var _a2;
+      return (_a2 = providerToolNameToCustomToolName[providerToolName]) != null ? _a2 : providerToolName;
+    }
+  };
+}
+
+// src/delay.ts
+async function delay(delayInMs, options) {
+  if (delayInMs == null) {
+    return Promise.resolve();
+  }
+  const signal = options == null ? void 0 : options.abortSignal;
+  return new Promise((resolve2, reject) => {
+    if (signal == null ? void 0 : signal.aborted) {
+      reject(createAbortError());
+      return;
+    }
+    const timeoutId = setTimeout(() => {
+      cleanup();
+      resolve2();
+    }, delayInMs);
+    const cleanup = () => {
+      clearTimeout(timeoutId);
+      signal == null ? void 0 : signal.removeEventListener("abort", onAbort);
+    };
+    const onAbort = () => {
+      cleanup();
+      reject(createAbortError());
+    };
+    signal == null ? void 0 : signal.addEventListener("abort", onAbort);
+  });
+}
+function createAbortError() {
+  return new DOMException("Delay was aborted", "AbortError");
+}
+
+// src/delayed-promise.ts
+var DelayedPromise = class {
+  constructor() {
+    this.status = { type: "pending" };
+    this._resolve = void 0;
+    this._reject = void 0;
+  }
+  get promise() {
+    if (this._promise) {
+      return this._promise;
+    }
+    this._promise = new Promise((resolve2, reject) => {
+      if (this.status.type === "resolved") {
+        resolve2(this.status.value);
+      } else if (this.status.type === "rejected") {
+        reject(this.status.error);
+      }
+      this._resolve = resolve2;
+      this._reject = reject;
+    });
+    return this._promise;
+  }
+  resolve(value) {
+    var _a2;
+    this.status = { type: "resolved", value };
+    if (this._promise) {
+      (_a2 = this._resolve) == null ? void 0 : _a2.call(this, value);
+    }
+  }
+  reject(error) {
+    var _a2;
+    this.status = { type: "rejected", error };
+    if (this._promise) {
+      (_a2 = this._reject) == null ? void 0 : _a2.call(this, error);
+    }
+  }
+  isResolved() {
+    return this.status.type === "resolved";
+  }
+  isRejected() {
+    return this.status.type === "rejected";
+  }
+  isPending() {
+    return this.status.type === "pending";
+  }
+};
+
 // src/extract-response-headers.ts
-function extractResponseHeaders$5(response) {
+function extractResponseHeaders(response) {
   return Object.fromEntries([...response.headers]);
 }
 
 // src/uint8-utils.ts
-var { btoa: btoa$5} = globalThis;
-function convertUint8ArrayToBase64$5(array) {
+var { btoa, atob: atob$1 } = globalThis;
+function convertBase64ToUint8Array(base64String) {
+  const base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/");
+  const latin1string = atob$1(base64Url);
+  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
+}
+function convertUint8ArrayToBase64(array) {
   let latin1string = "";
   for (let i = 0; i < array.length; i++) {
     latin1string += String.fromCodePoint(array[i]);
   }
-  return btoa$5(latin1string);
+  return btoa(latin1string);
 }
-var createIdGenerator$6 = ({
+function convertToBase64(value) {
+  return value instanceof Uint8Array ? convertUint8ArrayToBase64(value) : value;
+}
+
+// src/convert-to-form-data.ts
+function convertToFormData(input, options = {}) {
+  const { useArrayBrackets = true } = options;
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(input)) {
+    if (value == null) {
+      continue;
+    }
+    if (Array.isArray(value)) {
+      if (value.length === 1) {
+        formData.append(key, value[0]);
+        continue;
+      }
+      const arrayKey = useArrayBrackets ? `${key}[]` : key;
+      for (const item of value) {
+        formData.append(arrayKey, item);
+      }
+      continue;
+    }
+    formData.append(key, value);
+  }
+  return formData;
+}
+var name$2 = "AI_DownloadError";
+var marker$2 = `vercel.ai.error.${name$2}`;
+var symbol$2 = Symbol.for(marker$2);
+var _a$2, _b$1;
+var DownloadError = class extends (_b$1 = AISDKError, _a$2 = symbol$2, _b$1) {
+  constructor({
+    url,
+    statusCode,
+    statusText,
+    cause,
+    message = cause == null ? `Failed to download ${url}: ${statusCode} ${statusText}` : `Failed to download ${url}: ${cause}`
+  }) {
+    super({ name: name$2, message, cause });
+    this[_a$2] = true;
+    this.url = url;
+    this.statusCode = statusCode;
+    this.statusText = statusText;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker$2);
+  }
+};
+
+// src/download-blob.ts
+async function downloadBlob(url) {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new DownloadError({
+        url,
+        statusCode: response.status,
+        statusText: response.statusText
+      });
+    }
+    return await response.blob();
+  } catch (error) {
+    if (DownloadError.isInstance(error)) {
+      throw error;
+    }
+    throw new DownloadError({ url, cause: error });
+  }
+}
+var createIdGenerator = ({
   prefix,
   size = 16,
   alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
@@ -5836,35 +6129,49 @@ var createIdGenerator$6 = ({
     return generator;
   }
   if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError$7({
+    throw new InvalidArgumentError$1({
       argument: "separator",
       message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
     });
   }
   return () => `${prefix}${separator}${generator()}`;
 };
-createIdGenerator$6();
+var generateId = createIdGenerator();
+
+// src/get-error-message.ts
+function getErrorMessage(error) {
+  if (error == null) {
+    return "unknown error";
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return JSON.stringify(error);
+}
 
 // src/is-abort-error.ts
-function isAbortError$6(error) {
+function isAbortError(error) {
   return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
   error.name === "TimeoutError");
 }
 
 // src/handle-fetch-error.ts
-var FETCH_FAILED_ERROR_MESSAGES$5 = ["fetch failed", "failed to fetch"];
-function handleFetchError$5({
+var FETCH_FAILED_ERROR_MESSAGES = ["fetch failed", "failed to fetch"];
+function handleFetchError({
   error,
   url,
   requestBodyValues
 }) {
-  if (isAbortError$6(error)) {
+  if (isAbortError(error)) {
     return error;
   }
-  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES$5.includes(error.message.toLowerCase())) {
+  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES.includes(error.message.toLowerCase())) {
     const cause = error.cause;
     if (cause != null) {
-      return new APICallError$6({
+      return new APICallError({
         message: `Cannot connect to API: ${cause.message}`,
         cause,
         url,
@@ -5878,7 +6185,7 @@ function handleFetchError$5({
 }
 
 // src/get-runtime-environment-user-agent.ts
-function getRuntimeEnvironmentUserAgent$6(globalThisAny = globalThis) {
+function getRuntimeEnvironmentUserAgent(globalThisAny = globalThis) {
   var _a2, _b2, _c;
   if (globalThisAny.window) {
     return `runtime/browser`;
@@ -5896,7 +6203,7 @@ function getRuntimeEnvironmentUserAgent$6(globalThisAny = globalThis) {
 }
 
 // src/normalize-headers.ts
-function normalizeHeaders$6(headers) {
+function normalizeHeaders(headers) {
   if (headers == null) {
     return {};
   }
@@ -5919,8 +6226,8 @@ function normalizeHeaders$6(headers) {
 }
 
 // src/with-user-agent-suffix.ts
-function withUserAgentSuffix$6(headers, ...userAgentSuffixParts) {
-  const normalizedHeaders = new Headers(normalizeHeaders$6(headers));
+function withUserAgentSuffix(headers, ...userAgentSuffixParts) {
+  const normalizedHeaders = new Headers(normalizeHeaders(headers));
   const currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
   normalizedHeaders.set(
     "user-agent",
@@ -5930,7 +6237,7 @@ function withUserAgentSuffix$6(headers, ...userAgentSuffixParts) {
 }
 
 // src/version.ts
-var VERSION$f = "4.0.8" ;
+var VERSION$a = "4.0.9" ;
 
 // src/get-from-api.ts
 var getOriginalFetch = () => globalThis.fetch;
@@ -5945,14 +6252,14 @@ var getFromApi = async ({
   try {
     const response = await fetch2(url, {
       method: "GET",
-      headers: withUserAgentSuffix$6(
+      headers: withUserAgentSuffix(
         headers,
-        `ai-sdk/provider-utils/${VERSION$f}`,
-        getRuntimeEnvironmentUserAgent$6()
+        `ai-sdk/provider-utils/${VERSION$a}`,
+        getRuntimeEnvironmentUserAgent()
       ),
       signal: abortSignal
     });
-    const responseHeaders = extractResponseHeaders$5(response);
+    const responseHeaders = extractResponseHeaders(response);
     if (!response.ok) {
       let errorInformation;
       try {
@@ -5962,10 +6269,10 @@ var getFromApi = async ({
           requestBodyValues: {}
         });
       } catch (error) {
-        if (isAbortError$6(error) || APICallError$6.isInstance(error)) {
+        if (isAbortError(error) || APICallError.isInstance(error)) {
           throw error;
         }
-        throw new APICallError$6({
+        throw new APICallError({
           message: "Failed to process error response",
           cause: error,
           statusCode: response.status,
@@ -5984,11 +6291,11 @@ var getFromApi = async ({
       });
     } catch (error) {
       if (error instanceof Error) {
-        if (isAbortError$6(error) || APICallError$6.isInstance(error)) {
+        if (isAbortError(error) || APICallError.isInstance(error)) {
           throw error;
         }
       }
-      throw new APICallError$6({
+      throw new APICallError({
         message: "Failed to process successful response",
         cause: error,
         statusCode: response.status,
@@ -5998,12 +6305,102 @@ var getFromApi = async ({
       });
     }
   } catch (error) {
-    throw handleFetchError$5({ error, url, requestBodyValues: {} });
+    throw handleFetchError({ error, url, requestBodyValues: {} });
   }
 };
 
+// src/inject-json-instruction.ts
+var DEFAULT_SCHEMA_PREFIX = "JSON schema:";
+var DEFAULT_SCHEMA_SUFFIX = "You MUST answer with a JSON object that matches the JSON schema above.";
+var DEFAULT_GENERIC_SUFFIX = "You MUST answer with JSON.";
+function injectJsonInstruction({
+  prompt,
+  schema,
+  schemaPrefix = schema != null ? DEFAULT_SCHEMA_PREFIX : void 0,
+  schemaSuffix = schema != null ? DEFAULT_SCHEMA_SUFFIX : DEFAULT_GENERIC_SUFFIX
+}) {
+  return [
+    prompt != null && prompt.length > 0 ? prompt : void 0,
+    prompt != null && prompt.length > 0 ? "" : void 0,
+    // add a newline if prompt is not null
+    schemaPrefix,
+    schema != null ? JSON.stringify(schema) : void 0,
+    schemaSuffix
+  ].filter((line) => line != null).join("\n");
+}
+function injectJsonInstructionIntoMessages({
+  messages,
+  schema,
+  schemaPrefix,
+  schemaSuffix
+}) {
+  var _a2, _b2;
+  const systemMessage = ((_a2 = messages[0]) == null ? void 0 : _a2.role) === "system" ? { ...messages[0] } : { role: "system", content: "" };
+  systemMessage.content = injectJsonInstruction({
+    prompt: systemMessage.content,
+    schema,
+    schemaPrefix,
+    schemaSuffix
+  });
+  return [
+    systemMessage,
+    ...((_b2 = messages[0]) == null ? void 0 : _b2.role) === "system" ? messages.slice(1) : messages
+  ];
+}
+
+// src/is-non-nullable.ts
+function isNonNullable(value) {
+  return value != null;
+}
+
+// src/is-url-supported.ts
+function isUrlSupported({
+  mediaType,
+  url,
+  supportedUrls
+}) {
+  url = url.toLowerCase();
+  mediaType = mediaType.toLowerCase();
+  return Object.entries(supportedUrls).map(([key, value]) => {
+    const mediaType2 = key.toLowerCase();
+    return mediaType2 === "*" || mediaType2 === "*/*" ? { mediaTypePrefix: "", regexes: value } : { mediaTypePrefix: mediaType2.replace(/\*/, ""), regexes: value };
+  }).filter(({ mediaTypePrefix }) => mediaType.startsWith(mediaTypePrefix)).flatMap(({ regexes }) => regexes).some((pattern) => pattern.test(url));
+}
+function loadApiKey({
+  apiKey,
+  environmentVariableName,
+  apiKeyParameterName = "apiKey",
+  description
+}) {
+  if (typeof apiKey === "string") {
+    return apiKey;
+  }
+  if (apiKey != null) {
+    throw new LoadAPIKeyError({
+      message: `${description} API key must be a string.`
+    });
+  }
+  if (typeof process === "undefined") {
+    throw new LoadAPIKeyError({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables is not supported in this environment.`
+    });
+  }
+  apiKey = process.env[environmentVariableName];
+  if (apiKey == null) {
+    throw new LoadAPIKeyError({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
+    });
+  }
+  if (typeof apiKey !== "string") {
+    throw new LoadAPIKeyError({
+      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
+    });
+  }
+  return apiKey;
+}
+
 // src/load-optional-setting.ts
-function loadOptionalSetting$1({
+function loadOptionalSetting({
   settingValue,
   environmentVariableName
 }) {
@@ -6020,20 +6417,33 @@ function loadOptionalSetting$1({
   return settingValue;
 }
 
+// src/media-type-to-extension.ts
+function mediaTypeToExtension(mediaType) {
+  var _a2;
+  const [_type, subtype = ""] = mediaType.toLowerCase().split("/");
+  return (_a2 = {
+    mpeg: "mp3",
+    "x-wav": "wav",
+    opus: "ogg",
+    mp4: "m4a",
+    "x-m4a": "m4a"
+  }[subtype]) != null ? _a2 : subtype;
+}
+
 // src/secure-json-parse.ts
-var suspectProtoRx$6 = /"__proto__"\s*:/;
-var suspectConstructorRx$6 = /"constructor"\s*:/;
-function _parse$6(text) {
+var suspectProtoRx = /"__proto__"\s*:/;
+var suspectConstructorRx = /"constructor"\s*:/;
+function _parse(text) {
   const obj = JSON.parse(text);
   if (obj === null || typeof obj !== "object") {
     return obj;
   }
-  if (suspectProtoRx$6.test(text) === false && suspectConstructorRx$6.test(text) === false) {
+  if (suspectProtoRx.test(text) === false && suspectConstructorRx.test(text) === false) {
     return obj;
   }
-  return filter$6(obj);
+  return filter(obj);
 }
-function filter$6(obj) {
+function filter(obj) {
   let next = [obj];
   while (next.length) {
     const nodes = next;
@@ -6055,61 +6465,61 @@ function filter$6(obj) {
   }
   return obj;
 }
-function secureJsonParse$6(text) {
+function secureJsonParse(text) {
   const { stackTraceLimit } = Error;
   try {
     Error.stackTraceLimit = 0;
   } catch (e) {
-    return _parse$6(text);
+    return _parse(text);
   }
   try {
-    return _parse$6(text);
+    return _parse(text);
   } finally {
     Error.stackTraceLimit = stackTraceLimit;
   }
 }
 
 // src/add-additional-properties-to-json-schema.ts
-function addAdditionalPropertiesToJsonSchema$6(jsonSchema2) {
+function addAdditionalPropertiesToJsonSchema(jsonSchema2) {
   if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
     jsonSchema2.additionalProperties = false;
     const { properties } = jsonSchema2;
     if (properties != null) {
       for (const key of Object.keys(properties)) {
-        properties[key] = visit$6(properties[key]);
+        properties[key] = visit(properties[key]);
       }
     }
   }
   if (jsonSchema2.items != null) {
-    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit$6) : visit$6(jsonSchema2.items);
+    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit) : visit(jsonSchema2.items);
   }
   if (jsonSchema2.anyOf != null) {
-    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit$6);
+    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit);
   }
   if (jsonSchema2.allOf != null) {
-    jsonSchema2.allOf = jsonSchema2.allOf.map(visit$6);
+    jsonSchema2.allOf = jsonSchema2.allOf.map(visit);
   }
   if (jsonSchema2.oneOf != null) {
-    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit$6);
+    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit);
   }
   const { definitions } = jsonSchema2;
   if (definitions != null) {
     for (const key of Object.keys(definitions)) {
-      definitions[key] = visit$6(definitions[key]);
+      definitions[key] = visit(definitions[key]);
     }
   }
   return jsonSchema2;
 }
-function visit$6(def) {
+function visit(def) {
   if (typeof def === "boolean") return def;
-  return addAdditionalPropertiesToJsonSchema$6(def);
+  return addAdditionalPropertiesToJsonSchema(def);
 }
 
 // src/to-json-schema/zod3-to-json-schema/options.ts
-var ignoreOverride$6 = Symbol(
+var ignoreOverride = Symbol(
   "Let zodToJsonSchema decide on which parser to use"
 );
-var defaultOptions$6 = {
+var defaultOptions = {
   name: void 0,
   $refStrategy: "root",
   basePath: ["#"],
@@ -6130,25 +6540,25 @@ var defaultOptions$6 = {
   base64Strategy: "contentEncoding:base64",
   nameStrategy: "ref"
 };
-var getDefaultOptions$6 = (options) => typeof options === "string" ? {
-  ...defaultOptions$6,
+var getDefaultOptions = (options) => typeof options === "string" ? {
+  ...defaultOptions,
   name: options
 } : {
-  ...defaultOptions$6,
+  ...defaultOptions,
   ...options
 };
 
 // src/to-json-schema/zod3-to-json-schema/parsers/any.ts
-function parseAnyDef$6() {
+function parseAnyDef() {
   return {};
 }
-function parseArrayDef$6(def, refs) {
+function parseArrayDef(def, refs) {
   var _a2, _b2, _c;
   const res = {
     type: "array"
   };
   if (((_a2 = def.type) == null ? void 0 : _a2._def) && ((_c = (_b2 = def.type) == null ? void 0 : _b2._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef$6(def.type._def, {
+    res.items = parseDef(def.type._def, {
       ...refs,
       currentPath: [...refs.currentPath, "items"]
     });
@@ -6167,7 +6577,7 @@ function parseArrayDef$6(def, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/bigint.ts
-function parseBigintDef$6(def) {
+function parseBigintDef(def) {
   const res = {
     type: "integer",
     format: "int64"
@@ -6198,26 +6608,26 @@ function parseBigintDef$6(def) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/boolean.ts
-function parseBooleanDef$6() {
+function parseBooleanDef() {
   return { type: "boolean" };
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/branded.ts
-function parseBrandedDef$6(_def, refs) {
-  return parseDef$6(_def.type._def, refs);
+function parseBrandedDef(_def, refs) {
+  return parseDef(_def.type._def, refs);
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/catch.ts
-var parseCatchDef$6 = (def, refs) => {
-  return parseDef$6(def.innerType._def, refs);
+var parseCatchDef = (def, refs) => {
+  return parseDef(def.innerType._def, refs);
 };
 
 // src/to-json-schema/zod3-to-json-schema/parsers/date.ts
-function parseDateDef$6(def, refs, overrideDateStrategy) {
+function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
   if (Array.isArray(strategy)) {
     return {
-      anyOf: strategy.map((item, i) => parseDateDef$6(def, refs, item))
+      anyOf: strategy.map((item, i) => parseDateDef(def, refs, item))
     };
   }
   switch (strategy) {
@@ -6233,10 +6643,10 @@ function parseDateDef$6(def, refs, overrideDateStrategy) {
         format: "date"
       };
     case "integer":
-      return integerDateParser$6(def);
+      return integerDateParser(def);
   }
 }
-var integerDateParser$6 = (def) => {
+var integerDateParser = (def) => {
   const res = {
     type: "integer",
     format: "unix-time"
@@ -6255,20 +6665,20 @@ var integerDateParser$6 = (def) => {
 };
 
 // src/to-json-schema/zod3-to-json-schema/parsers/default.ts
-function parseDefaultDef$6(_def, refs) {
+function parseDefaultDef(_def, refs) {
   return {
-    ...parseDef$6(_def.innerType._def, refs),
+    ...parseDef(_def.innerType._def, refs),
     default: _def.defaultValue()
   };
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/effects.ts
-function parseEffectsDef$6(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef$6(_def.schema._def, refs) : parseAnyDef$6();
+function parseEffectsDef(_def, refs) {
+  return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef();
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/enum.ts
-function parseEnumDef$6(def) {
+function parseEnumDef(def) {
   return {
     type: "string",
     enum: Array.from(def.values)
@@ -6276,24 +6686,24 @@ function parseEnumDef$6(def) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/intersection.ts
-var isJsonSchema7AllOfType$6 = (type) => {
+var isJsonSchema7AllOfType = (type) => {
   if ("type" in type && type.type === "string") return false;
   return "allOf" in type;
 };
-function parseIntersectionDef$6(def, refs) {
+function parseIntersectionDef(def, refs) {
   const allOf = [
-    parseDef$6(def.left._def, {
+    parseDef(def.left._def, {
       ...refs,
       currentPath: [...refs.currentPath, "allOf", "0"]
     }),
-    parseDef$6(def.right._def, {
+    parseDef(def.right._def, {
       ...refs,
       currentPath: [...refs.currentPath, "allOf", "1"]
     })
   ].filter((x) => !!x);
   const mergedAllOf = [];
   allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType$6(schema)) {
+    if (isJsonSchema7AllOfType(schema)) {
       mergedAllOf.push(...schema.allOf);
     } else {
       let nestedSchema = schema;
@@ -6308,7 +6718,7 @@ function parseIntersectionDef$6(def, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/literal.ts
-function parseLiteralDef$6(def) {
+function parseLiteralDef(def) {
   const parsedType = typeof def.value;
   if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
     return {
@@ -6322,8 +6732,8 @@ function parseLiteralDef$6(def) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/string.ts
-var emojiRegex$6 = void 0;
-var zodPatterns$6 = {
+var emojiRegex = void 0;
+var zodPatterns = {
   /**
    * `c` was changed to `[cC]` to replicate /i flag
    */
@@ -6346,13 +6756,13 @@ var zodPatterns$6 = {
    * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
    */
   emoji: () => {
-    if (emojiRegex$6 === void 0) {
-      emojiRegex$6 = RegExp(
+    if (emojiRegex === void 0) {
+      emojiRegex = RegExp(
         "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$",
         "u"
       );
     }
-    return emojiRegex$6;
+    return emojiRegex;
   },
   /**
    * Unused
@@ -6373,7 +6783,7 @@ var zodPatterns$6 = {
   nanoid: /^[a-zA-Z0-9_-]{21}$/,
   jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
 };
-function parseStringDef$6(def, refs) {
+function parseStringDef(def, refs) {
   const res = {
     type: "string"
   };
@@ -6389,67 +6799,67 @@ function parseStringDef$6(def, refs) {
         case "email":
           switch (refs.emailStrategy) {
             case "format:email":
-              addFormat$6(res, "email", check.message, refs);
+              addFormat(res, "email", check.message, refs);
               break;
             case "format:idn-email":
-              addFormat$6(res, "idn-email", check.message, refs);
+              addFormat(res, "idn-email", check.message, refs);
               break;
             case "pattern:zod":
-              addPattern$6(res, zodPatterns$6.email, check.message, refs);
+              addPattern(res, zodPatterns.email, check.message, refs);
               break;
           }
           break;
         case "url":
-          addFormat$6(res, "uri", check.message, refs);
+          addFormat(res, "uri", check.message, refs);
           break;
         case "uuid":
-          addFormat$6(res, "uuid", check.message, refs);
+          addFormat(res, "uuid", check.message, refs);
           break;
         case "regex":
-          addPattern$6(res, check.regex, check.message, refs);
+          addPattern(res, check.regex, check.message, refs);
           break;
         case "cuid":
-          addPattern$6(res, zodPatterns$6.cuid, check.message, refs);
+          addPattern(res, zodPatterns.cuid, check.message, refs);
           break;
         case "cuid2":
-          addPattern$6(res, zodPatterns$6.cuid2, check.message, refs);
+          addPattern(res, zodPatterns.cuid2, check.message, refs);
           break;
         case "startsWith":
-          addPattern$6(
+          addPattern(
             res,
-            RegExp(`^${escapeLiteralCheckValue$6(check.value, refs)}`),
+            RegExp(`^${escapeLiteralCheckValue(check.value, refs)}`),
             check.message,
             refs
           );
           break;
         case "endsWith":
-          addPattern$6(
+          addPattern(
             res,
-            RegExp(`${escapeLiteralCheckValue$6(check.value, refs)}$`),
+            RegExp(`${escapeLiteralCheckValue(check.value, refs)}$`),
             check.message,
             refs
           );
           break;
         case "datetime":
-          addFormat$6(res, "date-time", check.message, refs);
+          addFormat(res, "date-time", check.message, refs);
           break;
         case "date":
-          addFormat$6(res, "date", check.message, refs);
+          addFormat(res, "date", check.message, refs);
           break;
         case "time":
-          addFormat$6(res, "time", check.message, refs);
+          addFormat(res, "time", check.message, refs);
           break;
         case "duration":
-          addFormat$6(res, "duration", check.message, refs);
+          addFormat(res, "duration", check.message, refs);
           break;
         case "length":
           res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
           res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
           break;
         case "includes": {
-          addPattern$6(
+          addPattern(
             res,
-            RegExp(escapeLiteralCheckValue$6(check.value, refs)),
+            RegExp(escapeLiteralCheckValue(check.value, refs)),
             check.message,
             refs
           );
@@ -6457,39 +6867,39 @@ function parseStringDef$6(def, refs) {
         }
         case "ip": {
           if (check.version !== "v6") {
-            addFormat$6(res, "ipv4", check.message, refs);
+            addFormat(res, "ipv4", check.message, refs);
           }
           if (check.version !== "v4") {
-            addFormat$6(res, "ipv6", check.message, refs);
+            addFormat(res, "ipv6", check.message, refs);
           }
           break;
         }
         case "base64url":
-          addPattern$6(res, zodPatterns$6.base64url, check.message, refs);
+          addPattern(res, zodPatterns.base64url, check.message, refs);
           break;
         case "jwt":
-          addPattern$6(res, zodPatterns$6.jwt, check.message, refs);
+          addPattern(res, zodPatterns.jwt, check.message, refs);
           break;
         case "cidr": {
           if (check.version !== "v6") {
-            addPattern$6(res, zodPatterns$6.ipv4Cidr, check.message, refs);
+            addPattern(res, zodPatterns.ipv4Cidr, check.message, refs);
           }
           if (check.version !== "v4") {
-            addPattern$6(res, zodPatterns$6.ipv6Cidr, check.message, refs);
+            addPattern(res, zodPatterns.ipv6Cidr, check.message, refs);
           }
           break;
         }
         case "emoji":
-          addPattern$6(res, zodPatterns$6.emoji(), check.message, refs);
+          addPattern(res, zodPatterns.emoji(), check.message, refs);
           break;
         case "ulid": {
-          addPattern$6(res, zodPatterns$6.ulid, check.message, refs);
+          addPattern(res, zodPatterns.ulid, check.message, refs);
           break;
         }
         case "base64": {
           switch (refs.base64Strategy) {
             case "format:binary": {
-              addFormat$6(res, "binary", check.message, refs);
+              addFormat(res, "binary", check.message, refs);
               break;
             }
             case "contentEncoding:base64": {
@@ -6497,37 +6907,37 @@ function parseStringDef$6(def, refs) {
               break;
             }
             case "pattern:zod": {
-              addPattern$6(res, zodPatterns$6.base64, check.message, refs);
+              addPattern(res, zodPatterns.base64, check.message, refs);
               break;
             }
           }
           break;
         }
         case "nanoid": {
-          addPattern$6(res, zodPatterns$6.nanoid, check.message, refs);
+          addPattern(res, zodPatterns.nanoid, check.message, refs);
         }
       }
     }
   }
   return res;
 }
-function escapeLiteralCheckValue$6(literal, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric$6(literal) : literal;
+function escapeLiteralCheckValue(literal, refs) {
+  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric(literal) : literal;
 }
-var ALPHA_NUMERIC$6 = new Set(
+var ALPHA_NUMERIC = new Set(
   "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789"
 );
-function escapeNonAlphaNumeric$6(source) {
+function escapeNonAlphaNumeric(source) {
   let result = "";
   for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC$6.has(source[i])) {
+    if (!ALPHA_NUMERIC.has(source[i])) {
       result += "\\";
     }
     result += source[i];
   }
   return result;
 }
-function addFormat$6(schema, value, message, refs) {
+function addFormat(schema, value, message, refs) {
   var _a2;
   if (schema.format || ((_a2 = schema.anyOf) == null ? void 0 : _a2.some((x) => x.format))) {
     if (!schema.anyOf) {
@@ -6547,7 +6957,7 @@ function addFormat$6(schema, value, message, refs) {
     schema.format = value;
   }
 }
-function addPattern$6(schema, regex, message, refs) {
+function addPattern(schema, regex, message, refs) {
   var _a2;
   if (schema.pattern || ((_a2 = schema.allOf) == null ? void 0 : _a2.some((x) => x.pattern))) {
     if (!schema.allOf) {
@@ -6560,14 +6970,14 @@ function addPattern$6(schema, regex, message, refs) {
       delete schema.pattern;
     }
     schema.allOf.push({
-      pattern: stringifyRegExpWithFlags$6(regex, refs),
+      pattern: stringifyRegExpWithFlags(regex, refs),
       ...message && refs.errorMessages && { errorMessage: { pattern: message } }
     });
   } else {
-    schema.pattern = stringifyRegExpWithFlags$6(regex, refs);
+    schema.pattern = stringifyRegExpWithFlags(regex, refs);
   }
 }
-function stringifyRegExpWithFlags$6(regex, refs) {
+function stringifyRegExpWithFlags(regex, refs) {
   var _a2;
   if (!refs.applyRegexFlags || !regex.flags) {
     return regex.source;
@@ -6651,17 +7061,17 @@ function stringifyRegExpWithFlags$6(regex, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/record.ts
-function parseRecordDef$6(def, refs) {
+function parseRecordDef(def, refs) {
   var _a2, _b2, _c, _d, _e, _f;
   const schema = {
     type: "object",
-    additionalProperties: (_a2 = parseDef$6(def.valueType._def, {
+    additionalProperties: (_a2 = parseDef(def.valueType._def, {
       ...refs,
       currentPath: [...refs.currentPath, "additionalProperties"]
     })) != null ? _a2 : refs.allowedAdditionalProperties
   };
   if (((_b2 = def.keyType) == null ? void 0 : _b2._def.typeName) === ZodFirstPartyTypeKind.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
-    const { type, ...keyType } = parseStringDef$6(def.keyType._def, refs);
+    const { type, ...keyType } = parseStringDef(def.keyType._def, refs);
     return {
       ...schema,
       propertyNames: keyType
@@ -6674,7 +7084,7 @@ function parseRecordDef$6(def, refs) {
       }
     };
   } else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
-    const { type, ...keyType } = parseBrandedDef$6(
+    const { type, ...keyType } = parseBrandedDef(
       def.keyType._def,
       refs
     );
@@ -6687,18 +7097,18 @@ function parseRecordDef$6(def, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/map.ts
-function parseMapDef$6(def, refs) {
+function parseMapDef(def, refs) {
   if (refs.mapStrategy === "record") {
-    return parseRecordDef$6(def, refs);
+    return parseRecordDef(def, refs);
   }
-  const keys = parseDef$6(def.keyType._def, {
+  const keys = parseDef(def.keyType._def, {
     ...refs,
     currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef$6();
-  const values = parseDef$6(def.valueType._def, {
+  }) || parseAnyDef();
+  const values = parseDef(def.valueType._def, {
     ...refs,
     currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef$6();
+  }) || parseAnyDef();
   return {
     type: "array",
     maxItems: 125,
@@ -6712,7 +7122,7 @@ function parseMapDef$6(def, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/native-enum.ts
-function parseNativeEnumDef$6(def) {
+function parseNativeEnumDef(def) {
   const object = def.values;
   const actualKeys = Object.keys(def.values).filter((key) => {
     return typeof object[object[key]] !== "number";
@@ -6728,32 +7138,32 @@ function parseNativeEnumDef$6(def) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/never.ts
-function parseNeverDef$6() {
-  return { not: parseAnyDef$6() };
+function parseNeverDef() {
+  return { not: parseAnyDef() };
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/null.ts
-function parseNullDef$6() {
+function parseNullDef() {
   return {
     type: "null"
   };
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/union.ts
-var primitiveMappings$6 = {
+var primitiveMappings = {
   ZodString: "string",
   ZodNumber: "number",
   ZodBigInt: "integer",
   ZodBoolean: "boolean",
   ZodNull: "null"
 };
-function parseUnionDef$6(def, refs) {
+function parseUnionDef(def, refs) {
   const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
   if (options.every(
-    (x) => x._def.typeName in primitiveMappings$6 && (!x._def.checks || !x._def.checks.length)
+    (x) => x._def.typeName in primitiveMappings && (!x._def.checks || !x._def.checks.length)
   )) {
     const types = options.reduce((types2, x) => {
-      const type = primitiveMappings$6[x._def.typeName];
+      const type = primitiveMappings[x._def.typeName];
       return type && !types2.includes(type) ? [...types2, type] : types2;
     }, []);
     return {
@@ -6805,11 +7215,11 @@ function parseUnionDef$6(def, refs) {
       )
     };
   }
-  return asAnyOf$6(def, refs);
+  return asAnyOf(def, refs);
 }
-var asAnyOf$6 = (def, refs) => {
+var asAnyOf = (def, refs) => {
   const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map(
-    (x, i) => parseDef$6(x._def, {
+    (x, i) => parseDef(x._def, {
       ...refs,
       currentPath: [...refs.currentPath, "anyOf", `${i}`]
     })
@@ -6820,18 +7230,18 @@ var asAnyOf$6 = (def, refs) => {
 };
 
 // src/to-json-schema/zod3-to-json-schema/parsers/nullable.ts
-function parseNullableDef$6(def, refs) {
+function parseNullableDef(def, refs) {
   if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(
     def.innerType._def.typeName
   ) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
     return {
       type: [
-        primitiveMappings$6[def.innerType._def.typeName],
+        primitiveMappings[def.innerType._def.typeName],
         "null"
       ]
     };
   }
-  const base = parseDef$6(def.innerType._def, {
+  const base = parseDef(def.innerType._def, {
     ...refs,
     currentPath: [...refs.currentPath, "anyOf", "0"]
   });
@@ -6839,7 +7249,7 @@ function parseNullableDef$6(def, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/number.ts
-function parseNumberDef$6(def) {
+function parseNumberDef(def) {
   const res = {
     type: "number"
   };
@@ -6872,7 +7282,7 @@ function parseNumberDef$6(def) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/object.ts
-function parseObjectDef$6(def, refs) {
+function parseObjectDef(def, refs) {
   const result = {
     type: "object",
     properties: {}
@@ -6884,8 +7294,8 @@ function parseObjectDef$6(def, refs) {
     if (propDef === void 0 || propDef._def === void 0) {
       continue;
     }
-    const propOptional = safeIsOptional$6(propDef);
-    const parsedDef = parseDef$6(propDef._def, {
+    const propOptional = safeIsOptional(propDef);
+    const parsedDef = parseDef(propDef._def, {
       ...refs,
       currentPath: [...refs.currentPath, "properties", propName],
       propertyPath: [...refs.currentPath, "properties", propName]
@@ -6901,15 +7311,15 @@ function parseObjectDef$6(def, refs) {
   if (required.length) {
     result.required = required;
   }
-  const additionalProperties = decideAdditionalProperties$6(def, refs);
+  const additionalProperties = decideAdditionalProperties(def, refs);
   if (additionalProperties !== void 0) {
     result.additionalProperties = additionalProperties;
   }
   return result;
 }
-function decideAdditionalProperties$6(def, refs) {
+function decideAdditionalProperties(def, refs) {
   if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef$6(def.catchall._def, {
+    return parseDef(def.catchall._def, {
       ...refs,
       currentPath: [...refs.currentPath, "additionalProperties"]
     });
@@ -6923,7 +7333,7 @@ function decideAdditionalProperties$6(def, refs) {
       return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
   }
 }
-function safeIsOptional$6(schema) {
+function safeIsOptional(schema) {
   try {
     return schema.isOptional();
   } catch (e) {
@@ -6932,30 +7342,30 @@ function safeIsOptional$6(schema) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/optional.ts
-var parseOptionalDef$6 = (def, refs) => {
+var parseOptionalDef = (def, refs) => {
   var _a2;
   if (refs.currentPath.toString() === ((_a2 = refs.propertyPath) == null ? void 0 : _a2.toString())) {
-    return parseDef$6(def.innerType._def, refs);
+    return parseDef(def.innerType._def, refs);
   }
-  const innerSchema = parseDef$6(def.innerType._def, {
+  const innerSchema = parseDef(def.innerType._def, {
     ...refs,
     currentPath: [...refs.currentPath, "anyOf", "1"]
   });
-  return innerSchema ? { anyOf: [{ not: parseAnyDef$6() }, innerSchema] } : parseAnyDef$6();
+  return innerSchema ? { anyOf: [{ not: parseAnyDef() }, innerSchema] } : parseAnyDef();
 };
 
 // src/to-json-schema/zod3-to-json-schema/parsers/pipeline.ts
-var parsePipelineDef$6 = (def, refs) => {
+var parsePipelineDef = (def, refs) => {
   if (refs.pipeStrategy === "input") {
-    return parseDef$6(def.in._def, refs);
+    return parseDef(def.in._def, refs);
   } else if (refs.pipeStrategy === "output") {
-    return parseDef$6(def.out._def, refs);
+    return parseDef(def.out._def, refs);
   }
-  const a = parseDef$6(def.in._def, {
+  const a = parseDef(def.in._def, {
     ...refs,
     currentPath: [...refs.currentPath, "allOf", "0"]
   });
-  const b = parseDef$6(def.out._def, {
+  const b = parseDef(def.out._def, {
     ...refs,
     currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
   });
@@ -6965,13 +7375,13 @@ var parsePipelineDef$6 = (def, refs) => {
 };
 
 // src/to-json-schema/zod3-to-json-schema/parsers/promise.ts
-function parsePromiseDef$6(def, refs) {
-  return parseDef$6(def.type._def, refs);
+function parsePromiseDef(def, refs) {
+  return parseDef(def.type._def, refs);
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/set.ts
-function parseSetDef$6(def, refs) {
-  const items = parseDef$6(def.valueType._def, {
+function parseSetDef(def, refs) {
+  const items = parseDef(def.valueType._def, {
     ...refs,
     currentPath: [...refs.currentPath, "items"]
   });
@@ -6990,13 +7400,13 @@ function parseSetDef$6(def, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/tuple.ts
-function parseTupleDef$6(def, refs) {
+function parseTupleDef(def, refs) {
   if (def.rest) {
     return {
       type: "array",
       minItems: def.items.length,
       items: def.items.map(
-        (x, i) => parseDef$6(x._def, {
+        (x, i) => parseDef(x._def, {
           ...refs,
           currentPath: [...refs.currentPath, "items", `${i}`]
         })
@@ -7004,7 +7414,7 @@ function parseTupleDef$6(def, refs) {
         (acc, x) => x === void 0 ? acc : [...acc, x],
         []
       ),
-      additionalItems: parseDef$6(def.rest._def, {
+      additionalItems: parseDef(def.rest._def, {
         ...refs,
         currentPath: [...refs.currentPath, "additionalItems"]
       })
@@ -7015,7 +7425,7 @@ function parseTupleDef$6(def, refs) {
       minItems: def.items.length,
       maxItems: def.items.length,
       items: def.items.map(
-        (x, i) => parseDef$6(x._def, {
+        (x, i) => parseDef(x._def, {
           ...refs,
           currentPath: [...refs.currentPath, "items", `${i}`]
         })
@@ -7028,89 +7438,89 @@ function parseTupleDef$6(def, refs) {
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/undefined.ts
-function parseUndefinedDef$6() {
+function parseUndefinedDef() {
   return {
-    not: parseAnyDef$6()
+    not: parseAnyDef()
   };
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/unknown.ts
-function parseUnknownDef$6() {
-  return parseAnyDef$6();
+function parseUnknownDef() {
+  return parseAnyDef();
 }
 
 // src/to-json-schema/zod3-to-json-schema/parsers/readonly.ts
-var parseReadonlyDef$6 = (def, refs) => {
-  return parseDef$6(def.innerType._def, refs);
+var parseReadonlyDef = (def, refs) => {
+  return parseDef(def.innerType._def, refs);
 };
 
 // src/to-json-schema/zod3-to-json-schema/select-parser.ts
-var selectParser$6 = (def, typeName, refs) => {
+var selectParser = (def, typeName, refs) => {
   switch (typeName) {
     case ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef$6(def, refs);
+      return parseStringDef(def, refs);
     case ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef$6(def);
+      return parseNumberDef(def);
     case ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef$6(def, refs);
+      return parseObjectDef(def, refs);
     case ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef$6(def);
+      return parseBigintDef(def);
     case ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef$6();
+      return parseBooleanDef();
     case ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef$6(def, refs);
+      return parseDateDef(def, refs);
     case ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef$6();
+      return parseUndefinedDef();
     case ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef$6();
+      return parseNullDef();
     case ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef$6(def, refs);
+      return parseArrayDef(def, refs);
     case ZodFirstPartyTypeKind.ZodUnion:
     case ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef$6(def, refs);
+      return parseUnionDef(def, refs);
     case ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef$6(def, refs);
+      return parseIntersectionDef(def, refs);
     case ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef$6(def, refs);
+      return parseTupleDef(def, refs);
     case ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef$6(def, refs);
+      return parseRecordDef(def, refs);
     case ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef$6(def);
+      return parseLiteralDef(def);
     case ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef$6(def);
+      return parseEnumDef(def);
     case ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef$6(def);
+      return parseNativeEnumDef(def);
     case ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef$6(def, refs);
+      return parseNullableDef(def, refs);
     case ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef$6(def, refs);
+      return parseOptionalDef(def, refs);
     case ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef$6(def, refs);
+      return parseMapDef(def, refs);
     case ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef$6(def, refs);
+      return parseSetDef(def, refs);
     case ZodFirstPartyTypeKind.ZodLazy:
       return () => def.getter()._def;
     case ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef$6(def, refs);
+      return parsePromiseDef(def, refs);
     case ZodFirstPartyTypeKind.ZodNaN:
     case ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef$6();
+      return parseNeverDef();
     case ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef$6(def, refs);
+      return parseEffectsDef(def, refs);
     case ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef$6();
+      return parseAnyDef();
     case ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef$6();
+      return parseUnknownDef();
     case ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef$6(def, refs);
+      return parseDefaultDef(def, refs);
     case ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef$6(def, refs);
+      return parseBrandedDef(def, refs);
     case ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef$6(def, refs);
+      return parseReadonlyDef(def, refs);
     case ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef$6(def, refs);
+      return parseCatchDef(def, refs);
     case ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef$6(def, refs);
+      return parsePipelineDef(def, refs);
     case ZodFirstPartyTypeKind.ZodFunction:
     case ZodFirstPartyTypeKind.ZodVoid:
     case ZodFirstPartyTypeKind.ZodSymbol:
@@ -7121,7 +7531,7 @@ var selectParser$6 = (def, typeName, refs) => {
 };
 
 // src/to-json-schema/zod3-to-json-schema/get-relative-path.ts
-var getRelativePath$6 = (pathA, pathB) => {
+var getRelativePath = (pathA, pathB) => {
   let i = 0;
   for (; i < pathA.length && i < pathB.length; i++) {
     if (pathA[i] !== pathB[i]) break;
@@ -7130,7 +7540,7 @@ var getRelativePath$6 = (pathA, pathB) => {
 };
 
 // src/to-json-schema/zod3-to-json-schema/parse-def.ts
-function parseDef$6(def, refs, forceResolution = false) {
+function parseDef(def, refs, forceResolution = false) {
   var _a2;
   const seenItem = refs.seen.get(def);
   if (refs.override) {
@@ -7141,22 +7551,22 @@ function parseDef$6(def, refs, forceResolution = false) {
       seenItem,
       forceResolution
     );
-    if (overrideResult !== ignoreOverride$6) {
+    if (overrideResult !== ignoreOverride) {
       return overrideResult;
     }
   }
   if (seenItem && !forceResolution) {
-    const seenSchema = get$ref$6(seenItem, refs);
+    const seenSchema = get$ref(seenItem, refs);
     if (seenSchema !== void 0) {
       return seenSchema;
     }
   }
   const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
   refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser$6(def, def.typeName, refs);
-  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef$6(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
+  const jsonSchemaOrGetter = selectParser(def, def.typeName, refs);
+  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
   if (jsonSchema2) {
-    addMeta$6(def, refs, jsonSchema2);
+    addMeta(def, refs, jsonSchema2);
   }
   if (refs.postProcess) {
     const postProcessResult = refs.postProcess(jsonSchema2, def, refs);
@@ -7166,12 +7576,12 @@ function parseDef$6(def, refs, forceResolution = false) {
   newItem.jsonSchema = jsonSchema2;
   return jsonSchema2;
 }
-var get$ref$6 = (item, refs) => {
+var get$ref = (item, refs) => {
   switch (refs.$refStrategy) {
     case "root":
       return { $ref: item.path.join("/") };
     case "relative":
-      return { $ref: getRelativePath$6(refs.currentPath, item.path) };
+      return { $ref: getRelativePath(refs.currentPath, item.path) };
     case "none":
     case "seen": {
       if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
@@ -7180,13 +7590,13 @@ var get$ref$6 = (item, refs) => {
             "/"
           )}! Defaulting to any`
         );
-        return parseAnyDef$6();
+        return parseAnyDef();
       }
-      return refs.$refStrategy === "seen" ? parseAnyDef$6() : void 0;
+      return refs.$refStrategy === "seen" ? parseAnyDef() : void 0;
     }
   }
 };
-var addMeta$6 = (def, refs, jsonSchema2) => {
+var addMeta = (def, refs, jsonSchema2) => {
   if (def.description) {
     jsonSchema2.description = def.description;
   }
@@ -7194,8 +7604,8 @@ var addMeta$6 = (def, refs, jsonSchema2) => {
 };
 
 // src/to-json-schema/zod3-to-json-schema/refs.ts
-var getRefs$6 = (options) => {
-  const _options = getDefaultOptions$6(options);
+var getRefs = (options) => {
+  const _options = getDefaultOptions(options);
   const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
   return {
     ..._options,
@@ -7216,35 +7626,35 @@ var getRefs$6 = (options) => {
 };
 
 // src/to-json-schema/zod3-to-json-schema/zod3-to-json-schema.ts
-var zod3ToJsonSchema$6 = (schema, options) => {
+var zod3ToJsonSchema = (schema, options) => {
   var _a2;
-  const refs = getRefs$6(options);
+  const refs = getRefs(options);
   let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce(
     (acc, [name3, schema2]) => {
       var _a3;
       return {
         ...acc,
-        [name3]: (_a3 = parseDef$6(
+        [name3]: (_a3 = parseDef(
           schema2._def,
           {
             ...refs,
             currentPath: [...refs.basePath, refs.definitionPath, name3]
           },
           true
-        )) != null ? _a3 : parseAnyDef$6()
+        )) != null ? _a3 : parseAnyDef()
       };
     },
     {}
   ) : void 0;
   const name2 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name;
-  const main = (_a2 = parseDef$6(
+  const main = (_a2 = parseDef(
     schema._def,
     name2 === void 0 ? refs : {
       ...refs,
       currentPath: [...refs.basePath, refs.definitionPath, name2]
     },
     false
-  )) != null ? _a2 : parseAnyDef$6();
+  )) != null ? _a2 : parseAnyDef();
   const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
   if (title !== void 0) {
     main.title = title;
@@ -7268,8 +7678,8 @@ var zod3ToJsonSchema$6 = (schema, options) => {
 };
 
 // src/schema.ts
-var schemaSymbol$6 = Symbol.for("vercel.ai.schema");
-function lazySchema$2(createSchema) {
+var schemaSymbol = Symbol.for("vercel.ai.schema");
+function lazySchema(createSchema) {
   let schema;
   return () => {
     if (schema == null) {
@@ -7278,11 +7688,11 @@ function lazySchema$2(createSchema) {
     return schema;
   };
 }
-function jsonSchema$6(jsonSchema2, {
+function jsonSchema(jsonSchema2, {
   validate
 } = {}) {
   return {
-    [schemaSymbol$6]: true,
+    [schemaSymbol]: true,
     _type: void 0,
     // should never be used directly
     get jsonSchema() {
@@ -7294,15 +7704,15 @@ function jsonSchema$6(jsonSchema2, {
     validate
   };
 }
-function isSchema$6(value) {
-  return typeof value === "object" && value !== null && schemaSymbol$6 in value && value[schemaSymbol$6] === true && "jsonSchema" in value && "validate" in value;
+function isSchema(value) {
+  return typeof value === "object" && value !== null && schemaSymbol in value && value[schemaSymbol] === true && "jsonSchema" in value && "validate" in value;
 }
-function asSchema$6(schema) {
-  return schema == null ? jsonSchema$6({ properties: {}, additionalProperties: false }) : isSchema$6(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema$6(schema) : standardSchema$6(schema) : schema();
+function asSchema(schema) {
+  return schema == null ? jsonSchema({ properties: {}, additionalProperties: false }) : isSchema(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema(schema) : standardSchema(schema) : schema();
 }
-function standardSchema$6(standardSchema2) {
-  return jsonSchema$6(
-    () => addAdditionalPropertiesToJsonSchema$6(
+function standardSchema(standardSchema2) {
+  return jsonSchema(
+    () => addAdditionalPropertiesToJsonSchema(
       standardSchema2["~standard"].jsonSchema.input({
         target: "draft-07"
       })
@@ -7312,7 +7722,7 @@ function standardSchema$6(standardSchema2) {
         const result = await standardSchema2["~standard"].validate(value);
         return "value" in result ? { success: true, value: result.value } : {
           success: false,
-          error: new TypeValidationError$6({
+          error: new TypeValidationError({
             value,
             cause: result.issues
           })
@@ -7321,12 +7731,12 @@ function standardSchema$6(standardSchema2) {
     }
   );
 }
-function zod3Schema$6(zodSchema2, options) {
+function zod3Schema(zodSchema2, options) {
   var _a2;
   const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$6(
+  return jsonSchema(
     // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => zod3ToJsonSchema$6(zodSchema2, {
+    () => zod3ToJsonSchema(zodSchema2, {
       $refStrategy: useReferences ? "root" : "none"
     }),
     {
@@ -7337,12 +7747,12 @@ function zod3Schema$6(zodSchema2, options) {
     }
   );
 }
-function zod4Schema$6(zodSchema2, options) {
+function zod4Schema(zodSchema2, options) {
   var _a2;
   const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$6(
+  return jsonSchema(
     // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => addAdditionalPropertiesToJsonSchema$6(
+    () => addAdditionalPropertiesToJsonSchema(
       toJSONSchema(zodSchema2, {
         target: "draft-7",
         io: "input",
@@ -7357,33 +7767,33 @@ function zod4Schema$6(zodSchema2, options) {
     }
   );
 }
-function isZod4Schema$6(zodSchema2) {
+function isZod4Schema(zodSchema2) {
   return "_zod" in zodSchema2;
 }
-function zodSchema$6(zodSchema2, options) {
-  if (isZod4Schema$6(zodSchema2)) {
-    return zod4Schema$6(zodSchema2);
+function zodSchema(zodSchema2, options) {
+  if (isZod4Schema(zodSchema2)) {
+    return zod4Schema(zodSchema2);
   } else {
-    return zod3Schema$6(zodSchema2);
+    return zod3Schema(zodSchema2);
   }
 }
 
 // src/validate-types.ts
-async function validateTypes$6({
+async function validateTypes({
   value,
   schema
 }) {
-  const result = await safeValidateTypes$6({ value, schema });
+  const result = await safeValidateTypes({ value, schema });
   if (!result.success) {
-    throw TypeValidationError$6.wrap({ value, cause: result.error });
+    throw TypeValidationError.wrap({ value, cause: result.error });
   }
   return result.value;
 }
-async function safeValidateTypes$6({
+async function safeValidateTypes({
   value,
   schema
 }) {
-  const actualSchema = asSchema$6(schema);
+  const actualSchema = asSchema(schema);
   try {
     if (actualSchema.validate == null) {
       return { success: true, value, rawValue: value };
@@ -7394,55 +7804,63 @@ async function safeValidateTypes$6({
     }
     return {
       success: false,
-      error: TypeValidationError$6.wrap({ value, cause: result.error }),
+      error: TypeValidationError.wrap({ value, cause: result.error }),
       rawValue: value
     };
   } catch (error) {
     return {
       success: false,
-      error: TypeValidationError$6.wrap({ value, cause: error }),
+      error: TypeValidationError.wrap({ value, cause: error }),
       rawValue: value
     };
   }
 }
 
 // src/parse-json.ts
-async function parseJSON$5({
+async function parseJSON({
   text,
   schema
 }) {
   try {
-    const value = secureJsonParse$6(text);
+    const value = secureJsonParse(text);
     if (schema == null) {
       return value;
     }
-    return validateTypes$6({ value, schema });
+    return validateTypes({ value, schema });
   } catch (error) {
-    if (JSONParseError$6.isInstance(error) || TypeValidationError$6.isInstance(error)) {
+    if (JSONParseError.isInstance(error) || TypeValidationError.isInstance(error)) {
       throw error;
     }
-    throw new JSONParseError$6({ text, cause: error });
+    throw new JSONParseError({ text, cause: error });
   }
 }
-async function safeParseJSON$6({
+async function safeParseJSON({
   text,
   schema
 }) {
   try {
-    const value = secureJsonParse$6(text);
+    const value = secureJsonParse(text);
     if (schema == null) {
       return { success: true, value, rawValue: value };
     }
-    return await safeValidateTypes$6({ value, schema });
+    return await safeValidateTypes({ value, schema });
   } catch (error) {
     return {
       success: false,
-      error: JSONParseError$6.isInstance(error) ? error : new JSONParseError$6({ text, cause: error }),
+      error: JSONParseError.isInstance(error) ? error : new JSONParseError({ text, cause: error }),
       rawValue: void 0
     };
   }
 }
-function parseJsonEventStream$4({
+function isParsableJson(input) {
+  try {
+    secureJsonParse(input);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+function parseJsonEventStream({
   stream,
   schema
 }) {
@@ -7452,13 +7870,34 @@ function parseJsonEventStream$4({
         if (data === "[DONE]") {
           return;
         }
-        controller.enqueue(await safeParseJSON$6({ text: data, schema }));
+        controller.enqueue(await safeParseJSON({ text: data, schema }));
       }
     })
   );
 }
-var getOriginalFetch2$5 = () => globalThis.fetch;
-var postJsonToApi$5 = async ({
+async function parseProviderOptions({
+  provider,
+  providerOptions,
+  schema
+}) {
+  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null) {
+    return void 0;
+  }
+  const parsedProviderOptions = await safeValidateTypes({
+    value: providerOptions[provider],
+    schema
+  });
+  if (!parsedProviderOptions.success) {
+    throw new InvalidArgumentError$1({
+      argument: "providerOptions",
+      message: `invalid ${provider} provider options`,
+      cause: parsedProviderOptions.error
+    });
+  }
+  return parsedProviderOptions.value;
+}
+var getOriginalFetch2 = () => globalThis.fetch;
+var postJsonToApi = async ({
   url,
   headers,
   body,
@@ -7466,7 +7905,7 @@ var postJsonToApi$5 = async ({
   successfulResponseHandler,
   abortSignal,
   fetch: fetch2
-}) => postToApi$5({
+}) => postToApi({
   url,
   headers: {
     "Content-Type": "application/json",
@@ -7481,27 +7920,47 @@ var postJsonToApi$5 = async ({
   abortSignal,
   fetch: fetch2
 });
-var postToApi$5 = async ({
+var postFormDataToApi = async ({
+  url,
+  headers,
+  formData,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => postToApi({
+  url,
+  headers,
+  body: {
+    content: formData,
+    values: Object.fromEntries(formData.entries())
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+});
+var postToApi = async ({
   url,
   headers = {},
   body,
   successfulResponseHandler,
   failedResponseHandler,
   abortSignal,
-  fetch: fetch2 = getOriginalFetch2$5()
+  fetch: fetch2 = getOriginalFetch2()
 }) => {
   try {
     const response = await fetch2(url, {
       method: "POST",
-      headers: withUserAgentSuffix$6(
+      headers: withUserAgentSuffix(
         headers,
-        `ai-sdk/provider-utils/${VERSION$f}`,
-        getRuntimeEnvironmentUserAgent$6()
+        `ai-sdk/provider-utils/${VERSION$a}`,
+        getRuntimeEnvironmentUserAgent()
       ),
       body: body.content,
       signal: abortSignal
     });
-    const responseHeaders = extractResponseHeaders$5(response);
+    const responseHeaders = extractResponseHeaders(response);
     if (!response.ok) {
       let errorInformation;
       try {
@@ -7511,10 +7970,10 @@ var postToApi$5 = async ({
           requestBodyValues: body.values
         });
       } catch (error) {
-        if (isAbortError$6(error) || APICallError$6.isInstance(error)) {
+        if (isAbortError(error) || APICallError.isInstance(error)) {
           throw error;
         }
-        throw new APICallError$6({
+        throw new APICallError({
           message: "Failed to process error response",
           cause: error,
           statusCode: response.status,
@@ -7533,11 +7992,11 @@ var postToApi$5 = async ({
       });
     } catch (error) {
       if (error instanceof Error) {
-        if (isAbortError$6(error) || APICallError$6.isInstance(error)) {
+        if (isAbortError(error) || APICallError.isInstance(error)) {
           throw error;
         }
       }
-      throw new APICallError$6({
+      throw new APICallError({
         message: "Failed to process successful response",
         cause: error,
         statusCode: response.status,
@@ -7547,15 +8006,44 @@ var postToApi$5 = async ({
       });
     }
   } catch (error) {
-    throw handleFetchError$5({ error, url, requestBodyValues: body.values });
+    throw handleFetchError({ error, url, requestBodyValues: body.values });
   }
 };
 
 // src/types/tool.ts
-function tool$3(tool2) {
+function tool(tool2) {
   return tool2;
 }
-function createProviderToolFactoryWithOutputSchema$2({
+
+// src/provider-tool-factory.ts
+function createProviderToolFactory({
+  id,
+  inputSchema
+}) {
+  return ({
+    execute,
+    outputSchema,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+    ...args
+  }) => tool({
+    type: "provider",
+    id,
+    args,
+    inputSchema,
+    outputSchema,
+    execute,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable
+  });
+}
+function createProviderToolFactoryWithOutputSchema({
   id,
   inputSchema,
   outputSchema,
@@ -7569,7 +8057,7 @@ function createProviderToolFactoryWithOutputSchema$2({
     onInputDelta,
     onInputAvailable,
     ...args
-  }) => tool$3({
+  }) => tool({
     type: "provider",
     id,
     args,
@@ -7586,23 +8074,23 @@ function createProviderToolFactoryWithOutputSchema$2({
 }
 
 // src/resolve.ts
-async function resolve$2(value) {
+async function resolve(value) {
   if (typeof value === "function") {
     value = value();
   }
   return Promise.resolve(value);
 }
-var createJsonErrorResponseHandler$5 = ({
+var createJsonErrorResponseHandler = ({
   errorSchema,
   errorToMessage,
   isRetryable
 }) => async ({ response, url, requestBodyValues }) => {
   const responseBody = await response.text();
-  const responseHeaders = extractResponseHeaders$5(response);
+  const responseHeaders = extractResponseHeaders(response);
   if (responseBody.trim() === "") {
     return {
       responseHeaders,
-      value: new APICallError$6({
+      value: new APICallError({
         message: response.statusText,
         url,
         requestBodyValues,
@@ -7614,13 +8102,13 @@ var createJsonErrorResponseHandler$5 = ({
     };
   }
   try {
-    const parsedError = await parseJSON$5({
+    const parsedError = await parseJSON({
       text: responseBody,
       schema: errorSchema
     });
     return {
       responseHeaders,
-      value: new APICallError$6({
+      value: new APICallError({
         message: errorToMessage(parsedError),
         url,
         requestBodyValues,
@@ -7634,7 +8122,7 @@ var createJsonErrorResponseHandler$5 = ({
   } catch (parseError) {
     return {
       responseHeaders,
-      value: new APICallError$6({
+      value: new APICallError({
         message: response.statusText,
         url,
         requestBodyValues,
@@ -7646,28 +8134,28 @@ var createJsonErrorResponseHandler$5 = ({
     };
   }
 };
-var createEventSourceResponseHandler$4 = (chunkSchema) => async ({ response }) => {
-  const responseHeaders = extractResponseHeaders$5(response);
+var createEventSourceResponseHandler = (chunkSchema) => async ({ response }) => {
+  const responseHeaders = extractResponseHeaders(response);
   if (response.body == null) {
-    throw new EmptyResponseBodyError$4({});
+    throw new EmptyResponseBodyError({});
   }
   return {
     responseHeaders,
-    value: parseJsonEventStream$4({
+    value: parseJsonEventStream({
       stream: response.body,
       schema: chunkSchema
     })
   };
 };
-var createJsonResponseHandler$5 = (responseSchema) => async ({ response, url, requestBodyValues }) => {
+var createJsonResponseHandler = (responseSchema) => async ({ response, url, requestBodyValues }) => {
   const responseBody = await response.text();
-  const parsedResult = await safeParseJSON$6({
+  const parsedResult = await safeParseJSON({
     text: responseBody,
     schema: responseSchema
   });
-  const responseHeaders = extractResponseHeaders$5(response);
+  const responseHeaders = extractResponseHeaders(response);
   if (!parsedResult.success) {
-    throw new APICallError$6({
+    throw new APICallError({
       message: "Invalid JSON response",
       cause: parsedResult.error,
       statusCode: response.status,
@@ -7683,10 +8171,64 @@ var createJsonResponseHandler$5 = (responseSchema) => async ({ response, url, re
     rawValue: parsedResult.rawValue
   };
 };
+var createBinaryResponseHandler = () => async ({ response, url, requestBodyValues }) => {
+  const responseHeaders = extractResponseHeaders(response);
+  if (!response.body) {
+    throw new APICallError({
+      message: "Response body is empty",
+      url,
+      requestBodyValues,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody: void 0
+    });
+  }
+  try {
+    const buffer = await response.arrayBuffer();
+    return {
+      responseHeaders,
+      value: new Uint8Array(buffer)
+    };
+  } catch (error) {
+    throw new APICallError({
+      message: "Failed to read response as array buffer",
+      url,
+      requestBodyValues,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody: void 0,
+      cause: error
+    });
+  }
+};
 
 // src/without-trailing-slash.ts
-function withoutTrailingSlash$4(url) {
+function withoutTrailingSlash(url) {
   return url == null ? void 0 : url.replace(/\/$/, "");
+}
+
+// src/is-async-iterable.ts
+function isAsyncIterable(obj) {
+  return obj != null && typeof obj[Symbol.asyncIterator] === "function";
+}
+
+// src/types/execute-tool.ts
+async function* executeTool({
+  execute,
+  input,
+  options
+}) {
+  const result = execute(input, options);
+  if (isAsyncIterable(result)) {
+    let lastOutput;
+    for await (const output of result) {
+      lastOutput = output;
+      yield { type: "preliminary", output };
+    }
+    yield { type: "final", output: lastOutput };
+  } else {
+    yield { type: "final", output: await result };
+  }
 }
 
 var getContext_1;
@@ -7771,19 +8313,21 @@ var indexBrowserExports = requireIndexBrowser();
 // src/gateway-provider.ts
 
 // src/errors/gateway-error.ts
-var marker$a = "vercel.ai.gateway.error";
-var symbol$a = Symbol.for(marker$a);
-var _a$a, _b$9;
-var GatewayError = class _GatewayError extends (_b$9 = Error, _a$a = symbol$a, _b$9) {
+var marker$1 = "vercel.ai.gateway.error";
+var symbol$1 = Symbol.for(marker$1);
+var _a$1, _b;
+var GatewayError = class _GatewayError extends (_b = Error, _a$1 = symbol$1, _b) {
   constructor({
     message,
     statusCode = 500,
-    cause
+    cause,
+    generationId
   }) {
-    super(message);
-    this[_a$a] = true;
+    super(generationId ? `${message} [${generationId}]` : message);
+    this[_a$1] = true;
     this.statusCode = statusCode;
     this.cause = cause;
+    this.generationId = generationId;
   }
   /**
    * Checks if the given error is a Gateway Error.
@@ -7794,29 +8338,30 @@ var GatewayError = class _GatewayError extends (_b$9 = Error, _a$a = symbol$a, _
     return _GatewayError.hasMarker(error);
   }
   static hasMarker(error) {
-    return typeof error === "object" && error !== null && symbol$a in error && error[symbol$a] === true;
+    return typeof error === "object" && error !== null && symbol$1 in error && error[symbol$1] === true;
   }
 };
 
 // src/errors/gateway-authentication-error.ts
-var name$a = "GatewayAuthenticationError";
-var marker2$6 = `vercel.ai.gateway.error.${name$a}`;
-var symbol2$6 = Symbol.for(marker2$6);
-var _a2$6, _b2$6;
-var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2$6 = GatewayError, _a2$6 = symbol2$6, _b2$6) {
+var name$1 = "GatewayAuthenticationError";
+var marker2 = `vercel.ai.gateway.error.${name$1}`;
+var symbol2 = Symbol.for(marker2);
+var _a2, _b2;
+var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2 = GatewayError, _a2 = symbol2, _b2) {
   constructor({
     message = "Authentication failed",
     statusCode = 401,
-    cause
+    cause,
+    generationId
   } = {}) {
-    super({ message, statusCode, cause });
-    this[_a2$6] = true;
+    super({ message, statusCode, cause, generationId });
+    this[_a2] = true;
     // used in isInstance
-    this.name = name$a;
+    this.name = name$1;
     this.type = "authentication_error";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol2$6 in error;
+    return GatewayError.hasMarker(error) && symbol2 in error;
   }
   /**
    * Creates a contextual error message when authentication fails
@@ -7826,7 +8371,8 @@ var GatewayAuthenticationError = class _GatewayAuthenticationError extends (_b2$
     oidcTokenProvided,
     message = "Authentication failed",
     statusCode = 401,
-    cause
+    cause,
+    generationId
   }) {
     let contextualMessage;
     if (apiKeyProvided) {
@@ -7854,129 +8400,135 @@ Run 'npx vercel link' to link your project, then 'vc env pull' to fetch the toke
     return new _GatewayAuthenticationError({
       message: contextualMessage,
       statusCode,
-      cause
+      cause,
+      generationId
     });
   }
 };
 
 // src/errors/gateway-invalid-request-error.ts
-var name2$4 = "GatewayInvalidRequestError";
-var marker3$5 = `vercel.ai.gateway.error.${name2$4}`;
-var symbol3$5 = Symbol.for(marker3$5);
-var _a3$5, _b3$4;
-var GatewayInvalidRequestError = class extends (_b3$4 = GatewayError, _a3$5 = symbol3$5, _b3$4) {
+var name2 = "GatewayInvalidRequestError";
+var marker3$1 = `vercel.ai.gateway.error.${name2}`;
+var symbol3$1 = Symbol.for(marker3$1);
+var _a3$1, _b3;
+var GatewayInvalidRequestError = class extends (_b3 = GatewayError, _a3$1 = symbol3$1, _b3) {
   constructor({
     message = "Invalid request",
     statusCode = 400,
-    cause
+    cause,
+    generationId
   } = {}) {
-    super({ message, statusCode, cause });
-    this[_a3$5] = true;
+    super({ message, statusCode, cause, generationId });
+    this[_a3$1] = true;
     // used in isInstance
-    this.name = name2$4;
+    this.name = name2;
     this.type = "invalid_request_error";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol3$5 in error;
+    return GatewayError.hasMarker(error) && symbol3$1 in error;
   }
 };
 
 // src/errors/gateway-rate-limit-error.ts
-var name3$7 = "GatewayRateLimitError";
-var marker4$7 = `vercel.ai.gateway.error.${name3$7}`;
-var symbol4$7 = Symbol.for(marker4$7);
-var _a4$7, _b4$6;
-var GatewayRateLimitError = class extends (_b4$6 = GatewayError, _a4$7 = symbol4$7, _b4$6) {
+var name3$1 = "GatewayRateLimitError";
+var marker4$1 = `vercel.ai.gateway.error.${name3$1}`;
+var symbol4$1 = Symbol.for(marker4$1);
+var _a4$1, _b4;
+var GatewayRateLimitError = class extends (_b4 = GatewayError, _a4$1 = symbol4$1, _b4) {
   constructor({
     message = "Rate limit exceeded",
     statusCode = 429,
-    cause
+    cause,
+    generationId
   } = {}) {
-    super({ message, statusCode, cause });
-    this[_a4$7] = true;
+    super({ message, statusCode, cause, generationId });
+    this[_a4$1] = true;
     // used in isInstance
-    this.name = name3$7;
+    this.name = name3$1;
     this.type = "rate_limit_exceeded";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol4$7 in error;
+    return GatewayError.hasMarker(error) && symbol4$1 in error;
   }
 };
-var name4$3 = "GatewayModelNotFoundError";
-var marker5$3 = `vercel.ai.gateway.error.${name4$3}`;
-var symbol5$3 = Symbol.for(marker5$3);
-var modelNotFoundParamSchema = lazySchema$2(
-  () => zodSchema$6(
+var name4$1 = "GatewayModelNotFoundError";
+var marker5$1 = `vercel.ai.gateway.error.${name4$1}`;
+var symbol5$1 = Symbol.for(marker5$1);
+var modelNotFoundParamSchema = lazySchema(
+  () => zodSchema(
     object$1({
       modelId: string()
     })
   )
 );
-var _a5$3, _b5$2;
-var GatewayModelNotFoundError = class extends (_b5$2 = GatewayError, _a5$3 = symbol5$3, _b5$2) {
+var _a5$1, _b5;
+var GatewayModelNotFoundError = class extends (_b5 = GatewayError, _a5$1 = symbol5$1, _b5) {
   constructor({
     message = "Model not found",
     statusCode = 404,
     modelId,
-    cause
+    cause,
+    generationId
   } = {}) {
-    super({ message, statusCode, cause });
-    this[_a5$3] = true;
+    super({ message, statusCode, cause, generationId });
+    this[_a5$1] = true;
     // used in isInstance
-    this.name = name4$3;
+    this.name = name4$1;
     this.type = "model_not_found";
     this.modelId = modelId;
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol5$3 in error;
+    return GatewayError.hasMarker(error) && symbol5$1 in error;
   }
 };
 
 // src/errors/gateway-internal-server-error.ts
-var name5$3 = "GatewayInternalServerError";
-var marker6$3 = `vercel.ai.gateway.error.${name5$3}`;
-var symbol6$3 = Symbol.for(marker6$3);
-var _a6$3, _b6$2;
-var GatewayInternalServerError = class extends (_b6$2 = GatewayError, _a6$3 = symbol6$3, _b6$2) {
+var name5$1 = "GatewayInternalServerError";
+var marker6$1 = `vercel.ai.gateway.error.${name5$1}`;
+var symbol6$1 = Symbol.for(marker6$1);
+var _a6$1, _b6;
+var GatewayInternalServerError = class extends (_b6 = GatewayError, _a6$1 = symbol6$1, _b6) {
   constructor({
     message = "Internal server error",
     statusCode = 500,
-    cause
+    cause,
+    generationId
   } = {}) {
-    super({ message, statusCode, cause });
-    this[_a6$3] = true;
+    super({ message, statusCode, cause, generationId });
+    this[_a6$1] = true;
     // used in isInstance
-    this.name = name5$3;
+    this.name = name5$1;
     this.type = "internal_server_error";
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol6$3 in error;
+    return GatewayError.hasMarker(error) && symbol6$1 in error;
   }
 };
 
 // src/errors/gateway-response-error.ts
-var name6$7 = "GatewayResponseError";
-var marker7$6 = `vercel.ai.gateway.error.${name6$7}`;
-var symbol7$6 = Symbol.for(marker7$6);
-var _a7$6, _b7$6;
-var GatewayResponseError = class extends (_b7$6 = GatewayError, _a7$6 = symbol7$6, _b7$6) {
+var name6$1 = "GatewayResponseError";
+var marker7 = `vercel.ai.gateway.error.${name6$1}`;
+var symbol7 = Symbol.for(marker7);
+var _a7, _b7;
+var GatewayResponseError = class extends (_b7 = GatewayError, _a7 = symbol7, _b7) {
   constructor({
     message = "Invalid response from Gateway",
     statusCode = 502,
     response,
     validationError,
-    cause
+    cause,
+    generationId
   } = {}) {
-    super({ message, statusCode, cause });
-    this[_a7$6] = true;
+    super({ message, statusCode, cause, generationId });
+    this[_a7] = true;
     // used in isInstance
-    this.name = name6$7;
+    this.name = name6$1;
     this.type = "response_error";
     this.response = response;
     this.validationError = validationError;
   }
   static isInstance(error) {
-    return GatewayError.hasMarker(error) && symbol7$6 in error;
+    return GatewayError.hasMarker(error) && symbol7 in error;
   }
 };
 async function createGatewayErrorFromResponse({
@@ -7986,36 +8538,51 @@ async function createGatewayErrorFromResponse({
   cause,
   authMethod
 }) {
-  const parseResult = await safeValidateTypes$6({
+  var _a8;
+  const parseResult = await safeValidateTypes({
     value: response,
     schema: gatewayErrorResponseSchema
   });
   if (!parseResult.success) {
+    const rawGenerationId = typeof response === "object" && response !== null && "generationId" in response ? response.generationId : void 0;
     return new GatewayResponseError({
       message: `Invalid error response format: ${defaultMessage}`,
       statusCode,
       response,
       validationError: parseResult.error,
-      cause
+      cause,
+      generationId: rawGenerationId
     });
   }
   const validatedResponse = parseResult.value;
   const errorType = validatedResponse.error.type;
   const message = validatedResponse.error.message;
+  const generationId = (_a8 = validatedResponse.generationId) != null ? _a8 : void 0;
   switch (errorType) {
     case "authentication_error":
       return GatewayAuthenticationError.createContextualError({
         apiKeyProvided: authMethod === "api-key",
         oidcTokenProvided: authMethod === "oidc",
         statusCode,
-        cause
+        cause,
+        generationId
       });
     case "invalid_request_error":
-      return new GatewayInvalidRequestError({ message, statusCode, cause });
+      return new GatewayInvalidRequestError({
+        message,
+        statusCode,
+        cause,
+        generationId
+      });
     case "rate_limit_exceeded":
-      return new GatewayRateLimitError({ message, statusCode, cause });
+      return new GatewayRateLimitError({
+        message,
+        statusCode,
+        cause,
+        generationId
+      });
     case "model_not_found": {
-      const modelResult = await safeValidateTypes$6({
+      const modelResult = await safeValidateTypes({
         value: validatedResponse.error.param,
         schema: modelNotFoundParamSchema
       });
@@ -8023,24 +8590,36 @@ async function createGatewayErrorFromResponse({
         message,
         statusCode,
         modelId: modelResult.success ? modelResult.value.modelId : void 0,
-        cause
+        cause,
+        generationId
       });
     }
     case "internal_server_error":
-      return new GatewayInternalServerError({ message, statusCode, cause });
+      return new GatewayInternalServerError({
+        message,
+        statusCode,
+        cause,
+        generationId
+      });
     default:
-      return new GatewayInternalServerError({ message, statusCode, cause });
+      return new GatewayInternalServerError({
+        message,
+        statusCode,
+        cause,
+        generationId
+      });
   }
 }
-var gatewayErrorResponseSchema = lazySchema$2(
-  () => zodSchema$6(
+var gatewayErrorResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       error: object$1({
         message: string(),
         type: string().nullish(),
         param: unknown().nullish(),
         code: union([string(), number$1()]).nullish()
-      })
+      }),
+      generationId: string().nullish()
     })
   )
 );
@@ -8051,7 +8630,7 @@ function asGatewayError(error, authMethod) {
   if (GatewayError.isInstance(error)) {
     return error;
   }
-  if (APICallError$6.isInstance(error)) {
+  if (APICallError.isInstance(error)) {
     return createGatewayErrorFromResponse({
       response: extractApiCallResponse(error),
       statusCode: (_a8 = error.statusCode) != null ? _a8 : 500,
@@ -8085,14 +8664,14 @@ function extractApiCallResponse(error) {
 }
 var GATEWAY_AUTH_METHOD_HEADER = "ai-gateway-auth-method";
 async function parseAuthMethod(headers) {
-  const result = await safeValidateTypes$6({
+  const result = await safeValidateTypes({
     value: headers[GATEWAY_AUTH_METHOD_HEADER],
     schema: gatewayAuthMethodSchema
   });
   return result.success ? result.value : void 0;
 }
-var gatewayAuthMethodSchema = lazySchema$2(
-  () => zodSchema$6(union([literal("api-key"), literal("oidc")]))
+var gatewayAuthMethodSchema = lazySchema(
+  () => zodSchema(union([literal("api-key"), literal("oidc")]))
 );
 var GatewayFetchMetadata = class {
   constructor(config) {
@@ -8102,11 +8681,11 @@ var GatewayFetchMetadata = class {
     try {
       const { value } = await getFromApi({
         url: `${this.config.baseURL}/config`,
-        headers: await resolve$2(this.config.headers()),
-        successfulResponseHandler: createJsonResponseHandler$5(
+        headers: await resolve(this.config.headers()),
+        successfulResponseHandler: createJsonResponseHandler(
           gatewayAvailableModelsResponseSchema
         ),
-        failedResponseHandler: createJsonErrorResponseHandler$5({
+        failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -8122,11 +8701,11 @@ var GatewayFetchMetadata = class {
       const baseUrl = new URL(this.config.baseURL);
       const { value } = await getFromApi({
         url: `${baseUrl.origin}/v1/credits`,
-        headers: await resolve$2(this.config.headers()),
-        successfulResponseHandler: createJsonResponseHandler$5(
+        headers: await resolve(this.config.headers()),
+        successfulResponseHandler: createJsonResponseHandler(
           gatewayCreditsResponseSchema
         ),
-        failedResponseHandler: createJsonErrorResponseHandler$5({
+        failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -8138,8 +8717,8 @@ var GatewayFetchMetadata = class {
     }
   }
 };
-var gatewayAvailableModelsResponseSchema = lazySchema$2(
-  () => zodSchema$6(
+var gatewayAvailableModelsResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       models: array$1(
         object$1({
@@ -8170,8 +8749,8 @@ var gatewayAvailableModelsResponseSchema = lazySchema$2(
     })
   )
 );
-var gatewayCreditsResponseSchema = lazySchema$2(
-  () => zodSchema$6(
+var gatewayCreditsResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       balance: string(),
       total_used: string()
@@ -8201,23 +8780,23 @@ var GatewayLanguageModel = class {
   async doGenerate(options) {
     const { args, warnings } = await this.getArgs(options);
     const { abortSignal } = options;
-    const resolvedHeaders = await resolve$2(this.config.headers());
+    const resolvedHeaders = await resolve(this.config.headers());
     try {
       const {
         responseHeaders,
         value: responseBody,
         rawValue: rawResponse
-      } = await postJsonToApi$5({
+      } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders$5(
+        headers: combineHeaders(
           resolvedHeaders,
           options.headers,
           this.getModelConfigHeaders(this.modelId, false),
-          await resolve$2(this.config.o11yHeaders)
+          await resolve(this.config.o11yHeaders)
         ),
         body: args,
-        successfulResponseHandler: createJsonResponseHandler$5(any()),
-        failedResponseHandler: createJsonErrorResponseHandler$5({
+        successfulResponseHandler: createJsonResponseHandler(any()),
+        failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -8237,19 +8816,19 @@ var GatewayLanguageModel = class {
   async doStream(options) {
     const { args, warnings } = await this.getArgs(options);
     const { abortSignal } = options;
-    const resolvedHeaders = await resolve$2(this.config.headers());
+    const resolvedHeaders = await resolve(this.config.headers());
     try {
-      const { value: response, responseHeaders } = await postJsonToApi$5({
+      const { value: response, responseHeaders } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders$5(
+        headers: combineHeaders(
           resolvedHeaders,
           options.headers,
           this.getModelConfigHeaders(this.modelId, true),
-          await resolve$2(this.config.o11yHeaders)
+          await resolve(this.config.o11yHeaders)
         ),
         body: args,
-        successfulResponseHandler: createEventSourceResponseHandler$4(any()),
-        failedResponseHandler: createJsonErrorResponseHandler$5({
+        successfulResponseHandler: createEventSourceResponseHandler(any()),
+        failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -8344,28 +8923,28 @@ var GatewayEmbeddingModel = class {
     providerOptions
   }) {
     var _a8;
-    const resolvedHeaders = await resolve$2(this.config.headers());
+    const resolvedHeaders = await resolve(this.config.headers());
     try {
       const {
         responseHeaders,
         value: responseBody,
         rawValue
-      } = await postJsonToApi$5({
+      } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders$5(
+        headers: combineHeaders(
           resolvedHeaders,
           headers != null ? headers : {},
           this.getModelConfigHeaders(),
-          await resolve$2(this.config.o11yHeaders)
+          await resolve(this.config.o11yHeaders)
         ),
         body: {
           values,
           ...providerOptions ? { providerOptions } : {}
         },
-        successfulResponseHandler: createJsonResponseHandler$5(
+        successfulResponseHandler: createJsonResponseHandler(
           gatewayEmbeddingResponseSchema
         ),
-        failedResponseHandler: createJsonErrorResponseHandler$5({
+        failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -8393,8 +8972,8 @@ var GatewayEmbeddingModel = class {
     };
   }
 };
-var gatewayEmbeddingResponseSchema = lazySchema$2(
-  () => zodSchema$6(
+var gatewayEmbeddingResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       embeddings: array$1(array$1(number$1())),
       usage: object$1({ tokens: number$1() }).nullish(),
@@ -8426,19 +9005,19 @@ var GatewayImageModel = class {
     abortSignal
   }) {
     var _a8;
-    const resolvedHeaders = await resolve$2(this.config.headers());
+    const resolvedHeaders = await resolve(this.config.headers());
     try {
       const {
         responseHeaders,
         value: responseBody,
         rawValue
-      } = await postJsonToApi$5({
+      } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders$5(
+        headers: combineHeaders(
           resolvedHeaders,
           headers != null ? headers : {},
           this.getModelConfigHeaders(),
-          await resolve$2(this.config.o11yHeaders)
+          await resolve(this.config.o11yHeaders)
         ),
         body: {
           prompt,
@@ -8452,10 +9031,10 @@ var GatewayImageModel = class {
           },
           ...mask && { mask: maybeEncodeImageFile(mask) }
         },
-        successfulResponseHandler: createJsonResponseHandler$5(
+        successfulResponseHandler: createJsonResponseHandler(
           gatewayImageResponseSchema
         ),
-        failedResponseHandler: createJsonErrorResponseHandler$5({
+        failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: any(),
           errorToMessage: (data) => data
         }),
@@ -8491,7 +9070,7 @@ function maybeEncodeImageFile(file) {
   if (file.type === "file" && file.data instanceof Uint8Array) {
     return {
       ...file,
-      data: convertUint8ArrayToBase64$5(file.data)
+      data: convertUint8ArrayToBase64(file.data)
     };
   }
   return file;
@@ -8510,8 +9089,8 @@ var gatewayImageResponseSchema = object$1({
   ).optional(),
   providerMetadata: record(string(), providerMetadataEntrySchema).optional()
 });
-var perplexitySearchInputSchema = lazySchema$2(
-  () => zodSchema$6(
+var perplexitySearchInputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       query: union([string(), array$1(string())]).describe(
         "Search query (string) or multiple queries (array of up to 5 strings). Multi-query searches return combined results from all queries."
@@ -8552,8 +9131,8 @@ var perplexitySearchInputSchema = lazySchema$2(
     })
   )
 );
-var perplexitySearchOutputSchema = lazySchema$2(
-  () => zodSchema$6(
+var perplexitySearchOutputSchema = lazySchema(
+  () => zodSchema(
     union([
       // Success response
       object$1({
@@ -8583,7 +9162,7 @@ var perplexitySearchOutputSchema = lazySchema$2(
     ])
   )
 );
-var perplexitySearchToolFactory = createProviderToolFactoryWithOutputSchema$2({
+var perplexitySearchToolFactory = createProviderToolFactoryWithOutputSchema({
   id: "gateway.perplexity_search",
   inputSchema: perplexitySearchInputSchema,
   outputSchema: perplexitySearchOutputSchema
@@ -8607,7 +9186,7 @@ async function getVercelRequestId() {
 }
 
 // src/version.ts
-var VERSION$e = "3.0.18" ;
+var VERSION$9 = "3.0.22" ;
 
 // src/gateway-provider.ts
 var AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
@@ -8617,18 +9196,18 @@ function createGatewayProvider(options = {}) {
   let metadataCache = null;
   const cacheRefreshMillis = (_a8 = options.metadataCacheRefreshMillis) != null ? _a8 : 1e3 * 60 * 5;
   let lastFetchTime = 0;
-  const baseURL = (_b8 = withoutTrailingSlash$4(options.baseURL)) != null ? _b8 : "https://ai-gateway.vercel.sh/v3/ai";
+  const baseURL = (_b8 = withoutTrailingSlash(options.baseURL)) != null ? _b8 : "https://ai-gateway.vercel.sh/v3/ai";
   const getHeaders = async () => {
     try {
       const auth = await getGatewayAuthToken(options);
-      return withUserAgentSuffix$6(
+      return withUserAgentSuffix(
         {
           Authorization: `Bearer ${auth.token}`,
           "ai-gateway-protocol-version": AI_GATEWAY_PROTOCOL_VERSION,
           [GATEWAY_AUTH_METHOD_HEADER]: auth.authMethod,
           ...options.headers
         },
-        `ai-sdk/gateway/${VERSION$e}`
+        `ai-sdk/gateway/${VERSION$9}`
       );
     } catch (error) {
       throw GatewayAuthenticationError.createContextualError({
@@ -8640,15 +9219,15 @@ function createGatewayProvider(options = {}) {
     }
   };
   const createO11yHeaders = () => {
-    const deploymentId = loadOptionalSetting$1({
+    const deploymentId = loadOptionalSetting({
       settingValue: void 0,
       environmentVariableName: "VERCEL_DEPLOYMENT_ID"
     });
-    const environment = loadOptionalSetting$1({
+    const environment = loadOptionalSetting({
       settingValue: void 0,
       environmentVariableName: "VERCEL_ENV"
     });
-    const region = loadOptionalSetting$1({
+    const region = loadOptionalSetting({
       settingValue: void 0,
       environmentVariableName: "VERCEL_REGION"
     });
@@ -8741,7 +9320,7 @@ function createGatewayProvider(options = {}) {
 }
 var gateway = createGatewayProvider();
 async function getGatewayAuthToken(options) {
-  const apiKey = loadOptionalSetting$1({
+  const apiKey = loadOptionalSetting({
     settingValue: options.apiKey,
     environmentVariableName: "AI_GATEWAY_API_KEY"
   });
@@ -8756,1870 +9335,6 @@ async function getGatewayAuthToken(options) {
     token: oidcToken,
     authMethod: "oidc"
   };
-}
-
-// src/errors/ai-sdk-error.ts
-var marker$9 = "vercel.ai.error";
-var symbol$9 = Symbol.for(marker$9);
-var _a$9, _b$8;
-var AISDKError$5 = class _AISDKError extends (_b$8 = Error, _a$9 = symbol$9, _b$8) {
-  /**
-   * Creates an AI SDK Error.
-   *
-   * @param {Object} params - The parameters for creating the error.
-   * @param {string} params.name - The name of the error.
-   * @param {string} params.message - The error message.
-   * @param {unknown} [params.cause] - The underlying cause of the error.
-   */
-  constructor({
-    name: name14,
-    message,
-    cause
-  }) {
-    super(message);
-    this[_a$9] = true;
-    this.name = name14;
-    this.cause = cause;
-  }
-  /**
-   * Checks if the given error is an AI SDK Error.
-   * @param {unknown} error - The error to check.
-   * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
-   */
-  static isInstance(error) {
-    return _AISDKError.hasMarker(error, marker$9);
-  }
-  static hasMarker(error, marker15) {
-    const markerSymbol = Symbol.for(marker15);
-    return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
-  }
-};
-
-// src/errors/api-call-error.ts
-var name$9 = "AI_APICallError";
-var marker2$5 = `vercel.ai.error.${name$9}`;
-var symbol2$5 = Symbol.for(marker2$5);
-var _a2$5, _b2$5;
-var APICallError$5 = class APICallError extends (_b2$5 = AISDKError$5, _a2$5 = symbol2$5, _b2$5) {
-  constructor({
-    message,
-    url,
-    requestBodyValues,
-    statusCode,
-    responseHeaders,
-    responseBody,
-    cause,
-    isRetryable = statusCode != null && (statusCode === 408 || // request timeout
-    statusCode === 409 || // conflict
-    statusCode === 429 || // too many requests
-    statusCode >= 500),
-    // server error
-    data
-  }) {
-    super({ name: name$9, message, cause });
-    this[_a2$5] = true;
-    this.url = url;
-    this.requestBodyValues = requestBodyValues;
-    this.statusCode = statusCode;
-    this.responseHeaders = responseHeaders;
-    this.responseBody = responseBody;
-    this.isRetryable = isRetryable;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker2$5);
-  }
-};
-
-// src/errors/get-error-message.ts
-function getErrorMessage$6(error) {
-  if (error == null) {
-    return "unknown error";
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return JSON.stringify(error);
-}
-
-// src/errors/invalid-argument-error.ts
-var name3$6 = "AI_InvalidArgumentError";
-var marker4$6 = `vercel.ai.error.${name3$6}`;
-var symbol4$6 = Symbol.for(marker4$6);
-var _a4$6, _b4$5;
-var InvalidArgumentError$6 = class InvalidArgumentError extends (_b4$5 = AISDKError$5, _a4$6 = symbol4$6, _b4$5) {
-  constructor({
-    message,
-    cause,
-    argument
-  }) {
-    super({ name: name3$6, message, cause });
-    this[_a4$6] = true;
-    this.argument = argument;
-  }
-  static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker4$6);
-  }
-};
-
-// src/errors/invalid-prompt-error.ts
-var name4$2 = "AI_InvalidPromptError";
-var marker5$2 = `vercel.ai.error.${name4$2}`;
-var symbol5$2 = Symbol.for(marker5$2);
-var _a5$2, _b5$1;
-var InvalidPromptError$1 = class InvalidPromptError extends (_b5$1 = AISDKError$5, _a5$2 = symbol5$2, _b5$1) {
-  constructor({
-    prompt,
-    message,
-    cause
-  }) {
-    super({ name: name4$2, message: `Invalid prompt: ${message}`, cause });
-    this[_a5$2] = true;
-    this.prompt = prompt;
-  }
-  static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker5$2);
-  }
-};
-
-// src/errors/json-parse-error.ts
-var name6$6 = "AI_JSONParseError";
-var marker7$5 = `vercel.ai.error.${name6$6}`;
-var symbol7$5 = Symbol.for(marker7$5);
-var _a7$5, _b7$5;
-var JSONParseError$5 = class JSONParseError extends (_b7$5 = AISDKError$5, _a7$5 = symbol7$5, _b7$5) {
-  constructor({ text, cause }) {
-    super({
-      name: name6$6,
-      message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage$6(cause)}`,
-      cause
-    });
-    this[_a7$5] = true;
-    this.text = text;
-  }
-  static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker7$5);
-  }
-};
-
-// src/errors/type-validation-error.ts
-var name12$6 = "AI_TypeValidationError";
-var marker13$5 = `vercel.ai.error.${name12$6}`;
-var symbol13$5 = Symbol.for(marker13$5);
-var _a13$5, _b13$5;
-var TypeValidationError$5 = class _TypeValidationError extends (_b13$5 = AISDKError$5, _a13$5 = symbol13$5, _b13$5) {
-  constructor({ value, cause }) {
-    super({
-      name: name12$6,
-      message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$6(cause)}`,
-      cause
-    });
-    this[_a13$5] = true;
-    this.value = value;
-  }
-  static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker13$5);
-  }
-  /**
-   * Wraps an error into a TypeValidationError.
-   * If the cause is already a TypeValidationError with the same value, it returns the cause.
-   * Otherwise, it creates a new TypeValidationError.
-   *
-   * @param {Object} params - The parameters for wrapping the error.
-   * @param {unknown} params.value - The value that failed validation.
-   * @param {unknown} params.cause - The original error or cause of the validation failure.
-   * @returns {TypeValidationError} A TypeValidationError instance.
-   */
-  static wrap({
-    value,
-    cause
-  }) {
-    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
-  }
-};
-
-// src/errors/unsupported-functionality-error.ts
-var name13$4 = "AI_UnsupportedFunctionalityError";
-var marker14$5 = `vercel.ai.error.${name13$4}`;
-var symbol14$5 = Symbol.for(marker14$5);
-var _a14$5, _b14$4;
-var UnsupportedFunctionalityError$4 = class UnsupportedFunctionalityError extends (_b14$4 = AISDKError$5, _a14$5 = symbol14$5, _b14$4) {
-  constructor({
-    functionality,
-    message = `'${functionality}' functionality not supported.`
-  }) {
-    super({ name: name13$4, message });
-    this[_a14$5] = true;
-    this.functionality = functionality;
-  }
-  static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker14$5);
-  }
-};
-
-// src/combine-headers.ts
-
-// src/delay.ts
-async function delay(delayInMs, options) {
-  if (delayInMs == null) {
-    return Promise.resolve();
-  }
-  const signal = options == null ? void 0 : options.abortSignal;
-  return new Promise((resolve2, reject) => {
-    if (signal == null ? void 0 : signal.aborted) {
-      reject(createAbortError());
-      return;
-    }
-    const timeoutId = setTimeout(() => {
-      cleanup();
-      resolve2();
-    }, delayInMs);
-    const cleanup = () => {
-      clearTimeout(timeoutId);
-      signal == null ? void 0 : signal.removeEventListener("abort", onAbort);
-    };
-    const onAbort = () => {
-      cleanup();
-      reject(createAbortError());
-    };
-    signal == null ? void 0 : signal.addEventListener("abort", onAbort);
-  });
-}
-function createAbortError() {
-  return new DOMException("Delay was aborted", "AbortError");
-}
-
-// src/delayed-promise.ts
-var DelayedPromise = class {
-  constructor() {
-    this.status = { type: "pending" };
-    this._resolve = void 0;
-    this._reject = void 0;
-  }
-  get promise() {
-    if (this._promise) {
-      return this._promise;
-    }
-    this._promise = new Promise((resolve2, reject) => {
-      if (this.status.type === "resolved") {
-        resolve2(this.status.value);
-      } else if (this.status.type === "rejected") {
-        reject(this.status.error);
-      }
-      this._resolve = resolve2;
-      this._reject = reject;
-    });
-    return this._promise;
-  }
-  resolve(value) {
-    var _a2;
-    this.status = { type: "resolved", value };
-    if (this._promise) {
-      (_a2 = this._resolve) == null ? void 0 : _a2.call(this, value);
-    }
-  }
-  reject(error) {
-    var _a2;
-    this.status = { type: "rejected", error };
-    if (this._promise) {
-      (_a2 = this._reject) == null ? void 0 : _a2.call(this, error);
-    }
-  }
-  isResolved() {
-    return this.status.type === "resolved";
-  }
-  isRejected() {
-    return this.status.type === "rejected";
-  }
-  isPending() {
-    return this.status.type === "pending";
-  }
-};
-
-// src/uint8-utils.ts
-var { btoa: btoa$4, atob: atob$3 } = globalThis;
-function convertBase64ToUint8Array$2(base64String) {
-  const base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/");
-  const latin1string = atob$3(base64Url);
-  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
-}
-function convertUint8ArrayToBase64$4(array) {
-  let latin1string = "";
-  for (let i = 0; i < array.length; i++) {
-    latin1string += String.fromCodePoint(array[i]);
-  }
-  return btoa$4(latin1string);
-}
-var name$8 = "AI_DownloadError";
-var marker$8 = `vercel.ai.error.${name$8}`;
-var symbol$8 = Symbol.for(marker$8);
-var _a$8, _b$7;
-var DownloadError$2 = class DownloadError extends (_b$7 = AISDKError$5, _a$8 = symbol$8, _b$7) {
-  constructor({
-    url,
-    statusCode,
-    statusText,
-    cause,
-    message = cause == null ? `Failed to download ${url}: ${statusCode} ${statusText}` : `Failed to download ${url}: ${cause}`
-  }) {
-    super({ name: name$8, message, cause });
-    this[_a$8] = true;
-    this.url = url;
-    this.statusCode = statusCode;
-    this.statusText = statusText;
-  }
-  static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker$8);
-  }
-};
-var createIdGenerator$5 = ({
-  prefix,
-  size = 16,
-  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  separator = "-"
-} = {}) => {
-  const generator = () => {
-    const alphabetLength = alphabet.length;
-    const chars = new Array(size);
-    for (let i = 0; i < size; i++) {
-      chars[i] = alphabet[Math.random() * alphabetLength | 0];
-    }
-    return chars.join("");
-  };
-  if (prefix == null) {
-    return generator;
-  }
-  if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError$6({
-      argument: "separator",
-      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
-    });
-  }
-  return () => `${prefix}${separator}${generator()}`;
-};
-createIdGenerator$5();
-
-// src/get-error-message.ts
-function getErrorMessage$5(error) {
-  if (error == null) {
-    return "unknown error";
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return JSON.stringify(error);
-}
-
-// src/is-abort-error.ts
-function isAbortError$5(error) {
-  return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
-  error.name === "TimeoutError");
-}
-
-// src/get-runtime-environment-user-agent.ts
-function getRuntimeEnvironmentUserAgent$5(globalThisAny = globalThis) {
-  var _a2, _b2, _c;
-  if (globalThisAny.window) {
-    return `runtime/browser`;
-  }
-  if ((_a2 = globalThisAny.navigator) == null ? void 0 : _a2.userAgent) {
-    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
-  }
-  if ((_c = (_b2 = globalThisAny.process) == null ? void 0 : _b2.versions) == null ? void 0 : _c.node) {
-    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
-  }
-  if (globalThisAny.EdgeRuntime) {
-    return `runtime/vercel-edge`;
-  }
-  return "runtime/unknown";
-}
-
-// src/normalize-headers.ts
-function normalizeHeaders$5(headers) {
-  if (headers == null) {
-    return {};
-  }
-  const normalized = {};
-  if (headers instanceof Headers) {
-    headers.forEach((value, key) => {
-      normalized[key.toLowerCase()] = value;
-    });
-  } else {
-    if (!Array.isArray(headers)) {
-      headers = Object.entries(headers);
-    }
-    for (const [key, value] of headers) {
-      if (value != null) {
-        normalized[key.toLowerCase()] = value;
-      }
-    }
-  }
-  return normalized;
-}
-
-// src/with-user-agent-suffix.ts
-function withUserAgentSuffix$5(headers, ...userAgentSuffixParts) {
-  const normalizedHeaders = new Headers(normalizeHeaders$5(headers));
-  const currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
-  normalizedHeaders.set(
-    "user-agent",
-    [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")
-  );
-  return Object.fromEntries(normalizedHeaders.entries());
-}
-
-// src/is-url-supported.ts
-function isUrlSupported({
-  mediaType,
-  url,
-  supportedUrls
-}) {
-  url = url.toLowerCase();
-  mediaType = mediaType.toLowerCase();
-  return Object.entries(supportedUrls).map(([key, value]) => {
-    const mediaType2 = key.toLowerCase();
-    return mediaType2 === "*" || mediaType2 === "*/*" ? { mediaTypePrefix: "", regexes: value } : { mediaTypePrefix: mediaType2.replace(/\*/, ""), regexes: value };
-  }).filter(({ mediaTypePrefix }) => mediaType.startsWith(mediaTypePrefix)).flatMap(({ regexes }) => regexes).some((pattern) => pattern.test(url));
-}
-
-// src/secure-json-parse.ts
-var suspectProtoRx$5 = /"__proto__"\s*:/;
-var suspectConstructorRx$5 = /"constructor"\s*:/;
-function _parse$5(text) {
-  const obj = JSON.parse(text);
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-  if (suspectProtoRx$5.test(text) === false && suspectConstructorRx$5.test(text) === false) {
-    return obj;
-  }
-  return filter$5(obj);
-}
-function filter$5(obj) {
-  let next = [obj];
-  while (next.length) {
-    const nodes = next;
-    next = [];
-    for (const node of nodes) {
-      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      if (Object.prototype.hasOwnProperty.call(node, "constructor") && Object.prototype.hasOwnProperty.call(node.constructor, "prototype")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      for (const key in node) {
-        const value = node[key];
-        if (value && typeof value === "object") {
-          next.push(value);
-        }
-      }
-    }
-  }
-  return obj;
-}
-function secureJsonParse$5(text) {
-  const { stackTraceLimit } = Error;
-  try {
-    Error.stackTraceLimit = 0;
-  } catch (e) {
-    return _parse$5(text);
-  }
-  try {
-    return _parse$5(text);
-  } finally {
-    Error.stackTraceLimit = stackTraceLimit;
-  }
-}
-
-// src/add-additional-properties-to-json-schema.ts
-function addAdditionalPropertiesToJsonSchema$5(jsonSchema2) {
-  if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
-    jsonSchema2.additionalProperties = false;
-    const { properties } = jsonSchema2;
-    if (properties != null) {
-      for (const key of Object.keys(properties)) {
-        properties[key] = visit$5(properties[key]);
-      }
-    }
-  }
-  if (jsonSchema2.items != null) {
-    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit$5) : visit$5(jsonSchema2.items);
-  }
-  if (jsonSchema2.anyOf != null) {
-    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit$5);
-  }
-  if (jsonSchema2.allOf != null) {
-    jsonSchema2.allOf = jsonSchema2.allOf.map(visit$5);
-  }
-  if (jsonSchema2.oneOf != null) {
-    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit$5);
-  }
-  const { definitions } = jsonSchema2;
-  if (definitions != null) {
-    for (const key of Object.keys(definitions)) {
-      definitions[key] = visit$5(definitions[key]);
-    }
-  }
-  return jsonSchema2;
-}
-function visit$5(def) {
-  if (typeof def === "boolean") return def;
-  return addAdditionalPropertiesToJsonSchema$5(def);
-}
-
-// src/to-json-schema/zod3-to-json-schema/options.ts
-var ignoreOverride$5 = Symbol(
-  "Let zodToJsonSchema decide on which parser to use"
-);
-var defaultOptions$5 = {
-  name: void 0,
-  $refStrategy: "root",
-  basePath: ["#"],
-  effectStrategy: "input",
-  pipeStrategy: "all",
-  dateStrategy: "format:date-time",
-  mapStrategy: "entries",
-  removeAdditionalStrategy: "passthrough",
-  allowedAdditionalProperties: true,
-  rejectedAdditionalProperties: false,
-  definitionPath: "definitions",
-  strictUnions: false,
-  definitions: {},
-  errorMessages: false,
-  patternStrategy: "escape",
-  applyRegexFlags: false,
-  emailStrategy: "format:email",
-  base64Strategy: "contentEncoding:base64",
-  nameStrategy: "ref"
-};
-var getDefaultOptions$5 = (options) => typeof options === "string" ? {
-  ...defaultOptions$5,
-  name: options
-} : {
-  ...defaultOptions$5,
-  ...options
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/any.ts
-function parseAnyDef$5() {
-  return {};
-}
-function parseArrayDef$5(def, refs) {
-  var _a2, _b2, _c;
-  const res = {
-    type: "array"
-  };
-  if (((_a2 = def.type) == null ? void 0 : _a2._def) && ((_c = (_b2 = def.type) == null ? void 0 : _b2._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef$5(def.type._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "items"]
-    });
-  }
-  if (def.minLength) {
-    res.minItems = def.minLength.value;
-  }
-  if (def.maxLength) {
-    res.maxItems = def.maxLength.value;
-  }
-  if (def.exactLength) {
-    res.minItems = def.exactLength.value;
-    res.maxItems = def.exactLength.value;
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/bigint.ts
-function parseBigintDef$5(def) {
-  const res = {
-    type: "integer",
-    format: "int64"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/boolean.ts
-function parseBooleanDef$5() {
-  return { type: "boolean" };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/branded.ts
-function parseBrandedDef$5(_def, refs) {
-  return parseDef$5(_def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/catch.ts
-var parseCatchDef$5 = (def, refs) => {
-  return parseDef$5(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/date.ts
-function parseDateDef$5(def, refs, overrideDateStrategy) {
-  const strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
-  if (Array.isArray(strategy)) {
-    return {
-      anyOf: strategy.map((item, i) => parseDateDef$5(def, refs, item))
-    };
-  }
-  switch (strategy) {
-    case "string":
-    case "format:date-time":
-      return {
-        type: "string",
-        format: "date-time"
-      };
-    case "format:date":
-      return {
-        type: "string",
-        format: "date"
-      };
-    case "integer":
-      return integerDateParser$5(def);
-  }
-}
-var integerDateParser$5 = (def) => {
-  const res = {
-    type: "integer",
-    format: "unix-time"
-  };
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        res.minimum = check.value;
-        break;
-      case "max":
-        res.maximum = check.value;
-        break;
-    }
-  }
-  return res;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/default.ts
-function parseDefaultDef$5(_def, refs) {
-  return {
-    ...parseDef$5(_def.innerType._def, refs),
-    default: _def.defaultValue()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/effects.ts
-function parseEffectsDef$5(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef$5(_def.schema._def, refs) : parseAnyDef$5();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/enum.ts
-function parseEnumDef$5(def) {
-  return {
-    type: "string",
-    enum: Array.from(def.values)
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/intersection.ts
-var isJsonSchema7AllOfType$5 = (type) => {
-  if ("type" in type && type.type === "string") return false;
-  return "allOf" in type;
-};
-function parseIntersectionDef$5(def, refs) {
-  const allOf = [
-    parseDef$5(def.left._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "0"]
-    }),
-    parseDef$5(def.right._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "1"]
-    })
-  ].filter((x) => !!x);
-  const mergedAllOf = [];
-  allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType$5(schema)) {
-      mergedAllOf.push(...schema.allOf);
-    } else {
-      let nestedSchema = schema;
-      if ("additionalProperties" in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema;
-        nestedSchema = rest;
-      }
-      mergedAllOf.push(nestedSchema);
-    }
-  });
-  return mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/literal.ts
-function parseLiteralDef$5(def) {
-  const parsedType = typeof def.value;
-  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
-    return {
-      type: Array.isArray(def.value) ? "array" : "object"
-    };
-  }
-  return {
-    type: parsedType === "bigint" ? "integer" : parsedType,
-    const: def.value
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/string.ts
-var emojiRegex$5 = void 0;
-var zodPatterns$5 = {
-  /**
-   * `c` was changed to `[cC]` to replicate /i flag
-   */
-  cuid: /^[cC][^\s-]{8,}$/,
-  cuid2: /^[0-9a-z]+$/,
-  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
-  /**
-   * `a-z` was added to replicate /i flag
-   */
-  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
-  /**
-   * Constructed a valid Unicode RegExp
-   *
-   * Lazily instantiate since this type of regex isn't supported
-   * in all envs (e.g. React Native).
-   *
-   * See:
-   * https://github.com/colinhacks/zod/issues/2433
-   * Fix in Zod:
-   * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
-   */
-  emoji: () => {
-    if (emojiRegex$5 === void 0) {
-      emojiRegex$5 = RegExp(
-        "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$",
-        "u"
-      );
-    }
-    return emojiRegex$5;
-  },
-  /**
-   * Unused
-   */
-  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
-  /**
-   * Unused
-   */
-  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
-  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
-  /**
-   * Unused
-   */
-  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
-  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
-  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
-  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
-  nanoid: /^[a-zA-Z0-9_-]{21}$/,
-  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
-};
-function parseStringDef$5(def, refs) {
-  const res = {
-    type: "string"
-  };
-  if (def.checks) {
-    for (const check of def.checks) {
-      switch (check.kind) {
-        case "min":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          break;
-        case "max":
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "email":
-          switch (refs.emailStrategy) {
-            case "format:email":
-              addFormat$5(res, "email", check.message, refs);
-              break;
-            case "format:idn-email":
-              addFormat$5(res, "idn-email", check.message, refs);
-              break;
-            case "pattern:zod":
-              addPattern$5(res, zodPatterns$5.email, check.message, refs);
-              break;
-          }
-          break;
-        case "url":
-          addFormat$5(res, "uri", check.message, refs);
-          break;
-        case "uuid":
-          addFormat$5(res, "uuid", check.message, refs);
-          break;
-        case "regex":
-          addPattern$5(res, check.regex, check.message, refs);
-          break;
-        case "cuid":
-          addPattern$5(res, zodPatterns$5.cuid, check.message, refs);
-          break;
-        case "cuid2":
-          addPattern$5(res, zodPatterns$5.cuid2, check.message, refs);
-          break;
-        case "startsWith":
-          addPattern$5(
-            res,
-            RegExp(`^${escapeLiteralCheckValue$5(check.value, refs)}`),
-            check.message,
-            refs
-          );
-          break;
-        case "endsWith":
-          addPattern$5(
-            res,
-            RegExp(`${escapeLiteralCheckValue$5(check.value, refs)}$`),
-            check.message,
-            refs
-          );
-          break;
-        case "datetime":
-          addFormat$5(res, "date-time", check.message, refs);
-          break;
-        case "date":
-          addFormat$5(res, "date", check.message, refs);
-          break;
-        case "time":
-          addFormat$5(res, "time", check.message, refs);
-          break;
-        case "duration":
-          addFormat$5(res, "duration", check.message, refs);
-          break;
-        case "length":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "includes": {
-          addPattern$5(
-            res,
-            RegExp(escapeLiteralCheckValue$5(check.value, refs)),
-            check.message,
-            refs
-          );
-          break;
-        }
-        case "ip": {
-          if (check.version !== "v6") {
-            addFormat$5(res, "ipv4", check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addFormat$5(res, "ipv6", check.message, refs);
-          }
-          break;
-        }
-        case "base64url":
-          addPattern$5(res, zodPatterns$5.base64url, check.message, refs);
-          break;
-        case "jwt":
-          addPattern$5(res, zodPatterns$5.jwt, check.message, refs);
-          break;
-        case "cidr": {
-          if (check.version !== "v6") {
-            addPattern$5(res, zodPatterns$5.ipv4Cidr, check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addPattern$5(res, zodPatterns$5.ipv6Cidr, check.message, refs);
-          }
-          break;
-        }
-        case "emoji":
-          addPattern$5(res, zodPatterns$5.emoji(), check.message, refs);
-          break;
-        case "ulid": {
-          addPattern$5(res, zodPatterns$5.ulid, check.message, refs);
-          break;
-        }
-        case "base64": {
-          switch (refs.base64Strategy) {
-            case "format:binary": {
-              addFormat$5(res, "binary", check.message, refs);
-              break;
-            }
-            case "contentEncoding:base64": {
-              res.contentEncoding = "base64";
-              break;
-            }
-            case "pattern:zod": {
-              addPattern$5(res, zodPatterns$5.base64, check.message, refs);
-              break;
-            }
-          }
-          break;
-        }
-        case "nanoid": {
-          addPattern$5(res, zodPatterns$5.nanoid, check.message, refs);
-        }
-      }
-    }
-  }
-  return res;
-}
-function escapeLiteralCheckValue$5(literal, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric$5(literal) : literal;
-}
-var ALPHA_NUMERIC$5 = new Set(
-  "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789"
-);
-function escapeNonAlphaNumeric$5(source) {
-  let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC$5.has(source[i])) {
-      result += "\\";
-    }
-    result += source[i];
-  }
-  return result;
-}
-function addFormat$5(schema, value, message, refs) {
-  var _a2;
-  if (schema.format || ((_a2 = schema.anyOf) == null ? void 0 : _a2.some((x) => x.format))) {
-    if (!schema.anyOf) {
-      schema.anyOf = [];
-    }
-    if (schema.format) {
-      schema.anyOf.push({
-        format: schema.format
-      });
-      delete schema.format;
-    }
-    schema.anyOf.push({
-      format: value,
-      ...message && refs.errorMessages && { errorMessage: { format: message } }
-    });
-  } else {
-    schema.format = value;
-  }
-}
-function addPattern$5(schema, regex, message, refs) {
-  var _a2;
-  if (schema.pattern || ((_a2 = schema.allOf) == null ? void 0 : _a2.some((x) => x.pattern))) {
-    if (!schema.allOf) {
-      schema.allOf = [];
-    }
-    if (schema.pattern) {
-      schema.allOf.push({
-        pattern: schema.pattern
-      });
-      delete schema.pattern;
-    }
-    schema.allOf.push({
-      pattern: stringifyRegExpWithFlags$5(regex, refs),
-      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
-    });
-  } else {
-    schema.pattern = stringifyRegExpWithFlags$5(regex, refs);
-  }
-}
-function stringifyRegExpWithFlags$5(regex, refs) {
-  var _a2;
-  if (!refs.applyRegexFlags || !regex.flags) {
-    return regex.source;
-  }
-  const flags = {
-    i: regex.flags.includes("i"),
-    // Case-insensitive
-    m: regex.flags.includes("m"),
-    // `^` and `$` matches adjacent to newline characters
-    s: regex.flags.includes("s")
-    // `.` matches newlines
-  };
-  const source = flags.i ? regex.source.toLowerCase() : regex.source;
-  let pattern = "";
-  let isEscaped = false;
-  let inCharGroup = false;
-  let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
-    if (isEscaped) {
-      pattern += source[i];
-      isEscaped = false;
-      continue;
-    }
-    if (flags.i) {
-      if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
-          if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
-            inCharRange = false;
-          } else if (source[i + 1] === "-" && ((_a2 = source[i + 2]) == null ? void 0 : _a2.match(/[a-z]/))) {
-            pattern += source[i];
-            inCharRange = true;
-          } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
-          }
-          continue;
-        }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
-        continue;
-      }
-    }
-    if (flags.m) {
-      if (source[i] === "^") {
-        pattern += `(^|(?<=[\r
-]))`;
-        continue;
-      } else if (source[i] === "$") {
-        pattern += `($|(?=[\r
-]))`;
-        continue;
-      }
-    }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
-]`;
-      continue;
-    }
-    pattern += source[i];
-    if (source[i] === "\\") {
-      isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
-      inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
-      inCharGroup = true;
-    }
-  }
-  try {
-    new RegExp(pattern);
-  } catch (e) {
-    console.warn(
-      `Could not convert regex pattern at ${refs.currentPath.join(
-        "/"
-      )} to a flag-independent form! Falling back to the flag-ignorant source`
-    );
-    return regex.source;
-  }
-  return pattern;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/record.ts
-function parseRecordDef$5(def, refs) {
-  var _a2, _b2, _c, _d, _e, _f;
-  const schema = {
-    type: "object",
-    additionalProperties: (_a2 = parseDef$5(def.valueType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    })) != null ? _a2 : refs.allowedAdditionalProperties
-  };
-  if (((_b2 = def.keyType) == null ? void 0 : _b2._def.typeName) === ZodFirstPartyTypeKind.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
-    const { type, ...keyType } = parseStringDef$5(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      ...schema,
-      propertyNames: {
-        enum: def.keyType._def.values
-      }
-    };
-  } else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
-    const { type, ...keyType } = parseBrandedDef$5(
-      def.keyType._def,
-      refs
-    );
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/map.ts
-function parseMapDef$5(def, refs) {
-  if (refs.mapStrategy === "record") {
-    return parseRecordDef$5(def, refs);
-  }
-  const keys = parseDef$5(def.keyType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef$5();
-  const values = parseDef$5(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef$5();
-  return {
-    type: "array",
-    maxItems: 125,
-    items: {
-      type: "array",
-      items: [keys, values],
-      minItems: 2,
-      maxItems: 2
-    }
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/native-enum.ts
-function parseNativeEnumDef$5(def) {
-  const object = def.values;
-  const actualKeys = Object.keys(def.values).filter((key) => {
-    return typeof object[object[key]] !== "number";
-  });
-  const actualValues = actualKeys.map((key) => object[key]);
-  const parsedTypes = Array.from(
-    new Set(actualValues.map((values) => typeof values))
-  );
-  return {
-    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
-    enum: actualValues
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/never.ts
-function parseNeverDef$5() {
-  return { not: parseAnyDef$5() };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/null.ts
-function parseNullDef$5() {
-  return {
-    type: "null"
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/union.ts
-var primitiveMappings$5 = {
-  ZodString: "string",
-  ZodNumber: "number",
-  ZodBigInt: "integer",
-  ZodBoolean: "boolean",
-  ZodNull: "null"
-};
-function parseUnionDef$5(def, refs) {
-  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
-  if (options.every(
-    (x) => x._def.typeName in primitiveMappings$5 && (!x._def.checks || !x._def.checks.length)
-  )) {
-    const types = options.reduce((types2, x) => {
-      const type = primitiveMappings$5[x._def.typeName];
-      return type && !types2.includes(type) ? [...types2, type] : types2;
-    }, []);
-    return {
-      type: types.length > 1 ? types : types[0]
-    };
-  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
-    const types = options.reduce(
-      (acc, x) => {
-        const type = typeof x._def.value;
-        switch (type) {
-          case "string":
-          case "number":
-          case "boolean":
-            return [...acc, type];
-          case "bigint":
-            return [...acc, "integer"];
-          case "object":
-            if (x._def.value === null) return [...acc, "null"];
-          case "symbol":
-          case "undefined":
-          case "function":
-          default:
-            return acc;
-        }
-      },
-      []
-    );
-    if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
-      return {
-        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
-        enum: options.reduce(
-          (acc, x) => {
-            return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
-          },
-          []
-        )
-      };
-    }
-  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
-    return {
-      type: "string",
-      enum: options.reduce(
-        (acc, x) => [
-          ...acc,
-          ...x._def.values.filter((x2) => !acc.includes(x2))
-        ],
-        []
-      )
-    };
-  }
-  return asAnyOf$5(def, refs);
-}
-var asAnyOf$5 = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map(
-    (x, i) => parseDef$5(x._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "anyOf", `${i}`]
-    })
-  ).filter(
-    (x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0)
-  );
-  return anyOf.length ? { anyOf } : void 0;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/nullable.ts
-function parseNullableDef$5(def, refs) {
-  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(
-    def.innerType._def.typeName
-  ) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
-    return {
-      type: [
-        primitiveMappings$5[def.innerType._def.typeName],
-        "null"
-      ]
-    };
-  }
-  const base = parseDef$5(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "0"]
-  });
-  return base && { anyOf: [base, { type: "null" }] };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/number.ts
-function parseNumberDef$5(def) {
-  const res = {
-    type: "number"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "int":
-        res.type = "integer";
-        break;
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/object.ts
-function parseObjectDef$5(def, refs) {
-  const result = {
-    type: "object",
-    properties: {}
-  };
-  const required = [];
-  const shape = def.shape();
-  for (const propName in shape) {
-    let propDef = shape[propName];
-    if (propDef === void 0 || propDef._def === void 0) {
-      continue;
-    }
-    const propOptional = safeIsOptional$5(propDef);
-    const parsedDef = parseDef$5(propDef._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "properties", propName],
-      propertyPath: [...refs.currentPath, "properties", propName]
-    });
-    if (parsedDef === void 0) {
-      continue;
-    }
-    result.properties[propName] = parsedDef;
-    if (!propOptional) {
-      required.push(propName);
-    }
-  }
-  if (required.length) {
-    result.required = required;
-  }
-  const additionalProperties = decideAdditionalProperties$5(def, refs);
-  if (additionalProperties !== void 0) {
-    result.additionalProperties = additionalProperties;
-  }
-  return result;
-}
-function decideAdditionalProperties$5(def, refs) {
-  if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef$5(def.catchall._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    });
-  }
-  switch (def.unknownKeys) {
-    case "passthrough":
-      return refs.allowedAdditionalProperties;
-    case "strict":
-      return refs.rejectedAdditionalProperties;
-    case "strip":
-      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
-  }
-}
-function safeIsOptional$5(schema) {
-  try {
-    return schema.isOptional();
-  } catch (e) {
-    return true;
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/optional.ts
-var parseOptionalDef$5 = (def, refs) => {
-  var _a2;
-  if (refs.currentPath.toString() === ((_a2 = refs.propertyPath) == null ? void 0 : _a2.toString())) {
-    return parseDef$5(def.innerType._def, refs);
-  }
-  const innerSchema = parseDef$5(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "1"]
-  });
-  return innerSchema ? { anyOf: [{ not: parseAnyDef$5() }, innerSchema] } : parseAnyDef$5();
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/pipeline.ts
-var parsePipelineDef$5 = (def, refs) => {
-  if (refs.pipeStrategy === "input") {
-    return parseDef$5(def.in._def, refs);
-  } else if (refs.pipeStrategy === "output") {
-    return parseDef$5(def.out._def, refs);
-  }
-  const a = parseDef$5(def.in._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", "0"]
-  });
-  const b = parseDef$5(def.out._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
-  });
-  return {
-    allOf: [a, b].filter((x) => x !== void 0)
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/promise.ts
-function parsePromiseDef$5(def, refs) {
-  return parseDef$5(def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/set.ts
-function parseSetDef$5(def, refs) {
-  const items = parseDef$5(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items"]
-  });
-  const schema = {
-    type: "array",
-    uniqueItems: true,
-    items
-  };
-  if (def.minSize) {
-    schema.minItems = def.minSize.value;
-  }
-  if (def.maxSize) {
-    schema.maxItems = def.maxSize.value;
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/tuple.ts
-function parseTupleDef$5(def, refs) {
-  if (def.rest) {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$5(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      ),
-      additionalItems: parseDef$5(def.rest._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "additionalItems"]
-      })
-    };
-  } else {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      maxItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$5(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      )
-    };
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/undefined.ts
-function parseUndefinedDef$5() {
-  return {
-    not: parseAnyDef$5()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/unknown.ts
-function parseUnknownDef$5() {
-  return parseAnyDef$5();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/readonly.ts
-var parseReadonlyDef$5 = (def, refs) => {
-  return parseDef$5(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/select-parser.ts
-var selectParser$5 = (def, typeName, refs) => {
-  switch (typeName) {
-    case ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef$5(def);
-    case ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef$5(def);
-    case ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef$5();
-    case ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef$5();
-    case ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef$5();
-    case ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodUnion:
-    case ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef$5(def);
-    case ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef$5(def);
-    case ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef$5(def);
-    case ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodLazy:
-      return () => def.getter()._def;
-    case ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodNaN:
-    case ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef$5();
-    case ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef$5();
-    case ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef$5();
-    case ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef$5(def, refs);
-    case ZodFirstPartyTypeKind.ZodFunction:
-    case ZodFirstPartyTypeKind.ZodVoid:
-    case ZodFirstPartyTypeKind.ZodSymbol:
-      return void 0;
-    default:
-      return /* @__PURE__ */ ((_) => void 0)();
-  }
-};
-
-// src/to-json-schema/zod3-to-json-schema/get-relative-path.ts
-var getRelativePath$5 = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i]) break;
-  }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
-};
-
-// src/to-json-schema/zod3-to-json-schema/parse-def.ts
-function parseDef$5(def, refs, forceResolution = false) {
-  var _a2;
-  const seenItem = refs.seen.get(def);
-  if (refs.override) {
-    const overrideResult = (_a2 = refs.override) == null ? void 0 : _a2.call(
-      refs,
-      def,
-      refs,
-      seenItem,
-      forceResolution
-    );
-    if (overrideResult !== ignoreOverride$5) {
-      return overrideResult;
-    }
-  }
-  if (seenItem && !forceResolution) {
-    const seenSchema = get$ref$5(seenItem, refs);
-    if (seenSchema !== void 0) {
-      return seenSchema;
-    }
-  }
-  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
-  refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser$5(def, def.typeName, refs);
-  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef$5(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
-  if (jsonSchema2) {
-    addMeta$5(def, refs, jsonSchema2);
-  }
-  if (refs.postProcess) {
-    const postProcessResult = refs.postProcess(jsonSchema2, def, refs);
-    newItem.jsonSchema = jsonSchema2;
-    return postProcessResult;
-  }
-  newItem.jsonSchema = jsonSchema2;
-  return jsonSchema2;
-}
-var get$ref$5 = (item, refs) => {
-  switch (refs.$refStrategy) {
-    case "root":
-      return { $ref: item.path.join("/") };
-    case "relative":
-      return { $ref: getRelativePath$5(refs.currentPath, item.path) };
-    case "none":
-    case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
-        console.warn(
-          `Recursive reference detected at ${refs.currentPath.join(
-            "/"
-          )}! Defaulting to any`
-        );
-        return parseAnyDef$5();
-      }
-      return refs.$refStrategy === "seen" ? parseAnyDef$5() : void 0;
-    }
-  }
-};
-var addMeta$5 = (def, refs, jsonSchema2) => {
-  if (def.description) {
-    jsonSchema2.description = def.description;
-  }
-  return jsonSchema2;
-};
-
-// src/to-json-schema/zod3-to-json-schema/refs.ts
-var getRefs$5 = (options) => {
-  const _options = getDefaultOptions$5(options);
-  const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
-  return {
-    ..._options,
-    currentPath,
-    propertyPath: void 0,
-    seen: new Map(
-      Object.entries(_options.definitions).map(([name2, def]) => [
-        def._def,
-        {
-          def: def._def,
-          path: [..._options.basePath, _options.definitionPath, name2],
-          // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
-          jsonSchema: void 0
-        }
-      ])
-    )
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/zod3-to-json-schema.ts
-var zod3ToJsonSchema$5 = (schema, options) => {
-  var _a2;
-  const refs = getRefs$5(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce(
-    (acc, [name3, schema2]) => {
-      var _a3;
-      return {
-        ...acc,
-        [name3]: (_a3 = parseDef$5(
-          schema2._def,
-          {
-            ...refs,
-            currentPath: [...refs.basePath, refs.definitionPath, name3]
-          },
-          true
-        )) != null ? _a3 : parseAnyDef$5()
-      };
-    },
-    {}
-  ) : void 0;
-  const name2 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name;
-  const main = (_a2 = parseDef$5(
-    schema._def,
-    name2 === void 0 ? refs : {
-      ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name2]
-    },
-    false
-  )) != null ? _a2 : parseAnyDef$5();
-  const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
-  if (title !== void 0) {
-    main.title = title;
-  }
-  const combined = name2 === void 0 ? definitions ? {
-    ...main,
-    [refs.definitionPath]: definitions
-  } : main : {
-    $ref: [
-      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
-      refs.definitionPath,
-      name2
-    ].join("/"),
-    [refs.definitionPath]: {
-      ...definitions,
-      [name2]: main
-    }
-  };
-  combined.$schema = "http://json-schema.org/draft-07/schema#";
-  return combined;
-};
-
-// src/schema.ts
-var schemaSymbol$5 = Symbol.for("vercel.ai.schema");
-function jsonSchema$5(jsonSchema2, {
-  validate
-} = {}) {
-  return {
-    [schemaSymbol$5]: true,
-    _type: void 0,
-    // should never be used directly
-    get jsonSchema() {
-      if (typeof jsonSchema2 === "function") {
-        jsonSchema2 = jsonSchema2();
-      }
-      return jsonSchema2;
-    },
-    validate
-  };
-}
-function isSchema$5(value) {
-  return typeof value === "object" && value !== null && schemaSymbol$5 in value && value[schemaSymbol$5] === true && "jsonSchema" in value && "validate" in value;
-}
-function asSchema$5(schema) {
-  return schema == null ? jsonSchema$5({ properties: {}, additionalProperties: false }) : isSchema$5(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema$5(schema) : standardSchema$5(schema) : schema();
-}
-function standardSchema$5(standardSchema2) {
-  return jsonSchema$5(
-    () => addAdditionalPropertiesToJsonSchema$5(
-      standardSchema2["~standard"].jsonSchema.input({
-        target: "draft-07"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await standardSchema2["~standard"].validate(value);
-        return "value" in result ? { success: true, value: result.value } : {
-          success: false,
-          error: new TypeValidationError$5({
-            value,
-            cause: result.issues
-          })
-        };
-      }
-    }
-  );
-}
-function zod3Schema$5(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$5(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => zod3ToJsonSchema$5(zodSchema2, {
-      $refStrategy: useReferences ? "root" : "none"
-    }),
-    {
-      validate: async (value) => {
-        const result = await zodSchema2.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function zod4Schema$5(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$5(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => addAdditionalPropertiesToJsonSchema$5(
-      toJSONSchema(zodSchema2, {
-        target: "draft-7",
-        io: "input",
-        reused: useReferences ? "ref" : "inline"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await safeParseAsync(zodSchema2, value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function isZod4Schema$5(zodSchema2) {
-  return "_zod" in zodSchema2;
-}
-function zodSchema$5(zodSchema2, options) {
-  if (isZod4Schema$5(zodSchema2)) {
-    return zod4Schema$5(zodSchema2);
-  } else {
-    return zod3Schema$5(zodSchema2);
-  }
-}
-
-// src/validate-types.ts
-async function validateTypes$5({
-  value,
-  schema
-}) {
-  const result = await safeValidateTypes$5({ value, schema });
-  if (!result.success) {
-    throw TypeValidationError$5.wrap({ value, cause: result.error });
-  }
-  return result.value;
-}
-async function safeValidateTypes$5({
-  value,
-  schema
-}) {
-  const actualSchema = asSchema$5(schema);
-  try {
-    if (actualSchema.validate == null) {
-      return { success: true, value, rawValue: value };
-    }
-    const result = await actualSchema.validate(value);
-    if (result.success) {
-      return { success: true, value: result.value, rawValue: value };
-    }
-    return {
-      success: false,
-      error: TypeValidationError$5.wrap({ value, cause: result.error }),
-      rawValue: value
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: TypeValidationError$5.wrap({ value, cause: error }),
-      rawValue: value
-    };
-  }
-}
-async function safeParseJSON$5({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$5(text);
-    if (schema == null) {
-      return { success: true, value, rawValue: value };
-    }
-    return await safeValidateTypes$5({ value, schema });
-  } catch (error) {
-    return {
-      success: false,
-      error: JSONParseError$5.isInstance(error) ? error : new JSONParseError$5({ text, cause: error }),
-      rawValue: void 0
-    };
-  }
-}
-
-// src/types/tool.ts
-function tool$2(tool2) {
-  return tool2;
-}
-
-// src/resolve.ts
-async function resolve$1(value) {
-  if (typeof value === "function") {
-    value = value();
-  }
-  return Promise.resolve(value);
-}
-
-// src/is-async-iterable.ts
-function isAsyncIterable(obj) {
-  return obj != null && typeof obj[Symbol.asyncIterator] === "function";
-}
-
-// src/types/execute-tool.ts
-async function* executeTool({
-  execute,
-  input,
-  options
-}) {
-  const result = execute(input, options);
-  if (isAsyncIterable(result)) {
-    let lastOutput;
-    for await (const output of result) {
-      lastOutput = output;
-      yield { type: "preliminary", output };
-    }
-    yield { type: "final", output: lastOutput };
-  } else {
-    yield { type: "final", output: await result };
-  }
 }
 
 /*
@@ -10673,7 +9388,7 @@ var _globalThis = typeof globalThis === 'object'
  * limitations under the License.
  */
 // this is autogenerated file, see scripts/version-update.js
-var VERSION$d = '1.9.0';
+var VERSION$8 = '1.9.0';
 
 /*
  * Copyright The OpenTelemetry Authors
@@ -10790,7 +9505,7 @@ function _makeCompatibilityCheck(ownVersion) {
  *
  * @param version version of the API requesting an instance of the global API
  */
-var isCompatible = _makeCompatibilityCheck(VERSION$d);
+var isCompatible = _makeCompatibilityCheck(VERSION$8);
 
 /*
  * Copyright The OpenTelemetry Authors
@@ -10807,14 +9522,14 @@ var isCompatible = _makeCompatibilityCheck(VERSION$d);
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var major = VERSION$d.split('.')[0];
+var major = VERSION$8.split('.')[0];
 var GLOBAL_OPENTELEMETRY_API_KEY = Symbol.for("opentelemetry.js.api." + major);
 var _global = _globalThis;
 function registerGlobal(type, instance, diag, allowOverride) {
     var _a;
     if (allowOverride === void 0) { allowOverride = false; }
     var api = (_global[GLOBAL_OPENTELEMETRY_API_KEY] = (_a = _global[GLOBAL_OPENTELEMETRY_API_KEY]) !== null && _a !== void 0 ? _a : {
-        version: VERSION$d,
+        version: VERSION$8,
     });
     if (!allowOverride && api[type]) {
         // already registered an API of this type
@@ -10822,14 +9537,14 @@ function registerGlobal(type, instance, diag, allowOverride) {
         diag.error(err.stack || err.message);
         return false;
     }
-    if (api.version !== VERSION$d) {
+    if (api.version !== VERSION$8) {
         // All registered APIs must be of the same version exactly
-        var err = new Error("@opentelemetry/api: Registration of version v" + api.version + " for " + type + " does not match previously registered API v" + VERSION$d);
+        var err = new Error("@opentelemetry/api: Registration of version v" + api.version + " for " + type + " does not match previously registered API v" + VERSION$8);
         diag.error(err.stack || err.message);
         return false;
     }
     api[type] = instance;
-    diag.debug("@opentelemetry/api: Registered a global for " + type + " v" + VERSION$d + ".");
+    diag.debug("@opentelemetry/api: Registered a global for " + type + " v" + VERSION$8 + ".");
     return true;
 }
 function getGlobal(type) {
@@ -10841,7 +9556,7 @@ function getGlobal(type) {
     return (_b = _global[GLOBAL_OPENTELEMETRY_API_KEY]) === null || _b === void 0 ? void 0 : _b[type];
 }
 function unregisterGlobal(type, diag) {
-    diag.debug("@opentelemetry/api: Unregistering a global for " + type + " v" + VERSION$d + ".");
+    diag.debug("@opentelemetry/api: Unregistering a global for " + type + " v" + VERSION$8 + ".");
     var api = _global[GLOBAL_OPENTELEMETRY_API_KEY];
     if (api) {
         delete api[type];
@@ -12574,115 +11289,115 @@ var __export = (target, all) => {
   for (var name18 in all)
     __defProp(target, name18, { get: all[name18], enumerable: true });
 };
-var name$7 = "AI_InvalidArgumentError";
-var marker$7 = `vercel.ai.error.${name$7}`;
-var symbol$7 = Symbol.for(marker$7);
-var _a$7;
-var InvalidArgumentError$5 = class InvalidArgumentError extends AISDKError$5 {
+var name = "AI_InvalidArgumentError";
+var marker = `vercel.ai.error.${name}`;
+var symbol = Symbol.for(marker);
+var _a;
+var InvalidArgumentError = class extends AISDKError {
   constructor({
     parameter,
     value,
     message
   }) {
     super({
-      name: name$7,
+      name,
       message: `Invalid argument for parameter ${parameter}: ${message}`
     });
-    this[_a$7] = true;
+    this[_a] = true;
     this.parameter = parameter;
     this.value = value;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker$7);
+    return AISDKError.hasMarker(error, marker);
   }
 };
-_a$7 = symbol$7;
-var name3$5 = "AI_InvalidToolApprovalError";
-var marker3$4 = `vercel.ai.error.${name3$5}`;
-var symbol3$4 = Symbol.for(marker3$4);
-var _a3$4;
-var InvalidToolApprovalError = class extends AISDKError$5 {
+_a = symbol;
+var name3 = "AI_InvalidToolApprovalError";
+var marker3 = `vercel.ai.error.${name3}`;
+var symbol3 = Symbol.for(marker3);
+var _a3;
+var InvalidToolApprovalError = class extends AISDKError {
   constructor({ approvalId }) {
     super({
-      name: name3$5,
+      name: name3,
       message: `Tool approval response references unknown approvalId: "${approvalId}". No matching tool-approval-request found in message history.`
     });
-    this[_a3$4] = true;
+    this[_a3] = true;
     this.approvalId = approvalId;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker3$4);
+    return AISDKError.hasMarker(error, marker3);
   }
 };
-_a3$4 = symbol3$4;
-var name4$1 = "AI_InvalidToolInputError";
-var marker4$5 = `vercel.ai.error.${name4$1}`;
-var symbol4$5 = Symbol.for(marker4$5);
-var _a4$5;
-var InvalidToolInputError = class extends AISDKError$5 {
+_a3 = symbol3;
+var name4 = "AI_InvalidToolInputError";
+var marker4 = `vercel.ai.error.${name4}`;
+var symbol4 = Symbol.for(marker4);
+var _a4;
+var InvalidToolInputError = class extends AISDKError {
   constructor({
     toolInput,
     toolName,
     cause,
-    message = `Invalid input for tool ${toolName}: ${getErrorMessage$6(cause)}`
+    message = `Invalid input for tool ${toolName}: ${getErrorMessage$1(cause)}`
   }) {
-    super({ name: name4$1, message, cause });
-    this[_a4$5] = true;
+    super({ name: name4, message, cause });
+    this[_a4] = true;
     this.toolInput = toolInput;
     this.toolName = toolName;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker4$5);
+    return AISDKError.hasMarker(error, marker4);
   }
 };
-_a4$5 = symbol4$5;
-var name5$2 = "AI_ToolCallNotFoundForApprovalError";
-var marker5$1 = `vercel.ai.error.${name5$2}`;
-var symbol5$1 = Symbol.for(marker5$1);
-var _a5$1;
-var ToolCallNotFoundForApprovalError = class extends AISDKError$5 {
+_a4 = symbol4;
+var name5 = "AI_ToolCallNotFoundForApprovalError";
+var marker5 = `vercel.ai.error.${name5}`;
+var symbol5 = Symbol.for(marker5);
+var _a5;
+var ToolCallNotFoundForApprovalError = class extends AISDKError {
   constructor({
     toolCallId,
     approvalId
   }) {
     super({
-      name: name5$2,
+      name: name5,
       message: `Tool call "${toolCallId}" not found for approval request "${approvalId}".`
     });
-    this[_a5$1] = true;
+    this[_a5] = true;
     this.toolCallId = toolCallId;
     this.approvalId = approvalId;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker5$1);
+    return AISDKError.hasMarker(error, marker5);
   }
 };
-_a5$1 = symbol5$1;
-var name6$5 = "AI_MissingToolResultsError";
-var marker6$2 = `vercel.ai.error.${name6$5}`;
-var symbol6$2 = Symbol.for(marker6$2);
-var _a6$2;
-var MissingToolResultsError = class extends AISDKError$5 {
+_a5 = symbol5;
+var name6 = "AI_MissingToolResultsError";
+var marker6 = `vercel.ai.error.${name6}`;
+var symbol6 = Symbol.for(marker6);
+var _a6;
+var MissingToolResultsError = class extends AISDKError {
   constructor({ toolCallIds }) {
     super({
-      name: name6$5,
+      name: name6,
       message: `Tool result${toolCallIds.length > 1 ? "s are" : " is"} missing for tool call${toolCallIds.length > 1 ? "s" : ""} ${toolCallIds.join(
         ", "
       )}.`
     });
-    this[_a6$2] = true;
+    this[_a6] = true;
     this.toolCallIds = toolCallIds;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker6$2);
+    return AISDKError.hasMarker(error, marker6);
   }
 };
-_a6$2 = symbol6$2;
+_a6 = symbol6;
 var name8 = "AI_NoObjectGeneratedError";
-var marker8$4 = `vercel.ai.error.${name8}`;
-var symbol8$4 = Symbol.for(marker8$4);
-var _a8$4;
-var NoObjectGeneratedError = class extends AISDKError$5 {
+var marker8 = `vercel.ai.error.${name8}`;
+var symbol8 = Symbol.for(marker8);
+var _a8;
+var NoObjectGeneratedError = class extends AISDKError {
   constructor({
     message = "No object generated.",
     cause,
@@ -12692,22 +11407,22 @@ var NoObjectGeneratedError = class extends AISDKError$5 {
     finishReason
   }) {
     super({ name: name8, message, cause });
-    this[_a8$4] = true;
+    this[_a8] = true;
     this.text = text2;
     this.response = response;
     this.usage = usage;
     this.finishReason = finishReason;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker8$4);
+    return AISDKError.hasMarker(error, marker8);
   }
 };
-_a8$4 = symbol8$4;
+_a8 = symbol8;
 var name9 = "AI_NoOutputGeneratedError";
 var marker9 = `vercel.ai.error.${name9}`;
 var symbol9 = Symbol.for(marker9);
 var _a9;
-var NoOutputGeneratedError = class extends AISDKError$5 {
+var NoOutputGeneratedError = class extends AISDKError {
   // used in isInstance
   constructor({
     message = "No output generated.",
@@ -12717,50 +11432,50 @@ var NoOutputGeneratedError = class extends AISDKError$5 {
     this[_a9] = true;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker9);
+    return AISDKError.hasMarker(error, marker9);
   }
 };
 _a9 = symbol9;
-var name10$4 = "AI_NoSuchToolError";
-var marker10 = `vercel.ai.error.${name10$4}`;
+var name10 = "AI_NoSuchToolError";
+var marker10 = `vercel.ai.error.${name10}`;
 var symbol10 = Symbol.for(marker10);
 var _a10;
-var NoSuchToolError = class extends AISDKError$5 {
+var NoSuchToolError = class extends AISDKError {
   constructor({
     toolName,
     availableTools = void 0,
     message = `Model tried to call unavailable tool '${toolName}'. ${availableTools === void 0 ? "No tools are available." : `Available tools: ${availableTools.join(", ")}.`}`
   }) {
-    super({ name: name10$4, message });
+    super({ name: name10, message });
     this[_a10] = true;
     this.toolName = toolName;
     this.availableTools = availableTools;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker10);
+    return AISDKError.hasMarker(error, marker10);
   }
 };
 _a10 = symbol10;
-var name11$1 = "AI_ToolCallRepairError";
-var marker11$4 = `vercel.ai.error.${name11$1}`;
-var symbol11$4 = Symbol.for(marker11$4);
-var _a11$4;
-var ToolCallRepairError = class extends AISDKError$5 {
+var name11 = "AI_ToolCallRepairError";
+var marker11 = `vercel.ai.error.${name11}`;
+var symbol11 = Symbol.for(marker11);
+var _a11;
+var ToolCallRepairError = class extends AISDKError {
   constructor({
     cause,
     originalError,
-    message = `Error repairing tool call: ${getErrorMessage$6(cause)}`
+    message = `Error repairing tool call: ${getErrorMessage$1(cause)}`
   }) {
-    super({ name: name11$1, message, cause });
-    this[_a11$4] = true;
+    super({ name: name11, message, cause });
+    this[_a11] = true;
     this.originalError = originalError;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker11$4);
+    return AISDKError.hasMarker(error, marker11);
   }
 };
-_a11$4 = symbol11$4;
-var UnsupportedModelVersionError = class extends AISDKError$5 {
+_a11 = symbol11;
+var UnsupportedModelVersionError = class extends AISDKError {
   constructor(options) {
     super({
       name: "AI_UnsupportedModelVersionError",
@@ -12771,49 +11486,49 @@ var UnsupportedModelVersionError = class extends AISDKError$5 {
     this.modelId = options.modelId;
   }
 };
-var name12$5 = "AI_UIMessageStreamError";
-var marker12$1 = `vercel.ai.error.${name12$5}`;
-var symbol12$1 = Symbol.for(marker12$1);
-var _a12$1;
-var UIMessageStreamError = class extends AISDKError$5 {
+var name12 = "AI_UIMessageStreamError";
+var marker12 = `vercel.ai.error.${name12}`;
+var symbol12 = Symbol.for(marker12);
+var _a12;
+var UIMessageStreamError = class extends AISDKError {
   constructor({
     chunkType,
     chunkId,
     message
   }) {
-    super({ name: name12$5, message });
-    this[_a12$1] = true;
+    super({ name: name12, message });
+    this[_a12] = true;
     this.chunkType = chunkType;
     this.chunkId = chunkId;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker12$1);
+    return AISDKError.hasMarker(error, marker12);
   }
 };
-_a12$1 = symbol12$1;
+_a12 = symbol12;
 var name14 = "AI_InvalidMessageRoleError";
-var marker14$4 = `vercel.ai.error.${name14}`;
-var symbol14$4 = Symbol.for(marker14$4);
-var _a14$4;
-var InvalidMessageRoleError = class extends AISDKError$5 {
+var marker14 = `vercel.ai.error.${name14}`;
+var symbol14 = Symbol.for(marker14);
+var _a14;
+var InvalidMessageRoleError = class extends AISDKError {
   constructor({
     role,
     message = `Invalid message role: '${role}'. Must be one of: "system", "user", "assistant", "tool".`
   }) {
     super({ name: name14, message });
-    this[_a14$4] = true;
+    this[_a14] = true;
     this.role = role;
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker14$4);
+    return AISDKError.hasMarker(error, marker14);
   }
 };
-_a14$4 = symbol14$4;
+_a14 = symbol14;
 var name16 = "AI_RetryError";
 var marker16 = `vercel.ai.error.${name16}`;
 var symbol16 = Symbol.for(marker16);
 var _a16;
-var RetryError = class extends AISDKError$5 {
+var RetryError = class extends AISDKError {
   constructor({
     message,
     reason,
@@ -12826,7 +11541,7 @@ var RetryError = class extends AISDKError$5 {
     this.lastError = errors[errors.length - 1];
   }
   static isInstance(error) {
-    return AISDKError$5.hasMarker(error, marker16);
+    return AISDKError.hasMarker(error, marker16);
   }
 };
 _a16 = symbol16;
@@ -13113,7 +11828,7 @@ var imageMediaTypeSignatures = [
   }
 ];
 var stripID3 = (data) => {
-  const bytes = typeof data === "string" ? convertBase64ToUint8Array$2(data) : data;
+  const bytes = typeof data === "string" ? convertBase64ToUint8Array(data) : data;
   const id3Size = (bytes[6] & 127) << 21 | (bytes[7] & 127) << 14 | (bytes[8] & 127) << 7 | bytes[9] & 127;
   return bytes.slice(id3Size + 10);
 };
@@ -13128,7 +11843,7 @@ function detectMediaType({
   signatures
 }) {
   const processedData = stripID3TagsIfPresent(data);
-  const bytes = typeof processedData === "string" ? convertBase64ToUint8Array$2(
+  const bytes = typeof processedData === "string" ? convertBase64ToUint8Array(
     processedData.substring(0, Math.min(processedData.length, 24))
   ) : processedData;
   for (const signature of signatures) {
@@ -13142,7 +11857,7 @@ function detectMediaType({
 }
 
 // src/version.ts
-var VERSION$c = "6.0.44" ;
+var VERSION$7 = "6.0.49" ;
 
 // src/util/download/download.ts
 var download = async ({ url }) => {
@@ -13150,14 +11865,14 @@ var download = async ({ url }) => {
   const urlText = url.toString();
   try {
     const response = await fetch(urlText, {
-      headers: withUserAgentSuffix$5(
+      headers: withUserAgentSuffix(
         {},
-        `ai-sdk/${VERSION$c}`,
-        getRuntimeEnvironmentUserAgent$5()
+        `ai-sdk/${VERSION$7}`,
+        getRuntimeEnvironmentUserAgent()
       )
     });
     if (!response.ok) {
-      throw new DownloadError$2({
+      throw new DownloadError({
         url: urlText,
         statusCode: response.status,
         statusText: response.statusText
@@ -13168,10 +11883,10 @@ var download = async ({ url }) => {
       mediaType: (_a18 = response.headers.get("content-type")) != null ? _a18 : void 0
     };
   } catch (error) {
-    if (DownloadError$2.isInstance(error)) {
+    if (DownloadError.isInstance(error)) {
       throw error;
     }
-    throw new DownloadError$2({ url: urlText, cause: error });
+    throw new DownloadError({ url: urlText, cause: error });
   }
 };
 
@@ -13230,7 +11945,7 @@ function convertToLanguageModelV3DataContent(content) {
       content.toString()
     );
     if (dataUrlMediaType == null || base64Content == null) {
-      throw new AISDKError$5({
+      throw new AISDKError({
         name: "InvalidDataContentError",
         message: `Invalid data URL format in content ${content.toString()}`
       });
@@ -13244,9 +11959,9 @@ function convertDataContentToBase64String(content) {
     return content;
   }
   if (content instanceof ArrayBuffer) {
-    return convertUint8ArrayToBase64$4(new Uint8Array(content));
+    return convertUint8ArrayToBase64(new Uint8Array(content));
   }
-  return convertUint8ArrayToBase64$4(content);
+  return convertUint8ArrayToBase64(content);
 }
 
 // src/util/as-array.ts
@@ -13619,7 +12334,7 @@ async function createToolModelOutput({
   errorMode
 }) {
   if (errorMode === "text") {
-    return { type: "error-text", value: getErrorMessage$6(output) };
+    return { type: "error-text", value: getErrorMessage$1(output) };
   } else if (errorMode === "json") {
     return { type: "error-json", value: toJSONValue(output) };
   }
@@ -13645,14 +12360,14 @@ function prepareCallSettings({
 }) {
   if (maxOutputTokens != null) {
     if (!Number.isInteger(maxOutputTokens)) {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "maxOutputTokens",
         value: maxOutputTokens,
         message: "maxOutputTokens must be an integer"
       });
     }
     if (maxOutputTokens < 1) {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "maxOutputTokens",
         value: maxOutputTokens,
         message: "maxOutputTokens must be >= 1"
@@ -13661,7 +12376,7 @@ function prepareCallSettings({
   }
   if (temperature != null) {
     if (typeof temperature !== "number") {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "temperature",
         value: temperature,
         message: "temperature must be a number"
@@ -13670,7 +12385,7 @@ function prepareCallSettings({
   }
   if (topP != null) {
     if (typeof topP !== "number") {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "topP",
         value: topP,
         message: "topP must be a number"
@@ -13679,7 +12394,7 @@ function prepareCallSettings({
   }
   if (topK != null) {
     if (typeof topK !== "number") {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "topK",
         value: topK,
         message: "topK must be a number"
@@ -13688,7 +12403,7 @@ function prepareCallSettings({
   }
   if (presencePenalty != null) {
     if (typeof presencePenalty !== "number") {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "presencePenalty",
         value: presencePenalty,
         message: "presencePenalty must be a number"
@@ -13697,7 +12412,7 @@ function prepareCallSettings({
   }
   if (frequencyPenalty != null) {
     if (typeof frequencyPenalty !== "number") {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "frequencyPenalty",
         value: frequencyPenalty,
         message: "frequencyPenalty must be a number"
@@ -13706,7 +12421,7 @@ function prepareCallSettings({
   }
   if (seed != null) {
     if (!Number.isInteger(seed)) {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "seed",
         value: seed,
         message: "seed must be an integer"
@@ -13756,7 +12471,7 @@ async function prepareToolsAndToolChoice({
           type: "function",
           name: name18,
           description: tool2.description,
-          inputSchema: await asSchema$5(tool2.inputSchema).jsonSchema,
+          inputSchema: await asSchema(tool2.inputSchema).jsonSchema,
           ...tool2.inputExamples != null ? { inputExamples: tool2.inputExamples } : {},
           providerOptions: tool2.providerOptions,
           ...tool2.strict != null ? { strict: tool2.strict } : {}
@@ -13979,13 +12694,13 @@ var modelMessageSchema = union([
 // src/prompt/standardize-prompt.ts
 async function standardizePrompt(prompt) {
   if (prompt.prompt == null && prompt.messages == null) {
-    throw new InvalidPromptError$1({
+    throw new InvalidPromptError({
       prompt,
       message: "prompt or messages must be defined"
     });
   }
   if (prompt.prompt != null && prompt.messages != null) {
-    throw new InvalidPromptError$1({
+    throw new InvalidPromptError({
       prompt,
       message: "prompt and messages cannot be defined at the same time"
     });
@@ -13993,7 +12708,7 @@ async function standardizePrompt(prompt) {
   if (prompt.system != null && typeof prompt.system !== "string" && !asArray(prompt.system).every(
     (message) => typeof message === "object" && message !== null && "role" in message && message.role === "system"
   )) {
-    throw new InvalidPromptError$1({
+    throw new InvalidPromptError({
       prompt,
       message: "system must be a string, SystemModelMessage, or array of SystemModelMessage"
     });
@@ -14006,23 +12721,23 @@ async function standardizePrompt(prompt) {
   } else if (prompt.messages != null) {
     messages = prompt.messages;
   } else {
-    throw new InvalidPromptError$1({
+    throw new InvalidPromptError({
       prompt,
       message: "prompt or messages must be defined"
     });
   }
   if (messages.length === 0) {
-    throw new InvalidPromptError$1({
+    throw new InvalidPromptError({
       prompt,
       message: "messages must not be empty"
     });
   }
-  const validationResult = await safeValidateTypes$5({
+  const validationResult = await safeValidateTypes({
     value: messages,
     schema: array$1(modelMessageSchema)
   });
   if (!validationResult.success) {
-    throw new InvalidPromptError$1({
+    throw new InvalidPromptError({
       prompt,
       message: "The messages do not match the ModelMessage[] schema.",
       cause: validationResult.error
@@ -14039,7 +12754,7 @@ function wrapGatewayError(error) {
   const isProductionEnv = (process == null ? void 0 : process.env.NODE_ENV) === "production";
   const moreInfoURL = "https://ai-sdk.dev/unauthenticated-ai-gateway";
   if (isProductionEnv) {
-    return new AISDKError$5({
+    return new AISDKError({
       name: "GatewayError",
       message: `Unauthenticated. Configure AI_GATEWAY_API_KEY or use a provider module. Learn more: ${moreInfoURL}`
     });
@@ -14450,13 +13165,13 @@ async function _retryWithExponentialBackoff(f, {
   try {
     return await f();
   } catch (error) {
-    if (isAbortError$5(error)) {
+    if (isAbortError(error)) {
       throw error;
     }
     if (maxRetries === 0) {
       throw error;
     }
-    const errorMessage = getErrorMessage$5(error);
+    const errorMessage = getErrorMessage(error);
     const newErrors = [...errors, error];
     const tryNumber = newErrors.length;
     if (tryNumber > maxRetries) {
@@ -14466,7 +13181,7 @@ async function _retryWithExponentialBackoff(f, {
         errors: newErrors
       });
     }
-    if (error instanceof Error && APICallError$5.isInstance(error) && error.isRetryable === true && tryNumber <= maxRetries) {
+    if (error instanceof Error && APICallError.isInstance(error) && error.isRetryable === true && tryNumber <= maxRetries) {
       await delay(
         getRetryDelayInMs({
           error,
@@ -14503,14 +13218,14 @@ function prepareRetries({
 }) {
   if (maxRetries != null) {
     if (!Number.isInteger(maxRetries)) {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "maxRetries",
         value: maxRetries,
         message: "maxRetries must be an integer"
       });
     }
     if (maxRetries < 0) {
-      throw new InvalidArgumentError$5({
+      throw new InvalidArgumentError({
         parameter: "maxRetries",
         value: maxRetries,
         message: "maxRetries must be >= 0"
@@ -14719,14 +13434,14 @@ var DefaultGeneratedFile = class {
   // lazy conversion with caching to avoid unnecessary conversion overhead:
   get base64() {
     if (this.base64Data == null) {
-      this.base64Data = convertUint8ArrayToBase64$4(this.uint8ArrayData);
+      this.base64Data = convertUint8ArrayToBase64(this.uint8ArrayData);
     }
     return this.base64Data;
   }
   // lazy conversion with caching to avoid unnecessary conversion overhead:
   get uint8Array() {
     if (this.uint8ArrayData == null) {
-      this.uint8ArrayData = convertBase64ToUint8Array$2(this.base64Data);
+      this.uint8ArrayData = convertBase64ToUint8Array(this.base64Data);
     }
     return this.uint8ArrayData;
   }
@@ -15091,11 +13806,11 @@ async function parsePartialJson(jsonText) {
   if (jsonText === void 0) {
     return { value: void 0, state: "undefined-input" };
   }
-  let result = await safeParseJSON$5({ text: jsonText });
+  let result = await safeParseJSON({ text: jsonText });
   if (result.success) {
     return { value: result.value, state: "successful-parse" };
   }
-  result = await safeParseJSON$5({ text: fixJson(jsonText) });
+  result = await safeParseJSON({ text: fixJson(jsonText) });
   if (result.success) {
     return { value: result.value, state: "repaired-parse" };
   }
@@ -15121,17 +13836,17 @@ var object = ({
   name: name18,
   description
 }) => {
-  const schema = asSchema$5(inputSchema);
+  const schema = asSchema(inputSchema);
   return {
     name: "object",
-    responseFormat: resolve$1(schema.jsonSchema).then((jsonSchema2) => ({
+    responseFormat: resolve(schema.jsonSchema).then((jsonSchema2) => ({
       type: "json",
       schema: jsonSchema2,
       ...name18 != null && { name: name18 },
       ...description != null && { description }
     })),
     async parseCompleteOutput({ text: text2 }, context2) {
-      const parseResult = await safeParseJSON$5({ text: text2 });
+      const parseResult = await safeParseJSON({ text: text2 });
       if (!parseResult.success) {
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -15142,7 +13857,7 @@ var object = ({
           finishReason: context2.finishReason
         });
       }
-      const validationResult = await safeValidateTypes$5({
+      const validationResult = await safeValidateTypes({
         value: parseResult.value,
         schema
       });
@@ -15184,11 +13899,11 @@ var array = ({
   name: name18,
   description
 }) => {
-  const elementSchema = asSchema$5(inputElementSchema);
+  const elementSchema = asSchema(inputElementSchema);
   return {
     name: "array",
     // JSON schema that describes an array of elements:
-    responseFormat: resolve$1(elementSchema.jsonSchema).then((jsonSchema2) => {
+    responseFormat: resolve(elementSchema.jsonSchema).then((jsonSchema2) => {
       const { $schema, ...itemSchema } = jsonSchema2;
       return {
         type: "json",
@@ -15206,7 +13921,7 @@ var array = ({
       };
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
-      const parseResult = await safeParseJSON$5({ text: text2 });
+      const parseResult = await safeParseJSON({ text: text2 });
       if (!parseResult.success) {
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -15221,7 +13936,7 @@ var array = ({
       if (outerValue == null || typeof outerValue !== "object" || !("elements" in outerValue) || !Array.isArray(outerValue.elements)) {
         throw new NoObjectGeneratedError({
           message: "No object generated: response did not match schema.",
-          cause: new TypeValidationError$5({
+          cause: new TypeValidationError({
             value: outerValue,
             cause: "response must be an object with an elements array"
           }),
@@ -15232,7 +13947,7 @@ var array = ({
         });
       }
       for (const element of outerValue.elements) {
-        const validationResult = await safeValidateTypes$5({
+        const validationResult = await safeValidateTypes({
           value: element,
           schema: elementSchema
         });
@@ -15265,7 +13980,7 @@ var array = ({
           const rawElements = result.state === "repaired-parse" && outerValue.elements.length > 0 ? outerValue.elements.slice(0, -1) : outerValue.elements;
           const parsedElements = [];
           for (const rawElement of rawElements) {
-            const validationResult = await safeValidateTypes$5({
+            const validationResult = await safeValidateTypes({
               value: rawElement,
               schema: elementSchema
             });
@@ -15314,7 +14029,7 @@ var choice = ({
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
-      const parseResult = await safeParseJSON$5({ text: text2 });
+      const parseResult = await safeParseJSON({ text: text2 });
       if (!parseResult.success) {
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -15329,7 +14044,7 @@ var choice = ({
       if (outerValue == null || typeof outerValue !== "object" || !("result" in outerValue) || typeof outerValue.result !== "string" || !choiceOptions.includes(outerValue.result)) {
         throw new NoObjectGeneratedError({
           message: "No object generated: response did not match schema.",
-          cause: new TypeValidationError$5({
+          cause: new TypeValidationError({
             value: outerValue,
             cause: "response must be an object that contains a choice value."
           }),
@@ -15382,7 +14097,7 @@ var json = ({
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
-      const parseResult = await safeParseJSON$5({ text: text2 });
+      const parseResult = await safeParseJSON({ text: text2 });
       if (!parseResult.success) {
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -15441,7 +14156,7 @@ async function parseToolCall({
           tools,
           inputSchema: async ({ toolName }) => {
             const { inputSchema } = tools[toolName];
-            return await asSchema$5(inputSchema).jsonSchema;
+            return await asSchema(inputSchema).jsonSchema;
           },
           system,
           messages,
@@ -15459,7 +14174,7 @@ async function parseToolCall({
       return await doParseToolCall({ toolCall: repairedToolCall, tools });
     }
   } catch (error) {
-    const parsedInput = await safeParseJSON$5({ text: toolCall.input });
+    const parsedInput = await safeParseJSON({ text: toolCall.input });
     const input = parsedInput.success ? parsedInput.value : toolCall.input;
     return {
       type: "tool-call",
@@ -15476,7 +14191,7 @@ async function parseToolCall({
   }
 }
 async function parseProviderExecutedDynamicToolCall(toolCall) {
-  const parseResult = toolCall.input.trim() === "" ? { success: true, value: {} } : await safeParseJSON$5({ text: toolCall.input });
+  const parseResult = toolCall.input.trim() === "" ? { success: true, value: {} } : await safeParseJSON({ text: toolCall.input });
   if (parseResult.success === false) {
     throw new InvalidToolInputError({
       toolName: toolCall.toolName,
@@ -15509,8 +14224,8 @@ async function doParseToolCall({
       availableTools: Object.keys(tools)
     });
   }
-  const schema = asSchema$5(tool2.inputSchema);
-  const parseResult = toolCall.input.trim() === "" ? await safeValidateTypes$5({ value: {}, schema }) : await safeParseJSON$5({ text: toolCall.input, schema });
+  const schema = asSchema(tool2.inputSchema);
+  const parseResult = toolCall.input.trim() === "" ? await safeValidateTypes({ value: {}, schema }) : await safeParseJSON({ text: toolCall.input, schema });
   if (parseResult.success === false) {
     throw new InvalidToolInputError({
       toolName,
@@ -15770,7 +14485,7 @@ function mergeAbortSignals(...signals) {
 }
 
 // src/generate-text/generate-text.ts
-var originalGenerateId = createIdGenerator$5({
+var originalGenerateId = createIdGenerator({
   prefix: "aitxt",
   size: 24
 });
@@ -15817,9 +14532,9 @@ async function generateText({
     abortSignal: mergedAbortSignal
   });
   const callSettings = prepareCallSettings(settings);
-  const headersWithUserAgent = withUserAgentSuffix$5(
+  const headersWithUserAgent = withUserAgentSuffix(
     headers != null ? headers : {},
-    `ai/${VERSION$c}`
+    `ai/${VERSION$7}`
   );
   const baseTelemetryAttributes = getBaseTelemetryAttributes({
     model,
@@ -16122,7 +14837,7 @@ async function generateText({
                 toolCallId: toolCall.toolCallId,
                 toolName: toolCall.toolName,
                 input: toolCall.input,
-                error: getErrorMessage$5(toolCall.error),
+                error: getErrorMessage(toolCall.error),
                 dynamic: true
               });
             }
@@ -16798,7 +15513,7 @@ function processUIMessageStream({
             if (metadata != null) {
               const mergedMetadata = state.message.metadata != null ? mergeObjects(state.message.metadata, metadata) : metadata;
               if (messageMetadataSchema != null) {
-                await validateTypes$5({
+                await validateTypes({
                   value: mergedMetadata,
                   schema: messageMetadataSchema
                 });
@@ -17154,7 +15869,7 @@ function processUIMessageStream({
             default: {
               if (isDataUIMessageChunk(chunk)) {
                 if ((dataPartSchemas == null ? void 0 : dataPartSchemas[chunk.type]) != null) {
-                  await validateTypes$5({
+                  await validateTypes({
                     value: chunk.data,
                     schema: dataPartSchemas[chunk.type]
                   });
@@ -17581,7 +16296,7 @@ function runToolsTransformation({
                 toolCallId: toolCall.toolCallId,
                 toolName: toolCall.toolName,
                 input: toolCall.input,
-                error: getErrorMessage$5(toolCall.error),
+                error: getErrorMessage(toolCall.error),
                 dynamic: true,
                 title: toolCall.title
               });
@@ -17709,7 +16424,7 @@ function runToolsTransformation({
 }
 
 // src/generate-text/stream-text.ts
-var originalGenerateId2 = createIdGenerator$5({
+var originalGenerateId2 = createIdGenerator({
   prefix: "aitxt",
   size: 24
 });
@@ -18144,7 +16859,7 @@ var DefaultStreamTextResult = class {
             // The `reason` is usually of type DOMException, but it can also be of any type,
             // so we use getErrorMessage for serialization because it is already designed to accept values of the unknown type.
             // See: https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/reason
-            ...(abortSignal == null ? void 0 : abortSignal.reason) !== void 0 ? { reason: getErrorMessage$6(abortSignal.reason) } : {}
+            ...(abortSignal == null ? void 0 : abortSignal.reason) !== void 0 ? { reason: getErrorMessage$1(abortSignal.reason) } : {}
           });
           controller.close();
         }
@@ -18160,7 +16875,7 @@ var DefaultStreamTextResult = class {
           }
           controller.enqueue(value);
         } catch (error) {
-          if (isAbortError$5(error) && (abortSignal == null ? void 0 : abortSignal.aborted)) {
+          if (isAbortError(error) && (abortSignal == null ? void 0 : abortSignal.aborted)) {
             abort();
           } else {
             controller.error(error);
@@ -18914,7 +17629,7 @@ var DefaultStreamTextResult = class {
     var _a18, _b, _c;
     const transform = (_a18 = this.outputSpecification) == null ? void 0 : _a18.createElementStreamTransform();
     if (transform == null) {
-      throw new UnsupportedFunctionalityError$4({
+      throw new UnsupportedFunctionalityError({
         functionality: `element streams in ${(_c = (_b = this.outputSpecification) == null ? void 0 : _b.name) != null ? _c : "text"} mode`
       });
     }
@@ -18943,7 +17658,7 @@ var DefaultStreamTextResult = class {
     sendSources = false,
     sendStart = true,
     sendFinish = true,
-    onError = getErrorMessage$6
+    onError = getErrorMessage$1
   } = {}) {
     const responseMessageId = generateMessageId != null ? getResponseUIMessageId({
       originalMessages,
@@ -19272,2432 +17987,10 @@ var DefaultStreamTextResult = class {
 };
 
 // src/generate-object/generate-object.ts
-createIdGenerator$5({ prefix: "aiobj", size: 24 });
+createIdGenerator({ prefix: "aiobj", size: 24 });
 
 // src/generate-object/stream-object.ts
-createIdGenerator$5({ prefix: "aiobj", size: 24 });
-
-// src/errors/ai-sdk-error.ts
-var marker$6 = "vercel.ai.error";
-var symbol$6 = Symbol.for(marker$6);
-var _a$6, _b$6;
-var AISDKError$4 = class _AISDKError extends (_b$6 = Error, _a$6 = symbol$6, _b$6) {
-  /**
-   * Creates an AI SDK Error.
-   *
-   * @param {Object} params - The parameters for creating the error.
-   * @param {string} params.name - The name of the error.
-   * @param {string} params.message - The error message.
-   * @param {unknown} [params.cause] - The underlying cause of the error.
-   */
-  constructor({
-    name: name14,
-    message,
-    cause
-  }) {
-    super(message);
-    this[_a$6] = true;
-    this.name = name14;
-    this.cause = cause;
-  }
-  /**
-   * Checks if the given error is an AI SDK Error.
-   * @param {unknown} error - The error to check.
-   * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
-   */
-  static isInstance(error) {
-    return _AISDKError.hasMarker(error, marker$6);
-  }
-  static hasMarker(error, marker15) {
-    const markerSymbol = Symbol.for(marker15);
-    return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
-  }
-};
-
-// src/errors/api-call-error.ts
-var name$6 = "AI_APICallError";
-var marker2$4 = `vercel.ai.error.${name$6}`;
-var symbol2$4 = Symbol.for(marker2$4);
-var _a2$4, _b2$4;
-var APICallError$4 = class APICallError extends (_b2$4 = AISDKError$4, _a2$4 = symbol2$4, _b2$4) {
-  constructor({
-    message,
-    url,
-    requestBodyValues,
-    statusCode,
-    responseHeaders,
-    responseBody,
-    cause,
-    isRetryable = statusCode != null && (statusCode === 408 || // request timeout
-    statusCode === 409 || // conflict
-    statusCode === 429 || // too many requests
-    statusCode >= 500),
-    // server error
-    data
-  }) {
-    super({ name: name$6, message, cause });
-    this[_a2$4] = true;
-    this.url = url;
-    this.requestBodyValues = requestBodyValues;
-    this.statusCode = statusCode;
-    this.responseHeaders = responseHeaders;
-    this.responseBody = responseBody;
-    this.isRetryable = isRetryable;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker2$4);
-  }
-};
-
-// src/errors/empty-response-body-error.ts
-var name2$3 = "AI_EmptyResponseBodyError";
-var marker3$3 = `vercel.ai.error.${name2$3}`;
-var symbol3$3 = Symbol.for(marker3$3);
-var _a3$3, _b3$3;
-var EmptyResponseBodyError$3 = class EmptyResponseBodyError extends (_b3$3 = AISDKError$4, _a3$3 = symbol3$3, _b3$3) {
-  // used in isInstance
-  constructor({ message = "Empty response body" } = {}) {
-    super({ name: name2$3, message });
-    this[_a3$3] = true;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker3$3);
-  }
-};
-
-// src/errors/get-error-message.ts
-function getErrorMessage$4(error) {
-  if (error == null) {
-    return "unknown error";
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return JSON.stringify(error);
-}
-
-// src/errors/invalid-argument-error.ts
-var name3$4 = "AI_InvalidArgumentError";
-var marker4$4 = `vercel.ai.error.${name3$4}`;
-var symbol4$4 = Symbol.for(marker4$4);
-var _a4$4, _b4$4;
-var InvalidArgumentError$4 = class InvalidArgumentError extends (_b4$4 = AISDKError$4, _a4$4 = symbol4$4, _b4$4) {
-  constructor({
-    message,
-    cause,
-    argument
-  }) {
-    super({ name: name3$4, message, cause });
-    this[_a4$4] = true;
-    this.argument = argument;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker4$4);
-  }
-};
-
-// src/errors/invalid-prompt-error.ts
-var name4 = "AI_InvalidPromptError";
-var marker5 = `vercel.ai.error.${name4}`;
-var symbol5 = Symbol.for(marker5);
-var _a5, _b5;
-var InvalidPromptError = class extends (_b5 = AISDKError$4, _a5 = symbol5, _b5) {
-  constructor({
-    prompt,
-    message,
-    cause
-  }) {
-    super({ name: name4, message: `Invalid prompt: ${message}`, cause });
-    this[_a5] = true;
-    this.prompt = prompt;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker5);
-  }
-};
-
-// src/errors/invalid-response-data-error.ts
-var name5$1 = "AI_InvalidResponseDataError";
-var marker6$1 = `vercel.ai.error.${name5$1}`;
-var symbol6$1 = Symbol.for(marker6$1);
-var _a6$1, _b6$1;
-var InvalidResponseDataError$1 = class InvalidResponseDataError extends (_b6$1 = AISDKError$4, _a6$1 = symbol6$1, _b6$1) {
-  constructor({
-    data,
-    message = `Invalid response data: ${JSON.stringify(data)}.`
-  }) {
-    super({ name: name5$1, message });
-    this[_a6$1] = true;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker6$1);
-  }
-};
-
-// src/errors/json-parse-error.ts
-var name6$4 = "AI_JSONParseError";
-var marker7$4 = `vercel.ai.error.${name6$4}`;
-var symbol7$4 = Symbol.for(marker7$4);
-var _a7$4, _b7$4;
-var JSONParseError$4 = class JSONParseError extends (_b7$4 = AISDKError$4, _a7$4 = symbol7$4, _b7$4) {
-  constructor({ text, cause }) {
-    super({
-      name: name6$4,
-      message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage$4(cause)}`,
-      cause
-    });
-    this[_a7$4] = true;
-    this.text = text;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker7$4);
-  }
-};
-
-// src/errors/load-api-key-error.ts
-var name7$3 = "AI_LoadAPIKeyError";
-var marker8$3 = `vercel.ai.error.${name7$3}`;
-var symbol8$3 = Symbol.for(marker8$3);
-var _a8$3, _b8$3;
-var LoadAPIKeyError$3 = class LoadAPIKeyError extends (_b8$3 = AISDKError$4, _a8$3 = symbol8$3, _b8$3) {
-  // used in isInstance
-  constructor({ message }) {
-    super({ name: name7$3, message });
-    this[_a8$3] = true;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker8$3);
-  }
-};
-
-// src/errors/no-such-model-error.ts
-var name10$3 = "AI_NoSuchModelError";
-var marker11$3 = `vercel.ai.error.${name10$3}`;
-var symbol11$3 = Symbol.for(marker11$3);
-var _a11$3, _b11$3;
-var NoSuchModelError$3 = class NoSuchModelError extends (_b11$3 = AISDKError$4, _a11$3 = symbol11$3, _b11$3) {
-  constructor({
-    errorName = name10$3,
-    modelId,
-    modelType,
-    message = `No such ${modelType}: ${modelId}`
-  }) {
-    super({ name: errorName, message });
-    this[_a11$3] = true;
-    this.modelId = modelId;
-    this.modelType = modelType;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker11$3);
-  }
-};
-
-// src/errors/too-many-embedding-values-for-call-error.ts
-var name11 = "AI_TooManyEmbeddingValuesForCallError";
-var marker12 = `vercel.ai.error.${name11}`;
-var symbol12 = Symbol.for(marker12);
-var _a12, _b12;
-var TooManyEmbeddingValuesForCallError = class extends (_b12 = AISDKError$4, _a12 = symbol12, _b12) {
-  constructor(options) {
-    super({
-      name: name11,
-      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
-    });
-    this[_a12] = true;
-    this.provider = options.provider;
-    this.modelId = options.modelId;
-    this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
-    this.values = options.values;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker12);
-  }
-};
-
-// src/errors/type-validation-error.ts
-var name12$4 = "AI_TypeValidationError";
-var marker13$4 = `vercel.ai.error.${name12$4}`;
-var symbol13$4 = Symbol.for(marker13$4);
-var _a13$4, _b13$4;
-var TypeValidationError$4 = class _TypeValidationError extends (_b13$4 = AISDKError$4, _a13$4 = symbol13$4, _b13$4) {
-  constructor({ value, cause }) {
-    super({
-      name: name12$4,
-      message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$4(cause)}`,
-      cause
-    });
-    this[_a13$4] = true;
-    this.value = value;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker13$4);
-  }
-  /**
-   * Wraps an error into a TypeValidationError.
-   * If the cause is already a TypeValidationError with the same value, it returns the cause.
-   * Otherwise, it creates a new TypeValidationError.
-   *
-   * @param {Object} params - The parameters for wrapping the error.
-   * @param {unknown} params.value - The value that failed validation.
-   * @param {unknown} params.cause - The original error or cause of the validation failure.
-   * @returns {TypeValidationError} A TypeValidationError instance.
-   */
-  static wrap({
-    value,
-    cause
-  }) {
-    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
-  }
-};
-
-// src/errors/unsupported-functionality-error.ts
-var name13$3 = "AI_UnsupportedFunctionalityError";
-var marker14$3 = `vercel.ai.error.${name13$3}`;
-var symbol14$3 = Symbol.for(marker14$3);
-var _a14$3, _b14$3;
-var UnsupportedFunctionalityError$3 = class UnsupportedFunctionalityError extends (_b14$3 = AISDKError$4, _a14$3 = symbol14$3, _b14$3) {
-  constructor({
-    functionality,
-    message = `'${functionality}' functionality not supported.`
-  }) {
-    super({ name: name13$3, message });
-    this[_a14$3] = true;
-    this.functionality = functionality;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker14$3);
-  }
-};
-
-// src/combine-headers.ts
-function combineHeaders$4(...headers) {
-  return headers.reduce(
-    (combinedHeaders, currentHeaders) => ({
-      ...combinedHeaders,
-      ...currentHeaders != null ? currentHeaders : {}
-    }),
-    {}
-  );
-}
-
-// src/create-tool-name-mapping.ts
-function createToolNameMapping({
-  tools = [],
-  providerToolNames
-}) {
-  const customToolNameToProviderToolName = {};
-  const providerToolNameToCustomToolName = {};
-  for (const tool2 of tools) {
-    if (tool2.type === "provider" && tool2.id in providerToolNames) {
-      const providerToolName = providerToolNames[tool2.id];
-      customToolNameToProviderToolName[tool2.name] = providerToolName;
-      providerToolNameToCustomToolName[providerToolName] = tool2.name;
-    }
-  }
-  return {
-    toProviderToolName: (customToolName) => {
-      var _a2;
-      return (_a2 = customToolNameToProviderToolName[customToolName]) != null ? _a2 : customToolName;
-    },
-    toCustomToolName: (providerToolName) => {
-      var _a2;
-      return (_a2 = providerToolNameToCustomToolName[providerToolName]) != null ? _a2 : providerToolName;
-    }
-  };
-}
-
-// src/extract-response-headers.ts
-function extractResponseHeaders$4(response) {
-  return Object.fromEntries([...response.headers]);
-}
-
-// src/uint8-utils.ts
-var { btoa: btoa$3, atob: atob$2 } = globalThis;
-function convertBase64ToUint8Array$1(base64String) {
-  const base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/");
-  const latin1string = atob$2(base64Url);
-  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
-}
-function convertUint8ArrayToBase64$3(array) {
-  let latin1string = "";
-  for (let i = 0; i < array.length; i++) {
-    latin1string += String.fromCodePoint(array[i]);
-  }
-  return btoa$3(latin1string);
-}
-function convertToBase64$2(value) {
-  return value instanceof Uint8Array ? convertUint8ArrayToBase64$3(value) : value;
-}
-
-// src/convert-to-form-data.ts
-function convertToFormData$1(input, options = {}) {
-  const { useArrayBrackets = true } = options;
-  const formData = new FormData();
-  for (const [key, value] of Object.entries(input)) {
-    if (value == null) {
-      continue;
-    }
-    if (Array.isArray(value)) {
-      if (value.length === 1) {
-        formData.append(key, value[0]);
-        continue;
-      }
-      const arrayKey = useArrayBrackets ? `${key}[]` : key;
-      for (const item of value) {
-        formData.append(arrayKey, item);
-      }
-      continue;
-    }
-    formData.append(key, value);
-  }
-  return formData;
-}
-var name$5 = "AI_DownloadError";
-var marker$5 = `vercel.ai.error.${name$5}`;
-var symbol$5 = Symbol.for(marker$5);
-var _a$5, _b$5;
-var DownloadError$1 = class DownloadError extends (_b$5 = AISDKError$4, _a$5 = symbol$5, _b$5) {
-  constructor({
-    url,
-    statusCode,
-    statusText,
-    cause,
-    message = cause == null ? `Failed to download ${url}: ${statusCode} ${statusText}` : `Failed to download ${url}: ${cause}`
-  }) {
-    super({ name: name$5, message, cause });
-    this[_a$5] = true;
-    this.url = url;
-    this.statusCode = statusCode;
-    this.statusText = statusText;
-  }
-  static isInstance(error) {
-    return AISDKError$4.hasMarker(error, marker$5);
-  }
-};
-
-// src/download-blob.ts
-async function downloadBlob$1(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new DownloadError$1({
-        url,
-        statusCode: response.status,
-        statusText: response.statusText
-      });
-    }
-    return await response.blob();
-  } catch (error) {
-    if (DownloadError$1.isInstance(error)) {
-      throw error;
-    }
-    throw new DownloadError$1({ url, cause: error });
-  }
-}
-var createIdGenerator$4 = ({
-  prefix,
-  size = 16,
-  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  separator = "-"
-} = {}) => {
-  const generator = () => {
-    const alphabetLength = alphabet.length;
-    const chars = new Array(size);
-    for (let i = 0; i < size; i++) {
-      chars[i] = alphabet[Math.random() * alphabetLength | 0];
-    }
-    return chars.join("");
-  };
-  if (prefix == null) {
-    return generator;
-  }
-  if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError$4({
-      argument: "separator",
-      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
-    });
-  }
-  return () => `${prefix}${separator}${generator()}`;
-};
-var generateId$3 = createIdGenerator$4();
-
-// src/is-abort-error.ts
-function isAbortError$4(error) {
-  return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
-  error.name === "TimeoutError");
-}
-
-// src/handle-fetch-error.ts
-var FETCH_FAILED_ERROR_MESSAGES$4 = ["fetch failed", "failed to fetch"];
-function handleFetchError$4({
-  error,
-  url,
-  requestBodyValues
-}) {
-  if (isAbortError$4(error)) {
-    return error;
-  }
-  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES$4.includes(error.message.toLowerCase())) {
-    const cause = error.cause;
-    if (cause != null) {
-      return new APICallError$4({
-        message: `Cannot connect to API: ${cause.message}`,
-        cause,
-        url,
-        requestBodyValues,
-        isRetryable: true
-        // retry when network error
-      });
-    }
-  }
-  return error;
-}
-
-// src/get-runtime-environment-user-agent.ts
-function getRuntimeEnvironmentUserAgent$4(globalThisAny = globalThis) {
-  var _a2, _b2, _c;
-  if (globalThisAny.window) {
-    return `runtime/browser`;
-  }
-  if ((_a2 = globalThisAny.navigator) == null ? void 0 : _a2.userAgent) {
-    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
-  }
-  if ((_c = (_b2 = globalThisAny.process) == null ? void 0 : _b2.versions) == null ? void 0 : _c.node) {
-    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
-  }
-  if (globalThisAny.EdgeRuntime) {
-    return `runtime/vercel-edge`;
-  }
-  return "runtime/unknown";
-}
-
-// src/normalize-headers.ts
-function normalizeHeaders$4(headers) {
-  if (headers == null) {
-    return {};
-  }
-  const normalized = {};
-  if (headers instanceof Headers) {
-    headers.forEach((value, key) => {
-      normalized[key.toLowerCase()] = value;
-    });
-  } else {
-    if (!Array.isArray(headers)) {
-      headers = Object.entries(headers);
-    }
-    for (const [key, value] of headers) {
-      if (value != null) {
-        normalized[key.toLowerCase()] = value;
-      }
-    }
-  }
-  return normalized;
-}
-
-// src/with-user-agent-suffix.ts
-function withUserAgentSuffix$4(headers, ...userAgentSuffixParts) {
-  const normalizedHeaders = new Headers(normalizeHeaders$4(headers));
-  const currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
-  normalizedHeaders.set(
-    "user-agent",
-    [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")
-  );
-  return Object.fromEntries(normalizedHeaders.entries());
-}
-
-// src/version.ts
-var VERSION$b = "4.0.5" ;
-
-// src/inject-json-instruction.ts
-var DEFAULT_SCHEMA_PREFIX = "JSON schema:";
-var DEFAULT_SCHEMA_SUFFIX = "You MUST answer with a JSON object that matches the JSON schema above.";
-var DEFAULT_GENERIC_SUFFIX = "You MUST answer with JSON.";
-function injectJsonInstruction({
-  prompt,
-  schema,
-  schemaPrefix = schema != null ? DEFAULT_SCHEMA_PREFIX : void 0,
-  schemaSuffix = schema != null ? DEFAULT_SCHEMA_SUFFIX : DEFAULT_GENERIC_SUFFIX
-}) {
-  return [
-    prompt != null && prompt.length > 0 ? prompt : void 0,
-    prompt != null && prompt.length > 0 ? "" : void 0,
-    // add a newline if prompt is not null
-    schemaPrefix,
-    schema != null ? JSON.stringify(schema) : void 0,
-    schemaSuffix
-  ].filter((line) => line != null).join("\n");
-}
-function injectJsonInstructionIntoMessages({
-  messages,
-  schema,
-  schemaPrefix,
-  schemaSuffix
-}) {
-  var _a2, _b2;
-  const systemMessage = ((_a2 = messages[0]) == null ? void 0 : _a2.role) === "system" ? { ...messages[0] } : { role: "system", content: "" };
-  systemMessage.content = injectJsonInstruction({
-    prompt: systemMessage.content,
-    schema,
-    schemaPrefix,
-    schemaSuffix
-  });
-  return [
-    systemMessage,
-    ...((_b2 = messages[0]) == null ? void 0 : _b2.role) === "system" ? messages.slice(1) : messages
-  ];
-}
-
-// src/is-non-nullable.ts
-function isNonNullable(value) {
-  return value != null;
-}
-function loadApiKey$3({
-  apiKey,
-  environmentVariableName,
-  apiKeyParameterName = "apiKey",
-  description
-}) {
-  if (typeof apiKey === "string") {
-    return apiKey;
-  }
-  if (apiKey != null) {
-    throw new LoadAPIKeyError$3({
-      message: `${description} API key must be a string.`
-    });
-  }
-  if (typeof process === "undefined") {
-    throw new LoadAPIKeyError$3({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables is not supported in this environment.`
-    });
-  }
-  apiKey = process.env[environmentVariableName];
-  if (apiKey == null) {
-    throw new LoadAPIKeyError$3({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
-    });
-  }
-  if (typeof apiKey !== "string") {
-    throw new LoadAPIKeyError$3({
-      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
-    });
-  }
-  return apiKey;
-}
-
-// src/load-optional-setting.ts
-function loadOptionalSetting({
-  settingValue,
-  environmentVariableName
-}) {
-  if (typeof settingValue === "string") {
-    return settingValue;
-  }
-  if (settingValue != null || typeof process === "undefined") {
-    return void 0;
-  }
-  settingValue = process.env[environmentVariableName];
-  if (settingValue == null || typeof settingValue !== "string") {
-    return void 0;
-  }
-  return settingValue;
-}
-
-// src/media-type-to-extension.ts
-function mediaTypeToExtension(mediaType) {
-  var _a2;
-  const [_type, subtype = ""] = mediaType.toLowerCase().split("/");
-  return (_a2 = {
-    mpeg: "mp3",
-    "x-wav": "wav",
-    opus: "ogg",
-    mp4: "m4a",
-    "x-m4a": "m4a"
-  }[subtype]) != null ? _a2 : subtype;
-}
-
-// src/secure-json-parse.ts
-var suspectProtoRx$4 = /"__proto__"\s*:/;
-var suspectConstructorRx$4 = /"constructor"\s*:/;
-function _parse$4(text) {
-  const obj = JSON.parse(text);
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-  if (suspectProtoRx$4.test(text) === false && suspectConstructorRx$4.test(text) === false) {
-    return obj;
-  }
-  return filter$4(obj);
-}
-function filter$4(obj) {
-  let next = [obj];
-  while (next.length) {
-    const nodes = next;
-    next = [];
-    for (const node of nodes) {
-      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      if (Object.prototype.hasOwnProperty.call(node, "constructor") && Object.prototype.hasOwnProperty.call(node.constructor, "prototype")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      for (const key in node) {
-        const value = node[key];
-        if (value && typeof value === "object") {
-          next.push(value);
-        }
-      }
-    }
-  }
-  return obj;
-}
-function secureJsonParse$4(text) {
-  const { stackTraceLimit } = Error;
-  try {
-    Error.stackTraceLimit = 0;
-  } catch (e) {
-    return _parse$4(text);
-  }
-  try {
-    return _parse$4(text);
-  } finally {
-    Error.stackTraceLimit = stackTraceLimit;
-  }
-}
-
-// src/add-additional-properties-to-json-schema.ts
-function addAdditionalPropertiesToJsonSchema$4(jsonSchema2) {
-  if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
-    jsonSchema2.additionalProperties = false;
-    const { properties } = jsonSchema2;
-    if (properties != null) {
-      for (const key of Object.keys(properties)) {
-        properties[key] = visit$4(properties[key]);
-      }
-    }
-  }
-  if (jsonSchema2.items != null) {
-    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit$4) : visit$4(jsonSchema2.items);
-  }
-  if (jsonSchema2.anyOf != null) {
-    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit$4);
-  }
-  if (jsonSchema2.allOf != null) {
-    jsonSchema2.allOf = jsonSchema2.allOf.map(visit$4);
-  }
-  if (jsonSchema2.oneOf != null) {
-    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit$4);
-  }
-  const { definitions } = jsonSchema2;
-  if (definitions != null) {
-    for (const key of Object.keys(definitions)) {
-      definitions[key] = visit$4(definitions[key]);
-    }
-  }
-  return jsonSchema2;
-}
-function visit$4(def) {
-  if (typeof def === "boolean") return def;
-  return addAdditionalPropertiesToJsonSchema$4(def);
-}
-
-// src/to-json-schema/zod3-to-json-schema/options.ts
-var ignoreOverride$4 = Symbol(
-  "Let zodToJsonSchema decide on which parser to use"
-);
-var defaultOptions$4 = {
-  name: void 0,
-  $refStrategy: "root",
-  basePath: ["#"],
-  effectStrategy: "input",
-  pipeStrategy: "all",
-  dateStrategy: "format:date-time",
-  mapStrategy: "entries",
-  removeAdditionalStrategy: "passthrough",
-  allowedAdditionalProperties: true,
-  rejectedAdditionalProperties: false,
-  definitionPath: "definitions",
-  strictUnions: false,
-  definitions: {},
-  errorMessages: false,
-  patternStrategy: "escape",
-  applyRegexFlags: false,
-  emailStrategy: "format:email",
-  base64Strategy: "contentEncoding:base64",
-  nameStrategy: "ref"
-};
-var getDefaultOptions$4 = (options) => typeof options === "string" ? {
-  ...defaultOptions$4,
-  name: options
-} : {
-  ...defaultOptions$4,
-  ...options
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/any.ts
-function parseAnyDef$4() {
-  return {};
-}
-function parseArrayDef$4(def, refs) {
-  var _a2, _b2, _c;
-  const res = {
-    type: "array"
-  };
-  if (((_a2 = def.type) == null ? void 0 : _a2._def) && ((_c = (_b2 = def.type) == null ? void 0 : _b2._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef$4(def.type._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "items"]
-    });
-  }
-  if (def.minLength) {
-    res.minItems = def.minLength.value;
-  }
-  if (def.maxLength) {
-    res.maxItems = def.maxLength.value;
-  }
-  if (def.exactLength) {
-    res.minItems = def.exactLength.value;
-    res.maxItems = def.exactLength.value;
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/bigint.ts
-function parseBigintDef$4(def) {
-  const res = {
-    type: "integer",
-    format: "int64"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/boolean.ts
-function parseBooleanDef$4() {
-  return { type: "boolean" };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/branded.ts
-function parseBrandedDef$4(_def, refs) {
-  return parseDef$4(_def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/catch.ts
-var parseCatchDef$4 = (def, refs) => {
-  return parseDef$4(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/date.ts
-function parseDateDef$4(def, refs, overrideDateStrategy) {
-  const strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
-  if (Array.isArray(strategy)) {
-    return {
-      anyOf: strategy.map((item, i) => parseDateDef$4(def, refs, item))
-    };
-  }
-  switch (strategy) {
-    case "string":
-    case "format:date-time":
-      return {
-        type: "string",
-        format: "date-time"
-      };
-    case "format:date":
-      return {
-        type: "string",
-        format: "date"
-      };
-    case "integer":
-      return integerDateParser$4(def);
-  }
-}
-var integerDateParser$4 = (def) => {
-  const res = {
-    type: "integer",
-    format: "unix-time"
-  };
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        res.minimum = check.value;
-        break;
-      case "max":
-        res.maximum = check.value;
-        break;
-    }
-  }
-  return res;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/default.ts
-function parseDefaultDef$4(_def, refs) {
-  return {
-    ...parseDef$4(_def.innerType._def, refs),
-    default: _def.defaultValue()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/effects.ts
-function parseEffectsDef$4(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef$4(_def.schema._def, refs) : parseAnyDef$4();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/enum.ts
-function parseEnumDef$4(def) {
-  return {
-    type: "string",
-    enum: Array.from(def.values)
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/intersection.ts
-var isJsonSchema7AllOfType$4 = (type) => {
-  if ("type" in type && type.type === "string") return false;
-  return "allOf" in type;
-};
-function parseIntersectionDef$4(def, refs) {
-  const allOf = [
-    parseDef$4(def.left._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "0"]
-    }),
-    parseDef$4(def.right._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "1"]
-    })
-  ].filter((x) => !!x);
-  const mergedAllOf = [];
-  allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType$4(schema)) {
-      mergedAllOf.push(...schema.allOf);
-    } else {
-      let nestedSchema = schema;
-      if ("additionalProperties" in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema;
-        nestedSchema = rest;
-      }
-      mergedAllOf.push(nestedSchema);
-    }
-  });
-  return mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/literal.ts
-function parseLiteralDef$4(def) {
-  const parsedType = typeof def.value;
-  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
-    return {
-      type: Array.isArray(def.value) ? "array" : "object"
-    };
-  }
-  return {
-    type: parsedType === "bigint" ? "integer" : parsedType,
-    const: def.value
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/string.ts
-var emojiRegex$4 = void 0;
-var zodPatterns$4 = {
-  /**
-   * `c` was changed to `[cC]` to replicate /i flag
-   */
-  cuid: /^[cC][^\s-]{8,}$/,
-  cuid2: /^[0-9a-z]+$/,
-  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
-  /**
-   * `a-z` was added to replicate /i flag
-   */
-  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
-  /**
-   * Constructed a valid Unicode RegExp
-   *
-   * Lazily instantiate since this type of regex isn't supported
-   * in all envs (e.g. React Native).
-   *
-   * See:
-   * https://github.com/colinhacks/zod/issues/2433
-   * Fix in Zod:
-   * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
-   */
-  emoji: () => {
-    if (emojiRegex$4 === void 0) {
-      emojiRegex$4 = RegExp(
-        "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$",
-        "u"
-      );
-    }
-    return emojiRegex$4;
-  },
-  /**
-   * Unused
-   */
-  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
-  /**
-   * Unused
-   */
-  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
-  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
-  /**
-   * Unused
-   */
-  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
-  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
-  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
-  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
-  nanoid: /^[a-zA-Z0-9_-]{21}$/,
-  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
-};
-function parseStringDef$4(def, refs) {
-  const res = {
-    type: "string"
-  };
-  if (def.checks) {
-    for (const check of def.checks) {
-      switch (check.kind) {
-        case "min":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          break;
-        case "max":
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "email":
-          switch (refs.emailStrategy) {
-            case "format:email":
-              addFormat$4(res, "email", check.message, refs);
-              break;
-            case "format:idn-email":
-              addFormat$4(res, "idn-email", check.message, refs);
-              break;
-            case "pattern:zod":
-              addPattern$4(res, zodPatterns$4.email, check.message, refs);
-              break;
-          }
-          break;
-        case "url":
-          addFormat$4(res, "uri", check.message, refs);
-          break;
-        case "uuid":
-          addFormat$4(res, "uuid", check.message, refs);
-          break;
-        case "regex":
-          addPattern$4(res, check.regex, check.message, refs);
-          break;
-        case "cuid":
-          addPattern$4(res, zodPatterns$4.cuid, check.message, refs);
-          break;
-        case "cuid2":
-          addPattern$4(res, zodPatterns$4.cuid2, check.message, refs);
-          break;
-        case "startsWith":
-          addPattern$4(
-            res,
-            RegExp(`^${escapeLiteralCheckValue$4(check.value, refs)}`),
-            check.message,
-            refs
-          );
-          break;
-        case "endsWith":
-          addPattern$4(
-            res,
-            RegExp(`${escapeLiteralCheckValue$4(check.value, refs)}$`),
-            check.message,
-            refs
-          );
-          break;
-        case "datetime":
-          addFormat$4(res, "date-time", check.message, refs);
-          break;
-        case "date":
-          addFormat$4(res, "date", check.message, refs);
-          break;
-        case "time":
-          addFormat$4(res, "time", check.message, refs);
-          break;
-        case "duration":
-          addFormat$4(res, "duration", check.message, refs);
-          break;
-        case "length":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "includes": {
-          addPattern$4(
-            res,
-            RegExp(escapeLiteralCheckValue$4(check.value, refs)),
-            check.message,
-            refs
-          );
-          break;
-        }
-        case "ip": {
-          if (check.version !== "v6") {
-            addFormat$4(res, "ipv4", check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addFormat$4(res, "ipv6", check.message, refs);
-          }
-          break;
-        }
-        case "base64url":
-          addPattern$4(res, zodPatterns$4.base64url, check.message, refs);
-          break;
-        case "jwt":
-          addPattern$4(res, zodPatterns$4.jwt, check.message, refs);
-          break;
-        case "cidr": {
-          if (check.version !== "v6") {
-            addPattern$4(res, zodPatterns$4.ipv4Cidr, check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addPattern$4(res, zodPatterns$4.ipv6Cidr, check.message, refs);
-          }
-          break;
-        }
-        case "emoji":
-          addPattern$4(res, zodPatterns$4.emoji(), check.message, refs);
-          break;
-        case "ulid": {
-          addPattern$4(res, zodPatterns$4.ulid, check.message, refs);
-          break;
-        }
-        case "base64": {
-          switch (refs.base64Strategy) {
-            case "format:binary": {
-              addFormat$4(res, "binary", check.message, refs);
-              break;
-            }
-            case "contentEncoding:base64": {
-              res.contentEncoding = "base64";
-              break;
-            }
-            case "pattern:zod": {
-              addPattern$4(res, zodPatterns$4.base64, check.message, refs);
-              break;
-            }
-          }
-          break;
-        }
-        case "nanoid": {
-          addPattern$4(res, zodPatterns$4.nanoid, check.message, refs);
-        }
-      }
-    }
-  }
-  return res;
-}
-function escapeLiteralCheckValue$4(literal, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric$4(literal) : literal;
-}
-var ALPHA_NUMERIC$4 = new Set(
-  "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789"
-);
-function escapeNonAlphaNumeric$4(source) {
-  let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC$4.has(source[i])) {
-      result += "\\";
-    }
-    result += source[i];
-  }
-  return result;
-}
-function addFormat$4(schema, value, message, refs) {
-  var _a2;
-  if (schema.format || ((_a2 = schema.anyOf) == null ? void 0 : _a2.some((x) => x.format))) {
-    if (!schema.anyOf) {
-      schema.anyOf = [];
-    }
-    if (schema.format) {
-      schema.anyOf.push({
-        format: schema.format
-      });
-      delete schema.format;
-    }
-    schema.anyOf.push({
-      format: value,
-      ...message && refs.errorMessages && { errorMessage: { format: message } }
-    });
-  } else {
-    schema.format = value;
-  }
-}
-function addPattern$4(schema, regex, message, refs) {
-  var _a2;
-  if (schema.pattern || ((_a2 = schema.allOf) == null ? void 0 : _a2.some((x) => x.pattern))) {
-    if (!schema.allOf) {
-      schema.allOf = [];
-    }
-    if (schema.pattern) {
-      schema.allOf.push({
-        pattern: schema.pattern
-      });
-      delete schema.pattern;
-    }
-    schema.allOf.push({
-      pattern: stringifyRegExpWithFlags$4(regex, refs),
-      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
-    });
-  } else {
-    schema.pattern = stringifyRegExpWithFlags$4(regex, refs);
-  }
-}
-function stringifyRegExpWithFlags$4(regex, refs) {
-  var _a2;
-  if (!refs.applyRegexFlags || !regex.flags) {
-    return regex.source;
-  }
-  const flags = {
-    i: regex.flags.includes("i"),
-    // Case-insensitive
-    m: regex.flags.includes("m"),
-    // `^` and `$` matches adjacent to newline characters
-    s: regex.flags.includes("s")
-    // `.` matches newlines
-  };
-  const source = flags.i ? regex.source.toLowerCase() : regex.source;
-  let pattern = "";
-  let isEscaped = false;
-  let inCharGroup = false;
-  let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
-    if (isEscaped) {
-      pattern += source[i];
-      isEscaped = false;
-      continue;
-    }
-    if (flags.i) {
-      if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
-          if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
-            inCharRange = false;
-          } else if (source[i + 1] === "-" && ((_a2 = source[i + 2]) == null ? void 0 : _a2.match(/[a-z]/))) {
-            pattern += source[i];
-            inCharRange = true;
-          } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
-          }
-          continue;
-        }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
-        continue;
-      }
-    }
-    if (flags.m) {
-      if (source[i] === "^") {
-        pattern += `(^|(?<=[\r
-]))`;
-        continue;
-      } else if (source[i] === "$") {
-        pattern += `($|(?=[\r
-]))`;
-        continue;
-      }
-    }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
-]`;
-      continue;
-    }
-    pattern += source[i];
-    if (source[i] === "\\") {
-      isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
-      inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
-      inCharGroup = true;
-    }
-  }
-  try {
-    new RegExp(pattern);
-  } catch (e) {
-    console.warn(
-      `Could not convert regex pattern at ${refs.currentPath.join(
-        "/"
-      )} to a flag-independent form! Falling back to the flag-ignorant source`
-    );
-    return regex.source;
-  }
-  return pattern;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/record.ts
-function parseRecordDef$4(def, refs) {
-  var _a2, _b2, _c, _d, _e, _f;
-  const schema = {
-    type: "object",
-    additionalProperties: (_a2 = parseDef$4(def.valueType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    })) != null ? _a2 : refs.allowedAdditionalProperties
-  };
-  if (((_b2 = def.keyType) == null ? void 0 : _b2._def.typeName) === ZodFirstPartyTypeKind.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
-    const { type, ...keyType } = parseStringDef$4(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      ...schema,
-      propertyNames: {
-        enum: def.keyType._def.values
-      }
-    };
-  } else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
-    const { type, ...keyType } = parseBrandedDef$4(
-      def.keyType._def,
-      refs
-    );
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/map.ts
-function parseMapDef$4(def, refs) {
-  if (refs.mapStrategy === "record") {
-    return parseRecordDef$4(def, refs);
-  }
-  const keys = parseDef$4(def.keyType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef$4();
-  const values = parseDef$4(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef$4();
-  return {
-    type: "array",
-    maxItems: 125,
-    items: {
-      type: "array",
-      items: [keys, values],
-      minItems: 2,
-      maxItems: 2
-    }
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/native-enum.ts
-function parseNativeEnumDef$4(def) {
-  const object = def.values;
-  const actualKeys = Object.keys(def.values).filter((key) => {
-    return typeof object[object[key]] !== "number";
-  });
-  const actualValues = actualKeys.map((key) => object[key]);
-  const parsedTypes = Array.from(
-    new Set(actualValues.map((values) => typeof values))
-  );
-  return {
-    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
-    enum: actualValues
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/never.ts
-function parseNeverDef$4() {
-  return { not: parseAnyDef$4() };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/null.ts
-function parseNullDef$4() {
-  return {
-    type: "null"
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/union.ts
-var primitiveMappings$4 = {
-  ZodString: "string",
-  ZodNumber: "number",
-  ZodBigInt: "integer",
-  ZodBoolean: "boolean",
-  ZodNull: "null"
-};
-function parseUnionDef$4(def, refs) {
-  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
-  if (options.every(
-    (x) => x._def.typeName in primitiveMappings$4 && (!x._def.checks || !x._def.checks.length)
-  )) {
-    const types = options.reduce((types2, x) => {
-      const type = primitiveMappings$4[x._def.typeName];
-      return type && !types2.includes(type) ? [...types2, type] : types2;
-    }, []);
-    return {
-      type: types.length > 1 ? types : types[0]
-    };
-  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
-    const types = options.reduce(
-      (acc, x) => {
-        const type = typeof x._def.value;
-        switch (type) {
-          case "string":
-          case "number":
-          case "boolean":
-            return [...acc, type];
-          case "bigint":
-            return [...acc, "integer"];
-          case "object":
-            if (x._def.value === null) return [...acc, "null"];
-          case "symbol":
-          case "undefined":
-          case "function":
-          default:
-            return acc;
-        }
-      },
-      []
-    );
-    if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
-      return {
-        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
-        enum: options.reduce(
-          (acc, x) => {
-            return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
-          },
-          []
-        )
-      };
-    }
-  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
-    return {
-      type: "string",
-      enum: options.reduce(
-        (acc, x) => [
-          ...acc,
-          ...x._def.values.filter((x2) => !acc.includes(x2))
-        ],
-        []
-      )
-    };
-  }
-  return asAnyOf$4(def, refs);
-}
-var asAnyOf$4 = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map(
-    (x, i) => parseDef$4(x._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "anyOf", `${i}`]
-    })
-  ).filter(
-    (x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0)
-  );
-  return anyOf.length ? { anyOf } : void 0;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/nullable.ts
-function parseNullableDef$4(def, refs) {
-  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(
-    def.innerType._def.typeName
-  ) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
-    return {
-      type: [
-        primitiveMappings$4[def.innerType._def.typeName],
-        "null"
-      ]
-    };
-  }
-  const base = parseDef$4(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "0"]
-  });
-  return base && { anyOf: [base, { type: "null" }] };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/number.ts
-function parseNumberDef$4(def) {
-  const res = {
-    type: "number"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "int":
-        res.type = "integer";
-        break;
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/object.ts
-function parseObjectDef$4(def, refs) {
-  const result = {
-    type: "object",
-    properties: {}
-  };
-  const required = [];
-  const shape = def.shape();
-  for (const propName in shape) {
-    let propDef = shape[propName];
-    if (propDef === void 0 || propDef._def === void 0) {
-      continue;
-    }
-    const propOptional = safeIsOptional$4(propDef);
-    const parsedDef = parseDef$4(propDef._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "properties", propName],
-      propertyPath: [...refs.currentPath, "properties", propName]
-    });
-    if (parsedDef === void 0) {
-      continue;
-    }
-    result.properties[propName] = parsedDef;
-    if (!propOptional) {
-      required.push(propName);
-    }
-  }
-  if (required.length) {
-    result.required = required;
-  }
-  const additionalProperties = decideAdditionalProperties$4(def, refs);
-  if (additionalProperties !== void 0) {
-    result.additionalProperties = additionalProperties;
-  }
-  return result;
-}
-function decideAdditionalProperties$4(def, refs) {
-  if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef$4(def.catchall._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    });
-  }
-  switch (def.unknownKeys) {
-    case "passthrough":
-      return refs.allowedAdditionalProperties;
-    case "strict":
-      return refs.rejectedAdditionalProperties;
-    case "strip":
-      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
-  }
-}
-function safeIsOptional$4(schema) {
-  try {
-    return schema.isOptional();
-  } catch (e) {
-    return true;
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/optional.ts
-var parseOptionalDef$4 = (def, refs) => {
-  var _a2;
-  if (refs.currentPath.toString() === ((_a2 = refs.propertyPath) == null ? void 0 : _a2.toString())) {
-    return parseDef$4(def.innerType._def, refs);
-  }
-  const innerSchema = parseDef$4(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "1"]
-  });
-  return innerSchema ? { anyOf: [{ not: parseAnyDef$4() }, innerSchema] } : parseAnyDef$4();
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/pipeline.ts
-var parsePipelineDef$4 = (def, refs) => {
-  if (refs.pipeStrategy === "input") {
-    return parseDef$4(def.in._def, refs);
-  } else if (refs.pipeStrategy === "output") {
-    return parseDef$4(def.out._def, refs);
-  }
-  const a = parseDef$4(def.in._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", "0"]
-  });
-  const b = parseDef$4(def.out._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
-  });
-  return {
-    allOf: [a, b].filter((x) => x !== void 0)
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/promise.ts
-function parsePromiseDef$4(def, refs) {
-  return parseDef$4(def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/set.ts
-function parseSetDef$4(def, refs) {
-  const items = parseDef$4(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items"]
-  });
-  const schema = {
-    type: "array",
-    uniqueItems: true,
-    items
-  };
-  if (def.minSize) {
-    schema.minItems = def.minSize.value;
-  }
-  if (def.maxSize) {
-    schema.maxItems = def.maxSize.value;
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/tuple.ts
-function parseTupleDef$4(def, refs) {
-  if (def.rest) {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$4(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      ),
-      additionalItems: parseDef$4(def.rest._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "additionalItems"]
-      })
-    };
-  } else {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      maxItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$4(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      )
-    };
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/undefined.ts
-function parseUndefinedDef$4() {
-  return {
-    not: parseAnyDef$4()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/unknown.ts
-function parseUnknownDef$4() {
-  return parseAnyDef$4();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/readonly.ts
-var parseReadonlyDef$4 = (def, refs) => {
-  return parseDef$4(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/select-parser.ts
-var selectParser$4 = (def, typeName, refs) => {
-  switch (typeName) {
-    case ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef$4(def);
-    case ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef$4(def);
-    case ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef$4();
-    case ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef$4();
-    case ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef$4();
-    case ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodUnion:
-    case ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef$4(def);
-    case ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef$4(def);
-    case ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef$4(def);
-    case ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodLazy:
-      return () => def.getter()._def;
-    case ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodNaN:
-    case ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef$4();
-    case ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef$4();
-    case ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef$4();
-    case ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef$4(def, refs);
-    case ZodFirstPartyTypeKind.ZodFunction:
-    case ZodFirstPartyTypeKind.ZodVoid:
-    case ZodFirstPartyTypeKind.ZodSymbol:
-      return void 0;
-    default:
-      return /* @__PURE__ */ ((_) => void 0)();
-  }
-};
-
-// src/to-json-schema/zod3-to-json-schema/get-relative-path.ts
-var getRelativePath$4 = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i]) break;
-  }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
-};
-
-// src/to-json-schema/zod3-to-json-schema/parse-def.ts
-function parseDef$4(def, refs, forceResolution = false) {
-  var _a2;
-  const seenItem = refs.seen.get(def);
-  if (refs.override) {
-    const overrideResult = (_a2 = refs.override) == null ? void 0 : _a2.call(
-      refs,
-      def,
-      refs,
-      seenItem,
-      forceResolution
-    );
-    if (overrideResult !== ignoreOverride$4) {
-      return overrideResult;
-    }
-  }
-  if (seenItem && !forceResolution) {
-    const seenSchema = get$ref$4(seenItem, refs);
-    if (seenSchema !== void 0) {
-      return seenSchema;
-    }
-  }
-  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
-  refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser$4(def, def.typeName, refs);
-  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef$4(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
-  if (jsonSchema2) {
-    addMeta$4(def, refs, jsonSchema2);
-  }
-  if (refs.postProcess) {
-    const postProcessResult = refs.postProcess(jsonSchema2, def, refs);
-    newItem.jsonSchema = jsonSchema2;
-    return postProcessResult;
-  }
-  newItem.jsonSchema = jsonSchema2;
-  return jsonSchema2;
-}
-var get$ref$4 = (item, refs) => {
-  switch (refs.$refStrategy) {
-    case "root":
-      return { $ref: item.path.join("/") };
-    case "relative":
-      return { $ref: getRelativePath$4(refs.currentPath, item.path) };
-    case "none":
-    case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
-        console.warn(
-          `Recursive reference detected at ${refs.currentPath.join(
-            "/"
-          )}! Defaulting to any`
-        );
-        return parseAnyDef$4();
-      }
-      return refs.$refStrategy === "seen" ? parseAnyDef$4() : void 0;
-    }
-  }
-};
-var addMeta$4 = (def, refs, jsonSchema2) => {
-  if (def.description) {
-    jsonSchema2.description = def.description;
-  }
-  return jsonSchema2;
-};
-
-// src/to-json-schema/zod3-to-json-schema/refs.ts
-var getRefs$4 = (options) => {
-  const _options = getDefaultOptions$4(options);
-  const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
-  return {
-    ..._options,
-    currentPath,
-    propertyPath: void 0,
-    seen: new Map(
-      Object.entries(_options.definitions).map(([name2, def]) => [
-        def._def,
-        {
-          def: def._def,
-          path: [..._options.basePath, _options.definitionPath, name2],
-          // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
-          jsonSchema: void 0
-        }
-      ])
-    )
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/zod3-to-json-schema.ts
-var zod3ToJsonSchema$4 = (schema, options) => {
-  var _a2;
-  const refs = getRefs$4(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce(
-    (acc, [name3, schema2]) => {
-      var _a3;
-      return {
-        ...acc,
-        [name3]: (_a3 = parseDef$4(
-          schema2._def,
-          {
-            ...refs,
-            currentPath: [...refs.basePath, refs.definitionPath, name3]
-          },
-          true
-        )) != null ? _a3 : parseAnyDef$4()
-      };
-    },
-    {}
-  ) : void 0;
-  const name2 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name;
-  const main = (_a2 = parseDef$4(
-    schema._def,
-    name2 === void 0 ? refs : {
-      ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name2]
-    },
-    false
-  )) != null ? _a2 : parseAnyDef$4();
-  const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
-  if (title !== void 0) {
-    main.title = title;
-  }
-  const combined = name2 === void 0 ? definitions ? {
-    ...main,
-    [refs.definitionPath]: definitions
-  } : main : {
-    $ref: [
-      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
-      refs.definitionPath,
-      name2
-    ].join("/"),
-    [refs.definitionPath]: {
-      ...definitions,
-      [name2]: main
-    }
-  };
-  combined.$schema = "http://json-schema.org/draft-07/schema#";
-  return combined;
-};
-
-// src/schema.ts
-var schemaSymbol$4 = Symbol.for("vercel.ai.schema");
-function lazySchema$1(createSchema) {
-  let schema;
-  return () => {
-    if (schema == null) {
-      schema = createSchema();
-    }
-    return schema;
-  };
-}
-function jsonSchema$4(jsonSchema2, {
-  validate
-} = {}) {
-  return {
-    [schemaSymbol$4]: true,
-    _type: void 0,
-    // should never be used directly
-    get jsonSchema() {
-      if (typeof jsonSchema2 === "function") {
-        jsonSchema2 = jsonSchema2();
-      }
-      return jsonSchema2;
-    },
-    validate
-  };
-}
-function isSchema$4(value) {
-  return typeof value === "object" && value !== null && schemaSymbol$4 in value && value[schemaSymbol$4] === true && "jsonSchema" in value && "validate" in value;
-}
-function asSchema$4(schema) {
-  return schema == null ? jsonSchema$4({ properties: {}, additionalProperties: false }) : isSchema$4(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema$4(schema) : standardSchema$4(schema) : schema();
-}
-function standardSchema$4(standardSchema2) {
-  return jsonSchema$4(
-    () => addAdditionalPropertiesToJsonSchema$4(
-      standardSchema2["~standard"].jsonSchema.input({
-        target: "draft-07"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await standardSchema2["~standard"].validate(value);
-        return "value" in result ? { success: true, value: result.value } : {
-          success: false,
-          error: new TypeValidationError$4({
-            value,
-            cause: result.issues
-          })
-        };
-      }
-    }
-  );
-}
-function zod3Schema$4(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$4(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => zod3ToJsonSchema$4(zodSchema2, {
-      $refStrategy: useReferences ? "root" : "none"
-    }),
-    {
-      validate: async (value) => {
-        const result = await zodSchema2.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function zod4Schema$4(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$4(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => addAdditionalPropertiesToJsonSchema$4(
-      toJSONSchema(zodSchema2, {
-        target: "draft-7",
-        io: "input",
-        reused: useReferences ? "ref" : "inline"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await safeParseAsync(zodSchema2, value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function isZod4Schema$4(zodSchema2) {
-  return "_zod" in zodSchema2;
-}
-function zodSchema$4(zodSchema2, options) {
-  if (isZod4Schema$4(zodSchema2)) {
-    return zod4Schema$4(zodSchema2);
-  } else {
-    return zod3Schema$4(zodSchema2);
-  }
-}
-
-// src/validate-types.ts
-async function validateTypes$4({
-  value,
-  schema
-}) {
-  const result = await safeValidateTypes$4({ value, schema });
-  if (!result.success) {
-    throw TypeValidationError$4.wrap({ value, cause: result.error });
-  }
-  return result.value;
-}
-async function safeValidateTypes$4({
-  value,
-  schema
-}) {
-  const actualSchema = asSchema$4(schema);
-  try {
-    if (actualSchema.validate == null) {
-      return { success: true, value, rawValue: value };
-    }
-    const result = await actualSchema.validate(value);
-    if (result.success) {
-      return { success: true, value: result.value, rawValue: value };
-    }
-    return {
-      success: false,
-      error: TypeValidationError$4.wrap({ value, cause: result.error }),
-      rawValue: value
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: TypeValidationError$4.wrap({ value, cause: error }),
-      rawValue: value
-    };
-  }
-}
-
-// src/parse-json.ts
-async function parseJSON$4({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$4(text);
-    if (schema == null) {
-      return value;
-    }
-    return validateTypes$4({ value, schema });
-  } catch (error) {
-    if (JSONParseError$4.isInstance(error) || TypeValidationError$4.isInstance(error)) {
-      throw error;
-    }
-    throw new JSONParseError$4({ text, cause: error });
-  }
-}
-async function safeParseJSON$4({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$4(text);
-    if (schema == null) {
-      return { success: true, value, rawValue: value };
-    }
-    return await safeValidateTypes$4({ value, schema });
-  } catch (error) {
-    return {
-      success: false,
-      error: JSONParseError$4.isInstance(error) ? error : new JSONParseError$4({ text, cause: error }),
-      rawValue: void 0
-    };
-  }
-}
-function isParsableJson$1(input) {
-  try {
-    secureJsonParse$4(input);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-function parseJsonEventStream$3({
-  stream,
-  schema
-}) {
-  return stream.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream()).pipeThrough(
-    new TransformStream({
-      async transform({ data }, controller) {
-        if (data === "[DONE]") {
-          return;
-        }
-        controller.enqueue(await safeParseJSON$4({ text: data, schema }));
-      }
-    })
-  );
-}
-async function parseProviderOptions$2({
-  provider,
-  providerOptions,
-  schema
-}) {
-  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null) {
-    return void 0;
-  }
-  const parsedProviderOptions = await safeValidateTypes$4({
-    value: providerOptions[provider],
-    schema
-  });
-  if (!parsedProviderOptions.success) {
-    throw new InvalidArgumentError$4({
-      argument: "providerOptions",
-      message: `invalid ${provider} provider options`,
-      cause: parsedProviderOptions.error
-    });
-  }
-  return parsedProviderOptions.value;
-}
-var getOriginalFetch2$4 = () => globalThis.fetch;
-var postJsonToApi$4 = async ({
-  url,
-  headers,
-  body,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi$4({
-  url,
-  headers: {
-    "Content-Type": "application/json",
-    ...headers
-  },
-  body: {
-    content: JSON.stringify(body),
-    values: body
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-});
-var postFormDataToApi$1 = async ({
-  url,
-  headers,
-  formData,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi$4({
-  url,
-  headers,
-  body: {
-    content: formData,
-    values: Object.fromEntries(formData.entries())
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-});
-var postToApi$4 = async ({
-  url,
-  headers = {},
-  body,
-  successfulResponseHandler,
-  failedResponseHandler,
-  abortSignal,
-  fetch: fetch2 = getOriginalFetch2$4()
-}) => {
-  try {
-    const response = await fetch2(url, {
-      method: "POST",
-      headers: withUserAgentSuffix$4(
-        headers,
-        `ai-sdk/provider-utils/${VERSION$b}`,
-        getRuntimeEnvironmentUserAgent$4()
-      ),
-      body: body.content,
-      signal: abortSignal
-    });
-    const responseHeaders = extractResponseHeaders$4(response);
-    if (!response.ok) {
-      let errorInformation;
-      try {
-        errorInformation = await failedResponseHandler({
-          response,
-          url,
-          requestBodyValues: body.values
-        });
-      } catch (error) {
-        if (isAbortError$4(error) || APICallError$4.isInstance(error)) {
-          throw error;
-        }
-        throw new APICallError$4({
-          message: "Failed to process error response",
-          cause: error,
-          statusCode: response.status,
-          url,
-          responseHeaders,
-          requestBodyValues: body.values
-        });
-      }
-      throw errorInformation.value;
-    }
-    try {
-      return await successfulResponseHandler({
-        response,
-        url,
-        requestBodyValues: body.values
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        if (isAbortError$4(error) || APICallError$4.isInstance(error)) {
-          throw error;
-        }
-      }
-      throw new APICallError$4({
-        message: "Failed to process successful response",
-        cause: error,
-        statusCode: response.status,
-        url,
-        responseHeaders,
-        requestBodyValues: body.values
-      });
-    }
-  } catch (error) {
-    throw handleFetchError$4({ error, url, requestBodyValues: body.values });
-  }
-};
-
-// src/types/tool.ts
-function tool$1(tool2) {
-  return tool2;
-}
-
-// src/provider-tool-factory.ts
-function createProviderToolFactory({
-  id,
-  inputSchema
-}) {
-  return ({
-    execute,
-    outputSchema,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    ...args
-  }) => tool$1({
-    type: "provider",
-    id,
-    args,
-    inputSchema,
-    outputSchema,
-    execute,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable
-  });
-}
-function createProviderToolFactoryWithOutputSchema$1({
-  id,
-  inputSchema,
-  outputSchema,
-  supportsDeferredResults
-}) {
-  return ({
-    execute,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    ...args
-  }) => tool$1({
-    type: "provider",
-    id,
-    args,
-    inputSchema,
-    outputSchema,
-    execute,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    supportsDeferredResults
-  });
-}
-
-// src/resolve.ts
-async function resolve(value) {
-  if (typeof value === "function") {
-    value = value();
-  }
-  return Promise.resolve(value);
-}
-var createJsonErrorResponseHandler$4 = ({
-  errorSchema,
-  errorToMessage,
-  isRetryable
-}) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const responseHeaders = extractResponseHeaders$4(response);
-  if (responseBody.trim() === "") {
-    return {
-      responseHeaders,
-      value: new APICallError$4({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-  try {
-    const parsedError = await parseJSON$4({
-      text: responseBody,
-      schema: errorSchema
-    });
-    return {
-      responseHeaders,
-      value: new APICallError$4({
-        message: errorToMessage(parsedError),
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        data: parsedError,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
-      })
-    };
-  } catch (parseError) {
-    return {
-      responseHeaders,
-      value: new APICallError$4({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-};
-var createEventSourceResponseHandler$3 = (chunkSchema) => async ({ response }) => {
-  const responseHeaders = extractResponseHeaders$4(response);
-  if (response.body == null) {
-    throw new EmptyResponseBodyError$3({});
-  }
-  return {
-    responseHeaders,
-    value: parseJsonEventStream$3({
-      stream: response.body,
-      schema: chunkSchema
-    })
-  };
-};
-var createJsonResponseHandler$4 = (responseSchema) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const parsedResult = await safeParseJSON$4({
-    text: responseBody,
-    schema: responseSchema
-  });
-  const responseHeaders = extractResponseHeaders$4(response);
-  if (!parsedResult.success) {
-    throw new APICallError$4({
-      message: "Invalid JSON response",
-      cause: parsedResult.error,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody,
-      url,
-      requestBodyValues
-    });
-  }
-  return {
-    responseHeaders,
-    value: parsedResult.value,
-    rawValue: parsedResult.rawValue
-  };
-};
-var createBinaryResponseHandler = () => async ({ response, url, requestBodyValues }) => {
-  const responseHeaders = extractResponseHeaders$4(response);
-  if (!response.body) {
-    throw new APICallError$4({
-      message: "Response body is empty",
-      url,
-      requestBodyValues,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody: void 0
-    });
-  }
-  try {
-    const buffer = await response.arrayBuffer();
-    return {
-      responseHeaders,
-      value: new Uint8Array(buffer)
-    };
-  } catch (error) {
-    throw new APICallError$4({
-      message: "Failed to read response as array buffer",
-      url,
-      requestBodyValues,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody: void 0,
-      cause: error
-    });
-  }
-};
-
-// src/without-trailing-slash.ts
-function withoutTrailingSlash$3(url) {
-  return url == null ? void 0 : url.replace(/\/$/, "");
-}
+createIdGenerator({ prefix: "aiobj", size: 24 });
 
 // src/mistral-provider.ts
 
@@ -21740,7 +18033,7 @@ function formatFileUrl({
   data,
   mediaType
 }) {
-  return data instanceof URL ? data.toString() : `data:${mediaType};base64,${convertToBase64$2(data)}`;
+  return data instanceof URL ? data.toString() : `data:${mediaType};base64,${convertToBase64(data)}`;
 }
 function convertToMistralChatMessages(prompt) {
   var _a;
@@ -21777,7 +18070,7 @@ function convertToMistralChatMessages(prompt) {
                     })
                   };
                 } else {
-                  throw new UnsupportedFunctionalityError$3({
+                  throw new UnsupportedFunctionalityError({
                     functionality: "Only images and PDF file parts are supported"
                   });
                 }
@@ -21928,7 +18221,7 @@ var mistralErrorDataSchema = object$1({
   param: string().nullable(),
   code: string().nullable()
 });
-var mistralFailedResponseHandler = createJsonErrorResponseHandler$4({
+var mistralFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: mistralErrorDataSchema,
   errorToMessage: (data) => data.message
 });
@@ -21982,7 +18275,7 @@ function prepareTools$4({
       };
     default: {
       const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$3({
+      throw new UnsupportedFunctionalityError({
         functionality: `tool choice type: ${_exhaustiveCheck}`
       });
     }
@@ -21999,7 +18292,7 @@ var MistralChatLanguageModel = class {
     var _a;
     this.modelId = modelId;
     this.config = config;
-    this.generateId = (_a = config.generateId) != null ? _a : generateId$3;
+    this.generateId = (_a = config.generateId) != null ? _a : generateId;
   }
   get provider() {
     return this.config.provider;
@@ -22021,7 +18314,7 @@ var MistralChatLanguageModel = class {
   }) {
     var _a, _b, _c, _d;
     const warnings = [];
-    const options = (_a = await parseProviderOptions$2({
+    const options = (_a = await parseProviderOptions({
       provider: "mistral",
       providerOptions,
       schema: mistralLanguageModelOptions
@@ -22097,12 +18390,12 @@ var MistralChatLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body,
       failedResponseHandler: mistralFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         mistralChatResponseSchema
       ),
       abortSignal: options.abortSignal,
@@ -22158,12 +18451,12 @@ var MistralChatLanguageModel = class {
   async doStream(options) {
     const { args, warnings } = await this.getArgs(options);
     const body = { ...args, stream: true };
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body,
       failedResponseHandler: mistralFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler$3(
+      successfulResponseHandler: createEventSourceResponseHandler(
         mistralChatChunkSchema
       ),
       abortSignal: options.abortSignal,
@@ -22447,16 +18740,16 @@ var MistralEmbeddingModel = class {
       responseHeaders,
       value: response,
       rawValue
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: `${this.config.baseURL}/embeddings`,
-      headers: combineHeaders$4(this.config.headers(), headers),
+      headers: combineHeaders(this.config.headers(), headers),
       body: {
         model: this.modelId,
         input: values,
         encoding_format: "float"
       },
       failedResponseHandler: mistralFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         MistralTextEmbeddingResponseSchema
       ),
       abortSignal,
@@ -22476,22 +18769,22 @@ var MistralTextEmbeddingResponseSchema = object$1({
 });
 
 // src/version.ts
-var VERSION$a = "3.0.6" ;
+var VERSION$6 = "3.0.12" ;
 
 // src/mistral-provider.ts
 function createMistral(options = {}) {
   var _a;
-  const baseURL = (_a = withoutTrailingSlash$3(options.baseURL)) != null ? _a : "https://api.mistral.ai/v1";
-  const getHeaders = () => withUserAgentSuffix$4(
+  const baseURL = (_a = withoutTrailingSlash(options.baseURL)) != null ? _a : "https://api.mistral.ai/v1";
+  const getHeaders = () => withUserAgentSuffix(
     {
-      Authorization: `Bearer ${loadApiKey$3({
+      Authorization: `Bearer ${loadApiKey({
         apiKey: options.apiKey,
         environmentVariableName: "MISTRAL_API_KEY",
         description: "Mistral"
       })}`,
       ...options.headers
     },
-    `ai-sdk/mistral/${VERSION$a}`
+    `ai-sdk/mistral/${VERSION$6}`
   );
   const createChatModel = (modelId) => new MistralChatLanguageModel(modelId, {
     provider: "mistral.chat",
@@ -22522,7 +18815,7 @@ function createMistral(options = {}) {
   provider.textEmbedding = createEmbeddingModel;
   provider.textEmbeddingModel = createEmbeddingModel;
   provider.imageModel = (modelId) => {
-    throw new NoSuchModelError$3({ modelId, modelType: "imageModel" });
+    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
   };
   return provider;
 }
@@ -22531,9 +18824,9 @@ createMistral();
 // src/google-provider.ts
 
 // src/version.ts
-var VERSION$9 = "3.0.7" ;
-var googleErrorDataSchema = lazySchema$1(
-  () => zodSchema$4(
+var VERSION$5 = "3.0.13" ;
+var googleErrorDataSchema = lazySchema(
+  () => zodSchema(
     object$1({
       error: object$1({
         code: number$1().nullable(),
@@ -22543,12 +18836,12 @@ var googleErrorDataSchema = lazySchema$1(
     })
   )
 );
-var googleFailedResponseHandler = createJsonErrorResponseHandler$4({
+var googleFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: googleErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
-var googleGenerativeAIEmbeddingProviderOptions = lazySchema$1(
-  () => zodSchema$4(
+var googleGenerativeAIEmbeddingProviderOptions = lazySchema(
+  () => zodSchema(
     object$1({
       /**
        * Optional. Optional reduced dimension for the output embedding.
@@ -22599,7 +18892,7 @@ var GoogleGenerativeAIEmbeddingModel = class {
     abortSignal,
     providerOptions
   }) {
-    const googleOptions = await parseProviderOptions$2({
+    const googleOptions = await parseProviderOptions({
       provider: "google",
       providerOptions,
       schema: googleGenerativeAIEmbeddingProviderOptions
@@ -22612,7 +18905,7 @@ var GoogleGenerativeAIEmbeddingModel = class {
         values
       });
     }
-    const mergedHeaders = combineHeaders$4(
+    const mergedHeaders = combineHeaders(
       await resolve(this.config.headers),
       headers
     );
@@ -22621,7 +18914,7 @@ var GoogleGenerativeAIEmbeddingModel = class {
         responseHeaders: responseHeaders2,
         value: response2,
         rawValue: rawValue2
-      } = await postJsonToApi$4({
+      } = await postJsonToApi({
         url: `${this.config.baseURL}/models/${this.modelId}:embedContent`,
         headers: mergedHeaders,
         body: {
@@ -22633,7 +18926,7 @@ var GoogleGenerativeAIEmbeddingModel = class {
           taskType: googleOptions == null ? void 0 : googleOptions.taskType
         },
         failedResponseHandler: googleFailedResponseHandler,
-        successfulResponseHandler: createJsonResponseHandler$4(
+        successfulResponseHandler: createJsonResponseHandler(
           googleGenerativeAISingleEmbeddingResponseSchema
         ),
         abortSignal,
@@ -22650,7 +18943,7 @@ var GoogleGenerativeAIEmbeddingModel = class {
       responseHeaders,
       value: response,
       rawValue
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: `${this.config.baseURL}/models/${this.modelId}:batchEmbedContents`,
       headers: mergedHeaders,
       body: {
@@ -22662,7 +18955,7 @@ var GoogleGenerativeAIEmbeddingModel = class {
         }))
       },
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         googleGenerativeAITextEmbeddingResponseSchema
       ),
       abortSignal,
@@ -22676,15 +18969,15 @@ var GoogleGenerativeAIEmbeddingModel = class {
     };
   }
 };
-var googleGenerativeAITextEmbeddingResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var googleGenerativeAITextEmbeddingResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       embeddings: array$1(object$1({ values: array$1(number$1()) }))
     })
   )
 );
-var googleGenerativeAISingleEmbeddingResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var googleGenerativeAISingleEmbeddingResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       embedding: object$1({ values: array$1(number$1()) })
     })
@@ -22856,7 +19149,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
     switch (role) {
       case "system": {
         if (!systemMessagesAllowed) {
-          throw new UnsupportedFunctionalityError$3({
+          throw new UnsupportedFunctionalityError({
             functionality: "system messages are only supported at the beginning of the conversation"
           });
         }
@@ -22883,7 +19176,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
                 } : {
                   inlineData: {
                     mimeType: mediaType,
-                    data: convertToBase64$2(part.data)
+                    data: convertToBase64(part.data)
                   }
                 }
               );
@@ -22918,14 +19211,14 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
               }
               case "file": {
                 if (part.data instanceof URL) {
-                  throw new UnsupportedFunctionalityError$3({
+                  throw new UnsupportedFunctionalityError({
                     functionality: "File data URLs in assistant messages are not supported"
                   });
                 }
                 return {
                   inlineData: {
                     mimeType: part.mediaType,
-                    data: convertToBase64$2(part.data)
+                    data: convertToBase64(part.data)
                   },
                   thoughtSignature
                 };
@@ -23018,8 +19311,8 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
 function getModelPath(modelId) {
   return modelId.includes("/") ? modelId : `models/${modelId}`;
 }
-var googleGenerativeAIProviderOptions = lazySchema$1(
-  () => zodSchema$4(
+var googleGenerativeAIProviderOptions = lazySchema(
+  () => zodSchema(
     object$1({
       responseModalities: array$1(_enum(["TEXT", "IMAGE"])).optional(),
       thinkingConfig: object$1({
@@ -23327,7 +19620,7 @@ function prepareTools$3({
       };
     default: {
       const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$3({
+      throw new UnsupportedFunctionalityError({
         functionality: `tool choice type: ${_exhaustiveCheck}`
       });
     }
@@ -23367,7 +19660,7 @@ var GoogleGenerativeAILanguageModel = class {
     var _a;
     this.modelId = modelId;
     this.config = config;
-    this.generateId = (_a = config.generateId) != null ? _a : generateId$3;
+    this.generateId = (_a = config.generateId) != null ? _a : generateId;
   }
   get provider() {
     return this.config.provider;
@@ -23394,13 +19687,13 @@ var GoogleGenerativeAILanguageModel = class {
     var _a;
     const warnings = [];
     const providerOptionsName = this.config.provider.includes("vertex") ? "vertex" : "google";
-    let googleOptions = await parseProviderOptions$2({
+    let googleOptions = await parseProviderOptions({
       provider: providerOptionsName,
       providerOptions,
       schema: googleGenerativeAIProviderOptions
     });
     if (googleOptions == null && providerOptionsName !== "google") {
-      googleOptions = await parseProviderOptions$2({
+      googleOptions = await parseProviderOptions({
         provider: "google",
         providerOptions,
         schema: googleGenerativeAIProviderOptions
@@ -23477,7 +19770,7 @@ var GoogleGenerativeAILanguageModel = class {
   async doGenerate(options) {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i;
     const { args, warnings, providerOptionsName } = await this.getArgs(options);
-    const mergedHeaders = combineHeaders$4(
+    const mergedHeaders = combineHeaders(
       await resolve(this.config.headers),
       options.headers
     );
@@ -23485,14 +19778,14 @@ var GoogleGenerativeAILanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: `${this.config.baseURL}/${getModelPath(
         this.modelId
       )}:generateContent`,
       headers: mergedHeaders,
       body: args,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(responseSchema),
+      successfulResponseHandler: createJsonResponseHandler(responseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
@@ -23599,18 +19892,18 @@ var GoogleGenerativeAILanguageModel = class {
   }
   async doStream(options) {
     const { args, warnings, providerOptionsName } = await this.getArgs(options);
-    const headers = combineHeaders$4(
+    const headers = combineHeaders(
       await resolve(this.config.headers),
       options.headers
     );
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: `${this.config.baseURL}/${getModelPath(
         this.modelId
       )}:streamGenerateContent?alt=sse`,
       headers,
       body: args,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler$3(chunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler(chunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
@@ -24032,7 +20325,7 @@ var getSafetyRatingSchema = () => object$1({
   severityScore: number$1().nullish(),
   blocked: boolean().nullish()
 });
-var usageSchema$2 = object$1({
+var usageSchema$1 = object$1({
   cachedContentTokenCount: number$1().nullish(),
   thoughtsTokenCount: number$1().nullish(),
   promptTokenCount: number$1().nullish(),
@@ -24049,8 +20342,8 @@ var getUrlContextMetadataSchema = () => object$1({
     })
   )
 });
-var responseSchema = lazySchema$1(
-  () => zodSchema$4(
+var responseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       candidates: array$1(
         object$1({
@@ -24061,7 +20354,7 @@ var responseSchema = lazySchema$1(
           urlContextMetadata: getUrlContextMetadataSchema().nullish()
         })
       ),
-      usageMetadata: usageSchema$2.nullish(),
+      usageMetadata: usageSchema$1.nullish(),
       promptFeedback: object$1({
         blockReason: string().nullish(),
         safetyRatings: array$1(getSafetyRatingSchema()).nullish()
@@ -24069,8 +20362,8 @@ var responseSchema = lazySchema$1(
     })
   )
 );
-var chunkSchema = lazySchema$1(
-  () => zodSchema$4(
+var chunkSchema = lazySchema(
+  () => zodSchema(
     object$1({
       candidates: array$1(
         object$1({
@@ -24081,7 +20374,7 @@ var chunkSchema = lazySchema$1(
           urlContextMetadata: getUrlContextMetadataSchema().nullish()
         })
       ).nullish(),
-      usageMetadata: usageSchema$2.nullish(),
+      usageMetadata: usageSchema$1.nullish(),
       promptFeedback: object$1({
         blockReason: string().nullish(),
         safetyRatings: array$1(getSafetyRatingSchema()).nullish()
@@ -24089,7 +20382,7 @@ var chunkSchema = lazySchema$1(
     })
   )
 );
-var codeExecution$1 = createProviderToolFactoryWithOutputSchema$1({
+var codeExecution$1 = createProviderToolFactoryWithOutputSchema({
   id: "google.code_execution",
   inputSchema: object$1({
     language: string().describe("The programming language of the code."),
@@ -24102,7 +20395,7 @@ var codeExecution$1 = createProviderToolFactoryWithOutputSchema$1({
 });
 var enterpriseWebSearch = createProviderToolFactory({
   id: "google.enterprise_web_search",
-  inputSchema: lazySchema$1(() => zodSchema$4(object$1({})))
+  inputSchema: lazySchema(() => zodSchema(object$1({})))
 });
 var fileSearchArgsBaseSchema = object$1({
   /** The names of the file_search_stores to retrieve from.
@@ -24120,8 +20413,8 @@ var fileSearchArgsBaseSchema = object$1({
     "Metadata filter to apply to the file search retrieval documents. See https://google.aip.dev/160 for the syntax of the filter expression."
   ).optional()
 }).passthrough();
-var fileSearchArgsSchema$1 = lazySchema$1(
-  () => zodSchema$4(fileSearchArgsBaseSchema)
+var fileSearchArgsSchema$1 = lazySchema(
+  () => zodSchema(fileSearchArgsBaseSchema)
 );
 var fileSearch$1 = createProviderToolFactory({
   id: "google.file_search",
@@ -24129,12 +20422,12 @@ var fileSearch$1 = createProviderToolFactory({
 });
 var googleMaps = createProviderToolFactory({
   id: "google.google_maps",
-  inputSchema: lazySchema$1(() => zodSchema$4(object$1({})))
+  inputSchema: lazySchema(() => zodSchema(object$1({})))
 });
 var googleSearch = createProviderToolFactory({
   id: "google.google_search",
-  inputSchema: lazySchema$1(
-    () => zodSchema$4(
+  inputSchema: lazySchema(
+    () => zodSchema(
       object$1({
         mode: _enum(["MODE_DYNAMIC", "MODE_UNSPECIFIED"]).default("MODE_UNSPECIFIED"),
         dynamicThreshold: number$1().default(1)
@@ -24144,7 +20437,7 @@ var googleSearch = createProviderToolFactory({
 });
 var urlContext = createProviderToolFactory({
   id: "google.url_context",
-  inputSchema: lazySchema$1(() => zodSchema$4(object$1({})))
+  inputSchema: lazySchema(() => zodSchema(object$1({})))
 });
 var vertexRagStore = createProviderToolFactory({
   id: "google.vertex_rag_store",
@@ -24266,7 +20559,7 @@ var GoogleGenerativeAIImageModel = class {
         details: "This model does not support the `seed` option through this provider."
       });
     }
-    const googleOptions = await parseProviderOptions$2({
+    const googleOptions = await parseProviderOptions({
       provider: "google",
       providerOptions,
       schema: googleImageProviderOptionsSchema
@@ -24285,12 +20578,12 @@ var GoogleGenerativeAIImageModel = class {
       instances: [{ prompt }],
       parameters
     };
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: `${this.config.baseURL}/models/${this.modelId}:predict`,
-      headers: combineHeaders$4(await resolve(this.config.headers), headers),
+      headers: combineHeaders(await resolve(this.config.headers), headers),
       body,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         googleImageResponseSchema
       ),
       abortSignal,
@@ -24316,15 +20609,15 @@ var GoogleGenerativeAIImageModel = class {
     };
   }
 };
-var googleImageResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var googleImageResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       predictions: array$1(object$1({ bytesBase64Encoded: string() })).default([])
     })
   )
 );
-var googleImageProviderOptionsSchema = lazySchema$1(
-  () => zodSchema$4(
+var googleImageProviderOptionsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       personGeneration: _enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
       aspectRatio: _enum(["1:1", "3:4", "4:3", "9:16", "16:9"]).nullish()
@@ -24335,18 +20628,18 @@ var googleImageProviderOptionsSchema = lazySchema$1(
 // src/google-provider.ts
 function createGoogleGenerativeAI(options = {}) {
   var _a, _b;
-  const baseURL = (_a = withoutTrailingSlash$3(options.baseURL)) != null ? _a : "https://generativelanguage.googleapis.com/v1beta";
+  const baseURL = (_a = withoutTrailingSlash(options.baseURL)) != null ? _a : "https://generativelanguage.googleapis.com/v1beta";
   const providerName = (_b = options.name) != null ? _b : "google.generative-ai";
-  const getHeaders = () => withUserAgentSuffix$4(
+  const getHeaders = () => withUserAgentSuffix(
     {
-      "x-goog-api-key": loadApiKey$3({
+      "x-goog-api-key": loadApiKey({
         apiKey: options.apiKey,
         environmentVariableName: "GOOGLE_GENERATIVE_AI_API_KEY",
         description: "Google Generative AI"
       }),
       ...options.headers
     },
-    `ai-sdk/google/${VERSION$9}`
+    `ai-sdk/google/${VERSION$5}`
   );
   const createChatModel = (modelId) => {
     var _a2;
@@ -24354,7 +20647,7 @@ function createGoogleGenerativeAI(options = {}) {
       provider: providerName,
       baseURL,
       headers: getHeaders,
-      generateId: (_a2 = options.generateId) != null ? _a2 : generateId$3,
+      generateId: (_a2 = options.generateId) != null ? _a2 : generateId,
       supportedUrls: () => ({
         "*": [
           // Google Generative Language "files" endpoint
@@ -24417,7 +20710,7 @@ var openaiErrorDataSchema = object$1({
     code: union([string(), number$1()]).nullish()
   })
 });
-var openaiFailedResponseHandler = createJsonErrorResponseHandler$4({
+var openaiFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: openaiErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
@@ -24530,14 +20823,14 @@ function convertToOpenAIChatMessages({
                   return {
                     type: "image_url",
                     image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64$2(part.data)}`,
+                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`,
                       // OpenAI specific extension: image detail
                       detail: (_b = (_a2 = part.providerOptions) == null ? void 0 : _a2.openai) == null ? void 0 : _b.imageDetail
                     }
                   };
                 } else if (part.mediaType.startsWith("audio/")) {
                   if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError$3({
+                    throw new UnsupportedFunctionalityError({
                       functionality: "audio file parts with URLs"
                     });
                   }
@@ -24546,7 +20839,7 @@ function convertToOpenAIChatMessages({
                       return {
                         type: "input_audio",
                         input_audio: {
-                          data: convertToBase64$2(part.data),
+                          data: convertToBase64(part.data),
                           format: "wav"
                         }
                       };
@@ -24556,20 +20849,20 @@ function convertToOpenAIChatMessages({
                       return {
                         type: "input_audio",
                         input_audio: {
-                          data: convertToBase64$2(part.data),
+                          data: convertToBase64(part.data),
                           format: "mp3"
                         }
                       };
                     }
                     default: {
-                      throw new UnsupportedFunctionalityError$3({
+                      throw new UnsupportedFunctionalityError({
                         functionality: `audio content parts with media type ${part.mediaType}`
                       });
                     }
                   }
                 } else if (part.mediaType === "application/pdf") {
                   if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError$3({
+                    throw new UnsupportedFunctionalityError({
                       functionality: "PDF file parts with URLs"
                     });
                   }
@@ -24577,11 +20870,11 @@ function convertToOpenAIChatMessages({
                     type: "file",
                     file: typeof part.data === "string" && part.data.startsWith("file-") ? { file_id: part.data } : {
                       filename: (_c = part.filename) != null ? _c : `part-${index}.pdf`,
-                      file_data: `data:application/pdf;base64,${convertToBase64$2(part.data)}`
+                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
                     }
                   };
                 } else {
-                  throw new UnsupportedFunctionalityError$3({
+                  throw new UnsupportedFunctionalityError({
                     functionality: `file part media type ${part.mediaType}`
                   });
                 }
@@ -24687,8 +20980,8 @@ function mapOpenAIFinishReason(finishReason) {
       return "other";
   }
 }
-var openaiChatResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiChatResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       id: string().nullish(),
       created: number$1().nullish(),
@@ -24754,8 +21047,8 @@ var openaiChatResponseSchema = lazySchema$1(
     })
   )
 );
-var openaiChatChunkSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiChatChunkSchema = lazySchema(
+  () => zodSchema(
     union([
       object$1({
         id: string().nullish(),
@@ -24825,8 +21118,8 @@ var openaiChatChunkSchema = lazySchema$1(
     ])
   )
 );
-var openaiChatLanguageModelOptions = lazySchema$1(
-  () => zodSchema$4(
+var openaiChatLanguageModelOptions = lazySchema(
+  () => zodSchema(
     object$1({
       /**
        * Modify the likelihood of specified tokens appearing in the completion.
@@ -24993,7 +21286,7 @@ function prepareChatTools({
       };
     default: {
       const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$3({
+      throw new UnsupportedFunctionalityError({
         functionality: `tool choice type: ${_exhaustiveCheck}`
       });
     }
@@ -25030,7 +21323,7 @@ var OpenAIChatLanguageModel = class {
   }) {
     var _a, _b, _c, _d, _e;
     const warnings = [];
-    const openaiOptions = (_a = await parseProviderOptions$2({
+    const openaiOptions = (_a = await parseProviderOptions({
       provider: "openai",
       providerOptions,
       schema: openaiChatLanguageModelOptions
@@ -25201,15 +21494,15 @@ var OpenAIChatLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.config.url({
         path: "/chat/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         openaiChatResponseSchema
       ),
       abortSignal: options.abortSignal,
@@ -25224,7 +21517,7 @@ var OpenAIChatLanguageModel = class {
     for (const toolCall of (_a = choice.message.tool_calls) != null ? _a : []) {
       content.push({
         type: "tool-call",
-        toolCallId: (_b = toolCall.id) != null ? _b : generateId$3(),
+        toolCallId: (_b = toolCall.id) != null ? _b : generateId(),
         toolName: toolCall.function.name,
         input: toolCall.function.arguments
       });
@@ -25233,7 +21526,7 @@ var OpenAIChatLanguageModel = class {
       content.push({
         type: "source",
         sourceType: "url",
-        id: generateId$3(),
+        id: generateId(),
         url: annotation.url_citation.url,
         title: annotation.url_citation.title
       });
@@ -25276,15 +21569,15 @@ var OpenAIChatLanguageModel = class {
         include_usage: true
       }
     };
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
         path: "/chat/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler$3(
+      successfulResponseHandler: createEventSourceResponseHandler(
         openaiChatChunkSchema
       ),
       abortSignal: options.abortSignal,
@@ -25370,19 +21663,19 @@ var OpenAIChatLanguageModel = class {
                 const index = toolCallDelta.index;
                 if (toolCalls[index] == null) {
                   if (toolCallDelta.type !== "function") {
-                    throw new InvalidResponseDataError$1({
+                    throw new InvalidResponseDataError({
                       data: toolCallDelta,
                       message: `Expected 'function' type.`
                     });
                   }
                   if (toolCallDelta.id == null) {
-                    throw new InvalidResponseDataError$1({
+                    throw new InvalidResponseDataError({
                       data: toolCallDelta,
                       message: `Expected 'id' to be a string.`
                     });
                   }
                   if (((_f = toolCallDelta.function) == null ? void 0 : _f.name) == null) {
-                    throw new InvalidResponseDataError$1({
+                    throw new InvalidResponseDataError({
                       data: toolCallDelta,
                       message: `Expected 'function.name' to be a string.`
                     });
@@ -25410,14 +21703,14 @@ var OpenAIChatLanguageModel = class {
                         delta: toolCall2.function.arguments
                       });
                     }
-                    if (isParsableJson$1(toolCall2.function.arguments)) {
+                    if (isParsableJson(toolCall2.function.arguments)) {
                       controller.enqueue({
                         type: "tool-input-end",
                         id: toolCall2.id
                       });
                       controller.enqueue({
                         type: "tool-call",
-                        toolCallId: (_j = toolCall2.id) != null ? _j : generateId$3(),
+                        toolCallId: (_j = toolCall2.id) != null ? _j : generateId(),
                         toolName: toolCall2.function.name,
                         input: toolCall2.function.arguments
                       });
@@ -25438,14 +21731,14 @@ var OpenAIChatLanguageModel = class {
                   id: toolCall.id,
                   delta: (_n = toolCallDelta.function.arguments) != null ? _n : ""
                 });
-                if (((_o = toolCall.function) == null ? void 0 : _o.name) != null && ((_p = toolCall.function) == null ? void 0 : _p.arguments) != null && isParsableJson$1(toolCall.function.arguments)) {
+                if (((_o = toolCall.function) == null ? void 0 : _o.name) != null && ((_p = toolCall.function) == null ? void 0 : _p.arguments) != null && isParsableJson(toolCall.function.arguments)) {
                   controller.enqueue({
                     type: "tool-input-end",
                     id: toolCall.id
                   });
                   controller.enqueue({
                     type: "tool-call",
-                    toolCallId: (_q = toolCall.id) != null ? _q : generateId$3(),
+                    toolCallId: (_q = toolCall.id) != null ? _q : generateId(),
                     toolName: toolCall.function.name,
                     input: toolCall.function.arguments
                   });
@@ -25458,7 +21751,7 @@ var OpenAIChatLanguageModel = class {
                 controller.enqueue({
                   type: "source",
                   sourceType: "url",
-                  id: generateId$3(),
+                  id: generateId(),
                   url: annotation.url_citation.url,
                   title: annotation.url_citation.title
                 });
@@ -25561,7 +21854,7 @@ ${userMessage}
               return part.text;
             }
             case "tool-call": {
-              throw new UnsupportedFunctionalityError$3({
+              throw new UnsupportedFunctionalityError({
                 functionality: "tool-call messages"
               });
             }
@@ -25574,7 +21867,7 @@ ${assistantMessage}
         break;
       }
       case "tool": {
-        throw new UnsupportedFunctionalityError$3({
+        throw new UnsupportedFunctionalityError({
           functionality: "tool messages"
         });
       }
@@ -25622,8 +21915,8 @@ function mapOpenAIFinishReason2(finishReason) {
       return "other";
   }
 }
-var openaiCompletionResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiCompletionResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       id: string().nullish(),
       created: number$1().nullish(),
@@ -25647,8 +21940,8 @@ var openaiCompletionResponseSchema = lazySchema$1(
     })
   )
 );
-var openaiCompletionChunkSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiCompletionChunkSchema = lazySchema(
+  () => zodSchema(
     union([
       object$1({
         id: string().nullish(),
@@ -25676,8 +21969,8 @@ var openaiCompletionChunkSchema = lazySchema$1(
     ])
   )
 );
-var openaiCompletionProviderOptions = lazySchema$1(
-  () => zodSchema$4(
+var openaiCompletionProviderOptions = lazySchema(
+  () => zodSchema(
     object$1({
       /**
       Echo back the prompt in addition to the completion.
@@ -25754,12 +22047,12 @@ var OpenAICompletionLanguageModel = class {
   }) {
     const warnings = [];
     const openaiOptions = {
-      ...await parseProviderOptions$2({
+      ...await parseProviderOptions({
         provider: "openai",
         providerOptions,
         schema: openaiCompletionProviderOptions
       }),
-      ...await parseProviderOptions$2({
+      ...await parseProviderOptions({
         provider: this.providerOptionsName,
         providerOptions,
         schema: openaiCompletionProviderOptions
@@ -25815,15 +22108,15 @@ var OpenAICompletionLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.config.url({
         path: "/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body: args,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         openaiCompletionResponseSchema
       ),
       abortSignal: options.abortSignal,
@@ -25860,15 +22153,15 @@ var OpenAICompletionLanguageModel = class {
         include_usage: true
       }
     };
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
         path: "/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler$3(
+      successfulResponseHandler: createEventSourceResponseHandler(
         openaiCompletionChunkSchema
       ),
       abortSignal: options.abortSignal,
@@ -25949,8 +22242,8 @@ var OpenAICompletionLanguageModel = class {
     };
   }
 };
-var openaiEmbeddingProviderOptions = lazySchema$1(
-  () => zodSchema$4(
+var openaiEmbeddingProviderOptions = lazySchema(
+  () => zodSchema(
     object$1({
       /**
       The number of dimensions the resulting output embeddings should have.
@@ -25965,8 +22258,8 @@ var openaiEmbeddingProviderOptions = lazySchema$1(
     })
   )
 );
-var openaiTextEmbeddingResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiTextEmbeddingResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       data: array$1(object$1({ embedding: array$1(number$1()) })),
       usage: object$1({ prompt_tokens: number$1() }).nullish()
@@ -26001,7 +22294,7 @@ var OpenAIEmbeddingModel = class {
         values
       });
     }
-    const openaiOptions = (_a = await parseProviderOptions$2({
+    const openaiOptions = (_a = await parseProviderOptions({
       provider: "openai",
       providerOptions,
       schema: openaiEmbeddingProviderOptions
@@ -26010,12 +22303,12 @@ var OpenAIEmbeddingModel = class {
       responseHeaders,
       value: response,
       rawValue
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.config.url({
         path: "/embeddings",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), headers),
+      headers: combineHeaders(this.config.headers(), headers),
       body: {
         model: this.modelId,
         input: values,
@@ -26024,7 +22317,7 @@ var OpenAIEmbeddingModel = class {
         user: openaiOptions.user
       },
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         openaiTextEmbeddingResponseSchema
       ),
       abortSignal,
@@ -26038,8 +22331,8 @@ var OpenAIEmbeddingModel = class {
     };
   }
 };
-var openaiImageResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiImageResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       created: number$1().nullish(),
       data: array$1(
@@ -26124,13 +22417,13 @@ var OpenAIImageModel = class {
     }
     const currentDate = (_c = (_b = (_a = this.config._internal) == null ? void 0 : _a.currentDate) == null ? void 0 : _b.call(_a)) != null ? _c : /* @__PURE__ */ new Date();
     if (files != null) {
-      const { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi$1({
+      const { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi({
         url: this.config.url({
           path: "/images/edits",
           modelId: this.modelId
         }),
-        headers: combineHeaders$4(this.config.headers(), headers),
-        formData: convertToFormData$1({
+        headers: combineHeaders(this.config.headers(), headers),
+        formData: convertToFormData({
           model: this.modelId,
           prompt,
           image: await Promise.all(
@@ -26139,12 +22432,12 @@ var OpenAIImageModel = class {
                 [
                   file.data instanceof Uint8Array ? new Blob([file.data], {
                     type: file.mediaType
-                  }) : new Blob([convertBase64ToUint8Array$1(file.data)], {
+                  }) : new Blob([convertBase64ToUint8Array(file.data)], {
                     type: file.mediaType
                   })
                 ],
                 { type: file.mediaType }
-              ) : downloadBlob$1(file.url)
+              ) : downloadBlob(file.url)
             )
           ),
           mask: mask != null ? await fileToBlob$1(mask) : void 0,
@@ -26153,7 +22446,7 @@ var OpenAIImageModel = class {
           ...(_d = providerOptions.openai) != null ? _d : {}
         }),
         failedResponseHandler: openaiFailedResponseHandler,
-        successfulResponseHandler: createJsonResponseHandler$4(
+        successfulResponseHandler: createJsonResponseHandler(
           openaiImageResponseSchema
         ),
         abortSignal,
@@ -26189,12 +22482,12 @@ var OpenAIImageModel = class {
         }
       };
     }
-    const { value: response, responseHeaders } = await postJsonToApi$4({
+    const { value: response, responseHeaders } = await postJsonToApi({
       url: this.config.url({
         path: "/images/generations",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), headers),
+      headers: combineHeaders(this.config.headers(), headers),
       body: {
         model: this.modelId,
         prompt,
@@ -26204,7 +22497,7 @@ var OpenAIImageModel = class {
         ...!hasDefaultResponseFormat(this.modelId) ? { response_format: "b64_json" } : {}
       },
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         openaiImageResponseSchema
       ),
       abortSignal,
@@ -26244,13 +22537,13 @@ var OpenAIImageModel = class {
 async function fileToBlob$1(file) {
   if (!file) return void 0;
   if (file.type === "url") {
-    return downloadBlob$1(file.url);
+    return downloadBlob(file.url);
   }
-  const data = file.data instanceof Uint8Array ? file.data : convertBase64ToUint8Array$1(file.data);
+  const data = file.data instanceof Uint8Array ? file.data : convertBase64ToUint8Array(file.data);
   return new Blob([data], { type: file.mediaType });
 }
-var applyPatchInputSchema = lazySchema$1(
-  () => zodSchema$4(
+var applyPatchInputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       callId: string(),
       operation: discriminatedUnion("type", [
@@ -26272,30 +22565,30 @@ var applyPatchInputSchema = lazySchema$1(
     })
   )
 );
-var applyPatchOutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var applyPatchOutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       status: _enum(["completed", "failed"]),
       output: string().optional()
     })
   )
 );
-var applyPatchToolFactory = createProviderToolFactoryWithOutputSchema$1({
+var applyPatchToolFactory = createProviderToolFactoryWithOutputSchema({
   id: "openai.apply_patch",
   inputSchema: applyPatchInputSchema,
   outputSchema: applyPatchOutputSchema
 });
 var applyPatch = applyPatchToolFactory;
-var codeInterpreterInputSchema = lazySchema$1(
-  () => zodSchema$4(
+var codeInterpreterInputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       code: string().nullish(),
       containerId: string()
     })
   )
 );
-var codeInterpreterOutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var codeInterpreterOutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       outputs: array$1(
         discriminatedUnion("type", [
@@ -26306,8 +22599,8 @@ var codeInterpreterOutputSchema = lazySchema$1(
     })
   )
 );
-var codeInterpreterArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var codeInterpreterArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       container: union([
         string(),
@@ -26318,7 +22611,7 @@ var codeInterpreterArgsSchema = lazySchema$1(
     })
   )
 );
-var codeInterpreterToolFactory = createProviderToolFactoryWithOutputSchema$1({
+var codeInterpreterToolFactory = createProviderToolFactoryWithOutputSchema({
   id: "openai.code_interpreter",
   inputSchema: codeInterpreterInputSchema,
   outputSchema: codeInterpreterOutputSchema
@@ -26337,8 +22630,8 @@ var compoundFilterSchema = object$1({
     union([comparisonFilterSchema, lazy(() => compoundFilterSchema)])
   )
 });
-var fileSearchArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var fileSearchArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       vectorStoreIds: array$1(string()),
       maxNumResults: number$1().optional(),
@@ -26350,8 +22643,8 @@ var fileSearchArgsSchema = lazySchema$1(
     })
   )
 );
-var fileSearchOutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var fileSearchOutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       queries: array$1(string()),
       results: array$1(
@@ -26366,13 +22659,13 @@ var fileSearchOutputSchema = lazySchema$1(
     })
   )
 );
-var fileSearch = createProviderToolFactoryWithOutputSchema$1({
+var fileSearch = createProviderToolFactoryWithOutputSchema({
   id: "openai.file_search",
   inputSchema: object$1({}),
   outputSchema: fileSearchOutputSchema
 });
-var imageGenerationArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var imageGenerationArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       background: _enum(["auto", "opaque", "transparent"]).optional(),
       inputFidelity: _enum(["low", "high"]).optional(),
@@ -26390,11 +22683,11 @@ var imageGenerationArgsSchema = lazySchema$1(
     }).strict()
   )
 );
-var imageGenerationInputSchema = lazySchema$1(() => zodSchema$4(object$1({})));
-var imageGenerationOutputSchema = lazySchema$1(
-  () => zodSchema$4(object$1({ result: string() }))
+var imageGenerationInputSchema = lazySchema(() => zodSchema(object$1({})));
+var imageGenerationOutputSchema = lazySchema(
+  () => zodSchema(object$1({ result: string() }))
 );
-var imageGenerationToolFactory = createProviderToolFactoryWithOutputSchema$1({
+var imageGenerationToolFactory = createProviderToolFactoryWithOutputSchema({
   id: "openai.image_generation",
   inputSchema: imageGenerationInputSchema,
   outputSchema: imageGenerationOutputSchema
@@ -26402,8 +22695,8 @@ var imageGenerationToolFactory = createProviderToolFactoryWithOutputSchema$1({
 var imageGeneration = (args = {}) => {
   return imageGenerationToolFactory(args);
 };
-var localShellInputSchema = lazySchema$1(
-  () => zodSchema$4(
+var localShellInputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       action: object$1({
         type: literal("exec"),
@@ -26416,16 +22709,16 @@ var localShellInputSchema = lazySchema$1(
     })
   )
 );
-var localShellOutputSchema = lazySchema$1(
-  () => zodSchema$4(object$1({ output: string() }))
+var localShellOutputSchema = lazySchema(
+  () => zodSchema(object$1({ output: string() }))
 );
-var localShell = createProviderToolFactoryWithOutputSchema$1({
+var localShell = createProviderToolFactoryWithOutputSchema({
   id: "openai.local_shell",
   inputSchema: localShellInputSchema,
   outputSchema: localShellOutputSchema
 });
-var shellInputSchema = lazySchema$1(
-  () => zodSchema$4(
+var shellInputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       action: object$1({
         commands: array$1(string()),
@@ -26435,8 +22728,8 @@ var shellInputSchema = lazySchema$1(
     })
   )
 );
-var shellOutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var shellOutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       output: array$1(
         object$1({
@@ -26451,13 +22744,13 @@ var shellOutputSchema = lazySchema$1(
     })
   )
 );
-var shell = createProviderToolFactoryWithOutputSchema$1({
+var shell = createProviderToolFactoryWithOutputSchema({
   id: "openai.shell",
   inputSchema: shellInputSchema,
   outputSchema: shellOutputSchema
 });
-var webSearchArgsSchema$1 = lazySchema$1(
-  () => zodSchema$4(
+var webSearchArgsSchema$1 = lazySchema(
+  () => zodSchema(
     object$1({
       externalWebAccess: boolean().optional(),
       filters: object$1({ allowedDomains: array$1(string()).optional() }).optional(),
@@ -26472,9 +22765,9 @@ var webSearchArgsSchema$1 = lazySchema$1(
     })
   )
 );
-var webSearchInputSchema = lazySchema$1(() => zodSchema$4(object$1({})));
-var webSearchOutputSchema$1 = lazySchema$1(
-  () => zodSchema$4(
+var webSearchInputSchema = lazySchema(() => zodSchema(object$1({})));
+var webSearchOutputSchema$1 = lazySchema(
+  () => zodSchema(
     object$1({
       action: discriminatedUnion("type", [
         object$1({
@@ -26500,14 +22793,14 @@ var webSearchOutputSchema$1 = lazySchema$1(
     })
   )
 );
-var webSearchToolFactory$1 = createProviderToolFactoryWithOutputSchema$1({
+var webSearchToolFactory$1 = createProviderToolFactoryWithOutputSchema({
   id: "openai.web_search",
   inputSchema: webSearchInputSchema,
   outputSchema: webSearchOutputSchema$1
 });
 var webSearch$1 = (args = {}) => webSearchToolFactory$1(args);
-var webSearchPreviewArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var webSearchPreviewArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       searchContextSize: _enum(["low", "medium", "high"]).optional(),
       userLocation: object$1({
@@ -26520,11 +22813,11 @@ var webSearchPreviewArgsSchema = lazySchema$1(
     })
   )
 );
-var webSearchPreviewInputSchema = lazySchema$1(
-  () => zodSchema$4(object$1({}))
+var webSearchPreviewInputSchema = lazySchema(
+  () => zodSchema(object$1({}))
 );
-var webSearchPreviewOutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var webSearchPreviewOutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       action: discriminatedUnion("type", [
         object$1({
@@ -26544,7 +22837,7 @@ var webSearchPreviewOutputSchema = lazySchema$1(
     })
   )
 );
-var webSearchPreview = createProviderToolFactoryWithOutputSchema$1({
+var webSearchPreview = createProviderToolFactoryWithOutputSchema({
   id: "openai.web_search_preview",
   inputSchema: webSearchPreviewInputSchema,
   outputSchema: webSearchPreviewOutputSchema
@@ -26559,8 +22852,8 @@ var jsonValueSchema = lazy(
     record(string(), jsonValueSchema)
   ])
 );
-var mcpArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var mcpArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       serverLabel: string(),
       allowedTools: union([
@@ -26589,9 +22882,9 @@ var mcpArgsSchema = lazySchema$1(
     )
   )
 );
-var mcpInputSchema = lazySchema$1(() => zodSchema$4(object$1({})));
-var mcpOutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var mcpInputSchema = lazySchema(() => zodSchema(object$1({})));
+var mcpOutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       type: literal("call"),
       serverLabel: string(),
@@ -26602,7 +22895,7 @@ var mcpOutputSchema = lazySchema$1(
     })
   )
 );
-var mcpToolFactory = createProviderToolFactoryWithOutputSchema$1({
+var mcpToolFactory = createProviderToolFactoryWithOutputSchema({
   id: "openai.mcp",
   inputSchema: mcpInputSchema,
   outputSchema: mcpOutputSchema
@@ -26756,6 +23049,7 @@ async function convertToOpenAIResponsesInput({
   providerOptionsName,
   fileIdPrefixes,
   store,
+  hasConversation = false,
   hasLocalShellTool = false,
   hasShellTool = false,
   hasApplyPatchTool = false
@@ -26807,7 +23101,7 @@ async function convertToOpenAIResponsesInput({
                   return {
                     type: "input_image",
                     ...part.data instanceof URL ? { image_url: part.data.toString() } : typeof part.data === "string" && isFileId(part.data, fileIdPrefixes) ? { file_id: part.data } : {
-                      image_url: `data:${mediaType};base64,${convertToBase64$2(part.data)}`
+                      image_url: `data:${mediaType};base64,${convertToBase64(part.data)}`
                     },
                     detail: (_b2 = (_a2 = part.providerOptions) == null ? void 0 : _a2[providerOptionsName]) == null ? void 0 : _b2.imageDetail
                   };
@@ -26822,11 +23116,11 @@ async function convertToOpenAIResponsesInput({
                     type: "input_file",
                     ...typeof part.data === "string" && isFileId(part.data, fileIdPrefixes) ? { file_id: part.data } : {
                       filename: (_c2 = part.filename) != null ? _c2 : `part-${index}.pdf`,
-                      file_data: `data:application/pdf;base64,${convertToBase64$2(part.data)}`
+                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
                     }
                   };
                 } else {
-                  throw new UnsupportedFunctionalityError$3({
+                  throw new UnsupportedFunctionalityError({
                     functionality: `file part media type ${part.mediaType}`
                   });
                 }
@@ -26842,6 +23136,9 @@ async function convertToOpenAIResponsesInput({
           switch (part.type) {
             case "text": {
               const id = (_b = (_a = part.providerOptions) == null ? void 0 : _a[providerOptionsName]) == null ? void 0 : _b.itemId;
+              if (hasConversation && id != null) {
+                break;
+              }
               if (store && id != null) {
                 input.push({ type: "item_reference", id });
                 break;
@@ -26855,6 +23152,9 @@ async function convertToOpenAIResponsesInput({
             }
             case "tool-call": {
               const id = (_g = (_d = (_c = part.providerOptions) == null ? void 0 : _c[providerOptionsName]) == null ? void 0 : _d.itemId) != null ? _g : (_f = (_e = part.providerMetadata) == null ? void 0 : _e[providerOptionsName]) == null ? void 0 : _f.itemId;
+              if (hasConversation && id != null) {
+                break;
+              }
               if (part.providerExecuted) {
                 if (store && id != null) {
                   input.push({ type: "item_reference", id });
@@ -26869,7 +23169,7 @@ async function convertToOpenAIResponsesInput({
                 part.toolName
               );
               if (hasLocalShellTool && resolvedToolName === "local_shell") {
-                const parsedInput = await validateTypes$4({
+                const parsedInput = await validateTypes({
                   value: part.input,
                   schema: localShellInputSchema
                 });
@@ -26889,7 +23189,7 @@ async function convertToOpenAIResponsesInput({
                 break;
               }
               if (hasShellTool && resolvedToolName === "shell") {
-                const parsedInput = await validateTypes$4({
+                const parsedInput = await validateTypes({
                   value: part.input,
                   schema: shellInputSchema
                 });
@@ -26903,6 +23203,20 @@ async function convertToOpenAIResponsesInput({
                     timeout_ms: parsedInput.action.timeoutMs,
                     max_output_length: parsedInput.action.maxOutputLength
                   }
+                });
+                break;
+              }
+              if (hasApplyPatchTool && resolvedToolName === "apply_patch") {
+                const parsedInput = await validateTypes({
+                  value: part.input,
+                  schema: applyPatchInputSchema
+                });
+                input.push({
+                  type: "apply_patch_call",
+                  call_id: parsedInput.callId,
+                  id,
+                  status: "completed",
+                  operation: parsedInput.operation
                 });
                 break;
               }
@@ -26920,6 +23234,9 @@ async function convertToOpenAIResponsesInput({
               if (part.output.type === "execution-denied" || part.output.type === "json" && typeof part.output.value === "object" && part.output.value != null && "type" in part.output.value && part.output.value.type === "execution-denied") {
                 break;
               }
+              if (hasConversation) {
+                break;
+              }
               if (store) {
                 const itemId = (_j = (_i = (_h = part.providerMetadata) == null ? void 0 : _h[providerOptionsName]) == null ? void 0 : _i.itemId) != null ? _j : part.toolCallId;
                 input.push({ type: "item_reference", id: itemId });
@@ -26932,12 +23249,15 @@ async function convertToOpenAIResponsesInput({
               break;
             }
             case "reasoning": {
-              const providerOptions = await parseProviderOptions$2({
+              const providerOptions = await parseProviderOptions({
                 provider: providerOptionsName,
                 providerOptions: part.providerOptions,
                 schema: openaiResponsesReasoningProviderOptionsSchema
               });
               const reasoningId = providerOptions == null ? void 0 : providerOptions.itemId;
+              if (hasConversation && reasoningId != null) {
+                break;
+              }
               if (reasoningId != null) {
                 const reasoningMessage = reasoningMessages[reasoningId];
                 if (store) {
@@ -27021,7 +23341,7 @@ async function convertToOpenAIResponsesInput({
             part.toolName
           );
           if (hasLocalShellTool && resolvedToolName === "local_shell" && output.type === "json") {
-            const parsedOutput = await validateTypes$4({
+            const parsedOutput = await validateTypes({
               value: output.value,
               schema: localShellOutputSchema
             });
@@ -27033,7 +23353,7 @@ async function convertToOpenAIResponsesInput({
             continue;
           }
           if (hasShellTool && resolvedToolName === "shell" && output.type === "json") {
-            const parsedOutput = await validateTypes$4({
+            const parsedOutput = await validateTypes({
               value: output.value,
               schema: shellOutputSchema
             });
@@ -27052,7 +23372,7 @@ async function convertToOpenAIResponsesInput({
             continue;
           }
           if (hasApplyPatchTool && part.toolName === "apply_patch" && output.type === "json") {
-            const parsedOutput = await validateTypes$4({
+            const parsedOutput = await validateTypes({
               value: output.value,
               schema: applyPatchOutputSchema
             });
@@ -27152,8 +23472,8 @@ function mapOpenAIResponseFinishReason({
       return hasFunctionCall ? "tool-calls" : "other";
   }
 }
-var openaiResponsesChunkSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiResponsesChunkSchema = lazySchema(
+  () => zodSchema(
     union([
       object$1({
         type: literal("response.output_text.delta"),
@@ -27573,8 +23893,8 @@ var openaiResponsesChunkSchema = lazySchema$1(
     ])
   )
 );
-var openaiResponsesResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiResponsesResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       id: string().optional(),
       created_at: number$1().optional(),
@@ -27828,8 +24148,8 @@ var openaiResponsesResponseSchema = lazySchema$1(
   )
 );
 var TOP_LOGPROBS_MAX = 20;
-var openaiResponsesProviderOptionsSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiResponsesProviderOptionsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       /**
        * The ID of the OpenAI Conversation to continue.
@@ -28006,7 +24326,7 @@ async function prepareResponsesTools$2({
       case "provider": {
         switch (tool.id) {
           case "openai.file_search": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: fileSearchArgsSchema
             });
@@ -28041,7 +24361,7 @@ async function prepareResponsesTools$2({
             break;
           }
           case "openai.web_search_preview": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: webSearchPreviewArgsSchema
             });
@@ -28053,7 +24373,7 @@ async function prepareResponsesTools$2({
             break;
           }
           case "openai.web_search": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: webSearchArgsSchema$1
             });
@@ -28067,7 +24387,7 @@ async function prepareResponsesTools$2({
             break;
           }
           case "openai.code_interpreter": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: codeInterpreterArgsSchema
             });
@@ -28078,7 +24398,7 @@ async function prepareResponsesTools$2({
             break;
           }
           case "openai.image_generation": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: imageGenerationArgsSchema
             });
@@ -28101,7 +24421,7 @@ async function prepareResponsesTools$2({
             break;
           }
           case "openai.mcp": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: mcpArgsSchema
             });
@@ -28154,7 +24474,7 @@ async function prepareResponsesTools$2({
       };
     default: {
       const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$3({
+      throw new UnsupportedFunctionalityError({
         functionality: `tool choice type: ${_exhaustiveCheck}`
       });
     }
@@ -28224,13 +24544,13 @@ var OpenAIResponsesLanguageModel = class {
       warnings.push({ type: "unsupported", feature: "stopSequences" });
     }
     const providerOptionsName = this.config.provider.includes("azure") ? "azure" : "openai";
-    let openaiOptions = await parseProviderOptions$2({
+    let openaiOptions = await parseProviderOptions({
       provider: providerOptionsName,
       providerOptions,
       schema: openaiResponsesProviderOptionsSchema
     });
     if (openaiOptions == null && providerOptionsName !== "openai") {
-      openaiOptions = await parseProviderOptions$2({
+      openaiOptions = await parseProviderOptions({
         provider: "openai",
         providerOptions,
         schema: openaiResponsesProviderOptionsSchema
@@ -28265,6 +24585,7 @@ var OpenAIResponsesLanguageModel = class {
       providerOptionsName,
       fileIdPrefixes: this.config.fileIdPrefixes,
       store: (_c = openaiOptions == null ? void 0 : openaiOptions.store) != null ? _c : true,
+      hasConversation: (openaiOptions == null ? void 0 : openaiOptions.conversation) != null,
       hasLocalShellTool: hasOpenAITool("openai.local_shell"),
       hasShellTool: hasOpenAITool("openai.shell"),
       hasApplyPatchTool: hasOpenAITool("openai.apply_patch")
@@ -28439,19 +24760,19 @@ var OpenAIResponsesLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url,
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         openaiResponsesResponseSchema
       ),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
     if (response.error) {
-      throw new APICallError$4({
+      throw new APICallError({
         message: response.error.message,
         url,
         requestBodyValues: body,
@@ -28559,7 +24880,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "url",
-                  id: (_f = (_e = (_d = this.config).generateId) == null ? void 0 : _e.call(_d)) != null ? _f : generateId$3(),
+                  id: (_f = (_e = (_d = this.config).generateId) == null ? void 0 : _e.call(_d)) != null ? _f : generateId(),
                   url: annotation.url,
                   title: annotation.title
                 });
@@ -28567,7 +24888,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_i = (_h = (_g = this.config).generateId) == null ? void 0 : _h.call(_g)) != null ? _i : generateId$3(),
+                  id: (_i = (_h = (_g = this.config).generateId) == null ? void 0 : _h.call(_g)) != null ? _i : generateId(),
                   mediaType: "text/plain",
                   title: annotation.filename,
                   filename: annotation.filename,
@@ -28583,7 +24904,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_l = (_k = (_j = this.config).generateId) == null ? void 0 : _k.call(_j)) != null ? _l : generateId$3(),
+                  id: (_l = (_k = (_j = this.config).generateId) == null ? void 0 : _k.call(_j)) != null ? _l : generateId(),
                   mediaType: "text/plain",
                   title: annotation.filename,
                   filename: annotation.filename,
@@ -28599,7 +24920,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_o = (_n = (_m = this.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId$3(),
+                  id: (_o = (_n = (_m = this.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId(),
                   mediaType: "application/octet-stream",
                   title: annotation.file_id,
                   filename: annotation.file_id,
@@ -28687,7 +25008,7 @@ var OpenAIResponsesLanguageModel = class {
         }
         case "mcp_approval_request": {
           const approvalRequestId = (_q = part.approval_request_id) != null ? _q : part.id;
-          const dummyToolCallId = (_t = (_s = (_r = this.config).generateId) == null ? void 0 : _s.call(_r)) != null ? _t : generateId$3();
+          const dummyToolCallId = (_t = (_s = (_r = this.config).generateId) == null ? void 0 : _s.call(_r)) != null ? _t : generateId();
           const toolName = `mcp.${part.name}`;
           content.push({
             type: "tool-call",
@@ -28829,18 +25150,18 @@ var OpenAIResponsesLanguageModel = class {
       store,
       providerOptionsName
     } = await this.getArgs(options);
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
         path: "/responses",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body: {
         ...body,
         stream: true
       },
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler$3(
+      successfulResponseHandler: createEventSourceResponseHandler(
         openaiResponsesChunkSchema
       ),
       abortSignal: options.abortSignal,
@@ -29207,7 +25528,7 @@ var OpenAIResponsesLanguageModel = class {
                 ongoingToolCalls[value.output_index] = void 0;
               } else if (value.item.type === "mcp_approval_request") {
                 ongoingToolCalls[value.output_index] = void 0;
-                const dummyToolCallId = (_i = (_h = (_g = self.config).generateId) == null ? void 0 : _h.call(_g)) != null ? _i : generateId$3();
+                const dummyToolCallId = (_i = (_h = (_g = self.config).generateId) == null ? void 0 : _h.call(_g)) != null ? _i : generateId();
                 const approvalRequestId = (_j = value.item.approval_request_id) != null ? _j : value.item.id;
                 approvalRequestIdToDummyToolCallIdFromStream.set(
                   approvalRequestId,
@@ -29454,7 +25775,7 @@ var OpenAIResponsesLanguageModel = class {
                 controller.enqueue({
                   type: "source",
                   sourceType: "url",
-                  id: (_u = (_t = (_s = self.config).generateId) == null ? void 0 : _t.call(_s)) != null ? _u : generateId$3(),
+                  id: (_u = (_t = (_s = self.config).generateId) == null ? void 0 : _t.call(_s)) != null ? _u : generateId(),
                   url: value.annotation.url,
                   title: value.annotation.title
                 });
@@ -29462,7 +25783,7 @@ var OpenAIResponsesLanguageModel = class {
                 controller.enqueue({
                   type: "source",
                   sourceType: "document",
-                  id: (_x = (_w = (_v = self.config).generateId) == null ? void 0 : _w.call(_v)) != null ? _x : generateId$3(),
+                  id: (_x = (_w = (_v = self.config).generateId) == null ? void 0 : _w.call(_v)) != null ? _x : generateId(),
                   mediaType: "text/plain",
                   title: value.annotation.filename,
                   filename: value.annotation.filename,
@@ -29478,7 +25799,7 @@ var OpenAIResponsesLanguageModel = class {
                 controller.enqueue({
                   type: "source",
                   sourceType: "document",
-                  id: (_A = (_z = (_y = self.config).generateId) == null ? void 0 : _z.call(_y)) != null ? _A : generateId$3(),
+                  id: (_A = (_z = (_y = self.config).generateId) == null ? void 0 : _z.call(_y)) != null ? _A : generateId(),
                   mediaType: "text/plain",
                   title: value.annotation.filename,
                   filename: value.annotation.filename,
@@ -29494,7 +25815,7 @@ var OpenAIResponsesLanguageModel = class {
                 controller.enqueue({
                   type: "source",
                   sourceType: "document",
-                  id: (_D = (_C = (_B = self.config).generateId) == null ? void 0 : _C.call(_B)) != null ? _D : generateId$3(),
+                  id: (_D = (_C = (_B = self.config).generateId) == null ? void 0 : _C.call(_B)) != null ? _D : generateId(),
                   mediaType: "application/octet-stream",
                   title: value.annotation.file_id,
                   filename: value.annotation.file_id,
@@ -29600,8 +25921,8 @@ function mapWebSearchOutput(action) {
 function escapeJSONDelta(delta) {
   return JSON.stringify(delta).slice(1, -1);
 }
-var openaiSpeechProviderOptionsSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiSpeechProviderOptionsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       instructions: string().nullish(),
       speed: number$1().min(0.25).max(4).default(1).nullish()
@@ -29629,7 +25950,7 @@ var OpenAISpeechModel = class {
     providerOptions
   }) {
     const warnings = [];
-    const openAIOptions = await parseProviderOptions$2({
+    const openAIOptions = await parseProviderOptions({
       provider: "openai",
       providerOptions,
       schema: openaiSpeechProviderOptionsSchema
@@ -29682,12 +26003,12 @@ var OpenAISpeechModel = class {
       value: audio,
       responseHeaders,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.config.url({
         path: "/audio/speech",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body: requestBody,
       failedResponseHandler: openaiFailedResponseHandler,
       successfulResponseHandler: createBinaryResponseHandler(),
@@ -29709,8 +26030,8 @@ var OpenAISpeechModel = class {
     };
   }
 };
-var openaiTranscriptionResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var openaiTranscriptionResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       text: string(),
       language: string().nullish(),
@@ -29739,8 +26060,8 @@ var openaiTranscriptionResponseSchema = lazySchema$1(
     })
   )
 );
-var openAITranscriptionProviderOptions = lazySchema$1(
-  () => zodSchema$4(
+var openAITranscriptionProviderOptions = lazySchema(
+  () => zodSchema(
     object$1({
       /**
        * Additional information to include in the transcription response.
@@ -29843,13 +26164,13 @@ var OpenAITranscriptionModel = class {
     providerOptions
   }) {
     const warnings = [];
-    const openAIOptions = await parseProviderOptions$2({
+    const openAIOptions = await parseProviderOptions({
       provider: "openai",
       providerOptions,
       schema: openAITranscriptionProviderOptions
     });
     const formData = new FormData();
-    const blob = audio instanceof Uint8Array ? new Blob([audio]) : new Blob([convertBase64ToUint8Array$1(audio)]);
+    const blob = audio instanceof Uint8Array ? new Blob([audio]) : new Blob([convertBase64ToUint8Array(audio)]);
     formData.append("model", this.modelId);
     const fileExtension = mediaTypeToExtension(mediaType);
     formData.append(
@@ -29896,15 +26217,15 @@ var OpenAITranscriptionModel = class {
       value: response,
       responseHeaders,
       rawValue: rawResponse
-    } = await postFormDataToApi$1({
+    } = await postFormDataToApi({
       url: this.config.url({
         path: "/audio/transcriptions",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       formData,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         openaiTranscriptionResponseSchema
       ),
       abortSignal: options.abortSignal,
@@ -29936,21 +26257,21 @@ var OpenAITranscriptionModel = class {
 };
 
 // src/version.ts
-var VERSION$8 = "3.0.9" ;
+var VERSION$4 = "3.0.18" ;
 
 // src/openai-provider.ts
 function createOpenAI(options = {}) {
   var _a, _b;
-  const baseURL = (_a = withoutTrailingSlash$3(
+  const baseURL = (_a = withoutTrailingSlash(
     loadOptionalSetting({
       settingValue: options.baseURL,
       environmentVariableName: "OPENAI_BASE_URL"
     })
   )) != null ? _a : "https://api.openai.com/v1";
   const providerName = (_b = options.name) != null ? _b : "openai";
-  const getHeaders = () => withUserAgentSuffix$4(
+  const getHeaders = () => withUserAgentSuffix(
     {
-      Authorization: `Bearer ${loadApiKey$3({
+      Authorization: `Bearer ${loadApiKey({
         apiKey: options.apiKey,
         environmentVariableName: "OPENAI_API_KEY",
         description: "OpenAI"
@@ -29959,7 +26280,7 @@ function createOpenAI(options = {}) {
       "OpenAI-Project": options.project,
       ...options.headers
     },
-    `ai-sdk/openai/${VERSION$8}`
+    `ai-sdk/openai/${VERSION$4}`
   );
   const createChatModel = (modelId) => new OpenAIChatLanguageModel(modelId, {
     provider: `${providerName}.chat`,
@@ -30040,9 +26361,9 @@ createOpenAI();
 // src/anthropic-provider.ts
 
 // src/version.ts
-var VERSION$7 = "3.0.12" ;
-var anthropicErrorDataSchema = lazySchema$1(
-  () => zodSchema$4(
+var VERSION$3 = "3.0.23" ;
+var anthropicErrorDataSchema = lazySchema(
+  () => zodSchema(
     object$1({
       type: literal("error"),
       error: object$1({
@@ -30052,12 +26373,12 @@ var anthropicErrorDataSchema = lazySchema$1(
     })
   )
 );
-var anthropicFailedResponseHandler = createJsonErrorResponseHandler$4({
+var anthropicFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: anthropicErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
-var anthropicMessagesResponseSchema = lazySchema$1(
-  () => zodSchema$4(
+var anthropicMessagesResponseSchema = lazySchema(
+  () => zodSchema(
     object$1({
       type: literal("message"),
       id: string().nullish(),
@@ -30334,8 +26655,8 @@ var anthropicMessagesResponseSchema = lazySchema$1(
     })
   )
 );
-var anthropicMessagesChunkSchema = lazySchema$1(
-  () => zodSchema$4(
+var anthropicMessagesChunkSchema = lazySchema(
+  () => zodSchema(
     discriminatedUnion("type", [
       object$1({
         type: literal("message_start"),
@@ -30696,8 +27017,8 @@ var anthropicMessagesChunkSchema = lazySchema$1(
     ])
   )
 );
-var anthropicReasoningMetadataSchema = lazySchema$1(
-  () => zodSchema$4(
+var anthropicReasoningMetadataSchema = lazySchema(
+  () => zodSchema(
     object$1({
       signature: string().optional(),
       redactedData: string().optional()
@@ -30890,15 +27211,15 @@ var CacheControlValidator = class {
     return this.warnings;
   }
 };
-var textEditor_20250728ArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var textEditor_20250728ArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       maxCharacters: number$1().optional()
     })
   )
 );
-var textEditor_20250728InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var textEditor_20250728InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       command: _enum(["view", "create", "str_replace", "insert"]),
       path: string(),
@@ -30917,8 +27238,8 @@ var factory = createProviderToolFactory({
 var textEditor_20250728 = (args = {}) => {
   return factory(args);
 };
-var webSearch_20250305ArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var webSearch_20250305ArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       maxUses: number$1().optional(),
       allowedDomains: array$1(string()).optional(),
@@ -30933,8 +27254,8 @@ var webSearch_20250305ArgsSchema = lazySchema$1(
     })
   )
 );
-var webSearch_20250305OutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var webSearch_20250305OutputSchema = lazySchema(
+  () => zodSchema(
     array$1(
       object$1({
         url: string(),
@@ -30946,14 +27267,14 @@ var webSearch_20250305OutputSchema = lazySchema$1(
     )
   )
 );
-var webSearch_20250305InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var webSearch_20250305InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       query: string()
     })
   )
 );
-var factory2 = createProviderToolFactoryWithOutputSchema$1({
+var factory2 = createProviderToolFactoryWithOutputSchema({
   id: "anthropic.web_search_20250305",
   inputSchema: webSearch_20250305InputSchema,
   outputSchema: webSearch_20250305OutputSchema,
@@ -30962,8 +27283,8 @@ var factory2 = createProviderToolFactoryWithOutputSchema$1({
 var webSearch_20250305 = (args = {}) => {
   return factory2(args);
 };
-var webFetch_20250910ArgsSchema = lazySchema$1(
-  () => zodSchema$4(
+var webFetch_20250910ArgsSchema = lazySchema(
+  () => zodSchema(
     object$1({
       maxUses: number$1().optional(),
       allowedDomains: array$1(string()).optional(),
@@ -30973,8 +27294,8 @@ var webFetch_20250910ArgsSchema = lazySchema$1(
     })
   )
 );
-var webFetch_20250910OutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var webFetch_20250910OutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       type: literal("web_fetch_result"),
       url: string(),
@@ -30999,14 +27320,14 @@ var webFetch_20250910OutputSchema = lazySchema$1(
     })
   )
 );
-var webFetch_20250910InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var webFetch_20250910InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       url: string()
     })
   )
 );
-var factory3 = createProviderToolFactoryWithOutputSchema$1({
+var factory3 = createProviderToolFactoryWithOutputSchema({
   id: "anthropic.web_fetch_20250910",
   inputSchema: webFetch_20250910InputSchema,
   outputSchema: webFetch_20250910OutputSchema,
@@ -31134,7 +27455,7 @@ async function prepareTools$2({
             break;
           }
           case "anthropic.text_editor_20250728": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: textEditor_20250728ArgsSchema
             });
@@ -31174,7 +27495,7 @@ async function prepareTools$2({
           }
           case "anthropic.web_fetch_20250910": {
             betas.add("web-fetch-2025-09-10");
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: webFetch_20250910ArgsSchema
             });
@@ -31191,7 +27512,7 @@ async function prepareTools$2({
             break;
           }
           case "anthropic.web_search_20250305": {
-            const args = await validateTypes$4({
+            const args = await validateTypes({
               value: tool.args,
               schema: webSearch_20250305ArgsSchema
             });
@@ -31286,7 +27607,7 @@ async function prepareTools$2({
       };
     default: {
       const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$3({
+      throw new UnsupportedFunctionalityError({
         functionality: `tool choice type: ${_exhaustiveCheck}`
       });
     }
@@ -31315,8 +27636,8 @@ function convertAnthropicMessagesUsage(usage) {
     raw: usage
   };
 }
-var codeExecution_20250522OutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var codeExecution_20250522OutputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       type: literal("code_execution_result"),
       stdout: string(),
@@ -31331,14 +27652,14 @@ var codeExecution_20250522OutputSchema = lazySchema$1(
     })
   )
 );
-var codeExecution_20250522InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var codeExecution_20250522InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       code: string()
     })
   )
 );
-var factory4 = createProviderToolFactoryWithOutputSchema$1({
+var factory4 = createProviderToolFactoryWithOutputSchema({
   id: "anthropic.code_execution_20250522",
   inputSchema: codeExecution_20250522InputSchema,
   outputSchema: codeExecution_20250522OutputSchema
@@ -31346,8 +27667,8 @@ var factory4 = createProviderToolFactoryWithOutputSchema$1({
 var codeExecution_20250522 = (args = {}) => {
   return factory4(args);
 };
-var codeExecution_20250825OutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var codeExecution_20250825OutputSchema = lazySchema(
+  () => zodSchema(
     discriminatedUnion("type", [
       object$1({
         type: literal("code_execution_result"),
@@ -31404,8 +27725,8 @@ var codeExecution_20250825OutputSchema = lazySchema$1(
     ])
   )
 );
-var codeExecution_20250825InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var codeExecution_20250825InputSchema = lazySchema(
+  () => zodSchema(
     discriminatedUnion("type", [
       // Programmatic tool calling format (mapped from { code } by AI SDK)
       object$1({
@@ -31439,7 +27760,7 @@ var codeExecution_20250825InputSchema = lazySchema$1(
     ])
   )
 );
-var factory5 = createProviderToolFactoryWithOutputSchema$1({
+var factory5 = createProviderToolFactoryWithOutputSchema({
   id: "anthropic.code_execution_20250825",
   inputSchema: codeExecution_20250825InputSchema,
   outputSchema: codeExecution_20250825OutputSchema,
@@ -31451,8 +27772,8 @@ var factory5 = createProviderToolFactoryWithOutputSchema$1({
 var codeExecution_20250825 = (args = {}) => {
   return factory5(args);
 };
-var toolSearchRegex_20251119OutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var toolSearchRegex_20251119OutputSchema = lazySchema(
+  () => zodSchema(
     array$1(
       object$1({
         type: literal("tool_reference"),
@@ -31461,8 +27782,8 @@ var toolSearchRegex_20251119OutputSchema = lazySchema$1(
     )
   )
 );
-var toolSearchRegex_20251119InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var toolSearchRegex_20251119InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       /**
        * A regex pattern to search for tools.
@@ -31482,10 +27803,11 @@ var toolSearchRegex_20251119InputSchema = lazySchema$1(
     })
   )
 );
-var factory6 = createProviderToolFactoryWithOutputSchema$1({
+var factory6 = createProviderToolFactoryWithOutputSchema({
   id: "anthropic.tool_search_regex_20251119",
   inputSchema: toolSearchRegex_20251119InputSchema,
-  outputSchema: toolSearchRegex_20251119OutputSchema
+  outputSchema: toolSearchRegex_20251119OutputSchema,
+  supportsDeferredResults: true
 });
 var toolSearchRegex_20251119 = (args = {}) => {
   return factory6(args);
@@ -31500,11 +27822,11 @@ function convertToString(data) {
     return new TextDecoder().decode(data);
   }
   if (data instanceof URL) {
-    throw new UnsupportedFunctionalityError$3({
+    throw new UnsupportedFunctionalityError({
       functionality: "URL-based text documents are not supported for citations"
     });
   }
-  throw new UnsupportedFunctionalityError$3({
+  throw new UnsupportedFunctionalityError({
     functionality: `unsupported data type for text documents: ${typeof data}`
   });
 }
@@ -31524,7 +27846,7 @@ async function convertToAnthropicMessagesPrompt({
   cacheControlValidator,
   toolNameMapping
 }) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
   const betas = /* @__PURE__ */ new Set();
   const blocks = groupIntoBlocks(prompt);
   const validator = cacheControlValidator || new CacheControlValidator();
@@ -31532,7 +27854,7 @@ async function convertToAnthropicMessagesPrompt({
   const messages = [];
   async function shouldEnableCitations(providerMetadata) {
     var _a2, _b2;
-    const anthropicOptions = await parseProviderOptions$2({
+    const anthropicOptions = await parseProviderOptions({
       provider: "anthropic",
       providerOptions: providerMetadata,
       schema: anthropicFilePartProviderOptions
@@ -31540,7 +27862,7 @@ async function convertToAnthropicMessagesPrompt({
     return (_b2 = (_a2 = anthropicOptions == null ? void 0 : anthropicOptions.citations) == null ? void 0 : _a2.enabled) != null ? _b2 : false;
   }
   async function getDocumentMetadata(providerMetadata) {
-    const anthropicOptions = await parseProviderOptions$2({
+    const anthropicOptions = await parseProviderOptions({
       provider: "anthropic",
       providerOptions: providerMetadata,
       schema: anthropicFilePartProviderOptions
@@ -31557,7 +27879,7 @@ async function convertToAnthropicMessagesPrompt({
     switch (type) {
       case "system": {
         if (system != null) {
-          throw new UnsupportedFunctionalityError$3({
+          throw new UnsupportedFunctionalityError({
             functionality: "Multiple system messages that are separated by user/assistant messages"
           });
         }
@@ -31606,7 +27928,7 @@ async function convertToAnthropicMessagesPrompt({
                         } : {
                           type: "base64",
                           media_type: part.mediaType === "image/*" ? "image/jpeg" : part.mediaType,
-                          data: convertToBase64$2(part.data)
+                          data: convertToBase64(part.data)
                         },
                         cache_control: cacheControl
                       });
@@ -31626,7 +27948,7 @@ async function convertToAnthropicMessagesPrompt({
                         } : {
                           type: "base64",
                           media_type: "application/pdf",
-                          data: convertToBase64$2(part.data)
+                          data: convertToBase64(part.data)
                         },
                         title: (_b = metadata.title) != null ? _b : part.filename,
                         ...metadata.context && { context: metadata.context },
@@ -31660,7 +27982,7 @@ async function convertToAnthropicMessagesPrompt({
                         cache_control: cacheControl
                       });
                     } else {
-                      throw new UnsupportedFunctionalityError$3({
+                      throw new UnsupportedFunctionalityError({
                         functionality: `media type: ${part.mediaType}`
                       });
                     }
@@ -31816,7 +28138,7 @@ async function convertToAnthropicMessagesPrompt({
               }
               case "reasoning": {
                 if (sendReasoning) {
-                  const reasoningMetadata = await parseProviderOptions$2({
+                  const reasoningMetadata = await parseProviderOptions({
                     provider: "anthropic",
                     providerOptions: part.providerOptions,
                     schema: anthropicReasoningMetadataSchema
@@ -32022,7 +28344,7 @@ async function convertToAnthropicMessagesPrompt({
                     break;
                   }
                   if (output.value.type === "code_execution_result") {
-                    const codeExecutionOutput = await validateTypes$4({
+                    const codeExecutionOutput = await validateTypes({
                       value: output.value,
                       schema: codeExecution_20250522OutputSchema
                     });
@@ -32039,7 +28361,7 @@ async function convertToAnthropicMessagesPrompt({
                       cache_control: cacheControl
                     });
                   } else {
-                    const codeExecutionOutput = await validateTypes$4({
+                    const codeExecutionOutput = await validateTypes({
                       value: output.value,
                       schema: codeExecution_20250825OutputSchema
                     });
@@ -32077,13 +28399,25 @@ async function convertToAnthropicMessagesPrompt({
                 if (providerToolName === "web_fetch") {
                   const output = part.output;
                   if (output.type === "error-json") {
-                    const errorValue = JSON.parse(output.value);
+                    let errorValue = {};
+                    try {
+                      if (typeof output.value === "string") {
+                        errorValue = JSON.parse(output.value);
+                      } else if (typeof output.value === "object" && output.value !== null) {
+                        errorValue = output.value;
+                      }
+                    } catch (e) {
+                      const extractedErrorCode = (_p = output.value) == null ? void 0 : _p.errorCode;
+                      errorValue = {
+                        errorCode: typeof extractedErrorCode === "string" ? extractedErrorCode : "unknown"
+                      };
+                    }
                     anthropicContent.push({
                       type: "web_fetch_tool_result",
                       tool_use_id: part.toolCallId,
                       content: {
                         type: "web_fetch_tool_result_error",
-                        error_code: errorValue.errorCode
+                        error_code: (_q = errorValue.errorCode) != null ? _q : "unknown"
                       },
                       cache_control: cacheControl
                     });
@@ -32096,7 +28430,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                     break;
                   }
-                  const webFetchOutput = await validateTypes$4({
+                  const webFetchOutput = await validateTypes({
                     value: output.value,
                     schema: webFetch_20250910OutputSchema
                   });
@@ -32131,7 +28465,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                     break;
                   }
-                  const webSearchOutput = await validateTypes$4({
+                  const webSearchOutput = await validateTypes({
                     value: output.value,
                     schema: webSearch_20250305OutputSchema
                   });
@@ -32158,7 +28492,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                     break;
                   }
-                  const toolSearchOutput = await validateTypes$4({
+                  const toolSearchOutput = await validateTypes({
                     value: output.value,
                     schema: toolSearchRegex_20251119OutputSchema
                   });
@@ -32272,6 +28606,21 @@ function mapAnthropicStopReason({
 // src/anthropic-messages-language-model.ts
 function createCitationSource(citation, citationDocuments, generateId3) {
   var _a;
+  if (citation.type === "web_search_result_location") {
+    return {
+      type: "source",
+      sourceType: "url",
+      id: generateId3(),
+      url: citation.url,
+      title: citation.title,
+      providerMetadata: {
+        anthropic: {
+          citedText: citation.cited_text,
+          encryptedIndex: citation.encrypted_index
+        }
+      }
+    };
+  }
   if (citation.type !== "page_location" && citation.type !== "char_location") {
     return;
   }
@@ -32305,7 +28654,7 @@ var AnthropicMessagesLanguageModel = class {
     var _a;
     this.modelId = modelId;
     this.config = config;
-    this.generateId = (_a = config.generateId) != null ? _a : generateId$3;
+    this.generateId = (_a = config.generateId) != null ? _a : generateId;
   }
   supportsUrl(url) {
     return url.protocol === "https:";
@@ -32369,7 +28718,7 @@ var AnthropicMessagesLanguageModel = class {
         });
       }
     }
-    const anthropicOptions = await parseProviderOptions$2({
+    const anthropicOptions = await parseProviderOptions({
       provider: "anthropic",
       providerOptions,
       schema: anthropicProviderOptions
@@ -32612,7 +28961,7 @@ var AnthropicMessagesLanguageModel = class {
         toolChoice: { type: "required" },
         disableParallelToolUse: true,
         cacheControlValidator,
-        supportsStructuredOutput
+        supportsStructuredOutput: false
       } : {
         tools: tools != null ? tools : [],
         toolChoice,
@@ -32640,7 +28989,7 @@ var AnthropicMessagesLanguageModel = class {
     betas,
     headers
   }) {
-    return combineHeaders$4(
+    return combineHeaders(
       await resolve(this.config.headers),
       headers,
       betas.size > 0 ? { "anthropic-beta": Array.from(betas).join(",") } : {}
@@ -32696,17 +29045,19 @@ var AnthropicMessagesLanguageModel = class {
       stream: false,
       userSuppliedBetas: await this.getBetasFromHeaders(options.headers)
     });
-    const citationDocuments = this.extractCitationDocuments(options.prompt);
+    const citationDocuments = [
+      ...this.extractCitationDocuments(options.prompt)
+    ];
     const {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.buildRequestUrl(false),
       headers: await this.getHeaders({ betas, headers: options.headers }),
       body: this.transformRequestBody(args),
       failedResponseHandler: anthropicFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         anthropicMessagesResponseSchema
       ),
       abortSignal: options.abortSignal,
@@ -32852,6 +29203,10 @@ var AnthropicMessagesLanguageModel = class {
         }
         case "web_fetch_tool_result": {
           if (part.content.type === "web_fetch_result") {
+            citationDocuments.push({
+              title: (_a = part.content.content.title) != null ? _a : part.content.url,
+              mediaType: part.content.content.source.media_type
+            });
             content.push({
               type: "tool-result",
               toolCallId: part.tool_use_id,
@@ -32912,7 +29267,7 @@ var AnthropicMessagesLanguageModel = class {
                 title: result.title,
                 providerMetadata: {
                   anthropic: {
-                    pageAge: (_a = result.page_age) != null ? _a : null
+                    pageAge: (_b = result.page_age) != null ? _b : null
                   }
                 }
               });
@@ -32943,7 +29298,7 @@ var AnthropicMessagesLanguageModel = class {
                 stdout: part.content.stdout,
                 stderr: part.content.stderr,
                 return_code: part.content.return_code,
-                content: (_b = part.content.content) != null ? _b : []
+                content: (_c = part.content.content) != null ? _c : []
               }
             });
           } else if (part.content.type === "code_execution_tool_result_error") {
@@ -32973,7 +29328,22 @@ var AnthropicMessagesLanguageModel = class {
         }
         // tool search tool results:
         case "tool_search_tool_result": {
-          const providerToolName = (_c = serverToolCalls[part.tool_use_id]) != null ? _c : "tool_search_tool_regex";
+          let providerToolName = serverToolCalls[part.tool_use_id];
+          if (providerToolName == null) {
+            const bm25CustomName = toolNameMapping.toCustomToolName(
+              "tool_search_tool_bm25"
+            );
+            const regexCustomName = toolNameMapping.toCustomToolName(
+              "tool_search_tool_regex"
+            );
+            if (bm25CustomName !== "tool_search_tool_bm25") {
+              providerToolName = "tool_search_tool_bm25";
+            } else if (regexCustomName !== "tool_search_tool_regex") {
+              providerToolName = "tool_search_tool_regex";
+            } else {
+              providerToolName = "tool_search_tool_regex";
+            }
+          }
           if (part.content.type === "tool_search_tool_search_result") {
             content.push({
               type: "tool-result",
@@ -33052,14 +29422,16 @@ var AnthropicMessagesLanguageModel = class {
       stream: true,
       userSuppliedBetas: await this.getBetasFromHeaders(options.headers)
     });
-    const citationDocuments = this.extractCitationDocuments(options.prompt);
+    const citationDocuments = [
+      ...this.extractCitationDocuments(options.prompt)
+    ];
     const url = this.buildRequestUrl(true);
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url,
       headers: await this.getHeaders({ betas, headers: options.headers }),
       body: this.transformRequestBody(body),
       failedResponseHandler: anthropicFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler$3(
+      successfulResponseHandler: createEventSourceResponseHandler(
         anthropicMessagesChunkSchema
       ),
       abortSignal: options.abortSignal,
@@ -33228,6 +29600,10 @@ var AnthropicMessagesLanguageModel = class {
                 }
                 case "web_fetch_tool_result": {
                   if (part.content.type === "web_fetch_result") {
+                    citationDocuments.push({
+                      title: (_a2 = part.content.content.title) != null ? _a2 : part.content.url,
+                      mediaType: part.content.content.source.media_type
+                    });
                     controller.enqueue({
                       type: "tool-result",
                       toolCallId: part.tool_use_id,
@@ -33288,7 +29664,7 @@ var AnthropicMessagesLanguageModel = class {
                         title: result.title,
                         providerMetadata: {
                           anthropic: {
-                            pageAge: (_a2 = result.page_age) != null ? _a2 : null
+                            pageAge: (_b2 = result.page_age) != null ? _b2 : null
                           }
                         }
                       });
@@ -33319,7 +29695,7 @@ var AnthropicMessagesLanguageModel = class {
                         stdout: part.content.stdout,
                         stderr: part.content.stderr,
                         return_code: part.content.return_code,
-                        content: (_b2 = part.content.content) != null ? _b2 : []
+                        content: (_c = part.content.content) != null ? _c : []
                       }
                     });
                   } else if (part.content.type === "code_execution_tool_result_error") {
@@ -33349,7 +29725,22 @@ var AnthropicMessagesLanguageModel = class {
                 }
                 // tool search tool results:
                 case "tool_search_tool_result": {
-                  const providerToolName = (_c = serverToolCalls[part.tool_use_id]) != null ? _c : "tool_search_tool_regex";
+                  let providerToolName = serverToolCalls[part.tool_use_id];
+                  if (providerToolName == null) {
+                    const bm25CustomName = toolNameMapping.toCustomToolName(
+                      "tool_search_tool_bm25"
+                    );
+                    const regexCustomName = toolNameMapping.toCustomToolName(
+                      "tool_search_tool_regex"
+                    );
+                    if (bm25CustomName !== "tool_search_tool_bm25") {
+                      providerToolName = "tool_search_tool_bm25";
+                    } else if (regexCustomName !== "tool_search_tool_regex") {
+                      providerToolName = "tool_search_tool_regex";
+                    } else {
+                      providerToolName = "tool_search_tool_regex";
+                    }
+                  }
                   if (part.content.type === "tool_search_tool_search_result") {
                     controller.enqueue({
                       type: "tool-result",
@@ -33704,7 +30095,7 @@ var AnthropicMessagesLanguageModel = class {
       }
       if (((_b = result.value) == null ? void 0 : _b.type) === "error") {
         const error = result.value.error;
-        throw new APICallError$4({
+        throw new APICallError({
           message: error.message,
           url,
           requestBodyValues: body,
@@ -33792,8 +30183,8 @@ function mapAnthropicResponseContextManagement(contextManagement) {
     }).filter((edit) => edit !== void 0)
   } : null;
 }
-var bash_20241022InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var bash_20241022InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       command: string(),
       restart: boolean().optional()
@@ -33804,8 +30195,8 @@ var bash_20241022 = createProviderToolFactory({
   id: "anthropic.bash_20241022",
   inputSchema: bash_20241022InputSchema
 });
-var bash_20250124InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var bash_20250124InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       command: string(),
       restart: boolean().optional()
@@ -33816,8 +30207,8 @@ var bash_20250124 = createProviderToolFactory({
   id: "anthropic.bash_20250124",
   inputSchema: bash_20250124InputSchema
 });
-var computer_20241022InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var computer_20241022InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       action: _enum([
         "key",
@@ -33840,8 +30231,8 @@ var computer_20241022 = createProviderToolFactory({
   id: "anthropic.computer_20241022",
   inputSchema: computer_20241022InputSchema
 });
-var computer_20250124InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var computer_20250124InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       action: _enum([
         "key",
@@ -33874,8 +30265,8 @@ var computer_20250124 = createProviderToolFactory({
   id: "anthropic.computer_20250124",
   inputSchema: computer_20250124InputSchema
 });
-var memory_20250818InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var memory_20250818InputSchema = lazySchema(
+  () => zodSchema(
     discriminatedUnion("command", [
       object$1({
         command: literal("view"),
@@ -33915,8 +30306,8 @@ var memory_20250818 = createProviderToolFactory({
   id: "anthropic.memory_20250818",
   inputSchema: memory_20250818InputSchema
 });
-var textEditor_20241022InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var textEditor_20241022InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       command: _enum(["view", "create", "str_replace", "insert", "undo_edit"]),
       path: string(),
@@ -33932,8 +30323,8 @@ var textEditor_20241022 = createProviderToolFactory({
   id: "anthropic.text_editor_20241022",
   inputSchema: textEditor_20241022InputSchema
 });
-var textEditor_20250124InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var textEditor_20250124InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       command: _enum(["view", "create", "str_replace", "insert", "undo_edit"]),
       path: string(),
@@ -33949,8 +30340,8 @@ var textEditor_20250124 = createProviderToolFactory({
   id: "anthropic.text_editor_20250124",
   inputSchema: textEditor_20250124InputSchema
 });
-var textEditor_20250429InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var textEditor_20250429InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       command: _enum(["view", "create", "str_replace", "insert"]),
       path: string(),
@@ -33966,8 +30357,8 @@ var textEditor_20250429 = createProviderToolFactory({
   id: "anthropic.text_editor_20250429",
   inputSchema: textEditor_20250429InputSchema
 });
-var toolSearchBm25_20251119OutputSchema = lazySchema$1(
-  () => zodSchema$4(
+var toolSearchBm25_20251119OutputSchema = lazySchema(
+  () => zodSchema(
     array$1(
       object$1({
         type: literal("tool_reference"),
@@ -33976,8 +30367,8 @@ var toolSearchBm25_20251119OutputSchema = lazySchema$1(
     )
   )
 );
-var toolSearchBm25_20251119InputSchema = lazySchema$1(
-  () => zodSchema$4(
+var toolSearchBm25_20251119InputSchema = lazySchema(
+  () => zodSchema(
     object$1({
       /**
        * A natural language query to search for tools.
@@ -33991,10 +30382,11 @@ var toolSearchBm25_20251119InputSchema = lazySchema$1(
     })
   )
 );
-var factory7 = createProviderToolFactoryWithOutputSchema$1({
+var factory7 = createProviderToolFactoryWithOutputSchema({
   id: "anthropic.tool_search_bm25_20251119",
   inputSchema: toolSearchBm25_20251119InputSchema,
-  outputSchema: toolSearchBm25_20251119OutputSchema
+  outputSchema: toolSearchBm25_20251119OutputSchema,
+  supportsDeferredResults: true
 });
 var toolSearchBm25_20251119 = (args = {}) => {
   return factory7(args);
@@ -34157,25 +30549,36 @@ var anthropicTools = {
 // src/anthropic-provider.ts
 function createAnthropic(options = {}) {
   var _a, _b;
-  const baseURL = (_a = withoutTrailingSlash$3(
+  const baseURL = (_a = withoutTrailingSlash(
     loadOptionalSetting({
       settingValue: options.baseURL,
       environmentVariableName: "ANTHROPIC_BASE_URL"
     })
   )) != null ? _a : "https://api.anthropic.com/v1";
   const providerName = (_b = options.name) != null ? _b : "anthropic.messages";
-  const getHeaders = () => withUserAgentSuffix$4(
-    {
-      "anthropic-version": "2023-06-01",
-      "x-api-key": loadApiKey$3({
+  if (options.apiKey && options.authToken) {
+    throw new InvalidArgumentError$1({
+      argument: "apiKey/authToken",
+      message: "Both apiKey and authToken were provided. Please use only one authentication method."
+    });
+  }
+  const getHeaders = () => {
+    const authHeaders = options.authToken ? { Authorization: `Bearer ${options.authToken}` } : {
+      "x-api-key": loadApiKey({
         apiKey: options.apiKey,
         environmentVariableName: "ANTHROPIC_API_KEY",
         description: "Anthropic"
-      }),
-      ...options.headers
-    },
-    `ai-sdk/anthropic/${VERSION$7}`
-  );
+      })
+    };
+    return withUserAgentSuffix(
+      {
+        "anthropic-version": "2023-06-01",
+        ...authHeaders,
+        ...options.headers
+      },
+      `ai-sdk/anthropic/${VERSION$3}`
+    );
+  };
   const createChatModel = (modelId) => {
     var _a2;
     return new AnthropicMessagesLanguageModel(modelId, {
@@ -34183,7 +30586,7 @@ function createAnthropic(options = {}) {
       baseURL,
       headers: getHeaders,
       fetch: options.fetch,
-      generateId: (_a2 = options.generateId) != null ? _a2 : generateId$3,
+      generateId: (_a2 = options.generateId) != null ? _a2 : generateId,
       supportedUrls: () => ({
         "image/*": [/^https?:\/\/.*$/],
         "application/pdf": [/^https?:\/\/.*$/]
@@ -34203,11146 +30606,16 @@ function createAnthropic(options = {}) {
   provider.chat = createChatModel;
   provider.messages = createChatModel;
   provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError$3({ modelId, modelType: "embeddingModel" });
+    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
   };
   provider.textEmbeddingModel = provider.embeddingModel;
   provider.imageModel = (modelId) => {
-    throw new NoSuchModelError$3({ modelId, modelType: "imageModel" });
+    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
   };
   provider.tools = anthropicTools;
   return provider;
 }
 createAnthropic();
-
-// src/errors/ai-sdk-error.ts
-var marker$4 = "vercel.ai.error";
-var symbol$4 = Symbol.for(marker$4);
-var _a$4, _b$4;
-var AISDKError$3 = class _AISDKError extends (_b$4 = Error, _a$4 = symbol$4, _b$4) {
-  /**
-   * Creates an AI SDK Error.
-   *
-   * @param {Object} params - The parameters for creating the error.
-   * @param {string} params.name - The name of the error.
-   * @param {string} params.message - The error message.
-   * @param {unknown} [params.cause] - The underlying cause of the error.
-   */
-  constructor({
-    name: name14,
-    message,
-    cause
-  }) {
-    super(message);
-    this[_a$4] = true;
-    this.name = name14;
-    this.cause = cause;
-  }
-  /**
-   * Checks if the given error is an AI SDK Error.
-   * @param {unknown} error - The error to check.
-   * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
-   */
-  static isInstance(error) {
-    return _AISDKError.hasMarker(error, marker$4);
-  }
-  static hasMarker(error, marker15) {
-    const markerSymbol = Symbol.for(marker15);
-    return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
-  }
-};
-
-// src/errors/api-call-error.ts
-var name$4 = "AI_APICallError";
-var marker2$3 = `vercel.ai.error.${name$4}`;
-var symbol2$3 = Symbol.for(marker2$3);
-var _a2$3, _b2$3;
-var APICallError$3 = class APICallError extends (_b2$3 = AISDKError$3, _a2$3 = symbol2$3, _b2$3) {
-  constructor({
-    message,
-    url,
-    requestBodyValues,
-    statusCode,
-    responseHeaders,
-    responseBody,
-    cause,
-    isRetryable = statusCode != null && (statusCode === 408 || // request timeout
-    statusCode === 409 || // conflict
-    statusCode === 429 || // too many requests
-    statusCode >= 500),
-    // server error
-    data
-  }) {
-    super({ name: name$4, message, cause });
-    this[_a2$3] = true;
-    this.url = url;
-    this.requestBodyValues = requestBodyValues;
-    this.statusCode = statusCode;
-    this.responseHeaders = responseHeaders;
-    this.responseBody = responseBody;
-    this.isRetryable = isRetryable;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError$3.hasMarker(error, marker2$3);
-  }
-};
-
-// src/errors/get-error-message.ts
-function getErrorMessage$3(error) {
-  if (error == null) {
-    return "unknown error";
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return JSON.stringify(error);
-}
-
-// src/errors/invalid-argument-error.ts
-var name3$3 = "AI_InvalidArgumentError";
-var marker4$3 = `vercel.ai.error.${name3$3}`;
-var symbol4$3 = Symbol.for(marker4$3);
-var _a4$3, _b4$3;
-var InvalidArgumentError$3 = class InvalidArgumentError extends (_b4$3 = AISDKError$3, _a4$3 = symbol4$3, _b4$3) {
-  constructor({
-    message,
-    cause,
-    argument
-  }) {
-    super({ name: name3$3, message, cause });
-    this[_a4$3] = true;
-    this.argument = argument;
-  }
-  static isInstance(error) {
-    return AISDKError$3.hasMarker(error, marker4$3);
-  }
-};
-
-// src/errors/json-parse-error.ts
-var name6$3 = "AI_JSONParseError";
-var marker7$3 = `vercel.ai.error.${name6$3}`;
-var symbol7$3 = Symbol.for(marker7$3);
-var _a7$3, _b7$3;
-var JSONParseError$3 = class JSONParseError extends (_b7$3 = AISDKError$3, _a7$3 = symbol7$3, _b7$3) {
-  constructor({ text, cause }) {
-    super({
-      name: name6$3,
-      message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage$3(cause)}`,
-      cause
-    });
-    this[_a7$3] = true;
-    this.text = text;
-  }
-  static isInstance(error) {
-    return AISDKError$3.hasMarker(error, marker7$3);
-  }
-};
-
-// src/errors/type-validation-error.ts
-var name12$3 = "AI_TypeValidationError";
-var marker13$3 = `vercel.ai.error.${name12$3}`;
-var symbol13$3 = Symbol.for(marker13$3);
-var _a13$3, _b13$3;
-var TypeValidationError$3 = class _TypeValidationError extends (_b13$3 = AISDKError$3, _a13$3 = symbol13$3, _b13$3) {
-  constructor({ value, cause }) {
-    super({
-      name: name12$3,
-      message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$3(cause)}`,
-      cause
-    });
-    this[_a13$3] = true;
-    this.value = value;
-  }
-  static isInstance(error) {
-    return AISDKError$3.hasMarker(error, marker13$3);
-  }
-  /**
-   * Wraps an error into a TypeValidationError.
-   * If the cause is already a TypeValidationError with the same value, it returns the cause.
-   * Otherwise, it creates a new TypeValidationError.
-   *
-   * @param {Object} params - The parameters for wrapping the error.
-   * @param {unknown} params.value - The value that failed validation.
-   * @param {unknown} params.cause - The original error or cause of the validation failure.
-   * @returns {TypeValidationError} A TypeValidationError instance.
-   */
-  static wrap({
-    value,
-    cause
-  }) {
-    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
-  }
-};
-
-// src/combine-headers.ts
-function combineHeaders$3(...headers) {
-  return headers.reduce(
-    (combinedHeaders, currentHeaders) => ({
-      ...combinedHeaders,
-      ...currentHeaders != null ? currentHeaders : {}
-    }),
-    {}
-  );
-}
-
-// src/extract-response-headers.ts
-function extractResponseHeaders$3(response) {
-  return Object.fromEntries([...response.headers]);
-}
-
-// src/uint8-utils.ts
-var { atob: atob$1 } = globalThis;
-function convertBase64ToUint8Array(base64String) {
-  const base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/");
-  const latin1string = atob$1(base64Url);
-  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
-}
-
-// src/convert-to-form-data.ts
-function convertToFormData(input, options = {}) {
-  const { useArrayBrackets = true } = options;
-  const formData = new FormData();
-  for (const [key, value] of Object.entries(input)) {
-    if (value == null) {
-      continue;
-    }
-    if (Array.isArray(value)) {
-      if (value.length === 1) {
-        formData.append(key, value[0]);
-        continue;
-      }
-      const arrayKey = useArrayBrackets ? `${key}[]` : key;
-      for (const item of value) {
-        formData.append(arrayKey, item);
-      }
-      continue;
-    }
-    formData.append(key, value);
-  }
-  return formData;
-}
-var name$3 = "AI_DownloadError";
-var marker$3 = `vercel.ai.error.${name$3}`;
-var symbol$3 = Symbol.for(marker$3);
-var _a$3, _b$3;
-var DownloadError = class extends (_b$3 = AISDKError$3, _a$3 = symbol$3, _b$3) {
-  constructor({
-    url,
-    statusCode,
-    statusText,
-    cause,
-    message = cause == null ? `Failed to download ${url}: ${statusCode} ${statusText}` : `Failed to download ${url}: ${cause}`
-  }) {
-    super({ name: name$3, message, cause });
-    this[_a$3] = true;
-    this.url = url;
-    this.statusCode = statusCode;
-    this.statusText = statusText;
-  }
-  static isInstance(error) {
-    return AISDKError$3.hasMarker(error, marker$3);
-  }
-};
-
-// src/download-blob.ts
-async function downloadBlob(url) {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new DownloadError({
-        url,
-        statusCode: response.status,
-        statusText: response.statusText
-      });
-    }
-    return await response.blob();
-  } catch (error) {
-    if (DownloadError.isInstance(error)) {
-      throw error;
-    }
-    throw new DownloadError({ url, cause: error });
-  }
-}
-var createIdGenerator$3 = ({
-  prefix,
-  size = 16,
-  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  separator = "-"
-} = {}) => {
-  const generator = () => {
-    const alphabetLength = alphabet.length;
-    const chars = new Array(size);
-    for (let i = 0; i < size; i++) {
-      chars[i] = alphabet[Math.random() * alphabetLength | 0];
-    }
-    return chars.join("");
-  };
-  if (prefix == null) {
-    return generator;
-  }
-  if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError$3({
-      argument: "separator",
-      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
-    });
-  }
-  return () => `${prefix}${separator}${generator()}`;
-};
-createIdGenerator$3();
-
-// src/is-abort-error.ts
-function isAbortError$3(error) {
-  return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
-  error.name === "TimeoutError");
-}
-
-// src/handle-fetch-error.ts
-var FETCH_FAILED_ERROR_MESSAGES$3 = ["fetch failed", "failed to fetch"];
-function handleFetchError$3({
-  error,
-  url,
-  requestBodyValues
-}) {
-  if (isAbortError$3(error)) {
-    return error;
-  }
-  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES$3.includes(error.message.toLowerCase())) {
-    const cause = error.cause;
-    if (cause != null) {
-      return new APICallError$3({
-        message: `Cannot connect to API: ${cause.message}`,
-        cause,
-        url,
-        requestBodyValues,
-        isRetryable: true
-        // retry when network error
-      });
-    }
-  }
-  return error;
-}
-
-// src/get-runtime-environment-user-agent.ts
-function getRuntimeEnvironmentUserAgent$3(globalThisAny = globalThis) {
-  var _a2, _b2, _c;
-  if (globalThisAny.window) {
-    return `runtime/browser`;
-  }
-  if ((_a2 = globalThisAny.navigator) == null ? void 0 : _a2.userAgent) {
-    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
-  }
-  if ((_c = (_b2 = globalThisAny.process) == null ? void 0 : _b2.versions) == null ? void 0 : _c.node) {
-    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
-  }
-  if (globalThisAny.EdgeRuntime) {
-    return `runtime/vercel-edge`;
-  }
-  return "runtime/unknown";
-}
-
-// src/normalize-headers.ts
-function normalizeHeaders$3(headers) {
-  if (headers == null) {
-    return {};
-  }
-  const normalized = {};
-  if (headers instanceof Headers) {
-    headers.forEach((value, key) => {
-      normalized[key.toLowerCase()] = value;
-    });
-  } else {
-    if (!Array.isArray(headers)) {
-      headers = Object.entries(headers);
-    }
-    for (const [key, value] of headers) {
-      if (value != null) {
-        normalized[key.toLowerCase()] = value;
-      }
-    }
-  }
-  return normalized;
-}
-
-// src/with-user-agent-suffix.ts
-function withUserAgentSuffix$3(headers, ...userAgentSuffixParts) {
-  const normalizedHeaders = new Headers(normalizeHeaders$3(headers));
-  const currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
-  normalizedHeaders.set(
-    "user-agent",
-    [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")
-  );
-  return Object.fromEntries(normalizedHeaders.entries());
-}
-
-// src/version.ts
-var VERSION$6 = "4.0.8" ;
-
-// src/secure-json-parse.ts
-var suspectProtoRx$3 = /"__proto__"\s*:/;
-var suspectConstructorRx$3 = /"constructor"\s*:/;
-function _parse$3(text) {
-  const obj = JSON.parse(text);
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-  if (suspectProtoRx$3.test(text) === false && suspectConstructorRx$3.test(text) === false) {
-    return obj;
-  }
-  return filter$3(obj);
-}
-function filter$3(obj) {
-  let next = [obj];
-  while (next.length) {
-    const nodes = next;
-    next = [];
-    for (const node of nodes) {
-      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      if (Object.prototype.hasOwnProperty.call(node, "constructor") && Object.prototype.hasOwnProperty.call(node.constructor, "prototype")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      for (const key in node) {
-        const value = node[key];
-        if (value && typeof value === "object") {
-          next.push(value);
-        }
-      }
-    }
-  }
-  return obj;
-}
-function secureJsonParse$3(text) {
-  const { stackTraceLimit } = Error;
-  try {
-    Error.stackTraceLimit = 0;
-  } catch (e) {
-    return _parse$3(text);
-  }
-  try {
-    return _parse$3(text);
-  } finally {
-    Error.stackTraceLimit = stackTraceLimit;
-  }
-}
-
-// src/add-additional-properties-to-json-schema.ts
-function addAdditionalPropertiesToJsonSchema$3(jsonSchema2) {
-  if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
-    jsonSchema2.additionalProperties = false;
-    const { properties } = jsonSchema2;
-    if (properties != null) {
-      for (const key of Object.keys(properties)) {
-        properties[key] = visit$3(properties[key]);
-      }
-    }
-  }
-  if (jsonSchema2.items != null) {
-    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit$3) : visit$3(jsonSchema2.items);
-  }
-  if (jsonSchema2.anyOf != null) {
-    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit$3);
-  }
-  if (jsonSchema2.allOf != null) {
-    jsonSchema2.allOf = jsonSchema2.allOf.map(visit$3);
-  }
-  if (jsonSchema2.oneOf != null) {
-    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit$3);
-  }
-  const { definitions } = jsonSchema2;
-  if (definitions != null) {
-    for (const key of Object.keys(definitions)) {
-      definitions[key] = visit$3(definitions[key]);
-    }
-  }
-  return jsonSchema2;
-}
-function visit$3(def) {
-  if (typeof def === "boolean") return def;
-  return addAdditionalPropertiesToJsonSchema$3(def);
-}
-
-// src/to-json-schema/zod3-to-json-schema/options.ts
-var ignoreOverride$3 = Symbol(
-  "Let zodToJsonSchema decide on which parser to use"
-);
-var defaultOptions$3 = {
-  name: void 0,
-  $refStrategy: "root",
-  basePath: ["#"],
-  effectStrategy: "input",
-  pipeStrategy: "all",
-  dateStrategy: "format:date-time",
-  mapStrategy: "entries",
-  removeAdditionalStrategy: "passthrough",
-  allowedAdditionalProperties: true,
-  rejectedAdditionalProperties: false,
-  definitionPath: "definitions",
-  strictUnions: false,
-  definitions: {},
-  errorMessages: false,
-  patternStrategy: "escape",
-  applyRegexFlags: false,
-  emailStrategy: "format:email",
-  base64Strategy: "contentEncoding:base64",
-  nameStrategy: "ref"
-};
-var getDefaultOptions$3 = (options) => typeof options === "string" ? {
-  ...defaultOptions$3,
-  name: options
-} : {
-  ...defaultOptions$3,
-  ...options
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/any.ts
-function parseAnyDef$3() {
-  return {};
-}
-function parseArrayDef$3(def, refs) {
-  var _a2, _b2, _c;
-  const res = {
-    type: "array"
-  };
-  if (((_a2 = def.type) == null ? void 0 : _a2._def) && ((_c = (_b2 = def.type) == null ? void 0 : _b2._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef$3(def.type._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "items"]
-    });
-  }
-  if (def.minLength) {
-    res.minItems = def.minLength.value;
-  }
-  if (def.maxLength) {
-    res.maxItems = def.maxLength.value;
-  }
-  if (def.exactLength) {
-    res.minItems = def.exactLength.value;
-    res.maxItems = def.exactLength.value;
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/bigint.ts
-function parseBigintDef$3(def) {
-  const res = {
-    type: "integer",
-    format: "int64"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/boolean.ts
-function parseBooleanDef$3() {
-  return { type: "boolean" };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/branded.ts
-function parseBrandedDef$3(_def, refs) {
-  return parseDef$3(_def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/catch.ts
-var parseCatchDef$3 = (def, refs) => {
-  return parseDef$3(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/date.ts
-function parseDateDef$3(def, refs, overrideDateStrategy) {
-  const strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
-  if (Array.isArray(strategy)) {
-    return {
-      anyOf: strategy.map((item, i) => parseDateDef$3(def, refs, item))
-    };
-  }
-  switch (strategy) {
-    case "string":
-    case "format:date-time":
-      return {
-        type: "string",
-        format: "date-time"
-      };
-    case "format:date":
-      return {
-        type: "string",
-        format: "date"
-      };
-    case "integer":
-      return integerDateParser$3(def);
-  }
-}
-var integerDateParser$3 = (def) => {
-  const res = {
-    type: "integer",
-    format: "unix-time"
-  };
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        res.minimum = check.value;
-        break;
-      case "max":
-        res.maximum = check.value;
-        break;
-    }
-  }
-  return res;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/default.ts
-function parseDefaultDef$3(_def, refs) {
-  return {
-    ...parseDef$3(_def.innerType._def, refs),
-    default: _def.defaultValue()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/effects.ts
-function parseEffectsDef$3(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef$3(_def.schema._def, refs) : parseAnyDef$3();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/enum.ts
-function parseEnumDef$3(def) {
-  return {
-    type: "string",
-    enum: Array.from(def.values)
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/intersection.ts
-var isJsonSchema7AllOfType$3 = (type) => {
-  if ("type" in type && type.type === "string") return false;
-  return "allOf" in type;
-};
-function parseIntersectionDef$3(def, refs) {
-  const allOf = [
-    parseDef$3(def.left._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "0"]
-    }),
-    parseDef$3(def.right._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "1"]
-    })
-  ].filter((x) => !!x);
-  const mergedAllOf = [];
-  allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType$3(schema)) {
-      mergedAllOf.push(...schema.allOf);
-    } else {
-      let nestedSchema = schema;
-      if ("additionalProperties" in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema;
-        nestedSchema = rest;
-      }
-      mergedAllOf.push(nestedSchema);
-    }
-  });
-  return mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/literal.ts
-function parseLiteralDef$3(def) {
-  const parsedType = typeof def.value;
-  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
-    return {
-      type: Array.isArray(def.value) ? "array" : "object"
-    };
-  }
-  return {
-    type: parsedType === "bigint" ? "integer" : parsedType,
-    const: def.value
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/string.ts
-var emojiRegex$3 = void 0;
-var zodPatterns$3 = {
-  /**
-   * `c` was changed to `[cC]` to replicate /i flag
-   */
-  cuid: /^[cC][^\s-]{8,}$/,
-  cuid2: /^[0-9a-z]+$/,
-  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
-  /**
-   * `a-z` was added to replicate /i flag
-   */
-  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
-  /**
-   * Constructed a valid Unicode RegExp
-   *
-   * Lazily instantiate since this type of regex isn't supported
-   * in all envs (e.g. React Native).
-   *
-   * See:
-   * https://github.com/colinhacks/zod/issues/2433
-   * Fix in Zod:
-   * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
-   */
-  emoji: () => {
-    if (emojiRegex$3 === void 0) {
-      emojiRegex$3 = RegExp(
-        "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$",
-        "u"
-      );
-    }
-    return emojiRegex$3;
-  },
-  /**
-   * Unused
-   */
-  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
-  /**
-   * Unused
-   */
-  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
-  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
-  /**
-   * Unused
-   */
-  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
-  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
-  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
-  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
-  nanoid: /^[a-zA-Z0-9_-]{21}$/,
-  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
-};
-function parseStringDef$3(def, refs) {
-  const res = {
-    type: "string"
-  };
-  if (def.checks) {
-    for (const check of def.checks) {
-      switch (check.kind) {
-        case "min":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          break;
-        case "max":
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "email":
-          switch (refs.emailStrategy) {
-            case "format:email":
-              addFormat$3(res, "email", check.message, refs);
-              break;
-            case "format:idn-email":
-              addFormat$3(res, "idn-email", check.message, refs);
-              break;
-            case "pattern:zod":
-              addPattern$3(res, zodPatterns$3.email, check.message, refs);
-              break;
-          }
-          break;
-        case "url":
-          addFormat$3(res, "uri", check.message, refs);
-          break;
-        case "uuid":
-          addFormat$3(res, "uuid", check.message, refs);
-          break;
-        case "regex":
-          addPattern$3(res, check.regex, check.message, refs);
-          break;
-        case "cuid":
-          addPattern$3(res, zodPatterns$3.cuid, check.message, refs);
-          break;
-        case "cuid2":
-          addPattern$3(res, zodPatterns$3.cuid2, check.message, refs);
-          break;
-        case "startsWith":
-          addPattern$3(
-            res,
-            RegExp(`^${escapeLiteralCheckValue$3(check.value, refs)}`),
-            check.message,
-            refs
-          );
-          break;
-        case "endsWith":
-          addPattern$3(
-            res,
-            RegExp(`${escapeLiteralCheckValue$3(check.value, refs)}$`),
-            check.message,
-            refs
-          );
-          break;
-        case "datetime":
-          addFormat$3(res, "date-time", check.message, refs);
-          break;
-        case "date":
-          addFormat$3(res, "date", check.message, refs);
-          break;
-        case "time":
-          addFormat$3(res, "time", check.message, refs);
-          break;
-        case "duration":
-          addFormat$3(res, "duration", check.message, refs);
-          break;
-        case "length":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "includes": {
-          addPattern$3(
-            res,
-            RegExp(escapeLiteralCheckValue$3(check.value, refs)),
-            check.message,
-            refs
-          );
-          break;
-        }
-        case "ip": {
-          if (check.version !== "v6") {
-            addFormat$3(res, "ipv4", check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addFormat$3(res, "ipv6", check.message, refs);
-          }
-          break;
-        }
-        case "base64url":
-          addPattern$3(res, zodPatterns$3.base64url, check.message, refs);
-          break;
-        case "jwt":
-          addPattern$3(res, zodPatterns$3.jwt, check.message, refs);
-          break;
-        case "cidr": {
-          if (check.version !== "v6") {
-            addPattern$3(res, zodPatterns$3.ipv4Cidr, check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addPattern$3(res, zodPatterns$3.ipv6Cidr, check.message, refs);
-          }
-          break;
-        }
-        case "emoji":
-          addPattern$3(res, zodPatterns$3.emoji(), check.message, refs);
-          break;
-        case "ulid": {
-          addPattern$3(res, zodPatterns$3.ulid, check.message, refs);
-          break;
-        }
-        case "base64": {
-          switch (refs.base64Strategy) {
-            case "format:binary": {
-              addFormat$3(res, "binary", check.message, refs);
-              break;
-            }
-            case "contentEncoding:base64": {
-              res.contentEncoding = "base64";
-              break;
-            }
-            case "pattern:zod": {
-              addPattern$3(res, zodPatterns$3.base64, check.message, refs);
-              break;
-            }
-          }
-          break;
-        }
-        case "nanoid": {
-          addPattern$3(res, zodPatterns$3.nanoid, check.message, refs);
-        }
-      }
-    }
-  }
-  return res;
-}
-function escapeLiteralCheckValue$3(literal, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric$3(literal) : literal;
-}
-var ALPHA_NUMERIC$3 = new Set(
-  "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789"
-);
-function escapeNonAlphaNumeric$3(source) {
-  let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC$3.has(source[i])) {
-      result += "\\";
-    }
-    result += source[i];
-  }
-  return result;
-}
-function addFormat$3(schema, value, message, refs) {
-  var _a2;
-  if (schema.format || ((_a2 = schema.anyOf) == null ? void 0 : _a2.some((x) => x.format))) {
-    if (!schema.anyOf) {
-      schema.anyOf = [];
-    }
-    if (schema.format) {
-      schema.anyOf.push({
-        format: schema.format
-      });
-      delete schema.format;
-    }
-    schema.anyOf.push({
-      format: value,
-      ...message && refs.errorMessages && { errorMessage: { format: message } }
-    });
-  } else {
-    schema.format = value;
-  }
-}
-function addPattern$3(schema, regex, message, refs) {
-  var _a2;
-  if (schema.pattern || ((_a2 = schema.allOf) == null ? void 0 : _a2.some((x) => x.pattern))) {
-    if (!schema.allOf) {
-      schema.allOf = [];
-    }
-    if (schema.pattern) {
-      schema.allOf.push({
-        pattern: schema.pattern
-      });
-      delete schema.pattern;
-    }
-    schema.allOf.push({
-      pattern: stringifyRegExpWithFlags$3(regex, refs),
-      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
-    });
-  } else {
-    schema.pattern = stringifyRegExpWithFlags$3(regex, refs);
-  }
-}
-function stringifyRegExpWithFlags$3(regex, refs) {
-  var _a2;
-  if (!refs.applyRegexFlags || !regex.flags) {
-    return regex.source;
-  }
-  const flags = {
-    i: regex.flags.includes("i"),
-    // Case-insensitive
-    m: regex.flags.includes("m"),
-    // `^` and `$` matches adjacent to newline characters
-    s: regex.flags.includes("s")
-    // `.` matches newlines
-  };
-  const source = flags.i ? regex.source.toLowerCase() : regex.source;
-  let pattern = "";
-  let isEscaped = false;
-  let inCharGroup = false;
-  let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
-    if (isEscaped) {
-      pattern += source[i];
-      isEscaped = false;
-      continue;
-    }
-    if (flags.i) {
-      if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
-          if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
-            inCharRange = false;
-          } else if (source[i + 1] === "-" && ((_a2 = source[i + 2]) == null ? void 0 : _a2.match(/[a-z]/))) {
-            pattern += source[i];
-            inCharRange = true;
-          } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
-          }
-          continue;
-        }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
-        continue;
-      }
-    }
-    if (flags.m) {
-      if (source[i] === "^") {
-        pattern += `(^|(?<=[\r
-]))`;
-        continue;
-      } else if (source[i] === "$") {
-        pattern += `($|(?=[\r
-]))`;
-        continue;
-      }
-    }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
-]`;
-      continue;
-    }
-    pattern += source[i];
-    if (source[i] === "\\") {
-      isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
-      inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
-      inCharGroup = true;
-    }
-  }
-  try {
-    new RegExp(pattern);
-  } catch (e) {
-    console.warn(
-      `Could not convert regex pattern at ${refs.currentPath.join(
-        "/"
-      )} to a flag-independent form! Falling back to the flag-ignorant source`
-    );
-    return regex.source;
-  }
-  return pattern;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/record.ts
-function parseRecordDef$3(def, refs) {
-  var _a2, _b2, _c, _d, _e, _f;
-  const schema = {
-    type: "object",
-    additionalProperties: (_a2 = parseDef$3(def.valueType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    })) != null ? _a2 : refs.allowedAdditionalProperties
-  };
-  if (((_b2 = def.keyType) == null ? void 0 : _b2._def.typeName) === ZodFirstPartyTypeKind.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
-    const { type, ...keyType } = parseStringDef$3(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      ...schema,
-      propertyNames: {
-        enum: def.keyType._def.values
-      }
-    };
-  } else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
-    const { type, ...keyType } = parseBrandedDef$3(
-      def.keyType._def,
-      refs
-    );
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/map.ts
-function parseMapDef$3(def, refs) {
-  if (refs.mapStrategy === "record") {
-    return parseRecordDef$3(def, refs);
-  }
-  const keys = parseDef$3(def.keyType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef$3();
-  const values = parseDef$3(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef$3();
-  return {
-    type: "array",
-    maxItems: 125,
-    items: {
-      type: "array",
-      items: [keys, values],
-      minItems: 2,
-      maxItems: 2
-    }
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/native-enum.ts
-function parseNativeEnumDef$3(def) {
-  const object = def.values;
-  const actualKeys = Object.keys(def.values).filter((key) => {
-    return typeof object[object[key]] !== "number";
-  });
-  const actualValues = actualKeys.map((key) => object[key]);
-  const parsedTypes = Array.from(
-    new Set(actualValues.map((values) => typeof values))
-  );
-  return {
-    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
-    enum: actualValues
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/never.ts
-function parseNeverDef$3() {
-  return { not: parseAnyDef$3() };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/null.ts
-function parseNullDef$3() {
-  return {
-    type: "null"
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/union.ts
-var primitiveMappings$3 = {
-  ZodString: "string",
-  ZodNumber: "number",
-  ZodBigInt: "integer",
-  ZodBoolean: "boolean",
-  ZodNull: "null"
-};
-function parseUnionDef$3(def, refs) {
-  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
-  if (options.every(
-    (x) => x._def.typeName in primitiveMappings$3 && (!x._def.checks || !x._def.checks.length)
-  )) {
-    const types = options.reduce((types2, x) => {
-      const type = primitiveMappings$3[x._def.typeName];
-      return type && !types2.includes(type) ? [...types2, type] : types2;
-    }, []);
-    return {
-      type: types.length > 1 ? types : types[0]
-    };
-  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
-    const types = options.reduce(
-      (acc, x) => {
-        const type = typeof x._def.value;
-        switch (type) {
-          case "string":
-          case "number":
-          case "boolean":
-            return [...acc, type];
-          case "bigint":
-            return [...acc, "integer"];
-          case "object":
-            if (x._def.value === null) return [...acc, "null"];
-          case "symbol":
-          case "undefined":
-          case "function":
-          default:
-            return acc;
-        }
-      },
-      []
-    );
-    if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
-      return {
-        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
-        enum: options.reduce(
-          (acc, x) => {
-            return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
-          },
-          []
-        )
-      };
-    }
-  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
-    return {
-      type: "string",
-      enum: options.reduce(
-        (acc, x) => [
-          ...acc,
-          ...x._def.values.filter((x2) => !acc.includes(x2))
-        ],
-        []
-      )
-    };
-  }
-  return asAnyOf$3(def, refs);
-}
-var asAnyOf$3 = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map(
-    (x, i) => parseDef$3(x._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "anyOf", `${i}`]
-    })
-  ).filter(
-    (x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0)
-  );
-  return anyOf.length ? { anyOf } : void 0;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/nullable.ts
-function parseNullableDef$3(def, refs) {
-  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(
-    def.innerType._def.typeName
-  ) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
-    return {
-      type: [
-        primitiveMappings$3[def.innerType._def.typeName],
-        "null"
-      ]
-    };
-  }
-  const base = parseDef$3(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "0"]
-  });
-  return base && { anyOf: [base, { type: "null" }] };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/number.ts
-function parseNumberDef$3(def) {
-  const res = {
-    type: "number"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "int":
-        res.type = "integer";
-        break;
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/object.ts
-function parseObjectDef$3(def, refs) {
-  const result = {
-    type: "object",
-    properties: {}
-  };
-  const required = [];
-  const shape = def.shape();
-  for (const propName in shape) {
-    let propDef = shape[propName];
-    if (propDef === void 0 || propDef._def === void 0) {
-      continue;
-    }
-    const propOptional = safeIsOptional$3(propDef);
-    const parsedDef = parseDef$3(propDef._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "properties", propName],
-      propertyPath: [...refs.currentPath, "properties", propName]
-    });
-    if (parsedDef === void 0) {
-      continue;
-    }
-    result.properties[propName] = parsedDef;
-    if (!propOptional) {
-      required.push(propName);
-    }
-  }
-  if (required.length) {
-    result.required = required;
-  }
-  const additionalProperties = decideAdditionalProperties$3(def, refs);
-  if (additionalProperties !== void 0) {
-    result.additionalProperties = additionalProperties;
-  }
-  return result;
-}
-function decideAdditionalProperties$3(def, refs) {
-  if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef$3(def.catchall._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    });
-  }
-  switch (def.unknownKeys) {
-    case "passthrough":
-      return refs.allowedAdditionalProperties;
-    case "strict":
-      return refs.rejectedAdditionalProperties;
-    case "strip":
-      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
-  }
-}
-function safeIsOptional$3(schema) {
-  try {
-    return schema.isOptional();
-  } catch (e) {
-    return true;
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/optional.ts
-var parseOptionalDef$3 = (def, refs) => {
-  var _a2;
-  if (refs.currentPath.toString() === ((_a2 = refs.propertyPath) == null ? void 0 : _a2.toString())) {
-    return parseDef$3(def.innerType._def, refs);
-  }
-  const innerSchema = parseDef$3(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "1"]
-  });
-  return innerSchema ? { anyOf: [{ not: parseAnyDef$3() }, innerSchema] } : parseAnyDef$3();
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/pipeline.ts
-var parsePipelineDef$3 = (def, refs) => {
-  if (refs.pipeStrategy === "input") {
-    return parseDef$3(def.in._def, refs);
-  } else if (refs.pipeStrategy === "output") {
-    return parseDef$3(def.out._def, refs);
-  }
-  const a = parseDef$3(def.in._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", "0"]
-  });
-  const b = parseDef$3(def.out._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
-  });
-  return {
-    allOf: [a, b].filter((x) => x !== void 0)
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/promise.ts
-function parsePromiseDef$3(def, refs) {
-  return parseDef$3(def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/set.ts
-function parseSetDef$3(def, refs) {
-  const items = parseDef$3(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items"]
-  });
-  const schema = {
-    type: "array",
-    uniqueItems: true,
-    items
-  };
-  if (def.minSize) {
-    schema.minItems = def.minSize.value;
-  }
-  if (def.maxSize) {
-    schema.maxItems = def.maxSize.value;
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/tuple.ts
-function parseTupleDef$3(def, refs) {
-  if (def.rest) {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$3(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      ),
-      additionalItems: parseDef$3(def.rest._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "additionalItems"]
-      })
-    };
-  } else {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      maxItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$3(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      )
-    };
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/undefined.ts
-function parseUndefinedDef$3() {
-  return {
-    not: parseAnyDef$3()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/unknown.ts
-function parseUnknownDef$3() {
-  return parseAnyDef$3();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/readonly.ts
-var parseReadonlyDef$3 = (def, refs) => {
-  return parseDef$3(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/select-parser.ts
-var selectParser$3 = (def, typeName, refs) => {
-  switch (typeName) {
-    case ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef$3(def);
-    case ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef$3(def);
-    case ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef$3();
-    case ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef$3();
-    case ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef$3();
-    case ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodUnion:
-    case ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef$3(def);
-    case ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef$3(def);
-    case ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef$3(def);
-    case ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodLazy:
-      return () => def.getter()._def;
-    case ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodNaN:
-    case ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef$3();
-    case ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef$3();
-    case ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef$3();
-    case ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef$3(def, refs);
-    case ZodFirstPartyTypeKind.ZodFunction:
-    case ZodFirstPartyTypeKind.ZodVoid:
-    case ZodFirstPartyTypeKind.ZodSymbol:
-      return void 0;
-    default:
-      return /* @__PURE__ */ ((_) => void 0)();
-  }
-};
-
-// src/to-json-schema/zod3-to-json-schema/get-relative-path.ts
-var getRelativePath$3 = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i]) break;
-  }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
-};
-
-// src/to-json-schema/zod3-to-json-schema/parse-def.ts
-function parseDef$3(def, refs, forceResolution = false) {
-  var _a2;
-  const seenItem = refs.seen.get(def);
-  if (refs.override) {
-    const overrideResult = (_a2 = refs.override) == null ? void 0 : _a2.call(
-      refs,
-      def,
-      refs,
-      seenItem,
-      forceResolution
-    );
-    if (overrideResult !== ignoreOverride$3) {
-      return overrideResult;
-    }
-  }
-  if (seenItem && !forceResolution) {
-    const seenSchema = get$ref$3(seenItem, refs);
-    if (seenSchema !== void 0) {
-      return seenSchema;
-    }
-  }
-  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
-  refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser$3(def, def.typeName, refs);
-  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef$3(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
-  if (jsonSchema2) {
-    addMeta$3(def, refs, jsonSchema2);
-  }
-  if (refs.postProcess) {
-    const postProcessResult = refs.postProcess(jsonSchema2, def, refs);
-    newItem.jsonSchema = jsonSchema2;
-    return postProcessResult;
-  }
-  newItem.jsonSchema = jsonSchema2;
-  return jsonSchema2;
-}
-var get$ref$3 = (item, refs) => {
-  switch (refs.$refStrategy) {
-    case "root":
-      return { $ref: item.path.join("/") };
-    case "relative":
-      return { $ref: getRelativePath$3(refs.currentPath, item.path) };
-    case "none":
-    case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
-        console.warn(
-          `Recursive reference detected at ${refs.currentPath.join(
-            "/"
-          )}! Defaulting to any`
-        );
-        return parseAnyDef$3();
-      }
-      return refs.$refStrategy === "seen" ? parseAnyDef$3() : void 0;
-    }
-  }
-};
-var addMeta$3 = (def, refs, jsonSchema2) => {
-  if (def.description) {
-    jsonSchema2.description = def.description;
-  }
-  return jsonSchema2;
-};
-
-// src/to-json-schema/zod3-to-json-schema/refs.ts
-var getRefs$3 = (options) => {
-  const _options = getDefaultOptions$3(options);
-  const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
-  return {
-    ..._options,
-    currentPath,
-    propertyPath: void 0,
-    seen: new Map(
-      Object.entries(_options.definitions).map(([name2, def]) => [
-        def._def,
-        {
-          def: def._def,
-          path: [..._options.basePath, _options.definitionPath, name2],
-          // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
-          jsonSchema: void 0
-        }
-      ])
-    )
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/zod3-to-json-schema.ts
-var zod3ToJsonSchema$3 = (schema, options) => {
-  var _a2;
-  const refs = getRefs$3(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce(
-    (acc, [name3, schema2]) => {
-      var _a3;
-      return {
-        ...acc,
-        [name3]: (_a3 = parseDef$3(
-          schema2._def,
-          {
-            ...refs,
-            currentPath: [...refs.basePath, refs.definitionPath, name3]
-          },
-          true
-        )) != null ? _a3 : parseAnyDef$3()
-      };
-    },
-    {}
-  ) : void 0;
-  const name2 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name;
-  const main = (_a2 = parseDef$3(
-    schema._def,
-    name2 === void 0 ? refs : {
-      ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name2]
-    },
-    false
-  )) != null ? _a2 : parseAnyDef$3();
-  const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
-  if (title !== void 0) {
-    main.title = title;
-  }
-  const combined = name2 === void 0 ? definitions ? {
-    ...main,
-    [refs.definitionPath]: definitions
-  } : main : {
-    $ref: [
-      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
-      refs.definitionPath,
-      name2
-    ].join("/"),
-    [refs.definitionPath]: {
-      ...definitions,
-      [name2]: main
-    }
-  };
-  combined.$schema = "http://json-schema.org/draft-07/schema#";
-  return combined;
-};
-
-// src/schema.ts
-var schemaSymbol$3 = Symbol.for("vercel.ai.schema");
-function jsonSchema$3(jsonSchema2, {
-  validate
-} = {}) {
-  return {
-    [schemaSymbol$3]: true,
-    _type: void 0,
-    // should never be used directly
-    get jsonSchema() {
-      if (typeof jsonSchema2 === "function") {
-        jsonSchema2 = jsonSchema2();
-      }
-      return jsonSchema2;
-    },
-    validate
-  };
-}
-function isSchema$3(value) {
-  return typeof value === "object" && value !== null && schemaSymbol$3 in value && value[schemaSymbol$3] === true && "jsonSchema" in value && "validate" in value;
-}
-function asSchema$3(schema) {
-  return schema == null ? jsonSchema$3({ properties: {}, additionalProperties: false }) : isSchema$3(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema$3(schema) : standardSchema$3(schema) : schema();
-}
-function standardSchema$3(standardSchema2) {
-  return jsonSchema$3(
-    () => addAdditionalPropertiesToJsonSchema$3(
-      standardSchema2["~standard"].jsonSchema.input({
-        target: "draft-07"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await standardSchema2["~standard"].validate(value);
-        return "value" in result ? { success: true, value: result.value } : {
-          success: false,
-          error: new TypeValidationError$3({
-            value,
-            cause: result.issues
-          })
-        };
-      }
-    }
-  );
-}
-function zod3Schema$3(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$3(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => zod3ToJsonSchema$3(zodSchema2, {
-      $refStrategy: useReferences ? "root" : "none"
-    }),
-    {
-      validate: async (value) => {
-        const result = await zodSchema2.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function zod4Schema$3(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$3(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => addAdditionalPropertiesToJsonSchema$3(
-      toJSONSchema(zodSchema2, {
-        target: "draft-7",
-        io: "input",
-        reused: useReferences ? "ref" : "inline"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await safeParseAsync(zodSchema2, value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function isZod4Schema$3(zodSchema2) {
-  return "_zod" in zodSchema2;
-}
-function zodSchema$3(zodSchema2, options) {
-  if (isZod4Schema$3(zodSchema2)) {
-    return zod4Schema$3(zodSchema2);
-  } else {
-    return zod3Schema$3(zodSchema2);
-  }
-}
-
-// src/validate-types.ts
-async function validateTypes$3({
-  value,
-  schema
-}) {
-  const result = await safeValidateTypes$3({ value, schema });
-  if (!result.success) {
-    throw TypeValidationError$3.wrap({ value, cause: result.error });
-  }
-  return result.value;
-}
-async function safeValidateTypes$3({
-  value,
-  schema
-}) {
-  const actualSchema = asSchema$3(schema);
-  try {
-    if (actualSchema.validate == null) {
-      return { success: true, value, rawValue: value };
-    }
-    const result = await actualSchema.validate(value);
-    if (result.success) {
-      return { success: true, value: result.value, rawValue: value };
-    }
-    return {
-      success: false,
-      error: TypeValidationError$3.wrap({ value, cause: result.error }),
-      rawValue: value
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: TypeValidationError$3.wrap({ value, cause: error }),
-      rawValue: value
-    };
-  }
-}
-
-// src/parse-json.ts
-async function parseJSON$3({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$3(text);
-    if (schema == null) {
-      return value;
-    }
-    return validateTypes$3({ value, schema });
-  } catch (error) {
-    if (JSONParseError$3.isInstance(error) || TypeValidationError$3.isInstance(error)) {
-      throw error;
-    }
-    throw new JSONParseError$3({ text, cause: error });
-  }
-}
-async function safeParseJSON$3({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$3(text);
-    if (schema == null) {
-      return { success: true, value, rawValue: value };
-    }
-    return await safeValidateTypes$3({ value, schema });
-  } catch (error) {
-    return {
-      success: false,
-      error: JSONParseError$3.isInstance(error) ? error : new JSONParseError$3({ text, cause: error }),
-      rawValue: void 0
-    };
-  }
-}
-var getOriginalFetch2$3 = () => globalThis.fetch;
-var postJsonToApi$3 = async ({
-  url,
-  headers,
-  body,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi$3({
-  url,
-  headers: {
-    "Content-Type": "application/json",
-    ...headers
-  },
-  body: {
-    content: JSON.stringify(body),
-    values: body
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-});
-var postFormDataToApi = async ({
-  url,
-  headers,
-  formData,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi$3({
-  url,
-  headers,
-  body: {
-    content: formData,
-    values: Object.fromEntries(formData.entries())
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-});
-var postToApi$3 = async ({
-  url,
-  headers = {},
-  body,
-  successfulResponseHandler,
-  failedResponseHandler,
-  abortSignal,
-  fetch: fetch2 = getOriginalFetch2$3()
-}) => {
-  try {
-    const response = await fetch2(url, {
-      method: "POST",
-      headers: withUserAgentSuffix$3(
-        headers,
-        `ai-sdk/provider-utils/${VERSION$6}`,
-        getRuntimeEnvironmentUserAgent$3()
-      ),
-      body: body.content,
-      signal: abortSignal
-    });
-    const responseHeaders = extractResponseHeaders$3(response);
-    if (!response.ok) {
-      let errorInformation;
-      try {
-        errorInformation = await failedResponseHandler({
-          response,
-          url,
-          requestBodyValues: body.values
-        });
-      } catch (error) {
-        if (isAbortError$3(error) || APICallError$3.isInstance(error)) {
-          throw error;
-        }
-        throw new APICallError$3({
-          message: "Failed to process error response",
-          cause: error,
-          statusCode: response.status,
-          url,
-          responseHeaders,
-          requestBodyValues: body.values
-        });
-      }
-      throw errorInformation.value;
-    }
-    try {
-      return await successfulResponseHandler({
-        response,
-        url,
-        requestBodyValues: body.values
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        if (isAbortError$3(error) || APICallError$3.isInstance(error)) {
-          throw error;
-        }
-      }
-      throw new APICallError$3({
-        message: "Failed to process successful response",
-        cause: error,
-        statusCode: response.status,
-        url,
-        responseHeaders,
-        requestBodyValues: body.values
-      });
-    }
-  } catch (error) {
-    throw handleFetchError$3({ error, url, requestBodyValues: body.values });
-  }
-};
-var createJsonErrorResponseHandler$3 = ({
-  errorSchema,
-  errorToMessage,
-  isRetryable
-}) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const responseHeaders = extractResponseHeaders$3(response);
-  if (responseBody.trim() === "") {
-    return {
-      responseHeaders,
-      value: new APICallError$3({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-  try {
-    const parsedError = await parseJSON$3({
-      text: responseBody,
-      schema: errorSchema
-    });
-    return {
-      responseHeaders,
-      value: new APICallError$3({
-        message: errorToMessage(parsedError),
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        data: parsedError,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
-      })
-    };
-  } catch (parseError) {
-    return {
-      responseHeaders,
-      value: new APICallError$3({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-};
-var createJsonResponseHandler$3 = (responseSchema) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const parsedResult = await safeParseJSON$3({
-    text: responseBody,
-    schema: responseSchema
-  });
-  const responseHeaders = extractResponseHeaders$3(response);
-  if (!parsedResult.success) {
-    throw new APICallError$3({
-      message: "Invalid JSON response",
-      cause: parsedResult.error,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody,
-      url,
-      requestBodyValues
-    });
-  }
-  return {
-    responseHeaders,
-    value: parsedResult.value,
-    rawValue: parsedResult.rawValue
-  };
-};
-
-// src/chat/openai-compatible-chat-language-model.ts
-var openaiCompatibleErrorDataSchema$1 = object$1({
-  error: object$1({
-    message: string(),
-    // The additional information below is handled loosely to support
-    // OpenAI-compatible providers that have slightly different error
-    // responses:
-    type: string().nullish(),
-    param: any().nullish(),
-    code: union([string(), number$1()]).nullish()
-  })
-});
-var defaultOpenAICompatibleErrorStructure$1 = {
-  errorSchema: openaiCompatibleErrorDataSchema$1,
-  errorToMessage: (data) => data.error.message
-};
-object$1({
-  /**
-   * A unique identifier representing your end-user, which can help the provider to
-   * monitor and detect abuse.
-   */
-  user: string().optional(),
-  /**
-   * Reasoning effort for reasoning models. Defaults to `medium`.
-   */
-  reasoningEffort: string().optional(),
-  /**
-   * Controls the verbosity of the generated text. Defaults to `medium`.
-   */
-  textVerbosity: string().optional(),
-  /**
-   * Whether to use strict JSON schema validation.
-   * When true, the model uses constrained decoding to guarantee schema compliance.
-   * Only used when the provider supports structured outputs and a schema is provided.
-   *
-   * @default true
-   */
-  strictJsonSchema: boolean().optional()
-});
-var openaiCompatibleTokenUsageSchema$1 = object$1({
-  prompt_tokens: number$1().nullish(),
-  completion_tokens: number$1().nullish(),
-  total_tokens: number$1().nullish(),
-  prompt_tokens_details: object$1({
-    cached_tokens: number$1().nullish()
-  }).nullish(),
-  completion_tokens_details: object$1({
-    reasoning_tokens: number$1().nullish(),
-    accepted_prediction_tokens: number$1().nullish(),
-    rejected_prediction_tokens: number$1().nullish()
-  }).nullish()
-}).nullish();
-looseObject({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      message: object$1({
-        role: literal("assistant").nullish(),
-        content: string().nullish(),
-        reasoning_content: string().nullish(),
-        reasoning: string().nullish(),
-        tool_calls: array$1(
-          object$1({
-            id: string().nullish(),
-            function: object$1({
-              name: string(),
-              arguments: string()
-            }),
-            // Support for Google Gemini thought signatures via OpenAI compatibility
-            extra_content: object$1({
-              google: object$1({
-                thought_signature: string().nullish()
-              }).nullish()
-            }).nullish()
-          })
-        ).nullish()
-      }),
-      finish_reason: string().nullish()
-    })
-  ),
-  usage: openaiCompatibleTokenUsageSchema$1
-});
-looseObject({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      delta: object$1({
-        role: _enum(["assistant"]).nullish(),
-        content: string().nullish(),
-        // Most openai-compatible models set `reasoning_content`, but some
-        // providers serving `gpt-oss` set `reasoning`. See #7866
-        reasoning_content: string().nullish(),
-        reasoning: string().nullish(),
-        tool_calls: array$1(
-          object$1({
-            index: number$1().nullish(),
-            //google does not send index
-            id: string().nullish(),
-            function: object$1({
-              name: string().nullish(),
-              arguments: string().nullish()
-            }),
-            // Support for Google Gemini thought signatures via OpenAI compatibility
-            extra_content: object$1({
-              google: object$1({
-                thought_signature: string().nullish()
-              }).nullish()
-            }).nullish()
-          })
-        ).nullish()
-      }).nullish(),
-      finish_reason: string().nullish()
-    })
-  ),
-  usage: openaiCompatibleTokenUsageSchema$1
-});
-object$1({
-  /**
-   * Echo back the prompt in addition to the completion.
-   */
-  echo: boolean().optional(),
-  /**
-   * Modify the likelihood of specified tokens appearing in the completion.
-   *
-   * Accepts a JSON object that maps tokens (specified by their token ID in
-   * the GPT tokenizer) to an associated bias value from -100 to 100.
-   */
-  logitBias: record(string(), number$1()).optional(),
-  /**
-   * The suffix that comes after a completion of inserted text.
-   */
-  suffix: string().optional(),
-  /**
-   * A unique identifier representing your end-user, which can help providers to
-   * monitor and detect abuse.
-   */
-  user: string().optional()
-});
-var usageSchema$1 = object$1({
-  prompt_tokens: number$1(),
-  completion_tokens: number$1(),
-  total_tokens: number$1()
-});
-object$1({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      text: string(),
-      finish_reason: string()
-    })
-  ),
-  usage: usageSchema$1.nullish()
-});
-object$1({
-  /**
-   * The number of dimensions the resulting output embeddings should have.
-   * Only supported in text-embedding-3 and later models.
-   */
-  dimensions: number$1().optional(),
-  /**
-   * A unique identifier representing your end-user, which can help providers to
-   * monitor and detect abuse.
-   */
-  user: string().optional()
-});
-object$1({
-  data: array$1(object$1({ embedding: array$1(number$1()) })),
-  usage: object$1({ prompt_tokens: number$1() }).nullish(),
-  providerMetadata: record(string(), record(string(), any())).optional()
-});
-var OpenAICompatibleImageModel = class {
-  constructor(modelId, config) {
-    this.modelId = modelId;
-    this.config = config;
-    this.specificationVersion = "v3";
-    this.maxImagesPerCall = 10;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  /**
-   * The provider options key used to extract provider-specific options.
-   */
-  get providerOptionsKey() {
-    return this.config.provider.split(".")[0].trim();
-  }
-  // TODO: deprecate non-camelCase keys and remove in future major version
-  getArgs(providerOptions) {
-    return {
-      ...providerOptions[this.providerOptionsKey],
-      ...providerOptions[toCamelCase(this.providerOptionsKey)]
-    };
-  }
-  async doGenerate({
-    prompt,
-    n,
-    size,
-    aspectRatio,
-    seed,
-    providerOptions,
-    headers,
-    abortSignal,
-    files,
-    mask
-  }) {
-    var _a, _b, _c, _d, _e;
-    const warnings = [];
-    if (aspectRatio != null) {
-      warnings.push({
-        type: "unsupported",
-        feature: "aspectRatio",
-        details: "This model does not support aspect ratio. Use `size` instead."
-      });
-    }
-    if (seed != null) {
-      warnings.push({ type: "unsupported", feature: "seed" });
-    }
-    const currentDate = (_c = (_b = (_a = this.config._internal) == null ? void 0 : _a.currentDate) == null ? void 0 : _b.call(_a)) != null ? _c : /* @__PURE__ */ new Date();
-    const args = this.getArgs(providerOptions);
-    if (files != null && files.length > 0) {
-      const { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi({
-        url: this.config.url({
-          path: "/images/edits",
-          modelId: this.modelId
-        }),
-        headers: combineHeaders$3(this.config.headers(), headers),
-        formData: convertToFormData({
-          model: this.modelId,
-          prompt,
-          image: await Promise.all(files.map((file) => fileToBlob(file))),
-          mask: mask != null ? await fileToBlob(mask) : void 0,
-          n,
-          size,
-          ...args
-        }),
-        failedResponseHandler: createJsonErrorResponseHandler$3(
-          (_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure$1
-        ),
-        successfulResponseHandler: createJsonResponseHandler$3(
-          openaiCompatibleImageResponseSchema
-        ),
-        abortSignal,
-        fetch: this.config.fetch
-      });
-      return {
-        images: response2.data.map((item) => item.b64_json),
-        warnings,
-        response: {
-          timestamp: currentDate,
-          modelId: this.modelId,
-          headers: responseHeaders2
-        }
-      };
-    }
-    const { value: response, responseHeaders } = await postJsonToApi$3({
-      url: this.config.url({
-        path: "/images/generations",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders$3(this.config.headers(), headers),
-      body: {
-        model: this.modelId,
-        prompt,
-        n,
-        size,
-        ...args,
-        response_format: "b64_json"
-      },
-      failedResponseHandler: createJsonErrorResponseHandler$3(
-        (_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure$1
-      ),
-      successfulResponseHandler: createJsonResponseHandler$3(
-        openaiCompatibleImageResponseSchema
-      ),
-      abortSignal,
-      fetch: this.config.fetch
-    });
-    return {
-      images: response.data.map((item) => item.b64_json),
-      warnings,
-      response: {
-        timestamp: currentDate,
-        modelId: this.modelId,
-        headers: responseHeaders
-      }
-    };
-  }
-};
-var openaiCompatibleImageResponseSchema = object$1({
-  data: array$1(object$1({ b64_json: string() }))
-});
-async function fileToBlob(file) {
-  if (file.type === "url") {
-    return downloadBlob(file.url);
-  }
-  const data = file.data instanceof Uint8Array ? file.data : convertBase64ToUint8Array(file.data);
-  return new Blob([data], { type: file.mediaType });
-}
-function toCamelCase(str) {
-  return str.replace(/[_-]([a-z])/g, (g) => g[1].toUpperCase());
-}
-
-// src/errors/ai-sdk-error.ts
-var marker$2 = "vercel.ai.error";
-var symbol$2 = Symbol.for(marker$2);
-var _a$2, _b$2;
-var AISDKError$2 = class _AISDKError extends (_b$2 = Error, _a$2 = symbol$2, _b$2) {
-  /**
-   * Creates an AI SDK Error.
-   *
-   * @param {Object} params - The parameters for creating the error.
-   * @param {string} params.name - The name of the error.
-   * @param {string} params.message - The error message.
-   * @param {unknown} [params.cause] - The underlying cause of the error.
-   */
-  constructor({
-    name: name14,
-    message,
-    cause
-  }) {
-    super(message);
-    this[_a$2] = true;
-    this.name = name14;
-    this.cause = cause;
-  }
-  /**
-   * Checks if the given error is an AI SDK Error.
-   * @param {unknown} error - The error to check.
-   * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
-   */
-  static isInstance(error) {
-    return _AISDKError.hasMarker(error, marker$2);
-  }
-  static hasMarker(error, marker15) {
-    const markerSymbol = Symbol.for(marker15);
-    return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
-  }
-};
-
-// src/errors/api-call-error.ts
-var name$2 = "AI_APICallError";
-var marker2$2 = `vercel.ai.error.${name$2}`;
-var symbol2$2 = Symbol.for(marker2$2);
-var _a2$2, _b2$2;
-var APICallError$2 = class APICallError extends (_b2$2 = AISDKError$2, _a2$2 = symbol2$2, _b2$2) {
-  constructor({
-    message,
-    url,
-    requestBodyValues,
-    statusCode,
-    responseHeaders,
-    responseBody,
-    cause,
-    isRetryable = statusCode != null && (statusCode === 408 || // request timeout
-    statusCode === 409 || // conflict
-    statusCode === 429 || // too many requests
-    statusCode >= 500),
-    // server error
-    data
-  }) {
-    super({ name: name$2, message, cause });
-    this[_a2$2] = true;
-    this.url = url;
-    this.requestBodyValues = requestBodyValues;
-    this.statusCode = statusCode;
-    this.responseHeaders = responseHeaders;
-    this.responseBody = responseBody;
-    this.isRetryable = isRetryable;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker2$2);
-  }
-};
-
-// src/errors/empty-response-body-error.ts
-var name2$2 = "AI_EmptyResponseBodyError";
-var marker3$2 = `vercel.ai.error.${name2$2}`;
-var symbol3$2 = Symbol.for(marker3$2);
-var _a3$2, _b3$2;
-var EmptyResponseBodyError$2 = class EmptyResponseBodyError extends (_b3$2 = AISDKError$2, _a3$2 = symbol3$2, _b3$2) {
-  // used in isInstance
-  constructor({ message = "Empty response body" } = {}) {
-    super({ name: name2$2, message });
-    this[_a3$2] = true;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker3$2);
-  }
-};
-
-// src/errors/get-error-message.ts
-function getErrorMessage$2(error) {
-  if (error == null) {
-    return "unknown error";
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return JSON.stringify(error);
-}
-
-// src/errors/invalid-argument-error.ts
-var name3$2 = "AI_InvalidArgumentError";
-var marker4$2 = `vercel.ai.error.${name3$2}`;
-var symbol4$2 = Symbol.for(marker4$2);
-var _a4$2, _b4$2;
-var InvalidArgumentError$2 = class InvalidArgumentError extends (_b4$2 = AISDKError$2, _a4$2 = symbol4$2, _b4$2) {
-  constructor({
-    message,
-    cause,
-    argument
-  }) {
-    super({ name: name3$2, message, cause });
-    this[_a4$2] = true;
-    this.argument = argument;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker4$2);
-  }
-};
-
-// src/errors/json-parse-error.ts
-var name6$2 = "AI_JSONParseError";
-var marker7$2 = `vercel.ai.error.${name6$2}`;
-var symbol7$2 = Symbol.for(marker7$2);
-var _a7$2, _b7$2;
-var JSONParseError$2 = class JSONParseError extends (_b7$2 = AISDKError$2, _a7$2 = symbol7$2, _b7$2) {
-  constructor({ text, cause }) {
-    super({
-      name: name6$2,
-      message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage$2(cause)}`,
-      cause
-    });
-    this[_a7$2] = true;
-    this.text = text;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker7$2);
-  }
-};
-
-// src/errors/load-api-key-error.ts
-var name7$2 = "AI_LoadAPIKeyError";
-var marker8$2 = `vercel.ai.error.${name7$2}`;
-var symbol8$2 = Symbol.for(marker8$2);
-var _a8$2, _b8$2;
-var LoadAPIKeyError$2 = class LoadAPIKeyError extends (_b8$2 = AISDKError$2, _a8$2 = symbol8$2, _b8$2) {
-  // used in isInstance
-  constructor({ message }) {
-    super({ name: name7$2, message });
-    this[_a8$2] = true;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker8$2);
-  }
-};
-
-// src/errors/no-such-model-error.ts
-var name10$2 = "AI_NoSuchModelError";
-var marker11$2 = `vercel.ai.error.${name10$2}`;
-var symbol11$2 = Symbol.for(marker11$2);
-var _a11$2, _b11$2;
-var NoSuchModelError$2 = class NoSuchModelError extends (_b11$2 = AISDKError$2, _a11$2 = symbol11$2, _b11$2) {
-  constructor({
-    errorName = name10$2,
-    modelId,
-    modelType,
-    message = `No such ${modelType}: ${modelId}`
-  }) {
-    super({ name: errorName, message });
-    this[_a11$2] = true;
-    this.modelId = modelId;
-    this.modelType = modelType;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker11$2);
-  }
-};
-
-// src/errors/type-validation-error.ts
-var name12$2 = "AI_TypeValidationError";
-var marker13$2 = `vercel.ai.error.${name12$2}`;
-var symbol13$2 = Symbol.for(marker13$2);
-var _a13$2, _b13$2;
-var TypeValidationError$2 = class _TypeValidationError extends (_b13$2 = AISDKError$2, _a13$2 = symbol13$2, _b13$2) {
-  constructor({ value, cause }) {
-    super({
-      name: name12$2,
-      message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$2(cause)}`,
-      cause
-    });
-    this[_a13$2] = true;
-    this.value = value;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker13$2);
-  }
-  /**
-   * Wraps an error into a TypeValidationError.
-   * If the cause is already a TypeValidationError with the same value, it returns the cause.
-   * Otherwise, it creates a new TypeValidationError.
-   *
-   * @param {Object} params - The parameters for wrapping the error.
-   * @param {unknown} params.value - The value that failed validation.
-   * @param {unknown} params.cause - The original error or cause of the validation failure.
-   * @returns {TypeValidationError} A TypeValidationError instance.
-   */
-  static wrap({
-    value,
-    cause
-  }) {
-    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
-  }
-};
-
-// src/errors/unsupported-functionality-error.ts
-var name13$2 = "AI_UnsupportedFunctionalityError";
-var marker14$2 = `vercel.ai.error.${name13$2}`;
-var symbol14$2 = Symbol.for(marker14$2);
-var _a14$2, _b14$2;
-var UnsupportedFunctionalityError$2 = class UnsupportedFunctionalityError extends (_b14$2 = AISDKError$2, _a14$2 = symbol14$2, _b14$2) {
-  constructor({
-    functionality,
-    message = `'${functionality}' functionality not supported.`
-  }) {
-    super({ name: name13$2, message });
-    this[_a14$2] = true;
-    this.functionality = functionality;
-  }
-  static isInstance(error) {
-    return AISDKError$2.hasMarker(error, marker14$2);
-  }
-};
-
-// src/combine-headers.ts
-function combineHeaders$2(...headers) {
-  return headers.reduce(
-    (combinedHeaders, currentHeaders) => ({
-      ...combinedHeaders,
-      ...currentHeaders != null ? currentHeaders : {}
-    }),
-    {}
-  );
-}
-
-// src/extract-response-headers.ts
-function extractResponseHeaders$2(response) {
-  return Object.fromEntries([...response.headers]);
-}
-
-// src/uint8-utils.ts
-var { btoa: btoa$2} = globalThis;
-function convertUint8ArrayToBase64$2(array) {
-  let latin1string = "";
-  for (let i = 0; i < array.length; i++) {
-    latin1string += String.fromCodePoint(array[i]);
-  }
-  return btoa$2(latin1string);
-}
-function convertToBase64$1(value) {
-  return value instanceof Uint8Array ? convertUint8ArrayToBase64$2(value) : value;
-}
-var createIdGenerator$2 = ({
-  prefix,
-  size = 16,
-  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  separator = "-"
-} = {}) => {
-  const generator = () => {
-    const alphabetLength = alphabet.length;
-    const chars = new Array(size);
-    for (let i = 0; i < size; i++) {
-      chars[i] = alphabet[Math.random() * alphabetLength | 0];
-    }
-    return chars.join("");
-  };
-  if (prefix == null) {
-    return generator;
-  }
-  if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError$2({
-      argument: "separator",
-      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
-    });
-  }
-  return () => `${prefix}${separator}${generator()}`;
-};
-var generateId$2 = createIdGenerator$2();
-
-// src/is-abort-error.ts
-function isAbortError$2(error) {
-  return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
-  error.name === "TimeoutError");
-}
-
-// src/handle-fetch-error.ts
-var FETCH_FAILED_ERROR_MESSAGES$2 = ["fetch failed", "failed to fetch"];
-function handleFetchError$2({
-  error,
-  url,
-  requestBodyValues
-}) {
-  if (isAbortError$2(error)) {
-    return error;
-  }
-  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES$2.includes(error.message.toLowerCase())) {
-    const cause = error.cause;
-    if (cause != null) {
-      return new APICallError$2({
-        message: `Cannot connect to API: ${cause.message}`,
-        cause,
-        url,
-        requestBodyValues,
-        isRetryable: true
-        // retry when network error
-      });
-    }
-  }
-  return error;
-}
-
-// src/get-runtime-environment-user-agent.ts
-function getRuntimeEnvironmentUserAgent$2(globalThisAny = globalThis) {
-  var _a2, _b2, _c;
-  if (globalThisAny.window) {
-    return `runtime/browser`;
-  }
-  if ((_a2 = globalThisAny.navigator) == null ? void 0 : _a2.userAgent) {
-    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
-  }
-  if ((_c = (_b2 = globalThisAny.process) == null ? void 0 : _b2.versions) == null ? void 0 : _c.node) {
-    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
-  }
-  if (globalThisAny.EdgeRuntime) {
-    return `runtime/vercel-edge`;
-  }
-  return "runtime/unknown";
-}
-
-// src/normalize-headers.ts
-function normalizeHeaders$2(headers) {
-  if (headers == null) {
-    return {};
-  }
-  const normalized = {};
-  if (headers instanceof Headers) {
-    headers.forEach((value, key) => {
-      normalized[key.toLowerCase()] = value;
-    });
-  } else {
-    if (!Array.isArray(headers)) {
-      headers = Object.entries(headers);
-    }
-    for (const [key, value] of headers) {
-      if (value != null) {
-        normalized[key.toLowerCase()] = value;
-      }
-    }
-  }
-  return normalized;
-}
-
-// src/with-user-agent-suffix.ts
-function withUserAgentSuffix$2(headers, ...userAgentSuffixParts) {
-  const normalizedHeaders = new Headers(normalizeHeaders$2(headers));
-  const currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
-  normalizedHeaders.set(
-    "user-agent",
-    [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")
-  );
-  return Object.fromEntries(normalizedHeaders.entries());
-}
-
-// src/version.ts
-var VERSION$5 = "4.0.8" ;
-function loadApiKey$2({
-  apiKey,
-  environmentVariableName,
-  apiKeyParameterName = "apiKey",
-  description
-}) {
-  if (typeof apiKey === "string") {
-    return apiKey;
-  }
-  if (apiKey != null) {
-    throw new LoadAPIKeyError$2({
-      message: `${description} API key must be a string.`
-    });
-  }
-  if (typeof process === "undefined") {
-    throw new LoadAPIKeyError$2({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables is not supported in this environment.`
-    });
-  }
-  apiKey = process.env[environmentVariableName];
-  if (apiKey == null) {
-    throw new LoadAPIKeyError$2({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
-    });
-  }
-  if (typeof apiKey !== "string") {
-    throw new LoadAPIKeyError$2({
-      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
-    });
-  }
-  return apiKey;
-}
-
-// src/secure-json-parse.ts
-var suspectProtoRx$2 = /"__proto__"\s*:/;
-var suspectConstructorRx$2 = /"constructor"\s*:/;
-function _parse$2(text) {
-  const obj = JSON.parse(text);
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-  if (suspectProtoRx$2.test(text) === false && suspectConstructorRx$2.test(text) === false) {
-    return obj;
-  }
-  return filter$2(obj);
-}
-function filter$2(obj) {
-  let next = [obj];
-  while (next.length) {
-    const nodes = next;
-    next = [];
-    for (const node of nodes) {
-      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      if (Object.prototype.hasOwnProperty.call(node, "constructor") && Object.prototype.hasOwnProperty.call(node.constructor, "prototype")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      for (const key in node) {
-        const value = node[key];
-        if (value && typeof value === "object") {
-          next.push(value);
-        }
-      }
-    }
-  }
-  return obj;
-}
-function secureJsonParse$2(text) {
-  const { stackTraceLimit } = Error;
-  try {
-    Error.stackTraceLimit = 0;
-  } catch (e) {
-    return _parse$2(text);
-  }
-  try {
-    return _parse$2(text);
-  } finally {
-    Error.stackTraceLimit = stackTraceLimit;
-  }
-}
-
-// src/add-additional-properties-to-json-schema.ts
-function addAdditionalPropertiesToJsonSchema$2(jsonSchema2) {
-  if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
-    jsonSchema2.additionalProperties = false;
-    const { properties } = jsonSchema2;
-    if (properties != null) {
-      for (const key of Object.keys(properties)) {
-        properties[key] = visit$2(properties[key]);
-      }
-    }
-  }
-  if (jsonSchema2.items != null) {
-    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit$2) : visit$2(jsonSchema2.items);
-  }
-  if (jsonSchema2.anyOf != null) {
-    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit$2);
-  }
-  if (jsonSchema2.allOf != null) {
-    jsonSchema2.allOf = jsonSchema2.allOf.map(visit$2);
-  }
-  if (jsonSchema2.oneOf != null) {
-    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit$2);
-  }
-  const { definitions } = jsonSchema2;
-  if (definitions != null) {
-    for (const key of Object.keys(definitions)) {
-      definitions[key] = visit$2(definitions[key]);
-    }
-  }
-  return jsonSchema2;
-}
-function visit$2(def) {
-  if (typeof def === "boolean") return def;
-  return addAdditionalPropertiesToJsonSchema$2(def);
-}
-
-// src/to-json-schema/zod3-to-json-schema/options.ts
-var ignoreOverride$2 = Symbol(
-  "Let zodToJsonSchema decide on which parser to use"
-);
-var defaultOptions$2 = {
-  name: void 0,
-  $refStrategy: "root",
-  basePath: ["#"],
-  effectStrategy: "input",
-  pipeStrategy: "all",
-  dateStrategy: "format:date-time",
-  mapStrategy: "entries",
-  removeAdditionalStrategy: "passthrough",
-  allowedAdditionalProperties: true,
-  rejectedAdditionalProperties: false,
-  definitionPath: "definitions",
-  strictUnions: false,
-  definitions: {},
-  errorMessages: false,
-  patternStrategy: "escape",
-  applyRegexFlags: false,
-  emailStrategy: "format:email",
-  base64Strategy: "contentEncoding:base64",
-  nameStrategy: "ref"
-};
-var getDefaultOptions$2 = (options) => typeof options === "string" ? {
-  ...defaultOptions$2,
-  name: options
-} : {
-  ...defaultOptions$2,
-  ...options
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/any.ts
-function parseAnyDef$2() {
-  return {};
-}
-function parseArrayDef$2(def, refs) {
-  var _a2, _b2, _c;
-  const res = {
-    type: "array"
-  };
-  if (((_a2 = def.type) == null ? void 0 : _a2._def) && ((_c = (_b2 = def.type) == null ? void 0 : _b2._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef$2(def.type._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "items"]
-    });
-  }
-  if (def.minLength) {
-    res.minItems = def.minLength.value;
-  }
-  if (def.maxLength) {
-    res.maxItems = def.maxLength.value;
-  }
-  if (def.exactLength) {
-    res.minItems = def.exactLength.value;
-    res.maxItems = def.exactLength.value;
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/bigint.ts
-function parseBigintDef$2(def) {
-  const res = {
-    type: "integer",
-    format: "int64"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/boolean.ts
-function parseBooleanDef$2() {
-  return { type: "boolean" };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/branded.ts
-function parseBrandedDef$2(_def, refs) {
-  return parseDef$2(_def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/catch.ts
-var parseCatchDef$2 = (def, refs) => {
-  return parseDef$2(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/date.ts
-function parseDateDef$2(def, refs, overrideDateStrategy) {
-  const strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
-  if (Array.isArray(strategy)) {
-    return {
-      anyOf: strategy.map((item, i) => parseDateDef$2(def, refs, item))
-    };
-  }
-  switch (strategy) {
-    case "string":
-    case "format:date-time":
-      return {
-        type: "string",
-        format: "date-time"
-      };
-    case "format:date":
-      return {
-        type: "string",
-        format: "date"
-      };
-    case "integer":
-      return integerDateParser$2(def);
-  }
-}
-var integerDateParser$2 = (def) => {
-  const res = {
-    type: "integer",
-    format: "unix-time"
-  };
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        res.minimum = check.value;
-        break;
-      case "max":
-        res.maximum = check.value;
-        break;
-    }
-  }
-  return res;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/default.ts
-function parseDefaultDef$2(_def, refs) {
-  return {
-    ...parseDef$2(_def.innerType._def, refs),
-    default: _def.defaultValue()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/effects.ts
-function parseEffectsDef$2(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef$2(_def.schema._def, refs) : parseAnyDef$2();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/enum.ts
-function parseEnumDef$2(def) {
-  return {
-    type: "string",
-    enum: Array.from(def.values)
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/intersection.ts
-var isJsonSchema7AllOfType$2 = (type) => {
-  if ("type" in type && type.type === "string") return false;
-  return "allOf" in type;
-};
-function parseIntersectionDef$2(def, refs) {
-  const allOf = [
-    parseDef$2(def.left._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "0"]
-    }),
-    parseDef$2(def.right._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "1"]
-    })
-  ].filter((x) => !!x);
-  const mergedAllOf = [];
-  allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType$2(schema)) {
-      mergedAllOf.push(...schema.allOf);
-    } else {
-      let nestedSchema = schema;
-      if ("additionalProperties" in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema;
-        nestedSchema = rest;
-      }
-      mergedAllOf.push(nestedSchema);
-    }
-  });
-  return mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/literal.ts
-function parseLiteralDef$2(def) {
-  const parsedType = typeof def.value;
-  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
-    return {
-      type: Array.isArray(def.value) ? "array" : "object"
-    };
-  }
-  return {
-    type: parsedType === "bigint" ? "integer" : parsedType,
-    const: def.value
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/string.ts
-var emojiRegex$2 = void 0;
-var zodPatterns$2 = {
-  /**
-   * `c` was changed to `[cC]` to replicate /i flag
-   */
-  cuid: /^[cC][^\s-]{8,}$/,
-  cuid2: /^[0-9a-z]+$/,
-  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
-  /**
-   * `a-z` was added to replicate /i flag
-   */
-  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
-  /**
-   * Constructed a valid Unicode RegExp
-   *
-   * Lazily instantiate since this type of regex isn't supported
-   * in all envs (e.g. React Native).
-   *
-   * See:
-   * https://github.com/colinhacks/zod/issues/2433
-   * Fix in Zod:
-   * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
-   */
-  emoji: () => {
-    if (emojiRegex$2 === void 0) {
-      emojiRegex$2 = RegExp(
-        "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$",
-        "u"
-      );
-    }
-    return emojiRegex$2;
-  },
-  /**
-   * Unused
-   */
-  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
-  /**
-   * Unused
-   */
-  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
-  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
-  /**
-   * Unused
-   */
-  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
-  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
-  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
-  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
-  nanoid: /^[a-zA-Z0-9_-]{21}$/,
-  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
-};
-function parseStringDef$2(def, refs) {
-  const res = {
-    type: "string"
-  };
-  if (def.checks) {
-    for (const check of def.checks) {
-      switch (check.kind) {
-        case "min":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          break;
-        case "max":
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "email":
-          switch (refs.emailStrategy) {
-            case "format:email":
-              addFormat$2(res, "email", check.message, refs);
-              break;
-            case "format:idn-email":
-              addFormat$2(res, "idn-email", check.message, refs);
-              break;
-            case "pattern:zod":
-              addPattern$2(res, zodPatterns$2.email, check.message, refs);
-              break;
-          }
-          break;
-        case "url":
-          addFormat$2(res, "uri", check.message, refs);
-          break;
-        case "uuid":
-          addFormat$2(res, "uuid", check.message, refs);
-          break;
-        case "regex":
-          addPattern$2(res, check.regex, check.message, refs);
-          break;
-        case "cuid":
-          addPattern$2(res, zodPatterns$2.cuid, check.message, refs);
-          break;
-        case "cuid2":
-          addPattern$2(res, zodPatterns$2.cuid2, check.message, refs);
-          break;
-        case "startsWith":
-          addPattern$2(
-            res,
-            RegExp(`^${escapeLiteralCheckValue$2(check.value, refs)}`),
-            check.message,
-            refs
-          );
-          break;
-        case "endsWith":
-          addPattern$2(
-            res,
-            RegExp(`${escapeLiteralCheckValue$2(check.value, refs)}$`),
-            check.message,
-            refs
-          );
-          break;
-        case "datetime":
-          addFormat$2(res, "date-time", check.message, refs);
-          break;
-        case "date":
-          addFormat$2(res, "date", check.message, refs);
-          break;
-        case "time":
-          addFormat$2(res, "time", check.message, refs);
-          break;
-        case "duration":
-          addFormat$2(res, "duration", check.message, refs);
-          break;
-        case "length":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "includes": {
-          addPattern$2(
-            res,
-            RegExp(escapeLiteralCheckValue$2(check.value, refs)),
-            check.message,
-            refs
-          );
-          break;
-        }
-        case "ip": {
-          if (check.version !== "v6") {
-            addFormat$2(res, "ipv4", check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addFormat$2(res, "ipv6", check.message, refs);
-          }
-          break;
-        }
-        case "base64url":
-          addPattern$2(res, zodPatterns$2.base64url, check.message, refs);
-          break;
-        case "jwt":
-          addPattern$2(res, zodPatterns$2.jwt, check.message, refs);
-          break;
-        case "cidr": {
-          if (check.version !== "v6") {
-            addPattern$2(res, zodPatterns$2.ipv4Cidr, check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addPattern$2(res, zodPatterns$2.ipv6Cidr, check.message, refs);
-          }
-          break;
-        }
-        case "emoji":
-          addPattern$2(res, zodPatterns$2.emoji(), check.message, refs);
-          break;
-        case "ulid": {
-          addPattern$2(res, zodPatterns$2.ulid, check.message, refs);
-          break;
-        }
-        case "base64": {
-          switch (refs.base64Strategy) {
-            case "format:binary": {
-              addFormat$2(res, "binary", check.message, refs);
-              break;
-            }
-            case "contentEncoding:base64": {
-              res.contentEncoding = "base64";
-              break;
-            }
-            case "pattern:zod": {
-              addPattern$2(res, zodPatterns$2.base64, check.message, refs);
-              break;
-            }
-          }
-          break;
-        }
-        case "nanoid": {
-          addPattern$2(res, zodPatterns$2.nanoid, check.message, refs);
-        }
-      }
-    }
-  }
-  return res;
-}
-function escapeLiteralCheckValue$2(literal, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric$2(literal) : literal;
-}
-var ALPHA_NUMERIC$2 = new Set(
-  "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789"
-);
-function escapeNonAlphaNumeric$2(source) {
-  let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC$2.has(source[i])) {
-      result += "\\";
-    }
-    result += source[i];
-  }
-  return result;
-}
-function addFormat$2(schema, value, message, refs) {
-  var _a2;
-  if (schema.format || ((_a2 = schema.anyOf) == null ? void 0 : _a2.some((x) => x.format))) {
-    if (!schema.anyOf) {
-      schema.anyOf = [];
-    }
-    if (schema.format) {
-      schema.anyOf.push({
-        format: schema.format
-      });
-      delete schema.format;
-    }
-    schema.anyOf.push({
-      format: value,
-      ...message && refs.errorMessages && { errorMessage: { format: message } }
-    });
-  } else {
-    schema.format = value;
-  }
-}
-function addPattern$2(schema, regex, message, refs) {
-  var _a2;
-  if (schema.pattern || ((_a2 = schema.allOf) == null ? void 0 : _a2.some((x) => x.pattern))) {
-    if (!schema.allOf) {
-      schema.allOf = [];
-    }
-    if (schema.pattern) {
-      schema.allOf.push({
-        pattern: schema.pattern
-      });
-      delete schema.pattern;
-    }
-    schema.allOf.push({
-      pattern: stringifyRegExpWithFlags$2(regex, refs),
-      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
-    });
-  } else {
-    schema.pattern = stringifyRegExpWithFlags$2(regex, refs);
-  }
-}
-function stringifyRegExpWithFlags$2(regex, refs) {
-  var _a2;
-  if (!refs.applyRegexFlags || !regex.flags) {
-    return regex.source;
-  }
-  const flags = {
-    i: regex.flags.includes("i"),
-    // Case-insensitive
-    m: regex.flags.includes("m"),
-    // `^` and `$` matches adjacent to newline characters
-    s: regex.flags.includes("s")
-    // `.` matches newlines
-  };
-  const source = flags.i ? regex.source.toLowerCase() : regex.source;
-  let pattern = "";
-  let isEscaped = false;
-  let inCharGroup = false;
-  let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
-    if (isEscaped) {
-      pattern += source[i];
-      isEscaped = false;
-      continue;
-    }
-    if (flags.i) {
-      if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
-          if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
-            inCharRange = false;
-          } else if (source[i + 1] === "-" && ((_a2 = source[i + 2]) == null ? void 0 : _a2.match(/[a-z]/))) {
-            pattern += source[i];
-            inCharRange = true;
-          } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
-          }
-          continue;
-        }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
-        continue;
-      }
-    }
-    if (flags.m) {
-      if (source[i] === "^") {
-        pattern += `(^|(?<=[\r
-]))`;
-        continue;
-      } else if (source[i] === "$") {
-        pattern += `($|(?=[\r
-]))`;
-        continue;
-      }
-    }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
-]`;
-      continue;
-    }
-    pattern += source[i];
-    if (source[i] === "\\") {
-      isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
-      inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
-      inCharGroup = true;
-    }
-  }
-  try {
-    new RegExp(pattern);
-  } catch (e) {
-    console.warn(
-      `Could not convert regex pattern at ${refs.currentPath.join(
-        "/"
-      )} to a flag-independent form! Falling back to the flag-ignorant source`
-    );
-    return regex.source;
-  }
-  return pattern;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/record.ts
-function parseRecordDef$2(def, refs) {
-  var _a2, _b2, _c, _d, _e, _f;
-  const schema = {
-    type: "object",
-    additionalProperties: (_a2 = parseDef$2(def.valueType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    })) != null ? _a2 : refs.allowedAdditionalProperties
-  };
-  if (((_b2 = def.keyType) == null ? void 0 : _b2._def.typeName) === ZodFirstPartyTypeKind.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
-    const { type, ...keyType } = parseStringDef$2(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      ...schema,
-      propertyNames: {
-        enum: def.keyType._def.values
-      }
-    };
-  } else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
-    const { type, ...keyType } = parseBrandedDef$2(
-      def.keyType._def,
-      refs
-    );
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/map.ts
-function parseMapDef$2(def, refs) {
-  if (refs.mapStrategy === "record") {
-    return parseRecordDef$2(def, refs);
-  }
-  const keys = parseDef$2(def.keyType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef$2();
-  const values = parseDef$2(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef$2();
-  return {
-    type: "array",
-    maxItems: 125,
-    items: {
-      type: "array",
-      items: [keys, values],
-      minItems: 2,
-      maxItems: 2
-    }
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/native-enum.ts
-function parseNativeEnumDef$2(def) {
-  const object = def.values;
-  const actualKeys = Object.keys(def.values).filter((key) => {
-    return typeof object[object[key]] !== "number";
-  });
-  const actualValues = actualKeys.map((key) => object[key]);
-  const parsedTypes = Array.from(
-    new Set(actualValues.map((values) => typeof values))
-  );
-  return {
-    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
-    enum: actualValues
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/never.ts
-function parseNeverDef$2() {
-  return { not: parseAnyDef$2() };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/null.ts
-function parseNullDef$2() {
-  return {
-    type: "null"
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/union.ts
-var primitiveMappings$2 = {
-  ZodString: "string",
-  ZodNumber: "number",
-  ZodBigInt: "integer",
-  ZodBoolean: "boolean",
-  ZodNull: "null"
-};
-function parseUnionDef$2(def, refs) {
-  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
-  if (options.every(
-    (x) => x._def.typeName in primitiveMappings$2 && (!x._def.checks || !x._def.checks.length)
-  )) {
-    const types = options.reduce((types2, x) => {
-      const type = primitiveMappings$2[x._def.typeName];
-      return type && !types2.includes(type) ? [...types2, type] : types2;
-    }, []);
-    return {
-      type: types.length > 1 ? types : types[0]
-    };
-  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
-    const types = options.reduce(
-      (acc, x) => {
-        const type = typeof x._def.value;
-        switch (type) {
-          case "string":
-          case "number":
-          case "boolean":
-            return [...acc, type];
-          case "bigint":
-            return [...acc, "integer"];
-          case "object":
-            if (x._def.value === null) return [...acc, "null"];
-          case "symbol":
-          case "undefined":
-          case "function":
-          default:
-            return acc;
-        }
-      },
-      []
-    );
-    if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
-      return {
-        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
-        enum: options.reduce(
-          (acc, x) => {
-            return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
-          },
-          []
-        )
-      };
-    }
-  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
-    return {
-      type: "string",
-      enum: options.reduce(
-        (acc, x) => [
-          ...acc,
-          ...x._def.values.filter((x2) => !acc.includes(x2))
-        ],
-        []
-      )
-    };
-  }
-  return asAnyOf$2(def, refs);
-}
-var asAnyOf$2 = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map(
-    (x, i) => parseDef$2(x._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "anyOf", `${i}`]
-    })
-  ).filter(
-    (x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0)
-  );
-  return anyOf.length ? { anyOf } : void 0;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/nullable.ts
-function parseNullableDef$2(def, refs) {
-  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(
-    def.innerType._def.typeName
-  ) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
-    return {
-      type: [
-        primitiveMappings$2[def.innerType._def.typeName],
-        "null"
-      ]
-    };
-  }
-  const base = parseDef$2(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "0"]
-  });
-  return base && { anyOf: [base, { type: "null" }] };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/number.ts
-function parseNumberDef$2(def) {
-  const res = {
-    type: "number"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "int":
-        res.type = "integer";
-        break;
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/object.ts
-function parseObjectDef$2(def, refs) {
-  const result = {
-    type: "object",
-    properties: {}
-  };
-  const required = [];
-  const shape = def.shape();
-  for (const propName in shape) {
-    let propDef = shape[propName];
-    if (propDef === void 0 || propDef._def === void 0) {
-      continue;
-    }
-    const propOptional = safeIsOptional$2(propDef);
-    const parsedDef = parseDef$2(propDef._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "properties", propName],
-      propertyPath: [...refs.currentPath, "properties", propName]
-    });
-    if (parsedDef === void 0) {
-      continue;
-    }
-    result.properties[propName] = parsedDef;
-    if (!propOptional) {
-      required.push(propName);
-    }
-  }
-  if (required.length) {
-    result.required = required;
-  }
-  const additionalProperties = decideAdditionalProperties$2(def, refs);
-  if (additionalProperties !== void 0) {
-    result.additionalProperties = additionalProperties;
-  }
-  return result;
-}
-function decideAdditionalProperties$2(def, refs) {
-  if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef$2(def.catchall._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    });
-  }
-  switch (def.unknownKeys) {
-    case "passthrough":
-      return refs.allowedAdditionalProperties;
-    case "strict":
-      return refs.rejectedAdditionalProperties;
-    case "strip":
-      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
-  }
-}
-function safeIsOptional$2(schema) {
-  try {
-    return schema.isOptional();
-  } catch (e) {
-    return true;
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/optional.ts
-var parseOptionalDef$2 = (def, refs) => {
-  var _a2;
-  if (refs.currentPath.toString() === ((_a2 = refs.propertyPath) == null ? void 0 : _a2.toString())) {
-    return parseDef$2(def.innerType._def, refs);
-  }
-  const innerSchema = parseDef$2(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "1"]
-  });
-  return innerSchema ? { anyOf: [{ not: parseAnyDef$2() }, innerSchema] } : parseAnyDef$2();
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/pipeline.ts
-var parsePipelineDef$2 = (def, refs) => {
-  if (refs.pipeStrategy === "input") {
-    return parseDef$2(def.in._def, refs);
-  } else if (refs.pipeStrategy === "output") {
-    return parseDef$2(def.out._def, refs);
-  }
-  const a = parseDef$2(def.in._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", "0"]
-  });
-  const b = parseDef$2(def.out._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
-  });
-  return {
-    allOf: [a, b].filter((x) => x !== void 0)
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/promise.ts
-function parsePromiseDef$2(def, refs) {
-  return parseDef$2(def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/set.ts
-function parseSetDef$2(def, refs) {
-  const items = parseDef$2(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items"]
-  });
-  const schema = {
-    type: "array",
-    uniqueItems: true,
-    items
-  };
-  if (def.minSize) {
-    schema.minItems = def.minSize.value;
-  }
-  if (def.maxSize) {
-    schema.maxItems = def.maxSize.value;
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/tuple.ts
-function parseTupleDef$2(def, refs) {
-  if (def.rest) {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$2(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      ),
-      additionalItems: parseDef$2(def.rest._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "additionalItems"]
-      })
-    };
-  } else {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      maxItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$2(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      )
-    };
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/undefined.ts
-function parseUndefinedDef$2() {
-  return {
-    not: parseAnyDef$2()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/unknown.ts
-function parseUnknownDef$2() {
-  return parseAnyDef$2();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/readonly.ts
-var parseReadonlyDef$2 = (def, refs) => {
-  return parseDef$2(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/select-parser.ts
-var selectParser$2 = (def, typeName, refs) => {
-  switch (typeName) {
-    case ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef$2(def);
-    case ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef$2(def);
-    case ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef$2();
-    case ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef$2();
-    case ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef$2();
-    case ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodUnion:
-    case ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef$2(def);
-    case ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef$2(def);
-    case ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef$2(def);
-    case ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodLazy:
-      return () => def.getter()._def;
-    case ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodNaN:
-    case ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef$2();
-    case ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef$2();
-    case ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef$2();
-    case ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef$2(def, refs);
-    case ZodFirstPartyTypeKind.ZodFunction:
-    case ZodFirstPartyTypeKind.ZodVoid:
-    case ZodFirstPartyTypeKind.ZodSymbol:
-      return void 0;
-    default:
-      return /* @__PURE__ */ ((_) => void 0)();
-  }
-};
-
-// src/to-json-schema/zod3-to-json-schema/get-relative-path.ts
-var getRelativePath$2 = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i]) break;
-  }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
-};
-
-// src/to-json-schema/zod3-to-json-schema/parse-def.ts
-function parseDef$2(def, refs, forceResolution = false) {
-  var _a2;
-  const seenItem = refs.seen.get(def);
-  if (refs.override) {
-    const overrideResult = (_a2 = refs.override) == null ? void 0 : _a2.call(
-      refs,
-      def,
-      refs,
-      seenItem,
-      forceResolution
-    );
-    if (overrideResult !== ignoreOverride$2) {
-      return overrideResult;
-    }
-  }
-  if (seenItem && !forceResolution) {
-    const seenSchema = get$ref$2(seenItem, refs);
-    if (seenSchema !== void 0) {
-      return seenSchema;
-    }
-  }
-  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
-  refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser$2(def, def.typeName, refs);
-  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef$2(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
-  if (jsonSchema2) {
-    addMeta$2(def, refs, jsonSchema2);
-  }
-  if (refs.postProcess) {
-    const postProcessResult = refs.postProcess(jsonSchema2, def, refs);
-    newItem.jsonSchema = jsonSchema2;
-    return postProcessResult;
-  }
-  newItem.jsonSchema = jsonSchema2;
-  return jsonSchema2;
-}
-var get$ref$2 = (item, refs) => {
-  switch (refs.$refStrategy) {
-    case "root":
-      return { $ref: item.path.join("/") };
-    case "relative":
-      return { $ref: getRelativePath$2(refs.currentPath, item.path) };
-    case "none":
-    case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
-        console.warn(
-          `Recursive reference detected at ${refs.currentPath.join(
-            "/"
-          )}! Defaulting to any`
-        );
-        return parseAnyDef$2();
-      }
-      return refs.$refStrategy === "seen" ? parseAnyDef$2() : void 0;
-    }
-  }
-};
-var addMeta$2 = (def, refs, jsonSchema2) => {
-  if (def.description) {
-    jsonSchema2.description = def.description;
-  }
-  return jsonSchema2;
-};
-
-// src/to-json-schema/zod3-to-json-schema/refs.ts
-var getRefs$2 = (options) => {
-  const _options = getDefaultOptions$2(options);
-  const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
-  return {
-    ..._options,
-    currentPath,
-    propertyPath: void 0,
-    seen: new Map(
-      Object.entries(_options.definitions).map(([name2, def]) => [
-        def._def,
-        {
-          def: def._def,
-          path: [..._options.basePath, _options.definitionPath, name2],
-          // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
-          jsonSchema: void 0
-        }
-      ])
-    )
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/zod3-to-json-schema.ts
-var zod3ToJsonSchema$2 = (schema, options) => {
-  var _a2;
-  const refs = getRefs$2(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce(
-    (acc, [name3, schema2]) => {
-      var _a3;
-      return {
-        ...acc,
-        [name3]: (_a3 = parseDef$2(
-          schema2._def,
-          {
-            ...refs,
-            currentPath: [...refs.basePath, refs.definitionPath, name3]
-          },
-          true
-        )) != null ? _a3 : parseAnyDef$2()
-      };
-    },
-    {}
-  ) : void 0;
-  const name2 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name;
-  const main = (_a2 = parseDef$2(
-    schema._def,
-    name2 === void 0 ? refs : {
-      ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name2]
-    },
-    false
-  )) != null ? _a2 : parseAnyDef$2();
-  const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
-  if (title !== void 0) {
-    main.title = title;
-  }
-  const combined = name2 === void 0 ? definitions ? {
-    ...main,
-    [refs.definitionPath]: definitions
-  } : main : {
-    $ref: [
-      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
-      refs.definitionPath,
-      name2
-    ].join("/"),
-    [refs.definitionPath]: {
-      ...definitions,
-      [name2]: main
-    }
-  };
-  combined.$schema = "http://json-schema.org/draft-07/schema#";
-  return combined;
-};
-
-// src/schema.ts
-var schemaSymbol$2 = Symbol.for("vercel.ai.schema");
-function lazySchema(createSchema) {
-  let schema;
-  return () => {
-    if (schema == null) {
-      schema = createSchema();
-    }
-    return schema;
-  };
-}
-function jsonSchema$2(jsonSchema2, {
-  validate
-} = {}) {
-  return {
-    [schemaSymbol$2]: true,
-    _type: void 0,
-    // should never be used directly
-    get jsonSchema() {
-      if (typeof jsonSchema2 === "function") {
-        jsonSchema2 = jsonSchema2();
-      }
-      return jsonSchema2;
-    },
-    validate
-  };
-}
-function isSchema$2(value) {
-  return typeof value === "object" && value !== null && schemaSymbol$2 in value && value[schemaSymbol$2] === true && "jsonSchema" in value && "validate" in value;
-}
-function asSchema$2(schema) {
-  return schema == null ? jsonSchema$2({ properties: {}, additionalProperties: false }) : isSchema$2(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema$2(schema) : standardSchema$2(schema) : schema();
-}
-function standardSchema$2(standardSchema2) {
-  return jsonSchema$2(
-    () => addAdditionalPropertiesToJsonSchema$2(
-      standardSchema2["~standard"].jsonSchema.input({
-        target: "draft-07"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await standardSchema2["~standard"].validate(value);
-        return "value" in result ? { success: true, value: result.value } : {
-          success: false,
-          error: new TypeValidationError$2({
-            value,
-            cause: result.issues
-          })
-        };
-      }
-    }
-  );
-}
-function zod3Schema$2(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$2(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => zod3ToJsonSchema$2(zodSchema2, {
-      $refStrategy: useReferences ? "root" : "none"
-    }),
-    {
-      validate: async (value) => {
-        const result = await zodSchema2.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function zod4Schema$2(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$2(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => addAdditionalPropertiesToJsonSchema$2(
-      toJSONSchema(zodSchema2, {
-        target: "draft-7",
-        io: "input",
-        reused: useReferences ? "ref" : "inline"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await safeParseAsync(zodSchema2, value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function isZod4Schema$2(zodSchema2) {
-  return "_zod" in zodSchema2;
-}
-function zodSchema$2(zodSchema2, options) {
-  if (isZod4Schema$2(zodSchema2)) {
-    return zod4Schema$2(zodSchema2);
-  } else {
-    return zod3Schema$2(zodSchema2);
-  }
-}
-
-// src/validate-types.ts
-async function validateTypes$2({
-  value,
-  schema
-}) {
-  const result = await safeValidateTypes$2({ value, schema });
-  if (!result.success) {
-    throw TypeValidationError$2.wrap({ value, cause: result.error });
-  }
-  return result.value;
-}
-async function safeValidateTypes$2({
-  value,
-  schema
-}) {
-  const actualSchema = asSchema$2(schema);
-  try {
-    if (actualSchema.validate == null) {
-      return { success: true, value, rawValue: value };
-    }
-    const result = await actualSchema.validate(value);
-    if (result.success) {
-      return { success: true, value: result.value, rawValue: value };
-    }
-    return {
-      success: false,
-      error: TypeValidationError$2.wrap({ value, cause: result.error }),
-      rawValue: value
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: TypeValidationError$2.wrap({ value, cause: error }),
-      rawValue: value
-    };
-  }
-}
-
-// src/parse-json.ts
-async function parseJSON$2({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$2(text);
-    if (schema == null) {
-      return value;
-    }
-    return validateTypes$2({ value, schema });
-  } catch (error) {
-    if (JSONParseError$2.isInstance(error) || TypeValidationError$2.isInstance(error)) {
-      throw error;
-    }
-    throw new JSONParseError$2({ text, cause: error });
-  }
-}
-async function safeParseJSON$2({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$2(text);
-    if (schema == null) {
-      return { success: true, value, rawValue: value };
-    }
-    return await safeValidateTypes$2({ value, schema });
-  } catch (error) {
-    return {
-      success: false,
-      error: JSONParseError$2.isInstance(error) ? error : new JSONParseError$2({ text, cause: error }),
-      rawValue: void 0
-    };
-  }
-}
-function parseJsonEventStream$2({
-  stream,
-  schema
-}) {
-  return stream.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream()).pipeThrough(
-    new TransformStream({
-      async transform({ data }, controller) {
-        if (data === "[DONE]") {
-          return;
-        }
-        controller.enqueue(await safeParseJSON$2({ text: data, schema }));
-      }
-    })
-  );
-}
-async function parseProviderOptions$1({
-  provider,
-  providerOptions,
-  schema
-}) {
-  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null) {
-    return void 0;
-  }
-  const parsedProviderOptions = await safeValidateTypes$2({
-    value: providerOptions[provider],
-    schema
-  });
-  if (!parsedProviderOptions.success) {
-    throw new InvalidArgumentError$2({
-      argument: "providerOptions",
-      message: `invalid ${provider} provider options`,
-      cause: parsedProviderOptions.error
-    });
-  }
-  return parsedProviderOptions.value;
-}
-var getOriginalFetch2$2 = () => globalThis.fetch;
-var postJsonToApi$2 = async ({
-  url,
-  headers,
-  body,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi$2({
-  url,
-  headers: {
-    "Content-Type": "application/json",
-    ...headers
-  },
-  body: {
-    content: JSON.stringify(body),
-    values: body
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-});
-var postToApi$2 = async ({
-  url,
-  headers = {},
-  body,
-  successfulResponseHandler,
-  failedResponseHandler,
-  abortSignal,
-  fetch: fetch2 = getOriginalFetch2$2()
-}) => {
-  try {
-    const response = await fetch2(url, {
-      method: "POST",
-      headers: withUserAgentSuffix$2(
-        headers,
-        `ai-sdk/provider-utils/${VERSION$5}`,
-        getRuntimeEnvironmentUserAgent$2()
-      ),
-      body: body.content,
-      signal: abortSignal
-    });
-    const responseHeaders = extractResponseHeaders$2(response);
-    if (!response.ok) {
-      let errorInformation;
-      try {
-        errorInformation = await failedResponseHandler({
-          response,
-          url,
-          requestBodyValues: body.values
-        });
-      } catch (error) {
-        if (isAbortError$2(error) || APICallError$2.isInstance(error)) {
-          throw error;
-        }
-        throw new APICallError$2({
-          message: "Failed to process error response",
-          cause: error,
-          statusCode: response.status,
-          url,
-          responseHeaders,
-          requestBodyValues: body.values
-        });
-      }
-      throw errorInformation.value;
-    }
-    try {
-      return await successfulResponseHandler({
-        response,
-        url,
-        requestBodyValues: body.values
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        if (isAbortError$2(error) || APICallError$2.isInstance(error)) {
-          throw error;
-        }
-      }
-      throw new APICallError$2({
-        message: "Failed to process successful response",
-        cause: error,
-        statusCode: response.status,
-        url,
-        responseHeaders,
-        requestBodyValues: body.values
-      });
-    }
-  } catch (error) {
-    throw handleFetchError$2({ error, url, requestBodyValues: body.values });
-  }
-};
-
-// src/types/tool.ts
-function tool(tool2) {
-  return tool2;
-}
-function createProviderToolFactoryWithOutputSchema({
-  id,
-  inputSchema,
-  outputSchema,
-  supportsDeferredResults
-}) {
-  return ({
-    execute,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    ...args
-  }) => tool({
-    type: "provider",
-    id,
-    args,
-    inputSchema,
-    outputSchema,
-    execute,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    supportsDeferredResults
-  });
-}
-var createJsonErrorResponseHandler$2 = ({
-  errorSchema,
-  errorToMessage,
-  isRetryable
-}) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const responseHeaders = extractResponseHeaders$2(response);
-  if (responseBody.trim() === "") {
-    return {
-      responseHeaders,
-      value: new APICallError$2({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-  try {
-    const parsedError = await parseJSON$2({
-      text: responseBody,
-      schema: errorSchema
-    });
-    return {
-      responseHeaders,
-      value: new APICallError$2({
-        message: errorToMessage(parsedError),
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        data: parsedError,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
-      })
-    };
-  } catch (parseError) {
-    return {
-      responseHeaders,
-      value: new APICallError$2({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-};
-var createEventSourceResponseHandler$2 = (chunkSchema) => async ({ response }) => {
-  const responseHeaders = extractResponseHeaders$2(response);
-  if (response.body == null) {
-    throw new EmptyResponseBodyError$2({});
-  }
-  return {
-    responseHeaders,
-    value: parseJsonEventStream$2({
-      stream: response.body,
-      schema: chunkSchema
-    })
-  };
-};
-var createJsonResponseHandler$2 = (responseSchema) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const parsedResult = await safeParseJSON$2({
-    text: responseBody,
-    schema: responseSchema
-  });
-  const responseHeaders = extractResponseHeaders$2(response);
-  if (!parsedResult.success) {
-    throw new APICallError$2({
-      message: "Invalid JSON response",
-      cause: parsedResult.error,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody,
-      url,
-      requestBodyValues
-    });
-  }
-  return {
-    responseHeaders,
-    value: parsedResult.value,
-    rawValue: parsedResult.rawValue
-  };
-};
-
-// src/without-trailing-slash.ts
-function withoutTrailingSlash$2(url) {
-  return url == null ? void 0 : url.replace(/\/$/, "");
-}
-
-// src/xai-provider.ts
-function convertToXaiChatMessages(prompt) {
-  var _a;
-  const messages = [];
-  const warnings = [];
-  for (const { role, content } of prompt) {
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content });
-        break;
-      }
-      case "user": {
-        if (content.length === 1 && content[0].type === "text") {
-          messages.push({ role: "user", content: content[0].text });
-          break;
-        }
-        messages.push({
-          role: "user",
-          content: content.map((part) => {
-            switch (part.type) {
-              case "text": {
-                return { type: "text", text: part.text };
-              }
-              case "file": {
-                if (part.mediaType.startsWith("image/")) {
-                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-                  return {
-                    type: "image_url",
-                    image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64$1(part.data)}`
-                    }
-                  };
-                } else {
-                  throw new UnsupportedFunctionalityError$2({
-                    functionality: `file part media type ${part.mediaType}`
-                  });
-                }
-              }
-            }
-          })
-        });
-        break;
-      }
-      case "assistant": {
-        let text = "";
-        const toolCalls = [];
-        for (const part of content) {
-          switch (part.type) {
-            case "text": {
-              text += part.text;
-              break;
-            }
-            case "tool-call": {
-              toolCalls.push({
-                id: part.toolCallId,
-                type: "function",
-                function: {
-                  name: part.toolName,
-                  arguments: JSON.stringify(part.input)
-                }
-              });
-              break;
-            }
-          }
-        }
-        messages.push({
-          role: "assistant",
-          content: text,
-          tool_calls: toolCalls.length > 0 ? toolCalls : void 0
-        });
-        break;
-      }
-      case "tool": {
-        for (const toolResponse of content) {
-          if (toolResponse.type === "tool-approval-response") {
-            continue;
-          }
-          const output = toolResponse.output;
-          let contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "execution-denied":
-              contentValue = (_a = output.reason) != null ? _a : "Tool execution denied.";
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          messages.push({
-            role: "tool",
-            tool_call_id: toolResponse.toolCallId,
-            content: contentValue
-          });
-        }
-        break;
-      }
-      default: {
-        const _exhaustiveCheck = role;
-        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
-      }
-    }
-  }
-  return { messages, warnings };
-}
-
-// src/convert-xai-chat-usage.ts
-function convertXaiChatUsage(usage) {
-  var _a, _b, _c, _d;
-  const cacheReadTokens = (_b = (_a = usage.prompt_tokens_details) == null ? void 0 : _a.cached_tokens) != null ? _b : 0;
-  const reasoningTokens = (_d = (_c = usage.completion_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
-  return {
-    inputTokens: {
-      total: usage.prompt_tokens,
-      noCache: usage.prompt_tokens - cacheReadTokens,
-      cacheRead: cacheReadTokens,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: usage.completion_tokens,
-      text: usage.completion_tokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-
-// src/get-response-metadata.ts
-function getResponseMetadata$3({
-  id,
-  model,
-  created,
-  created_at
-}) {
-  const unixTime = created != null ? created : created_at;
-  return {
-    id: id != null ? id : void 0,
-    modelId: model != null ? model : void 0,
-    timestamp: unixTime != null ? new Date(unixTime * 1e3) : void 0
-  };
-}
-
-// src/map-xai-finish-reason.ts
-function mapXaiFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-      return "stop";
-    case "length":
-      return "length";
-    case "tool_calls":
-    case "function_call":
-      return "tool-calls";
-    case "content_filter":
-      return "content-filter";
-    default:
-      return "other";
-  }
-}
-var webSourceSchema = object$1({
-  type: literal("web"),
-  country: string().length(2).optional(),
-  excludedWebsites: array$1(string()).max(5).optional(),
-  allowedWebsites: array$1(string()).max(5).optional(),
-  safeSearch: boolean().optional()
-});
-var xSourceSchema = object$1({
-  type: literal("x"),
-  excludedXHandles: array$1(string()).optional(),
-  includedXHandles: array$1(string()).optional(),
-  postFavoriteCount: number$1().int().optional(),
-  postViewCount: number$1().int().optional(),
-  /**
-   * @deprecated use `includedXHandles` instead
-   */
-  xHandles: array$1(string()).optional()
-});
-var newsSourceSchema = object$1({
-  type: literal("news"),
-  country: string().length(2).optional(),
-  excludedWebsites: array$1(string()).max(5).optional(),
-  safeSearch: boolean().optional()
-});
-var rssSourceSchema = object$1({
-  type: literal("rss"),
-  links: array$1(string().url()).max(1)
-  // currently only supports one RSS link
-});
-var searchSourceSchema = discriminatedUnion("type", [
-  webSourceSchema,
-  xSourceSchema,
-  newsSourceSchema,
-  rssSourceSchema
-]);
-var xaiProviderOptions = object$1({
-  reasoningEffort: _enum(["low", "high"]).optional(),
-  /**
-   * Whether to enable parallel function calling during tool use.
-   * When true, the model can call multiple functions in parallel.
-   * When false, the model will call functions sequentially.
-   * Defaults to true.
-   */
-  parallel_function_calling: boolean().optional(),
-  searchParameters: object$1({
-    /**
-     * search mode preference
-     * - "off": disables search completely
-     * - "auto": model decides whether to search (default)
-     * - "on": always enables search
-     */
-    mode: _enum(["off", "auto", "on"]),
-    /**
-     * whether to return citations in the response
-     * defaults to true
-     */
-    returnCitations: boolean().optional(),
-    /**
-     * start date for search data (ISO8601 format: YYYY-MM-DD)
-     */
-    fromDate: string().optional(),
-    /**
-     * end date for search data (ISO8601 format: YYYY-MM-DD)
-     */
-    toDate: string().optional(),
-    /**
-     * maximum number of search results to consider
-     * defaults to 20
-     */
-    maxSearchResults: number$1().min(1).max(50).optional(),
-    /**
-     * data sources to search from.
-     * defaults to [{ type: 'web' }, { type: 'x' }] if not specified.
-     *
-     * @example
-     * sources: [{ type: 'web', country: 'US' }, { type: 'x' }]
-     */
-    sources: array$1(searchSourceSchema).optional()
-  }).optional()
-});
-var xaiErrorDataSchema = object$1({
-  error: object$1({
-    message: string(),
-    type: string().nullish(),
-    param: any().nullish(),
-    code: union([string(), number$1()]).nullish()
-  })
-});
-var xaiFailedResponseHandler = createJsonErrorResponseHandler$2({
-  errorSchema: xaiErrorDataSchema,
-  errorToMessage: (data) => data.error.message
-});
-function prepareTools$1({
-  tools,
-  toolChoice
-}) {
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  const toolWarnings = [];
-  if (tools == null) {
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  }
-  const xaiTools2 = [];
-  for (const tool of tools) {
-    if (tool.type === "provider") {
-      toolWarnings.push({
-        type: "unsupported",
-        feature: `provider-defined tool ${tool.name}`
-      });
-    } else {
-      xaiTools2.push({
-        type: "function",
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: tool.inputSchema
-        }
-      });
-    }
-  }
-  if (toolChoice == null) {
-    return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
-  }
-  const type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-      return { tools: xaiTools2, toolChoice: type, toolWarnings };
-    case "required":
-      return { tools: xaiTools2, toolChoice: "required", toolWarnings };
-    case "tool":
-      return {
-        tools: xaiTools2,
-        toolChoice: {
-          type: "function",
-          function: { name: toolChoice.toolName }
-        },
-        toolWarnings
-      };
-    default: {
-      const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$2({
-        functionality: `tool choice type: ${_exhaustiveCheck}`
-      });
-    }
-  }
-}
-
-// src/xai-chat-language-model.ts
-var XaiChatLanguageModel = class {
-  constructor(modelId, config) {
-    this.specificationVersion = "v3";
-    this.supportedUrls = {
-      "image/*": [/^https?:\/\/.*$/]
-    };
-    this.modelId = modelId;
-    this.config = config;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    stopSequences,
-    seed,
-    responseFormat,
-    providerOptions,
-    tools,
-    toolChoice
-  }) {
-    var _a, _b, _c;
-    const warnings = [];
-    const options = (_a = await parseProviderOptions$1({
-      provider: "xai",
-      providerOptions,
-      schema: xaiProviderOptions
-    })) != null ? _a : {};
-    if (topK != null) {
-      warnings.push({ type: "unsupported", feature: "topK" });
-    }
-    if (frequencyPenalty != null) {
-      warnings.push({ type: "unsupported", feature: "frequencyPenalty" });
-    }
-    if (presencePenalty != null) {
-      warnings.push({ type: "unsupported", feature: "presencePenalty" });
-    }
-    if (stopSequences != null) {
-      warnings.push({ type: "unsupported", feature: "stopSequences" });
-    }
-    const { messages, warnings: messageWarnings } = convertToXaiChatMessages(prompt);
-    warnings.push(...messageWarnings);
-    const {
-      tools: xaiTools2,
-      toolChoice: xaiToolChoice,
-      toolWarnings
-    } = prepareTools$1({
-      tools,
-      toolChoice
-    });
-    warnings.push(...toolWarnings);
-    const baseArgs = {
-      // model id
-      model: this.modelId,
-      // standard generation settings
-      max_completion_tokens: maxOutputTokens,
-      temperature,
-      top_p: topP,
-      seed,
-      reasoning_effort: options.reasoningEffort,
-      // parallel function calling
-      parallel_function_calling: options.parallel_function_calling,
-      // response format
-      response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? responseFormat.schema != null ? {
-        type: "json_schema",
-        json_schema: {
-          name: (_b = responseFormat.name) != null ? _b : "response",
-          schema: responseFormat.schema,
-          strict: true
-        }
-      } : { type: "json_object" } : void 0,
-      // search parameters
-      search_parameters: options.searchParameters ? {
-        mode: options.searchParameters.mode,
-        return_citations: options.searchParameters.returnCitations,
-        from_date: options.searchParameters.fromDate,
-        to_date: options.searchParameters.toDate,
-        max_search_results: options.searchParameters.maxSearchResults,
-        sources: (_c = options.searchParameters.sources) == null ? void 0 : _c.map((source) => {
-          var _a2;
-          return {
-            type: source.type,
-            ...source.type === "web" && {
-              country: source.country,
-              excluded_websites: source.excludedWebsites,
-              allowed_websites: source.allowedWebsites,
-              safe_search: source.safeSearch
-            },
-            ...source.type === "x" && {
-              excluded_x_handles: source.excludedXHandles,
-              included_x_handles: (_a2 = source.includedXHandles) != null ? _a2 : source.xHandles,
-              post_favorite_count: source.postFavoriteCount,
-              post_view_count: source.postViewCount
-            },
-            ...source.type === "news" && {
-              country: source.country,
-              excluded_websites: source.excludedWebsites,
-              safe_search: source.safeSearch
-            },
-            ...source.type === "rss" && {
-              links: source.links
-            }
-          };
-        })
-      } : void 0,
-      // messages in xai format
-      messages,
-      // tools in xai format
-      tools: xaiTools2,
-      tool_choice: xaiToolChoice
-    };
-    return {
-      args: baseArgs,
-      warnings
-    };
-  }
-  async doGenerate(options) {
-    var _a, _b;
-    const { args: body, warnings } = await this.getArgs(options);
-    const url = `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/chat/completions`;
-    const {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi$2({
-      url,
-      headers: combineHeaders$2(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$2(
-        xaiChatResponseSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    if (response.error != null) {
-      throw new APICallError$2({
-        message: response.error,
-        url,
-        requestBodyValues: body,
-        statusCode: 200,
-        responseHeaders,
-        responseBody: JSON.stringify(rawResponse),
-        isRetryable: response.code === "The service is currently unavailable"
-      });
-    }
-    const choice = response.choices[0];
-    const content = [];
-    if (choice.message.content != null && choice.message.content.length > 0) {
-      let text = choice.message.content;
-      const lastMessage = body.messages[body.messages.length - 1];
-      if ((lastMessage == null ? void 0 : lastMessage.role) === "assistant" && text === lastMessage.content) {
-        text = "";
-      }
-      if (text.length > 0) {
-        content.push({ type: "text", text });
-      }
-    }
-    if (choice.message.reasoning_content != null && choice.message.reasoning_content.length > 0) {
-      content.push({
-        type: "reasoning",
-        text: choice.message.reasoning_content
-      });
-    }
-    if (choice.message.tool_calls != null) {
-      for (const toolCall of choice.message.tool_calls) {
-        content.push({
-          type: "tool-call",
-          toolCallId: toolCall.id,
-          toolName: toolCall.function.name,
-          input: toolCall.function.arguments
-        });
-      }
-    }
-    if (response.citations != null) {
-      for (const url2 of response.citations) {
-        content.push({
-          type: "source",
-          sourceType: "url",
-          id: this.config.generateId(),
-          url: url2
-        });
-      }
-    }
-    return {
-      content,
-      finishReason: {
-        unified: mapXaiFinishReason(choice.finish_reason),
-        raw: (_b = choice.finish_reason) != null ? _b : void 0
-      },
-      usage: convertXaiChatUsage(response.usage),
-      // defined when there is no error
-      request: { body },
-      response: {
-        ...getResponseMetadata$3(response),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    var _a;
-    const { args, warnings } = await this.getArgs(options);
-    const body = {
-      ...args,
-      stream: true,
-      stream_options: {
-        include_usage: true
-      }
-    };
-    const url = `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/chat/completions`;
-    const { responseHeaders, value: response } = await postJsonToApi$2({
-      url,
-      headers: combineHeaders$2(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: async ({ response: response2 }) => {
-        const responseHeaders2 = extractResponseHeaders$2(response2);
-        const contentType = response2.headers.get("content-type");
-        if (contentType == null ? void 0 : contentType.includes("application/json")) {
-          const responseBody = await response2.text();
-          const parsedError = await safeParseJSON$2({
-            text: responseBody,
-            schema: xaiStreamErrorSchema
-          });
-          if (parsedError.success) {
-            throw new APICallError$2({
-              message: parsedError.value.error,
-              url,
-              requestBodyValues: body,
-              statusCode: 200,
-              responseHeaders: responseHeaders2,
-              responseBody,
-              isRetryable: parsedError.value.code === "The service is currently unavailable"
-            });
-          }
-          throw new APICallError$2({
-            message: "Invalid JSON response",
-            url,
-            requestBodyValues: body,
-            statusCode: 200,
-            responseHeaders: responseHeaders2,
-            responseBody
-          });
-        }
-        return createEventSourceResponseHandler$2(xaiChatChunkSchema)({
-          response: response2,
-          url,
-          requestBodyValues: body
-        });
-      },
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    let finishReason = {
-      unified: "other",
-      raw: void 0
-    };
-    let usage = void 0;
-    let isFirstChunk = true;
-    const contentBlocks = {};
-    const lastReasoningDeltas = {};
-    let activeReasoningBlockId = void 0;
-    const self = this;
-    return {
-      stream: response.pipeThrough(
-        new TransformStream({
-          start(controller) {
-            controller.enqueue({ type: "stream-start", warnings });
-          },
-          transform(chunk, controller) {
-            if (options.includeRawChunks) {
-              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-            }
-            if (!chunk.success) {
-              controller.enqueue({ type: "error", error: chunk.error });
-              return;
-            }
-            const value = chunk.value;
-            if (isFirstChunk) {
-              controller.enqueue({
-                type: "response-metadata",
-                ...getResponseMetadata$3(value)
-              });
-              isFirstChunk = false;
-            }
-            if (value.citations != null) {
-              for (const url2 of value.citations) {
-                controller.enqueue({
-                  type: "source",
-                  sourceType: "url",
-                  id: self.config.generateId(),
-                  url: url2
-                });
-              }
-            }
-            if (value.usage != null) {
-              usage = convertXaiChatUsage(value.usage);
-            }
-            const choice = value.choices[0];
-            if ((choice == null ? void 0 : choice.finish_reason) != null) {
-              finishReason = {
-                unified: mapXaiFinishReason(choice.finish_reason),
-                raw: choice.finish_reason
-              };
-            }
-            if ((choice == null ? void 0 : choice.delta) == null) {
-              return;
-            }
-            const delta = choice.delta;
-            const choiceIndex = choice.index;
-            if (delta.content != null && delta.content.length > 0) {
-              const textContent = delta.content;
-              if (activeReasoningBlockId != null && !contentBlocks[activeReasoningBlockId].ended) {
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: activeReasoningBlockId
-                });
-                contentBlocks[activeReasoningBlockId].ended = true;
-                activeReasoningBlockId = void 0;
-              }
-              const lastMessage = body.messages[body.messages.length - 1];
-              if ((lastMessage == null ? void 0 : lastMessage.role) === "assistant" && textContent === lastMessage.content) {
-                return;
-              }
-              const blockId = `text-${value.id || choiceIndex}`;
-              if (contentBlocks[blockId] == null) {
-                contentBlocks[blockId] = { type: "text", ended: false };
-                controller.enqueue({
-                  type: "text-start",
-                  id: blockId
-                });
-              }
-              controller.enqueue({
-                type: "text-delta",
-                id: blockId,
-                delta: textContent
-              });
-            }
-            if (delta.reasoning_content != null && delta.reasoning_content.length > 0) {
-              const blockId = `reasoning-${value.id || choiceIndex}`;
-              if (lastReasoningDeltas[blockId] === delta.reasoning_content) {
-                return;
-              }
-              lastReasoningDeltas[blockId] = delta.reasoning_content;
-              if (contentBlocks[blockId] == null) {
-                contentBlocks[blockId] = { type: "reasoning", ended: false };
-                activeReasoningBlockId = blockId;
-                controller.enqueue({
-                  type: "reasoning-start",
-                  id: blockId
-                });
-              }
-              controller.enqueue({
-                type: "reasoning-delta",
-                id: blockId,
-                delta: delta.reasoning_content
-              });
-            }
-            if (delta.tool_calls != null) {
-              if (activeReasoningBlockId != null && !contentBlocks[activeReasoningBlockId].ended) {
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: activeReasoningBlockId
-                });
-                contentBlocks[activeReasoningBlockId].ended = true;
-                activeReasoningBlockId = void 0;
-              }
-              for (const toolCall of delta.tool_calls) {
-                const toolCallId = toolCall.id;
-                controller.enqueue({
-                  type: "tool-input-start",
-                  id: toolCallId,
-                  toolName: toolCall.function.name
-                });
-                controller.enqueue({
-                  type: "tool-input-delta",
-                  id: toolCallId,
-                  delta: toolCall.function.arguments
-                });
-                controller.enqueue({
-                  type: "tool-input-end",
-                  id: toolCallId
-                });
-                controller.enqueue({
-                  type: "tool-call",
-                  toolCallId,
-                  toolName: toolCall.function.name,
-                  input: toolCall.function.arguments
-                });
-              }
-            }
-          },
-          flush(controller) {
-            for (const [blockId, block] of Object.entries(contentBlocks)) {
-              if (!block.ended) {
-                controller.enqueue({
-                  type: block.type === "text" ? "text-end" : "reasoning-end",
-                  id: blockId
-                });
-              }
-            }
-            controller.enqueue({ type: "finish", finishReason, usage });
-          }
-        })
-      ),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-};
-var xaiUsageSchema = object$1({
-  prompt_tokens: number$1(),
-  completion_tokens: number$1(),
-  total_tokens: number$1(),
-  prompt_tokens_details: object$1({
-    text_tokens: number$1().nullish(),
-    audio_tokens: number$1().nullish(),
-    image_tokens: number$1().nullish(),
-    cached_tokens: number$1().nullish()
-  }).nullish(),
-  completion_tokens_details: object$1({
-    reasoning_tokens: number$1().nullish(),
-    audio_tokens: number$1().nullish(),
-    accepted_prediction_tokens: number$1().nullish(),
-    rejected_prediction_tokens: number$1().nullish()
-  }).nullish()
-});
-var xaiChatResponseSchema = object$1({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      message: object$1({
-        role: literal("assistant"),
-        content: string().nullish(),
-        reasoning_content: string().nullish(),
-        tool_calls: array$1(
-          object$1({
-            id: string(),
-            type: literal("function"),
-            function: object$1({
-              name: string(),
-              arguments: string()
-            })
-          })
-        ).nullish()
-      }),
-      index: number$1(),
-      finish_reason: string().nullish()
-    })
-  ).nullish(),
-  object: literal("chat.completion").nullish(),
-  usage: xaiUsageSchema.nullish(),
-  citations: array$1(string().url()).nullish(),
-  code: string().nullish(),
-  error: string().nullish()
-});
-var xaiChatChunkSchema = object$1({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      delta: object$1({
-        role: _enum(["assistant"]).optional(),
-        content: string().nullish(),
-        reasoning_content: string().nullish(),
-        tool_calls: array$1(
-          object$1({
-            id: string(),
-            type: literal("function"),
-            function: object$1({
-              name: string(),
-              arguments: string()
-            })
-          })
-        ).nullish()
-      }),
-      finish_reason: string().nullish(),
-      index: number$1()
-    })
-  ),
-  usage: xaiUsageSchema.nullish(),
-  citations: array$1(string().url()).nullish()
-});
-var xaiStreamErrorSchema = object$1({
-  code: string(),
-  error: string()
-});
-async function convertToXaiResponsesInput({
-  prompt
-}) {
-  var _a, _b, _c, _d, _e;
-  const input = [];
-  const inputWarnings = [];
-  for (const message of prompt) {
-    switch (message.role) {
-      case "system": {
-        input.push({
-          role: "system",
-          content: message.content
-        });
-        break;
-      }
-      case "user": {
-        const contentParts = [];
-        for (const block of message.content) {
-          switch (block.type) {
-            case "text": {
-              contentParts.push({ type: "input_text", text: block.text });
-              break;
-            }
-            case "file": {
-              if (block.mediaType.startsWith("image/")) {
-                const mediaType = block.mediaType === "image/*" ? "image/jpeg" : block.mediaType;
-                const imageUrl = block.data instanceof URL ? block.data.toString() : `data:${mediaType};base64,${convertToBase64$1(block.data)}`;
-                contentParts.push({ type: "input_image", image_url: imageUrl });
-              } else {
-                throw new UnsupportedFunctionalityError$2({
-                  functionality: `file part media type ${block.mediaType}`
-                });
-              }
-              break;
-            }
-            default: {
-              inputWarnings.push({
-                type: "other",
-                message: "xAI Responses API does not support this content type in user messages"
-              });
-            }
-          }
-        }
-        input.push({
-          role: "user",
-          content: contentParts
-        });
-        break;
-      }
-      case "assistant": {
-        for (const part of message.content) {
-          switch (part.type) {
-            case "text": {
-              const id = typeof ((_b = (_a = part.providerOptions) == null ? void 0 : _a.xai) == null ? void 0 : _b.itemId) === "string" ? part.providerOptions.xai.itemId : void 0;
-              input.push({
-                role: "assistant",
-                content: part.text,
-                id
-              });
-              break;
-            }
-            case "tool-call": {
-              if (part.providerExecuted) {
-                break;
-              }
-              const id = typeof ((_d = (_c = part.providerOptions) == null ? void 0 : _c.xai) == null ? void 0 : _d.itemId) === "string" ? part.providerOptions.xai.itemId : void 0;
-              input.push({
-                type: "function_call",
-                id: id != null ? id : part.toolCallId,
-                call_id: part.toolCallId,
-                name: part.toolName,
-                arguments: JSON.stringify(part.input),
-                status: "completed"
-              });
-              break;
-            }
-            case "tool-result": {
-              break;
-            }
-            case "reasoning":
-            case "file": {
-              inputWarnings.push({
-                type: "other",
-                message: `xAI Responses API does not support ${part.type} in assistant messages`
-              });
-              break;
-            }
-            default: {
-              inputWarnings.push({
-                type: "other",
-                message: "xAI Responses API does not support this content type in assistant messages"
-              });
-            }
-          }
-        }
-        break;
-      }
-      case "tool": {
-        for (const part of message.content) {
-          if (part.type === "tool-approval-response") {
-            continue;
-          }
-          const output = part.output;
-          let outputValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              outputValue = output.value;
-              break;
-            case "execution-denied":
-              outputValue = (_e = output.reason) != null ? _e : "tool execution denied";
-              break;
-            case "json":
-            case "error-json":
-              outputValue = JSON.stringify(output.value);
-              break;
-            case "content":
-              outputValue = output.value.map((item) => {
-                if (item.type === "text") {
-                  return item.text;
-                }
-                return "";
-              }).join("");
-              break;
-            default: {
-              outputValue = "";
-            }
-          }
-          input.push({
-            type: "function_call_output",
-            call_id: part.toolCallId,
-            output: outputValue
-          });
-        }
-        break;
-      }
-      default: {
-        inputWarnings.push({
-          type: "other",
-          message: "unsupported message role"
-        });
-      }
-    }
-  }
-  return { input, inputWarnings };
-}
-
-// src/responses/convert-xai-responses-usage.ts
-function convertXaiResponsesUsage(usage) {
-  var _a, _b, _c, _d;
-  const cacheReadTokens = (_b = (_a = usage.input_tokens_details) == null ? void 0 : _a.cached_tokens) != null ? _b : 0;
-  const reasoningTokens = (_d = (_c = usage.output_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
-  return {
-    inputTokens: {
-      total: usage.input_tokens,
-      noCache: usage.input_tokens - cacheReadTokens,
-      cacheRead: cacheReadTokens,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: usage.output_tokens,
-      text: usage.output_tokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-
-// src/responses/map-xai-responses-finish-reason.ts
-function mapXaiResponsesFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-    case "completed":
-      return "stop";
-    case "length":
-      return "length";
-    case "tool_calls":
-    case "function_call":
-      return "tool-calls";
-    case "content_filter":
-      return "content-filter";
-    default:
-      return "other";
-  }
-}
-var annotationSchema = union([
-  object$1({
-    type: literal("url_citation"),
-    url: string(),
-    title: string().optional()
-  }),
-  object$1({
-    type: string()
-  })
-]);
-var messageContentPartSchema = object$1({
-  type: string(),
-  text: string().optional(),
-  logprobs: array$1(any()).optional(),
-  annotations: array$1(annotationSchema).optional()
-});
-var reasoningSummaryPartSchema = object$1({
-  type: string(),
-  text: string()
-});
-var toolCallSchema = object$1({
-  name: string().optional(),
-  arguments: string().optional(),
-  input: string().optional(),
-  call_id: string().optional(),
-  id: string(),
-  status: string(),
-  action: any().optional()
-});
-var outputItemSchema = discriminatedUnion("type", [
-  object$1({
-    type: literal("web_search_call"),
-    ...toolCallSchema.shape
-  }),
-  object$1({
-    type: literal("x_search_call"),
-    ...toolCallSchema.shape
-  }),
-  object$1({
-    type: literal("code_interpreter_call"),
-    ...toolCallSchema.shape
-  }),
-  object$1({
-    type: literal("code_execution_call"),
-    ...toolCallSchema.shape
-  }),
-  object$1({
-    type: literal("view_image_call"),
-    ...toolCallSchema.shape
-  }),
-  object$1({
-    type: literal("view_x_video_call"),
-    ...toolCallSchema.shape
-  }),
-  object$1({
-    type: literal("custom_tool_call"),
-    ...toolCallSchema.shape
-  }),
-  object$1({
-    type: literal("message"),
-    role: string(),
-    content: array$1(messageContentPartSchema),
-    id: string(),
-    status: string()
-  }),
-  object$1({
-    type: literal("function_call"),
-    name: string(),
-    arguments: string(),
-    call_id: string(),
-    id: string()
-  }),
-  object$1({
-    type: literal("reasoning"),
-    id: string(),
-    summary: array$1(reasoningSummaryPartSchema),
-    status: string(),
-    encrypted_content: string().nullish()
-  })
-]);
-var xaiResponsesUsageSchema = object$1({
-  input_tokens: number$1(),
-  output_tokens: number$1(),
-  total_tokens: number$1().optional(),
-  input_tokens_details: object$1({
-    cached_tokens: number$1().optional()
-  }).optional(),
-  output_tokens_details: object$1({
-    reasoning_tokens: number$1().optional()
-  }).optional(),
-  num_sources_used: number$1().optional(),
-  num_server_side_tools_used: number$1().optional()
-});
-var xaiResponsesResponseSchema = object$1({
-  id: string().nullish(),
-  created_at: number$1().nullish(),
-  model: string().nullish(),
-  object: literal("response"),
-  output: array$1(outputItemSchema),
-  usage: xaiResponsesUsageSchema,
-  status: string()
-});
-var xaiResponsesChunkSchema = union([
-  object$1({
-    type: literal("response.created"),
-    response: xaiResponsesResponseSchema.partial({ usage: true, status: true })
-  }),
-  object$1({
-    type: literal("response.in_progress"),
-    response: xaiResponsesResponseSchema.partial({ usage: true, status: true })
-  }),
-  object$1({
-    type: literal("response.output_item.added"),
-    item: outputItemSchema,
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.output_item.done"),
-    item: outputItemSchema,
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.content_part.added"),
-    item_id: string(),
-    output_index: number$1(),
-    content_index: number$1(),
-    part: messageContentPartSchema
-  }),
-  object$1({
-    type: literal("response.content_part.done"),
-    item_id: string(),
-    output_index: number$1(),
-    content_index: number$1(),
-    part: messageContentPartSchema
-  }),
-  object$1({
-    type: literal("response.output_text.delta"),
-    item_id: string(),
-    output_index: number$1(),
-    content_index: number$1(),
-    delta: string(),
-    logprobs: array$1(any()).optional()
-  }),
-  object$1({
-    type: literal("response.output_text.done"),
-    item_id: string(),
-    output_index: number$1(),
-    content_index: number$1(),
-    text: string(),
-    logprobs: array$1(any()).optional(),
-    annotations: array$1(annotationSchema).optional()
-  }),
-  object$1({
-    type: literal("response.output_text.annotation.added"),
-    item_id: string(),
-    output_index: number$1(),
-    content_index: number$1(),
-    annotation_index: number$1(),
-    annotation: annotationSchema
-  }),
-  object$1({
-    type: literal("response.reasoning_summary_part.added"),
-    item_id: string(),
-    output_index: number$1(),
-    summary_index: number$1(),
-    part: reasoningSummaryPartSchema
-  }),
-  object$1({
-    type: literal("response.reasoning_summary_part.done"),
-    item_id: string(),
-    output_index: number$1(),
-    summary_index: number$1(),
-    part: reasoningSummaryPartSchema
-  }),
-  object$1({
-    type: literal("response.reasoning_summary_text.delta"),
-    item_id: string(),
-    output_index: number$1(),
-    summary_index: number$1(),
-    delta: string()
-  }),
-  object$1({
-    type: literal("response.reasoning_summary_text.done"),
-    item_id: string(),
-    output_index: number$1(),
-    summary_index: number$1(),
-    text: string()
-  }),
-  object$1({
-    type: literal("response.web_search_call.in_progress"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.web_search_call.searching"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.web_search_call.completed"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.x_search_call.in_progress"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.x_search_call.searching"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.x_search_call.completed"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.custom_tool_call_input.done"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.custom_tool_call_input.delta"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.code_execution_call.in_progress"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.code_execution_call.executing"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.code_execution_call.completed"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.code_interpreter_call.in_progress"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.code_interpreter_call.executing"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.code_interpreter_call.interpreting"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.code_interpreter_call.completed"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  // Code interpreter code streaming events
-  object$1({
-    type: literal("response.code_interpreter_call_code.delta"),
-    item_id: string(),
-    output_index: number$1(),
-    delta: string()
-  }),
-  object$1({
-    type: literal("response.code_interpreter_call_code.done"),
-    item_id: string(),
-    output_index: number$1(),
-    code: string()
-  }),
-  object$1({
-    type: literal("response.done"),
-    response: xaiResponsesResponseSchema
-  }),
-  object$1({
-    type: literal("response.completed"),
-    response: xaiResponsesResponseSchema
-  })
-]);
-var xaiResponsesProviderOptions = object$1({
-  /**
-   * Constrains how hard a reasoning model thinks before responding.
-   * Possible values are `low` (uses fewer reasoning tokens), `medium` and `high` (uses more reasoning tokens).
-   */
-  reasoningEffort: _enum(["low", "medium", "high"]).optional(),
-  /**
-   * Whether to store the input message(s) and model response for later retrieval.
-   * @default true
-   */
-  store: boolean().optional(),
-  /**
-   * The ID of the previous response from the model.
-   */
-  previousResponseId: string().optional()
-});
-var webSearchArgsSchema = lazySchema(
-  () => zodSchema$2(
-    object$1({
-      allowedDomains: array$1(string()).max(5).optional(),
-      excludedDomains: array$1(string()).max(5).optional(),
-      enableImageUnderstanding: boolean().optional()
-    })
-  )
-);
-var webSearchOutputSchema = lazySchema(
-  () => zodSchema$2(
-    object$1({
-      query: string(),
-      sources: array$1(
-        object$1({
-          title: string(),
-          url: string(),
-          snippet: string()
-        })
-      )
-    })
-  )
-);
-var webSearchToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.web_search",
-  inputSchema: lazySchema(() => zodSchema$2(object$1({}))),
-  outputSchema: webSearchOutputSchema
-});
-var webSearch = (args = {}) => webSearchToolFactory(args);
-var xSearchArgsSchema = lazySchema(
-  () => zodSchema$2(
-    object$1({
-      allowedXHandles: array$1(string()).max(10).optional(),
-      excludedXHandles: array$1(string()).max(10).optional(),
-      fromDate: string().optional(),
-      toDate: string().optional(),
-      enableImageUnderstanding: boolean().optional(),
-      enableVideoUnderstanding: boolean().optional()
-    })
-  )
-);
-var xSearchOutputSchema = lazySchema(
-  () => zodSchema$2(
-    object$1({
-      query: string(),
-      posts: array$1(
-        object$1({
-          author: string(),
-          text: string(),
-          url: string(),
-          likes: number$1()
-        })
-      )
-    })
-  )
-);
-var xSearchToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.x_search",
-  inputSchema: lazySchema(() => zodSchema$2(object$1({}))),
-  outputSchema: xSearchOutputSchema
-});
-var xSearch = (args = {}) => xSearchToolFactory(args);
-
-// src/responses/xai-responses-prepare-tools.ts
-async function prepareResponsesTools$1({
-  tools,
-  toolChoice
-}) {
-  const normalizedTools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  const toolWarnings = [];
-  if (normalizedTools == null) {
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  }
-  const xaiTools2 = [];
-  const toolByName = /* @__PURE__ */ new Map();
-  for (const tool of normalizedTools) {
-    toolByName.set(tool.name, tool);
-    if (tool.type === "provider") {
-      switch (tool.id) {
-        case "xai.web_search": {
-          const args = await validateTypes$2({
-            value: tool.args,
-            schema: webSearchArgsSchema
-          });
-          xaiTools2.push({
-            type: "web_search",
-            allowed_domains: args.allowedDomains,
-            excluded_domains: args.excludedDomains,
-            enable_image_understanding: args.enableImageUnderstanding
-          });
-          break;
-        }
-        case "xai.x_search": {
-          const args = await validateTypes$2({
-            value: tool.args,
-            schema: xSearchArgsSchema
-          });
-          xaiTools2.push({
-            type: "x_search",
-            allowed_x_handles: args.allowedXHandles,
-            excluded_x_handles: args.excludedXHandles,
-            from_date: args.fromDate,
-            to_date: args.toDate,
-            enable_image_understanding: args.enableImageUnderstanding,
-            enable_video_understanding: args.enableVideoUnderstanding
-          });
-          break;
-        }
-        case "xai.code_execution": {
-          xaiTools2.push({
-            type: "code_interpreter"
-          });
-          break;
-        }
-        case "xai.view_image": {
-          xaiTools2.push({
-            type: "view_image"
-          });
-          break;
-        }
-        case "xai.view_x_video": {
-          xaiTools2.push({
-            type: "view_x_video"
-          });
-          break;
-        }
-        case "xai.file_search": {
-          xaiTools2.push({
-            type: "file_search"
-          });
-          break;
-        }
-        case "xai.mcp": {
-          xaiTools2.push({
-            type: "mcp"
-          });
-          break;
-        }
-        default: {
-          toolWarnings.push({
-            type: "unsupported",
-            feature: `provider-defined tool ${tool.name}`
-          });
-          break;
-        }
-      }
-    } else {
-      xaiTools2.push({
-        type: "function",
-        name: tool.name,
-        description: tool.description,
-        parameters: tool.inputSchema
-      });
-    }
-  }
-  if (toolChoice == null) {
-    return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
-  }
-  const type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-      return { tools: xaiTools2, toolChoice: type, toolWarnings };
-    case "required":
-      return { tools: xaiTools2, toolChoice: "required", toolWarnings };
-    case "tool": {
-      const selectedTool = toolByName.get(toolChoice.toolName);
-      if (selectedTool == null) {
-        return {
-          tools: xaiTools2,
-          toolChoice: void 0,
-          toolWarnings
-        };
-      }
-      if (selectedTool.type === "provider") {
-        switch (selectedTool.id) {
-          case "xai.web_search":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "web_search" },
-              toolWarnings
-            };
-          case "xai.x_search":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "x_search" },
-              toolWarnings
-            };
-          case "xai.code_execution":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "code_interpreter" },
-              toolWarnings
-            };
-          case "xai.view_image":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "view_image" },
-              toolWarnings
-            };
-          case "xai.view_x_video":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "view_x_video" },
-              toolWarnings
-            };
-          case "xai.file_search":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "file_search" },
-              toolWarnings
-            };
-          case "xai.mcp":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "mcp" },
-              toolWarnings
-            };
-          default:
-            toolWarnings.push({
-              type: "unsupported",
-              feature: `provider-defined tool ${selectedTool.name}`
-            });
-            return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
-        }
-      }
-      return {
-        tools: xaiTools2,
-        toolChoice: { type: "function", name: selectedTool.name },
-        toolWarnings
-      };
-    }
-    default: {
-      const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$2({
-        functionality: `tool choice type: ${_exhaustiveCheck}`
-      });
-    }
-  }
-}
-
-// src/responses/xai-responses-language-model.ts
-var XaiResponsesLanguageModel = class {
-  constructor(modelId, config) {
-    this.specificationVersion = "v3";
-    this.supportedUrls = {
-      "image/*": [/^https?:\/\/.*$/]
-    };
-    this.modelId = modelId;
-    this.config = config;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    stopSequences,
-    seed,
-    responseFormat,
-    providerOptions,
-    tools,
-    toolChoice
-  }) {
-    var _a, _b, _c, _d, _e;
-    const warnings = [];
-    const options = (_a = await parseProviderOptions$1({
-      provider: "xai",
-      providerOptions,
-      schema: xaiResponsesProviderOptions
-    })) != null ? _a : {};
-    if (stopSequences != null) {
-      warnings.push({ type: "unsupported", feature: "stopSequences" });
-    }
-    const webSearchToolName = (_b = tools == null ? void 0 : tools.find(
-      (tool) => tool.type === "provider" && tool.id === "xai.web_search"
-    )) == null ? void 0 : _b.name;
-    const xSearchToolName = (_c = tools == null ? void 0 : tools.find(
-      (tool) => tool.type === "provider" && tool.id === "xai.x_search"
-    )) == null ? void 0 : _c.name;
-    const codeExecutionToolName = (_d = tools == null ? void 0 : tools.find(
-      (tool) => tool.type === "provider" && tool.id === "xai.code_execution"
-    )) == null ? void 0 : _d.name;
-    const { input, inputWarnings } = await convertToXaiResponsesInput({
-      prompt});
-    warnings.push(...inputWarnings);
-    const {
-      tools: xaiTools2,
-      toolChoice: xaiToolChoice,
-      toolWarnings
-    } = await prepareResponsesTools$1({
-      tools,
-      toolChoice
-    });
-    warnings.push(...toolWarnings);
-    const baseArgs = {
-      model: this.modelId,
-      input,
-      max_output_tokens: maxOutputTokens,
-      temperature,
-      top_p: topP,
-      seed,
-      ...(responseFormat == null ? void 0 : responseFormat.type) === "json" && {
-        text: {
-          format: responseFormat.schema != null ? {
-            type: "json_schema",
-            strict: true,
-            name: (_e = responseFormat.name) != null ? _e : "response",
-            description: responseFormat.description,
-            schema: responseFormat.schema
-          } : { type: "json_object" }
-        }
-      },
-      ...options.reasoningEffort != null && {
-        reasoning: { effort: options.reasoningEffort }
-      },
-      ...options.store === false && {
-        store: options.store,
-        include: ["reasoning.encrypted_content"]
-      },
-      ...options.previousResponseId != null && {
-        previous_response_id: options.previousResponseId
-      }
-    };
-    if (xaiTools2 && xaiTools2.length > 0) {
-      baseArgs.tools = xaiTools2;
-    }
-    if (xaiToolChoice != null) {
-      baseArgs.tool_choice = xaiToolChoice;
-    }
-    return {
-      args: baseArgs,
-      warnings,
-      webSearchToolName,
-      xSearchToolName,
-      codeExecutionToolName
-    };
-  }
-  async doGenerate(options) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    const {
-      args: body,
-      warnings,
-      webSearchToolName,
-      xSearchToolName,
-      codeExecutionToolName
-    } = await this.getArgs(options);
-    const {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi$2({
-      url: `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/responses`,
-      headers: combineHeaders$2(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$2(
-        xaiResponsesResponseSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    const content = [];
-    const webSearchSubTools = [
-      "web_search",
-      "web_search_with_snippets",
-      "browse_page"
-    ];
-    const xSearchSubTools = [
-      "x_user_search",
-      "x_keyword_search",
-      "x_semantic_search",
-      "x_thread_fetch"
-    ];
-    for (const part of response.output) {
-      if (part.type === "web_search_call" || part.type === "x_search_call" || part.type === "code_interpreter_call" || part.type === "code_execution_call" || part.type === "view_image_call" || part.type === "view_x_video_call" || part.type === "custom_tool_call") {
-        let toolName = (_b = part.name) != null ? _b : "";
-        if (webSearchSubTools.includes((_c = part.name) != null ? _c : "") || part.type === "web_search_call") {
-          toolName = webSearchToolName != null ? webSearchToolName : "web_search";
-        } else if (xSearchSubTools.includes((_d = part.name) != null ? _d : "") || part.type === "x_search_call") {
-          toolName = xSearchToolName != null ? xSearchToolName : "x_search";
-        } else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call") {
-          toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
-        }
-        const toolInput = part.type === "custom_tool_call" ? (_e = part.input) != null ? _e : "" : (_f = part.arguments) != null ? _f : "";
-        content.push({
-          type: "tool-call",
-          toolCallId: part.id,
-          toolName,
-          input: toolInput,
-          providerExecuted: true
-        });
-        continue;
-      }
-      switch (part.type) {
-        case "message": {
-          for (const contentPart of part.content) {
-            if (contentPart.text) {
-              content.push({
-                type: "text",
-                text: contentPart.text
-              });
-            }
-            if (contentPart.annotations) {
-              for (const annotation of contentPart.annotations) {
-                if (annotation.type === "url_citation" && "url" in annotation) {
-                  content.push({
-                    type: "source",
-                    sourceType: "url",
-                    id: this.config.generateId(),
-                    url: annotation.url,
-                    title: (_g = annotation.title) != null ? _g : annotation.url
-                  });
-                }
-              }
-            }
-          }
-          break;
-        }
-        case "function_call": {
-          content.push({
-            type: "tool-call",
-            toolCallId: part.call_id,
-            toolName: part.name,
-            input: part.arguments
-          });
-          break;
-        }
-        case "reasoning": {
-          const summaryTexts = part.summary.map((s) => s.text).filter((text) => text && text.length > 0);
-          if (summaryTexts.length > 0) {
-            const reasoningText = summaryTexts.join("");
-            if (part.encrypted_content || part.id) {
-              content.push({
-                type: "reasoning",
-                text: reasoningText,
-                providerMetadata: {
-                  xai: {
-                    ...part.encrypted_content && {
-                      reasoningEncryptedContent: part.encrypted_content
-                    },
-                    ...part.id && { itemId: part.id }
-                  }
-                }
-              });
-            } else {
-              content.push({
-                type: "reasoning",
-                text: reasoningText
-              });
-            }
-          }
-          break;
-        }
-      }
-    }
-    return {
-      content,
-      finishReason: {
-        unified: mapXaiResponsesFinishReason(response.status),
-        raw: (_h = response.status) != null ? _h : void 0
-      },
-      usage: convertXaiResponsesUsage(response.usage),
-      request: { body },
-      response: {
-        ...getResponseMetadata$3(response),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    var _a;
-    const {
-      args,
-      warnings,
-      webSearchToolName,
-      xSearchToolName,
-      codeExecutionToolName
-    } = await this.getArgs(options);
-    const body = {
-      ...args,
-      stream: true
-    };
-    const { responseHeaders, value: response } = await postJsonToApi$2({
-      url: `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/responses`,
-      headers: combineHeaders$2(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler$2(
-        xaiResponsesChunkSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    let finishReason = {
-      unified: "other",
-      raw: void 0
-    };
-    let usage = void 0;
-    let isFirstChunk = true;
-    const contentBlocks = {};
-    const seenToolCalls = /* @__PURE__ */ new Set();
-    const activeReasoning = {};
-    const self = this;
-    return {
-      stream: response.pipeThrough(
-        new TransformStream({
-          start(controller) {
-            controller.enqueue({ type: "stream-start", warnings });
-          },
-          transform(chunk, controller) {
-            var _a2, _b, _c, _d, _e, _f, _g, _h;
-            if (options.includeRawChunks) {
-              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-            }
-            if (!chunk.success) {
-              controller.enqueue({ type: "error", error: chunk.error });
-              return;
-            }
-            const event = chunk.value;
-            if (event.type === "response.created" || event.type === "response.in_progress") {
-              if (isFirstChunk) {
-                controller.enqueue({
-                  type: "response-metadata",
-                  ...getResponseMetadata$3(event.response)
-                });
-                isFirstChunk = false;
-              }
-              return;
-            }
-            if (event.type === "response.reasoning_summary_part.added") {
-              const blockId = `reasoning-${event.item_id}`;
-              controller.enqueue({
-                type: "reasoning-start",
-                id: blockId,
-                providerMetadata: {
-                  xai: {
-                    itemId: event.item_id
-                  }
-                }
-              });
-            }
-            if (event.type === "response.reasoning_summary_text.delta") {
-              const blockId = `reasoning-${event.item_id}`;
-              controller.enqueue({
-                type: "reasoning-delta",
-                id: blockId,
-                delta: event.delta,
-                providerMetadata: {
-                  xai: {
-                    itemId: event.item_id
-                  }
-                }
-              });
-              return;
-            }
-            if (event.type === "response.reasoning_summary_text.done") {
-              return;
-            }
-            if (event.type === "response.output_text.delta") {
-              const blockId = `text-${event.item_id}`;
-              if (contentBlocks[blockId] == null) {
-                contentBlocks[blockId] = { type: "text" };
-                controller.enqueue({
-                  type: "text-start",
-                  id: blockId
-                });
-              }
-              controller.enqueue({
-                type: "text-delta",
-                id: blockId,
-                delta: event.delta
-              });
-              return;
-            }
-            if (event.type === "response.output_text.done") {
-              if (event.annotations) {
-                for (const annotation of event.annotations) {
-                  if (annotation.type === "url_citation" && "url" in annotation) {
-                    controller.enqueue({
-                      type: "source",
-                      sourceType: "url",
-                      id: self.config.generateId(),
-                      url: annotation.url,
-                      title: (_a2 = annotation.title) != null ? _a2 : annotation.url
-                    });
-                  }
-                }
-              }
-              return;
-            }
-            if (event.type === "response.output_text.annotation.added") {
-              const annotation = event.annotation;
-              if (annotation.type === "url_citation" && "url" in annotation) {
-                controller.enqueue({
-                  type: "source",
-                  sourceType: "url",
-                  id: self.config.generateId(),
-                  url: annotation.url,
-                  title: (_b = annotation.title) != null ? _b : annotation.url
-                });
-              }
-              return;
-            }
-            if (event.type === "response.done" || event.type === "response.completed") {
-              const response2 = event.response;
-              if (response2.usage) {
-                usage = convertXaiResponsesUsage(response2.usage);
-              }
-              if (response2.status) {
-                finishReason = {
-                  unified: mapXaiResponsesFinishReason(response2.status),
-                  raw: response2.status
-                };
-              }
-              return;
-            }
-            if (event.type === "response.output_item.added" || event.type === "response.output_item.done") {
-              const part = event.item;
-              if (part.type === "reasoning") {
-                if (event.type === "response.output_item.done") {
-                  controller.enqueue({
-                    type: "reasoning-end",
-                    id: `reasoning-${part.id}`,
-                    providerMetadata: {
-                      xai: {
-                        ...part.encrypted_content && {
-                          reasoningEncryptedContent: part.encrypted_content
-                        },
-                        ...part.id && { itemId: part.id }
-                      }
-                    }
-                  });
-                  delete activeReasoning[part.id];
-                }
-                return;
-              }
-              if (part.type === "web_search_call" || part.type === "x_search_call" || part.type === "code_interpreter_call" || part.type === "code_execution_call" || part.type === "view_image_call" || part.type === "view_x_video_call" || part.type === "custom_tool_call") {
-                const webSearchSubTools = [
-                  "web_search",
-                  "web_search_with_snippets",
-                  "browse_page"
-                ];
-                const xSearchSubTools = [
-                  "x_user_search",
-                  "x_keyword_search",
-                  "x_semantic_search",
-                  "x_thread_fetch"
-                ];
-                let toolName = (_c = part.name) != null ? _c : "";
-                if (webSearchSubTools.includes((_d = part.name) != null ? _d : "") || part.type === "web_search_call") {
-                  toolName = webSearchToolName != null ? webSearchToolName : "web_search";
-                } else if (xSearchSubTools.includes((_e = part.name) != null ? _e : "") || part.type === "x_search_call") {
-                  toolName = xSearchToolName != null ? xSearchToolName : "x_search";
-                } else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call") {
-                  toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
-                }
-                const toolInput = part.type === "custom_tool_call" ? (_f = part.input) != null ? _f : "" : (_g = part.arguments) != null ? _g : "";
-                const shouldEmit = part.type === "custom_tool_call" ? event.type === "response.output_item.done" : !seenToolCalls.has(part.id);
-                if (shouldEmit && !seenToolCalls.has(part.id)) {
-                  seenToolCalls.add(part.id);
-                  controller.enqueue({
-                    type: "tool-input-start",
-                    id: part.id,
-                    toolName
-                  });
-                  controller.enqueue({
-                    type: "tool-input-delta",
-                    id: part.id,
-                    delta: toolInput
-                  });
-                  controller.enqueue({
-                    type: "tool-input-end",
-                    id: part.id
-                  });
-                  controller.enqueue({
-                    type: "tool-call",
-                    toolCallId: part.id,
-                    toolName,
-                    input: toolInput,
-                    providerExecuted: true
-                  });
-                }
-                return;
-              }
-              if (part.type === "message") {
-                for (const contentPart of part.content) {
-                  if (contentPart.text && contentPart.text.length > 0) {
-                    const blockId = `text-${part.id}`;
-                    if (contentBlocks[blockId] == null) {
-                      contentBlocks[blockId] = { type: "text" };
-                      controller.enqueue({
-                        type: "text-start",
-                        id: blockId
-                      });
-                      controller.enqueue({
-                        type: "text-delta",
-                        id: blockId,
-                        delta: contentPart.text
-                      });
-                    }
-                  }
-                  if (contentPart.annotations) {
-                    for (const annotation of contentPart.annotations) {
-                      if (annotation.type === "url_citation" && "url" in annotation) {
-                        controller.enqueue({
-                          type: "source",
-                          sourceType: "url",
-                          id: self.config.generateId(),
-                          url: annotation.url,
-                          title: (_h = annotation.title) != null ? _h : annotation.url
-                        });
-                      }
-                    }
-                  }
-                }
-              } else if (part.type === "function_call") {
-                if (!seenToolCalls.has(part.call_id)) {
-                  seenToolCalls.add(part.call_id);
-                  controller.enqueue({
-                    type: "tool-input-start",
-                    id: part.call_id,
-                    toolName: part.name
-                  });
-                  controller.enqueue({
-                    type: "tool-input-delta",
-                    id: part.call_id,
-                    delta: part.arguments
-                  });
-                  controller.enqueue({
-                    type: "tool-input-end",
-                    id: part.call_id
-                  });
-                  controller.enqueue({
-                    type: "tool-call",
-                    toolCallId: part.call_id,
-                    toolName: part.name,
-                    input: part.arguments
-                  });
-                }
-              }
-            }
-          },
-          flush(controller) {
-            for (const [blockId, block] of Object.entries(contentBlocks)) {
-              if (block.type === "text") {
-                controller.enqueue({
-                  type: "text-end",
-                  id: blockId
-                });
-              }
-            }
-            controller.enqueue({ type: "finish", finishReason, usage });
-          }
-        })
-      ),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-};
-var codeExecutionOutputSchema = object$1({
-  output: string().describe("the output of the code execution"),
-  error: string().optional().describe("any error that occurred")
-});
-var codeExecutionToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.code_execution",
-  inputSchema: object$1({}).describe("no input parameters"),
-  outputSchema: codeExecutionOutputSchema
-});
-var codeExecution = (args = {}) => codeExecutionToolFactory(args);
-var viewImageOutputSchema = object$1({
-  description: string().describe("description of the image"),
-  objects: array$1(string()).optional().describe("objects detected in the image")
-});
-var viewImageToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.view_image",
-  inputSchema: object$1({}).describe("no input parameters"),
-  outputSchema: viewImageOutputSchema
-});
-var viewImage = (args = {}) => viewImageToolFactory(args);
-var viewXVideoOutputSchema = object$1({
-  transcript: string().optional().describe("transcript of the video"),
-  description: string().describe("description of the video content"),
-  duration: number$1().optional().describe("duration in seconds")
-});
-var viewXVideoToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.view_x_video",
-  inputSchema: object$1({}).describe("no input parameters"),
-  outputSchema: viewXVideoOutputSchema
-});
-var viewXVideo = (args = {}) => viewXVideoToolFactory(args);
-
-// src/tool/index.ts
-var xaiTools = {
-  codeExecution,
-  viewImage,
-  viewXVideo,
-  webSearch,
-  xSearch
-};
-
-// src/version.ts
-var VERSION$4 = "3.0.29" ;
-
-// src/xai-provider.ts
-var xaiErrorStructure = {
-  errorSchema: xaiErrorDataSchema,
-  errorToMessage: (data) => data.error.message
-};
-function createXai(options = {}) {
-  var _a;
-  const baseURL = withoutTrailingSlash$2(
-    (_a = options.baseURL) != null ? _a : "https://api.x.ai/v1"
-  );
-  const getHeaders = () => withUserAgentSuffix$2(
-    {
-      Authorization: `Bearer ${loadApiKey$2({
-        apiKey: options.apiKey,
-        environmentVariableName: "XAI_API_KEY",
-        description: "xAI API key"
-      })}`,
-      ...options.headers
-    },
-    `ai-sdk/xai/${VERSION$4}`
-  );
-  const createChatLanguageModel = (modelId) => {
-    return new XaiChatLanguageModel(modelId, {
-      provider: "xai.chat",
-      baseURL,
-      headers: getHeaders,
-      generateId: generateId$2,
-      fetch: options.fetch
-    });
-  };
-  const createResponsesLanguageModel = (modelId) => {
-    return new XaiResponsesLanguageModel(modelId, {
-      provider: "xai.responses",
-      baseURL,
-      headers: getHeaders,
-      generateId: generateId$2,
-      fetch: options.fetch
-    });
-  };
-  const createImageModel = (modelId) => {
-    return new OpenAICompatibleImageModel(modelId, {
-      provider: "xai.image",
-      url: ({ path }) => `${baseURL}${path}`,
-      headers: getHeaders,
-      fetch: options.fetch,
-      errorStructure: xaiErrorStructure
-    });
-  };
-  const provider = (modelId) => createChatLanguageModel(modelId);
-  provider.specificationVersion = "v3";
-  provider.languageModel = createChatLanguageModel;
-  provider.chat = createChatLanguageModel;
-  provider.responses = createResponsesLanguageModel;
-  provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError$2({ modelId, modelType: "embeddingModel" });
-  };
-  provider.textEmbeddingModel = provider.embeddingModel;
-  provider.imageModel = createImageModel;
-  provider.image = createImageModel;
-  provider.tools = xaiTools;
-  return provider;
-}
-var xai = createXai();
-
-// src/errors/ai-sdk-error.ts
-var marker$1 = "vercel.ai.error";
-var symbol$1 = Symbol.for(marker$1);
-var _a$1, _b$1;
-var AISDKError$1 = class _AISDKError extends (_b$1 = Error, _a$1 = symbol$1, _b$1) {
-  /**
-   * Creates an AI SDK Error.
-   *
-   * @param {Object} params - The parameters for creating the error.
-   * @param {string} params.name - The name of the error.
-   * @param {string} params.message - The error message.
-   * @param {unknown} [params.cause] - The underlying cause of the error.
-   */
-  constructor({
-    name: name14,
-    message,
-    cause
-  }) {
-    super(message);
-    this[_a$1] = true;
-    this.name = name14;
-    this.cause = cause;
-  }
-  /**
-   * Checks if the given error is an AI SDK Error.
-   * @param {unknown} error - The error to check.
-   * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
-   */
-  static isInstance(error) {
-    return _AISDKError.hasMarker(error, marker$1);
-  }
-  static hasMarker(error, marker15) {
-    const markerSymbol = Symbol.for(marker15);
-    return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
-  }
-};
-
-// src/errors/api-call-error.ts
-var name$1 = "AI_APICallError";
-var marker2$1 = `vercel.ai.error.${name$1}`;
-var symbol2$1 = Symbol.for(marker2$1);
-var _a2$1, _b2$1;
-var APICallError$1 = class APICallError extends (_b2$1 = AISDKError$1, _a2$1 = symbol2$1, _b2$1) {
-  constructor({
-    message,
-    url,
-    requestBodyValues,
-    statusCode,
-    responseHeaders,
-    responseBody,
-    cause,
-    isRetryable = statusCode != null && (statusCode === 408 || // request timeout
-    statusCode === 409 || // conflict
-    statusCode === 429 || // too many requests
-    statusCode >= 500),
-    // server error
-    data
-  }) {
-    super({ name: name$1, message, cause });
-    this[_a2$1] = true;
-    this.url = url;
-    this.requestBodyValues = requestBodyValues;
-    this.statusCode = statusCode;
-    this.responseHeaders = responseHeaders;
-    this.responseBody = responseBody;
-    this.isRetryable = isRetryable;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker2$1);
-  }
-};
-
-// src/errors/empty-response-body-error.ts
-var name2$1 = "AI_EmptyResponseBodyError";
-var marker3$1 = `vercel.ai.error.${name2$1}`;
-var symbol3$1 = Symbol.for(marker3$1);
-var _a3$1, _b3$1;
-var EmptyResponseBodyError$1 = class EmptyResponseBodyError extends (_b3$1 = AISDKError$1, _a3$1 = symbol3$1, _b3$1) {
-  // used in isInstance
-  constructor({ message = "Empty response body" } = {}) {
-    super({ name: name2$1, message });
-    this[_a3$1] = true;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker3$1);
-  }
-};
-
-// src/errors/get-error-message.ts
-function getErrorMessage$1(error) {
-  if (error == null) {
-    return "unknown error";
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return JSON.stringify(error);
-}
-
-// src/errors/invalid-argument-error.ts
-var name3$1 = "AI_InvalidArgumentError";
-var marker4$1 = `vercel.ai.error.${name3$1}`;
-var symbol4$1 = Symbol.for(marker4$1);
-var _a4$1, _b4$1;
-var InvalidArgumentError$1 = class InvalidArgumentError extends (_b4$1 = AISDKError$1, _a4$1 = symbol4$1, _b4$1) {
-  constructor({
-    message,
-    cause,
-    argument
-  }) {
-    super({ name: name3$1, message, cause });
-    this[_a4$1] = true;
-    this.argument = argument;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker4$1);
-  }
-};
-
-// src/errors/json-parse-error.ts
-var name6$1 = "AI_JSONParseError";
-var marker7$1 = `vercel.ai.error.${name6$1}`;
-var symbol7$1 = Symbol.for(marker7$1);
-var _a7$1, _b7$1;
-var JSONParseError$1 = class JSONParseError extends (_b7$1 = AISDKError$1, _a7$1 = symbol7$1, _b7$1) {
-  constructor({ text, cause }) {
-    super({
-      name: name6$1,
-      message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage$1(cause)}`,
-      cause
-    });
-    this[_a7$1] = true;
-    this.text = text;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker7$1);
-  }
-};
-
-// src/errors/load-api-key-error.ts
-var name7$1 = "AI_LoadAPIKeyError";
-var marker8$1 = `vercel.ai.error.${name7$1}`;
-var symbol8$1 = Symbol.for(marker8$1);
-var _a8$1, _b8$1;
-var LoadAPIKeyError$1 = class LoadAPIKeyError extends (_b8$1 = AISDKError$1, _a8$1 = symbol8$1, _b8$1) {
-  // used in isInstance
-  constructor({ message }) {
-    super({ name: name7$1, message });
-    this[_a8$1] = true;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker8$1);
-  }
-};
-
-// src/errors/no-such-model-error.ts
-var name10$1 = "AI_NoSuchModelError";
-var marker11$1 = `vercel.ai.error.${name10$1}`;
-var symbol11$1 = Symbol.for(marker11$1);
-var _a11$1, _b11$1;
-var NoSuchModelError$1 = class NoSuchModelError extends (_b11$1 = AISDKError$1, _a11$1 = symbol11$1, _b11$1) {
-  constructor({
-    errorName = name10$1,
-    modelId,
-    modelType,
-    message = `No such ${modelType}: ${modelId}`
-  }) {
-    super({ name: errorName, message });
-    this[_a11$1] = true;
-    this.modelId = modelId;
-    this.modelType = modelType;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker11$1);
-  }
-};
-
-// src/errors/type-validation-error.ts
-var name12$1 = "AI_TypeValidationError";
-var marker13$1 = `vercel.ai.error.${name12$1}`;
-var symbol13$1 = Symbol.for(marker13$1);
-var _a13$1, _b13$1;
-var TypeValidationError$1 = class _TypeValidationError extends (_b13$1 = AISDKError$1, _a13$1 = symbol13$1, _b13$1) {
-  constructor({ value, cause }) {
-    super({
-      name: name12$1,
-      message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage$1(cause)}`,
-      cause
-    });
-    this[_a13$1] = true;
-    this.value = value;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker13$1);
-  }
-  /**
-   * Wraps an error into a TypeValidationError.
-   * If the cause is already a TypeValidationError with the same value, it returns the cause.
-   * Otherwise, it creates a new TypeValidationError.
-   *
-   * @param {Object} params - The parameters for wrapping the error.
-   * @param {unknown} params.value - The value that failed validation.
-   * @param {unknown} params.cause - The original error or cause of the validation failure.
-   * @returns {TypeValidationError} A TypeValidationError instance.
-   */
-  static wrap({
-    value,
-    cause
-  }) {
-    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
-  }
-};
-
-// src/errors/unsupported-functionality-error.ts
-var name13$1 = "AI_UnsupportedFunctionalityError";
-var marker14$1 = `vercel.ai.error.${name13$1}`;
-var symbol14$1 = Symbol.for(marker14$1);
-var _a14$1, _b14$1;
-var UnsupportedFunctionalityError$1 = class UnsupportedFunctionalityError extends (_b14$1 = AISDKError$1, _a14$1 = symbol14$1, _b14$1) {
-  constructor({
-    functionality,
-    message = `'${functionality}' functionality not supported.`
-  }) {
-    super({ name: name13$1, message });
-    this[_a14$1] = true;
-    this.functionality = functionality;
-  }
-  static isInstance(error) {
-    return AISDKError$1.hasMarker(error, marker14$1);
-  }
-};
-
-// src/combine-headers.ts
-function combineHeaders$1(...headers) {
-  return headers.reduce(
-    (combinedHeaders, currentHeaders) => ({
-      ...combinedHeaders,
-      ...currentHeaders != null ? currentHeaders : {}
-    }),
-    {}
-  );
-}
-
-// src/extract-response-headers.ts
-function extractResponseHeaders$1(response) {
-  return Object.fromEntries([...response.headers]);
-}
-
-// src/uint8-utils.ts
-var { btoa: btoa$1} = globalThis;
-function convertUint8ArrayToBase64$1(array) {
-  let latin1string = "";
-  for (let i = 0; i < array.length; i++) {
-    latin1string += String.fromCodePoint(array[i]);
-  }
-  return btoa$1(latin1string);
-}
-var createIdGenerator$1 = ({
-  prefix,
-  size = 16,
-  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  separator = "-"
-} = {}) => {
-  const generator = () => {
-    const alphabetLength = alphabet.length;
-    const chars = new Array(size);
-    for (let i = 0; i < size; i++) {
-      chars[i] = alphabet[Math.random() * alphabetLength | 0];
-    }
-    return chars.join("");
-  };
-  if (prefix == null) {
-    return generator;
-  }
-  if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError$1({
-      argument: "separator",
-      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
-    });
-  }
-  return () => `${prefix}${separator}${generator()}`;
-};
-var generateId$1 = createIdGenerator$1();
-
-// src/is-abort-error.ts
-function isAbortError$1(error) {
-  return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
-  error.name === "TimeoutError");
-}
-
-// src/handle-fetch-error.ts
-var FETCH_FAILED_ERROR_MESSAGES$1 = ["fetch failed", "failed to fetch"];
-function handleFetchError$1({
-  error,
-  url,
-  requestBodyValues
-}) {
-  if (isAbortError$1(error)) {
-    return error;
-  }
-  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES$1.includes(error.message.toLowerCase())) {
-    const cause = error.cause;
-    if (cause != null) {
-      return new APICallError$1({
-        message: `Cannot connect to API: ${cause.message}`,
-        cause,
-        url,
-        requestBodyValues,
-        isRetryable: true
-        // retry when network error
-      });
-    }
-  }
-  return error;
-}
-
-// src/get-runtime-environment-user-agent.ts
-function getRuntimeEnvironmentUserAgent$1(globalThisAny = globalThis) {
-  var _a2, _b2, _c;
-  if (globalThisAny.window) {
-    return `runtime/browser`;
-  }
-  if ((_a2 = globalThisAny.navigator) == null ? void 0 : _a2.userAgent) {
-    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
-  }
-  if ((_c = (_b2 = globalThisAny.process) == null ? void 0 : _b2.versions) == null ? void 0 : _c.node) {
-    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
-  }
-  if (globalThisAny.EdgeRuntime) {
-    return `runtime/vercel-edge`;
-  }
-  return "runtime/unknown";
-}
-
-// src/normalize-headers.ts
-function normalizeHeaders$1(headers) {
-  if (headers == null) {
-    return {};
-  }
-  const normalized = {};
-  if (headers instanceof Headers) {
-    headers.forEach((value, key) => {
-      normalized[key.toLowerCase()] = value;
-    });
-  } else {
-    if (!Array.isArray(headers)) {
-      headers = Object.entries(headers);
-    }
-    for (const [key, value] of headers) {
-      if (value != null) {
-        normalized[key.toLowerCase()] = value;
-      }
-    }
-  }
-  return normalized;
-}
-
-// src/with-user-agent-suffix.ts
-function withUserAgentSuffix$1(headers, ...userAgentSuffixParts) {
-  const normalizedHeaders = new Headers(normalizeHeaders$1(headers));
-  const currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
-  normalizedHeaders.set(
-    "user-agent",
-    [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")
-  );
-  return Object.fromEntries(normalizedHeaders.entries());
-}
-
-// src/version.ts
-var VERSION$3 = "4.0.8" ;
-function loadApiKey$1({
-  apiKey,
-  environmentVariableName,
-  apiKeyParameterName = "apiKey",
-  description
-}) {
-  if (typeof apiKey === "string") {
-    return apiKey;
-  }
-  if (apiKey != null) {
-    throw new LoadAPIKeyError$1({
-      message: `${description} API key must be a string.`
-    });
-  }
-  if (typeof process === "undefined") {
-    throw new LoadAPIKeyError$1({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables is not supported in this environment.`
-    });
-  }
-  apiKey = process.env[environmentVariableName];
-  if (apiKey == null) {
-    throw new LoadAPIKeyError$1({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
-    });
-  }
-  if (typeof apiKey !== "string") {
-    throw new LoadAPIKeyError$1({
-      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
-    });
-  }
-  return apiKey;
-}
-
-// src/secure-json-parse.ts
-var suspectProtoRx$1 = /"__proto__"\s*:/;
-var suspectConstructorRx$1 = /"constructor"\s*:/;
-function _parse$1(text) {
-  const obj = JSON.parse(text);
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-  if (suspectProtoRx$1.test(text) === false && suspectConstructorRx$1.test(text) === false) {
-    return obj;
-  }
-  return filter$1(obj);
-}
-function filter$1(obj) {
-  let next = [obj];
-  while (next.length) {
-    const nodes = next;
-    next = [];
-    for (const node of nodes) {
-      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      if (Object.prototype.hasOwnProperty.call(node, "constructor") && Object.prototype.hasOwnProperty.call(node.constructor, "prototype")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      for (const key in node) {
-        const value = node[key];
-        if (value && typeof value === "object") {
-          next.push(value);
-        }
-      }
-    }
-  }
-  return obj;
-}
-function secureJsonParse$1(text) {
-  const { stackTraceLimit } = Error;
-  try {
-    Error.stackTraceLimit = 0;
-  } catch (e) {
-    return _parse$1(text);
-  }
-  try {
-    return _parse$1(text);
-  } finally {
-    Error.stackTraceLimit = stackTraceLimit;
-  }
-}
-
-// src/add-additional-properties-to-json-schema.ts
-function addAdditionalPropertiesToJsonSchema$1(jsonSchema2) {
-  if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
-    jsonSchema2.additionalProperties = false;
-    const { properties } = jsonSchema2;
-    if (properties != null) {
-      for (const key of Object.keys(properties)) {
-        properties[key] = visit$1(properties[key]);
-      }
-    }
-  }
-  if (jsonSchema2.items != null) {
-    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit$1) : visit$1(jsonSchema2.items);
-  }
-  if (jsonSchema2.anyOf != null) {
-    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit$1);
-  }
-  if (jsonSchema2.allOf != null) {
-    jsonSchema2.allOf = jsonSchema2.allOf.map(visit$1);
-  }
-  if (jsonSchema2.oneOf != null) {
-    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit$1);
-  }
-  const { definitions } = jsonSchema2;
-  if (definitions != null) {
-    for (const key of Object.keys(definitions)) {
-      definitions[key] = visit$1(definitions[key]);
-    }
-  }
-  return jsonSchema2;
-}
-function visit$1(def) {
-  if (typeof def === "boolean") return def;
-  return addAdditionalPropertiesToJsonSchema$1(def);
-}
-
-// src/to-json-schema/zod3-to-json-schema/options.ts
-var ignoreOverride$1 = Symbol(
-  "Let zodToJsonSchema decide on which parser to use"
-);
-var defaultOptions$1 = {
-  name: void 0,
-  $refStrategy: "root",
-  basePath: ["#"],
-  effectStrategy: "input",
-  pipeStrategy: "all",
-  dateStrategy: "format:date-time",
-  mapStrategy: "entries",
-  removeAdditionalStrategy: "passthrough",
-  allowedAdditionalProperties: true,
-  rejectedAdditionalProperties: false,
-  definitionPath: "definitions",
-  strictUnions: false,
-  definitions: {},
-  errorMessages: false,
-  patternStrategy: "escape",
-  applyRegexFlags: false,
-  emailStrategy: "format:email",
-  base64Strategy: "contentEncoding:base64",
-  nameStrategy: "ref"
-};
-var getDefaultOptions$1 = (options) => typeof options === "string" ? {
-  ...defaultOptions$1,
-  name: options
-} : {
-  ...defaultOptions$1,
-  ...options
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/any.ts
-function parseAnyDef$1() {
-  return {};
-}
-function parseArrayDef$1(def, refs) {
-  var _a2, _b2, _c;
-  const res = {
-    type: "array"
-  };
-  if (((_a2 = def.type) == null ? void 0 : _a2._def) && ((_c = (_b2 = def.type) == null ? void 0 : _b2._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef$1(def.type._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "items"]
-    });
-  }
-  if (def.minLength) {
-    res.minItems = def.minLength.value;
-  }
-  if (def.maxLength) {
-    res.maxItems = def.maxLength.value;
-  }
-  if (def.exactLength) {
-    res.minItems = def.exactLength.value;
-    res.maxItems = def.exactLength.value;
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/bigint.ts
-function parseBigintDef$1(def) {
-  const res = {
-    type: "integer",
-    format: "int64"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/boolean.ts
-function parseBooleanDef$1() {
-  return { type: "boolean" };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/branded.ts
-function parseBrandedDef$1(_def, refs) {
-  return parseDef$1(_def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/catch.ts
-var parseCatchDef$1 = (def, refs) => {
-  return parseDef$1(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/date.ts
-function parseDateDef$1(def, refs, overrideDateStrategy) {
-  const strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
-  if (Array.isArray(strategy)) {
-    return {
-      anyOf: strategy.map((item, i) => parseDateDef$1(def, refs, item))
-    };
-  }
-  switch (strategy) {
-    case "string":
-    case "format:date-time":
-      return {
-        type: "string",
-        format: "date-time"
-      };
-    case "format:date":
-      return {
-        type: "string",
-        format: "date"
-      };
-    case "integer":
-      return integerDateParser$1(def);
-  }
-}
-var integerDateParser$1 = (def) => {
-  const res = {
-    type: "integer",
-    format: "unix-time"
-  };
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        res.minimum = check.value;
-        break;
-      case "max":
-        res.maximum = check.value;
-        break;
-    }
-  }
-  return res;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/default.ts
-function parseDefaultDef$1(_def, refs) {
-  return {
-    ...parseDef$1(_def.innerType._def, refs),
-    default: _def.defaultValue()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/effects.ts
-function parseEffectsDef$1(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef$1(_def.schema._def, refs) : parseAnyDef$1();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/enum.ts
-function parseEnumDef$1(def) {
-  return {
-    type: "string",
-    enum: Array.from(def.values)
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/intersection.ts
-var isJsonSchema7AllOfType$1 = (type) => {
-  if ("type" in type && type.type === "string") return false;
-  return "allOf" in type;
-};
-function parseIntersectionDef$1(def, refs) {
-  const allOf = [
-    parseDef$1(def.left._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "0"]
-    }),
-    parseDef$1(def.right._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "1"]
-    })
-  ].filter((x) => !!x);
-  const mergedAllOf = [];
-  allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType$1(schema)) {
-      mergedAllOf.push(...schema.allOf);
-    } else {
-      let nestedSchema = schema;
-      if ("additionalProperties" in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema;
-        nestedSchema = rest;
-      }
-      mergedAllOf.push(nestedSchema);
-    }
-  });
-  return mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/literal.ts
-function parseLiteralDef$1(def) {
-  const parsedType = typeof def.value;
-  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
-    return {
-      type: Array.isArray(def.value) ? "array" : "object"
-    };
-  }
-  return {
-    type: parsedType === "bigint" ? "integer" : parsedType,
-    const: def.value
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/string.ts
-var emojiRegex$1 = void 0;
-var zodPatterns$1 = {
-  /**
-   * `c` was changed to `[cC]` to replicate /i flag
-   */
-  cuid: /^[cC][^\s-]{8,}$/,
-  cuid2: /^[0-9a-z]+$/,
-  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
-  /**
-   * `a-z` was added to replicate /i flag
-   */
-  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
-  /**
-   * Constructed a valid Unicode RegExp
-   *
-   * Lazily instantiate since this type of regex isn't supported
-   * in all envs (e.g. React Native).
-   *
-   * See:
-   * https://github.com/colinhacks/zod/issues/2433
-   * Fix in Zod:
-   * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
-   */
-  emoji: () => {
-    if (emojiRegex$1 === void 0) {
-      emojiRegex$1 = RegExp(
-        "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$",
-        "u"
-      );
-    }
-    return emojiRegex$1;
-  },
-  /**
-   * Unused
-   */
-  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
-  /**
-   * Unused
-   */
-  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
-  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
-  /**
-   * Unused
-   */
-  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
-  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
-  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
-  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
-  nanoid: /^[a-zA-Z0-9_-]{21}$/,
-  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
-};
-function parseStringDef$1(def, refs) {
-  const res = {
-    type: "string"
-  };
-  if (def.checks) {
-    for (const check of def.checks) {
-      switch (check.kind) {
-        case "min":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          break;
-        case "max":
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "email":
-          switch (refs.emailStrategy) {
-            case "format:email":
-              addFormat$1(res, "email", check.message, refs);
-              break;
-            case "format:idn-email":
-              addFormat$1(res, "idn-email", check.message, refs);
-              break;
-            case "pattern:zod":
-              addPattern$1(res, zodPatterns$1.email, check.message, refs);
-              break;
-          }
-          break;
-        case "url":
-          addFormat$1(res, "uri", check.message, refs);
-          break;
-        case "uuid":
-          addFormat$1(res, "uuid", check.message, refs);
-          break;
-        case "regex":
-          addPattern$1(res, check.regex, check.message, refs);
-          break;
-        case "cuid":
-          addPattern$1(res, zodPatterns$1.cuid, check.message, refs);
-          break;
-        case "cuid2":
-          addPattern$1(res, zodPatterns$1.cuid2, check.message, refs);
-          break;
-        case "startsWith":
-          addPattern$1(
-            res,
-            RegExp(`^${escapeLiteralCheckValue$1(check.value, refs)}`),
-            check.message,
-            refs
-          );
-          break;
-        case "endsWith":
-          addPattern$1(
-            res,
-            RegExp(`${escapeLiteralCheckValue$1(check.value, refs)}$`),
-            check.message,
-            refs
-          );
-          break;
-        case "datetime":
-          addFormat$1(res, "date-time", check.message, refs);
-          break;
-        case "date":
-          addFormat$1(res, "date", check.message, refs);
-          break;
-        case "time":
-          addFormat$1(res, "time", check.message, refs);
-          break;
-        case "duration":
-          addFormat$1(res, "duration", check.message, refs);
-          break;
-        case "length":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "includes": {
-          addPattern$1(
-            res,
-            RegExp(escapeLiteralCheckValue$1(check.value, refs)),
-            check.message,
-            refs
-          );
-          break;
-        }
-        case "ip": {
-          if (check.version !== "v6") {
-            addFormat$1(res, "ipv4", check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addFormat$1(res, "ipv6", check.message, refs);
-          }
-          break;
-        }
-        case "base64url":
-          addPattern$1(res, zodPatterns$1.base64url, check.message, refs);
-          break;
-        case "jwt":
-          addPattern$1(res, zodPatterns$1.jwt, check.message, refs);
-          break;
-        case "cidr": {
-          if (check.version !== "v6") {
-            addPattern$1(res, zodPatterns$1.ipv4Cidr, check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addPattern$1(res, zodPatterns$1.ipv6Cidr, check.message, refs);
-          }
-          break;
-        }
-        case "emoji":
-          addPattern$1(res, zodPatterns$1.emoji(), check.message, refs);
-          break;
-        case "ulid": {
-          addPattern$1(res, zodPatterns$1.ulid, check.message, refs);
-          break;
-        }
-        case "base64": {
-          switch (refs.base64Strategy) {
-            case "format:binary": {
-              addFormat$1(res, "binary", check.message, refs);
-              break;
-            }
-            case "contentEncoding:base64": {
-              res.contentEncoding = "base64";
-              break;
-            }
-            case "pattern:zod": {
-              addPattern$1(res, zodPatterns$1.base64, check.message, refs);
-              break;
-            }
-          }
-          break;
-        }
-        case "nanoid": {
-          addPattern$1(res, zodPatterns$1.nanoid, check.message, refs);
-        }
-      }
-    }
-  }
-  return res;
-}
-function escapeLiteralCheckValue$1(literal, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric$1(literal) : literal;
-}
-var ALPHA_NUMERIC$1 = new Set(
-  "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789"
-);
-function escapeNonAlphaNumeric$1(source) {
-  let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC$1.has(source[i])) {
-      result += "\\";
-    }
-    result += source[i];
-  }
-  return result;
-}
-function addFormat$1(schema, value, message, refs) {
-  var _a2;
-  if (schema.format || ((_a2 = schema.anyOf) == null ? void 0 : _a2.some((x) => x.format))) {
-    if (!schema.anyOf) {
-      schema.anyOf = [];
-    }
-    if (schema.format) {
-      schema.anyOf.push({
-        format: schema.format
-      });
-      delete schema.format;
-    }
-    schema.anyOf.push({
-      format: value,
-      ...message && refs.errorMessages && { errorMessage: { format: message } }
-    });
-  } else {
-    schema.format = value;
-  }
-}
-function addPattern$1(schema, regex, message, refs) {
-  var _a2;
-  if (schema.pattern || ((_a2 = schema.allOf) == null ? void 0 : _a2.some((x) => x.pattern))) {
-    if (!schema.allOf) {
-      schema.allOf = [];
-    }
-    if (schema.pattern) {
-      schema.allOf.push({
-        pattern: schema.pattern
-      });
-      delete schema.pattern;
-    }
-    schema.allOf.push({
-      pattern: stringifyRegExpWithFlags$1(regex, refs),
-      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
-    });
-  } else {
-    schema.pattern = stringifyRegExpWithFlags$1(regex, refs);
-  }
-}
-function stringifyRegExpWithFlags$1(regex, refs) {
-  var _a2;
-  if (!refs.applyRegexFlags || !regex.flags) {
-    return regex.source;
-  }
-  const flags = {
-    i: regex.flags.includes("i"),
-    // Case-insensitive
-    m: regex.flags.includes("m"),
-    // `^` and `$` matches adjacent to newline characters
-    s: regex.flags.includes("s")
-    // `.` matches newlines
-  };
-  const source = flags.i ? regex.source.toLowerCase() : regex.source;
-  let pattern = "";
-  let isEscaped = false;
-  let inCharGroup = false;
-  let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
-    if (isEscaped) {
-      pattern += source[i];
-      isEscaped = false;
-      continue;
-    }
-    if (flags.i) {
-      if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
-          if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
-            inCharRange = false;
-          } else if (source[i + 1] === "-" && ((_a2 = source[i + 2]) == null ? void 0 : _a2.match(/[a-z]/))) {
-            pattern += source[i];
-            inCharRange = true;
-          } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
-          }
-          continue;
-        }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
-        continue;
-      }
-    }
-    if (flags.m) {
-      if (source[i] === "^") {
-        pattern += `(^|(?<=[\r
-]))`;
-        continue;
-      } else if (source[i] === "$") {
-        pattern += `($|(?=[\r
-]))`;
-        continue;
-      }
-    }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
-]`;
-      continue;
-    }
-    pattern += source[i];
-    if (source[i] === "\\") {
-      isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
-      inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
-      inCharGroup = true;
-    }
-  }
-  try {
-    new RegExp(pattern);
-  } catch (e) {
-    console.warn(
-      `Could not convert regex pattern at ${refs.currentPath.join(
-        "/"
-      )} to a flag-independent form! Falling back to the flag-ignorant source`
-    );
-    return regex.source;
-  }
-  return pattern;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/record.ts
-function parseRecordDef$1(def, refs) {
-  var _a2, _b2, _c, _d, _e, _f;
-  const schema = {
-    type: "object",
-    additionalProperties: (_a2 = parseDef$1(def.valueType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    })) != null ? _a2 : refs.allowedAdditionalProperties
-  };
-  if (((_b2 = def.keyType) == null ? void 0 : _b2._def.typeName) === ZodFirstPartyTypeKind.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
-    const { type, ...keyType } = parseStringDef$1(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      ...schema,
-      propertyNames: {
-        enum: def.keyType._def.values
-      }
-    };
-  } else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
-    const { type, ...keyType } = parseBrandedDef$1(
-      def.keyType._def,
-      refs
-    );
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/map.ts
-function parseMapDef$1(def, refs) {
-  if (refs.mapStrategy === "record") {
-    return parseRecordDef$1(def, refs);
-  }
-  const keys = parseDef$1(def.keyType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef$1();
-  const values = parseDef$1(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef$1();
-  return {
-    type: "array",
-    maxItems: 125,
-    items: {
-      type: "array",
-      items: [keys, values],
-      minItems: 2,
-      maxItems: 2
-    }
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/native-enum.ts
-function parseNativeEnumDef$1(def) {
-  const object = def.values;
-  const actualKeys = Object.keys(def.values).filter((key) => {
-    return typeof object[object[key]] !== "number";
-  });
-  const actualValues = actualKeys.map((key) => object[key]);
-  const parsedTypes = Array.from(
-    new Set(actualValues.map((values) => typeof values))
-  );
-  return {
-    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
-    enum: actualValues
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/never.ts
-function parseNeverDef$1() {
-  return { not: parseAnyDef$1() };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/null.ts
-function parseNullDef$1() {
-  return {
-    type: "null"
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/union.ts
-var primitiveMappings$1 = {
-  ZodString: "string",
-  ZodNumber: "number",
-  ZodBigInt: "integer",
-  ZodBoolean: "boolean",
-  ZodNull: "null"
-};
-function parseUnionDef$1(def, refs) {
-  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
-  if (options.every(
-    (x) => x._def.typeName in primitiveMappings$1 && (!x._def.checks || !x._def.checks.length)
-  )) {
-    const types = options.reduce((types2, x) => {
-      const type = primitiveMappings$1[x._def.typeName];
-      return type && !types2.includes(type) ? [...types2, type] : types2;
-    }, []);
-    return {
-      type: types.length > 1 ? types : types[0]
-    };
-  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
-    const types = options.reduce(
-      (acc, x) => {
-        const type = typeof x._def.value;
-        switch (type) {
-          case "string":
-          case "number":
-          case "boolean":
-            return [...acc, type];
-          case "bigint":
-            return [...acc, "integer"];
-          case "object":
-            if (x._def.value === null) return [...acc, "null"];
-          case "symbol":
-          case "undefined":
-          case "function":
-          default:
-            return acc;
-        }
-      },
-      []
-    );
-    if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
-      return {
-        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
-        enum: options.reduce(
-          (acc, x) => {
-            return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
-          },
-          []
-        )
-      };
-    }
-  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
-    return {
-      type: "string",
-      enum: options.reduce(
-        (acc, x) => [
-          ...acc,
-          ...x._def.values.filter((x2) => !acc.includes(x2))
-        ],
-        []
-      )
-    };
-  }
-  return asAnyOf$1(def, refs);
-}
-var asAnyOf$1 = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map(
-    (x, i) => parseDef$1(x._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "anyOf", `${i}`]
-    })
-  ).filter(
-    (x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0)
-  );
-  return anyOf.length ? { anyOf } : void 0;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/nullable.ts
-function parseNullableDef$1(def, refs) {
-  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(
-    def.innerType._def.typeName
-  ) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
-    return {
-      type: [
-        primitiveMappings$1[def.innerType._def.typeName],
-        "null"
-      ]
-    };
-  }
-  const base = parseDef$1(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "0"]
-  });
-  return base && { anyOf: [base, { type: "null" }] };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/number.ts
-function parseNumberDef$1(def) {
-  const res = {
-    type: "number"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "int":
-        res.type = "integer";
-        break;
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/object.ts
-function parseObjectDef$1(def, refs) {
-  const result = {
-    type: "object",
-    properties: {}
-  };
-  const required = [];
-  const shape = def.shape();
-  for (const propName in shape) {
-    let propDef = shape[propName];
-    if (propDef === void 0 || propDef._def === void 0) {
-      continue;
-    }
-    const propOptional = safeIsOptional$1(propDef);
-    const parsedDef = parseDef$1(propDef._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "properties", propName],
-      propertyPath: [...refs.currentPath, "properties", propName]
-    });
-    if (parsedDef === void 0) {
-      continue;
-    }
-    result.properties[propName] = parsedDef;
-    if (!propOptional) {
-      required.push(propName);
-    }
-  }
-  if (required.length) {
-    result.required = required;
-  }
-  const additionalProperties = decideAdditionalProperties$1(def, refs);
-  if (additionalProperties !== void 0) {
-    result.additionalProperties = additionalProperties;
-  }
-  return result;
-}
-function decideAdditionalProperties$1(def, refs) {
-  if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef$1(def.catchall._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    });
-  }
-  switch (def.unknownKeys) {
-    case "passthrough":
-      return refs.allowedAdditionalProperties;
-    case "strict":
-      return refs.rejectedAdditionalProperties;
-    case "strip":
-      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
-  }
-}
-function safeIsOptional$1(schema) {
-  try {
-    return schema.isOptional();
-  } catch (e) {
-    return true;
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/optional.ts
-var parseOptionalDef$1 = (def, refs) => {
-  var _a2;
-  if (refs.currentPath.toString() === ((_a2 = refs.propertyPath) == null ? void 0 : _a2.toString())) {
-    return parseDef$1(def.innerType._def, refs);
-  }
-  const innerSchema = parseDef$1(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "1"]
-  });
-  return innerSchema ? { anyOf: [{ not: parseAnyDef$1() }, innerSchema] } : parseAnyDef$1();
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/pipeline.ts
-var parsePipelineDef$1 = (def, refs) => {
-  if (refs.pipeStrategy === "input") {
-    return parseDef$1(def.in._def, refs);
-  } else if (refs.pipeStrategy === "output") {
-    return parseDef$1(def.out._def, refs);
-  }
-  const a = parseDef$1(def.in._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", "0"]
-  });
-  const b = parseDef$1(def.out._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
-  });
-  return {
-    allOf: [a, b].filter((x) => x !== void 0)
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/promise.ts
-function parsePromiseDef$1(def, refs) {
-  return parseDef$1(def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/set.ts
-function parseSetDef$1(def, refs) {
-  const items = parseDef$1(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items"]
-  });
-  const schema = {
-    type: "array",
-    uniqueItems: true,
-    items
-  };
-  if (def.minSize) {
-    schema.minItems = def.minSize.value;
-  }
-  if (def.maxSize) {
-    schema.maxItems = def.maxSize.value;
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/tuple.ts
-function parseTupleDef$1(def, refs) {
-  if (def.rest) {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$1(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      ),
-      additionalItems: parseDef$1(def.rest._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "additionalItems"]
-      })
-    };
-  } else {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      maxItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef$1(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      )
-    };
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/undefined.ts
-function parseUndefinedDef$1() {
-  return {
-    not: parseAnyDef$1()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/unknown.ts
-function parseUnknownDef$1() {
-  return parseAnyDef$1();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/readonly.ts
-var parseReadonlyDef$1 = (def, refs) => {
-  return parseDef$1(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/select-parser.ts
-var selectParser$1 = (def, typeName, refs) => {
-  switch (typeName) {
-    case ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef$1(def);
-    case ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef$1(def);
-    case ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef$1();
-    case ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef$1();
-    case ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef$1();
-    case ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodUnion:
-    case ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef$1(def);
-    case ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef$1(def);
-    case ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef$1(def);
-    case ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodLazy:
-      return () => def.getter()._def;
-    case ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodNaN:
-    case ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef$1();
-    case ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef$1();
-    case ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef$1();
-    case ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef$1(def, refs);
-    case ZodFirstPartyTypeKind.ZodFunction:
-    case ZodFirstPartyTypeKind.ZodVoid:
-    case ZodFirstPartyTypeKind.ZodSymbol:
-      return void 0;
-    default:
-      return /* @__PURE__ */ ((_) => void 0)();
-  }
-};
-
-// src/to-json-schema/zod3-to-json-schema/get-relative-path.ts
-var getRelativePath$1 = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i]) break;
-  }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
-};
-
-// src/to-json-schema/zod3-to-json-schema/parse-def.ts
-function parseDef$1(def, refs, forceResolution = false) {
-  var _a2;
-  const seenItem = refs.seen.get(def);
-  if (refs.override) {
-    const overrideResult = (_a2 = refs.override) == null ? void 0 : _a2.call(
-      refs,
-      def,
-      refs,
-      seenItem,
-      forceResolution
-    );
-    if (overrideResult !== ignoreOverride$1) {
-      return overrideResult;
-    }
-  }
-  if (seenItem && !forceResolution) {
-    const seenSchema = get$ref$1(seenItem, refs);
-    if (seenSchema !== void 0) {
-      return seenSchema;
-    }
-  }
-  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
-  refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser$1(def, def.typeName, refs);
-  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef$1(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
-  if (jsonSchema2) {
-    addMeta$1(def, refs, jsonSchema2);
-  }
-  if (refs.postProcess) {
-    const postProcessResult = refs.postProcess(jsonSchema2, def, refs);
-    newItem.jsonSchema = jsonSchema2;
-    return postProcessResult;
-  }
-  newItem.jsonSchema = jsonSchema2;
-  return jsonSchema2;
-}
-var get$ref$1 = (item, refs) => {
-  switch (refs.$refStrategy) {
-    case "root":
-      return { $ref: item.path.join("/") };
-    case "relative":
-      return { $ref: getRelativePath$1(refs.currentPath, item.path) };
-    case "none":
-    case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
-        console.warn(
-          `Recursive reference detected at ${refs.currentPath.join(
-            "/"
-          )}! Defaulting to any`
-        );
-        return parseAnyDef$1();
-      }
-      return refs.$refStrategy === "seen" ? parseAnyDef$1() : void 0;
-    }
-  }
-};
-var addMeta$1 = (def, refs, jsonSchema2) => {
-  if (def.description) {
-    jsonSchema2.description = def.description;
-  }
-  return jsonSchema2;
-};
-
-// src/to-json-schema/zod3-to-json-schema/refs.ts
-var getRefs$1 = (options) => {
-  const _options = getDefaultOptions$1(options);
-  const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
-  return {
-    ..._options,
-    currentPath,
-    propertyPath: void 0,
-    seen: new Map(
-      Object.entries(_options.definitions).map(([name2, def]) => [
-        def._def,
-        {
-          def: def._def,
-          path: [..._options.basePath, _options.definitionPath, name2],
-          // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
-          jsonSchema: void 0
-        }
-      ])
-    )
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/zod3-to-json-schema.ts
-var zod3ToJsonSchema$1 = (schema, options) => {
-  var _a2;
-  const refs = getRefs$1(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce(
-    (acc, [name3, schema2]) => {
-      var _a3;
-      return {
-        ...acc,
-        [name3]: (_a3 = parseDef$1(
-          schema2._def,
-          {
-            ...refs,
-            currentPath: [...refs.basePath, refs.definitionPath, name3]
-          },
-          true
-        )) != null ? _a3 : parseAnyDef$1()
-      };
-    },
-    {}
-  ) : void 0;
-  const name2 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name;
-  const main = (_a2 = parseDef$1(
-    schema._def,
-    name2 === void 0 ? refs : {
-      ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name2]
-    },
-    false
-  )) != null ? _a2 : parseAnyDef$1();
-  const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
-  if (title !== void 0) {
-    main.title = title;
-  }
-  const combined = name2 === void 0 ? definitions ? {
-    ...main,
-    [refs.definitionPath]: definitions
-  } : main : {
-    $ref: [
-      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
-      refs.definitionPath,
-      name2
-    ].join("/"),
-    [refs.definitionPath]: {
-      ...definitions,
-      [name2]: main
-    }
-  };
-  combined.$schema = "http://json-schema.org/draft-07/schema#";
-  return combined;
-};
-
-// src/schema.ts
-var schemaSymbol$1 = Symbol.for("vercel.ai.schema");
-function jsonSchema$1(jsonSchema2, {
-  validate
-} = {}) {
-  return {
-    [schemaSymbol$1]: true,
-    _type: void 0,
-    // should never be used directly
-    get jsonSchema() {
-      if (typeof jsonSchema2 === "function") {
-        jsonSchema2 = jsonSchema2();
-      }
-      return jsonSchema2;
-    },
-    validate
-  };
-}
-function isSchema$1(value) {
-  return typeof value === "object" && value !== null && schemaSymbol$1 in value && value[schemaSymbol$1] === true && "jsonSchema" in value && "validate" in value;
-}
-function asSchema$1(schema) {
-  return schema == null ? jsonSchema$1({ properties: {}, additionalProperties: false }) : isSchema$1(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema$1(schema) : standardSchema$1(schema) : schema();
-}
-function standardSchema$1(standardSchema2) {
-  return jsonSchema$1(
-    () => addAdditionalPropertiesToJsonSchema$1(
-      standardSchema2["~standard"].jsonSchema.input({
-        target: "draft-07"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await standardSchema2["~standard"].validate(value);
-        return "value" in result ? { success: true, value: result.value } : {
-          success: false,
-          error: new TypeValidationError$1({
-            value,
-            cause: result.issues
-          })
-        };
-      }
-    }
-  );
-}
-function zod3Schema$1(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$1(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => zod3ToJsonSchema$1(zodSchema2, {
-      $refStrategy: useReferences ? "root" : "none"
-    }),
-    {
-      validate: async (value) => {
-        const result = await zodSchema2.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function zod4Schema$1(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema$1(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => addAdditionalPropertiesToJsonSchema$1(
-      toJSONSchema(zodSchema2, {
-        target: "draft-7",
-        io: "input",
-        reused: useReferences ? "ref" : "inline"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await safeParseAsync(zodSchema2, value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function isZod4Schema$1(zodSchema2) {
-  return "_zod" in zodSchema2;
-}
-function zodSchema$1(zodSchema2, options) {
-  if (isZod4Schema$1(zodSchema2)) {
-    return zod4Schema$1(zodSchema2);
-  } else {
-    return zod3Schema$1(zodSchema2);
-  }
-}
-
-// src/validate-types.ts
-async function validateTypes$1({
-  value,
-  schema
-}) {
-  const result = await safeValidateTypes$1({ value, schema });
-  if (!result.success) {
-    throw TypeValidationError$1.wrap({ value, cause: result.error });
-  }
-  return result.value;
-}
-async function safeValidateTypes$1({
-  value,
-  schema
-}) {
-  const actualSchema = asSchema$1(schema);
-  try {
-    if (actualSchema.validate == null) {
-      return { success: true, value, rawValue: value };
-    }
-    const result = await actualSchema.validate(value);
-    if (result.success) {
-      return { success: true, value: result.value, rawValue: value };
-    }
-    return {
-      success: false,
-      error: TypeValidationError$1.wrap({ value, cause: result.error }),
-      rawValue: value
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: TypeValidationError$1.wrap({ value, cause: error }),
-      rawValue: value
-    };
-  }
-}
-
-// src/parse-json.ts
-async function parseJSON$1({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$1(text);
-    if (schema == null) {
-      return value;
-    }
-    return validateTypes$1({ value, schema });
-  } catch (error) {
-    if (JSONParseError$1.isInstance(error) || TypeValidationError$1.isInstance(error)) {
-      throw error;
-    }
-    throw new JSONParseError$1({ text, cause: error });
-  }
-}
-async function safeParseJSON$1({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse$1(text);
-    if (schema == null) {
-      return { success: true, value, rawValue: value };
-    }
-    return await safeValidateTypes$1({ value, schema });
-  } catch (error) {
-    return {
-      success: false,
-      error: JSONParseError$1.isInstance(error) ? error : new JSONParseError$1({ text, cause: error }),
-      rawValue: void 0
-    };
-  }
-}
-function parseJsonEventStream$1({
-  stream,
-  schema
-}) {
-  return stream.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream()).pipeThrough(
-    new TransformStream({
-      async transform({ data }, controller) {
-        if (data === "[DONE]") {
-          return;
-        }
-        controller.enqueue(await safeParseJSON$1({ text: data, schema }));
-      }
-    })
-  );
-}
-var getOriginalFetch2$1 = () => globalThis.fetch;
-var postJsonToApi$1 = async ({
-  url,
-  headers,
-  body,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi$1({
-  url,
-  headers: {
-    "Content-Type": "application/json",
-    ...headers
-  },
-  body: {
-    content: JSON.stringify(body),
-    values: body
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-});
-var postToApi$1 = async ({
-  url,
-  headers = {},
-  body,
-  successfulResponseHandler,
-  failedResponseHandler,
-  abortSignal,
-  fetch: fetch2 = getOriginalFetch2$1()
-}) => {
-  try {
-    const response = await fetch2(url, {
-      method: "POST",
-      headers: withUserAgentSuffix$1(
-        headers,
-        `ai-sdk/provider-utils/${VERSION$3}`,
-        getRuntimeEnvironmentUserAgent$1()
-      ),
-      body: body.content,
-      signal: abortSignal
-    });
-    const responseHeaders = extractResponseHeaders$1(response);
-    if (!response.ok) {
-      let errorInformation;
-      try {
-        errorInformation = await failedResponseHandler({
-          response,
-          url,
-          requestBodyValues: body.values
-        });
-      } catch (error) {
-        if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
-          throw error;
-        }
-        throw new APICallError$1({
-          message: "Failed to process error response",
-          cause: error,
-          statusCode: response.status,
-          url,
-          responseHeaders,
-          requestBodyValues: body.values
-        });
-      }
-      throw errorInformation.value;
-    }
-    try {
-      return await successfulResponseHandler({
-        response,
-        url,
-        requestBodyValues: body.values
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        if (isAbortError$1(error) || APICallError$1.isInstance(error)) {
-          throw error;
-        }
-      }
-      throw new APICallError$1({
-        message: "Failed to process successful response",
-        cause: error,
-        statusCode: response.status,
-        url,
-        responseHeaders,
-        requestBodyValues: body.values
-      });
-    }
-  } catch (error) {
-    throw handleFetchError$1({ error, url, requestBodyValues: body.values });
-  }
-};
-var createJsonErrorResponseHandler$1 = ({
-  errorSchema,
-  errorToMessage,
-  isRetryable
-}) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const responseHeaders = extractResponseHeaders$1(response);
-  if (responseBody.trim() === "") {
-    return {
-      responseHeaders,
-      value: new APICallError$1({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-  try {
-    const parsedError = await parseJSON$1({
-      text: responseBody,
-      schema: errorSchema
-    });
-    return {
-      responseHeaders,
-      value: new APICallError$1({
-        message: errorToMessage(parsedError),
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        data: parsedError,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
-      })
-    };
-  } catch (parseError) {
-    return {
-      responseHeaders,
-      value: new APICallError$1({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-};
-var createEventSourceResponseHandler$1 = (chunkSchema) => async ({ response }) => {
-  const responseHeaders = extractResponseHeaders$1(response);
-  if (response.body == null) {
-    throw new EmptyResponseBodyError$1({});
-  }
-  return {
-    responseHeaders,
-    value: parseJsonEventStream$1({
-      stream: response.body,
-      schema: chunkSchema
-    })
-  };
-};
-var createJsonResponseHandler$1 = (responseSchema) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const parsedResult = await safeParseJSON$1({
-    text: responseBody,
-    schema: responseSchema
-  });
-  const responseHeaders = extractResponseHeaders$1(response);
-  if (!parsedResult.success) {
-    throw new APICallError$1({
-      message: "Invalid JSON response",
-      cause: parsedResult.error,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody,
-      url,
-      requestBodyValues
-    });
-  }
-  return {
-    responseHeaders,
-    value: parsedResult.value,
-    rawValue: parsedResult.rawValue
-  };
-};
-
-// src/without-trailing-slash.ts
-function withoutTrailingSlash$1(url) {
-  return url == null ? void 0 : url.replace(/\/$/, "");
-}
-
-// src/perplexity-provider.ts
-
-// src/convert-perplexity-usage.ts
-function convertPerplexityUsage(usage) {
-  var _a, _b, _c;
-  if (usage == null) {
-    return {
-      inputTokens: {
-        total: void 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: void 0,
-        text: void 0,
-        reasoning: void 0
-      },
-      raw: void 0
-    };
-  }
-  const promptTokens = (_a = usage.prompt_tokens) != null ? _a : 0;
-  const completionTokens = (_b = usage.completion_tokens) != null ? _b : 0;
-  const reasoningTokens = (_c = usage.reasoning_tokens) != null ? _c : 0;
-  return {
-    inputTokens: {
-      total: promptTokens,
-      noCache: promptTokens,
-      cacheRead: void 0,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: completionTokens,
-      text: completionTokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-function convertToPerplexityMessages(prompt) {
-  const messages = [];
-  for (const { role, content } of prompt) {
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content });
-        break;
-      }
-      case "user":
-      case "assistant": {
-        const hasMultipartContent = content.some(
-          (part) => part.type === "file" && part.mediaType.startsWith("image/") || part.type === "file" && part.mediaType === "application/pdf"
-        );
-        const messageContent = content.map((part, index) => {
-          var _a;
-          switch (part.type) {
-            case "text": {
-              return {
-                type: "text",
-                text: part.text
-              };
-            }
-            case "file": {
-              if (part.mediaType === "application/pdf") {
-                return part.data instanceof URL ? {
-                  type: "file_url",
-                  file_url: {
-                    url: part.data.toString()
-                  },
-                  file_name: part.filename
-                } : {
-                  type: "file_url",
-                  file_url: {
-                    url: typeof part.data === "string" ? part.data : convertUint8ArrayToBase64$1(part.data)
-                  },
-                  file_name: part.filename || `document-${index}.pdf`
-                };
-              } else if (part.mediaType.startsWith("image/")) {
-                return part.data instanceof URL ? {
-                  type: "image_url",
-                  image_url: {
-                    url: part.data.toString()
-                  }
-                } : {
-                  type: "image_url",
-                  image_url: {
-                    url: `data:${(_a = part.mediaType) != null ? _a : "image/jpeg"};base64,${typeof part.data === "string" ? part.data : convertUint8ArrayToBase64$1(part.data)}`
-                  }
-                };
-              }
-            }
-          }
-        }).filter(Boolean);
-        messages.push({
-          role,
-          content: hasMultipartContent ? messageContent : messageContent.filter((part) => part.type === "text").map((part) => part.text).join("")
-        });
-        break;
-      }
-      case "tool": {
-        throw new UnsupportedFunctionalityError$1({
-          functionality: "Tool messages"
-        });
-      }
-      default: {
-        const _exhaustiveCheck = role;
-        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
-      }
-    }
-  }
-  return messages;
-}
-
-// src/map-perplexity-finish-reason.ts
-function mapPerplexityFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-    case "length":
-      return finishReason;
-    default:
-      return "other";
-  }
-}
-
-// src/perplexity-language-model.ts
-var PerplexityLanguageModel = class {
-  constructor(modelId, config) {
-    this.specificationVersion = "v3";
-    this.provider = "perplexity";
-    this.supportedUrls = {
-      // No URLs are supported.
-    };
-    this.modelId = modelId;
-    this.config = config;
-  }
-  getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    stopSequences,
-    responseFormat,
-    seed,
-    providerOptions
-  }) {
-    var _a;
-    const warnings = [];
-    if (topK != null) {
-      warnings.push({ type: "unsupported", feature: "topK" });
-    }
-    if (stopSequences != null) {
-      warnings.push({ type: "unsupported", feature: "stopSequences" });
-    }
-    if (seed != null) {
-      warnings.push({ type: "unsupported", feature: "seed" });
-    }
-    return {
-      args: {
-        // model id:
-        model: this.modelId,
-        // standardized settings:
-        frequency_penalty: frequencyPenalty,
-        max_tokens: maxOutputTokens,
-        presence_penalty: presencePenalty,
-        temperature,
-        top_k: topK,
-        top_p: topP,
-        // response format:
-        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? {
-          type: "json_schema",
-          json_schema: { schema: responseFormat.schema }
-        } : void 0,
-        // provider extensions
-        ...(_a = providerOptions == null ? void 0 : providerOptions.perplexity) != null ? _a : {},
-        // messages:
-        messages: convertToPerplexityMessages(prompt)
-      },
-      warnings
-    };
-  }
-  async doGenerate(options) {
-    var _a, _b, _c, _d, _e, _f, _g;
-    const { args: body, warnings } = this.getArgs(options);
-    const {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi$1({
-      url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders$1(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: createJsonErrorResponseHandler$1({
-        errorSchema: perplexityErrorSchema,
-        errorToMessage
-      }),
-      successfulResponseHandler: createJsonResponseHandler$1(
-        perplexityResponseSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    const choice = response.choices[0];
-    const content = [];
-    const text = choice.message.content;
-    if (text.length > 0) {
-      content.push({ type: "text", text });
-    }
-    if (response.citations != null) {
-      for (const url of response.citations) {
-        content.push({
-          type: "source",
-          sourceType: "url",
-          id: this.config.generateId(),
-          url
-        });
-      }
-    }
-    return {
-      content,
-      finishReason: {
-        unified: mapPerplexityFinishReason(choice.finish_reason),
-        raw: (_a = choice.finish_reason) != null ? _a : void 0
-      },
-      usage: convertPerplexityUsage(response.usage),
-      request: { body },
-      response: {
-        ...getResponseMetadata$2(response),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings,
-      providerMetadata: {
-        perplexity: {
-          images: (_c = (_b = response.images) == null ? void 0 : _b.map((image) => ({
-            imageUrl: image.image_url,
-            originUrl: image.origin_url,
-            height: image.height,
-            width: image.width
-          }))) != null ? _c : null,
-          usage: {
-            citationTokens: (_e = (_d = response.usage) == null ? void 0 : _d.citation_tokens) != null ? _e : null,
-            numSearchQueries: (_g = (_f = response.usage) == null ? void 0 : _f.num_search_queries) != null ? _g : null
-          }
-        }
-      }
-    };
-  }
-  async doStream(options) {
-    const { args, warnings } = this.getArgs(options);
-    const body = { ...args, stream: true };
-    const { responseHeaders, value: response } = await postJsonToApi$1({
-      url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders$1(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: createJsonErrorResponseHandler$1({
-        errorSchema: perplexityErrorSchema,
-        errorToMessage
-      }),
-      successfulResponseHandler: createEventSourceResponseHandler$1(
-        perplexityChunkSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    let finishReason = {
-      unified: "other",
-      raw: void 0
-    };
-    let usage = void 0;
-    const providerMetadata = {
-      perplexity: {
-        usage: {
-          citationTokens: null,
-          numSearchQueries: null
-        },
-        images: null
-      }
-    };
-    let isFirstChunk = true;
-    let isActive = false;
-    const self = this;
-    return {
-      stream: response.pipeThrough(
-        new TransformStream({
-          start(controller) {
-            controller.enqueue({ type: "stream-start", warnings });
-          },
-          transform(chunk, controller) {
-            var _a, _b, _c;
-            if (options.includeRawChunks) {
-              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-            }
-            if (!chunk.success) {
-              controller.enqueue({ type: "error", error: chunk.error });
-              return;
-            }
-            const value = chunk.value;
-            if (isFirstChunk) {
-              controller.enqueue({
-                type: "response-metadata",
-                ...getResponseMetadata$2(value)
-              });
-              (_a = value.citations) == null ? void 0 : _a.forEach((url) => {
-                controller.enqueue({
-                  type: "source",
-                  sourceType: "url",
-                  id: self.config.generateId(),
-                  url
-                });
-              });
-              isFirstChunk = false;
-            }
-            if (value.usage != null) {
-              usage = value.usage;
-              providerMetadata.perplexity.usage = {
-                citationTokens: (_b = value.usage.citation_tokens) != null ? _b : null,
-                numSearchQueries: (_c = value.usage.num_search_queries) != null ? _c : null
-              };
-            }
-            if (value.images != null) {
-              providerMetadata.perplexity.images = value.images.map((image) => ({
-                imageUrl: image.image_url,
-                originUrl: image.origin_url,
-                height: image.height,
-                width: image.width
-              }));
-            }
-            const choice = value.choices[0];
-            if ((choice == null ? void 0 : choice.finish_reason) != null) {
-              finishReason = {
-                unified: mapPerplexityFinishReason(choice.finish_reason),
-                raw: choice.finish_reason
-              };
-            }
-            if ((choice == null ? void 0 : choice.delta) == null) {
-              return;
-            }
-            const delta = choice.delta;
-            const textContent = delta.content;
-            if (textContent != null) {
-              if (!isActive) {
-                controller.enqueue({ type: "text-start", id: "0" });
-                isActive = true;
-              }
-              controller.enqueue({
-                type: "text-delta",
-                id: "0",
-                delta: textContent
-              });
-            }
-          },
-          flush(controller) {
-            if (isActive) {
-              controller.enqueue({ type: "text-end", id: "0" });
-            }
-            controller.enqueue({
-              type: "finish",
-              finishReason,
-              usage: convertPerplexityUsage(usage),
-              providerMetadata
-            });
-          }
-        })
-      ),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-};
-function getResponseMetadata$2({
-  id,
-  model,
-  created
-}) {
-  return {
-    id,
-    modelId: model,
-    timestamp: new Date(created * 1e3)
-  };
-}
-var perplexityUsageSchema = object$1({
-  prompt_tokens: number$1(),
-  completion_tokens: number$1(),
-  total_tokens: number$1().nullish(),
-  citation_tokens: number$1().nullish(),
-  num_search_queries: number$1().nullish(),
-  reasoning_tokens: number$1().nullish()
-});
-var perplexityImageSchema = object$1({
-  image_url: string(),
-  origin_url: string(),
-  height: number$1(),
-  width: number$1()
-});
-var perplexityResponseSchema = object$1({
-  id: string(),
-  created: number$1(),
-  model: string(),
-  choices: array$1(
-    object$1({
-      message: object$1({
-        role: literal("assistant"),
-        content: string()
-      }),
-      finish_reason: string().nullish()
-    })
-  ),
-  citations: array$1(string()).nullish(),
-  images: array$1(perplexityImageSchema).nullish(),
-  usage: perplexityUsageSchema.nullish()
-});
-var perplexityChunkSchema = object$1({
-  id: string(),
-  created: number$1(),
-  model: string(),
-  choices: array$1(
-    object$1({
-      delta: object$1({
-        role: literal("assistant"),
-        content: string()
-      }),
-      finish_reason: string().nullish()
-    })
-  ),
-  citations: array$1(string()).nullish(),
-  images: array$1(perplexityImageSchema).nullish(),
-  usage: perplexityUsageSchema.nullish()
-});
-var perplexityErrorSchema = object$1({
-  error: object$1({
-    code: number$1(),
-    message: string().nullish(),
-    type: string().nullish()
-  })
-});
-var errorToMessage = (data) => {
-  var _a, _b;
-  return (_b = (_a = data.error.message) != null ? _a : data.error.type) != null ? _b : "unknown error";
-};
-
-// src/version.ts
-var VERSION$2 = "3.0.8" ;
-
-// src/perplexity-provider.ts
-function createPerplexity(options = {}) {
-  const getHeaders = () => withUserAgentSuffix$1(
-    {
-      Authorization: `Bearer ${loadApiKey$1({
-        apiKey: options.apiKey,
-        environmentVariableName: "PERPLEXITY_API_KEY",
-        description: "Perplexity"
-      })}`,
-      ...options.headers
-    },
-    `ai-sdk/perplexity/${VERSION$2}`
-  );
-  const createLanguageModel = (modelId) => {
-    var _a;
-    return new PerplexityLanguageModel(modelId, {
-      baseURL: withoutTrailingSlash$1(
-        (_a = options.baseURL) != null ? _a : "https://api.perplexity.ai"
-      ),
-      headers: getHeaders,
-      generateId: generateId$1,
-      fetch: options.fetch
-    });
-  };
-  const provider = (modelId) => createLanguageModel(modelId);
-  provider.specificationVersion = "v3";
-  provider.languageModel = createLanguageModel;
-  provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError$1({ modelId, modelType: "embeddingModel" });
-  };
-  provider.textEmbeddingModel = provider.embeddingModel;
-  provider.imageModel = (modelId) => {
-    throw new NoSuchModelError$1({ modelId, modelType: "imageModel" });
-  };
-  return provider;
-}
-createPerplexity();
-
-// src/errors/ai-sdk-error.ts
-var marker = "vercel.ai.error";
-var symbol = Symbol.for(marker);
-var _a, _b;
-var AISDKError = class _AISDKError extends (_b = Error, _a = symbol, _b) {
-  /**
-   * Creates an AI SDK Error.
-   *
-   * @param {Object} params - The parameters for creating the error.
-   * @param {string} params.name - The name of the error.
-   * @param {string} params.message - The error message.
-   * @param {unknown} [params.cause] - The underlying cause of the error.
-   */
-  constructor({
-    name: name14,
-    message,
-    cause
-  }) {
-    super(message);
-    this[_a] = true;
-    this.name = name14;
-    this.cause = cause;
-  }
-  /**
-   * Checks if the given error is an AI SDK Error.
-   * @param {unknown} error - The error to check.
-   * @returns {boolean} True if the error is an AI SDK Error, false otherwise.
-   */
-  static isInstance(error) {
-    return _AISDKError.hasMarker(error, marker);
-  }
-  static hasMarker(error, marker15) {
-    const markerSymbol = Symbol.for(marker15);
-    return error != null && typeof error === "object" && markerSymbol in error && typeof error[markerSymbol] === "boolean" && error[markerSymbol] === true;
-  }
-};
-
-// src/errors/api-call-error.ts
-var name = "AI_APICallError";
-var marker2 = `vercel.ai.error.${name}`;
-var symbol2 = Symbol.for(marker2);
-var _a2, _b2;
-var APICallError = class extends (_b2 = AISDKError, _a2 = symbol2, _b2) {
-  constructor({
-    message,
-    url,
-    requestBodyValues,
-    statusCode,
-    responseHeaders,
-    responseBody,
-    cause,
-    isRetryable = statusCode != null && (statusCode === 408 || // request timeout
-    statusCode === 409 || // conflict
-    statusCode === 429 || // too many requests
-    statusCode >= 500),
-    // server error
-    data
-  }) {
-    super({ name, message, cause });
-    this[_a2] = true;
-    this.url = url;
-    this.requestBodyValues = requestBodyValues;
-    this.statusCode = statusCode;
-    this.responseHeaders = responseHeaders;
-    this.responseBody = responseBody;
-    this.isRetryable = isRetryable;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker2);
-  }
-};
-
-// src/errors/empty-response-body-error.ts
-var name2 = "AI_EmptyResponseBodyError";
-var marker3 = `vercel.ai.error.${name2}`;
-var symbol3 = Symbol.for(marker3);
-var _a3, _b3;
-var EmptyResponseBodyError = class extends (_b3 = AISDKError, _a3 = symbol3, _b3) {
-  // used in isInstance
-  constructor({ message = "Empty response body" } = {}) {
-    super({ name: name2, message });
-    this[_a3] = true;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker3);
-  }
-};
-
-// src/errors/get-error-message.ts
-function getErrorMessage(error) {
-  if (error == null) {
-    return "unknown error";
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return JSON.stringify(error);
-}
-
-// src/errors/invalid-argument-error.ts
-var name3 = "AI_InvalidArgumentError";
-var marker4 = `vercel.ai.error.${name3}`;
-var symbol4 = Symbol.for(marker4);
-var _a4, _b4;
-var InvalidArgumentError = class extends (_b4 = AISDKError, _a4 = symbol4, _b4) {
-  constructor({
-    message,
-    cause,
-    argument
-  }) {
-    super({ name: name3, message, cause });
-    this[_a4] = true;
-    this.argument = argument;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker4);
-  }
-};
-
-// src/errors/invalid-response-data-error.ts
-var name5 = "AI_InvalidResponseDataError";
-var marker6 = `vercel.ai.error.${name5}`;
-var symbol6 = Symbol.for(marker6);
-var _a6, _b6;
-var InvalidResponseDataError = class extends (_b6 = AISDKError, _a6 = symbol6, _b6) {
-  constructor({
-    data,
-    message = `Invalid response data: ${JSON.stringify(data)}.`
-  }) {
-    super({ name: name5, message });
-    this[_a6] = true;
-    this.data = data;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker6);
-  }
-};
-
-// src/errors/json-parse-error.ts
-var name6 = "AI_JSONParseError";
-var marker7 = `vercel.ai.error.${name6}`;
-var symbol7 = Symbol.for(marker7);
-var _a7, _b7;
-var JSONParseError = class extends (_b7 = AISDKError, _a7 = symbol7, _b7) {
-  constructor({ text, cause }) {
-    super({
-      name: name6,
-      message: `JSON parsing failed: Text: ${text}.
-Error message: ${getErrorMessage(cause)}`,
-      cause
-    });
-    this[_a7] = true;
-    this.text = text;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker7);
-  }
-};
-
-// src/errors/load-api-key-error.ts
-var name7 = "AI_LoadAPIKeyError";
-var marker8 = `vercel.ai.error.${name7}`;
-var symbol8 = Symbol.for(marker8);
-var _a8, _b8;
-var LoadAPIKeyError = class extends (_b8 = AISDKError, _a8 = symbol8, _b8) {
-  // used in isInstance
-  constructor({ message }) {
-    super({ name: name7, message });
-    this[_a8] = true;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker8);
-  }
-};
-
-// src/errors/no-such-model-error.ts
-var name10 = "AI_NoSuchModelError";
-var marker11 = `vercel.ai.error.${name10}`;
-var symbol11 = Symbol.for(marker11);
-var _a11, _b11;
-var NoSuchModelError = class extends (_b11 = AISDKError, _a11 = symbol11, _b11) {
-  constructor({
-    errorName = name10,
-    modelId,
-    modelType,
-    message = `No such ${modelType}: ${modelId}`
-  }) {
-    super({ name: errorName, message });
-    this[_a11] = true;
-    this.modelId = modelId;
-    this.modelType = modelType;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker11);
-  }
-};
-
-// src/errors/type-validation-error.ts
-var name12 = "AI_TypeValidationError";
-var marker13 = `vercel.ai.error.${name12}`;
-var symbol13 = Symbol.for(marker13);
-var _a13, _b13;
-var TypeValidationError = class _TypeValidationError extends (_b13 = AISDKError, _a13 = symbol13, _b13) {
-  constructor({ value, cause }) {
-    super({
-      name: name12,
-      message: `Type validation failed: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage(cause)}`,
-      cause
-    });
-    this[_a13] = true;
-    this.value = value;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker13);
-  }
-  /**
-   * Wraps an error into a TypeValidationError.
-   * If the cause is already a TypeValidationError with the same value, it returns the cause.
-   * Otherwise, it creates a new TypeValidationError.
-   *
-   * @param {Object} params - The parameters for wrapping the error.
-   * @param {unknown} params.value - The value that failed validation.
-   * @param {unknown} params.cause - The original error or cause of the validation failure.
-   * @returns {TypeValidationError} A TypeValidationError instance.
-   */
-  static wrap({
-    value,
-    cause
-  }) {
-    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
-  }
-};
-
-// src/errors/unsupported-functionality-error.ts
-var name13 = "AI_UnsupportedFunctionalityError";
-var marker14 = `vercel.ai.error.${name13}`;
-var symbol14 = Symbol.for(marker14);
-var _a14, _b14;
-var UnsupportedFunctionalityError = class extends (_b14 = AISDKError, _a14 = symbol14, _b14) {
-  constructor({
-    functionality,
-    message = `'${functionality}' functionality not supported.`
-  }) {
-    super({ name: name13, message });
-    this[_a14] = true;
-    this.functionality = functionality;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker14);
-  }
-};
-
-// src/combine-headers.ts
-function combineHeaders(...headers) {
-  return headers.reduce(
-    (combinedHeaders, currentHeaders) => ({
-      ...combinedHeaders,
-      ...currentHeaders != null ? currentHeaders : {}
-    }),
-    {}
-  );
-}
-
-// src/extract-response-headers.ts
-function extractResponseHeaders(response) {
-  return Object.fromEntries([...response.headers]);
-}
-
-// src/uint8-utils.ts
-var { btoa} = globalThis;
-function convertUint8ArrayToBase64(array) {
-  let latin1string = "";
-  for (let i = 0; i < array.length; i++) {
-    latin1string += String.fromCodePoint(array[i]);
-  }
-  return btoa(latin1string);
-}
-function convertToBase64(value) {
-  return value instanceof Uint8Array ? convertUint8ArrayToBase64(value) : value;
-}
-var createIdGenerator = ({
-  prefix,
-  size = 16,
-  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  separator = "-"
-} = {}) => {
-  const generator = () => {
-    const alphabetLength = alphabet.length;
-    const chars = new Array(size);
-    for (let i = 0; i < size; i++) {
-      chars[i] = alphabet[Math.random() * alphabetLength | 0];
-    }
-    return chars.join("");
-  };
-  if (prefix == null) {
-    return generator;
-  }
-  if (alphabet.includes(separator)) {
-    throw new InvalidArgumentError({
-      argument: "separator",
-      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
-    });
-  }
-  return () => `${prefix}${separator}${generator()}`;
-};
-var generateId = createIdGenerator();
-
-// src/is-abort-error.ts
-function isAbortError(error) {
-  return (error instanceof Error || error instanceof DOMException) && (error.name === "AbortError" || error.name === "ResponseAborted" || // Next.js
-  error.name === "TimeoutError");
-}
-
-// src/handle-fetch-error.ts
-var FETCH_FAILED_ERROR_MESSAGES = ["fetch failed", "failed to fetch"];
-function handleFetchError({
-  error,
-  url,
-  requestBodyValues
-}) {
-  if (isAbortError(error)) {
-    return error;
-  }
-  if (error instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES.includes(error.message.toLowerCase())) {
-    const cause = error.cause;
-    if (cause != null) {
-      return new APICallError({
-        message: `Cannot connect to API: ${cause.message}`,
-        cause,
-        url,
-        requestBodyValues,
-        isRetryable: true
-        // retry when network error
-      });
-    }
-  }
-  return error;
-}
-
-// src/get-runtime-environment-user-agent.ts
-function getRuntimeEnvironmentUserAgent(globalThisAny = globalThis) {
-  var _a2, _b2, _c;
-  if (globalThisAny.window) {
-    return `runtime/browser`;
-  }
-  if ((_a2 = globalThisAny.navigator) == null ? void 0 : _a2.userAgent) {
-    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
-  }
-  if ((_c = (_b2 = globalThisAny.process) == null ? void 0 : _b2.versions) == null ? void 0 : _c.node) {
-    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
-  }
-  if (globalThisAny.EdgeRuntime) {
-    return `runtime/vercel-edge`;
-  }
-  return "runtime/unknown";
-}
-
-// src/normalize-headers.ts
-function normalizeHeaders(headers) {
-  if (headers == null) {
-    return {};
-  }
-  const normalized = {};
-  if (headers instanceof Headers) {
-    headers.forEach((value, key) => {
-      normalized[key.toLowerCase()] = value;
-    });
-  } else {
-    if (!Array.isArray(headers)) {
-      headers = Object.entries(headers);
-    }
-    for (const [key, value] of headers) {
-      if (value != null) {
-        normalized[key.toLowerCase()] = value;
-      }
-    }
-  }
-  return normalized;
-}
-
-// src/with-user-agent-suffix.ts
-function withUserAgentSuffix(headers, ...userAgentSuffixParts) {
-  const normalizedHeaders = new Headers(normalizeHeaders(headers));
-  const currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
-  normalizedHeaders.set(
-    "user-agent",
-    [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")
-  );
-  return Object.fromEntries(normalizedHeaders.entries());
-}
-
-// src/version.ts
-var VERSION$1 = "4.0.8" ;
-function loadApiKey({
-  apiKey,
-  environmentVariableName,
-  apiKeyParameterName = "apiKey",
-  description
-}) {
-  if (typeof apiKey === "string") {
-    return apiKey;
-  }
-  if (apiKey != null) {
-    throw new LoadAPIKeyError({
-      message: `${description} API key must be a string.`
-    });
-  }
-  if (typeof process === "undefined") {
-    throw new LoadAPIKeyError({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables is not supported in this environment.`
-    });
-  }
-  apiKey = process.env[environmentVariableName];
-  if (apiKey == null) {
-    throw new LoadAPIKeyError({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
-    });
-  }
-  if (typeof apiKey !== "string") {
-    throw new LoadAPIKeyError({
-      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
-    });
-  }
-  return apiKey;
-}
-
-// src/secure-json-parse.ts
-var suspectProtoRx = /"__proto__"\s*:/;
-var suspectConstructorRx = /"constructor"\s*:/;
-function _parse(text) {
-  const obj = JSON.parse(text);
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  }
-  if (suspectProtoRx.test(text) === false && suspectConstructorRx.test(text) === false) {
-    return obj;
-  }
-  return filter(obj);
-}
-function filter(obj) {
-  let next = [obj];
-  while (next.length) {
-    const nodes = next;
-    next = [];
-    for (const node of nodes) {
-      if (Object.prototype.hasOwnProperty.call(node, "__proto__")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      if (Object.prototype.hasOwnProperty.call(node, "constructor") && Object.prototype.hasOwnProperty.call(node.constructor, "prototype")) {
-        throw new SyntaxError("Object contains forbidden prototype property");
-      }
-      for (const key in node) {
-        const value = node[key];
-        if (value && typeof value === "object") {
-          next.push(value);
-        }
-      }
-    }
-  }
-  return obj;
-}
-function secureJsonParse(text) {
-  const { stackTraceLimit } = Error;
-  try {
-    Error.stackTraceLimit = 0;
-  } catch (e) {
-    return _parse(text);
-  }
-  try {
-    return _parse(text);
-  } finally {
-    Error.stackTraceLimit = stackTraceLimit;
-  }
-}
-
-// src/add-additional-properties-to-json-schema.ts
-function addAdditionalPropertiesToJsonSchema(jsonSchema2) {
-  if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
-    jsonSchema2.additionalProperties = false;
-    const { properties } = jsonSchema2;
-    if (properties != null) {
-      for (const key of Object.keys(properties)) {
-        properties[key] = visit(properties[key]);
-      }
-    }
-  }
-  if (jsonSchema2.items != null) {
-    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit) : visit(jsonSchema2.items);
-  }
-  if (jsonSchema2.anyOf != null) {
-    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit);
-  }
-  if (jsonSchema2.allOf != null) {
-    jsonSchema2.allOf = jsonSchema2.allOf.map(visit);
-  }
-  if (jsonSchema2.oneOf != null) {
-    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit);
-  }
-  const { definitions } = jsonSchema2;
-  if (definitions != null) {
-    for (const key of Object.keys(definitions)) {
-      definitions[key] = visit(definitions[key]);
-    }
-  }
-  return jsonSchema2;
-}
-function visit(def) {
-  if (typeof def === "boolean") return def;
-  return addAdditionalPropertiesToJsonSchema(def);
-}
-
-// src/to-json-schema/zod3-to-json-schema/options.ts
-var ignoreOverride = Symbol(
-  "Let zodToJsonSchema decide on which parser to use"
-);
-var defaultOptions = {
-  name: void 0,
-  $refStrategy: "root",
-  basePath: ["#"],
-  effectStrategy: "input",
-  pipeStrategy: "all",
-  dateStrategy: "format:date-time",
-  mapStrategy: "entries",
-  removeAdditionalStrategy: "passthrough",
-  allowedAdditionalProperties: true,
-  rejectedAdditionalProperties: false,
-  definitionPath: "definitions",
-  strictUnions: false,
-  definitions: {},
-  errorMessages: false,
-  patternStrategy: "escape",
-  applyRegexFlags: false,
-  emailStrategy: "format:email",
-  base64Strategy: "contentEncoding:base64",
-  nameStrategy: "ref"
-};
-var getDefaultOptions = (options) => typeof options === "string" ? {
-  ...defaultOptions,
-  name: options
-} : {
-  ...defaultOptions,
-  ...options
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/any.ts
-function parseAnyDef() {
-  return {};
-}
-function parseArrayDef(def, refs) {
-  var _a2, _b2, _c;
-  const res = {
-    type: "array"
-  };
-  if (((_a2 = def.type) == null ? void 0 : _a2._def) && ((_c = (_b2 = def.type) == null ? void 0 : _b2._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind.ZodAny) {
-    res.items = parseDef(def.type._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "items"]
-    });
-  }
-  if (def.minLength) {
-    res.minItems = def.minLength.value;
-  }
-  if (def.maxLength) {
-    res.maxItems = def.maxLength.value;
-  }
-  if (def.exactLength) {
-    res.minItems = def.exactLength.value;
-    res.maxItems = def.exactLength.value;
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/bigint.ts
-function parseBigintDef(def) {
-  const res = {
-    type: "integer",
-    format: "int64"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/boolean.ts
-function parseBooleanDef() {
-  return { type: "boolean" };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/branded.ts
-function parseBrandedDef(_def, refs) {
-  return parseDef(_def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/catch.ts
-var parseCatchDef = (def, refs) => {
-  return parseDef(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/date.ts
-function parseDateDef(def, refs, overrideDateStrategy) {
-  const strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
-  if (Array.isArray(strategy)) {
-    return {
-      anyOf: strategy.map((item, i) => parseDateDef(def, refs, item))
-    };
-  }
-  switch (strategy) {
-    case "string":
-    case "format:date-time":
-      return {
-        type: "string",
-        format: "date-time"
-      };
-    case "format:date":
-      return {
-        type: "string",
-        format: "date"
-      };
-    case "integer":
-      return integerDateParser(def);
-  }
-}
-var integerDateParser = (def) => {
-  const res = {
-    type: "integer",
-    format: "unix-time"
-  };
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "min":
-        res.minimum = check.value;
-        break;
-      case "max":
-        res.maximum = check.value;
-        break;
-    }
-  }
-  return res;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/default.ts
-function parseDefaultDef(_def, refs) {
-  return {
-    ...parseDef(_def.innerType._def, refs),
-    default: _def.defaultValue()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/effects.ts
-function parseEffectsDef(_def, refs) {
-  return refs.effectStrategy === "input" ? parseDef(_def.schema._def, refs) : parseAnyDef();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/enum.ts
-function parseEnumDef(def) {
-  return {
-    type: "string",
-    enum: Array.from(def.values)
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/intersection.ts
-var isJsonSchema7AllOfType = (type) => {
-  if ("type" in type && type.type === "string") return false;
-  return "allOf" in type;
-};
-function parseIntersectionDef(def, refs) {
-  const allOf = [
-    parseDef(def.left._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "0"]
-    }),
-    parseDef(def.right._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "allOf", "1"]
-    })
-  ].filter((x) => !!x);
-  const mergedAllOf = [];
-  allOf.forEach((schema) => {
-    if (isJsonSchema7AllOfType(schema)) {
-      mergedAllOf.push(...schema.allOf);
-    } else {
-      let nestedSchema = schema;
-      if ("additionalProperties" in schema && schema.additionalProperties === false) {
-        const { additionalProperties, ...rest } = schema;
-        nestedSchema = rest;
-      }
-      mergedAllOf.push(nestedSchema);
-    }
-  });
-  return mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/literal.ts
-function parseLiteralDef(def) {
-  const parsedType = typeof def.value;
-  if (parsedType !== "bigint" && parsedType !== "number" && parsedType !== "boolean" && parsedType !== "string") {
-    return {
-      type: Array.isArray(def.value) ? "array" : "object"
-    };
-  }
-  return {
-    type: parsedType === "bigint" ? "integer" : parsedType,
-    const: def.value
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/string.ts
-var emojiRegex = void 0;
-var zodPatterns = {
-  /**
-   * `c` was changed to `[cC]` to replicate /i flag
-   */
-  cuid: /^[cC][^\s-]{8,}$/,
-  cuid2: /^[0-9a-z]+$/,
-  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
-  /**
-   * `a-z` was added to replicate /i flag
-   */
-  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
-  /**
-   * Constructed a valid Unicode RegExp
-   *
-   * Lazily instantiate since this type of regex isn't supported
-   * in all envs (e.g. React Native).
-   *
-   * See:
-   * https://github.com/colinhacks/zod/issues/2433
-   * Fix in Zod:
-   * https://github.com/colinhacks/zod/commit/9340fd51e48576a75adc919bff65dbc4a5d4c99b
-   */
-  emoji: () => {
-    if (emojiRegex === void 0) {
-      emojiRegex = RegExp(
-        "^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$",
-        "u"
-      );
-    }
-    return emojiRegex;
-  },
-  /**
-   * Unused
-   */
-  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
-  /**
-   * Unused
-   */
-  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
-  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
-  /**
-   * Unused
-   */
-  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
-  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
-  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
-  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
-  nanoid: /^[a-zA-Z0-9_-]{21}$/,
-  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
-};
-function parseStringDef(def, refs) {
-  const res = {
-    type: "string"
-  };
-  if (def.checks) {
-    for (const check of def.checks) {
-      switch (check.kind) {
-        case "min":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          break;
-        case "max":
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "email":
-          switch (refs.emailStrategy) {
-            case "format:email":
-              addFormat(res, "email", check.message, refs);
-              break;
-            case "format:idn-email":
-              addFormat(res, "idn-email", check.message, refs);
-              break;
-            case "pattern:zod":
-              addPattern(res, zodPatterns.email, check.message, refs);
-              break;
-          }
-          break;
-        case "url":
-          addFormat(res, "uri", check.message, refs);
-          break;
-        case "uuid":
-          addFormat(res, "uuid", check.message, refs);
-          break;
-        case "regex":
-          addPattern(res, check.regex, check.message, refs);
-          break;
-        case "cuid":
-          addPattern(res, zodPatterns.cuid, check.message, refs);
-          break;
-        case "cuid2":
-          addPattern(res, zodPatterns.cuid2, check.message, refs);
-          break;
-        case "startsWith":
-          addPattern(
-            res,
-            RegExp(`^${escapeLiteralCheckValue(check.value, refs)}`),
-            check.message,
-            refs
-          );
-          break;
-        case "endsWith":
-          addPattern(
-            res,
-            RegExp(`${escapeLiteralCheckValue(check.value, refs)}$`),
-            check.message,
-            refs
-          );
-          break;
-        case "datetime":
-          addFormat(res, "date-time", check.message, refs);
-          break;
-        case "date":
-          addFormat(res, "date", check.message, refs);
-          break;
-        case "time":
-          addFormat(res, "time", check.message, refs);
-          break;
-        case "duration":
-          addFormat(res, "duration", check.message, refs);
-          break;
-        case "length":
-          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check.value) : check.value;
-          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check.value) : check.value;
-          break;
-        case "includes": {
-          addPattern(
-            res,
-            RegExp(escapeLiteralCheckValue(check.value, refs)),
-            check.message,
-            refs
-          );
-          break;
-        }
-        case "ip": {
-          if (check.version !== "v6") {
-            addFormat(res, "ipv4", check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addFormat(res, "ipv6", check.message, refs);
-          }
-          break;
-        }
-        case "base64url":
-          addPattern(res, zodPatterns.base64url, check.message, refs);
-          break;
-        case "jwt":
-          addPattern(res, zodPatterns.jwt, check.message, refs);
-          break;
-        case "cidr": {
-          if (check.version !== "v6") {
-            addPattern(res, zodPatterns.ipv4Cidr, check.message, refs);
-          }
-          if (check.version !== "v4") {
-            addPattern(res, zodPatterns.ipv6Cidr, check.message, refs);
-          }
-          break;
-        }
-        case "emoji":
-          addPattern(res, zodPatterns.emoji(), check.message, refs);
-          break;
-        case "ulid": {
-          addPattern(res, zodPatterns.ulid, check.message, refs);
-          break;
-        }
-        case "base64": {
-          switch (refs.base64Strategy) {
-            case "format:binary": {
-              addFormat(res, "binary", check.message, refs);
-              break;
-            }
-            case "contentEncoding:base64": {
-              res.contentEncoding = "base64";
-              break;
-            }
-            case "pattern:zod": {
-              addPattern(res, zodPatterns.base64, check.message, refs);
-              break;
-            }
-          }
-          break;
-        }
-        case "nanoid": {
-          addPattern(res, zodPatterns.nanoid, check.message, refs);
-        }
-      }
-    }
-  }
-  return res;
-}
-function escapeLiteralCheckValue(literal, refs) {
-  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric(literal) : literal;
-}
-var ALPHA_NUMERIC = new Set(
-  "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789"
-);
-function escapeNonAlphaNumeric(source) {
-  let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC.has(source[i])) {
-      result += "\\";
-    }
-    result += source[i];
-  }
-  return result;
-}
-function addFormat(schema, value, message, refs) {
-  var _a2;
-  if (schema.format || ((_a2 = schema.anyOf) == null ? void 0 : _a2.some((x) => x.format))) {
-    if (!schema.anyOf) {
-      schema.anyOf = [];
-    }
-    if (schema.format) {
-      schema.anyOf.push({
-        format: schema.format
-      });
-      delete schema.format;
-    }
-    schema.anyOf.push({
-      format: value,
-      ...message && refs.errorMessages && { errorMessage: { format: message } }
-    });
-  } else {
-    schema.format = value;
-  }
-}
-function addPattern(schema, regex, message, refs) {
-  var _a2;
-  if (schema.pattern || ((_a2 = schema.allOf) == null ? void 0 : _a2.some((x) => x.pattern))) {
-    if (!schema.allOf) {
-      schema.allOf = [];
-    }
-    if (schema.pattern) {
-      schema.allOf.push({
-        pattern: schema.pattern
-      });
-      delete schema.pattern;
-    }
-    schema.allOf.push({
-      pattern: stringifyRegExpWithFlags(regex, refs),
-      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
-    });
-  } else {
-    schema.pattern = stringifyRegExpWithFlags(regex, refs);
-  }
-}
-function stringifyRegExpWithFlags(regex, refs) {
-  var _a2;
-  if (!refs.applyRegexFlags || !regex.flags) {
-    return regex.source;
-  }
-  const flags = {
-    i: regex.flags.includes("i"),
-    // Case-insensitive
-    m: regex.flags.includes("m"),
-    // `^` and `$` matches adjacent to newline characters
-    s: regex.flags.includes("s")
-    // `.` matches newlines
-  };
-  const source = flags.i ? regex.source.toLowerCase() : regex.source;
-  let pattern = "";
-  let isEscaped = false;
-  let inCharGroup = false;
-  let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
-    if (isEscaped) {
-      pattern += source[i];
-      isEscaped = false;
-      continue;
-    }
-    if (flags.i) {
-      if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
-          if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
-            inCharRange = false;
-          } else if (source[i + 1] === "-" && ((_a2 = source[i + 2]) == null ? void 0 : _a2.match(/[a-z]/))) {
-            pattern += source[i];
-            inCharRange = true;
-          } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
-          }
-          continue;
-        }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
-        continue;
-      }
-    }
-    if (flags.m) {
-      if (source[i] === "^") {
-        pattern += `(^|(?<=[\r
-]))`;
-        continue;
-      } else if (source[i] === "$") {
-        pattern += `($|(?=[\r
-]))`;
-        continue;
-      }
-    }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
-]`;
-      continue;
-    }
-    pattern += source[i];
-    if (source[i] === "\\") {
-      isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
-      inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
-      inCharGroup = true;
-    }
-  }
-  try {
-    new RegExp(pattern);
-  } catch (e) {
-    console.warn(
-      `Could not convert regex pattern at ${refs.currentPath.join(
-        "/"
-      )} to a flag-independent form! Falling back to the flag-ignorant source`
-    );
-    return regex.source;
-  }
-  return pattern;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/record.ts
-function parseRecordDef(def, refs) {
-  var _a2, _b2, _c, _d, _e, _f;
-  const schema = {
-    type: "object",
-    additionalProperties: (_a2 = parseDef(def.valueType._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    })) != null ? _a2 : refs.allowedAdditionalProperties
-  };
-  if (((_b2 = def.keyType) == null ? void 0 : _b2._def.typeName) === ZodFirstPartyTypeKind.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
-    const { type, ...keyType } = parseStringDef(def.keyType._def, refs);
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind.ZodEnum) {
-    return {
-      ...schema,
-      propertyNames: {
-        enum: def.keyType._def.values
-      }
-    };
-  } else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
-    const { type, ...keyType } = parseBrandedDef(
-      def.keyType._def,
-      refs
-    );
-    return {
-      ...schema,
-      propertyNames: keyType
-    };
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/map.ts
-function parseMapDef(def, refs) {
-  if (refs.mapStrategy === "record") {
-    return parseRecordDef(def, refs);
-  }
-  const keys = parseDef(def.keyType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "0"]
-  }) || parseAnyDef();
-  const values = parseDef(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items", "items", "1"]
-  }) || parseAnyDef();
-  return {
-    type: "array",
-    maxItems: 125,
-    items: {
-      type: "array",
-      items: [keys, values],
-      minItems: 2,
-      maxItems: 2
-    }
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/native-enum.ts
-function parseNativeEnumDef(def) {
-  const object = def.values;
-  const actualKeys = Object.keys(def.values).filter((key) => {
-    return typeof object[object[key]] !== "number";
-  });
-  const actualValues = actualKeys.map((key) => object[key]);
-  const parsedTypes = Array.from(
-    new Set(actualValues.map((values) => typeof values))
-  );
-  return {
-    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
-    enum: actualValues
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/never.ts
-function parseNeverDef() {
-  return { not: parseAnyDef() };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/null.ts
-function parseNullDef() {
-  return {
-    type: "null"
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/union.ts
-var primitiveMappings = {
-  ZodString: "string",
-  ZodNumber: "number",
-  ZodBigInt: "integer",
-  ZodBoolean: "boolean",
-  ZodNull: "null"
-};
-function parseUnionDef(def, refs) {
-  const options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
-  if (options.every(
-    (x) => x._def.typeName in primitiveMappings && (!x._def.checks || !x._def.checks.length)
-  )) {
-    const types = options.reduce((types2, x) => {
-      const type = primitiveMappings[x._def.typeName];
-      return type && !types2.includes(type) ? [...types2, type] : types2;
-    }, []);
-    return {
-      type: types.length > 1 ? types : types[0]
-    };
-  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
-    const types = options.reduce(
-      (acc, x) => {
-        const type = typeof x._def.value;
-        switch (type) {
-          case "string":
-          case "number":
-          case "boolean":
-            return [...acc, type];
-          case "bigint":
-            return [...acc, "integer"];
-          case "object":
-            if (x._def.value === null) return [...acc, "null"];
-          case "symbol":
-          case "undefined":
-          case "function":
-          default:
-            return acc;
-        }
-      },
-      []
-    );
-    if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
-      return {
-        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
-        enum: options.reduce(
-          (acc, x) => {
-            return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
-          },
-          []
-        )
-      };
-    }
-  } else if (options.every((x) => x._def.typeName === "ZodEnum")) {
-    return {
-      type: "string",
-      enum: options.reduce(
-        (acc, x) => [
-          ...acc,
-          ...x._def.values.filter((x2) => !acc.includes(x2))
-        ],
-        []
-      )
-    };
-  }
-  return asAnyOf(def, refs);
-}
-var asAnyOf = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map(
-    (x, i) => parseDef(x._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "anyOf", `${i}`]
-    })
-  ).filter(
-    (x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0)
-  );
-  return anyOf.length ? { anyOf } : void 0;
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/nullable.ts
-function parseNullableDef(def, refs) {
-  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(
-    def.innerType._def.typeName
-  ) && (!def.innerType._def.checks || !def.innerType._def.checks.length)) {
-    return {
-      type: [
-        primitiveMappings[def.innerType._def.typeName],
-        "null"
-      ]
-    };
-  }
-  const base = parseDef(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "0"]
-  });
-  return base && { anyOf: [base, { type: "null" }] };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/number.ts
-function parseNumberDef(def) {
-  const res = {
-    type: "number"
-  };
-  if (!def.checks) return res;
-  for (const check of def.checks) {
-    switch (check.kind) {
-      case "int":
-        res.type = "integer";
-        break;
-      case "min":
-        if (check.inclusive) {
-          res.minimum = check.value;
-        } else {
-          res.exclusiveMinimum = check.value;
-        }
-        break;
-      case "max":
-        if (check.inclusive) {
-          res.maximum = check.value;
-        } else {
-          res.exclusiveMaximum = check.value;
-        }
-        break;
-      case "multipleOf":
-        res.multipleOf = check.value;
-        break;
-    }
-  }
-  return res;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/object.ts
-function parseObjectDef(def, refs) {
-  const result = {
-    type: "object",
-    properties: {}
-  };
-  const required = [];
-  const shape = def.shape();
-  for (const propName in shape) {
-    let propDef = shape[propName];
-    if (propDef === void 0 || propDef._def === void 0) {
-      continue;
-    }
-    const propOptional = safeIsOptional(propDef);
-    const parsedDef = parseDef(propDef._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "properties", propName],
-      propertyPath: [...refs.currentPath, "properties", propName]
-    });
-    if (parsedDef === void 0) {
-      continue;
-    }
-    result.properties[propName] = parsedDef;
-    if (!propOptional) {
-      required.push(propName);
-    }
-  }
-  if (required.length) {
-    result.required = required;
-  }
-  const additionalProperties = decideAdditionalProperties(def, refs);
-  if (additionalProperties !== void 0) {
-    result.additionalProperties = additionalProperties;
-  }
-  return result;
-}
-function decideAdditionalProperties(def, refs) {
-  if (def.catchall._def.typeName !== "ZodNever") {
-    return parseDef(def.catchall._def, {
-      ...refs,
-      currentPath: [...refs.currentPath, "additionalProperties"]
-    });
-  }
-  switch (def.unknownKeys) {
-    case "passthrough":
-      return refs.allowedAdditionalProperties;
-    case "strict":
-      return refs.rejectedAdditionalProperties;
-    case "strip":
-      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
-  }
-}
-function safeIsOptional(schema) {
-  try {
-    return schema.isOptional();
-  } catch (e) {
-    return true;
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/optional.ts
-var parseOptionalDef = (def, refs) => {
-  var _a2;
-  if (refs.currentPath.toString() === ((_a2 = refs.propertyPath) == null ? void 0 : _a2.toString())) {
-    return parseDef(def.innerType._def, refs);
-  }
-  const innerSchema = parseDef(def.innerType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "anyOf", "1"]
-  });
-  return innerSchema ? { anyOf: [{ not: parseAnyDef() }, innerSchema] } : parseAnyDef();
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/pipeline.ts
-var parsePipelineDef = (def, refs) => {
-  if (refs.pipeStrategy === "input") {
-    return parseDef(def.in._def, refs);
-  } else if (refs.pipeStrategy === "output") {
-    return parseDef(def.out._def, refs);
-  }
-  const a = parseDef(def.in._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", "0"]
-  });
-  const b = parseDef(def.out._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
-  });
-  return {
-    allOf: [a, b].filter((x) => x !== void 0)
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/parsers/promise.ts
-function parsePromiseDef(def, refs) {
-  return parseDef(def.type._def, refs);
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/set.ts
-function parseSetDef(def, refs) {
-  const items = parseDef(def.valueType._def, {
-    ...refs,
-    currentPath: [...refs.currentPath, "items"]
-  });
-  const schema = {
-    type: "array",
-    uniqueItems: true,
-    items
-  };
-  if (def.minSize) {
-    schema.minItems = def.minSize.value;
-  }
-  if (def.maxSize) {
-    schema.maxItems = def.maxSize.value;
-  }
-  return schema;
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/tuple.ts
-function parseTupleDef(def, refs) {
-  if (def.rest) {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      ),
-      additionalItems: parseDef(def.rest._def, {
-        ...refs,
-        currentPath: [...refs.currentPath, "additionalItems"]
-      })
-    };
-  } else {
-    return {
-      type: "array",
-      minItems: def.items.length,
-      maxItems: def.items.length,
-      items: def.items.map(
-        (x, i) => parseDef(x._def, {
-          ...refs,
-          currentPath: [...refs.currentPath, "items", `${i}`]
-        })
-      ).reduce(
-        (acc, x) => x === void 0 ? acc : [...acc, x],
-        []
-      )
-    };
-  }
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/undefined.ts
-function parseUndefinedDef() {
-  return {
-    not: parseAnyDef()
-  };
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/unknown.ts
-function parseUnknownDef() {
-  return parseAnyDef();
-}
-
-// src/to-json-schema/zod3-to-json-schema/parsers/readonly.ts
-var parseReadonlyDef = (def, refs) => {
-  return parseDef(def.innerType._def, refs);
-};
-
-// src/to-json-schema/zod3-to-json-schema/select-parser.ts
-var selectParser = (def, typeName, refs) => {
-  switch (typeName) {
-    case ZodFirstPartyTypeKind.ZodString:
-      return parseStringDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodNumber:
-      return parseNumberDef(def);
-    case ZodFirstPartyTypeKind.ZodObject:
-      return parseObjectDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodBigInt:
-      return parseBigintDef(def);
-    case ZodFirstPartyTypeKind.ZodBoolean:
-      return parseBooleanDef();
-    case ZodFirstPartyTypeKind.ZodDate:
-      return parseDateDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodUndefined:
-      return parseUndefinedDef();
-    case ZodFirstPartyTypeKind.ZodNull:
-      return parseNullDef();
-    case ZodFirstPartyTypeKind.ZodArray:
-      return parseArrayDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodUnion:
-    case ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      return parseUnionDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodIntersection:
-      return parseIntersectionDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodTuple:
-      return parseTupleDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodRecord:
-      return parseRecordDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodLiteral:
-      return parseLiteralDef(def);
-    case ZodFirstPartyTypeKind.ZodEnum:
-      return parseEnumDef(def);
-    case ZodFirstPartyTypeKind.ZodNativeEnum:
-      return parseNativeEnumDef(def);
-    case ZodFirstPartyTypeKind.ZodNullable:
-      return parseNullableDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodOptional:
-      return parseOptionalDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodMap:
-      return parseMapDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodSet:
-      return parseSetDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodLazy:
-      return () => def.getter()._def;
-    case ZodFirstPartyTypeKind.ZodPromise:
-      return parsePromiseDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodNaN:
-    case ZodFirstPartyTypeKind.ZodNever:
-      return parseNeverDef();
-    case ZodFirstPartyTypeKind.ZodEffects:
-      return parseEffectsDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodAny:
-      return parseAnyDef();
-    case ZodFirstPartyTypeKind.ZodUnknown:
-      return parseUnknownDef();
-    case ZodFirstPartyTypeKind.ZodDefault:
-      return parseDefaultDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodBranded:
-      return parseBrandedDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodReadonly:
-      return parseReadonlyDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodCatch:
-      return parseCatchDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodPipeline:
-      return parsePipelineDef(def, refs);
-    case ZodFirstPartyTypeKind.ZodFunction:
-    case ZodFirstPartyTypeKind.ZodVoid:
-    case ZodFirstPartyTypeKind.ZodSymbol:
-      return void 0;
-    default:
-      return /* @__PURE__ */ ((_) => void 0)();
-  }
-};
-
-// src/to-json-schema/zod3-to-json-schema/get-relative-path.ts
-var getRelativePath = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i]) break;
-  }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
-};
-
-// src/to-json-schema/zod3-to-json-schema/parse-def.ts
-function parseDef(def, refs, forceResolution = false) {
-  var _a2;
-  const seenItem = refs.seen.get(def);
-  if (refs.override) {
-    const overrideResult = (_a2 = refs.override) == null ? void 0 : _a2.call(
-      refs,
-      def,
-      refs,
-      seenItem,
-      forceResolution
-    );
-    if (overrideResult !== ignoreOverride) {
-      return overrideResult;
-    }
-  }
-  if (seenItem && !forceResolution) {
-    const seenSchema = get$ref(seenItem, refs);
-    if (seenSchema !== void 0) {
-      return seenSchema;
-    }
-  }
-  const newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
-  refs.seen.set(def, newItem);
-  const jsonSchemaOrGetter = selectParser(def, def.typeName, refs);
-  const jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
-  if (jsonSchema2) {
-    addMeta(def, refs, jsonSchema2);
-  }
-  if (refs.postProcess) {
-    const postProcessResult = refs.postProcess(jsonSchema2, def, refs);
-    newItem.jsonSchema = jsonSchema2;
-    return postProcessResult;
-  }
-  newItem.jsonSchema = jsonSchema2;
-  return jsonSchema2;
-}
-var get$ref = (item, refs) => {
-  switch (refs.$refStrategy) {
-    case "root":
-      return { $ref: item.path.join("/") };
-    case "relative":
-      return { $ref: getRelativePath(refs.currentPath, item.path) };
-    case "none":
-    case "seen": {
-      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value)) {
-        console.warn(
-          `Recursive reference detected at ${refs.currentPath.join(
-            "/"
-          )}! Defaulting to any`
-        );
-        return parseAnyDef();
-      }
-      return refs.$refStrategy === "seen" ? parseAnyDef() : void 0;
-    }
-  }
-};
-var addMeta = (def, refs, jsonSchema2) => {
-  if (def.description) {
-    jsonSchema2.description = def.description;
-  }
-  return jsonSchema2;
-};
-
-// src/to-json-schema/zod3-to-json-schema/refs.ts
-var getRefs = (options) => {
-  const _options = getDefaultOptions(options);
-  const currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
-  return {
-    ..._options,
-    currentPath,
-    propertyPath: void 0,
-    seen: new Map(
-      Object.entries(_options.definitions).map(([name2, def]) => [
-        def._def,
-        {
-          def: def._def,
-          path: [..._options.basePath, _options.definitionPath, name2],
-          // Resolution of references will be forced even though seen, so it's ok that the schema is undefined here for now.
-          jsonSchema: void 0
-        }
-      ])
-    )
-  };
-};
-
-// src/to-json-schema/zod3-to-json-schema/zod3-to-json-schema.ts
-var zod3ToJsonSchema = (schema, options) => {
-  var _a2;
-  const refs = getRefs(options);
-  let definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce(
-    (acc, [name3, schema2]) => {
-      var _a3;
-      return {
-        ...acc,
-        [name3]: (_a3 = parseDef(
-          schema2._def,
-          {
-            ...refs,
-            currentPath: [...refs.basePath, refs.definitionPath, name3]
-          },
-          true
-        )) != null ? _a3 : parseAnyDef()
-      };
-    },
-    {}
-  ) : void 0;
-  const name2 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name;
-  const main = (_a2 = parseDef(
-    schema._def,
-    name2 === void 0 ? refs : {
-      ...refs,
-      currentPath: [...refs.basePath, refs.definitionPath, name2]
-    },
-    false
-  )) != null ? _a2 : parseAnyDef();
-  const title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
-  if (title !== void 0) {
-    main.title = title;
-  }
-  const combined = name2 === void 0 ? definitions ? {
-    ...main,
-    [refs.definitionPath]: definitions
-  } : main : {
-    $ref: [
-      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
-      refs.definitionPath,
-      name2
-    ].join("/"),
-    [refs.definitionPath]: {
-      ...definitions,
-      [name2]: main
-    }
-  };
-  combined.$schema = "http://json-schema.org/draft-07/schema#";
-  return combined;
-};
-
-// src/schema.ts
-var schemaSymbol = Symbol.for("vercel.ai.schema");
-function jsonSchema(jsonSchema2, {
-  validate
-} = {}) {
-  return {
-    [schemaSymbol]: true,
-    _type: void 0,
-    // should never be used directly
-    get jsonSchema() {
-      if (typeof jsonSchema2 === "function") {
-        jsonSchema2 = jsonSchema2();
-      }
-      return jsonSchema2;
-    },
-    validate
-  };
-}
-function isSchema(value) {
-  return typeof value === "object" && value !== null && schemaSymbol in value && value[schemaSymbol] === true && "jsonSchema" in value && "validate" in value;
-}
-function asSchema(schema) {
-  return schema == null ? jsonSchema({ properties: {}, additionalProperties: false }) : isSchema(schema) ? schema : "~standard" in schema ? schema["~standard"].vendor === "zod" ? zodSchema(schema) : standardSchema(schema) : schema();
-}
-function standardSchema(standardSchema2) {
-  return jsonSchema(
-    () => addAdditionalPropertiesToJsonSchema(
-      standardSchema2["~standard"].jsonSchema.input({
-        target: "draft-07"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await standardSchema2["~standard"].validate(value);
-        return "value" in result ? { success: true, value: result.value } : {
-          success: false,
-          error: new TypeValidationError({
-            value,
-            cause: result.issues
-          })
-        };
-      }
-    }
-  );
-}
-function zod3Schema(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => zod3ToJsonSchema(zodSchema2, {
-      $refStrategy: useReferences ? "root" : "none"
-    }),
-    {
-      validate: async (value) => {
-        const result = await zodSchema2.safeParseAsync(value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function zod4Schema(zodSchema2, options) {
-  var _a2;
-  const useReferences = (_a2 = void 0 ) != null ? _a2 : false;
-  return jsonSchema(
-    // defer json schema creation to avoid unnecessary computation when only validation is needed
-    () => addAdditionalPropertiesToJsonSchema(
-      toJSONSchema(zodSchema2, {
-        target: "draft-7",
-        io: "input",
-        reused: useReferences ? "ref" : "inline"
-      })
-    ),
-    {
-      validate: async (value) => {
-        const result = await safeParseAsync(zodSchema2, value);
-        return result.success ? { success: true, value: result.data } : { success: false, error: result.error };
-      }
-    }
-  );
-}
-function isZod4Schema(zodSchema2) {
-  return "_zod" in zodSchema2;
-}
-function zodSchema(zodSchema2, options) {
-  if (isZod4Schema(zodSchema2)) {
-    return zod4Schema(zodSchema2);
-  } else {
-    return zod3Schema(zodSchema2);
-  }
-}
-
-// src/validate-types.ts
-async function validateTypes({
-  value,
-  schema
-}) {
-  const result = await safeValidateTypes({ value, schema });
-  if (!result.success) {
-    throw TypeValidationError.wrap({ value, cause: result.error });
-  }
-  return result.value;
-}
-async function safeValidateTypes({
-  value,
-  schema
-}) {
-  const actualSchema = asSchema(schema);
-  try {
-    if (actualSchema.validate == null) {
-      return { success: true, value, rawValue: value };
-    }
-    const result = await actualSchema.validate(value);
-    if (result.success) {
-      return { success: true, value: result.value, rawValue: value };
-    }
-    return {
-      success: false,
-      error: TypeValidationError.wrap({ value, cause: result.error }),
-      rawValue: value
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: TypeValidationError.wrap({ value, cause: error }),
-      rawValue: value
-    };
-  }
-}
-
-// src/parse-json.ts
-async function parseJSON({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse(text);
-    if (schema == null) {
-      return value;
-    }
-    return validateTypes({ value, schema });
-  } catch (error) {
-    if (JSONParseError.isInstance(error) || TypeValidationError.isInstance(error)) {
-      throw error;
-    }
-    throw new JSONParseError({ text, cause: error });
-  }
-}
-async function safeParseJSON({
-  text,
-  schema
-}) {
-  try {
-    const value = secureJsonParse(text);
-    if (schema == null) {
-      return { success: true, value, rawValue: value };
-    }
-    return await safeValidateTypes({ value, schema });
-  } catch (error) {
-    return {
-      success: false,
-      error: JSONParseError.isInstance(error) ? error : new JSONParseError({ text, cause: error }),
-      rawValue: void 0
-    };
-  }
-}
-function isParsableJson(input) {
-  try {
-    secureJsonParse(input);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-function parseJsonEventStream({
-  stream,
-  schema
-}) {
-  return stream.pipeThrough(new TextDecoderStream()).pipeThrough(new EventSourceParserStream()).pipeThrough(
-    new TransformStream({
-      async transform({ data }, controller) {
-        if (data === "[DONE]") {
-          return;
-        }
-        controller.enqueue(await safeParseJSON({ text: data, schema }));
-      }
-    })
-  );
-}
-async function parseProviderOptions({
-  provider,
-  providerOptions,
-  schema
-}) {
-  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null) {
-    return void 0;
-  }
-  const parsedProviderOptions = await safeValidateTypes({
-    value: providerOptions[provider],
-    schema
-  });
-  if (!parsedProviderOptions.success) {
-    throw new InvalidArgumentError({
-      argument: "providerOptions",
-      message: `invalid ${provider} provider options`,
-      cause: parsedProviderOptions.error
-    });
-  }
-  return parsedProviderOptions.value;
-}
-var getOriginalFetch2 = () => globalThis.fetch;
-var postJsonToApi = async ({
-  url,
-  headers,
-  body,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi({
-  url,
-  headers: {
-    "Content-Type": "application/json",
-    ...headers
-  },
-  body: {
-    content: JSON.stringify(body),
-    values: body
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-});
-var postToApi = async ({
-  url,
-  headers = {},
-  body,
-  successfulResponseHandler,
-  failedResponseHandler,
-  abortSignal,
-  fetch: fetch2 = getOriginalFetch2()
-}) => {
-  try {
-    const response = await fetch2(url, {
-      method: "POST",
-      headers: withUserAgentSuffix(
-        headers,
-        `ai-sdk/provider-utils/${VERSION$1}`,
-        getRuntimeEnvironmentUserAgent()
-      ),
-      body: body.content,
-      signal: abortSignal
-    });
-    const responseHeaders = extractResponseHeaders(response);
-    if (!response.ok) {
-      let errorInformation;
-      try {
-        errorInformation = await failedResponseHandler({
-          response,
-          url,
-          requestBodyValues: body.values
-        });
-      } catch (error) {
-        if (isAbortError(error) || APICallError.isInstance(error)) {
-          throw error;
-        }
-        throw new APICallError({
-          message: "Failed to process error response",
-          cause: error,
-          statusCode: response.status,
-          url,
-          responseHeaders,
-          requestBodyValues: body.values
-        });
-      }
-      throw errorInformation.value;
-    }
-    try {
-      return await successfulResponseHandler({
-        response,
-        url,
-        requestBodyValues: body.values
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        if (isAbortError(error) || APICallError.isInstance(error)) {
-          throw error;
-        }
-      }
-      throw new APICallError({
-        message: "Failed to process successful response",
-        cause: error,
-        statusCode: response.status,
-        url,
-        responseHeaders,
-        requestBodyValues: body.values
-      });
-    }
-  } catch (error) {
-    throw handleFetchError({ error, url, requestBodyValues: body.values });
-  }
-};
-var createJsonErrorResponseHandler = ({
-  errorSchema,
-  errorToMessage,
-  isRetryable
-}) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const responseHeaders = extractResponseHeaders(response);
-  if (responseBody.trim() === "") {
-    return {
-      responseHeaders,
-      value: new APICallError({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-  try {
-    const parsedError = await parseJSON({
-      text: responseBody,
-      schema: errorSchema
-    });
-    return {
-      responseHeaders,
-      value: new APICallError({
-        message: errorToMessage(parsedError),
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        data: parsedError,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
-      })
-    };
-  } catch (parseError) {
-    return {
-      responseHeaders,
-      value: new APICallError({
-        message: response.statusText,
-        url,
-        requestBodyValues,
-        statusCode: response.status,
-        responseHeaders,
-        responseBody,
-        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
-      })
-    };
-  }
-};
-var createEventSourceResponseHandler = (chunkSchema) => async ({ response }) => {
-  const responseHeaders = extractResponseHeaders(response);
-  if (response.body == null) {
-    throw new EmptyResponseBodyError({});
-  }
-  return {
-    responseHeaders,
-    value: parseJsonEventStream({
-      stream: response.body,
-      schema: chunkSchema
-    })
-  };
-};
-var createJsonResponseHandler = (responseSchema) => async ({ response, url, requestBodyValues }) => {
-  const responseBody = await response.text();
-  const parsedResult = await safeParseJSON({
-    text: responseBody,
-    schema: responseSchema
-  });
-  const responseHeaders = extractResponseHeaders(response);
-  if (!parsedResult.success) {
-    throw new APICallError({
-      message: "Invalid JSON response",
-      cause: parsedResult.error,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody,
-      url,
-      requestBodyValues
-    });
-  }
-  return {
-    responseHeaders,
-    value: parsedResult.value,
-    rawValue: parsedResult.rawValue
-  };
-};
-
-// src/without-trailing-slash.ts
-function withoutTrailingSlash(url) {
-  return url == null ? void 0 : url.replace(/\/$/, "");
-}
 
 // src/chat/openai-compatible-chat-language-model.ts
 var openaiCompatibleErrorDataSchema = object$1({
@@ -45403,6 +30676,17 @@ function getOpenAIMetadata(message) {
   var _a, _b;
   return (_b = (_a = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a.openaiCompatible) != null ? _b : {};
 }
+function getAudioFormat(mediaType) {
+  switch (mediaType) {
+    case "audio/wav":
+      return "wav";
+    case "audio/mp3":
+    case "audio/mpeg":
+      return "mp3";
+    default:
+      return null;
+  }
+}
 function convertToOpenAICompatibleChatMessages(prompt) {
   var _a, _b, _c;
   const messages = [];
@@ -45425,6 +30709,7 @@ function convertToOpenAICompatibleChatMessages(prompt) {
         messages.push({
           role: "user",
           content: content.map((part) => {
+            var _a2;
             const partMetadata = getOpenAIMetadata(part);
             switch (part.type) {
               case "text": {
@@ -45440,11 +30725,54 @@ function convertToOpenAICompatibleChatMessages(prompt) {
                     },
                     ...partMetadata
                   };
-                } else {
-                  throw new UnsupportedFunctionalityError({
-                    functionality: `file part media type ${part.mediaType}`
-                  });
                 }
+                if (part.mediaType.startsWith("audio/")) {
+                  if (part.data instanceof URL) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "audio file parts with URLs"
+                    });
+                  }
+                  const format = getAudioFormat(part.mediaType);
+                  if (format === null) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: `audio media type ${part.mediaType}`
+                    });
+                  }
+                  return {
+                    type: "input_audio",
+                    input_audio: {
+                      data: convertToBase64(part.data),
+                      format
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType === "application/pdf") {
+                  if (part.data instanceof URL) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "PDF file parts with URLs"
+                    });
+                  }
+                  return {
+                    type: "file",
+                    file: {
+                      filename: (_a2 = part.filename) != null ? _a2 : "document.pdf",
+                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType.startsWith("text/")) {
+                  const textContent = part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? part.data : new TextDecoder().decode(part.data);
+                  return {
+                    type: "text",
+                    text: textContent,
+                    ...partMetadata
+                  };
+                }
+                throw new UnsupportedFunctionalityError({
+                  functionality: `file part media type ${part.mediaType}`
+                });
               }
             }
           }),
@@ -45534,7 +30862,7 @@ function convertToOpenAICompatibleChatMessages(prompt) {
 }
 
 // src/chat/get-response-metadata.ts
-function getResponseMetadata$1({
+function getResponseMetadata$3({
   id,
   model,
   created
@@ -45585,7 +30913,7 @@ var openaiCompatibleProviderOptions = object$1({
    */
   strictJsonSchema: boolean().optional()
 });
-function prepareTools({
+function prepareTools$1({
   tools,
   toolChoice
 }) {
@@ -45686,9 +31014,21 @@ var OpenAICompatibleChatLanguageModel = class {
   }) {
     var _a, _b, _c, _d, _e;
     const warnings = [];
+    const deprecatedOptions = await parseProviderOptions({
+      provider: "openai-compatible",
+      providerOptions,
+      schema: openaiCompatibleProviderOptions
+    });
+    if (deprecatedOptions != null) {
+      warnings.push({
+        type: "other",
+        message: `The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead.`
+      });
+    }
     const compatibleOptions = Object.assign(
+      deprecatedOptions != null ? deprecatedOptions : {},
       (_a = await parseProviderOptions({
-        provider: "openai-compatible",
+        provider: "openaiCompatible",
         providerOptions,
         schema: openaiCompatibleProviderOptions
       })) != null ? _a : {},
@@ -45713,7 +31053,7 @@ var OpenAICompatibleChatLanguageModel = class {
       tools: openaiTools,
       toolChoice: openaiToolChoice,
       toolWarnings
-    } = prepareTools({
+    } = prepareTools$1({
       tools,
       toolChoice
     });
@@ -45833,7 +31173,7 @@ var OpenAICompatibleChatLanguageModel = class {
       providerMetadata,
       request: { body },
       response: {
-        ...getResponseMetadata$1(responseBody),
+        ...getResponseMetadata$3(responseBody),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -45904,7 +31244,7 @@ var OpenAICompatibleChatLanguageModel = class {
               isFirstChunk = false;
               controller.enqueue({
                 type: "response-metadata",
-                ...getResponseMetadata$1(value)
+                ...getResponseMetadata$3(value)
               });
             }
             if (value.usage != null) {
@@ -46250,14 +31590,2915 @@ object$1({
   usage: object$1({ prompt_tokens: number$1() }).nullish(),
   providerMetadata: record(string(), record(string(), any())).optional()
 });
-object$1({
+var OpenAICompatibleImageModel = class {
+  constructor(modelId, config) {
+    this.modelId = modelId;
+    this.config = config;
+    this.specificationVersion = "v3";
+    this.maxImagesPerCall = 10;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  /**
+   * The provider options key used to extract provider-specific options.
+   */
+  get providerOptionsKey() {
+    return this.config.provider.split(".")[0].trim();
+  }
+  // TODO: deprecate non-camelCase keys and remove in future major version
+  getArgs(providerOptions) {
+    return {
+      ...providerOptions[this.providerOptionsKey],
+      ...providerOptions[toCamelCase(this.providerOptionsKey)]
+    };
+  }
+  async doGenerate({
+    prompt,
+    n,
+    size,
+    aspectRatio,
+    seed,
+    providerOptions,
+    headers,
+    abortSignal,
+    files,
+    mask
+  }) {
+    var _a, _b, _c, _d, _e;
+    const warnings = [];
+    if (aspectRatio != null) {
+      warnings.push({
+        type: "unsupported",
+        feature: "aspectRatio",
+        details: "This model does not support aspect ratio. Use `size` instead."
+      });
+    }
+    if (seed != null) {
+      warnings.push({ type: "unsupported", feature: "seed" });
+    }
+    const currentDate = (_c = (_b = (_a = this.config._internal) == null ? void 0 : _a.currentDate) == null ? void 0 : _b.call(_a)) != null ? _c : /* @__PURE__ */ new Date();
+    const args = this.getArgs(providerOptions);
+    if (files != null && files.length > 0) {
+      const { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi({
+        url: this.config.url({
+          path: "/images/edits",
+          modelId: this.modelId
+        }),
+        headers: combineHeaders(this.config.headers(), headers),
+        formData: convertToFormData({
+          model: this.modelId,
+          prompt,
+          image: await Promise.all(files.map((file) => fileToBlob(file))),
+          mask: mask != null ? await fileToBlob(mask) : void 0,
+          n,
+          size,
+          ...args
+        }),
+        failedResponseHandler: createJsonErrorResponseHandler(
+          (_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure
+        ),
+        successfulResponseHandler: createJsonResponseHandler(
+          openaiCompatibleImageResponseSchema
+        ),
+        abortSignal,
+        fetch: this.config.fetch
+      });
+      return {
+        images: response2.data.map((item) => item.b64_json),
+        warnings,
+        response: {
+          timestamp: currentDate,
+          modelId: this.modelId,
+          headers: responseHeaders2
+        }
+      };
+    }
+    const { value: response, responseHeaders } = await postJsonToApi({
+      url: this.config.url({
+        path: "/images/generations",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), headers),
+      body: {
+        model: this.modelId,
+        prompt,
+        n,
+        size,
+        ...args,
+        response_format: "b64_json"
+      },
+      failedResponseHandler: createJsonErrorResponseHandler(
+        (_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure
+      ),
+      successfulResponseHandler: createJsonResponseHandler(
+        openaiCompatibleImageResponseSchema
+      ),
+      abortSignal,
+      fetch: this.config.fetch
+    });
+    return {
+      images: response.data.map((item) => item.b64_json),
+      warnings,
+      response: {
+        timestamp: currentDate,
+        modelId: this.modelId,
+        headers: responseHeaders
+      }
+    };
+  }
+};
+var openaiCompatibleImageResponseSchema = object$1({
   data: array$1(object$1({ b64_json: string() }))
 });
+async function fileToBlob(file) {
+  if (file.type === "url") {
+    return downloadBlob(file.url);
+  }
+  const data = file.data instanceof Uint8Array ? file.data : convertBase64ToUint8Array(file.data);
+  return new Blob([data], { type: file.mediaType });
+}
+function toCamelCase(str) {
+  return str.replace(/[_-]([a-z])/g, (g) => g[1].toUpperCase());
+}
+
+// src/xai-provider.ts
+function convertToXaiChatMessages(prompt) {
+  var _a;
+  const messages = [];
+  const warnings = [];
+  for (const { role, content } of prompt) {
+    switch (role) {
+      case "system": {
+        messages.push({ role: "system", content });
+        break;
+      }
+      case "user": {
+        if (content.length === 1 && content[0].type === "text") {
+          messages.push({ role: "user", content: content[0].text });
+          break;
+        }
+        messages.push({
+          role: "user",
+          content: content.map((part) => {
+            switch (part.type) {
+              case "text": {
+                return { type: "text", text: part.text };
+              }
+              case "file": {
+                if (part.mediaType.startsWith("image/")) {
+                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
+                  return {
+                    type: "image_url",
+                    image_url: {
+                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
+                    }
+                  };
+                } else {
+                  throw new UnsupportedFunctionalityError({
+                    functionality: `file part media type ${part.mediaType}`
+                  });
+                }
+              }
+            }
+          })
+        });
+        break;
+      }
+      case "assistant": {
+        let text = "";
+        const toolCalls = [];
+        for (const part of content) {
+          switch (part.type) {
+            case "text": {
+              text += part.text;
+              break;
+            }
+            case "tool-call": {
+              toolCalls.push({
+                id: part.toolCallId,
+                type: "function",
+                function: {
+                  name: part.toolName,
+                  arguments: JSON.stringify(part.input)
+                }
+              });
+              break;
+            }
+          }
+        }
+        messages.push({
+          role: "assistant",
+          content: text,
+          tool_calls: toolCalls.length > 0 ? toolCalls : void 0
+        });
+        break;
+      }
+      case "tool": {
+        for (const toolResponse of content) {
+          if (toolResponse.type === "tool-approval-response") {
+            continue;
+          }
+          const output = toolResponse.output;
+          let contentValue;
+          switch (output.type) {
+            case "text":
+            case "error-text":
+              contentValue = output.value;
+              break;
+            case "execution-denied":
+              contentValue = (_a = output.reason) != null ? _a : "Tool execution denied.";
+              break;
+            case "content":
+            case "json":
+            case "error-json":
+              contentValue = JSON.stringify(output.value);
+              break;
+          }
+          messages.push({
+            role: "tool",
+            tool_call_id: toolResponse.toolCallId,
+            content: contentValue
+          });
+        }
+        break;
+      }
+      default: {
+        const _exhaustiveCheck = role;
+        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
+      }
+    }
+  }
+  return { messages, warnings };
+}
+
+// src/convert-xai-chat-usage.ts
+function convertXaiChatUsage(usage) {
+  var _a, _b, _c, _d;
+  const cacheReadTokens = (_b = (_a = usage.prompt_tokens_details) == null ? void 0 : _a.cached_tokens) != null ? _b : 0;
+  const reasoningTokens = (_d = (_c = usage.completion_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
+  return {
+    inputTokens: {
+      total: usage.prompt_tokens,
+      noCache: usage.prompt_tokens - cacheReadTokens,
+      cacheRead: cacheReadTokens,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: usage.completion_tokens,
+      text: usage.completion_tokens - reasoningTokens,
+      reasoning: reasoningTokens
+    },
+    raw: usage
+  };
+}
+
+// src/get-response-metadata.ts
+function getResponseMetadata$2({
+  id,
+  model,
+  created,
+  created_at
+}) {
+  const unixTime = created != null ? created : created_at;
+  return {
+    id: id != null ? id : void 0,
+    modelId: model != null ? model : void 0,
+    timestamp: unixTime != null ? new Date(unixTime * 1e3) : void 0
+  };
+}
+
+// src/map-xai-finish-reason.ts
+function mapXaiFinishReason(finishReason) {
+  switch (finishReason) {
+    case "stop":
+      return "stop";
+    case "length":
+      return "length";
+    case "tool_calls":
+    case "function_call":
+      return "tool-calls";
+    case "content_filter":
+      return "content-filter";
+    default:
+      return "other";
+  }
+}
+var webSourceSchema = object$1({
+  type: literal("web"),
+  country: string().length(2).optional(),
+  excludedWebsites: array$1(string()).max(5).optional(),
+  allowedWebsites: array$1(string()).max(5).optional(),
+  safeSearch: boolean().optional()
+});
+var xSourceSchema = object$1({
+  type: literal("x"),
+  excludedXHandles: array$1(string()).optional(),
+  includedXHandles: array$1(string()).optional(),
+  postFavoriteCount: number$1().int().optional(),
+  postViewCount: number$1().int().optional(),
+  /**
+   * @deprecated use `includedXHandles` instead
+   */
+  xHandles: array$1(string()).optional()
+});
+var newsSourceSchema = object$1({
+  type: literal("news"),
+  country: string().length(2).optional(),
+  excludedWebsites: array$1(string()).max(5).optional(),
+  safeSearch: boolean().optional()
+});
+var rssSourceSchema = object$1({
+  type: literal("rss"),
+  links: array$1(string().url()).max(1)
+  // currently only supports one RSS link
+});
+var searchSourceSchema = discriminatedUnion("type", [
+  webSourceSchema,
+  xSourceSchema,
+  newsSourceSchema,
+  rssSourceSchema
+]);
+var xaiProviderOptions = object$1({
+  reasoningEffort: _enum(["low", "high"]).optional(),
+  /**
+   * Whether to enable parallel function calling during tool use.
+   * When true, the model can call multiple functions in parallel.
+   * When false, the model will call functions sequentially.
+   * Defaults to true.
+   */
+  parallel_function_calling: boolean().optional(),
+  searchParameters: object$1({
+    /**
+     * search mode preference
+     * - "off": disables search completely
+     * - "auto": model decides whether to search (default)
+     * - "on": always enables search
+     */
+    mode: _enum(["off", "auto", "on"]),
+    /**
+     * whether to return citations in the response
+     * defaults to true
+     */
+    returnCitations: boolean().optional(),
+    /**
+     * start date for search data (ISO8601 format: YYYY-MM-DD)
+     */
+    fromDate: string().optional(),
+    /**
+     * end date for search data (ISO8601 format: YYYY-MM-DD)
+     */
+    toDate: string().optional(),
+    /**
+     * maximum number of search results to consider
+     * defaults to 20
+     */
+    maxSearchResults: number$1().min(1).max(50).optional(),
+    /**
+     * data sources to search from.
+     * defaults to [{ type: 'web' }, { type: 'x' }] if not specified.
+     *
+     * @example
+     * sources: [{ type: 'web', country: 'US' }, { type: 'x' }]
+     */
+    sources: array$1(searchSourceSchema).optional()
+  }).optional()
+});
+var xaiErrorDataSchema = object$1({
+  error: object$1({
+    message: string(),
+    type: string().nullish(),
+    param: any().nullish(),
+    code: union([string(), number$1()]).nullish()
+  })
+});
+var xaiFailedResponseHandler = createJsonErrorResponseHandler({
+  errorSchema: xaiErrorDataSchema,
+  errorToMessage: (data) => data.error.message
+});
+function prepareTools({
+  tools,
+  toolChoice
+}) {
+  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
+  const toolWarnings = [];
+  if (tools == null) {
+    return { tools: void 0, toolChoice: void 0, toolWarnings };
+  }
+  const xaiTools2 = [];
+  for (const tool of tools) {
+    if (tool.type === "provider") {
+      toolWarnings.push({
+        type: "unsupported",
+        feature: `provider-defined tool ${tool.name}`
+      });
+    } else {
+      xaiTools2.push({
+        type: "function",
+        function: {
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.inputSchema
+        }
+      });
+    }
+  }
+  if (toolChoice == null) {
+    return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
+  }
+  const type = toolChoice.type;
+  switch (type) {
+    case "auto":
+    case "none":
+      return { tools: xaiTools2, toolChoice: type, toolWarnings };
+    case "required":
+      return { tools: xaiTools2, toolChoice: "required", toolWarnings };
+    case "tool":
+      return {
+        tools: xaiTools2,
+        toolChoice: {
+          type: "function",
+          function: { name: toolChoice.toolName }
+        },
+        toolWarnings
+      };
+    default: {
+      const _exhaustiveCheck = type;
+      throw new UnsupportedFunctionalityError({
+        functionality: `tool choice type: ${_exhaustiveCheck}`
+      });
+    }
+  }
+}
+
+// src/xai-chat-language-model.ts
+var XaiChatLanguageModel = class {
+  constructor(modelId, config) {
+    this.specificationVersion = "v3";
+    this.supportedUrls = {
+      "image/*": [/^https?:\/\/.*$/]
+    };
+    this.modelId = modelId;
+    this.config = config;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    topK,
+    frequencyPenalty,
+    presencePenalty,
+    stopSequences,
+    seed,
+    responseFormat,
+    providerOptions,
+    tools,
+    toolChoice
+  }) {
+    var _a, _b, _c;
+    const warnings = [];
+    const options = (_a = await parseProviderOptions({
+      provider: "xai",
+      providerOptions,
+      schema: xaiProviderOptions
+    })) != null ? _a : {};
+    if (topK != null) {
+      warnings.push({ type: "unsupported", feature: "topK" });
+    }
+    if (frequencyPenalty != null) {
+      warnings.push({ type: "unsupported", feature: "frequencyPenalty" });
+    }
+    if (presencePenalty != null) {
+      warnings.push({ type: "unsupported", feature: "presencePenalty" });
+    }
+    if (stopSequences != null) {
+      warnings.push({ type: "unsupported", feature: "stopSequences" });
+    }
+    const { messages, warnings: messageWarnings } = convertToXaiChatMessages(prompt);
+    warnings.push(...messageWarnings);
+    const {
+      tools: xaiTools2,
+      toolChoice: xaiToolChoice,
+      toolWarnings
+    } = prepareTools({
+      tools,
+      toolChoice
+    });
+    warnings.push(...toolWarnings);
+    const baseArgs = {
+      // model id
+      model: this.modelId,
+      // standard generation settings
+      max_completion_tokens: maxOutputTokens,
+      temperature,
+      top_p: topP,
+      seed,
+      reasoning_effort: options.reasoningEffort,
+      // parallel function calling
+      parallel_function_calling: options.parallel_function_calling,
+      // response format
+      response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? responseFormat.schema != null ? {
+        type: "json_schema",
+        json_schema: {
+          name: (_b = responseFormat.name) != null ? _b : "response",
+          schema: responseFormat.schema,
+          strict: true
+        }
+      } : { type: "json_object" } : void 0,
+      // search parameters
+      search_parameters: options.searchParameters ? {
+        mode: options.searchParameters.mode,
+        return_citations: options.searchParameters.returnCitations,
+        from_date: options.searchParameters.fromDate,
+        to_date: options.searchParameters.toDate,
+        max_search_results: options.searchParameters.maxSearchResults,
+        sources: (_c = options.searchParameters.sources) == null ? void 0 : _c.map((source) => {
+          var _a2;
+          return {
+            type: source.type,
+            ...source.type === "web" && {
+              country: source.country,
+              excluded_websites: source.excludedWebsites,
+              allowed_websites: source.allowedWebsites,
+              safe_search: source.safeSearch
+            },
+            ...source.type === "x" && {
+              excluded_x_handles: source.excludedXHandles,
+              included_x_handles: (_a2 = source.includedXHandles) != null ? _a2 : source.xHandles,
+              post_favorite_count: source.postFavoriteCount,
+              post_view_count: source.postViewCount
+            },
+            ...source.type === "news" && {
+              country: source.country,
+              excluded_websites: source.excludedWebsites,
+              safe_search: source.safeSearch
+            },
+            ...source.type === "rss" && {
+              links: source.links
+            }
+          };
+        })
+      } : void 0,
+      // messages in xai format
+      messages,
+      // tools in xai format
+      tools: xaiTools2,
+      tool_choice: xaiToolChoice
+    };
+    return {
+      args: baseArgs,
+      warnings
+    };
+  }
+  async doGenerate(options) {
+    var _a, _b;
+    const { args: body, warnings } = await this.getArgs(options);
+    const url = `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/chat/completions`;
+    const {
+      responseHeaders,
+      value: response,
+      rawValue: rawResponse
+    } = await postJsonToApi({
+      url,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: xaiFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(
+        xaiChatResponseSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    if (response.error != null) {
+      throw new APICallError({
+        message: response.error,
+        url,
+        requestBodyValues: body,
+        statusCode: 200,
+        responseHeaders,
+        responseBody: JSON.stringify(rawResponse),
+        isRetryable: response.code === "The service is currently unavailable"
+      });
+    }
+    const choice = response.choices[0];
+    const content = [];
+    if (choice.message.content != null && choice.message.content.length > 0) {
+      let text = choice.message.content;
+      const lastMessage = body.messages[body.messages.length - 1];
+      if ((lastMessage == null ? void 0 : lastMessage.role) === "assistant" && text === lastMessage.content) {
+        text = "";
+      }
+      if (text.length > 0) {
+        content.push({ type: "text", text });
+      }
+    }
+    if (choice.message.reasoning_content != null && choice.message.reasoning_content.length > 0) {
+      content.push({
+        type: "reasoning",
+        text: choice.message.reasoning_content
+      });
+    }
+    if (choice.message.tool_calls != null) {
+      for (const toolCall of choice.message.tool_calls) {
+        content.push({
+          type: "tool-call",
+          toolCallId: toolCall.id,
+          toolName: toolCall.function.name,
+          input: toolCall.function.arguments
+        });
+      }
+    }
+    if (response.citations != null) {
+      for (const url2 of response.citations) {
+        content.push({
+          type: "source",
+          sourceType: "url",
+          id: this.config.generateId(),
+          url: url2
+        });
+      }
+    }
+    return {
+      content,
+      finishReason: {
+        unified: mapXaiFinishReason(choice.finish_reason),
+        raw: (_b = choice.finish_reason) != null ? _b : void 0
+      },
+      usage: convertXaiChatUsage(response.usage),
+      // defined when there is no error
+      request: { body },
+      response: {
+        ...getResponseMetadata$2(response),
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      warnings
+    };
+  }
+  async doStream(options) {
+    var _a;
+    const { args, warnings } = await this.getArgs(options);
+    const body = {
+      ...args,
+      stream: true,
+      stream_options: {
+        include_usage: true
+      }
+    };
+    const url = `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/chat/completions`;
+    const { responseHeaders, value: response } = await postJsonToApi({
+      url,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: xaiFailedResponseHandler,
+      successfulResponseHandler: async ({ response: response2 }) => {
+        const responseHeaders2 = extractResponseHeaders(response2);
+        const contentType = response2.headers.get("content-type");
+        if (contentType == null ? void 0 : contentType.includes("application/json")) {
+          const responseBody = await response2.text();
+          const parsedError = await safeParseJSON({
+            text: responseBody,
+            schema: xaiStreamErrorSchema
+          });
+          if (parsedError.success) {
+            throw new APICallError({
+              message: parsedError.value.error,
+              url,
+              requestBodyValues: body,
+              statusCode: 200,
+              responseHeaders: responseHeaders2,
+              responseBody,
+              isRetryable: parsedError.value.code === "The service is currently unavailable"
+            });
+          }
+          throw new APICallError({
+            message: "Invalid JSON response",
+            url,
+            requestBodyValues: body,
+            statusCode: 200,
+            responseHeaders: responseHeaders2,
+            responseBody
+          });
+        }
+        return createEventSourceResponseHandler(xaiChatChunkSchema)({
+          response: response2,
+          url,
+          requestBodyValues: body
+        });
+      },
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    let finishReason = {
+      unified: "other",
+      raw: void 0
+    };
+    let usage = void 0;
+    let isFirstChunk = true;
+    const contentBlocks = {};
+    const lastReasoningDeltas = {};
+    let activeReasoningBlockId = void 0;
+    const self = this;
+    return {
+      stream: response.pipeThrough(
+        new TransformStream({
+          start(controller) {
+            controller.enqueue({ type: "stream-start", warnings });
+          },
+          transform(chunk, controller) {
+            if (options.includeRawChunks) {
+              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
+            }
+            if (!chunk.success) {
+              controller.enqueue({ type: "error", error: chunk.error });
+              return;
+            }
+            const value = chunk.value;
+            if (isFirstChunk) {
+              controller.enqueue({
+                type: "response-metadata",
+                ...getResponseMetadata$2(value)
+              });
+              isFirstChunk = false;
+            }
+            if (value.citations != null) {
+              for (const url2 of value.citations) {
+                controller.enqueue({
+                  type: "source",
+                  sourceType: "url",
+                  id: self.config.generateId(),
+                  url: url2
+                });
+              }
+            }
+            if (value.usage != null) {
+              usage = convertXaiChatUsage(value.usage);
+            }
+            const choice = value.choices[0];
+            if ((choice == null ? void 0 : choice.finish_reason) != null) {
+              finishReason = {
+                unified: mapXaiFinishReason(choice.finish_reason),
+                raw: choice.finish_reason
+              };
+            }
+            if ((choice == null ? void 0 : choice.delta) == null) {
+              return;
+            }
+            const delta = choice.delta;
+            const choiceIndex = choice.index;
+            if (delta.content != null && delta.content.length > 0) {
+              const textContent = delta.content;
+              if (activeReasoningBlockId != null && !contentBlocks[activeReasoningBlockId].ended) {
+                controller.enqueue({
+                  type: "reasoning-end",
+                  id: activeReasoningBlockId
+                });
+                contentBlocks[activeReasoningBlockId].ended = true;
+                activeReasoningBlockId = void 0;
+              }
+              const lastMessage = body.messages[body.messages.length - 1];
+              if ((lastMessage == null ? void 0 : lastMessage.role) === "assistant" && textContent === lastMessage.content) {
+                return;
+              }
+              const blockId = `text-${value.id || choiceIndex}`;
+              if (contentBlocks[blockId] == null) {
+                contentBlocks[blockId] = { type: "text", ended: false };
+                controller.enqueue({
+                  type: "text-start",
+                  id: blockId
+                });
+              }
+              controller.enqueue({
+                type: "text-delta",
+                id: blockId,
+                delta: textContent
+              });
+            }
+            if (delta.reasoning_content != null && delta.reasoning_content.length > 0) {
+              const blockId = `reasoning-${value.id || choiceIndex}`;
+              if (lastReasoningDeltas[blockId] === delta.reasoning_content) {
+                return;
+              }
+              lastReasoningDeltas[blockId] = delta.reasoning_content;
+              if (contentBlocks[blockId] == null) {
+                contentBlocks[blockId] = { type: "reasoning", ended: false };
+                activeReasoningBlockId = blockId;
+                controller.enqueue({
+                  type: "reasoning-start",
+                  id: blockId
+                });
+              }
+              controller.enqueue({
+                type: "reasoning-delta",
+                id: blockId,
+                delta: delta.reasoning_content
+              });
+            }
+            if (delta.tool_calls != null) {
+              if (activeReasoningBlockId != null && !contentBlocks[activeReasoningBlockId].ended) {
+                controller.enqueue({
+                  type: "reasoning-end",
+                  id: activeReasoningBlockId
+                });
+                contentBlocks[activeReasoningBlockId].ended = true;
+                activeReasoningBlockId = void 0;
+              }
+              for (const toolCall of delta.tool_calls) {
+                const toolCallId = toolCall.id;
+                controller.enqueue({
+                  type: "tool-input-start",
+                  id: toolCallId,
+                  toolName: toolCall.function.name
+                });
+                controller.enqueue({
+                  type: "tool-input-delta",
+                  id: toolCallId,
+                  delta: toolCall.function.arguments
+                });
+                controller.enqueue({
+                  type: "tool-input-end",
+                  id: toolCallId
+                });
+                controller.enqueue({
+                  type: "tool-call",
+                  toolCallId,
+                  toolName: toolCall.function.name,
+                  input: toolCall.function.arguments
+                });
+              }
+            }
+          },
+          flush(controller) {
+            for (const [blockId, block] of Object.entries(contentBlocks)) {
+              if (!block.ended) {
+                controller.enqueue({
+                  type: block.type === "text" ? "text-end" : "reasoning-end",
+                  id: blockId
+                });
+              }
+            }
+            controller.enqueue({ type: "finish", finishReason, usage });
+          }
+        })
+      ),
+      request: { body },
+      response: { headers: responseHeaders }
+    };
+  }
+};
+var xaiUsageSchema = object$1({
+  prompt_tokens: number$1(),
+  completion_tokens: number$1(),
+  total_tokens: number$1(),
+  prompt_tokens_details: object$1({
+    text_tokens: number$1().nullish(),
+    audio_tokens: number$1().nullish(),
+    image_tokens: number$1().nullish(),
+    cached_tokens: number$1().nullish()
+  }).nullish(),
+  completion_tokens_details: object$1({
+    reasoning_tokens: number$1().nullish(),
+    audio_tokens: number$1().nullish(),
+    accepted_prediction_tokens: number$1().nullish(),
+    rejected_prediction_tokens: number$1().nullish()
+  }).nullish()
+});
+var xaiChatResponseSchema = object$1({
+  id: string().nullish(),
+  created: number$1().nullish(),
+  model: string().nullish(),
+  choices: array$1(
+    object$1({
+      message: object$1({
+        role: literal("assistant"),
+        content: string().nullish(),
+        reasoning_content: string().nullish(),
+        tool_calls: array$1(
+          object$1({
+            id: string(),
+            type: literal("function"),
+            function: object$1({
+              name: string(),
+              arguments: string()
+            })
+          })
+        ).nullish()
+      }),
+      index: number$1(),
+      finish_reason: string().nullish()
+    })
+  ).nullish(),
+  object: literal("chat.completion").nullish(),
+  usage: xaiUsageSchema.nullish(),
+  citations: array$1(string().url()).nullish(),
+  code: string().nullish(),
+  error: string().nullish()
+});
+var xaiChatChunkSchema = object$1({
+  id: string().nullish(),
+  created: number$1().nullish(),
+  model: string().nullish(),
+  choices: array$1(
+    object$1({
+      delta: object$1({
+        role: _enum(["assistant"]).optional(),
+        content: string().nullish(),
+        reasoning_content: string().nullish(),
+        tool_calls: array$1(
+          object$1({
+            id: string(),
+            type: literal("function"),
+            function: object$1({
+              name: string(),
+              arguments: string()
+            })
+          })
+        ).nullish()
+      }),
+      finish_reason: string().nullish(),
+      index: number$1()
+    })
+  ),
+  usage: xaiUsageSchema.nullish(),
+  citations: array$1(string().url()).nullish()
+});
+var xaiStreamErrorSchema = object$1({
+  code: string(),
+  error: string()
+});
+async function convertToXaiResponsesInput({
+  prompt
+}) {
+  var _a, _b, _c, _d, _e;
+  const input = [];
+  const inputWarnings = [];
+  for (const message of prompt) {
+    switch (message.role) {
+      case "system": {
+        input.push({
+          role: "system",
+          content: message.content
+        });
+        break;
+      }
+      case "user": {
+        const contentParts = [];
+        for (const block of message.content) {
+          switch (block.type) {
+            case "text": {
+              contentParts.push({ type: "input_text", text: block.text });
+              break;
+            }
+            case "file": {
+              if (block.mediaType.startsWith("image/")) {
+                const mediaType = block.mediaType === "image/*" ? "image/jpeg" : block.mediaType;
+                const imageUrl = block.data instanceof URL ? block.data.toString() : `data:${mediaType};base64,${convertToBase64(block.data)}`;
+                contentParts.push({ type: "input_image", image_url: imageUrl });
+              } else {
+                throw new UnsupportedFunctionalityError({
+                  functionality: `file part media type ${block.mediaType}`
+                });
+              }
+              break;
+            }
+            default: {
+              inputWarnings.push({
+                type: "other",
+                message: "xAI Responses API does not support this content type in user messages"
+              });
+            }
+          }
+        }
+        input.push({
+          role: "user",
+          content: contentParts
+        });
+        break;
+      }
+      case "assistant": {
+        for (const part of message.content) {
+          switch (part.type) {
+            case "text": {
+              const id = typeof ((_b = (_a = part.providerOptions) == null ? void 0 : _a.xai) == null ? void 0 : _b.itemId) === "string" ? part.providerOptions.xai.itemId : void 0;
+              input.push({
+                role: "assistant",
+                content: part.text,
+                id
+              });
+              break;
+            }
+            case "tool-call": {
+              if (part.providerExecuted) {
+                break;
+              }
+              const id = typeof ((_d = (_c = part.providerOptions) == null ? void 0 : _c.xai) == null ? void 0 : _d.itemId) === "string" ? part.providerOptions.xai.itemId : void 0;
+              input.push({
+                type: "function_call",
+                id: id != null ? id : part.toolCallId,
+                call_id: part.toolCallId,
+                name: part.toolName,
+                arguments: JSON.stringify(part.input),
+                status: "completed"
+              });
+              break;
+            }
+            case "tool-result": {
+              break;
+            }
+            case "reasoning":
+            case "file": {
+              inputWarnings.push({
+                type: "other",
+                message: `xAI Responses API does not support ${part.type} in assistant messages`
+              });
+              break;
+            }
+            default: {
+              inputWarnings.push({
+                type: "other",
+                message: "xAI Responses API does not support this content type in assistant messages"
+              });
+            }
+          }
+        }
+        break;
+      }
+      case "tool": {
+        for (const part of message.content) {
+          if (part.type === "tool-approval-response") {
+            continue;
+          }
+          const output = part.output;
+          let outputValue;
+          switch (output.type) {
+            case "text":
+            case "error-text":
+              outputValue = output.value;
+              break;
+            case "execution-denied":
+              outputValue = (_e = output.reason) != null ? _e : "tool execution denied";
+              break;
+            case "json":
+            case "error-json":
+              outputValue = JSON.stringify(output.value);
+              break;
+            case "content":
+              outputValue = output.value.map((item) => {
+                if (item.type === "text") {
+                  return item.text;
+                }
+                return "";
+              }).join("");
+              break;
+            default: {
+              outputValue = "";
+            }
+          }
+          input.push({
+            type: "function_call_output",
+            call_id: part.toolCallId,
+            output: outputValue
+          });
+        }
+        break;
+      }
+      default: {
+        inputWarnings.push({
+          type: "other",
+          message: "unsupported message role"
+        });
+      }
+    }
+  }
+  return { input, inputWarnings };
+}
+
+// src/responses/convert-xai-responses-usage.ts
+function convertXaiResponsesUsage(usage) {
+  var _a, _b, _c, _d;
+  const cacheReadTokens = (_b = (_a = usage.input_tokens_details) == null ? void 0 : _a.cached_tokens) != null ? _b : 0;
+  const reasoningTokens = (_d = (_c = usage.output_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
+  return {
+    inputTokens: {
+      total: usage.input_tokens,
+      noCache: usage.input_tokens - cacheReadTokens,
+      cacheRead: cacheReadTokens,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: usage.output_tokens,
+      text: usage.output_tokens - reasoningTokens,
+      reasoning: reasoningTokens
+    },
+    raw: usage
+  };
+}
+
+// src/responses/map-xai-responses-finish-reason.ts
+function mapXaiResponsesFinishReason(finishReason) {
+  switch (finishReason) {
+    case "stop":
+    case "completed":
+      return "stop";
+    case "length":
+      return "length";
+    case "tool_calls":
+    case "function_call":
+      return "tool-calls";
+    case "content_filter":
+      return "content-filter";
+    default:
+      return "other";
+  }
+}
+var annotationSchema = union([
+  object$1({
+    type: literal("url_citation"),
+    url: string(),
+    title: string().optional()
+  }),
+  object$1({
+    type: string()
+  })
+]);
+var messageContentPartSchema = object$1({
+  type: string(),
+  text: string().optional(),
+  logprobs: array$1(any()).optional(),
+  annotations: array$1(annotationSchema).optional()
+});
+var reasoningSummaryPartSchema = object$1({
+  type: string(),
+  text: string()
+});
+var toolCallSchema = object$1({
+  name: string().optional(),
+  arguments: string().optional(),
+  input: string().optional(),
+  call_id: string().optional(),
+  id: string(),
+  status: string(),
+  action: any().optional()
+});
+var mcpCallSchema = object$1({
+  name: string().optional(),
+  arguments: string().optional(),
+  output: string().optional(),
+  error: string().optional(),
+  id: string(),
+  status: string(),
+  server_label: string().optional()
+});
+var outputItemSchema = discriminatedUnion("type", [
+  object$1({
+    type: literal("web_search_call"),
+    ...toolCallSchema.shape
+  }),
+  object$1({
+    type: literal("x_search_call"),
+    ...toolCallSchema.shape
+  }),
+  object$1({
+    type: literal("code_interpreter_call"),
+    ...toolCallSchema.shape
+  }),
+  object$1({
+    type: literal("code_execution_call"),
+    ...toolCallSchema.shape
+  }),
+  object$1({
+    type: literal("view_image_call"),
+    ...toolCallSchema.shape
+  }),
+  object$1({
+    type: literal("view_x_video_call"),
+    ...toolCallSchema.shape
+  }),
+  object$1({
+    type: literal("custom_tool_call"),
+    ...toolCallSchema.shape
+  }),
+  object$1({
+    type: literal("mcp_call"),
+    ...mcpCallSchema.shape
+  }),
+  object$1({
+    type: literal("message"),
+    role: string(),
+    content: array$1(messageContentPartSchema),
+    id: string(),
+    status: string()
+  }),
+  object$1({
+    type: literal("function_call"),
+    name: string(),
+    arguments: string(),
+    call_id: string(),
+    id: string()
+  }),
+  object$1({
+    type: literal("reasoning"),
+    id: string(),
+    summary: array$1(reasoningSummaryPartSchema),
+    status: string(),
+    encrypted_content: string().nullish()
+  })
+]);
+var xaiResponsesUsageSchema = object$1({
+  input_tokens: number$1(),
+  output_tokens: number$1(),
+  total_tokens: number$1().optional(),
+  input_tokens_details: object$1({
+    cached_tokens: number$1().optional()
+  }).optional(),
+  output_tokens_details: object$1({
+    reasoning_tokens: number$1().optional()
+  }).optional(),
+  num_sources_used: number$1().optional(),
+  num_server_side_tools_used: number$1().optional()
+});
+var xaiResponsesResponseSchema = object$1({
+  id: string().nullish(),
+  created_at: number$1().nullish(),
+  model: string().nullish(),
+  object: literal("response"),
+  output: array$1(outputItemSchema),
+  usage: xaiResponsesUsageSchema.nullish(),
+  status: string()
+});
+var xaiResponsesChunkSchema = union([
+  object$1({
+    type: literal("response.created"),
+    response: xaiResponsesResponseSchema.partial({ usage: true, status: true })
+  }),
+  object$1({
+    type: literal("response.in_progress"),
+    response: xaiResponsesResponseSchema.partial({ usage: true, status: true })
+  }),
+  object$1({
+    type: literal("response.output_item.added"),
+    item: outputItemSchema,
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.output_item.done"),
+    item: outputItemSchema,
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.content_part.added"),
+    item_id: string(),
+    output_index: number$1(),
+    content_index: number$1(),
+    part: messageContentPartSchema
+  }),
+  object$1({
+    type: literal("response.content_part.done"),
+    item_id: string(),
+    output_index: number$1(),
+    content_index: number$1(),
+    part: messageContentPartSchema
+  }),
+  object$1({
+    type: literal("response.output_text.delta"),
+    item_id: string(),
+    output_index: number$1(),
+    content_index: number$1(),
+    delta: string(),
+    logprobs: array$1(any()).optional()
+  }),
+  object$1({
+    type: literal("response.output_text.done"),
+    item_id: string(),
+    output_index: number$1(),
+    content_index: number$1(),
+    text: string(),
+    logprobs: array$1(any()).optional(),
+    annotations: array$1(annotationSchema).optional()
+  }),
+  object$1({
+    type: literal("response.output_text.annotation.added"),
+    item_id: string(),
+    output_index: number$1(),
+    content_index: number$1(),
+    annotation_index: number$1(),
+    annotation: annotationSchema
+  }),
+  object$1({
+    type: literal("response.reasoning_summary_part.added"),
+    item_id: string(),
+    output_index: number$1(),
+    summary_index: number$1(),
+    part: reasoningSummaryPartSchema
+  }),
+  object$1({
+    type: literal("response.reasoning_summary_part.done"),
+    item_id: string(),
+    output_index: number$1(),
+    summary_index: number$1(),
+    part: reasoningSummaryPartSchema
+  }),
+  object$1({
+    type: literal("response.reasoning_summary_text.delta"),
+    item_id: string(),
+    output_index: number$1(),
+    summary_index: number$1(),
+    delta: string()
+  }),
+  object$1({
+    type: literal("response.reasoning_summary_text.done"),
+    item_id: string(),
+    output_index: number$1(),
+    summary_index: number$1(),
+    text: string()
+  }),
+  object$1({
+    type: literal("response.web_search_call.in_progress"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.web_search_call.searching"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.web_search_call.completed"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.x_search_call.in_progress"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.x_search_call.searching"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.x_search_call.completed"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.custom_tool_call_input.done"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.custom_tool_call_input.delta"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.code_execution_call.in_progress"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.code_execution_call.executing"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.code_execution_call.completed"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.code_interpreter_call.in_progress"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.code_interpreter_call.executing"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.code_interpreter_call.interpreting"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.code_interpreter_call.completed"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  // Code interpreter code streaming events
+  object$1({
+    type: literal("response.code_interpreter_call_code.delta"),
+    item_id: string(),
+    output_index: number$1(),
+    delta: string()
+  }),
+  object$1({
+    type: literal("response.code_interpreter_call_code.done"),
+    item_id: string(),
+    output_index: number$1(),
+    code: string()
+  }),
+  object$1({
+    type: literal("response.custom_tool_call_input.delta"),
+    item_id: string(),
+    output_index: number$1(),
+    delta: string()
+  }),
+  object$1({
+    type: literal("response.custom_tool_call_input.done"),
+    item_id: string(),
+    output_index: number$1(),
+    input: string()
+  }),
+  object$1({
+    type: literal("response.mcp_call.in_progress"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.mcp_call.executing"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.mcp_call.completed"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.mcp_call.failed"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.mcp_call_arguments.delta"),
+    item_id: string(),
+    output_index: number$1(),
+    delta: string()
+  }),
+  object$1({
+    type: literal("response.mcp_call_arguments.done"),
+    item_id: string(),
+    output_index: number$1(),
+    arguments: string().optional()
+  }),
+  object$1({
+    type: literal("response.mcp_call_output.delta"),
+    item_id: string(),
+    output_index: number$1(),
+    delta: string()
+  }),
+  object$1({
+    type: literal("response.mcp_call_output.done"),
+    item_id: string(),
+    output_index: number$1(),
+    output: string().optional()
+  }),
+  object$1({
+    type: literal("response.done"),
+    response: xaiResponsesResponseSchema
+  }),
+  object$1({
+    type: literal("response.completed"),
+    response: xaiResponsesResponseSchema
+  })
+]);
+var xaiResponsesProviderOptions = object$1({
+  /**
+   * Constrains how hard a reasoning model thinks before responding.
+   * Possible values are `low` (uses fewer reasoning tokens), `medium` and `high` (uses more reasoning tokens).
+   */
+  reasoningEffort: _enum(["low", "medium", "high"]).optional(),
+  /**
+   * Whether to store the input message(s) and model response for later retrieval.
+   * @default true
+   */
+  store: boolean().optional(),
+  /**
+   * The ID of the previous response from the model.
+   */
+  previousResponseId: string().optional()
+});
+var mcpServerArgsSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      serverUrl: string().describe("The URL of the MCP server"),
+      serverLabel: string().optional().describe("A label for the MCP server"),
+      serverDescription: string().optional().describe("Description of the MCP server"),
+      allowedTools: array$1(string()).optional().describe("List of allowed tool names"),
+      headers: record(string(), string()).optional().describe("Custom headers to send"),
+      authorization: string().optional().describe("Authorization header value")
+    })
+  )
+);
+var mcpServerOutputSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      name: string(),
+      arguments: string(),
+      result: unknown()
+    })
+  )
+);
+var mcpServerToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "xai.mcp",
+  inputSchema: lazySchema(() => zodSchema(object$1({}))),
+  outputSchema: mcpServerOutputSchema
+});
+var mcpServer = (args) => mcpServerToolFactory(args);
+var webSearchArgsSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      allowedDomains: array$1(string()).max(5).optional(),
+      excludedDomains: array$1(string()).max(5).optional(),
+      enableImageUnderstanding: boolean().optional()
+    })
+  )
+);
+var webSearchOutputSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      query: string(),
+      sources: array$1(
+        object$1({
+          title: string(),
+          url: string(),
+          snippet: string()
+        })
+      )
+    })
+  )
+);
+var webSearchToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "xai.web_search",
+  inputSchema: lazySchema(() => zodSchema(object$1({}))),
+  outputSchema: webSearchOutputSchema
+});
+var webSearch = (args = {}) => webSearchToolFactory(args);
+var xSearchArgsSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      allowedXHandles: array$1(string()).max(10).optional(),
+      excludedXHandles: array$1(string()).max(10).optional(),
+      fromDate: string().optional(),
+      toDate: string().optional(),
+      enableImageUnderstanding: boolean().optional(),
+      enableVideoUnderstanding: boolean().optional()
+    })
+  )
+);
+var xSearchOutputSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      query: string(),
+      posts: array$1(
+        object$1({
+          author: string(),
+          text: string(),
+          url: string(),
+          likes: number$1()
+        })
+      )
+    })
+  )
+);
+var xSearchToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "xai.x_search",
+  inputSchema: lazySchema(() => zodSchema(object$1({}))),
+  outputSchema: xSearchOutputSchema
+});
+var xSearch = (args = {}) => xSearchToolFactory(args);
+
+// src/responses/xai-responses-prepare-tools.ts
+async function prepareResponsesTools$1({
+  tools,
+  toolChoice
+}) {
+  const normalizedTools = (tools == null ? void 0 : tools.length) ? tools : void 0;
+  const toolWarnings = [];
+  if (normalizedTools == null) {
+    return { tools: void 0, toolChoice: void 0, toolWarnings };
+  }
+  const xaiTools2 = [];
+  const toolByName = /* @__PURE__ */ new Map();
+  for (const tool of normalizedTools) {
+    toolByName.set(tool.name, tool);
+    if (tool.type === "provider") {
+      switch (tool.id) {
+        case "xai.web_search": {
+          const args = await validateTypes({
+            value: tool.args,
+            schema: webSearchArgsSchema
+          });
+          xaiTools2.push({
+            type: "web_search",
+            allowed_domains: args.allowedDomains,
+            excluded_domains: args.excludedDomains,
+            enable_image_understanding: args.enableImageUnderstanding
+          });
+          break;
+        }
+        case "xai.x_search": {
+          const args = await validateTypes({
+            value: tool.args,
+            schema: xSearchArgsSchema
+          });
+          xaiTools2.push({
+            type: "x_search",
+            allowed_x_handles: args.allowedXHandles,
+            excluded_x_handles: args.excludedXHandles,
+            from_date: args.fromDate,
+            to_date: args.toDate,
+            enable_image_understanding: args.enableImageUnderstanding,
+            enable_video_understanding: args.enableVideoUnderstanding
+          });
+          break;
+        }
+        case "xai.code_execution": {
+          xaiTools2.push({
+            type: "code_interpreter"
+          });
+          break;
+        }
+        case "xai.view_image": {
+          xaiTools2.push({
+            type: "view_image"
+          });
+          break;
+        }
+        case "xai.view_x_video": {
+          xaiTools2.push({
+            type: "view_x_video"
+          });
+          break;
+        }
+        case "xai.file_search": {
+          xaiTools2.push({
+            type: "file_search"
+          });
+          break;
+        }
+        case "xai.mcp": {
+          const args = await validateTypes({
+            value: tool.args,
+            schema: mcpServerArgsSchema
+          });
+          xaiTools2.push({
+            type: "mcp",
+            server_url: args.serverUrl,
+            server_label: args.serverLabel,
+            server_description: args.serverDescription,
+            allowed_tools: args.allowedTools,
+            headers: args.headers,
+            authorization: args.authorization
+          });
+          break;
+        }
+        default: {
+          toolWarnings.push({
+            type: "unsupported",
+            feature: `provider-defined tool ${tool.name}`
+          });
+          break;
+        }
+      }
+    } else {
+      xaiTools2.push({
+        type: "function",
+        name: tool.name,
+        description: tool.description,
+        parameters: tool.inputSchema
+      });
+    }
+  }
+  if (toolChoice == null) {
+    return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
+  }
+  const type = toolChoice.type;
+  switch (type) {
+    case "auto":
+    case "none":
+      return { tools: xaiTools2, toolChoice: type, toolWarnings };
+    case "required":
+      return { tools: xaiTools2, toolChoice: "required", toolWarnings };
+    case "tool": {
+      const selectedTool = toolByName.get(toolChoice.toolName);
+      if (selectedTool == null) {
+        return {
+          tools: xaiTools2,
+          toolChoice: void 0,
+          toolWarnings
+        };
+      }
+      if (selectedTool.type === "provider") {
+        switch (selectedTool.id) {
+          case "xai.web_search":
+            return {
+              tools: xaiTools2,
+              toolChoice: { type: "web_search" },
+              toolWarnings
+            };
+          case "xai.x_search":
+            return {
+              tools: xaiTools2,
+              toolChoice: { type: "x_search" },
+              toolWarnings
+            };
+          case "xai.code_execution":
+            return {
+              tools: xaiTools2,
+              toolChoice: { type: "code_interpreter" },
+              toolWarnings
+            };
+          case "xai.view_image":
+            return {
+              tools: xaiTools2,
+              toolChoice: { type: "view_image" },
+              toolWarnings
+            };
+          case "xai.view_x_video":
+            return {
+              tools: xaiTools2,
+              toolChoice: { type: "view_x_video" },
+              toolWarnings
+            };
+          case "xai.file_search":
+            return {
+              tools: xaiTools2,
+              toolChoice: { type: "file_search" },
+              toolWarnings
+            };
+          case "xai.mcp":
+            return {
+              tools: xaiTools2,
+              toolChoice: { type: "mcp" },
+              toolWarnings
+            };
+          default:
+            toolWarnings.push({
+              type: "unsupported",
+              feature: `provider-defined tool ${selectedTool.name}`
+            });
+            return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
+        }
+      }
+      return {
+        tools: xaiTools2,
+        toolChoice: { type: "function", name: selectedTool.name },
+        toolWarnings
+      };
+    }
+    default: {
+      const _exhaustiveCheck = type;
+      throw new UnsupportedFunctionalityError({
+        functionality: `tool choice type: ${_exhaustiveCheck}`
+      });
+    }
+  }
+}
+
+// src/responses/xai-responses-language-model.ts
+var XaiResponsesLanguageModel = class {
+  constructor(modelId, config) {
+    this.specificationVersion = "v3";
+    this.supportedUrls = {
+      "image/*": [/^https?:\/\/.*$/]
+    };
+    this.modelId = modelId;
+    this.config = config;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    stopSequences,
+    seed,
+    responseFormat,
+    providerOptions,
+    tools,
+    toolChoice
+  }) {
+    var _a, _b, _c, _d, _e, _f;
+    const warnings = [];
+    const options = (_a = await parseProviderOptions({
+      provider: "xai",
+      providerOptions,
+      schema: xaiResponsesProviderOptions
+    })) != null ? _a : {};
+    if (stopSequences != null) {
+      warnings.push({ type: "unsupported", feature: "stopSequences" });
+    }
+    const webSearchToolName = (_b = tools == null ? void 0 : tools.find(
+      (tool) => tool.type === "provider" && tool.id === "xai.web_search"
+    )) == null ? void 0 : _b.name;
+    const xSearchToolName = (_c = tools == null ? void 0 : tools.find(
+      (tool) => tool.type === "provider" && tool.id === "xai.x_search"
+    )) == null ? void 0 : _c.name;
+    const codeExecutionToolName = (_d = tools == null ? void 0 : tools.find(
+      (tool) => tool.type === "provider" && tool.id === "xai.code_execution"
+    )) == null ? void 0 : _d.name;
+    const mcpToolName = (_e = tools == null ? void 0 : tools.find(
+      (tool) => tool.type === "provider" && tool.id === "xai.mcp"
+    )) == null ? void 0 : _e.name;
+    const { input, inputWarnings } = await convertToXaiResponsesInput({
+      prompt});
+    warnings.push(...inputWarnings);
+    const {
+      tools: xaiTools2,
+      toolChoice: xaiToolChoice,
+      toolWarnings
+    } = await prepareResponsesTools$1({
+      tools,
+      toolChoice
+    });
+    warnings.push(...toolWarnings);
+    const baseArgs = {
+      model: this.modelId,
+      input,
+      max_output_tokens: maxOutputTokens,
+      temperature,
+      top_p: topP,
+      seed,
+      ...(responseFormat == null ? void 0 : responseFormat.type) === "json" && {
+        text: {
+          format: responseFormat.schema != null ? {
+            type: "json_schema",
+            strict: true,
+            name: (_f = responseFormat.name) != null ? _f : "response",
+            description: responseFormat.description,
+            schema: responseFormat.schema
+          } : { type: "json_object" }
+        }
+      },
+      ...options.reasoningEffort != null && {
+        reasoning: { effort: options.reasoningEffort }
+      },
+      ...options.store === false && {
+        store: options.store,
+        include: ["reasoning.encrypted_content"]
+      },
+      ...options.previousResponseId != null && {
+        previous_response_id: options.previousResponseId
+      }
+    };
+    if (xaiTools2 && xaiTools2.length > 0) {
+      baseArgs.tools = xaiTools2;
+    }
+    if (xaiToolChoice != null) {
+      baseArgs.tool_choice = xaiToolChoice;
+    }
+    return {
+      args: baseArgs,
+      warnings,
+      webSearchToolName,
+      xSearchToolName,
+      codeExecutionToolName,
+      mcpToolName
+    };
+  }
+  async doGenerate(options) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+    const {
+      args: body,
+      warnings,
+      webSearchToolName,
+      xSearchToolName,
+      codeExecutionToolName,
+      mcpToolName
+    } = await this.getArgs(options);
+    const {
+      responseHeaders,
+      value: response,
+      rawValue: rawResponse
+    } = await postJsonToApi({
+      url: `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/responses`,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: xaiFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(
+        xaiResponsesResponseSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    const content = [];
+    const webSearchSubTools = [
+      "web_search",
+      "web_search_with_snippets",
+      "browse_page"
+    ];
+    const xSearchSubTools = [
+      "x_user_search",
+      "x_keyword_search",
+      "x_semantic_search",
+      "x_thread_fetch"
+    ];
+    for (const part of response.output) {
+      if (part.type === "web_search_call" || part.type === "x_search_call" || part.type === "code_interpreter_call" || part.type === "code_execution_call" || part.type === "view_image_call" || part.type === "view_x_video_call" || part.type === "custom_tool_call" || part.type === "mcp_call") {
+        let toolName = (_b = part.name) != null ? _b : "";
+        if (webSearchSubTools.includes((_c = part.name) != null ? _c : "") || part.type === "web_search_call") {
+          toolName = webSearchToolName != null ? webSearchToolName : "web_search";
+        } else if (xSearchSubTools.includes((_d = part.name) != null ? _d : "") || part.type === "x_search_call") {
+          toolName = xSearchToolName != null ? xSearchToolName : "x_search";
+        } else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call") {
+          toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
+        } else if (part.type === "mcp_call") {
+          toolName = (_e = mcpToolName != null ? mcpToolName : part.name) != null ? _e : "mcp";
+        }
+        const toolInput = part.type === "custom_tool_call" ? (_f = part.input) != null ? _f : "" : part.type === "mcp_call" ? (_g = part.arguments) != null ? _g : "" : (_h = part.arguments) != null ? _h : "";
+        content.push({
+          type: "tool-call",
+          toolCallId: part.id,
+          toolName,
+          input: toolInput,
+          providerExecuted: true
+        });
+        continue;
+      }
+      switch (part.type) {
+        case "message": {
+          for (const contentPart of part.content) {
+            if (contentPart.text) {
+              content.push({
+                type: "text",
+                text: contentPart.text
+              });
+            }
+            if (contentPart.annotations) {
+              for (const annotation of contentPart.annotations) {
+                if (annotation.type === "url_citation" && "url" in annotation) {
+                  content.push({
+                    type: "source",
+                    sourceType: "url",
+                    id: this.config.generateId(),
+                    url: annotation.url,
+                    title: (_i = annotation.title) != null ? _i : annotation.url
+                  });
+                }
+              }
+            }
+          }
+          break;
+        }
+        case "function_call": {
+          content.push({
+            type: "tool-call",
+            toolCallId: part.call_id,
+            toolName: part.name,
+            input: part.arguments
+          });
+          break;
+        }
+        case "reasoning": {
+          const summaryTexts = part.summary.map((s) => s.text).filter((text) => text && text.length > 0);
+          if (summaryTexts.length > 0) {
+            const reasoningText = summaryTexts.join("");
+            if (part.encrypted_content || part.id) {
+              content.push({
+                type: "reasoning",
+                text: reasoningText,
+                providerMetadata: {
+                  xai: {
+                    ...part.encrypted_content && {
+                      reasoningEncryptedContent: part.encrypted_content
+                    },
+                    ...part.id && { itemId: part.id }
+                  }
+                }
+              });
+            } else {
+              content.push({
+                type: "reasoning",
+                text: reasoningText
+              });
+            }
+          }
+          break;
+        }
+      }
+    }
+    return {
+      content,
+      finishReason: {
+        unified: mapXaiResponsesFinishReason(response.status),
+        raw: (_j = response.status) != null ? _j : void 0
+      },
+      usage: response.usage ? convertXaiResponsesUsage(response.usage) : {
+        inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 },
+        outputTokens: { total: 0, text: 0, reasoning: 0 }
+      },
+      request: { body },
+      response: {
+        ...getResponseMetadata$2(response),
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      warnings
+    };
+  }
+  async doStream(options) {
+    var _a;
+    const {
+      args,
+      warnings,
+      webSearchToolName,
+      xSearchToolName,
+      codeExecutionToolName,
+      mcpToolName
+    } = await this.getArgs(options);
+    const body = {
+      ...args,
+      stream: true
+    };
+    const { responseHeaders, value: response } = await postJsonToApi({
+      url: `${(_a = this.config.baseURL) != null ? _a : "https://api.x.ai/v1"}/responses`,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: xaiFailedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler(
+        xaiResponsesChunkSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    let finishReason = {
+      unified: "other",
+      raw: void 0
+    };
+    let usage = void 0;
+    let isFirstChunk = true;
+    const contentBlocks = {};
+    const seenToolCalls = /* @__PURE__ */ new Set();
+    const activeReasoning = {};
+    const self = this;
+    return {
+      stream: response.pipeThrough(
+        new TransformStream({
+          start(controller) {
+            controller.enqueue({ type: "stream-start", warnings });
+          },
+          transform(chunk, controller) {
+            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+            if (options.includeRawChunks) {
+              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
+            }
+            if (!chunk.success) {
+              controller.enqueue({ type: "error", error: chunk.error });
+              return;
+            }
+            const event = chunk.value;
+            if (event.type === "response.created" || event.type === "response.in_progress") {
+              if (isFirstChunk) {
+                controller.enqueue({
+                  type: "response-metadata",
+                  ...getResponseMetadata$2(event.response)
+                });
+                isFirstChunk = false;
+              }
+              return;
+            }
+            if (event.type === "response.reasoning_summary_part.added") {
+              const blockId = `reasoning-${event.item_id}`;
+              controller.enqueue({
+                type: "reasoning-start",
+                id: blockId,
+                providerMetadata: {
+                  xai: {
+                    itemId: event.item_id
+                  }
+                }
+              });
+            }
+            if (event.type === "response.reasoning_summary_text.delta") {
+              const blockId = `reasoning-${event.item_id}`;
+              controller.enqueue({
+                type: "reasoning-delta",
+                id: blockId,
+                delta: event.delta,
+                providerMetadata: {
+                  xai: {
+                    itemId: event.item_id
+                  }
+                }
+              });
+              return;
+            }
+            if (event.type === "response.reasoning_summary_text.done") {
+              return;
+            }
+            if (event.type === "response.output_text.delta") {
+              const blockId = `text-${event.item_id}`;
+              if (contentBlocks[blockId] == null) {
+                contentBlocks[blockId] = { type: "text" };
+                controller.enqueue({
+                  type: "text-start",
+                  id: blockId
+                });
+              }
+              controller.enqueue({
+                type: "text-delta",
+                id: blockId,
+                delta: event.delta
+              });
+              return;
+            }
+            if (event.type === "response.output_text.done") {
+              if (event.annotations) {
+                for (const annotation of event.annotations) {
+                  if (annotation.type === "url_citation" && "url" in annotation) {
+                    controller.enqueue({
+                      type: "source",
+                      sourceType: "url",
+                      id: self.config.generateId(),
+                      url: annotation.url,
+                      title: (_a2 = annotation.title) != null ? _a2 : annotation.url
+                    });
+                  }
+                }
+              }
+              return;
+            }
+            if (event.type === "response.output_text.annotation.added") {
+              const annotation = event.annotation;
+              if (annotation.type === "url_citation" && "url" in annotation) {
+                controller.enqueue({
+                  type: "source",
+                  sourceType: "url",
+                  id: self.config.generateId(),
+                  url: annotation.url,
+                  title: (_b = annotation.title) != null ? _b : annotation.url
+                });
+              }
+              return;
+            }
+            if (event.type === "response.done" || event.type === "response.completed") {
+              const response2 = event.response;
+              if (response2.usage) {
+                usage = convertXaiResponsesUsage(response2.usage);
+              }
+              if (response2.status) {
+                finishReason = {
+                  unified: mapXaiResponsesFinishReason(response2.status),
+                  raw: response2.status
+                };
+              }
+              return;
+            }
+            if (event.type === "response.custom_tool_call_input.delta" || event.type === "response.custom_tool_call_input.done") {
+              return;
+            }
+            if (event.type === "response.output_item.added" || event.type === "response.output_item.done") {
+              const part = event.item;
+              if (part.type === "reasoning") {
+                if (event.type === "response.output_item.done") {
+                  controller.enqueue({
+                    type: "reasoning-end",
+                    id: `reasoning-${part.id}`,
+                    providerMetadata: {
+                      xai: {
+                        ...part.encrypted_content && {
+                          reasoningEncryptedContent: part.encrypted_content
+                        },
+                        ...part.id && { itemId: part.id }
+                      }
+                    }
+                  });
+                  delete activeReasoning[part.id];
+                }
+                return;
+              }
+              if (part.type === "web_search_call" || part.type === "x_search_call" || part.type === "code_interpreter_call" || part.type === "code_execution_call" || part.type === "view_image_call" || part.type === "view_x_video_call" || part.type === "custom_tool_call" || part.type === "mcp_call") {
+                const webSearchSubTools = [
+                  "web_search",
+                  "web_search_with_snippets",
+                  "browse_page"
+                ];
+                const xSearchSubTools = [
+                  "x_user_search",
+                  "x_keyword_search",
+                  "x_semantic_search",
+                  "x_thread_fetch"
+                ];
+                let toolName = (_c = part.name) != null ? _c : "";
+                if (webSearchSubTools.includes((_d = part.name) != null ? _d : "") || part.type === "web_search_call") {
+                  toolName = webSearchToolName != null ? webSearchToolName : "web_search";
+                } else if (xSearchSubTools.includes((_e = part.name) != null ? _e : "") || part.type === "x_search_call") {
+                  toolName = xSearchToolName != null ? xSearchToolName : "x_search";
+                } else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call") {
+                  toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
+                } else if (part.type === "mcp_call") {
+                  toolName = (_f = mcpToolName != null ? mcpToolName : part.name) != null ? _f : "mcp";
+                }
+                const toolInput = part.type === "custom_tool_call" ? (_g = part.input) != null ? _g : "" : part.type === "mcp_call" ? (_h = part.arguments) != null ? _h : "" : (_i = part.arguments) != null ? _i : "";
+                const shouldEmit = part.type === "custom_tool_call" ? event.type === "response.output_item.done" : !seenToolCalls.has(part.id);
+                if (shouldEmit && !seenToolCalls.has(part.id)) {
+                  seenToolCalls.add(part.id);
+                  controller.enqueue({
+                    type: "tool-input-start",
+                    id: part.id,
+                    toolName
+                  });
+                  controller.enqueue({
+                    type: "tool-input-delta",
+                    id: part.id,
+                    delta: toolInput
+                  });
+                  controller.enqueue({
+                    type: "tool-input-end",
+                    id: part.id
+                  });
+                  controller.enqueue({
+                    type: "tool-call",
+                    toolCallId: part.id,
+                    toolName,
+                    input: toolInput,
+                    providerExecuted: true
+                  });
+                }
+                return;
+              }
+              if (part.type === "message") {
+                for (const contentPart of part.content) {
+                  if (contentPart.text && contentPart.text.length > 0) {
+                    const blockId = `text-${part.id}`;
+                    if (contentBlocks[blockId] == null) {
+                      contentBlocks[blockId] = { type: "text" };
+                      controller.enqueue({
+                        type: "text-start",
+                        id: blockId
+                      });
+                      controller.enqueue({
+                        type: "text-delta",
+                        id: blockId,
+                        delta: contentPart.text
+                      });
+                    }
+                  }
+                  if (contentPart.annotations) {
+                    for (const annotation of contentPart.annotations) {
+                      if (annotation.type === "url_citation" && "url" in annotation) {
+                        controller.enqueue({
+                          type: "source",
+                          sourceType: "url",
+                          id: self.config.generateId(),
+                          url: annotation.url,
+                          title: (_j = annotation.title) != null ? _j : annotation.url
+                        });
+                      }
+                    }
+                  }
+                }
+              } else if (part.type === "function_call") {
+                if (!seenToolCalls.has(part.call_id)) {
+                  seenToolCalls.add(part.call_id);
+                  controller.enqueue({
+                    type: "tool-input-start",
+                    id: part.call_id,
+                    toolName: part.name
+                  });
+                  controller.enqueue({
+                    type: "tool-input-delta",
+                    id: part.call_id,
+                    delta: part.arguments
+                  });
+                  controller.enqueue({
+                    type: "tool-input-end",
+                    id: part.call_id
+                  });
+                  controller.enqueue({
+                    type: "tool-call",
+                    toolCallId: part.call_id,
+                    toolName: part.name,
+                    input: part.arguments
+                  });
+                }
+              }
+            }
+          },
+          flush(controller) {
+            for (const [blockId, block] of Object.entries(contentBlocks)) {
+              if (block.type === "text") {
+                controller.enqueue({
+                  type: "text-end",
+                  id: blockId
+                });
+              }
+            }
+            controller.enqueue({ type: "finish", finishReason, usage });
+          }
+        })
+      ),
+      request: { body },
+      response: { headers: responseHeaders }
+    };
+  }
+};
+var codeExecutionOutputSchema = object$1({
+  output: string().describe("the output of the code execution"),
+  error: string().optional().describe("any error that occurred")
+});
+var codeExecutionToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "xai.code_execution",
+  inputSchema: object$1({}).describe("no input parameters"),
+  outputSchema: codeExecutionOutputSchema
+});
+var codeExecution = (args = {}) => codeExecutionToolFactory(args);
+var viewImageOutputSchema = object$1({
+  description: string().describe("description of the image"),
+  objects: array$1(string()).optional().describe("objects detected in the image")
+});
+var viewImageToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "xai.view_image",
+  inputSchema: object$1({}).describe("no input parameters"),
+  outputSchema: viewImageOutputSchema
+});
+var viewImage = (args = {}) => viewImageToolFactory(args);
+var viewXVideoOutputSchema = object$1({
+  transcript: string().optional().describe("transcript of the video"),
+  description: string().describe("description of the video content"),
+  duration: number$1().optional().describe("duration in seconds")
+});
+var viewXVideoToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "xai.view_x_video",
+  inputSchema: object$1({}).describe("no input parameters"),
+  outputSchema: viewXVideoOutputSchema
+});
+var viewXVideo = (args = {}) => viewXVideoToolFactory(args);
+
+// src/tool/index.ts
+var xaiTools = {
+  codeExecution,
+  mcpServer,
+  viewImage,
+  viewXVideo,
+  webSearch,
+  xSearch
+};
+
+// src/version.ts
+var VERSION$2 = "3.0.34" ;
+
+// src/xai-provider.ts
+var xaiErrorStructure = {
+  errorSchema: xaiErrorDataSchema,
+  errorToMessage: (data) => data.error.message
+};
+function createXai(options = {}) {
+  var _a;
+  const baseURL = withoutTrailingSlash(
+    (_a = options.baseURL) != null ? _a : "https://api.x.ai/v1"
+  );
+  const getHeaders = () => withUserAgentSuffix(
+    {
+      Authorization: `Bearer ${loadApiKey({
+        apiKey: options.apiKey,
+        environmentVariableName: "XAI_API_KEY",
+        description: "xAI API key"
+      })}`,
+      ...options.headers
+    },
+    `ai-sdk/xai/${VERSION$2}`
+  );
+  const createChatLanguageModel = (modelId) => {
+    return new XaiChatLanguageModel(modelId, {
+      provider: "xai.chat",
+      baseURL,
+      headers: getHeaders,
+      generateId,
+      fetch: options.fetch
+    });
+  };
+  const createResponsesLanguageModel = (modelId) => {
+    return new XaiResponsesLanguageModel(modelId, {
+      provider: "xai.responses",
+      baseURL,
+      headers: getHeaders,
+      generateId,
+      fetch: options.fetch
+    });
+  };
+  const createImageModel = (modelId) => {
+    return new OpenAICompatibleImageModel(modelId, {
+      provider: "xai.image",
+      url: ({ path }) => `${baseURL}${path}`,
+      headers: getHeaders,
+      fetch: options.fetch,
+      errorStructure: xaiErrorStructure
+    });
+  };
+  const provider = (modelId) => createChatLanguageModel(modelId);
+  provider.specificationVersion = "v3";
+  provider.languageModel = createChatLanguageModel;
+  provider.chat = createChatLanguageModel;
+  provider.responses = createResponsesLanguageModel;
+  provider.embeddingModel = (modelId) => {
+    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
+  };
+  provider.textEmbeddingModel = provider.embeddingModel;
+  provider.imageModel = createImageModel;
+  provider.image = createImageModel;
+  provider.tools = xaiTools;
+  return provider;
+}
+var xai = createXai();
+
+// src/perplexity-provider.ts
+
+// src/convert-perplexity-usage.ts
+function convertPerplexityUsage(usage) {
+  var _a, _b, _c;
+  if (usage == null) {
+    return {
+      inputTokens: {
+        total: void 0,
+        noCache: void 0,
+        cacheRead: void 0,
+        cacheWrite: void 0
+      },
+      outputTokens: {
+        total: void 0,
+        text: void 0,
+        reasoning: void 0
+      },
+      raw: void 0
+    };
+  }
+  const promptTokens = (_a = usage.prompt_tokens) != null ? _a : 0;
+  const completionTokens = (_b = usage.completion_tokens) != null ? _b : 0;
+  const reasoningTokens = (_c = usage.reasoning_tokens) != null ? _c : 0;
+  return {
+    inputTokens: {
+      total: promptTokens,
+      noCache: promptTokens,
+      cacheRead: void 0,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: completionTokens,
+      text: completionTokens - reasoningTokens,
+      reasoning: reasoningTokens
+    },
+    raw: usage
+  };
+}
+function convertToPerplexityMessages(prompt) {
+  const messages = [];
+  for (const { role, content } of prompt) {
+    switch (role) {
+      case "system": {
+        messages.push({ role: "system", content });
+        break;
+      }
+      case "user":
+      case "assistant": {
+        const hasMultipartContent = content.some(
+          (part) => part.type === "file" && part.mediaType.startsWith("image/") || part.type === "file" && part.mediaType === "application/pdf"
+        );
+        const messageContent = content.map((part, index) => {
+          var _a;
+          switch (part.type) {
+            case "text": {
+              return {
+                type: "text",
+                text: part.text
+              };
+            }
+            case "file": {
+              if (part.mediaType === "application/pdf") {
+                return part.data instanceof URL ? {
+                  type: "file_url",
+                  file_url: {
+                    url: part.data.toString()
+                  },
+                  file_name: part.filename
+                } : {
+                  type: "file_url",
+                  file_url: {
+                    url: typeof part.data === "string" ? part.data : convertUint8ArrayToBase64(part.data)
+                  },
+                  file_name: part.filename || `document-${index}.pdf`
+                };
+              } else if (part.mediaType.startsWith("image/")) {
+                return part.data instanceof URL ? {
+                  type: "image_url",
+                  image_url: {
+                    url: part.data.toString()
+                  }
+                } : {
+                  type: "image_url",
+                  image_url: {
+                    url: `data:${(_a = part.mediaType) != null ? _a : "image/jpeg"};base64,${typeof part.data === "string" ? part.data : convertUint8ArrayToBase64(part.data)}`
+                  }
+                };
+              }
+            }
+          }
+        }).filter(Boolean);
+        messages.push({
+          role,
+          content: hasMultipartContent ? messageContent : messageContent.filter((part) => part.type === "text").map((part) => part.text).join("")
+        });
+        break;
+      }
+      case "tool": {
+        throw new UnsupportedFunctionalityError({
+          functionality: "Tool messages"
+        });
+      }
+      default: {
+        const _exhaustiveCheck = role;
+        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
+      }
+    }
+  }
+  return messages;
+}
+
+// src/map-perplexity-finish-reason.ts
+function mapPerplexityFinishReason(finishReason) {
+  switch (finishReason) {
+    case "stop":
+    case "length":
+      return finishReason;
+    default:
+      return "other";
+  }
+}
+
+// src/perplexity-language-model.ts
+var PerplexityLanguageModel = class {
+  constructor(modelId, config) {
+    this.specificationVersion = "v3";
+    this.provider = "perplexity";
+    this.supportedUrls = {
+      // No URLs are supported.
+    };
+    this.modelId = modelId;
+    this.config = config;
+  }
+  getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    topK,
+    frequencyPenalty,
+    presencePenalty,
+    stopSequences,
+    responseFormat,
+    seed,
+    providerOptions
+  }) {
+    var _a;
+    const warnings = [];
+    if (topK != null) {
+      warnings.push({ type: "unsupported", feature: "topK" });
+    }
+    if (stopSequences != null) {
+      warnings.push({ type: "unsupported", feature: "stopSequences" });
+    }
+    if (seed != null) {
+      warnings.push({ type: "unsupported", feature: "seed" });
+    }
+    return {
+      args: {
+        // model id:
+        model: this.modelId,
+        // standardized settings:
+        frequency_penalty: frequencyPenalty,
+        max_tokens: maxOutputTokens,
+        presence_penalty: presencePenalty,
+        temperature,
+        top_k: topK,
+        top_p: topP,
+        // response format:
+        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? {
+          type: "json_schema",
+          json_schema: { schema: responseFormat.schema }
+        } : void 0,
+        // provider extensions
+        ...(_a = providerOptions == null ? void 0 : providerOptions.perplexity) != null ? _a : {},
+        // messages:
+        messages: convertToPerplexityMessages(prompt)
+      },
+      warnings
+    };
+  }
+  async doGenerate(options) {
+    var _a, _b, _c, _d, _e, _f, _g;
+    const { args: body, warnings } = this.getArgs(options);
+    const {
+      responseHeaders,
+      value: response,
+      rawValue: rawResponse
+    } = await postJsonToApi({
+      url: `${this.config.baseURL}/chat/completions`,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: createJsonErrorResponseHandler({
+        errorSchema: perplexityErrorSchema,
+        errorToMessage
+      }),
+      successfulResponseHandler: createJsonResponseHandler(
+        perplexityResponseSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    const choice = response.choices[0];
+    const content = [];
+    const text = choice.message.content;
+    if (text.length > 0) {
+      content.push({ type: "text", text });
+    }
+    if (response.citations != null) {
+      for (const url of response.citations) {
+        content.push({
+          type: "source",
+          sourceType: "url",
+          id: this.config.generateId(),
+          url
+        });
+      }
+    }
+    return {
+      content,
+      finishReason: {
+        unified: mapPerplexityFinishReason(choice.finish_reason),
+        raw: (_a = choice.finish_reason) != null ? _a : void 0
+      },
+      usage: convertPerplexityUsage(response.usage),
+      request: { body },
+      response: {
+        ...getResponseMetadata$1(response),
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      warnings,
+      providerMetadata: {
+        perplexity: {
+          images: (_c = (_b = response.images) == null ? void 0 : _b.map((image) => ({
+            imageUrl: image.image_url,
+            originUrl: image.origin_url,
+            height: image.height,
+            width: image.width
+          }))) != null ? _c : null,
+          usage: {
+            citationTokens: (_e = (_d = response.usage) == null ? void 0 : _d.citation_tokens) != null ? _e : null,
+            numSearchQueries: (_g = (_f = response.usage) == null ? void 0 : _f.num_search_queries) != null ? _g : null
+          }
+        }
+      }
+    };
+  }
+  async doStream(options) {
+    const { args, warnings } = this.getArgs(options);
+    const body = { ...args, stream: true };
+    const { responseHeaders, value: response } = await postJsonToApi({
+      url: `${this.config.baseURL}/chat/completions`,
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: createJsonErrorResponseHandler({
+        errorSchema: perplexityErrorSchema,
+        errorToMessage
+      }),
+      successfulResponseHandler: createEventSourceResponseHandler(
+        perplexityChunkSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    let finishReason = {
+      unified: "other",
+      raw: void 0
+    };
+    let usage = void 0;
+    const providerMetadata = {
+      perplexity: {
+        usage: {
+          citationTokens: null,
+          numSearchQueries: null
+        },
+        images: null
+      }
+    };
+    let isFirstChunk = true;
+    let isActive = false;
+    const self = this;
+    return {
+      stream: response.pipeThrough(
+        new TransformStream({
+          start(controller) {
+            controller.enqueue({ type: "stream-start", warnings });
+          },
+          transform(chunk, controller) {
+            var _a, _b, _c;
+            if (options.includeRawChunks) {
+              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
+            }
+            if (!chunk.success) {
+              controller.enqueue({ type: "error", error: chunk.error });
+              return;
+            }
+            const value = chunk.value;
+            if (isFirstChunk) {
+              controller.enqueue({
+                type: "response-metadata",
+                ...getResponseMetadata$1(value)
+              });
+              (_a = value.citations) == null ? void 0 : _a.forEach((url) => {
+                controller.enqueue({
+                  type: "source",
+                  sourceType: "url",
+                  id: self.config.generateId(),
+                  url
+                });
+              });
+              isFirstChunk = false;
+            }
+            if (value.usage != null) {
+              usage = value.usage;
+              providerMetadata.perplexity.usage = {
+                citationTokens: (_b = value.usage.citation_tokens) != null ? _b : null,
+                numSearchQueries: (_c = value.usage.num_search_queries) != null ? _c : null
+              };
+            }
+            if (value.images != null) {
+              providerMetadata.perplexity.images = value.images.map((image) => ({
+                imageUrl: image.image_url,
+                originUrl: image.origin_url,
+                height: image.height,
+                width: image.width
+              }));
+            }
+            const choice = value.choices[0];
+            if ((choice == null ? void 0 : choice.finish_reason) != null) {
+              finishReason = {
+                unified: mapPerplexityFinishReason(choice.finish_reason),
+                raw: choice.finish_reason
+              };
+            }
+            if ((choice == null ? void 0 : choice.delta) == null) {
+              return;
+            }
+            const delta = choice.delta;
+            const textContent = delta.content;
+            if (textContent != null) {
+              if (!isActive) {
+                controller.enqueue({ type: "text-start", id: "0" });
+                isActive = true;
+              }
+              controller.enqueue({
+                type: "text-delta",
+                id: "0",
+                delta: textContent
+              });
+            }
+          },
+          flush(controller) {
+            if (isActive) {
+              controller.enqueue({ type: "text-end", id: "0" });
+            }
+            controller.enqueue({
+              type: "finish",
+              finishReason,
+              usage: convertPerplexityUsage(usage),
+              providerMetadata
+            });
+          }
+        })
+      ),
+      request: { body },
+      response: { headers: responseHeaders }
+    };
+  }
+};
+function getResponseMetadata$1({
+  id,
+  model,
+  created
+}) {
+  return {
+    id,
+    modelId: model,
+    timestamp: new Date(created * 1e3)
+  };
+}
+var perplexityUsageSchema = object$1({
+  prompt_tokens: number$1(),
+  completion_tokens: number$1(),
+  total_tokens: number$1().nullish(),
+  citation_tokens: number$1().nullish(),
+  num_search_queries: number$1().nullish(),
+  reasoning_tokens: number$1().nullish()
+});
+var perplexityImageSchema = object$1({
+  image_url: string(),
+  origin_url: string(),
+  height: number$1(),
+  width: number$1()
+});
+var perplexityResponseSchema = object$1({
+  id: string(),
+  created: number$1(),
+  model: string(),
+  choices: array$1(
+    object$1({
+      message: object$1({
+        role: literal("assistant"),
+        content: string()
+      }),
+      finish_reason: string().nullish()
+    })
+  ),
+  citations: array$1(string()).nullish(),
+  images: array$1(perplexityImageSchema).nullish(),
+  usage: perplexityUsageSchema.nullish()
+});
+var perplexityChunkSchema = object$1({
+  id: string(),
+  created: number$1(),
+  model: string(),
+  choices: array$1(
+    object$1({
+      delta: object$1({
+        role: literal("assistant"),
+        content: string()
+      }),
+      finish_reason: string().nullish()
+    })
+  ),
+  citations: array$1(string()).nullish(),
+  images: array$1(perplexityImageSchema).nullish(),
+  usage: perplexityUsageSchema.nullish()
+});
+var perplexityErrorSchema = object$1({
+  error: object$1({
+    code: number$1(),
+    message: string().nullish(),
+    type: string().nullish()
+  })
+});
+var errorToMessage = (data) => {
+  var _a, _b;
+  return (_b = (_a = data.error.message) != null ? _a : data.error.type) != null ? _b : "unknown error";
+};
+
+// src/version.ts
+var VERSION$1 = "3.0.11" ;
+
+// src/perplexity-provider.ts
+function createPerplexity(options = {}) {
+  const getHeaders = () => withUserAgentSuffix(
+    {
+      Authorization: `Bearer ${loadApiKey({
+        apiKey: options.apiKey,
+        environmentVariableName: "PERPLEXITY_API_KEY",
+        description: "Perplexity"
+      })}`,
+      ...options.headers
+    },
+    `ai-sdk/perplexity/${VERSION$1}`
+  );
+  const createLanguageModel = (modelId) => {
+    var _a;
+    return new PerplexityLanguageModel(modelId, {
+      baseURL: withoutTrailingSlash(
+        (_a = options.baseURL) != null ? _a : "https://api.perplexity.ai"
+      ),
+      headers: getHeaders,
+      generateId,
+      fetch: options.fetch
+    });
+  };
+  const provider = (modelId) => createLanguageModel(modelId);
+  provider.specificationVersion = "v3";
+  provider.languageModel = createLanguageModel;
+  provider.embeddingModel = (modelId) => {
+    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
+  };
+  provider.textEmbeddingModel = provider.embeddingModel;
+  provider.imageModel = (modelId) => {
+    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
+  };
+  return provider;
+}
+createPerplexity();
 
 // src/cerebras-provider.ts
 
 // src/version.ts
-var VERSION = "2.0.14" ;
+var VERSION = "2.0.20" ;
 
 // src/cerebras-provider.ts
 var cerebrasErrorSchema = object$1({
@@ -46353,7 +34594,7 @@ ${userMessage}
               return part.text;
             }
             case "tool-call": {
-              throw new UnsupportedFunctionalityError$3({
+              throw new UnsupportedFunctionalityError({
                 functionality: "tool-call messages"
               });
             }
@@ -46366,7 +34607,7 @@ ${assistantMessage}
         break;
       }
       case "tool": {
-        throw new UnsupportedFunctionalityError$3({
+        throw new UnsupportedFunctionalityError({
           functionality: "tool messages"
         });
       }
@@ -46430,7 +34671,7 @@ function getResponseMetadata({
 }
 function createNdjsonStreamResponseHandler(schema) {
   return async ({ response }) => {
-    const responseHeaders = extractResponseHeaders$4(response);
+    const responseHeaders = extractResponseHeaders(response);
     if (response.body == null) {
       throw new Error("Response body is null");
     }
@@ -46491,7 +34732,7 @@ var ollamaErrorDataSchema = object$1({
     code: union([string(), number$1()]).nullish()
   })
 });
-var ollamaFailedResponseHandler = createJsonErrorResponseHandler$4({
+var ollamaFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: ollamaErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
@@ -46583,15 +34824,15 @@ var OllamaCompletionLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.config.url({
         path: "/generate",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body: { ...body, stream: false },
       failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         baseOllamaResponseSchema
       ),
       abortSignal: options.abortSignal,
@@ -46635,12 +34876,12 @@ var OllamaCompletionLanguageModel = class {
       ...args,
       stream: true
     };
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
         path: "/generate",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body,
       failedResponseHandler: ollamaFailedResponseHandler,
       successfulResponseHandler: createNdjsonStreamResponseHandler(
@@ -46666,7 +34907,7 @@ var OllamaCompletionLanguageModel = class {
     };
     let isFirstChunk = true;
     let textStarted = false;
-    const textId = generateId$3();
+    const textId = generateId();
     return {
       stream: response.pipeThrough(
         new TransformStream({
@@ -46784,7 +35025,7 @@ var OllamaEmbeddingModel = class {
         values
       });
     }
-    const ollamaOptions = await parseProviderOptions$2({
+    const ollamaOptions = await parseProviderOptions({
       provider: "ollama",
       providerOptions,
       schema: ollamaEmbeddingProviderOptions
@@ -46803,15 +35044,15 @@ var OllamaEmbeddingModel = class {
       responseHeaders,
       value: response,
       rawValue
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.config.url({
         path: "/embed",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), headers),
+      headers: combineHeaders(this.config.headers(), headers),
       body: { ...body },
       failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(
+      successfulResponseHandler: createJsonResponseHandler(
         ollamaTextEmbeddingResponseSchema
       ),
       abortSignal,
@@ -46895,7 +35136,7 @@ var OllamaResponseProcessor = class {
     for (const toolCall of (_a = response.message.tool_calls) != null ? _a : []) {
       content.push({
         type: "tool-call",
-        toolCallId: (_e = toolCall.id) != null ? _e : (_d = (_c = (_b = this.config).generateId) == null ? void 0 : _c.call(_b)) != null ? _d : generateId$3(),
+        toolCallId: (_e = toolCall.id) != null ? _e : (_d = (_c = (_b = this.config).generateId) == null ? void 0 : _c.call(_b)) != null ? _d : generateId(),
         toolName: toolCall.function.name,
         input: JSON.stringify(toolCall.function.arguments)
       });
@@ -47134,7 +35375,7 @@ function convertToOllamaResponsesMessages({
                   };
                 } else if (part.mediaType === "application/pdf") {
                   if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError$3({
+                    throw new UnsupportedFunctionalityError({
                       functionality: "PDF file parts with URLs"
                     });
                   }
@@ -47144,7 +35385,7 @@ function convertToOllamaResponsesMessages({
                     file_data: `data:application/pdf;base64,${part.data}`
                   };
                 } else {
-                  throw new UnsupportedFunctionalityError$3({
+                  throw new UnsupportedFunctionalityError({
                     functionality: `file part media type ${part.mediaType}`
                   });
                 }
@@ -47277,7 +35518,7 @@ function prepareResponsesTools({
       };
     default: {
       const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError$3({
+      throw new UnsupportedFunctionalityError({
         functionality: `tool choice type: ${_exhaustiveCheck}`
       });
     }
@@ -47360,7 +35601,7 @@ var OllamaRequestBuilder = class {
     return warnings;
   }
   async parseProviderOptions(providerOptions) {
-    const result = await parseProviderOptions$2({
+    const result = await parseProviderOptions({
       provider: "ollama",
       providerOptions,
       schema: ollamaProviderOptions
@@ -47436,8 +35677,8 @@ var OllamaStreamProcessor = class {
       hasReasoningStarted: false,
       textEnded: false,
       reasoningEnded: false,
-      textId: generateId$3(),
-      reasoningId: generateId$3()
+      textId: generateId(),
+      reasoningId: generateId()
     };
   }
   processChunk(chunk, controller, options) {
@@ -47536,7 +35777,7 @@ var OllamaStreamProcessor = class {
     var _a, _b, _c, _d;
     for (const toolCall of (_a = delta.tool_calls) != null ? _a : []) {
       if (((_b = toolCall.function) == null ? void 0 : _b.name) == null) {
-        throw new InvalidResponseDataError$1({
+        throw new InvalidResponseDataError({
           data: toolCall,
           message: `Expected 'function.name' to be a string.`
         });
@@ -47548,7 +35789,7 @@ var OllamaStreamProcessor = class {
   }
   emitToolCall(toolCall, controller) {
     var _a, _b, _c, _d;
-    const id = (_d = toolCall.id) != null ? _d : (_c = (_b = (_a = this.config).generateId) == null ? void 0 : _b.call(_a)) != null ? _c : generateId$3();
+    const id = (_d = toolCall.id) != null ? _d : (_c = (_b = (_a = this.config).generateId) == null ? void 0 : _b.call(_a)) != null ? _c : generateId();
     controller.enqueue({
       type: "tool-input-start",
       id,
@@ -47614,15 +35855,15 @@ var OllamaResponsesLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi$4({
+    } = await postJsonToApi({
       url: this.config.url({
         path: "/chat",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body: { ...body, stream: false },
       failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler$4(baseOllamaResponseSchema2),
+      successfulResponseHandler: createJsonResponseHandler(baseOllamaResponseSchema2),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
@@ -47641,12 +35882,12 @@ var OllamaResponsesLanguageModel = class {
   }
   async doStream(options) {
     const { args: body, warnings } = await this.prepareRequest(options);
-    const { responseHeaders, value: response } = await postJsonToApi$4({
+    const { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
         path: "/chat",
         modelId: this.modelId
       }),
-      headers: combineHeaders$4(this.config.headers(), options.headers),
+      headers: combineHeaders(this.config.headers(), options.headers),
       body: { ...body, stream: true },
       failedResponseHandler: ollamaFailedResponseHandler,
       successfulResponseHandler: createNdjsonStreamResponseHandler(baseOllamaResponseSchema2),
@@ -47674,7 +35915,7 @@ var OllamaResponsesLanguageModel = class {
 // src/ollama-provider.ts
 function createOllama(options = {}) {
   var _a, _b;
-  const baseURL = (_a = withoutTrailingSlash$3(options.baseURL)) != null ? _a : "http://127.0.0.1:11434/api";
+  const baseURL = (_a = withoutTrailingSlash(options.baseURL)) != null ? _a : "http://127.0.0.1:11434/api";
   const providerName = (_b = options.name) != null ? _b : "ollama";
   const getHeaders = () => ({
     "Ollama-Organization": options.organization,
@@ -47721,7 +35962,7 @@ function createOllama(options = {}) {
   provider.textEmbeddingModel = createEmbeddingModel;
   provider.embeddingModel = createEmbeddingModel;
   provider.imageModel = (modelId) => {
-    throw new NoSuchModelError$3({
+    throw new NoSuchModelError({
       modelId,
       modelType: "imageModel",
       message: "Image generation is unsupported with Ollama"
@@ -47731,4 +35972,4 @@ function createOllama(options = {}) {
 }
 createOllama();
 
-export { array$1 as a, createPerplexity as b, createCerebras as c, createOpenAI as d, createOllama as e, createMistral as f, createGoogleGenerativeAI as g, createAnthropic as h, stepCountIs as i, generateText as j, streamText as k, output_exports as l, number$1 as n, object$1 as o, string as s, tool$2 as t, xai as x };
+export { array$1 as a, createPerplexity as b, createCerebras as c, createOpenAI as d, createOllama as e, createMistral as f, createGoogleGenerativeAI as g, createAnthropic as h, stepCountIs as i, generateText as j, streamText as k, output_exports as l, number$1 as n, object$1 as o, string as s, tool as t, xai as x };

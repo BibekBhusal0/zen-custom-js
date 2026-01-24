@@ -29,7 +29,7 @@ jobs:
 
       - name: Build BrowseBot (dev for both files)
         run: |
-          cross-env TARGET=browsebot BUILD_TYPE=dev rollup -c --bundleConfigAsCjs
+          npx cross-env TARGET=browsebot BUILD_TYPE=dev rollup -c --bundleConfigAsCjs
 
       - name: Combine Preferences
         run: npm run combine-preferences
