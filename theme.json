@@ -8,26 +8,18 @@
     "chrome": "userChrome.css",
     "content": "userContent.css"
   },
-  "scripts": {
-    "command-palette/index.js": {
-      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
+      "scripts": {
+      "import.uc.mjs": {
+        "include": [
+          "chrome://browser/content/browser.xhtml",
+          "chrome://browser/content/browser.xul"
+        ]
+      },
+      "import2.uc.mjs": {
+        "include": ["about:preferences*", "about:settings*"]
+      }
     },
-    "floating-sidebar/index.js": {
-      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
-    },
-    "reopen-closed-tabs/index.js": {
-      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
-    },
-    "search-engine-select/index.js": {
-      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
-    },
-    "dist/browse-bot.uc.mjs": {
-      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
-    },
-    "settings-shortcuts-search/index.js": {
-      "include": ["about:preferences*", "about:settings*"]
-    }
-  },
+
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
