@@ -9,7 +9,8 @@ lerna-debug.log*
 
 node_modules
 dist/*
-!dist/browse-bot-all.uc.js
+!dist/vercel-ai-sdk.uc.js
+!dist/browse-bot.uc.mjs
 dist-ssr
 *.local
 
