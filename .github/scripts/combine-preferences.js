@@ -78,7 +78,8 @@ function combinePreferences() {
   }
 
   const outputPath = path.join(ROOT_DIR, "preferences.json");
-  fs.writeFileSync(outputPath, JSON.stringify(combinedPreferences, null, 2), "utf8");
+  const jsonString = JSON.stringify(combinedPreferences, null, 2) + "\n";
+  fs.writeFileSync(outputPath, jsonString, "utf8");
 
   console.log(`Combined preferences written to ${outputPath}`);
   console.log(`Total preferences: ${combinedPreferences.length}`);
