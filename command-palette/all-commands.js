@@ -16,6 +16,7 @@ function restartApplication(clearCache) {
 }
 
 const isCompactMode = () => gZenCompactModeManager?.preference;
+const inGlance = () => gBrowser.selectedTab.hasAttribute("glance-id");
 const togglePref = (prefName) => {
   const pref = getPref(prefName);
   if (typeof pref === "boolean") return;
@@ -75,12 +76,6 @@ export const commands = [
     label: "Delete Workspace",
     icon: "chrome://browser/skin/zen-icons/edit-delete.svg",
     tags: ["workspace", "delete", "remove", "management", "trash"],
-  },
-  {
-    key: "cmd_zenChangeWorkspaceName",
-    label: "Change Workspace Name",
-    icon: "chrome://global/skin/icons/edit.svg",
-    tags: ["workspace", "name", "rename", "edit", "management"],
   },
   {
     key: "cmd_zenChangeWorkspaceIcon",
@@ -152,21 +147,21 @@ export const commands = [
     label: "Close Glance",
     tags: ["glance", "close", "peak"],
     icon: "chrome://browser/skin/zen-icons/close.svg",
-    condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
+    condition: inGlance,
   },
   {
     key: "cmd_zenGlanceExpand",
     label: "Expand Glance",
     tags: ["glance", "expand", "peak", "full"],
     icon: "chrome://browser/skin/fullscreen.svg",
-    condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
+    condition: inGlance,
   },
   {
     key: "cmd_zenGlanceSplit",
     label: "Split Glance",
     tags: ["glance", "split", "multitask", "peak", "horizontal", "vertical"],
     icon: svgToUrl(icons["splitVz"]),
-    condition: () => gBrowser.selectedTab.hasAttribute("glance-id"),
+    condition: inGlance,
   },
 
   // ----------- Additional Zen Commands -----------
@@ -229,18 +224,23 @@ export const commands = [
     key: "rename-tab",
     label: "Rename Tab",
     command: () => {
-      const tab = gBrowser.selectedTab;
-      const dblClickEvent = new MouseEvent("dblclick", {
-        bubbles: true,
-        cancelable: true,
-        view: window,
-        button: 0,
-      });
-      tab.dispatchEvent(dblClickEvent);
+      TabContextMenu.contextTab = gBrowser.selectedTab;
+      document.getElementById("context_zen-edit-tab-title")?.click();
     },
-    condition: () => gBrowser?.selectedTab?.pinned,
+    condition: () => gBrowser?.selectedTab,
     icon: "chrome://global/skin/icons/edit.svg",
-    tags: ["rename", "tab", "title", "edit", "pinned"],
+    tags: ["rename", "tab", "title", "edit"],
+  },
+  {
+    key: "change-tab-icon",
+    label: "Change Tab Icon",
+    command: () => {
+      TabContextMenu.contextTab = gBrowser.selectedTab;
+      document.getElementById("context_zen-edit-tab-icon")?.click();
+    },
+    condition: () => gBrowser?.selectedTab,
+    icon: "chrome://global/skin/icons/edit.svg",
+    tags: ["rename", "tab", "title", "edit"],
   },
   {
     key: "duplicate-tab",
@@ -254,10 +254,8 @@ export const commands = [
     tags: ["duplicate", "tab", "copy", "clone"],
   },
   {
-    key: "new-tab",
+    key: "cmd_newNavigatorTab",
     label: "New Tab",
-    command: () => BrowserCommands.openTab(),
-    condition: !!window.BrowserCommands,
     icon: "chrome://browser/skin/zen-icons/plus.svg",
     tags: ["new", "home", "black", "tab"],
   },
@@ -683,13 +681,13 @@ export const commands = [
     tags: ["command", "palette", "custom", "more"],
   },
 
-  // ----------- Tidy Tabs --------
   {
-    key: "cmd_zenClearTabs",
+    key: "cmd_zenCloseUnpinnedTabs",
     label: "Clear Other Tabs",
     icon: svgToUrl(icons["broom"]),
-    tags: ["clear", "tabs", "close", "other", "workspace", "clean"],
+    tags: ["clear", "tabs", "close", "other", "workspace", "clean", "unpinned"],
   },
+  // ----------- Tidy Tabs --------
   {
     key: "cmd_zenSortTabs",
     label: "Sort Tabs",

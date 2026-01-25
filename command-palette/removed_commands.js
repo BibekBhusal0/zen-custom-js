@@ -172,6 +172,12 @@ export const renoved_commands = [
     icon: svgToUrl(icons["incognito"]),
     tags: ["private", "browsing", "incognito", "window"],
   },
+  {
+    key: "cmd_zenChangeWorkspaceName",
+    label: "Change Workspace Name",
+    icon: "chrome://global/skin/icons/edit.svg",
+    tags: ["workspace", "name", "rename", "edit", "management"],
+  },
 
   // removed because not working
 

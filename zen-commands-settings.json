@@ -1,9 +1,9 @@
 {
   "hiddenCommands": [
-    "cmd_zenChangeWorkspaceIcon",
-    "cmd_zenChangeWorkspaceName",
     "cmd_zenClearTabs",
-    "Browser:OpenFile"
+    "Browser:OpenFile",
+    "cmd_minimizeWindow",
+    "cmd_maximizeWindow"
   ],
   "customIcons": {},
   "customShortcuts": {
