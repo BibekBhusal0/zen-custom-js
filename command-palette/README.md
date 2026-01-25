@@ -106,7 +106,6 @@ The following commands are now native:
   - Toggle Toolbar
 - **Workspaces**:
   - Create New Workspace
-  - Change Workspace Name
   - Change Workspace Icon
   - Delete Workspace
   - Reorder Workspaces
@@ -125,6 +124,7 @@ The following commands are now native:
   - Toggle Sidebar Width
   - Copy Current URL as Markdown
   - Toggle Single toolbar mode
+  - Toggle Collapse Pinned Tabs
 
 ### Tab Management
 
@@ -136,6 +136,8 @@ The following commands are now native:
 - Move Tab to New Window
 - Toggle Mute Tab
 - Show All Tabs Panel
+- Change Tab Icon
+- Clear Other Tabs
 - Reopen Closed Tab
 - Unload Tab
 - Unload other tabs
@@ -217,7 +219,6 @@ The following commands are now native:
 
 ### Tidy Tabs
 
-- Clear Other Tabs
 - Sort Tabs
 
 ### Advanced Tab Groups

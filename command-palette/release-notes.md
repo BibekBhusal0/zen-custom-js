@@ -1,7 +1,7 @@
 # New Commands
 
 - Change tab Icon
-- [ ] Collapse Pinned Tabs
+- Collapse Pinned Tabs
 
 # Fixed Commands
 
