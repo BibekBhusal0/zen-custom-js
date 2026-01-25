@@ -189,6 +189,16 @@ export const commands = [
     tags: ["toggle", "toolbar", "single", "double", "sidebar"],
     command: () => togglePref("zen.view.use-single-toolbar"),
   },
+  {
+    key: "toggle-collapsed-pins",
+    label: "Toggle Collapsed Pins",
+    tags: ["toggle", "collapse", "expand"],
+    command: () => {
+      const cp = document.querySelector("zen-workspace-collapsible-pins");
+      if (!cp) return;
+      cp.collapsed = !cp.collapsed;
+    },
+  },
 
   // ----------- Folder Management -----------
   {
@@ -240,7 +250,7 @@ export const commands = [
     },
     condition: () => gBrowser?.selectedTab,
     icon: "chrome://global/skin/icons/edit.svg",
-    tags: ["rename", "tab", "title", "edit"],
+    tags: ["tab", "icon", "edit", "change"],
   },
   {
     key: "duplicate-tab",
