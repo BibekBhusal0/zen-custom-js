@@ -54,12 +54,6 @@ function combinePreferences() {
       margin: "20px 0 10px 0",
     });
 
-    // Add separator after header
-    combinedPreferences.push({
-      type: "separator",
-      margin: "0 0 15px 0",
-    });
-
     // Read and combine preferences
     try {
       const modPreferences = JSON.parse(fs.readFileSync(preferencesPath, "utf8"));
@@ -92,9 +86,6 @@ function combinePreferences() {
   return combinedPreferences;
 }
 
-// eslint-disable-next-line no-undef
-if (import.meta.url === `file://${process.argv[1]}`) {
-  combinePreferences();
-}
+combinePreferences();
 
 export { combinePreferences };
