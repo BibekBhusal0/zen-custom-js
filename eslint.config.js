@@ -40,6 +40,7 @@ export default [
         sendAsyncMessage: "readonly",
         JSWindowActorChild: "readonly",
         JSWindowActorParent: "readonly",
+        TabContextMenu: "readonly",
       },
     },
   },
@@ -53,7 +54,7 @@ export default [
     },
   },
   {
-    files: ["rollup.config.js", ".github/scripts/publish.js"],
+    files: ["rollup.config.js", ".github/scripts/*.js"],
     languageOptions: {
       globals: {
         ...globals.node,
