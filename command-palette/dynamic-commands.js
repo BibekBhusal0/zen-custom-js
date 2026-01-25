@@ -467,9 +467,7 @@ export async function generateSineCommands() {
       }
     }
   } else {
-    PREFS.debugLog(
-      "Sine marketplace object not found. 'Install' commands will be unavailable."
-    );
+    PREFS.debugLog("Sine marketplace object not found. 'Install' commands will be unavailable.");
   }
 
   // Generate "Uninstall" commands for installed mods.
