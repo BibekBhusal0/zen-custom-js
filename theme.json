@@ -10,18 +10,28 @@
   },
   "scripts": {
     "import.uc.mjs": {
-      "include": ["chrome://browser/content/browser.xhtml", "chrome://browser/content/browser.xul"]
+      "include": [
+        "chrome://browser/content/browser.xhtml",
+        "chrome://browser/content/browser.xul"
+      ]
     },
     "import2.uc.mjs": {
-      "include": ["about:preferences*", "about:settings*"]
+      "include": [
+        "about:preferences*",
+        "about:settings*"
+      ]
     }
   },
-
   "readme": "https://raw.githubusercontent.com/BibekBhusal0/zen-custom-js/main/README.md",
   "author": "Bibek Bhusal",
   "version": "1.0.0",
-  "tags": ["Scripts", "Zen"],
+  "tags": [
+    "Scripts",
+    "Zen"
+  ],
   "createdAt": "2024-05-22",
-  "updatedAt": "2026-01-24",
-  "fork": ["zen"]
+  "updatedAt": "2026-01-25",
+  "fork": [
+    "zen"
+  ]
 }
