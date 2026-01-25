@@ -6,10 +6,6 @@
     "margin": "20px 0 10px 0"
   },
   {
-    "type": "separator",
-    "margin": "0 0 15px 0"
-  },
-  {
     "type": "text",
     "label": "Configure the behavior of the command palette. All changes real time (no need to restart)"
   },
@@ -274,10 +270,6 @@
     "label": "**Browse Bot**",
     "size": "18px",
     "margin": "20px 0 10px 0"
-  },
-  {
-    "type": "separator",
-    "margin": "0 0 15px 0"
   },
   {
     "property": "extension.browse-bot.findbar-ai.enabled",
@@ -1635,10 +1627,6 @@
     "margin": "20px 0 10px 0"
   },
   {
-    "type": "separator",
-    "margin": "0 0 15px 0"
-  },
-  {
     "type": "checkbox",
     "property": "extension.sidebar-right",
     "label": "Float on the right side",
@@ -1654,10 +1642,6 @@
     "label": "**Reopen Closed Tabs Menu**",
     "size": "18px",
     "margin": "20px 0 10px 0"
-  },
-  {
-    "type": "separator",
-    "margin": "0 0 15px 0"
   },
   {
     "type": "text",
@@ -1701,10 +1685,6 @@
     "label": "**Search Engine Select**",
     "size": "18px",
     "margin": "20px 0 10px 0"
-  },
-  {
-    "type": "separator",
-    "margin": "0 0 15px 0"
   },
   {
     "property": "extension.search-engine-select.enabled",
