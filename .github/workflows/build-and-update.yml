@@ -34,6 +34,9 @@ jobs:
       - name: Combine Preferences
         run: npm run combine-preferences
 
+      - name: Fetch latest changes
+        run: git fetch origin ${{ github.ref_name || 'main' }}
+
       - name: Commit BrowseBot changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
@@ -42,6 +45,9 @@ jobs:
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
           file_pattern: "dist/browse-bot*.uc.*"
+
+      - name: Fetch latest changes
+        run: git fetch origin ${{ github.ref_name || 'main' }}
 
       - name: Commit preferences changes
         uses: stefanzweifel/git-auto-commit-action@v4

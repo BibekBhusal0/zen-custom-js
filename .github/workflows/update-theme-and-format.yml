@@ -97,6 +97,9 @@ jobs:
               f.write(f"updated={'true' if updated_any else 'false'}\n")
           EOF
 
+      - name: Fetch latest changes
+        run: git fetch origin ${{ github.ref_name || 'main' }}
+
       - name: Commit theme.json changes
         if: steps.update_theme.outputs.updated == 'true'
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -107,9 +110,9 @@ jobs:
           commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "16.x"
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -117,6 +120,9 @@ jobs:
 
       - name: Run Prettier
         run: npm run format
+
+      - name: Fetch latest changes
+        run: git fetch origin ${{ github.ref_name || 'main' }}
 
       - name: Commit formatting changes
         uses: stefanzweifel/git-auto-commit-action@v4
