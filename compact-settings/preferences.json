@@ -1,3 +1,26 @@
 [
-  {}
+  {
+    "property": "compact-settings.enabled",
+    "label": "Compact Settings",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "compact-settings.animation.enabled",
+    "label": "Hover Animations",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "compact-settings.compact-addons.enabled",
+    "label": "Compact Addons",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "compact-settings.addons.grid-enabled",
+    "label": "Grid Addons",
+    "type": "checkbox",
+    "defaultValue": true
+  }
 ]
