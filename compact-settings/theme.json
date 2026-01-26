@@ -1,0 +1,22 @@
+{
+  "id": "compact-settings",
+  "name": "Compact Settings",
+  "description": "Make settings and addons sidebar compact",
+  "homepage": "https://github.com/Vertex-Mods/Compact-Settings",
+  "style": {
+    "content": "userContent.css"
+  },
+  "readme": "https://raw.githubusercontent.com/Vertex-Mods/Compact-Settings/main/README.md",
+  "author": "Bibek Bhusal",
+  "version": "1.0.0",
+  "tags": [
+    "Settings",
+    "Compact",
+    "Addon",
+    "Sidebar",
+    "Grid",
+    "Zen"
+  ],
+  "createdAt": "2024-01-26",
+  "updatedAt": "2026-01-26"
+}
