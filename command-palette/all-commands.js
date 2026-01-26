@@ -80,6 +80,7 @@ export const commands = [
   {
     key: "cmd_zenChangeWorkspaceIcon",
     label: "Change Workspace Icon",
+    icon: "chrome://browser/skin/zen-icons/selectable/image.svg",
     tags: ["workspace", "icon", "change", "customize", "management"],
   },
   {
@@ -255,7 +256,7 @@ export const commands = [
       document.getElementById("context_zen-edit-tab-icon")?.click();
     },
     condition: () => gBrowser?.selectedTab,
-    icon: "chrome://global/skin/icons/edit.svg",
+    icon: "chrome://browser/skin/zen-icons/selectable/image.svg",
     tags: ["tab", "icon", "edit", "change"],
   },
   {
