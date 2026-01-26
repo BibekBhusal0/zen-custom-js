@@ -108,6 +108,7 @@ The following commands are now native:
   - Create New Workspace
   - Change Workspace Icon
   - Delete Workspace
+  - Change Workspace Name
   - Reorder Workspaces
 - **Split View**:
   - Unsplit View

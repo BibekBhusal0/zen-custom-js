@@ -88,6 +88,12 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/plus.svg",
     tags: ["workspace", "create", "new", "add", "management"],
   },
+  {
+    key: "cmd_zenChangeWorkspaceName",
+    label: "Change Workspace Name",
+    icon: "chrome://global/skin/icons/edit.svg",
+    tags: ["workspace", "name", "rename", "edit", "management"],
+  },
 
   // ----------- Zen Split View -----------
   {
