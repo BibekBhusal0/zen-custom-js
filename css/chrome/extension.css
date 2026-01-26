@@ -13,10 +13,6 @@
     list-style-image: url("chrome://browser/skin/zen-icons/passwords.svg") !important;
   }
 
-  [label="Clear Active Tabs"] image {
-    list-style-image: url("chrome://browser/skin/zen-icons/close.svg") !important;
-  }
-
   [label="Webtime Tracker"] image {
     list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%23c9c8c5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>') !important;
   }
@@ -34,18 +30,12 @@
     display: none;
   }
 
-  /* Custom menu button icon*/
-  #PanelUI-menu-button {
-    list-style-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23c9c8c5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu-icon lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>') !important;
-  }
-
   /*   Screenshot icon */
   #screenshot-button {
     list-style-image: url("chrome://browser/skin/zen-icons/camera.svg") !important;
   }
 
   /* Hide back and forward history button if disabled */
-
   :root:not([customizing]) {
     toolbarbutton#forward-button,
     toolbarbutton#back-button {

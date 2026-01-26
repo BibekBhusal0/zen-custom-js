@@ -77,11 +77,10 @@
       #zen-media-controls-hbox {
         height: fit-content !important;
         opacity: 1 !important;
-      }
-
-      #zen-media-progress-hbox label {
-        scale: 1 !important;
-        width: unset !important;
+        label {
+          scale: 1 !important;
+          width: unset !important;
+        }
       }
     }
 

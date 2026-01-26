@@ -1,4 +1,4 @@
-@-moz-document url-prefix("about:preferences") {
+@-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
   .zen-keyboard-controls {
     display: flex;
     align-items: center;
@@ -34,6 +34,7 @@
     max-height: 200px;
     overflow-y: auto;
     min-width: 220px;
+
     .zen-keyboard-filter-checkbox {
       display: block;
       margin-bottom: 6px;
