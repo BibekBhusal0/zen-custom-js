@@ -536,7 +536,7 @@ browser {
       }
 
       .chat-message-ai {
-        max-width: 100% !important;
+        max-width: calc(100% - 15px) !important;
         align-self: flex-start;
       }
 
