@@ -3,11 +3,12 @@
 
 @-moz-document url-prefix("about:addons") {
   #full {
-    --sidebar-collapsed-width: 52px;
-    --sidebar-expanded-width: 200px;
-    display: block !important;
 
+@media -moz-pref("compact-settings.compact-addons.enabled") {
+    display: block !important;
     #sidebar {
+      --sidebar-collapsed-width: 52px;
+      --sidebar-expanded-width: 200px;
       position: absolute !important;
       width: auto !important;
       z-index: 20 !important;
@@ -15,7 +16,9 @@
 
       #categories,
       sidebar-footer {
+@media -moz-pref("compact-settings.animation.enabled") {
         transition: width 100ms ease !important;
+      }
         width: var(--sidebar-collapsed-width) !important;
       }
 
@@ -41,7 +44,9 @@
         }
       }
     }
+  }
 
+@media -moz-pref("compact-settings.addons.grid-enabled") {
     #content {
       margin-left: calc(var(--sidebar-collapsed-width) + 15px) !important;
       width: calc(100% - var(--sidebar-collapsed-width) - 20px) !important;
@@ -124,5 +129,6 @@
         }
       }
     }
+  }
   }
 }

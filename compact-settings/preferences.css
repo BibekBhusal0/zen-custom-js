@@ -1,5 +1,6 @@
 /* Making the sidebar in settings page compact and expand on hover */
 
+@media -moz-pref("compact-settings.enabled") {
 @-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
   #preferences-stack {
     vbox.navigation {
@@ -10,7 +11,9 @@
       padding: 10px !important;
 
       #searchInput {
+@media -moz-pref("compact-settings.animation.enabled") {
         transition: width 100ms ease-in-out !important;
+      }
         overflow-x: hidden !important;
         margin: 20px 0 !important;
         padding-left: 12px !important;
@@ -93,4 +96,5 @@
       }
     }
   }
+}
 }
