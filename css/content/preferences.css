@@ -1,6 +1,6 @@
 /* Making the sidebar in settings page compact and expand on hover */
 
-@-moz-document url-prefix("about:preferences") {
+@-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
   #preferences-stack {
     vbox.navigation {
       position: absolute !important;
@@ -18,10 +18,10 @@
         width: 40px !important;
 
         &:focus,&:hover {
-          width: 200px !important;
+          width: 250px !important;
 
           +#categories {
-            width: 200px !important;
+            width: 250px !important;
 
             .category>.category-name {
               display: block;
@@ -72,7 +72,7 @@
 
       &:hover {
         #categories {
-          width: 200px !important;
+          width: 250px !important;
 
           .category>.category-name {
             display: block;
@@ -80,7 +80,7 @@
         }
 
         #searchInput {
-          width: 200px !important;
+          width: 250px !important;
         }
 
         .sidebar-footer-list {
