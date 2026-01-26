@@ -7,9 +7,7 @@
 
 Compact Settings and Addons page for **FireFox** and **Zen Browser**.
 
-https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
-
-I will replace this video i upload this to github.
+https://github.com/user-attachments/assets/518c67d2-bb65-44ee-85bd-60d6e1ea5295
 
 ## 🌟 Features
 
