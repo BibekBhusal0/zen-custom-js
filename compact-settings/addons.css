@@ -3,12 +3,12 @@
 
 @-moz-document url-prefix("about:addons") {
   #full {
-
+      --sidebar-collapsed-width: 52px;
+      --sidebar-expanded-width: 200px;
 @media -moz-pref("compact-settings.compact-addons.enabled") {
     display: block !important;
     #sidebar {
-      --sidebar-collapsed-width: 52px;
-      --sidebar-expanded-width: 200px;
+
       position: absolute !important;
       width: auto !important;
       z-index: 20 !important;
@@ -44,15 +44,22 @@
         }
       }
     }
+  
+   #content {
+      margin-left: calc(var(--sidebar-collapsed-width) + 45px) !important;
+      max-width: calc(100% - var(--sidebar-collapsed-width) - 55px) !important;
+/*       max-width: 100vw !important; */
+      height: 100vh !important;
+      overflow-y: auto !important;
+     @media -moz-pref("compact-settings.addons.grid-enabled") {
+      margin-left: calc(var(--sidebar-collapsed-width) + 15px) !important;
+      max-width: calc(100% - var(--sidebar-collapsed-width) - 20px) !important;
+       }
+  }
   }
 
 @media -moz-pref("compact-settings.addons.grid-enabled") {
     #content {
-      margin-left: calc(var(--sidebar-collapsed-width) + 15px) !important;
-      width: calc(100% - var(--sidebar-collapsed-width) - 20px) !important;
-      max-width: 100vw !important;
-      height: 100vh !important;
-      overflow-y: scroll !important;
 
       #main {
         width: 90% !important;
