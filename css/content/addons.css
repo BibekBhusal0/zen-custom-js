@@ -4,6 +4,7 @@
 @-moz-document url-prefix("about:addons") {
   #full {
     --sidebar-collapsed-width: 50px;
+    --sidebar-expanded-width: 200px;
     display: block !important;
 
     #sidebar {
@@ -37,11 +38,12 @@
       }
 
       &:hover {
-        width: 200px !important;
+        width: var(--sidebar-expanded-width) !important;
 
         #categories {
           .category {
             margin-left: 10px !important;
+            max-width: calc(var(--sidebar-expanded-width) - 30px) !important;
 
             .category-name {
               display: block;
@@ -52,10 +54,11 @@
         sidebar-footer {
           .sidebar-footer-list {
             margin-left: 10px !important;
-          }
+            max-width: calc(var(--sidebar-expanded-width) - 30px) !important;
 
-          .sidebar-footer-label {
-            display: block;
+            .sidebar-footer-label {
+              display: block;
+            }
           }
         }
       }
