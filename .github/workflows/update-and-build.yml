@@ -44,19 +44,19 @@ jobs:
           git add **/theme.json
           git diff --cached --quiet || git commit -m "chore: Update theme.json"
 
-      - name: Build BrowseBot (dev for both files)
-        run: |
-          npx cross-env TARGET=browsebot BUILD_TYPE=dev rollup -c --bundleConfigAsCjs
+      # - name: Build BrowseBot (dev for both files)
+      #   run: |
+      #     npx cross-env TARGET=browsebot BUILD_TYPE=dev rollup -c --bundleConfigAsCjs
 
       - name: Combine Preferences
         run: npm run combine-preferences
 
-      - name: Commit BrowseBot changes
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add dist/browse-bot*.uc.*
-          git diff --cached --quiet || git commit -m "chore: Update browsebot build"
+      # - name: Commit BrowseBot changes
+      #   run: |
+      #     git config --local user.email "github-actions[bot]@users.noreply.github.com"
+      #     git config --local user.name "github-actions[bot]"
+      #     git add dist/browse-bot*.uc.*
+      #     git diff --cached --quiet || git commit -m "chore: Update browsebot build"
 
       - name: Commit preferences changes
         run: |
