@@ -1,6 +1,6 @@
 /* Making the sidebar in settings page compact and expand on hover */
 
-/* @-moz-document url-prefix("about:preferences") {
+@-moz-document url-prefix("about:preferences") {
   #preferences-stack {
     vbox.navigation {
       position: absolute !important;
@@ -10,14 +10,14 @@
       padding: 10px !important;
       transition: width 0.3s ease-in-out !important;
 
-      search-textbox#searchInput {
+      #searchInput {
         transition: width 0.1s ease-in-out !important;
         overflow-x: hidden !important;
         margin: 20px 0 !important;
         padding-left: 12px !important;
-        width: 35px !important;
+        width: 40px !important;
 
-        &[focused="true"] {
+        &:focus,&:hover {
           width: 200px !important;
 
           +#categories {
@@ -34,20 +34,16 @@
             }
           }
         }
-
-        &:hover {
-          width: 200px !important;
-        }
       }
 
       #categories {
         margin: 0 !important;
         padding: 0 !important;
-        width: 30px !important;
+        width: 40px !important;
         overflow-x: hidden !important;
 
         .category {
-          margin-left: 0px !important;
+          margin-left: 10px !important;
           padding: 0 8px !important;
 
           &::before {
@@ -83,7 +79,7 @@
           }
         }
 
-        search-textbox#searchInput {
+        #searchInput {
           width: 200px !important;
         }
 
@@ -95,4 +91,4 @@
       }
     }
   }
-} */
+}
