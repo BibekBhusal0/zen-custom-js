@@ -1,100 +1,101 @@
 /* Making the sidebar in settings page compact and expand on hover */
 
 @media -moz-pref("compact-settings.enabled") {
-@-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
-  #preferences-stack {
-    vbox.navigation {
-      position: absolute !important;
-      height: 100vh !important;
-      z-index: 20 !important;
-      width: auto !important;
-      padding: 10px !important;
+  @-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
+    #preferences-stack {
+      vbox.navigation {
+        position: absolute !important;
+        height: 100vh !important;
+        z-index: 20 !important;
+        width: auto !important;
+        padding: 10px !important;
 
-      #searchInput {
-@media -moz-pref("compact-settings.animation.enabled") {
-        transition: width 100ms ease-in-out !important;
-      }
-        overflow-x: hidden !important;
-        margin: 20px 0 !important;
-        padding-left: 12px !important;
-        width: 40px !important;
+        #searchInput {
+          @media -moz-pref("compact-settings.animation.enabled") {
+            transition: width 100ms ease-in-out !important;
+          }
+          overflow-x: hidden !important;
+          margin: 20px 0 !important;
+          padding-left: 12px !important;
+          width: 40px !important;
 
-        &:focus,&:hover {
-          width: 250px !important;
-
-          +#categories {
+          &:focus,
+          &:hover {
             width: 250px !important;
 
-            .category>.category-name {
+            + #categories {
+              width: 250px !important;
+
+              .category > .category-name {
+                display: block;
+              }
+            }
+
+            ~ .sidebar-footer-list {
+              .sidebar-footer-label {
+                display: block !important;
+              }
+            }
+          }
+        }
+
+        #categories {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 40px !important;
+          overflow-x: hidden !important;
+
+          .category {
+            margin-left: 10px !important;
+            padding: 0 8px !important;
+
+            &::before {
+              display: none !important;
+            }
+
+            .category-name {
+              display: none;
+            }
+
+            &[selected="true"] {
+              color: var(--red-40) !important;
+            }
+          }
+        }
+
+        vbox.sidebar-footer-list {
+          margin-left: 13px !important;
+          .sidebar-footer-icon {
+            margin: 0 8px !important;
+            scale: 1.37 !important;
+          }
+
+          .sidebar-footer-label {
+            display: none !important;
+            font-size: 16px !important;
+          }
+        }
+
+        &:hover {
+          #categories {
+            width: 250px !important;
+
+            .category > .category-name {
               display: block;
             }
           }
 
-          ~.sidebar-footer-list {
+          #searchInput {
+            width: 250px !important;
+          }
+
+          .sidebar-footer-list {
             .sidebar-footer-label {
               display: block !important;
             }
           }
         }
       }
-
-      #categories {
-        margin: 0 !important;
-        padding: 0 !important;
-        width: 40px !important;
-        overflow-x: hidden !important;
-
-        .category {
-          margin-left: 10px !important;
-          padding: 0 8px !important;
-
-          &::before {
-            display: none !important;
-          }
-
-          .category-name {
-            display: none;
-          }
-
-          &[selected="true"] {
-            color: var(--red-40) !important;
-          }
-        }
-      }
-
-      vbox.sidebar-footer-list {
-        margin-left:13px!important;
-        .sidebar-footer-icon {
-          margin: 0 8px !important;
-          scale:1.37 !important;
-        }
-
-        .sidebar-footer-label {
-          display: none !important;
-          font-size: 16px !important;
-        }
-      }
-
-      &:hover {
-        #categories {
-          width: 250px !important;
-
-          .category>.category-name {
-            display: block;
-          }
-        }
-
-        #searchInput {
-          width: 250px !important;
-        }
-
-        .sidebar-footer-list {
-          .sidebar-footer-label {
-            display: block !important;
-          }
-        }
-      }
     }
   }
-}
 }

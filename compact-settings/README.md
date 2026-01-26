@@ -39,7 +39,7 @@ You can customize the script's behavior via `about:config` or the settings UI in
 ## 🙏 Credits and Acknowledgements
 
 - This mod is released through [Vertex Mods](https://github.com/Vertex-Mods/), and I, [Bibek Bhusal](https://github.com/BibekBhusal0), am the creator of this mod.
-- Inspiration of Addon grid from [MrOtherGuy/firefox-csshacks](https://github.com/MrOtherGuy/firefox-csshacks) 
+- Inspiration of Addon grid from [MrOtherGuy/firefox-csshacks](https://github.com/MrOtherGuy/firefox-csshacks)
 
 ## 📜 License
 

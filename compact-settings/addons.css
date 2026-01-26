@@ -3,139 +3,137 @@
 
 @-moz-document url-prefix("about:addons") {
   #full {
-      --sidebar-collapsed-width: 52px;
-      --sidebar-expanded-width: 200px;
-@media -moz-pref("compact-settings.compact-addons.enabled") {
-    display: block !important;
-    #sidebar {
+    --sidebar-collapsed-width: 52px;
+    --sidebar-expanded-width: 200px;
+    @media -moz-pref("compact-settings.compact-addons.enabled") {
+      display: block !important;
+      #sidebar {
+        position: absolute !important;
+        width: auto !important;
+        z-index: 20 !important;
+        background: var(--zen-branding-bg) !important;
 
-      position: absolute !important;
-      width: auto !important;
-      z-index: 20 !important;
-      background: var(--zen-branding-bg) !important;
+        #categories,
+        sidebar-footer {
+          @media -moz-pref("compact-settings.animation.enabled") {
+            transition: width 100ms ease !important;
+          }
+          width: var(--sidebar-collapsed-width) !important;
+        }
 
-      #categories,
-      sidebar-footer {
-@media -moz-pref("compact-settings.animation.enabled") {
-        transition: width 100ms ease !important;
+        .category,
+        .sidebar-footer-list {
+          width: calc(var(--sidebar-expanded-width) - 20px) !important;
+          margin-left: 5px !important;
+        }
+
+        .sidebar-footer-list img {
+          scale: 1.4 !important;
+          margin-left: 15px !important;
+          margin-right: 12px !important;
+        }
+
+        .category[aria-selected="true"] {
+          color: var(--red-40) !important;
+        }
+
+        &:hover {
+          #categories {
+            width: var(--sidebar-expanded-width) !important;
+          }
+        }
       }
-        width: var(--sidebar-collapsed-width) !important;
-      }
 
-      .category,
-      .sidebar-footer-list {
-        width: calc(var(--sidebar-expanded-width) - 20px) !important;
-        margin-left: 5px !important;
-      }
-
-      .sidebar-footer-list img {
-        scale: 1.4 !important;
-        margin-left: 15px !important;
-        margin-right: 12px !important;
-      }
-
-      .category[aria-selected="true"] {
-        color: var(--red-40) !important;
-      }
-
-      &:hover {
-        #categories {
-          width: var(--sidebar-expanded-width) !important;
+      #content {
+        margin-left: calc(var(--sidebar-collapsed-width) + 45px) !important;
+        max-width: calc(100% - var(--sidebar-collapsed-width) - 55px) !important;
+        /*       max-width: 100vw !important; */
+        height: 100vh !important;
+        overflow-y: auto !important;
+        @media -moz-pref("compact-settings.addons.grid-enabled") {
+          margin-left: calc(var(--sidebar-collapsed-width) + 15px) !important;
+          max-width: calc(100% - var(--sidebar-collapsed-width) - 20px) !important;
         }
       }
     }
-  
-   #content {
-      margin-left: calc(var(--sidebar-collapsed-width) + 45px) !important;
-      max-width: calc(100% - var(--sidebar-collapsed-width) - 55px) !important;
-/*       max-width: 100vw !important; */
-      height: 100vh !important;
-      overflow-y: auto !important;
-     @media -moz-pref("compact-settings.addons.grid-enabled") {
-      margin-left: calc(var(--sidebar-collapsed-width) + 15px) !important;
-      max-width: calc(100% - var(--sidebar-collapsed-width) - 20px) !important;
-       }
-  }
-  }
 
-@media -moz-pref("compact-settings.addons.grid-enabled") {
-    #content {
+    @media -moz-pref("compact-settings.addons.grid-enabled") {
+      #content {
+        #main {
+          width: 90% !important;
+          max-width: 100vw !important;
+          padding: 0 !important;
+          margin: 0 auto !important;
 
-      #main {
-        width: 90% !important;
-        max-width: 100vw !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
-
-        addon-card[expanded="true"] > div {
-          margin-top: 40px;
-        }
-
-        addon-list {
-          h2 {
-            grid-area: hd;
+          addon-card[expanded="true"] > div {
+            margin-top: 40px;
           }
 
-          &[type="extension"] > section {
-            display: grid;
-            grid-auto-columns: 1fr;
-            gap: 1em;
-            grid-template-areas: "hd" "cd";
-
-            addon-card > div {
-              height: 65% !important;
+          addon-list {
+            h2 {
+              grid-area: hd;
             }
 
-            @media (min-width: 960px) {
-              grid-template-areas: "hd hd" "cd cd";
+            &[type="extension"] > section {
+              display: grid;
+              grid-auto-columns: 1fr;
+              gap: 1em;
+              grid-template-areas: "hd" "cd";
 
               addon-card > div {
-                height: 70% !important;
+                height: 65% !important;
+              }
+
+              @media (min-width: 960px) {
+                grid-template-areas: "hd hd" "cd cd";
+
+                addon-card > div {
+                  height: 70% !important;
+                }
+              }
+
+              @media (min-width: 1200px) {
+                grid-template-areas: "hd hd hd" "cd cd cd";
+
+                addon-card > div {
+                  height: 80% !important;
+                }
               }
             }
 
-            @media (min-width: 1200px) {
-              grid-template-areas: "hd hd hd" "cd cd cd";
-
-              addon-card > div {
-                height: 80% !important;
+            &[type="theme"] > section {
+              addon-card {
+                padding: 2px !important;
               }
             }
-          }
 
-          &[type="theme"] > section {
-            addon-card {
-              padding: 2px !important;
+            .card-contents {
+              width: unset !important;
+              white-space: initial !important;
             }
           }
+        }
+      }
 
-          .card-contents {
-            width: unset !important;
-            white-space: initial !important;
+      addon-page-header {
+        .sticky-container {
+          border-bottom: 4px solid #888888 !important;
+          position: relative !important;
+          margin-bottom: 20px !important;
+
+          .main-heading {
+            max-width: 100vw !important;
+            margin: auto !important;
+            width: 80% !important;
+          }
+
+          .main-search {
+            max-width: 100vw !important;
+            justify-content: center !important;
+            gap: 30px !important;
           }
         }
       }
     }
-
-    addon-page-header {
-      .sticky-container {
-        border-bottom: 4px solid #888888 !important;
-        position: relative !important;
-        margin-bottom: 20px !important;
-
-        .main-heading {
-          max-width: 100vw !important;
-          margin: auto !important;
-          width: 80% !important;
-        }
-
-        .main-search {
-          max-width: 100vw !important;
-          justify-content: center !important;
-          gap: 30px !important;
-        }
-      }
-    }
-  }
   }
 }
