@@ -402,10 +402,10 @@ findbar,
     overflow: hidden;
     background-color: var(--browse-bot-primary-bg) !important;
     border: none !important;
+    border-radius: 4px !important;
     min-width: 60px !important;
     font-size: 14px !important;
-
-    outline: none !important;
+    appearance: none !important;
 
     &:hover {
       background-color: color-mix(in srgb, var(--browse-bot-primary-bg) 80%, black 20%) !important;

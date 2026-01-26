@@ -63,7 +63,7 @@
       }
 
       .settings-save-btn {
-        background-color: var(--primary-bg) !important;
+        background-color: var(--zen-primary-color);
         border-color: transparent !important;
         color: var(--primary-text-color) !important;
       }
@@ -78,6 +78,10 @@
       border-radius: 6px;
       padding: 6px 12px;
       font-size: 14px;
+      appearance: none !important;
+      outline: none !important;
+      border: none !important;
+
 
       &:hover {
         background-color: rgba(127, 127, 127, 0.1);
@@ -106,7 +110,7 @@
 
           &.delete-button img {
             filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
-              contrast(100%);
+            contrast(100%);
           }
         }
       }
@@ -120,16 +124,13 @@
 
       .cmd-settings-tab {
         border: none;
-
         border-radius: 999px;
         padding: 6px 16px;
-
         font-weight: 700;
         text-transform: uppercase;
         font-size: 0.75rem;
         letter-spacing: 0.5px;
         line-height: 1;
-
         cursor: pointer;
         transition: all 150ms ease-in-out;
 
@@ -478,6 +479,8 @@
               button {
                 padding: 4px 8px;
                 font-size: 12px;
+                appearance: none !important;
+                outline: none !important;
               }
             }
           }
@@ -696,9 +699,13 @@
             border-radius: 8px;
             background-color: rgba(127, 127, 127, 0.05);
             transition: all 0.2s ease;
+            appearance: none !important;
+            outline: none !important;
+
             &:hover {
               background-color: rgba(127, 127, 127, 0.1);
               border-color: var(--primary-color);
+              scale: 1.02 !important;
             }
             img {
               grid-area: icon;

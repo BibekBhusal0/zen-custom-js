@@ -19,7 +19,6 @@
     "Browser:PrevTab": "Alt+K",
     "app:clear-startupCache": "Ctrl+Alt+Shift+R",
     "app:minimize-memory": "Ctrl+Alt+Shift+M",
-    "browsebot:settings": "Alt+E",
     "cmd_zenCompactModeShowSidebar": "Alt+S",
     "cmd_zenCompactModeShowToolbar": "Alt+T",
     "command-palette:settings-commands": "Ctrl+,",
@@ -36,7 +35,8 @@
     "toggle-sidebar": "Ctrl+Alt+A",
     "toggle-toolbar": "Ctrl+Alt+T",
     "unload-other-tabs": "Ctrl+Alt+U",
-    "unload-tab": "Alt+U"
+    "unload-tab": "Alt+U",
+    "browsebot:settings": "Alt+E"
   },
   "toolbarButtons": [],
   "customCommands": [

@@ -443,10 +443,9 @@ browser {
           position: relative;
           overflow: hidden;
           background-color: var(--browse-bot-primary-bg) !important;
-          border: none !important;
           min-width: 60px !important;
           font-size: 17px !important;
-
+          appearance: none !important;
           outline: none !important;
 
           &:hover {
@@ -475,13 +474,14 @@ browser {
 
         button {
           background: none;
-          border: none;
           text-decoration: underline;
           cursor: pointer;
           padding: 4px 8px;
           font-size: 12px;
           border-radius: 4px;
           transition: all 0.2s ease;
+          appearance: none !important;
+          outline: none !important;
 
           &:hover {
             text-decoration: none;
@@ -710,7 +710,6 @@ browser {
       cursor: pointer;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
       border-radius: 4px;
-      /* background: var(--browse-bot-primary); */
       font-weight: 600;
       border: none !important;
       width: 100% !important;
@@ -954,6 +953,7 @@ browser {
         border-radius: 5px;
         cursor: pointer;
         font-size: 16px;
+        appearance:none;
 
         &.confirm-tool {
           background-color: var(--browse-bot-success);
