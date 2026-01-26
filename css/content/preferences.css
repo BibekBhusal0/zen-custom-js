@@ -8,10 +8,9 @@
       z-index: 20 !important;
       width: auto !important;
       padding: 10px !important;
-      transition: width 0.3s ease-in-out !important;
 
       #searchInput {
-        transition: width 0.1s ease-in-out !important;
+        transition: width 100ms ease-in-out !important;
         overflow-x: hidden !important;
         margin: 20px 0 !important;
         padding-left: 12px !important;
@@ -61,12 +60,15 @@
       }
 
       vbox.sidebar-footer-list {
+        margin-left:13px!important;
         .sidebar-footer-icon {
           margin: 0 8px !important;
+          scale:1.37 !important;
         }
 
         .sidebar-footer-label {
           display: none !important;
+          font-size: 16px !important;
         }
       }
 
