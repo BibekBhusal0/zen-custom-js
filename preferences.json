@@ -267,6 +267,41 @@
   },
   {
     "type": "text",
+    "label": "**Compact Settings**",
+    "size": "18px",
+    "margin": "20px 0 10px 0"
+  },
+  {
+    "property": "compact-settings.enabled",
+    "label": "Compact Settings",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "compact-settings.animation.enabled",
+    "label": "Hover Animations",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "compact-settings.compact-addons.enabled",
+    "label": "Compact Addons",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "compact-settings.addons.grid-enabled",
+    "label": "Grid Addons",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "type": "text",
+    "label": "",
+    "margin": "30px 0 0 0"
+  },
+  {
+    "type": "text",
     "label": "**Browse Bot**",
     "size": "18px",
     "margin": "20px 0 10px 0"
