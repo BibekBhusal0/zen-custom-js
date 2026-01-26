@@ -953,7 +953,7 @@ browser {
         border-radius: 5px;
         cursor: pointer;
         font-size: 16px;
-        appearance:none;
+        appearance: none;
 
         &.confirm-tool {
           background-color: var(--browse-bot-success);
