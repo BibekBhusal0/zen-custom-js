@@ -21,7 +21,7 @@ https://github.com/user-attachments/assets/518c67d2-bb65-44ee-85bd-60d6e1ea5295
 1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).
 2. Restart Zen Browser.
 3. Open settings and go to the `Sine` tab.
-4. Search for `Compact Settings`. (Not released in sine yet paste this reop `Vertex-Mods/Compact-Settings`)
+4. Search for `Compact Settings`.
 5. Click Install.
 6. Check pages `about:preference` and `about:addons` to see changes.
 
