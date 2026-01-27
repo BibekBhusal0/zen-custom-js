@@ -17,8 +17,12 @@
             transition: width 150ms ease-in-out !important;
           }
           width: 40px !important;
-          overflow-x: hidden !important;
           white-space: nowrap !important;
+        }
+
+        #categories,
+        vbox.sidebar-footer-list {
+          overflow-x :hidden !important;
         }
 
         .sidebar-footer-label {
