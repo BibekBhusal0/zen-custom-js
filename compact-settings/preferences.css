@@ -18,25 +18,6 @@
           margin: 20px 0 !important;
           padding-left: 12px !important;
           width: 40px !important;
-
-          &:focus,
-          &:hover {
-            width: 250px !important;
-
-            + #categories {
-              width: 250px !important;
-
-              .category > .category-name {
-                display: block;
-              }
-            }
-
-            ~ .sidebar-footer-list {
-              .sidebar-footer-label {
-                display: block !important;
-              }
-            }
-          }
         }
 
         #categories {
@@ -48,14 +29,7 @@
           .category {
             margin-left: 10px !important;
             padding: 0 8px !important;
-
-            &::before {
-              display: none !important;
-            }
-
-            .category-name {
-              display: none;
-            }
+            width: 250px !important;
 
             &[selected="true"] {
               color: var(--red-40) !important;
@@ -65,34 +39,22 @@
 
         vbox.sidebar-footer-list {
           margin-left: 13px !important;
+          width: 35px !important;
+          overflow-x: hidden !important;
           .sidebar-footer-icon {
             margin: 0 8px !important;
-            scale: 1.37 !important;
+            scale: 1.4 !important;
           }
 
           .sidebar-footer-label {
-            display: none !important;
             font-size: 16px !important;
           }
         }
 
+        &:has(#searchInput:focus),
         &:hover {
-          #categories {
+          #categories,#searchInput,.sidebar-footer-list {
             width: 250px !important;
-
-            .category > .category-name {
-              display: block;
-            }
-          }
-
-          #searchInput {
-            width: 250px !important;
-          }
-
-          .sidebar-footer-list {
-            .sidebar-footer-label {
-              display: block !important;
-            }
           }
         }
       }
