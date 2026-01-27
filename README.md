@@ -39,6 +39,12 @@ Quick search engine switching with advanced interaction modes.
 
 https://github.com/user-attachments/assets/52a6b810-77ee-4a04-b239-8d59e01478ef
 
+### [Compact Settings](/compact-settings/)
+
+Expand sidebar of settings on hover.
+
+https://github.com/user-attachments/assets/518c67d2-bb65-44ee-85bd-60d6e1ea5295
+
 ### [Floating Sidebar](/floating-sidebar)
 
 Make sidebar floating also option to keep it in left or right.
