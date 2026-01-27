@@ -53,7 +53,9 @@
 
         &:has(#searchInput:focus),
         &:hover {
-          #categories,#searchInput,.sidebar-footer-list {
+          #categories,
+          #searchInput,
+          .sidebar-footer-list {
             width: 250px !important;
           }
         }
