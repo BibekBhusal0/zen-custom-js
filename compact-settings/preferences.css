@@ -18,7 +18,7 @@
           }
           width: 40px !important;
           overflow-x: hidden !important;
-          white-space: nowrap !important; 
+          white-space: nowrap !important;
         }
 
         .sidebar-footer-label {
@@ -27,7 +27,6 @@
           }
           opacity: 0 !important;
         }
-
 
         #searchInput {
           margin: 20px 0 !important;
