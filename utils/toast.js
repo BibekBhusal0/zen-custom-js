@@ -1,12 +1,7 @@
 // Toast API based on sine toast
 
-// Debug mode - set to true to enable logging
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
-/**
- * Debug logging function
- * @param {...any} args - Arguments to log
- */
 function debugLog(...args) {
   if (DEBUG_MODE) {
     console.log("[Toast API]", ...args);
