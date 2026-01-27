@@ -34,7 +34,7 @@
         }
 
         .category[aria-selected="true"] {
-          color: var(--red-40) !important;
+          color: var(--zen-primary-color) !important;
         }
 
         &:hover {
