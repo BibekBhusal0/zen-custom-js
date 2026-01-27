@@ -201,10 +201,10 @@ export const commands = [
     label: "Toggle Collapsed Pins",
     tags: ["toggle", "collapse", "expand"],
     command: () => {
-      const wsID = gZenWorkspaces.getActiveWorkspace().uuid
-      if (!wsID) return
-      const wsElem = document.querySelector(`[id="${wsID}"]`)
-      if (!wsElem) return
+      const wsID = gZenWorkspaces.getActiveWorkspace().uuid;
+      if (!wsID) return;
+      const wsElem = document.querySelector(`[id="${wsID}"]`);
+      if (!wsElem) return;
       const cp = wsElem.querySelector("zen-workspace-collapsible-pins");
       if (!cp) return;
       cp.collapsed = !cp.collapsed;
@@ -724,7 +724,7 @@ export const commands = [
       const labels = gBrowser.tabContainer.querySelectorAll(".tab-group-label");
       labels.forEach((label) => {
         const expanded = label.getAttribute("aria-expanded");
-        const ariaLabel = label.getAttribute("aria-label")
+        const ariaLabel = label.getAttribute("aria-label");
         if (expanded === "true" && ariaLabel !== "Unnamed Group") {
           label.focus();
           label.click();
@@ -741,7 +741,7 @@ export const commands = [
       const labels = gBrowser.tabContainer.querySelectorAll(".tab-group-label");
       labels.forEach((label) => {
         const expanded = label.getAttribute("aria-expanded");
-        const ariaLabel = label.getAttribute("aria-label")
+        const ariaLabel = label.getAttribute("aria-label");
         if (expanded === "false" && ariaLabel !== "Unnamed Group") {
           label.focus();
           label.click();
