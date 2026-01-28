@@ -1,0 +1,23 @@
+command-palette/README.md
+  155a4b13038b1bb9 79-86,155,225,243,251
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "c879f752828c86fbcfa18a6ba7348cc7e441dfec",
+  "prompts": {
+    "155a4b13038b1bb9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3fb961258ffeVidwdg0Yho29iZ",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 22,
+      "total_deletions": 9,
+      "accepted_lines": 12,
+      "overriden_lines": 0
+    }
+  }
+}
