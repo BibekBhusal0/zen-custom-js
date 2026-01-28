@@ -4,6 +4,7 @@ import { textToSvgDataUrl, svgToUrl, icons } from "../utils/icon.js";
 import { Storage } from "./utils/storage.js";
 import { ZenCommandPalette } from "./index.js";
 import { showToast } from "../utils/toast.js";
+import { isNotEmptyTab } from "./utils/notEmptyTab.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -334,7 +335,6 @@ export async function generateContainerTabCommands() {
  */
 export async function generateActiveTabCommands() {
   const commands = [];
-  // Use gZenWorkspaces.allStoredTabs to get tabs from all workspaces in the current window.
   const tabs = window.gZenWorkspaces?.workspaceEnabled
     ? window.gZenWorkspaces.allStoredTabs
     : Array.from(gBrowser.tabs);
@@ -410,7 +410,7 @@ export async function generateUnloadTabCommands() {
 export function generateWorkspaceCommands() {
   if (!window.gZenWorkspaces?.workspaceEnabled) return [];
   const workspacesData = window.gZenWorkspaces.getWorkspaces();
-  if (!workspacesData ) return [];
+  if (!workspacesData) return [];
 
   return workspacesData.map((workspace) => {
     const icon = workspace.icon;
@@ -599,7 +599,8 @@ export function generateWorkspaceMoveCommands() {
 
   const commands = [];
   const workspacesData = window.gZenWorkspaces.getWorkspaces();
-  if (!workspacesData ) return [];
+  if (!isNotEmptyTab()) return [];
+  if (!workspacesData) return [];
 
   const activeTab = gBrowser.selectedTab;
   if (activeTab && !activeTab.hasAttribute("zen-essential")) {

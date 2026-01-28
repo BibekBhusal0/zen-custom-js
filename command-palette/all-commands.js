@@ -4,6 +4,7 @@ import { svgToUrl, icons } from "../utils/icon.js";
 import { getPref, setPref } from "../utils/pref.js";
 import { PREFS } from "./utils/prefs.js";
 import { ZenCommandPalette } from "./index.js";
+import { isNotEmptyTab } from "./utils/notEmptyTab.js";
 
 function restartApplication(clearCache) {
   clearCache && Services.appinfo.invalidateCachesOnRestart();
@@ -23,10 +24,6 @@ const togglePref = (prefName) => {
   if (typeof pref === "boolean") return;
   setPref(!pref);
 };
-
-function isNotEmptyTab() {
-  return !window.gBrowser.selectedTab.hasAttribute("zen-empty-tab");
-}
 
 function isPinnedTabDifferent() {
   if (!window.gZenPinnedTabManager) return false;
