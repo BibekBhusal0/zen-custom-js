@@ -409,7 +409,7 @@ export async function generateUnloadTabCommands() {
  */
 export async function generateWorkspaceCommands() {
   if (!window.gZenWorkspaces?.workspaceEnabled) return [];
-  const workspacesData = await window.gZenWorkspaces._workspaces();
+  const workspacesData = await window.gZenWorkspaces.getWorkspaces();
   if (!workspacesData || !workspacesData.workspaces) return [];
 
   return workspacesData.workspaces.map((workspace) => {
@@ -598,7 +598,7 @@ export async function generateWorkspaceMoveCommands() {
   if (!window.gZenWorkspaces?.workspaceEnabled) return [];
 
   const commands = [];
-  const workspacesData = await window.gZenWorkspaces._workspaces();
+  const workspacesData = await window.gZenWorkspaces.getWorkspaces();
   if (!workspacesData || !workspacesData.workspaces) return [];
 
   const activeTab = gBrowser.selectedTab;
