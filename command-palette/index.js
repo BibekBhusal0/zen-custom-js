@@ -667,23 +667,14 @@ export const ZenCommandPalette = {
     }
 
     let appliedCount = 0;
-    let conflictCount = 0;
 
     for (const [commandKey, shortcutStr] of Object.entries(customShortcuts)) {
       if (!shortcutStr) continue;
       const result = this.addHotkey(commandKey, shortcutStr);
-      if (result.success) {
-        appliedCount++;
-      } else {
-        conflictCount++;
-        PREFS.debugError(
-          `Skipping shortcut for "${commandKey}" due to conflict: ${shortcutStr}`,
-          result.conflictInfo
-        );
-      }
+      if (result.success) appliedCount++; 
     }
 
-    PREFS.debugLog(`Applied ${appliedCount} shortcuts, skipped ${conflictCount} due to conflicts.`);
+    PREFS.debugLog(`Applied ${appliedCount} shortcuts`);
   },
 
   async applyToolbarButtons() {
