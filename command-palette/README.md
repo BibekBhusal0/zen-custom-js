@@ -80,10 +80,10 @@ Here are all Preferences which can be configured from `about:config` (also from 
 
 The command palette includes default keyboard shortcuts that can be overridden by user custom shortcuts. Default shortcuts are applied only when no custom shortcut exists for that command.
 
-| Command         | Default Shortcut | Description                                                |
-| --------------- | ---------------- | ---------------------------------------------------------- |
-| Open Command Palette | `Ctrl+Shift+P`   | Opens the command palette to search all available commands |
-| Command Configure Commands| `Ctrl+,`   | Opens Command palette Settings to Customize commands |
+| Command                    | Default Shortcut | Description                                                |
+| -------------------------- | ---------------- | ---------------------------------------------------------- |
+| Open Command Palette       | `Ctrl+Shift+P`   | Opens the command palette to search all available commands |
+| Command Configure Commands | `Ctrl+,`         | Opens Command palette Settings to Customize commands       |
 
 ## 📋 Available Commands
 

@@ -22,7 +22,7 @@
 
         #categories,
         vbox.sidebar-footer-list {
-          overflow-x :hidden !important;
+          overflow-x: hidden !important;
         }
 
         .sidebar-footer-label {

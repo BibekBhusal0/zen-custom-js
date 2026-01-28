@@ -451,14 +451,14 @@ export const commands = [
     label: "Search Bookmarks",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
     tags: ["search", "bookmarks", "find", "filter"],
-    openUrl : true,
+    openUrl: true,
   },
   {
     key: "History:SearchHistory",
     label: "Search History",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
     tags: ["search", "history", "find", "browse"],
-    openUrl : true,
+    openUrl: true,
   },
   {
     key: "Browser:ShowAllBookmarks",
@@ -720,7 +720,7 @@ export const commands = [
       gZenUIManager.onFloatingURLBarOpen();
     },
     tags: ["commands", "palette", "all", "shortcuts"],
-    openUrl : true,
+    openUrl: true,
   },
 
   // ----------- Tidy Tabs --------

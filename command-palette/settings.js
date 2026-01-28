@@ -110,7 +110,9 @@ const SettingsModal = {
   async saveSettings() {
     const defaultShortcuts = this._mainModule._getDefaultShortcuts();
     const filteredCustomShortcuts = {};
-    for (const [commandKey, shortcut] of Object.entries(this._currentSettings.customShortcuts || {})) {
+    for (const [commandKey, shortcut] of Object.entries(
+      this._currentSettings.customShortcuts || {}
+    )) {
       // Only save if: shortcut is not a default shortcut
       if (shortcut && defaultShortcuts[commandKey] !== shortcut) {
         filteredCustomShortcuts[commandKey] = shortcut;

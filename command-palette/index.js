@@ -669,7 +669,7 @@ export const ZenCommandPalette = {
     const customShortcuts = this._userConfig.customShortcuts || {};
 
     for (const [commandKey, shortcutStr] of Object.entries(defaultShortcuts)) {
-      if (!customShortcuts[commandKey]) customShortcuts[commandKey] = shortcutStr
+      if (!customShortcuts[commandKey]) customShortcuts[commandKey] = shortcutStr;
     }
 
     let appliedCount = 0;
@@ -677,7 +677,7 @@ export const ZenCommandPalette = {
     for (const [commandKey, shortcutStr] of Object.entries(customShortcuts)) {
       if (!shortcutStr) continue;
       const result = this.addHotkey(commandKey, shortcutStr);
-      if (result.success) appliedCount++; 
+      if (result.success) appliedCount++;
     }
 
     PREFS.debugLog(`Applied ${appliedCount} shortcuts`);
