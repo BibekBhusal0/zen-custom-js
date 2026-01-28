@@ -616,17 +616,12 @@ export function generateWorkspaceMoveCommands() {
           const tabToMove = gBrowser.selectedTab;
           if (tabToMove) {
             gZenWorkspaces.moveTabToWorkspace(tabToMove, workspace.uuid);
-            gZenWorkspaces._lastSelectedWorkspaceTabs[workspace.uuid] = tabToMove;
-            gZenWorkspaces.changeWorkspaceWithID(workspace.uuid);
+            gZenWorkspaces.switchTabIfNeeded(tabToMove);
           }
         },
         condition: () => {
           const currentTab = gBrowser.selectedTab;
-          return (
-            currentTab &&
-            !currentTab.hasAttribute("zen-essential") &&
-            currentTab.getAttribute("zen-workspace-id") !== workspace.uuid
-          );
+          return (!!currentTab);
         },
         tags: ["workspace", "move", "tab", workspace.name.toLowerCase()],
       });
