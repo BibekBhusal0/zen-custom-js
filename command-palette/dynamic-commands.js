@@ -621,7 +621,7 @@ export function generateWorkspaceMoveCommands() {
         },
         condition: () => {
           const currentTab = gBrowser.selectedTab;
-          return (!!currentTab);
+          return !!currentTab;
         },
         tags: ["workspace", "move", "tab", workspace.name.toLowerCase()],
       });
