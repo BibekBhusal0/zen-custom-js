@@ -657,6 +657,7 @@ export const ZenCommandPalette = {
   applyCustomShortcuts() {
     const defaultShortcuts = {
       "command-palette:show": "ctrl+shift+p",
+      "command-palette:settings-commands": "Ctrl+,",
     };
 
     const customShortcuts = this._userConfig.customShortcuts || {};

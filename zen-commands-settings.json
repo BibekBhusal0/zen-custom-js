@@ -21,8 +21,6 @@
     "app:minimize-memory": "Ctrl+Alt+Shift+M",
     "cmd_zenCompactModeShowSidebar": "Alt+S",
     "cmd_zenCompactModeShowToolbar": "Alt+T",
-    "command-palette:settings-commands": "Ctrl+,",
-    "command-palette:show": "Ctrl+Shift+P",
     "custom:advanced-settings": "Ctrl+Alt+Shift+S",
     "custom:close-and-next": "Ctrl+Alt+N",
     "custom:close-and-prev": "Ctrl+Alt+P",

@@ -76,6 +76,14 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |
 | `zen-command-palette.settings-file-path`               | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
 
+## ⌨️ Default Keyboard Shortcuts
+
+The command palette includes default keyboard shortcuts that can be overridden by user custom shortcuts. Default shortcuts are applied only when no custom shortcut exists for that command.
+
+| Command         | Default Shortcut | Description                                                |
+| --------------- | ---------------- | ---------------------------------------------------------- |
+| Search Commands | `Ctrl+Shift+P`   | Opens the command palette to search all available commands |
+
 ## 📋 Available Commands
 
 <details>
@@ -144,6 +152,7 @@ The following commands are now native:
 - Unload other tabs
 - Replace Pinned Tab URL with Current
 - Reset Pinned Tab
+- Toggle Collapsed Pins
 
 ### Window Management
 
@@ -213,6 +222,7 @@ The following commands are now native:
 
 ### Command Palette
 
+- Search Commands (`Ctrl+Shift+P`)
 - Command Palette: Configure Commands
 - Command Palette: Preferences
 - Command Palette: Help
@@ -230,15 +240,15 @@ The following commands are now native:
 ### Dynamic Commands
 
 - **About Pages**: `Open about:[page-name]` (e.g., "Open about:config").
-- **Search Engines**: `Search with: [Engine Name]` to change the default search engine for the next search.
-- **Extension Options**: `Extension Options: [Addon Name]` to open the options page for an extension.
-- **Container Tabs**: `Open Tab in: [Container Name]` to move the current tab to a different container.
+- **Search Engines**: `Search with: [Engine Name]` to use a specific search engine.
+- **Extensions**: `Enable/Disable/Uninstall Extension: [Name]`.
+- **Container Tabs**: `Open Tab in: [Container Name]` to open current tab to a different container.
 - **Active Tabs**: `Switch to Tab: [Tab Title]` to quickly switch to any open tab, even across workspaces.
 - **Unload Tabs**: `Unload Tab: [Tab Title]` to quickly unload tab (to save memory).
 - **Workspaces**: `Switch to workspace: [Workspace Name]` and `Move Tab to Workspace: [Workspace Name]`.
 - **Sine Mods**: `Uninstall Sine Mod: [Mod Name]` and `Install Sine Mod: [Mod Name]`.
 - **Folders**: `Delete Folder: [Folder Name]` and `Move Tab to Folder: [Folder Name]`.
-- **Addons**: `Enable Extension: [Addon Name]`, `Disable Extension: [Addon Name]`, and `Uninstall Extension: [Addon Name]`.
+- **Custom Commands**: User-defined custom JavaScript commands.
 
 </details>
 
