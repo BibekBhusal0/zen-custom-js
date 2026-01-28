@@ -2,6 +2,7 @@
 // https://github.com/Darsh-A/ZBar-Zen/blob/main/command_bar.uc.js
 import { svgToUrl, icons } from "../utils/icon.js";
 import { getPref, setPref } from "../utils/pref.js";
+import { PREFS } from "./utils/prefs.js";
 import { ZenCommandPalette } from "./index.js";
 
 function restartApplication(clearCache) {
@@ -376,6 +377,12 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/close.svg",
     tags: ["unload", "sleep"],
   },
+  {
+    key: "cmd_zenCloseUnpinnedTabs",
+    label: "Clear Other Tabs",
+    icon: svgToUrl(icons["broom"]),
+    tags: ["clear", "tabs", "close", "other", "workspace", "clean", "unpinned"],
+  },
 
   // ----------- Window Management -----------
   {
@@ -444,12 +451,14 @@ export const commands = [
     label: "Search Bookmarks",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
     tags: ["search", "bookmarks", "find", "filter"],
+    openUrl : true,
   },
   {
     key: "History:SearchHistory",
     label: "Search History",
     icon: "chrome://browser/skin/zen-icons/search-glass.svg",
     tags: ["search", "history", "find", "browse"],
+    openUrl : true,
   },
   {
     key: "Browser:ShowAllBookmarks",
@@ -701,13 +710,19 @@ export const commands = [
     command: () => ZenCommandPalette.Settings.show("custom-commands"),
     tags: ["command", "palette", "custom", "more"],
   },
-
   {
-    key: "cmd_zenCloseUnpinnedTabs",
-    label: "Clear Other Tabs",
-    icon: svgToUrl(icons["broom"]),
-    tags: ["clear", "tabs", "close", "other", "workspace", "clean", "unpinned"],
+    key: "command-palette:show",
+    label: "Search Commands",
+    command: () => {
+      gURLBar.value = PREFS.prefix;
+      gURLBar.focus();
+      gZenUIManager.onUrlbarOpen();
+      gZenUIManager.onFloatingURLBarOpen();
+    },
+    tags: ["commands", "palette", "all", "shortcuts"],
+    openUrl : true,
   },
+
   // ----------- Tidy Tabs --------
   {
     key: "cmd_zenSortTabs",

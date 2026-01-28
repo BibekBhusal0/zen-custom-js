@@ -165,6 +165,7 @@ export async function generateSearchEngineCommands() {
       },
       icon: getSearchEngineFavicon(engine),
       tags: ["search", "engine", engineName.toLowerCase()],
+      openUrl : true,
     };
   });
 }

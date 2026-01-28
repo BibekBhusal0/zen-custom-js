@@ -20,6 +20,23 @@ import { ShortcutRegistry } from "../utils/keyboard.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { addWidget } from "../utils/widget.js";
 
+function doCommand(command) {
+  const commandEl = document.getElementById(command);
+  if (commandEl?.doCommand) {
+    commandEl.doCommand();
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function openUrl(timeout = 0) {
+  setTimeout(() => {
+    PREFS.debugLog("opening URL bar");
+    doCommand("Browser:OpenLocation");
+  }, timeout);
+}
+
 export const ZenCommandPalette = {
   _shortcutRegistry: new ShortcutRegistry(),
   /**
@@ -448,12 +465,14 @@ export const ZenCommandPalette = {
     if (cmdToExecute) {
       PREFS.debugLog("Executing command via key:", key);
       this.addRecentCommand(cmdToExecute);
+      let openUrlBar = cmdToExecute.openUrl;
       if (typeof cmdToExecute.command === "function") {
         cmdToExecute.command(window);
+        if (openUrlBar) openUrl();
       } else {
-        const commandEl = document.getElementById(cmdToExecute.key);
-        if (commandEl?.doCommand) {
-          commandEl.doCommand();
+        const success = doCommand(cmdToExecute.key);
+        if (success) {
+          if (openUrlBar) openUrl();
         } else {
           PREFS.debugError(`Command element not found for key: ${key}`);
         }
