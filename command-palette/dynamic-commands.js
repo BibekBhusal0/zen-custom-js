@@ -407,12 +407,12 @@ export async function generateUnloadTabCommands() {
  * Generates commands for switching between Zen Workspaces.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of workspace commands.
  */
-export async function generateWorkspaceCommands() {
+export function generateWorkspaceCommands() {
   if (!window.gZenWorkspaces?.workspaceEnabled) return [];
-  const workspacesData = await window.gZenWorkspaces.getWorkspaces();
-  if (!workspacesData || !workspacesData.workspaces) return [];
+  const workspacesData = window.gZenWorkspaces.getWorkspaces();
+  if (!workspacesData ) return [];
 
-  return workspacesData.workspaces.map((workspace) => {
+  return workspacesData.map((workspace) => {
     const icon = workspace.icon;
     let iconUrl = "chrome://browser/skin/zen-icons/workspace.svg"; // Default icon
 
@@ -594,16 +594,16 @@ export async function generateFolderCommands() {
  * Generates commands for moving the active tab to a different workspace.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of workspace-move commands.
  */
-export async function generateWorkspaceMoveCommands() {
+export function generateWorkspaceMoveCommands() {
   if (!window.gZenWorkspaces?.workspaceEnabled) return [];
 
   const commands = [];
-  const workspacesData = await window.gZenWorkspaces.getWorkspaces();
-  if (!workspacesData || !workspacesData.workspaces) return [];
+  const workspacesData = window.gZenWorkspaces.getWorkspaces();
+  if (!workspacesData ) return [];
 
   const activeTab = gBrowser.selectedTab;
   if (activeTab && !activeTab.hasAttribute("zen-essential")) {
-    workspacesData.workspaces.forEach((workspace) => {
+    workspacesData.forEach((workspace) => {
       if (activeTab.getAttribute("zen-workspace-id") === workspace.uuid) {
         return;
       }
