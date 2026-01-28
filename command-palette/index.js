@@ -655,15 +655,20 @@ export const ZenCommandPalette = {
    * Applies custom shortcuts using event listeners.
    */
   applyCustomShortcuts() {
-    if (!this._userConfig.customShortcuts) {
-      PREFS.debugLog("No custom shortcuts to apply on initial load.");
-      return;
+    const defaultShortcuts = {
+      "command-palette:show": "ctrl+shift+p",
+    };
+
+    const customShortcuts = this._userConfig.customShortcuts || {};
+
+    for (const [commandKey, shortcutStr] of Object.entries(defaultShortcuts)) {
+      if (!customShortcuts[commandKey]) customShortcuts[commandKey] = shortcutStr
     }
 
     let appliedCount = 0;
     let conflictCount = 0;
 
-    for (const [commandKey, shortcutStr] of Object.entries(this._userConfig.customShortcuts)) {
+    for (const [commandKey, shortcutStr] of Object.entries(customShortcuts)) {
       if (!shortcutStr) continue;
       const result = this.addHotkey(commandKey, shortcutStr);
       if (result.success) {
