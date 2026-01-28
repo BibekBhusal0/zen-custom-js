@@ -300,13 +300,14 @@
 
             .shortcut-conflict-warning {
               position: absolute;
-              bottom: -16px;
-              left: 0;
-              width: 150%;
+              bottom: -13px;
+              width: 400% !important;
               text-align: center;
               font-size: 10px;
               color: #ff6b6b;
               font-weight: bold;
+              transform: translateX(-50%);
+              left: 50%;
             }
 
             .toolbar-button-toggle {

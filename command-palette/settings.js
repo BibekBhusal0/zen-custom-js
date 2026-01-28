@@ -483,7 +483,7 @@ const SettingsModal = {
         const conflictDetails = conflictCheck.conflicts
           .map((c) => (c.source === "zen" ? `Zen: ${c.id}` : `Custom: ${c.id}`))
           .join(", ");
-        conflictWarning.textContent = `⚠️ Conflict: ${conflictDetails}`;
+        conflictWarning.textContent = `Conflict: ${conflictDetails}`;
         conflictWarning.title = `Conflicts with: ${conflictDetails}`;
         conflictWarning.setAttribute("aria-label", `Conflicts with: ${conflictDetails}`);
         conflictWarning.hidden = false;
