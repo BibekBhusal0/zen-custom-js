@@ -82,7 +82,8 @@ The command palette includes default keyboard shortcuts that can be overridden b
 
 | Command         | Default Shortcut | Description                                                |
 | --------------- | ---------------- | ---------------------------------------------------------- |
-| Search Commands | `Ctrl+Shift+P`   | Opens the command palette to search all available commands |
+| Open Command Palette | `Ctrl+Shift+P`   | Opens the command palette to search all available commands |
+| Command Configure Commands| `Ctrl+,`   | Opens Command palette Settings to Customize commands |
 
 ## 📋 Available Commands
 
@@ -223,7 +224,7 @@ The following commands are now native:
 ### Command Palette
 
 - Search Commands (`Ctrl+Shift+P`)
-- Command Palette: Configure Commands
+- Command Palette: Configure Commands (`Ctrl+,`)
 - Command Palette: Preferences
 - Command Palette: Help
 - Command Palette: Custom Commands
