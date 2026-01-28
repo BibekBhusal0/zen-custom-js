@@ -623,6 +623,16 @@ export const ZenCommandPalette = {
   },
 
   /**
+   * Returns the default shortcuts object
+   */
+  _getDefaultShortcuts() {
+    return {
+      "command-palette:settings-commands": "Ctrl+,",
+      "command-palette:show": "Ctrl+Shift+p",
+    };
+  },
+
+  /**
    * Patches the native global actions array with user customizations like hidden commands and icons.
    */
   applyNativeOverrides() {
@@ -655,11 +665,7 @@ export const ZenCommandPalette = {
    * Applies custom shortcuts using event listeners.
    */
   applyCustomShortcuts() {
-    const defaultShortcuts = {
-      "command-palette:show": "ctrl+shift+p",
-      "command-palette:settings-commands": "Ctrl+,",
-    };
-
+    const defaultShortcuts = this._getDefaultShortcuts();
     const customShortcuts = this._userConfig.customShortcuts || {};
 
     for (const [commandKey, shortcutStr] of Object.entries(defaultShortcuts)) {
