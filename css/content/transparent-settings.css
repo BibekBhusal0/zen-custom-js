@@ -6,8 +6,8 @@
   }
 
   #preferences-stack vbox.navigation {
-      background: var(--zen-colors-border-contrast) !important;
-    }
+    background: var(--zen-colors-border-contrast) !important;
+  }
 
   #preferences-root {
     background-color: transparent !important;
@@ -64,7 +64,7 @@
     /*   background: var(--zen-colors-tertiary) !important; */
     background: var(--zen-colors-border-contrast) !important;
     border-radius: 8px !important;
-    padding: 14px!important;
+    padding: 14px !important;
   }
 
   @-moz-document url(about:home), url(about:newtab), url(about:privatebrowsing) {
