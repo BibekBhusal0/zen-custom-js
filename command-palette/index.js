@@ -37,8 +37,8 @@ function doCommand(command) {
 
 function openUrl(timeout = 0) {
   setTimeout(() => {
-    PREFS.debugLog("opening URL bar");
-    doCommand("Browser:OpenLocation");
+    gURLBar.startQuery();
+    gURLBar.focus();
   }, timeout);
 }
 
@@ -945,7 +945,8 @@ export const ZenCommandPalette = {
           const cmd = details.result._zenCmd;
           if (cmd) {
             PREFS.debugLog("Executing command from onEngagement:", cmd.key);
-            self._closeUrlBar();
+            if (cmd.openUrl) gURLBar.value = "";
+            else self._closeUrlBar();
             self.addRecentCommand(cmd);
             setTimeout(() => self.executeCommandByKey(cmd.key), 0);
           }
