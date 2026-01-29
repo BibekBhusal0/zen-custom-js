@@ -4,7 +4,6 @@ import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
-import { eventToShortcutSignature, shortcutStringToSignature } from "../utils/keyboard.js";
 import { addPrefListener, removePrefListener } from "../utils/pref.js";
 
 const icons = {
@@ -1334,17 +1333,6 @@ export const browseBotFindbar = {
   },
 
   addKeymaps: function (e) {
-    const currentShortcut = shortcutStringToSignature(PREFS.shortcutFindbar);
-    const eventSignature = eventToShortcutSignature(e);
-
-    if (eventSignature === currentShortcut) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.expanded = true;
-      this.show();
-      this.focusPrompt();
-      this.setPromptTextFromSelection();
-    }
     if (e.key?.toLowerCase() === "escape") {
       if (SettingsModal._modalElement && SettingsModal._modalElement.parentNode) {
         e.preventDefault();

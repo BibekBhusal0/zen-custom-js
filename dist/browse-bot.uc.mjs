@@ -2,8 +2,8 @@
 // @name            Browse Bot
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
-// @version         2.5.6
-// @lastUpdated     2026-01-26
+// @version         2.5.7
+// @lastUpdated     2026-01-27
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
 // ==/UserScript==
@@ -1681,14 +1681,7 @@ const SettingsModal = {
 // Toast API based on sine toast
 
 
-/**
- * Debug logging function
- * @param {...any} args - Arguments to log
- */
 function debugLog(...args) {
-  {
-    console.log("[Toast API]", ...args);
-  }
 }
 
 /**
@@ -1703,10 +1696,8 @@ function debugLog(...args) {
  * @param {string} [options.id] - Unique toast ID for duplicate prevention
  */
 function showToast(options = {}) {
-  debugLog("showToast called with options:", options);
 
   const { title, description, preset = 0, onClick, buttonText, timeout = 3000, id } = options;
-  debugLog("Parsed options:", { title, description, preset, buttonText, timeout, id });
 
   if (!title) {
     console.error("Toast: title is required");
@@ -1715,7 +1706,6 @@ function showToast(options = {}) {
 
   // Generate unique ID if not provided
   const toastId = id || `custom-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
-  debugLog("Generated toast ID:", toastId);
 
   try {
     // Import the uc_api module
@@ -1846,7 +1836,6 @@ function showToast(options = {}) {
       debugLog("No browser window found for setTimeout");
     }
   } catch (error) {
-    debugLog("Error in showToast:", error);
     console.error("Toast API error:", error);
   }
 }
@@ -3262,33 +3251,6 @@ ${toolExamples.join("\n\n")}
   }
 };
 
-/**
- * Creates a unique signature for a keyboard shortcut.
- * @param {KeyboardEvent} event - The keyboard event.
- * @returns {string} A unique signature string.
- */
-function eventToShortcutSignature(event) {
-  const modifiers = [];
-  if (event.ctrlKey || event.metaKey) modifiers.push("ctrl");
-  if (event.altKey) modifiers.push("alt");
-  if (event.shiftKey) modifiers.push("shift");
-  modifiers.push(event.key.toLowerCase());
-  return modifiers.join("+");
-}
-
-/**
- * Creates a unique signature for a shortcut string.
- * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+K").
- * @returns {string} A unique signature string.
- */
-function shortcutStringToSignature(shortcutStr) {
-  if (!shortcutStr) return "";
-  return shortcutStr
-    .toLowerCase()
-    .replace(/control/g, "ctrl")
-    .replace(/option/g, "alt");
-}
-
 const icons = {
   loading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
   success: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
@@ -4616,17 +4578,6 @@ const browseBotFindbar = {
   },
 
   addKeymaps: function (e) {
-    const currentShortcut = shortcutStringToSignature(PREFS.shortcutFindbar);
-    const eventSignature = eventToShortcutSignature(e);
-
-    if (eventSignature === currentShortcut) {
-      e.preventDefault();
-      e.stopPropagation();
-      this.expanded = true;
-      this.show();
-      this.focusPrompt();
-      this.setPromptTextFromSelection();
-    }
     if (e.key?.toLowerCase() === "escape") {
       if (SettingsModal._modalElement && SettingsModal._modalElement.parentNode) {
         e.preventDefault();
@@ -5589,7 +5540,6 @@ const urlbarAI = {
   _originalHeight: null,
   _initialized: false,
   _enabled: false,
-  _prefListener: null,
 
   get enabled() {
     return PREFS.getPref(PREFS.URLBAR_AI_ENABLED);
@@ -5763,16 +5713,16 @@ const urlbarAI = {
   },
 
   handleGlobalKeyDown(e) {
-    const currentShortcut = shortcutStringToSignature(PREFS.shortcutUrlbar);
-    const eventSignature = eventToShortcutSignature(e);
-
-    if (eventSignature === currentShortcut) {
-      PREFS.debugLog("urlbarAI: Custom shortcut detected");
-      e.preventDefault();
-      e.stopPropagation();
-      gURLBar.focus();
-      setTimeout(() => this.toggleAIMode(), 0);
-    }
+    // const currentShortcut = shortcutStringToSignature(PREFS.shortcutUrlbar);
+    // const eventSignature = eventToShortcutSignature(e);
+    //
+    // if (eventSignature === currentShortcut) {
+    //   PREFS.debugLog("urlbarAI: Custom shortcut detected");
+    //   e.preventDefault();
+    //   e.stopPropagation();
+    //   gURLBar.focus();
+    //   setTimeout(() => this.toggleAIMode(), 0);
+    // }
   },
 
   handleUrlbarKeyDown(e) {
@@ -5908,6 +5858,64 @@ function startupFinish(callback) {
   else window.addEventListener("load", callback, { once: true });
 }
 
+/**
+ * Creates a unique signature for a keyboard shortcut.
+ * @param {KeyboardEvent} event - The keyboard event.
+ * @returns {string} A unique signature string.
+ */
+function eventToShortcutSignature(event) {
+  const modifiers = [];
+  if (event.ctrlKey || event.metaKey) modifiers.push("ctrl");
+  if (event.altKey) modifiers.push("alt");
+  if (event.shiftKey) modifiers.push("shift");
+  modifiers.push(event.key.toLowerCase());
+  return modifiers.join("+");
+}
+
+/**
+ * Creates a unique signature for a shortcut string.
+ * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+K").
+ * @returns {string} A unique signature string.
+ */
+function shortcutStringToSignature(shortcutStr) {
+  if (!shortcutStr) return "";
+  return shortcutStr
+    .toLowerCase()
+    .replace(/control/g, "ctrl")
+    .replace(/option/g, "alt");
+}
+
+/**
+ * Registers a single keyboard shortcut using event listeners (simplified version).
+ * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+Shift+K").
+ * @param {string} id - A unique identifier for this shortcut.
+ * @param {Function} callback - The function to execute when shortcut is triggered.
+ * @param {EventTarget} [target=window] - The event target to attach listeners to.
+ * @returns {{success: boolean, unregister: Function}} An object with success status and unregister function.
+ */
+function registerShortcut(shortcutStr, id, callback, target = window) {
+  if (!shortcutStr || !id || typeof callback !== "function") {
+    console.error("registerShortcut: Invalid arguments", { shortcutStr, id, callback });
+    return { success: false, unregister: () => {} };
+  }
+
+  const signature = shortcutStringToSignature(shortcutStr);
+  const handler = (event) => {
+    if (eventToShortcutSignature(event) === signature) {
+      event.preventDefault();
+      event.stopPropagation();
+      callback(event);
+    }
+  };
+
+  target.addEventListener("keydown", handler, true);
+
+  return {
+    success: true,
+    unregister: () => target.removeEventListener("keydown", handler, true),
+  };
+}
+
 function setupCommandPaletteIntegration(retryCount = 0) {
   if (window.ZenCommandPalette) {
     PREFS.debugLog("Integrating with Zen Command Palette...");
@@ -5961,19 +5969,43 @@ function setupCommandPaletteIntegration(retryCount = 0) {
   }
 }
 
+function registerUrlBarShortcut(value = PREFS.shortcutUrlbar) {
+  if (!urlbarAI.enabled) return;
+  registerShortcut(value, "toggle-url-bar-ai", () => {
+    urlbarAI.toggleAIMode();
+  });
+}
+function registerFindbarShortcut(value = PREFS.shortcutFindbar) {
+  if (!browseBotFindbar.enabled) return;
+  registerShortcut(value, "toggle-findbar-ai-bar", () => {
+    browseBotFindbar.expanded = !browseBotFindbar.expanded;
+  });
+}
+
+function setupShortcuts() {
+  registerFindbarShortcut();
+  registerUrlBarShortcut();
+  addPrefListener(PREFS.SHORTCUT_URLBAR, (val) => registerUrlBarShortcut(val.value));
+  addPrefListener(PREFS.SHORTCUT_FINDBAR, (val) => registerFindbarShortcut(val.value));
+}
+
 function init() {
   // Init findbar-AI
   browseBotFindbar.init();
-  addPrefListener(PREFS.ENABLED, browseBotFindbar.handleEnabledChange.bind(browseBotFindbar));
+  addPrefListener(PREFS.ENABLED, (val) =>{
+    browseBotFindbar.handleEnabledChange(val);
+    registerFindbarShortcut();
+  });
   window.browseBotFindbar = browseBotFindbar;
 
   // Init URL bar-AI
   urlbarAI.init();
-  urlbarAI._prefListener = addPrefListener(
-    PREFS.URLBAR_AI_ENABLED,
-    urlbarAI.handlePrefChange.bind(urlbarAI)
-  );
+  addPrefListener(PREFS.URLBAR_AI_ENABLED, (val) =>{
+    urlbarAI.handlePrefChange();
+    registerUrlBarShortcut(val);
+  });
 
+  setupShortcuts();
   setupCommandPaletteIntegration();
 }
 

@@ -4,6 +4,7 @@ import { PREFS } from "./utils/prefs.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { SettingsModal } from "./settings.js";
 import { addPrefListener } from "../utils/pref.js";
+import { registerShortcut } from "../utils/keyboard.js";
 
 function setupCommandPaletteIntegration(retryCount = 0) {
   if (window.ZenCommandPalette) {
@@ -58,19 +59,43 @@ function setupCommandPaletteIntegration(retryCount = 0) {
   }
 }
 
+function registerUrlBarShortcut(value = PREFS.shortcutUrlbar) {
+  if (!urlbarAI.enabled) return;
+  registerShortcut(value, "toggle-url-bar-ai", () => {
+    urlbarAI.toggleAIMode();
+  });
+}
+function registerFindbarShortcut(value = PREFS.shortcutFindbar) {
+  if (!browseBotFindbar.enabled) return;
+  registerShortcut(value, "toggle-findbar-ai-bar", () => {
+    browseBotFindbar.expanded = !browseBotFindbar.expanded;
+  });
+}
+
+function setupShortcuts() {
+  registerFindbarShortcut();
+  registerUrlBarShortcut();
+  addPrefListener(PREFS.SHORTCUT_URLBAR, (val) => registerUrlBarShortcut(val.value));
+  addPrefListener(PREFS.SHORTCUT_FINDBAR, (val) => registerFindbarShortcut(val.value));
+}
+
 function init() {
   // Init findbar-AI
   browseBotFindbar.init();
-  addPrefListener(PREFS.ENABLED, browseBotFindbar.handleEnabledChange.bind(browseBotFindbar));
+  addPrefListener(PREFS.ENABLED, (val) =>{
+    browseBotFindbar.handleEnabledChange(val);
+    registerFindbarShortcut()
+  });
   window.browseBotFindbar = browseBotFindbar;
 
   // Init URL bar-AI
   urlbarAI.init();
-  urlbarAI._prefListener = addPrefListener(
-    PREFS.URLBAR_AI_ENABLED,
-    urlbarAI.handlePrefChange.bind(urlbarAI)
-  );
+  addPrefListener(PREFS.URLBAR_AI_ENABLED, (val) =>{
+    urlbarAI.handlePrefChange()
+    registerUrlBarShortcut(val)
+  });
 
+  setupShortcuts();
   setupCommandPaletteIntegration();
 }
 

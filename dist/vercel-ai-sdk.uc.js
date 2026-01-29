@@ -9186,7 +9186,7 @@ async function getVercelRequestId() {
 }
 
 // src/version.ts
-var VERSION$9 = "3.0.22" ;
+var VERSION$9 = "3.0.23" ;
 
 // src/gateway-provider.ts
 var AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
@@ -11857,7 +11857,7 @@ function detectMediaType({
 }
 
 // src/version.ts
-var VERSION$7 = "6.0.49" ;
+var VERSION$7 = "6.0.50" ;
 
 // src/util/download/download.ts
 var download = async ({ url }) => {
@@ -20325,7 +20325,7 @@ var getSafetyRatingSchema = () => object$1({
   severityScore: number$1().nullish(),
   blocked: boolean().nullish()
 });
-var usageSchema$1 = object$1({
+var usageSchema$2 = object$1({
   cachedContentTokenCount: number$1().nullish(),
   thoughtsTokenCount: number$1().nullish(),
   promptTokenCount: number$1().nullish(),
@@ -20354,7 +20354,7 @@ var responseSchema = lazySchema(
           urlContextMetadata: getUrlContextMetadataSchema().nullish()
         })
       ),
-      usageMetadata: usageSchema$1.nullish(),
+      usageMetadata: usageSchema$2.nullish(),
       promptFeedback: object$1({
         blockReason: string().nullish(),
         safetyRatings: array$1(getSafetyRatingSchema()).nullish()
@@ -20374,7 +20374,7 @@ var chunkSchema = lazySchema(
           urlContextMetadata: getUrlContextMetadataSchema().nullish()
         })
       ).nullish(),
-      usageMetadata: usageSchema$1.nullish(),
+      usageMetadata: usageSchema$2.nullish(),
       promptFeedback: object$1({
         blockReason: string().nullish(),
         safetyRatings: array$1(getSafetyRatingSchema()).nullish()
@@ -25110,14 +25110,12 @@ var OpenAIResponsesLanguageModel = class {
       }
     }
     const providerMetadata = {
-      [providerOptionsName]: { responseId: response.id }
+      [providerOptionsName]: {
+        responseId: response.id,
+        ...logprobs.length > 0 ? { logprobs } : {},
+        ...typeof response.service_tier === "string" ? { serviceTier: response.service_tier } : {}
+      }
     };
-    if (logprobs.length > 0) {
-      providerMetadata[providerOptionsName].logprobs = logprobs;
-    }
-    if (typeof response.service_tier === "string") {
-      providerMetadata[providerOptionsName].serviceTier = response.service_tier;
-    }
     const usage = response.usage;
     return {
       content,
@@ -25716,7 +25714,9 @@ var OpenAIResponsesLanguageModel = class {
                       type: "reasoning-end",
                       id: `${value.item_id}:${summaryIndex}`,
                       providerMetadata: {
-                        [providerOptionsName]: { itemId: value.item_id }
+                        [providerOptionsName]: {
+                          itemId: value.item_id
+                        }
                       }
                     });
                     activeReasoningPart.summaryParts[summaryIndex] = "concluded";
@@ -25750,7 +25750,9 @@ var OpenAIResponsesLanguageModel = class {
                   type: "reasoning-end",
                   id: `${value.item_id}:${value.summary_index}`,
                   providerMetadata: {
-                    [providerOptionsName]: { itemId: value.item_id }
+                    [providerOptionsName]: {
+                      itemId: value.item_id
+                    }
                   }
                 });
                 activeReasoning[value.item_id].summaryParts[value.summary_index] = "concluded";
@@ -25835,15 +25837,11 @@ var OpenAIResponsesLanguageModel = class {
           flush(controller) {
             const providerMetadata = {
               [providerOptionsName]: {
-                responseId
+                responseId,
+                ...logprobs.length > 0 ? { logprobs } : {},
+                ...serviceTier !== void 0 ? { serviceTier } : {}
               }
             };
-            if (logprobs.length > 0) {
-              providerMetadata[providerOptionsName].logprobs = logprobs;
-            }
-            if (serviceTier !== void 0) {
-              providerMetadata[providerOptionsName].serviceTier = serviceTier;
-            }
             controller.enqueue({
               type: "finish",
               finishReason,
@@ -26257,7 +26255,7 @@ var OpenAITranscriptionModel = class {
 };
 
 // src/version.ts
-var VERSION$4 = "3.0.18" ;
+var VERSION$4 = "3.0.19" ;
 
 // src/openai-provider.ts
 function createOpenAI(options = {}) {
@@ -30618,7 +30616,7 @@ function createAnthropic(options = {}) {
 createAnthropic();
 
 // src/chat/openai-compatible-chat-language-model.ts
-var openaiCompatibleErrorDataSchema = object$1({
+var openaiCompatibleErrorDataSchema$1 = object$1({
   error: object$1({
     message: string(),
     // The additional information below is handled loosely to support
@@ -30629,268 +30627,11 @@ var openaiCompatibleErrorDataSchema = object$1({
     code: union([string(), number$1()]).nullish()
   })
 });
-var defaultOpenAICompatibleErrorStructure = {
-  errorSchema: openaiCompatibleErrorDataSchema,
+var defaultOpenAICompatibleErrorStructure$1 = {
+  errorSchema: openaiCompatibleErrorDataSchema$1,
   errorToMessage: (data) => data.error.message
 };
-
-// src/chat/convert-openai-compatible-chat-usage.ts
-function convertOpenAICompatibleChatUsage(usage) {
-  var _a, _b, _c, _d, _e, _f;
-  if (usage == null) {
-    return {
-      inputTokens: {
-        total: void 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: void 0,
-        text: void 0,
-        reasoning: void 0
-      },
-      raw: void 0
-    };
-  }
-  const promptTokens = (_a = usage.prompt_tokens) != null ? _a : 0;
-  const completionTokens = (_b = usage.completion_tokens) != null ? _b : 0;
-  const cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0;
-  const reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
-  return {
-    inputTokens: {
-      total: promptTokens,
-      noCache: promptTokens - cacheReadTokens,
-      cacheRead: cacheReadTokens,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: completionTokens,
-      text: completionTokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-function getOpenAIMetadata(message) {
-  var _a, _b;
-  return (_b = (_a = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a.openaiCompatible) != null ? _b : {};
-}
-function getAudioFormat(mediaType) {
-  switch (mediaType) {
-    case "audio/wav":
-      return "wav";
-    case "audio/mp3":
-    case "audio/mpeg":
-      return "mp3";
-    default:
-      return null;
-  }
-}
-function convertToOpenAICompatibleChatMessages(prompt) {
-  var _a, _b, _c;
-  const messages = [];
-  for (const { role, content, ...message } of prompt) {
-    const metadata = getOpenAIMetadata({ ...message });
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content, ...metadata });
-        break;
-      }
-      case "user": {
-        if (content.length === 1 && content[0].type === "text") {
-          messages.push({
-            role: "user",
-            content: content[0].text,
-            ...getOpenAIMetadata(content[0])
-          });
-          break;
-        }
-        messages.push({
-          role: "user",
-          content: content.map((part) => {
-            var _a2;
-            const partMetadata = getOpenAIMetadata(part);
-            switch (part.type) {
-              case "text": {
-                return { type: "text", text: part.text, ...partMetadata };
-              }
-              case "file": {
-                if (part.mediaType.startsWith("image/")) {
-                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-                  return {
-                    type: "image_url",
-                    image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType.startsWith("audio/")) {
-                  if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError({
-                      functionality: "audio file parts with URLs"
-                    });
-                  }
-                  const format = getAudioFormat(part.mediaType);
-                  if (format === null) {
-                    throw new UnsupportedFunctionalityError({
-                      functionality: `audio media type ${part.mediaType}`
-                    });
-                  }
-                  return {
-                    type: "input_audio",
-                    input_audio: {
-                      data: convertToBase64(part.data),
-                      format
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType === "application/pdf") {
-                  if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError({
-                      functionality: "PDF file parts with URLs"
-                    });
-                  }
-                  return {
-                    type: "file",
-                    file: {
-                      filename: (_a2 = part.filename) != null ? _a2 : "document.pdf",
-                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType.startsWith("text/")) {
-                  const textContent = part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? part.data : new TextDecoder().decode(part.data);
-                  return {
-                    type: "text",
-                    text: textContent,
-                    ...partMetadata
-                  };
-                }
-                throw new UnsupportedFunctionalityError({
-                  functionality: `file part media type ${part.mediaType}`
-                });
-              }
-            }
-          }),
-          ...metadata
-        });
-        break;
-      }
-      case "assistant": {
-        let text = "";
-        const toolCalls = [];
-        for (const part of content) {
-          const partMetadata = getOpenAIMetadata(part);
-          switch (part.type) {
-            case "text": {
-              text += part.text;
-              break;
-            }
-            case "tool-call": {
-              const thoughtSignature = (_b = (_a = part.providerOptions) == null ? void 0 : _a.google) == null ? void 0 : _b.thoughtSignature;
-              toolCalls.push({
-                id: part.toolCallId,
-                type: "function",
-                function: {
-                  name: part.toolName,
-                  arguments: JSON.stringify(part.input)
-                },
-                ...partMetadata,
-                // Include extra_content for Google Gemini thought signatures
-                ...thoughtSignature ? {
-                  extra_content: {
-                    google: {
-                      thought_signature: String(thoughtSignature)
-                    }
-                  }
-                } : {}
-              });
-              break;
-            }
-          }
-        }
-        messages.push({
-          role: "assistant",
-          content: text,
-          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
-          ...metadata
-        });
-        break;
-      }
-      case "tool": {
-        for (const toolResponse of content) {
-          if (toolResponse.type === "tool-approval-response") {
-            continue;
-          }
-          const output = toolResponse.output;
-          let contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "execution-denied":
-              contentValue = (_c = output.reason) != null ? _c : "Tool execution denied.";
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          const toolResponseMetadata = getOpenAIMetadata(toolResponse);
-          messages.push({
-            role: "tool",
-            tool_call_id: toolResponse.toolCallId,
-            content: contentValue,
-            ...toolResponseMetadata
-          });
-        }
-        break;
-      }
-      default: {
-        const _exhaustiveCheck = role;
-        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
-      }
-    }
-  }
-  return messages;
-}
-
-// src/chat/get-response-metadata.ts
-function getResponseMetadata$3({
-  id,
-  model,
-  created
-}) {
-  return {
-    id: id != null ? id : void 0,
-    modelId: model != null ? model : void 0,
-    timestamp: created != null ? new Date(created * 1e3) : void 0
-  };
-}
-
-// src/chat/map-openai-compatible-finish-reason.ts
-function mapOpenAICompatibleFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-      return "stop";
-    case "length":
-      return "length";
-    case "content_filter":
-      return "content-filter";
-    case "function_call":
-    case "tool_calls":
-      return "tool-calls";
-    default:
-      return "other";
-  }
-}
-var openaiCompatibleProviderOptions = object$1({
+object$1({
   /**
    * A unique identifier representing your end-user, which can help the provider to
    * monitor and detect abuse.
@@ -30913,546 +30654,7 @@ var openaiCompatibleProviderOptions = object$1({
    */
   strictJsonSchema: boolean().optional()
 });
-function prepareTools$1({
-  tools,
-  toolChoice
-}) {
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  const toolWarnings = [];
-  if (tools == null) {
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  }
-  const openaiCompatTools = [];
-  for (const tool of tools) {
-    if (tool.type === "provider") {
-      toolWarnings.push({
-        type: "unsupported",
-        feature: `provider-defined tool ${tool.id}`
-      });
-    } else {
-      openaiCompatTools.push({
-        type: "function",
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: tool.inputSchema,
-          ...tool.strict != null ? { strict: tool.strict } : {}
-        }
-      });
-    }
-  }
-  if (toolChoice == null) {
-    return { tools: openaiCompatTools, toolChoice: void 0, toolWarnings };
-  }
-  const type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-    case "required":
-      return { tools: openaiCompatTools, toolChoice: type, toolWarnings };
-    case "tool":
-      return {
-        tools: openaiCompatTools,
-        toolChoice: {
-          type: "function",
-          function: { name: toolChoice.toolName }
-        },
-        toolWarnings
-      };
-    default: {
-      const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${_exhaustiveCheck}`
-      });
-    }
-  }
-}
-
-// src/chat/openai-compatible-chat-language-model.ts
-var OpenAICompatibleChatLanguageModel = class {
-  // type inferred via constructor
-  constructor(modelId, config) {
-    this.specificationVersion = "v3";
-    var _a, _b;
-    this.modelId = modelId;
-    this.config = config;
-    const errorStructure = (_a = config.errorStructure) != null ? _a : defaultOpenAICompatibleErrorStructure;
-    this.chunkSchema = createOpenAICompatibleChatChunkSchema(
-      errorStructure.errorSchema
-    );
-    this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure);
-    this.supportsStructuredOutputs = (_b = config.supportsStructuredOutputs) != null ? _b : false;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  get providerOptionsName() {
-    return this.config.provider.split(".")[0].trim();
-  }
-  get supportedUrls() {
-    var _a, _b, _c;
-    return (_c = (_b = (_a = this.config).supportedUrls) == null ? void 0 : _b.call(_a)) != null ? _c : {};
-  }
-  transformRequestBody(args) {
-    var _a, _b, _c;
-    return (_c = (_b = (_a = this.config).transformRequestBody) == null ? void 0 : _b.call(_a, args)) != null ? _c : args;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    providerOptions,
-    stopSequences,
-    responseFormat,
-    seed,
-    toolChoice,
-    tools
-  }) {
-    var _a, _b, _c, _d, _e;
-    const warnings = [];
-    const deprecatedOptions = await parseProviderOptions({
-      provider: "openai-compatible",
-      providerOptions,
-      schema: openaiCompatibleProviderOptions
-    });
-    if (deprecatedOptions != null) {
-      warnings.push({
-        type: "other",
-        message: `The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead.`
-      });
-    }
-    const compatibleOptions = Object.assign(
-      deprecatedOptions != null ? deprecatedOptions : {},
-      (_a = await parseProviderOptions({
-        provider: "openaiCompatible",
-        providerOptions,
-        schema: openaiCompatibleProviderOptions
-      })) != null ? _a : {},
-      (_b = await parseProviderOptions({
-        provider: this.providerOptionsName,
-        providerOptions,
-        schema: openaiCompatibleProviderOptions
-      })) != null ? _b : {}
-    );
-    const strictJsonSchema = (_c = compatibleOptions == null ? void 0 : compatibleOptions.strictJsonSchema) != null ? _c : true;
-    if (topK != null) {
-      warnings.push({ type: "unsupported", feature: "topK" });
-    }
-    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !this.supportsStructuredOutputs) {
-      warnings.push({
-        type: "unsupported",
-        feature: "responseFormat",
-        details: "JSON response format schema is only supported with structuredOutputs"
-      });
-    }
-    const {
-      tools: openaiTools,
-      toolChoice: openaiToolChoice,
-      toolWarnings
-    } = prepareTools$1({
-      tools,
-      toolChoice
-    });
-    return {
-      args: {
-        // model id:
-        model: this.modelId,
-        // model specific settings:
-        user: compatibleOptions.user,
-        // standardized settings:
-        max_tokens: maxOutputTokens,
-        temperature,
-        top_p: topP,
-        frequency_penalty: frequencyPenalty,
-        presence_penalty: presencePenalty,
-        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? this.supportsStructuredOutputs === true && responseFormat.schema != null ? {
-          type: "json_schema",
-          json_schema: {
-            schema: responseFormat.schema,
-            strict: strictJsonSchema,
-            name: (_d = responseFormat.name) != null ? _d : "response",
-            description: responseFormat.description
-          }
-        } : { type: "json_object" } : void 0,
-        stop: stopSequences,
-        seed,
-        ...Object.fromEntries(
-          Object.entries(
-            (_e = providerOptions == null ? void 0 : providerOptions[this.providerOptionsName]) != null ? _e : {}
-          ).filter(
-            ([key]) => !Object.keys(openaiCompatibleProviderOptions.shape).includes(key)
-          )
-        ),
-        reasoning_effort: compatibleOptions.reasoningEffort,
-        verbosity: compatibleOptions.textVerbosity,
-        // messages:
-        messages: convertToOpenAICompatibleChatMessages(prompt),
-        // tools:
-        tools: openaiTools,
-        tool_choice: openaiToolChoice
-      },
-      warnings: [...warnings, ...toolWarnings]
-    };
-  }
-  async doGenerate(options) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    const { args, warnings } = await this.getArgs({ ...options });
-    const transformedBody = this.transformRequestBody(args);
-    const body = JSON.stringify(transformedBody);
-    const {
-      responseHeaders,
-      value: responseBody,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: this.config.url({
-        path: "/chat/completions",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body: transformedBody,
-      failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(
-        OpenAICompatibleChatResponseSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    const choice = responseBody.choices[0];
-    const content = [];
-    const text = choice.message.content;
-    if (text != null && text.length > 0) {
-      content.push({ type: "text", text });
-    }
-    const reasoning = (_a = choice.message.reasoning_content) != null ? _a : choice.message.reasoning;
-    if (reasoning != null && reasoning.length > 0) {
-      content.push({
-        type: "reasoning",
-        text: reasoning
-      });
-    }
-    if (choice.message.tool_calls != null) {
-      for (const toolCall of choice.message.tool_calls) {
-        const thoughtSignature = (_c = (_b = toolCall.extra_content) == null ? void 0 : _b.google) == null ? void 0 : _c.thought_signature;
-        content.push({
-          type: "tool-call",
-          toolCallId: (_d = toolCall.id) != null ? _d : generateId(),
-          toolName: toolCall.function.name,
-          input: toolCall.function.arguments,
-          ...thoughtSignature ? {
-            providerMetadata: {
-              [this.providerOptionsName]: { thoughtSignature }
-            }
-          } : {}
-        });
-      }
-    }
-    const providerMetadata = {
-      [this.providerOptionsName]: {},
-      ...await ((_f = (_e = this.config.metadataExtractor) == null ? void 0 : _e.extractMetadata) == null ? void 0 : _f.call(_e, {
-        parsedBody: rawResponse
-      }))
-    };
-    const completionTokenDetails = (_g = responseBody.usage) == null ? void 0 : _g.completion_tokens_details;
-    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens) != null) {
-      providerMetadata[this.providerOptionsName].acceptedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens;
-    }
-    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens) != null) {
-      providerMetadata[this.providerOptionsName].rejectedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens;
-    }
-    return {
-      content,
-      finishReason: {
-        unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
-        raw: (_h = choice.finish_reason) != null ? _h : void 0
-      },
-      usage: convertOpenAICompatibleChatUsage(responseBody.usage),
-      providerMetadata,
-      request: { body },
-      response: {
-        ...getResponseMetadata$3(responseBody),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    var _a;
-    const { args, warnings } = await this.getArgs({ ...options });
-    const body = this.transformRequestBody({
-      ...args,
-      stream: true,
-      // only include stream_options when in strict compatibility mode:
-      stream_options: this.config.includeUsage ? { include_usage: true } : void 0
-    });
-    const metadataExtractor = (_a = this.config.metadataExtractor) == null ? void 0 : _a.createStreamExtractor();
-    const { responseHeaders, value: response } = await postJsonToApi({
-      url: this.config.url({
-        path: "/chat/completions",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(
-        this.chunkSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    const toolCalls = [];
-    let finishReason = {
-      unified: "other",
-      raw: void 0
-    };
-    let usage = void 0;
-    let isFirstChunk = true;
-    const providerOptionsName = this.providerOptionsName;
-    let isActiveReasoning = false;
-    let isActiveText = false;
-    return {
-      stream: response.pipeThrough(
-        new TransformStream({
-          start(controller) {
-            controller.enqueue({ type: "stream-start", warnings });
-          },
-          transform(chunk, controller) {
-            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
-            if (options.includeRawChunks) {
-              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-            }
-            if (!chunk.success) {
-              finishReason = { unified: "error", raw: void 0 };
-              controller.enqueue({ type: "error", error: chunk.error });
-              return;
-            }
-            metadataExtractor == null ? void 0 : metadataExtractor.processChunk(chunk.rawValue);
-            if ("error" in chunk.value) {
-              finishReason = { unified: "error", raw: void 0 };
-              controller.enqueue({
-                type: "error",
-                error: chunk.value.error.message
-              });
-              return;
-            }
-            const value = chunk.value;
-            if (isFirstChunk) {
-              isFirstChunk = false;
-              controller.enqueue({
-                type: "response-metadata",
-                ...getResponseMetadata$3(value)
-              });
-            }
-            if (value.usage != null) {
-              usage = value.usage;
-            }
-            const choice = value.choices[0];
-            if ((choice == null ? void 0 : choice.finish_reason) != null) {
-              finishReason = {
-                unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
-                raw: (_a2 = choice.finish_reason) != null ? _a2 : void 0
-              };
-            }
-            if ((choice == null ? void 0 : choice.delta) == null) {
-              return;
-            }
-            const delta = choice.delta;
-            const reasoningContent = (_b = delta.reasoning_content) != null ? _b : delta.reasoning;
-            if (reasoningContent) {
-              if (!isActiveReasoning) {
-                controller.enqueue({
-                  type: "reasoning-start",
-                  id: "reasoning-0"
-                });
-                isActiveReasoning = true;
-              }
-              controller.enqueue({
-                type: "reasoning-delta",
-                id: "reasoning-0",
-                delta: reasoningContent
-              });
-            }
-            if (delta.content) {
-              if (isActiveReasoning) {
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: "reasoning-0"
-                });
-                isActiveReasoning = false;
-              }
-              if (!isActiveText) {
-                controller.enqueue({ type: "text-start", id: "txt-0" });
-                isActiveText = true;
-              }
-              controller.enqueue({
-                type: "text-delta",
-                id: "txt-0",
-                delta: delta.content
-              });
-            }
-            if (delta.tool_calls != null) {
-              if (isActiveReasoning) {
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: "reasoning-0"
-                });
-                isActiveReasoning = false;
-              }
-              for (const toolCallDelta of delta.tool_calls) {
-                const index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length;
-                if (toolCalls[index] == null) {
-                  if (toolCallDelta.id == null) {
-                    throw new InvalidResponseDataError({
-                      data: toolCallDelta,
-                      message: `Expected 'id' to be a string.`
-                    });
-                  }
-                  if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null) {
-                    throw new InvalidResponseDataError({
-                      data: toolCallDelta,
-                      message: `Expected 'function.name' to be a string.`
-                    });
-                  }
-                  controller.enqueue({
-                    type: "tool-input-start",
-                    id: toolCallDelta.id,
-                    toolName: toolCallDelta.function.name
-                  });
-                  toolCalls[index] = {
-                    id: toolCallDelta.id,
-                    type: "function",
-                    function: {
-                      name: toolCallDelta.function.name,
-                      arguments: (_e = toolCallDelta.function.arguments) != null ? _e : ""
-                    },
-                    hasFinished: false,
-                    thoughtSignature: (_h = (_g = (_f = toolCallDelta.extra_content) == null ? void 0 : _f.google) == null ? void 0 : _g.thought_signature) != null ? _h : void 0
-                  };
-                  const toolCall2 = toolCalls[index];
-                  if (((_i = toolCall2.function) == null ? void 0 : _i.name) != null && ((_j = toolCall2.function) == null ? void 0 : _j.arguments) != null) {
-                    if (toolCall2.function.arguments.length > 0) {
-                      controller.enqueue({
-                        type: "tool-input-delta",
-                        id: toolCall2.id,
-                        delta: toolCall2.function.arguments
-                      });
-                    }
-                    if (isParsableJson(toolCall2.function.arguments)) {
-                      controller.enqueue({
-                        type: "tool-input-end",
-                        id: toolCall2.id
-                      });
-                      controller.enqueue({
-                        type: "tool-call",
-                        toolCallId: (_k = toolCall2.id) != null ? _k : generateId(),
-                        toolName: toolCall2.function.name,
-                        input: toolCall2.function.arguments,
-                        ...toolCall2.thoughtSignature ? {
-                          providerMetadata: {
-                            [providerOptionsName]: {
-                              thoughtSignature: toolCall2.thoughtSignature
-                            }
-                          }
-                        } : {}
-                      });
-                      toolCall2.hasFinished = true;
-                    }
-                  }
-                  continue;
-                }
-                const toolCall = toolCalls[index];
-                if (toolCall.hasFinished) {
-                  continue;
-                }
-                if (((_l = toolCallDelta.function) == null ? void 0 : _l.arguments) != null) {
-                  toolCall.function.arguments += (_n = (_m = toolCallDelta.function) == null ? void 0 : _m.arguments) != null ? _n : "";
-                }
-                controller.enqueue({
-                  type: "tool-input-delta",
-                  id: toolCall.id,
-                  delta: (_o = toolCallDelta.function.arguments) != null ? _o : ""
-                });
-                if (((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson(toolCall.function.arguments)) {
-                  controller.enqueue({
-                    type: "tool-input-end",
-                    id: toolCall.id
-                  });
-                  controller.enqueue({
-                    type: "tool-call",
-                    toolCallId: (_r = toolCall.id) != null ? _r : generateId(),
-                    toolName: toolCall.function.name,
-                    input: toolCall.function.arguments,
-                    ...toolCall.thoughtSignature ? {
-                      providerMetadata: {
-                        [providerOptionsName]: {
-                          thoughtSignature: toolCall.thoughtSignature
-                        }
-                      }
-                    } : {}
-                  });
-                  toolCall.hasFinished = true;
-                }
-              }
-            }
-          },
-          flush(controller) {
-            var _a2, _b, _c, _d, _e;
-            if (isActiveReasoning) {
-              controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
-            }
-            if (isActiveText) {
-              controller.enqueue({ type: "text-end", id: "txt-0" });
-            }
-            for (const toolCall of toolCalls.filter(
-              (toolCall2) => !toolCall2.hasFinished
-            )) {
-              controller.enqueue({
-                type: "tool-input-end",
-                id: toolCall.id
-              });
-              controller.enqueue({
-                type: "tool-call",
-                toolCallId: (_a2 = toolCall.id) != null ? _a2 : generateId(),
-                toolName: toolCall.function.name,
-                input: toolCall.function.arguments,
-                ...toolCall.thoughtSignature ? {
-                  providerMetadata: {
-                    [providerOptionsName]: {
-                      thoughtSignature: toolCall.thoughtSignature
-                    }
-                  }
-                } : {}
-              });
-            }
-            const providerMetadata = {
-              [providerOptionsName]: {},
-              ...metadataExtractor == null ? void 0 : metadataExtractor.buildMetadata()
-            };
-            if (((_b = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _b.accepted_prediction_tokens) != null) {
-              providerMetadata[providerOptionsName].acceptedPredictionTokens = (_c = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _c.accepted_prediction_tokens;
-            }
-            if (((_d = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens) != null) {
-              providerMetadata[providerOptionsName].rejectedPredictionTokens = (_e = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _e.rejected_prediction_tokens;
-            }
-            controller.enqueue({
-              type: "finish",
-              finishReason,
-              usage: convertOpenAICompatibleChatUsage(usage),
-              providerMetadata
-            });
-          }
-        })
-      ),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-};
-var openaiCompatibleTokenUsageSchema = object$1({
+var openaiCompatibleTokenUsageSchema$1 = object$1({
   prompt_tokens: number$1().nullish(),
   completion_tokens: number$1().nullish(),
   total_tokens: number$1().nullish(),
@@ -31465,7 +30667,7 @@ var openaiCompatibleTokenUsageSchema = object$1({
     rejected_prediction_tokens: number$1().nullish()
   }).nullish()
 }).nullish();
-var OpenAICompatibleChatResponseSchema = looseObject({
+looseObject({
   id: string().nullish(),
   created: number$1().nullish(),
   model: string().nullish(),
@@ -31495,9 +30697,9 @@ var OpenAICompatibleChatResponseSchema = looseObject({
       finish_reason: string().nullish()
     })
   ),
-  usage: openaiCompatibleTokenUsageSchema
+  usage: openaiCompatibleTokenUsageSchema$1
 });
-var chunkBaseSchema = looseObject({
+looseObject({
   id: string().nullish(),
   created: number$1().nullish(),
   model: string().nullish(),
@@ -31531,9 +30733,8 @@ var chunkBaseSchema = looseObject({
       finish_reason: string().nullish()
     })
   ),
-  usage: openaiCompatibleTokenUsageSchema
+  usage: openaiCompatibleTokenUsageSchema$1
 });
-var createOpenAICompatibleChatChunkSchema = (errorSchema) => union([chunkBaseSchema, errorSchema]);
 object$1({
   /**
    * Echo back the prompt in addition to the completion.
@@ -31556,7 +30757,7 @@ object$1({
    */
   user: string().optional()
 });
-var usageSchema = object$1({
+var usageSchema$1 = object$1({
   prompt_tokens: number$1(),
   completion_tokens: number$1(),
   total_tokens: number$1()
@@ -31571,7 +30772,7 @@ object$1({
       finish_reason: string()
     })
   ),
-  usage: usageSchema.nullish()
+  usage: usageSchema$1.nullish()
 });
 object$1({
   /**
@@ -31656,7 +30857,7 @@ var OpenAICompatibleImageModel = class {
           ...args
         }),
         failedResponseHandler: createJsonErrorResponseHandler(
-          (_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure
+          (_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure$1
         ),
         successfulResponseHandler: createJsonResponseHandler(
           openaiCompatibleImageResponseSchema
@@ -31689,7 +30890,7 @@ var OpenAICompatibleImageModel = class {
         response_format: "b64_json"
       },
       failedResponseHandler: createJsonErrorResponseHandler(
-        (_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure
+        (_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure$1
       ),
       successfulResponseHandler: createJsonResponseHandler(
         openaiCompatibleImageResponseSchema
@@ -31854,7 +31055,7 @@ function convertXaiChatUsage(usage) {
 }
 
 // src/get-response-metadata.ts
-function getResponseMetadata$2({
+function getResponseMetadata$3({
   id,
   model,
   created,
@@ -31976,7 +31177,7 @@ var xaiFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: xaiErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
-function prepareTools({
+function prepareTools$1({
   tools,
   toolChoice
 }) {
@@ -32084,7 +31285,7 @@ var XaiChatLanguageModel = class {
       tools: xaiTools2,
       toolChoice: xaiToolChoice,
       toolWarnings
-    } = prepareTools({
+    } = prepareTools$1({
       tools,
       toolChoice
     });
@@ -32232,7 +31433,7 @@ var XaiChatLanguageModel = class {
       // defined when there is no error
       request: { body },
       response: {
-        ...getResponseMetadata$2(response),
+        ...getResponseMetadata$3(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -32321,7 +31522,7 @@ var XaiChatLanguageModel = class {
             if (isFirstChunk) {
               controller.enqueue({
                 type: "response-metadata",
-                ...getResponseMetadata$2(value)
+                ...getResponseMetadata$3(value)
               });
               isFirstChunk = false;
             }
@@ -33599,7 +32800,7 @@ var XaiResponsesLanguageModel = class {
       },
       request: { body },
       response: {
-        ...getResponseMetadata$2(response),
+        ...getResponseMetadata$3(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -33661,7 +32862,7 @@ var XaiResponsesLanguageModel = class {
               if (isFirstChunk) {
                 controller.enqueue({
                   type: "response-metadata",
-                  ...getResponseMetadata$2(event.response)
+                  ...getResponseMetadata$3(event.response)
                 });
                 isFirstChunk = false;
               }
@@ -33946,7 +33147,7 @@ var xaiTools = {
 };
 
 // src/version.ts
-var VERSION$2 = "3.0.34" ;
+var VERSION$2 = "3.0.35" ;
 
 // src/xai-provider.ts
 var xaiErrorStructure = {
@@ -34240,7 +33441,7 @@ var PerplexityLanguageModel = class {
       usage: convertPerplexityUsage(response.usage),
       request: { body },
       response: {
-        ...getResponseMetadata$1(response),
+        ...getResponseMetadata$2(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -34314,7 +33515,7 @@ var PerplexityLanguageModel = class {
             if (isFirstChunk) {
               controller.enqueue({
                 type: "response-metadata",
-                ...getResponseMetadata$1(value)
+                ...getResponseMetadata$2(value)
               });
               (_a = value.citations) == null ? void 0 : _a.forEach((url) => {
                 controller.enqueue({
@@ -34383,7 +33584,7 @@ var PerplexityLanguageModel = class {
     };
   }
 };
-function getResponseMetadata$1({
+function getResponseMetadata$2({
   id,
   model,
   created
@@ -34495,10 +33696,987 @@ function createPerplexity(options = {}) {
 }
 createPerplexity();
 
+// src/chat/openai-compatible-chat-language-model.ts
+var openaiCompatibleErrorDataSchema = object$1({
+  error: object$1({
+    message: string(),
+    // The additional information below is handled loosely to support
+    // OpenAI-compatible providers that have slightly different error
+    // responses:
+    type: string().nullish(),
+    param: any().nullish(),
+    code: union([string(), number$1()]).nullish()
+  })
+});
+var defaultOpenAICompatibleErrorStructure = {
+  errorSchema: openaiCompatibleErrorDataSchema,
+  errorToMessage: (data) => data.error.message
+};
+
+// src/chat/convert-openai-compatible-chat-usage.ts
+function convertOpenAICompatibleChatUsage(usage) {
+  var _a, _b, _c, _d, _e, _f;
+  if (usage == null) {
+    return {
+      inputTokens: {
+        total: void 0,
+        noCache: void 0,
+        cacheRead: void 0,
+        cacheWrite: void 0
+      },
+      outputTokens: {
+        total: void 0,
+        text: void 0,
+        reasoning: void 0
+      },
+      raw: void 0
+    };
+  }
+  const promptTokens = (_a = usage.prompt_tokens) != null ? _a : 0;
+  const completionTokens = (_b = usage.completion_tokens) != null ? _b : 0;
+  const cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0;
+  const reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
+  return {
+    inputTokens: {
+      total: promptTokens,
+      noCache: promptTokens - cacheReadTokens,
+      cacheRead: cacheReadTokens,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: completionTokens,
+      text: completionTokens - reasoningTokens,
+      reasoning: reasoningTokens
+    },
+    raw: usage
+  };
+}
+function getOpenAIMetadata(message) {
+  var _a, _b;
+  return (_b = (_a = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a.openaiCompatible) != null ? _b : {};
+}
+function getAudioFormat(mediaType) {
+  switch (mediaType) {
+    case "audio/wav":
+      return "wav";
+    case "audio/mp3":
+    case "audio/mpeg":
+      return "mp3";
+    default:
+      return null;
+  }
+}
+function convertToOpenAICompatibleChatMessages(prompt) {
+  var _a, _b, _c;
+  const messages = [];
+  for (const { role, content, ...message } of prompt) {
+    const metadata = getOpenAIMetadata({ ...message });
+    switch (role) {
+      case "system": {
+        messages.push({ role: "system", content, ...metadata });
+        break;
+      }
+      case "user": {
+        if (content.length === 1 && content[0].type === "text") {
+          messages.push({
+            role: "user",
+            content: content[0].text,
+            ...getOpenAIMetadata(content[0])
+          });
+          break;
+        }
+        messages.push({
+          role: "user",
+          content: content.map((part) => {
+            var _a2;
+            const partMetadata = getOpenAIMetadata(part);
+            switch (part.type) {
+              case "text": {
+                return { type: "text", text: part.text, ...partMetadata };
+              }
+              case "file": {
+                if (part.mediaType.startsWith("image/")) {
+                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
+                  return {
+                    type: "image_url",
+                    image_url: {
+                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType.startsWith("audio/")) {
+                  if (part.data instanceof URL) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "audio file parts with URLs"
+                    });
+                  }
+                  const format = getAudioFormat(part.mediaType);
+                  if (format === null) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: `audio media type ${part.mediaType}`
+                    });
+                  }
+                  return {
+                    type: "input_audio",
+                    input_audio: {
+                      data: convertToBase64(part.data),
+                      format
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType === "application/pdf") {
+                  if (part.data instanceof URL) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "PDF file parts with URLs"
+                    });
+                  }
+                  return {
+                    type: "file",
+                    file: {
+                      filename: (_a2 = part.filename) != null ? _a2 : "document.pdf",
+                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType.startsWith("text/")) {
+                  const textContent = part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? part.data : new TextDecoder().decode(part.data);
+                  return {
+                    type: "text",
+                    text: textContent,
+                    ...partMetadata
+                  };
+                }
+                throw new UnsupportedFunctionalityError({
+                  functionality: `file part media type ${part.mediaType}`
+                });
+              }
+            }
+          }),
+          ...metadata
+        });
+        break;
+      }
+      case "assistant": {
+        let text = "";
+        const toolCalls = [];
+        for (const part of content) {
+          const partMetadata = getOpenAIMetadata(part);
+          switch (part.type) {
+            case "text": {
+              text += part.text;
+              break;
+            }
+            case "tool-call": {
+              const thoughtSignature = (_b = (_a = part.providerOptions) == null ? void 0 : _a.google) == null ? void 0 : _b.thoughtSignature;
+              toolCalls.push({
+                id: part.toolCallId,
+                type: "function",
+                function: {
+                  name: part.toolName,
+                  arguments: JSON.stringify(part.input)
+                },
+                ...partMetadata,
+                // Include extra_content for Google Gemini thought signatures
+                ...thoughtSignature ? {
+                  extra_content: {
+                    google: {
+                      thought_signature: String(thoughtSignature)
+                    }
+                  }
+                } : {}
+              });
+              break;
+            }
+          }
+        }
+        messages.push({
+          role: "assistant",
+          content: text,
+          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
+          ...metadata
+        });
+        break;
+      }
+      case "tool": {
+        for (const toolResponse of content) {
+          if (toolResponse.type === "tool-approval-response") {
+            continue;
+          }
+          const output = toolResponse.output;
+          let contentValue;
+          switch (output.type) {
+            case "text":
+            case "error-text":
+              contentValue = output.value;
+              break;
+            case "execution-denied":
+              contentValue = (_c = output.reason) != null ? _c : "Tool execution denied.";
+              break;
+            case "content":
+            case "json":
+            case "error-json":
+              contentValue = JSON.stringify(output.value);
+              break;
+          }
+          const toolResponseMetadata = getOpenAIMetadata(toolResponse);
+          messages.push({
+            role: "tool",
+            tool_call_id: toolResponse.toolCallId,
+            content: contentValue,
+            ...toolResponseMetadata
+          });
+        }
+        break;
+      }
+      default: {
+        const _exhaustiveCheck = role;
+        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
+      }
+    }
+  }
+  return messages;
+}
+
+// src/chat/get-response-metadata.ts
+function getResponseMetadata$1({
+  id,
+  model,
+  created
+}) {
+  return {
+    id: id != null ? id : void 0,
+    modelId: model != null ? model : void 0,
+    timestamp: created != null ? new Date(created * 1e3) : void 0
+  };
+}
+
+// src/chat/map-openai-compatible-finish-reason.ts
+function mapOpenAICompatibleFinishReason(finishReason) {
+  switch (finishReason) {
+    case "stop":
+      return "stop";
+    case "length":
+      return "length";
+    case "content_filter":
+      return "content-filter";
+    case "function_call":
+    case "tool_calls":
+      return "tool-calls";
+    default:
+      return "other";
+  }
+}
+var openaiCompatibleProviderOptions = object$1({
+  /**
+   * A unique identifier representing your end-user, which can help the provider to
+   * monitor and detect abuse.
+   */
+  user: string().optional(),
+  /**
+   * Reasoning effort for reasoning models. Defaults to `medium`.
+   */
+  reasoningEffort: string().optional(),
+  /**
+   * Controls the verbosity of the generated text. Defaults to `medium`.
+   */
+  textVerbosity: string().optional(),
+  /**
+   * Whether to use strict JSON schema validation.
+   * When true, the model uses constrained decoding to guarantee schema compliance.
+   * Only used when the provider supports structured outputs and a schema is provided.
+   *
+   * @default true
+   */
+  strictJsonSchema: boolean().optional()
+});
+function prepareTools({
+  tools,
+  toolChoice
+}) {
+  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
+  const toolWarnings = [];
+  if (tools == null) {
+    return { tools: void 0, toolChoice: void 0, toolWarnings };
+  }
+  const openaiCompatTools = [];
+  for (const tool of tools) {
+    if (tool.type === "provider") {
+      toolWarnings.push({
+        type: "unsupported",
+        feature: `provider-defined tool ${tool.id}`
+      });
+    } else {
+      openaiCompatTools.push({
+        type: "function",
+        function: {
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.inputSchema,
+          ...tool.strict != null ? { strict: tool.strict } : {}
+        }
+      });
+    }
+  }
+  if (toolChoice == null) {
+    return { tools: openaiCompatTools, toolChoice: void 0, toolWarnings };
+  }
+  const type = toolChoice.type;
+  switch (type) {
+    case "auto":
+    case "none":
+    case "required":
+      return { tools: openaiCompatTools, toolChoice: type, toolWarnings };
+    case "tool":
+      return {
+        tools: openaiCompatTools,
+        toolChoice: {
+          type: "function",
+          function: { name: toolChoice.toolName }
+        },
+        toolWarnings
+      };
+    default: {
+      const _exhaustiveCheck = type;
+      throw new UnsupportedFunctionalityError({
+        functionality: `tool choice type: ${_exhaustiveCheck}`
+      });
+    }
+  }
+}
+
+// src/chat/openai-compatible-chat-language-model.ts
+var OpenAICompatibleChatLanguageModel = class {
+  // type inferred via constructor
+  constructor(modelId, config) {
+    this.specificationVersion = "v3";
+    var _a, _b;
+    this.modelId = modelId;
+    this.config = config;
+    const errorStructure = (_a = config.errorStructure) != null ? _a : defaultOpenAICompatibleErrorStructure;
+    this.chunkSchema = createOpenAICompatibleChatChunkSchema(
+      errorStructure.errorSchema
+    );
+    this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure);
+    this.supportsStructuredOutputs = (_b = config.supportsStructuredOutputs) != null ? _b : false;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  get providerOptionsName() {
+    return this.config.provider.split(".")[0].trim();
+  }
+  get supportedUrls() {
+    var _a, _b, _c;
+    return (_c = (_b = (_a = this.config).supportedUrls) == null ? void 0 : _b.call(_a)) != null ? _c : {};
+  }
+  transformRequestBody(args) {
+    var _a, _b, _c;
+    return (_c = (_b = (_a = this.config).transformRequestBody) == null ? void 0 : _b.call(_a, args)) != null ? _c : args;
+  }
+  async getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    topK,
+    frequencyPenalty,
+    presencePenalty,
+    providerOptions,
+    stopSequences,
+    responseFormat,
+    seed,
+    toolChoice,
+    tools
+  }) {
+    var _a, _b, _c, _d, _e;
+    const warnings = [];
+    const deprecatedOptions = await parseProviderOptions({
+      provider: "openai-compatible",
+      providerOptions,
+      schema: openaiCompatibleProviderOptions
+    });
+    if (deprecatedOptions != null) {
+      warnings.push({
+        type: "other",
+        message: `The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead.`
+      });
+    }
+    const compatibleOptions = Object.assign(
+      deprecatedOptions != null ? deprecatedOptions : {},
+      (_a = await parseProviderOptions({
+        provider: "openaiCompatible",
+        providerOptions,
+        schema: openaiCompatibleProviderOptions
+      })) != null ? _a : {},
+      (_b = await parseProviderOptions({
+        provider: this.providerOptionsName,
+        providerOptions,
+        schema: openaiCompatibleProviderOptions
+      })) != null ? _b : {}
+    );
+    const strictJsonSchema = (_c = compatibleOptions == null ? void 0 : compatibleOptions.strictJsonSchema) != null ? _c : true;
+    if (topK != null) {
+      warnings.push({ type: "unsupported", feature: "topK" });
+    }
+    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !this.supportsStructuredOutputs) {
+      warnings.push({
+        type: "unsupported",
+        feature: "responseFormat",
+        details: "JSON response format schema is only supported with structuredOutputs"
+      });
+    }
+    const {
+      tools: openaiTools,
+      toolChoice: openaiToolChoice,
+      toolWarnings
+    } = prepareTools({
+      tools,
+      toolChoice
+    });
+    return {
+      args: {
+        // model id:
+        model: this.modelId,
+        // model specific settings:
+        user: compatibleOptions.user,
+        // standardized settings:
+        max_tokens: maxOutputTokens,
+        temperature,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
+        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? this.supportsStructuredOutputs === true && responseFormat.schema != null ? {
+          type: "json_schema",
+          json_schema: {
+            schema: responseFormat.schema,
+            strict: strictJsonSchema,
+            name: (_d = responseFormat.name) != null ? _d : "response",
+            description: responseFormat.description
+          }
+        } : { type: "json_object" } : void 0,
+        stop: stopSequences,
+        seed,
+        ...Object.fromEntries(
+          Object.entries(
+            (_e = providerOptions == null ? void 0 : providerOptions[this.providerOptionsName]) != null ? _e : {}
+          ).filter(
+            ([key]) => !Object.keys(openaiCompatibleProviderOptions.shape).includes(key)
+          )
+        ),
+        reasoning_effort: compatibleOptions.reasoningEffort,
+        verbosity: compatibleOptions.textVerbosity,
+        // messages:
+        messages: convertToOpenAICompatibleChatMessages(prompt),
+        // tools:
+        tools: openaiTools,
+        tool_choice: openaiToolChoice
+      },
+      warnings: [...warnings, ...toolWarnings]
+    };
+  }
+  async doGenerate(options) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const { args, warnings } = await this.getArgs({ ...options });
+    const transformedBody = this.transformRequestBody(args);
+    const body = JSON.stringify(transformedBody);
+    const {
+      responseHeaders,
+      value: responseBody,
+      rawValue: rawResponse
+    } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: transformedBody,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(
+        OpenAICompatibleChatResponseSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    const choice = responseBody.choices[0];
+    const content = [];
+    const text = choice.message.content;
+    if (text != null && text.length > 0) {
+      content.push({ type: "text", text });
+    }
+    const reasoning = (_a = choice.message.reasoning_content) != null ? _a : choice.message.reasoning;
+    if (reasoning != null && reasoning.length > 0) {
+      content.push({
+        type: "reasoning",
+        text: reasoning
+      });
+    }
+    if (choice.message.tool_calls != null) {
+      for (const toolCall of choice.message.tool_calls) {
+        const thoughtSignature = (_c = (_b = toolCall.extra_content) == null ? void 0 : _b.google) == null ? void 0 : _c.thought_signature;
+        content.push({
+          type: "tool-call",
+          toolCallId: (_d = toolCall.id) != null ? _d : generateId(),
+          toolName: toolCall.function.name,
+          input: toolCall.function.arguments,
+          ...thoughtSignature ? {
+            providerMetadata: {
+              [this.providerOptionsName]: { thoughtSignature }
+            }
+          } : {}
+        });
+      }
+    }
+    const providerMetadata = {
+      [this.providerOptionsName]: {},
+      ...await ((_f = (_e = this.config.metadataExtractor) == null ? void 0 : _e.extractMetadata) == null ? void 0 : _f.call(_e, {
+        parsedBody: rawResponse
+      }))
+    };
+    const completionTokenDetails = (_g = responseBody.usage) == null ? void 0 : _g.completion_tokens_details;
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens) != null) {
+      providerMetadata[this.providerOptionsName].acceptedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens;
+    }
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens) != null) {
+      providerMetadata[this.providerOptionsName].rejectedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens;
+    }
+    return {
+      content,
+      finishReason: {
+        unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
+        raw: (_h = choice.finish_reason) != null ? _h : void 0
+      },
+      usage: convertOpenAICompatibleChatUsage(responseBody.usage),
+      providerMetadata,
+      request: { body },
+      response: {
+        ...getResponseMetadata$1(responseBody),
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      warnings
+    };
+  }
+  async doStream(options) {
+    var _a;
+    const { args, warnings } = await this.getArgs({ ...options });
+    const body = this.transformRequestBody({
+      ...args,
+      stream: true,
+      // only include stream_options when in strict compatibility mode:
+      stream_options: this.config.includeUsage ? { include_usage: true } : void 0
+    });
+    const metadataExtractor = (_a = this.config.metadataExtractor) == null ? void 0 : _a.createStreamExtractor();
+    const { responseHeaders, value: response } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler(
+        this.chunkSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    const toolCalls = [];
+    let finishReason = {
+      unified: "other",
+      raw: void 0
+    };
+    let usage = void 0;
+    let isFirstChunk = true;
+    const providerOptionsName = this.providerOptionsName;
+    let isActiveReasoning = false;
+    let isActiveText = false;
+    return {
+      stream: response.pipeThrough(
+        new TransformStream({
+          start(controller) {
+            controller.enqueue({ type: "stream-start", warnings });
+          },
+          transform(chunk, controller) {
+            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+            if (options.includeRawChunks) {
+              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
+            }
+            if (!chunk.success) {
+              finishReason = { unified: "error", raw: void 0 };
+              controller.enqueue({ type: "error", error: chunk.error });
+              return;
+            }
+            metadataExtractor == null ? void 0 : metadataExtractor.processChunk(chunk.rawValue);
+            if ("error" in chunk.value) {
+              finishReason = { unified: "error", raw: void 0 };
+              controller.enqueue({
+                type: "error",
+                error: chunk.value.error.message
+              });
+              return;
+            }
+            const value = chunk.value;
+            if (isFirstChunk) {
+              isFirstChunk = false;
+              controller.enqueue({
+                type: "response-metadata",
+                ...getResponseMetadata$1(value)
+              });
+            }
+            if (value.usage != null) {
+              usage = value.usage;
+            }
+            const choice = value.choices[0];
+            if ((choice == null ? void 0 : choice.finish_reason) != null) {
+              finishReason = {
+                unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
+                raw: (_a2 = choice.finish_reason) != null ? _a2 : void 0
+              };
+            }
+            if ((choice == null ? void 0 : choice.delta) == null) {
+              return;
+            }
+            const delta = choice.delta;
+            const reasoningContent = (_b = delta.reasoning_content) != null ? _b : delta.reasoning;
+            if (reasoningContent) {
+              if (!isActiveReasoning) {
+                controller.enqueue({
+                  type: "reasoning-start",
+                  id: "reasoning-0"
+                });
+                isActiveReasoning = true;
+              }
+              controller.enqueue({
+                type: "reasoning-delta",
+                id: "reasoning-0",
+                delta: reasoningContent
+              });
+            }
+            if (delta.content) {
+              if (isActiveReasoning) {
+                controller.enqueue({
+                  type: "reasoning-end",
+                  id: "reasoning-0"
+                });
+                isActiveReasoning = false;
+              }
+              if (!isActiveText) {
+                controller.enqueue({ type: "text-start", id: "txt-0" });
+                isActiveText = true;
+              }
+              controller.enqueue({
+                type: "text-delta",
+                id: "txt-0",
+                delta: delta.content
+              });
+            }
+            if (delta.tool_calls != null) {
+              if (isActiveReasoning) {
+                controller.enqueue({
+                  type: "reasoning-end",
+                  id: "reasoning-0"
+                });
+                isActiveReasoning = false;
+              }
+              for (const toolCallDelta of delta.tool_calls) {
+                const index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length;
+                if (toolCalls[index] == null) {
+                  if (toolCallDelta.id == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'id' to be a string.`
+                    });
+                  }
+                  if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'function.name' to be a string.`
+                    });
+                  }
+                  controller.enqueue({
+                    type: "tool-input-start",
+                    id: toolCallDelta.id,
+                    toolName: toolCallDelta.function.name
+                  });
+                  toolCalls[index] = {
+                    id: toolCallDelta.id,
+                    type: "function",
+                    function: {
+                      name: toolCallDelta.function.name,
+                      arguments: (_e = toolCallDelta.function.arguments) != null ? _e : ""
+                    },
+                    hasFinished: false,
+                    thoughtSignature: (_h = (_g = (_f = toolCallDelta.extra_content) == null ? void 0 : _f.google) == null ? void 0 : _g.thought_signature) != null ? _h : void 0
+                  };
+                  const toolCall2 = toolCalls[index];
+                  if (((_i = toolCall2.function) == null ? void 0 : _i.name) != null && ((_j = toolCall2.function) == null ? void 0 : _j.arguments) != null) {
+                    if (toolCall2.function.arguments.length > 0) {
+                      controller.enqueue({
+                        type: "tool-input-delta",
+                        id: toolCall2.id,
+                        delta: toolCall2.function.arguments
+                      });
+                    }
+                    if (isParsableJson(toolCall2.function.arguments)) {
+                      controller.enqueue({
+                        type: "tool-input-end",
+                        id: toolCall2.id
+                      });
+                      controller.enqueue({
+                        type: "tool-call",
+                        toolCallId: (_k = toolCall2.id) != null ? _k : generateId(),
+                        toolName: toolCall2.function.name,
+                        input: toolCall2.function.arguments,
+                        ...toolCall2.thoughtSignature ? {
+                          providerMetadata: {
+                            [providerOptionsName]: {
+                              thoughtSignature: toolCall2.thoughtSignature
+                            }
+                          }
+                        } : {}
+                      });
+                      toolCall2.hasFinished = true;
+                    }
+                  }
+                  continue;
+                }
+                const toolCall = toolCalls[index];
+                if (toolCall.hasFinished) {
+                  continue;
+                }
+                if (((_l = toolCallDelta.function) == null ? void 0 : _l.arguments) != null) {
+                  toolCall.function.arguments += (_n = (_m = toolCallDelta.function) == null ? void 0 : _m.arguments) != null ? _n : "";
+                }
+                controller.enqueue({
+                  type: "tool-input-delta",
+                  id: toolCall.id,
+                  delta: (_o = toolCallDelta.function.arguments) != null ? _o : ""
+                });
+                if (((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson(toolCall.function.arguments)) {
+                  controller.enqueue({
+                    type: "tool-input-end",
+                    id: toolCall.id
+                  });
+                  controller.enqueue({
+                    type: "tool-call",
+                    toolCallId: (_r = toolCall.id) != null ? _r : generateId(),
+                    toolName: toolCall.function.name,
+                    input: toolCall.function.arguments,
+                    ...toolCall.thoughtSignature ? {
+                      providerMetadata: {
+                        [providerOptionsName]: {
+                          thoughtSignature: toolCall.thoughtSignature
+                        }
+                      }
+                    } : {}
+                  });
+                  toolCall.hasFinished = true;
+                }
+              }
+            }
+          },
+          flush(controller) {
+            var _a2, _b, _c, _d, _e;
+            if (isActiveReasoning) {
+              controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
+            }
+            if (isActiveText) {
+              controller.enqueue({ type: "text-end", id: "txt-0" });
+            }
+            for (const toolCall of toolCalls.filter(
+              (toolCall2) => !toolCall2.hasFinished
+            )) {
+              controller.enqueue({
+                type: "tool-input-end",
+                id: toolCall.id
+              });
+              controller.enqueue({
+                type: "tool-call",
+                toolCallId: (_a2 = toolCall.id) != null ? _a2 : generateId(),
+                toolName: toolCall.function.name,
+                input: toolCall.function.arguments,
+                ...toolCall.thoughtSignature ? {
+                  providerMetadata: {
+                    [providerOptionsName]: {
+                      thoughtSignature: toolCall.thoughtSignature
+                    }
+                  }
+                } : {}
+              });
+            }
+            const providerMetadata = {
+              [providerOptionsName]: {},
+              ...metadataExtractor == null ? void 0 : metadataExtractor.buildMetadata()
+            };
+            if (((_b = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _b.accepted_prediction_tokens) != null) {
+              providerMetadata[providerOptionsName].acceptedPredictionTokens = (_c = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _c.accepted_prediction_tokens;
+            }
+            if (((_d = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens) != null) {
+              providerMetadata[providerOptionsName].rejectedPredictionTokens = (_e = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _e.rejected_prediction_tokens;
+            }
+            controller.enqueue({
+              type: "finish",
+              finishReason,
+              usage: convertOpenAICompatibleChatUsage(usage),
+              providerMetadata
+            });
+          }
+        })
+      ),
+      request: { body },
+      response: { headers: responseHeaders }
+    };
+  }
+};
+var openaiCompatibleTokenUsageSchema = object$1({
+  prompt_tokens: number$1().nullish(),
+  completion_tokens: number$1().nullish(),
+  total_tokens: number$1().nullish(),
+  prompt_tokens_details: object$1({
+    cached_tokens: number$1().nullish()
+  }).nullish(),
+  completion_tokens_details: object$1({
+    reasoning_tokens: number$1().nullish(),
+    accepted_prediction_tokens: number$1().nullish(),
+    rejected_prediction_tokens: number$1().nullish()
+  }).nullish()
+}).nullish();
+var OpenAICompatibleChatResponseSchema = looseObject({
+  id: string().nullish(),
+  created: number$1().nullish(),
+  model: string().nullish(),
+  choices: array$1(
+    object$1({
+      message: object$1({
+        role: literal("assistant").nullish(),
+        content: string().nullish(),
+        reasoning_content: string().nullish(),
+        reasoning: string().nullish(),
+        tool_calls: array$1(
+          object$1({
+            id: string().nullish(),
+            function: object$1({
+              name: string(),
+              arguments: string()
+            }),
+            // Support for Google Gemini thought signatures via OpenAI compatibility
+            extra_content: object$1({
+              google: object$1({
+                thought_signature: string().nullish()
+              }).nullish()
+            }).nullish()
+          })
+        ).nullish()
+      }),
+      finish_reason: string().nullish()
+    })
+  ),
+  usage: openaiCompatibleTokenUsageSchema
+});
+var chunkBaseSchema = looseObject({
+  id: string().nullish(),
+  created: number$1().nullish(),
+  model: string().nullish(),
+  choices: array$1(
+    object$1({
+      delta: object$1({
+        role: _enum(["assistant"]).nullish(),
+        content: string().nullish(),
+        // Most openai-compatible models set `reasoning_content`, but some
+        // providers serving `gpt-oss` set `reasoning`. See #7866
+        reasoning_content: string().nullish(),
+        reasoning: string().nullish(),
+        tool_calls: array$1(
+          object$1({
+            index: number$1().nullish(),
+            //google does not send index
+            id: string().nullish(),
+            function: object$1({
+              name: string().nullish(),
+              arguments: string().nullish()
+            }),
+            // Support for Google Gemini thought signatures via OpenAI compatibility
+            extra_content: object$1({
+              google: object$1({
+                thought_signature: string().nullish()
+              }).nullish()
+            }).nullish()
+          })
+        ).nullish()
+      }).nullish(),
+      finish_reason: string().nullish()
+    })
+  ),
+  usage: openaiCompatibleTokenUsageSchema
+});
+var createOpenAICompatibleChatChunkSchema = (errorSchema) => union([chunkBaseSchema, errorSchema]);
+object$1({
+  /**
+   * Echo back the prompt in addition to the completion.
+   */
+  echo: boolean().optional(),
+  /**
+   * Modify the likelihood of specified tokens appearing in the completion.
+   *
+   * Accepts a JSON object that maps tokens (specified by their token ID in
+   * the GPT tokenizer) to an associated bias value from -100 to 100.
+   */
+  logitBias: record(string(), number$1()).optional(),
+  /**
+   * The suffix that comes after a completion of inserted text.
+   */
+  suffix: string().optional(),
+  /**
+   * A unique identifier representing your end-user, which can help providers to
+   * monitor and detect abuse.
+   */
+  user: string().optional()
+});
+var usageSchema = object$1({
+  prompt_tokens: number$1(),
+  completion_tokens: number$1(),
+  total_tokens: number$1()
+});
+object$1({
+  id: string().nullish(),
+  created: number$1().nullish(),
+  model: string().nullish(),
+  choices: array$1(
+    object$1({
+      text: string(),
+      finish_reason: string()
+    })
+  ),
+  usage: usageSchema.nullish()
+});
+object$1({
+  /**
+   * The number of dimensions the resulting output embeddings should have.
+   * Only supported in text-embedding-3 and later models.
+   */
+  dimensions: number$1().optional(),
+  /**
+   * A unique identifier representing your end-user, which can help providers to
+   * monitor and detect abuse.
+   */
+  user: string().optional()
+});
+object$1({
+  data: array$1(object$1({ embedding: array$1(number$1()) })),
+  usage: object$1({ prompt_tokens: number$1() }).nullish(),
+  providerMetadata: record(string(), record(string(), any())).optional()
+});
+object$1({
+  data: array$1(object$1({ b64_json: string() }))
+});
+
 // src/cerebras-provider.ts
 
 // src/version.ts
-var VERSION = "2.0.20" ;
+var VERSION = "2.0.21" ;
 
 // src/cerebras-provider.ts
 var cerebrasErrorSchema = object$1({
