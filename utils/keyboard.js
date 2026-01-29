@@ -31,7 +31,7 @@ export function shortcutStringToSignature(shortcutStr) {
     .replace(/control/g, "ctrl")
     .replace(/option/g, "alt")
     .split("+")
-    .map(s => normalizeKeyName(s.trim()))
+    .map((s) => normalizeKeyName(s.trim()))
     .join("+");
 }
 
