@@ -3,7 +3,7 @@
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
 // @version         2.5.7
-// @lastUpdated     2026-01-27
+// @lastUpdated     2026-01-29
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
 // ==/UserScript==
@@ -882,8 +882,15 @@ function eventToShortcutSignature(event) {
   if (event.ctrlKey || event.metaKey) modifiers.push("ctrl");
   if (event.altKey) modifiers.push("alt");
   if (event.shiftKey) modifiers.push("shift");
-  modifiers.push(event.key.toLowerCase());
+  modifiers.push(normalizeKeyName(event.key));
   return modifiers.join("+");
+}
+
+function normalizeKeyName(key) {
+  if (!key) return "";
+  const k = key.toLowerCase();
+  if (k === " " || k === "space" || k === "spacebar") return "space";
+  return k;
 }
 
 /**
@@ -896,7 +903,10 @@ function shortcutStringToSignature(shortcutStr) {
   return shortcutStr
     .toLowerCase()
     .replace(/control/g, "ctrl")
-    .replace(/option/g, "alt");
+    .replace(/option/g, "alt")
+    .split("+")
+    .map(s => normalizeKeyName(s.trim()))
+    .join("+");
 }
 
 let _shortcuts = new Map();
@@ -6016,7 +6026,7 @@ function setupShortcuts() {
 function init() {
   // Init findbar-AI
   browseBotFindbar.init();
-  addPrefListener(PREFS.ENABLED, (val) =>{
+  addPrefListener(PREFS.ENABLED, (val) => {
     browseBotFindbar.handleEnabledChange(val);
     registerFindbarShortcut();
   });
@@ -6024,7 +6034,7 @@ function init() {
 
   // Init URL bar-AI
   urlbarAI.init();
-  addPrefListener(PREFS.URLBAR_AI_ENABLED, (val) =>{
+  addPrefListener(PREFS.URLBAR_AI_ENABLED, (val) => {
     urlbarAI.handlePrefChange();
     registerUrlBarShortcut(val);
   });

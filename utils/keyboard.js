@@ -8,8 +8,15 @@ export function eventToShortcutSignature(event) {
   if (event.ctrlKey || event.metaKey) modifiers.push("ctrl");
   if (event.altKey) modifiers.push("alt");
   if (event.shiftKey) modifiers.push("shift");
-  modifiers.push(event.key.toLowerCase());
+  modifiers.push(normalizeKeyName(event.key));
   return modifiers.join("+");
+}
+
+function normalizeKeyName(key) {
+  if (!key) return "";
+  const k = key.toLowerCase();
+  if (k === " " || k === "space" || k === "spacebar") return "space";
+  return k;
 }
 
 /**
@@ -22,7 +29,10 @@ export function shortcutStringToSignature(shortcutStr) {
   return shortcutStr
     .toLowerCase()
     .replace(/control/g, "ctrl")
-    .replace(/option/g, "alt");
+    .replace(/option/g, "alt")
+    .split("+")
+    .map(s => normalizeKeyName(s.trim()))
+    .join("+");
 }
 
 /**
@@ -38,7 +48,7 @@ export function parseStringToShortcut(shortcutStr) {
   const keyPart = parts.pop();
 
   return {
-    key: keyPart?.toLowerCase() || "",
+    key: normalizeKeyName(keyPart),
     ctrl: parts.includes("ctrl") || parts.includes("control"),
     alt: parts.includes("alt"),
     shift: parts.includes("shift"),
