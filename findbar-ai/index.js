@@ -63,6 +63,7 @@ const registery  = new ShortcutRegistry()
 function registerUrlBarShortcut(value = PREFS.shortcutUrlbar) {
   if (!urlbarAI.enabled) return;
   registery.register(value, "toggle-url-bar-ai", () => {
+    console.log("Opening URL bar AI")
     urlbarAI.toggleAIMode();
   });
 }
