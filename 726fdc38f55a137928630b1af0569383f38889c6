@@ -1,0 +1,23 @@
+command-palette/index.js
+  71f890b6ef8cb605 449-450,452-453,456,458-460,462-469,474,494
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "726fdc38f55a137928630b1af0569383f38889c6",
+  "prompts": {
+    "71f890b6ef8cb605": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3f6ee888fffedmANYQeZP9mMWE",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 26,
+      "total_deletions": 16,
+      "accepted_lines": 18,
+      "overriden_lines": 1
+    }
+  }
+}
