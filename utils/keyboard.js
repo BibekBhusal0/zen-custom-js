@@ -263,6 +263,7 @@ export class ShortcutRegistry {
       console.error("ShortcutRegistry.register: Invalid arguments", { shortcutStr, id, callback });
       return false;
     }
+    this.unregisterById(id)
 
     const signature = shortcutStringToSignature(shortcutStr);
     this._shortcuts.set(signature, { id, callback, shortcutStr });

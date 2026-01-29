@@ -191,13 +191,8 @@ const SettingsModal = {
 
       // Add/update new shortcuts
       for (const [commandKey, shortcutStr] of Object.entries(newShortcuts)) {
-        if (oldShortcuts[commandKey] !== shortcutStr) {
-          if (oldShortcuts[commandKey]) {
-            this._mainModule.removeHotkey(commandKey);
-          }
-          if (shortcutStr) {
-            this._mainModule.addHotkey(commandKey, shortcutStr);
-          }
+        if (shortcutStr && oldShortcuts[commandKey] !== shortcutStr) {
+          this._mainModule.addHotkey(commandKey, shortcutStr);
         }
       }
     }
