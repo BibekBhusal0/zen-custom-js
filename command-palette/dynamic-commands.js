@@ -665,7 +665,7 @@ export async function generateCustomCommands() {
           if (typeof step === "string") {
             // It's a regular command key
             await new Promise((resolve) => setTimeout(resolve, 50));
-            ZenCommandPalette.executeCommandByKey(step);
+            ZenCommandPalette.executeCommand(step);
           } else if (typeof step === "object" && step.action && commandChainUtils[step.action]) {
             // It's a utility function call
             await commandChainUtils[step.action](step.params || {});

@@ -446,28 +446,37 @@ export const ZenCommandPalette = {
   },
 
   /**
-   * Finds a command by its key and executes it.
-   * @param {string} key - The key of the command to execute.
+   * Finds and executes a command by its key or executes a command object directly.
+   * @param {string|object} cmd - The command key or command object to execute.
    */
-  async executeCommandByKey(key) {
-    if (!key) return;
+  async executeCommand(cmd) {
+    if (!cmd) return;
 
     let cmdToExecute;
-    const nativeAction = this._globalActions?.find((a) => a.commandId === key);
+    let isCmdObject = typeof cmd === "object" && cmd !== null;
 
-    const findInCommands = (arr) => arr?.find((c) => c.key === key);
-    if (nativeAction) {
-      cmdToExecute = { key: nativeAction.commandId, command: nativeAction.command };
+    // If cmd is already a command object, use it directly
+    if (isCmdObject) {
+      cmdToExecute = cmd;
     } else {
-      cmdToExecute = findInCommands(staticCommands);
-    }
-    if (!cmdToExecute) {
-      const dynamicCommands = await this.generateDynamicCommands(false, false);
-      cmdToExecute = findInCommands(dynamicCommands);
+      // cmd is a key, find the command by key
+      const nativeAction = this._globalActions?.find((a) => a.commandId === cmd);
+      const findInCommands = (arr) => arr?.find((c) => c.key === cmd);
+
+      if (nativeAction) {
+        cmdToExecute = { key: nativeAction.commandId, command: nativeAction.command };
+      } else {
+        cmdToExecute = findInCommands(staticCommands);
+      }
+      if (!cmdToExecute) {
+        const dynamicCommands = await this.generateDynamicCommands(false, false);
+        cmdToExecute = findInCommands(dynamicCommands);
+      }
     }
 
     if (cmdToExecute) {
-      PREFS.debugLog("Executing command via key:", key);
+      const key = cmdToExecute.key || (isCmdObject ? "direct-command" : cmd);
+      PREFS.debugLog("Executing command:", key);
       this.addRecentCommand(cmdToExecute);
       let openUrlBar = cmdToExecute.openUrl;
       if (typeof cmdToExecute.command === "function") {
@@ -482,6 +491,7 @@ export const ZenCommandPalette = {
         }
       }
     } else {
+      const key = isCmdObject ? "command object" : cmd;
       PREFS.debugError(`executeCommandByKey: Command with key "${key}" could not be found.`);
     }
   },
@@ -512,7 +522,7 @@ export const ZenCommandPalette = {
         tooltiptext: cmd.label,
         class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
         icon: cmd.icon || "chrome://browser/skin/trending.svg",
-        onClick: () => this.executeCommandByKey(key),
+        onClick: () => this.executeCommand(key),
       });
       PREFS.debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
     } catch (e) {
@@ -542,7 +552,7 @@ export const ZenCommandPalette = {
 
     const shortcutId = `zen-cmd-palette-shortcut-for-${commandKey}`;
     const success = registerShortcut(shortcutStr, shortcutId, () =>
-      this.executeCommandByKey(commandKey)
+      this.executeCommand(commandKey)
     );
 
     if (success) {
@@ -948,7 +958,7 @@ export const ZenCommandPalette = {
             if (cmd.openUrl) gURLBar.value = "";
             else self._closeUrlBar();
             self.addRecentCommand(cmd);
-            setTimeout(() => self.executeCommandByKey(cmd.key), 0);
+            setTimeout(() => self.executeCommand(cmd.key), 0);
           }
         }
 
