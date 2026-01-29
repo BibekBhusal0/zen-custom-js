@@ -74,236 +74,193 @@ export function shortcutsEqual(shortcut1, shortcut2) {
   }
 }
 
+let _shortcuts = new Map();
+
 /**
- * A registry for managing keyboard shortcuts using event listeners.
+ * Checks for conflicts with Zen's native shortcuts.
+ * @param {string} shortcutStr - The shortcut string to check.
+ * @param {string} excludeId - The ID to exclude from conflict check (usually the current shortcut's ID).
+ * @returns {{hasConflict: boolean, conflictInfo?: {shortcut: string, id: string}}}
  */
-export class ShortcutRegistry {
-  constructor() {
-    this._shortcuts = new Map();
-    this._boundHandler = this._handleKeyDown.bind(this);
-  }
-
-  /**
-   * Initializes the registry and starts listening for keyboard events.
-   * @param {EventTarget} [target=window] - The event target to attach listeners to.
-   */
-  init(target = window) {
-    this._target = target;
-    this._target.addEventListener("keydown", this._boundHandler, true);
-  }
-
-  /**
-   * Destroys the registry and removes all event listeners.
-   */
-  destroy() {
-    if (this._target) {
-      this._target.removeEventListener("keydown", this._boundHandler, true);
-    }
-    this._shortcuts.clear();
-  }
-
-  /**
-   * Handles keydown events and executes matching shortcuts.
-   * @param {KeyboardEvent} event - The keyboard event.
-   */
-  _handleKeyDown(event) {
-    const signature = eventToShortcutSignature(event);
-    const shortcut = this._shortcuts.get(signature);
-
-    if (shortcut) {
-      event.preventDefault();
-      event.stopPropagation();
-      shortcut.callback(event);
-    }
-  }
-
-  /**
-   * Checks for conflicts with Zen's native shortcuts.
-   * @param {string} shortcutStr - The shortcut string to check.
-   * @param {string} excludeId - The ID to exclude from conflict check (usually the current shortcut's ID).
-   * @returns {{hasConflict: boolean, conflictInfo?: {shortcut: string, id: string}}}
-   */
-  _checkZenConflict(shortcutStr, excludeId = null) {
-    if (
-      !window.gZenKeyboardShortcutsManager ||
-      !window.gZenKeyboardShortcutsManager._currentShortcutList
-    ) {
-      return { hasConflict: false };
-    }
-
-    const parsed = parseStringToShortcut(shortcutStr);
-
-    for (const shortcut of window.gZenKeyboardShortcutsManager._currentShortcutList) {
-      if (shortcut.getID() === excludeId) {
-        continue;
-      }
-
-      const zenShortcut = {
-        key: shortcut.getKeyName()?.toLowerCase() || "",
-        ctrl: shortcut.getModifiers().control || shortcut.getModifiers().accel,
-        alt: shortcut.getModifiers().alt,
-        shift: shortcut.getModifiers().shift,
-        meta: shortcut.getModifiers().meta,
-      };
-
-      if (shortcutsEqual(parsed, zenShortcut)) {
-        return {
-          hasConflict: true,
-          conflictInfo: {
-            shortcut: shortcut.toDisplayString(),
-            id: shortcut.getID(),
-          },
-        };
-      }
-    }
-
+function checkZenConflict(shortcutStr, excludeId = null) {
+  if (
+    !window.gZenKeyboardShortcutsManager ||
+    !window.gZenKeyboardShortcutsManager._currentShortcutList
+  ) {
     return { hasConflict: false };
   }
 
-  /**
-   * Registers a new keyboard shortcut.
-   * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+Shift+K").
-   * @param {string} id - A unique identifier for this shortcut.
-   * @param {Function} callback - The function to execute when the shortcut is triggered.
-   * @returns {boolean} True if registration was successful, false otherwise.
-   */
-  register(shortcutStr, id, callback) {
-    if (!shortcutStr || !id || typeof callback !== "function") {
-      console.error("ShortcutRegistry.register: Invalid arguments", { shortcutStr, id, callback });
-      return false;
-    }
-    this.unregisterById(id)
+  const parsed = parseStringToShortcut(shortcutStr);
 
-    const signature = shortcutStringToSignature(shortcutStr);
-    this._shortcuts.set(signature, { id, callback, shortcutStr });
-    return true;
-  }
-
-  /**
-   * Unregisters a keyboard shortcut by its ID or shortcut string.
-   * @param {string} identifier - The ID or shortcut string of the shortcut to unregister.
-   * @returns {boolean} True if unregistration was successful, false otherwise.
-   */
-  unregister(identifier) {
-    const signature = shortcutStringToSignature(identifier);
-    const shortcut = this._shortcuts.get(signature);
-
-    if (!shortcut) {
-      return false;
+  for (const shortcut of window.gZenKeyboardShortcutsManager._currentShortcutList) {
+    if (shortcut.getID() === excludeId) {
+      continue;
     }
 
-    this._shortcuts.delete(signature);
-    return true;
-  }
-
-  /**
-   * Unregisters a shortcut by its ID.
-   * @param {string} id - The ID of the shortcut to unregister.
-   * @returns {boolean} True if unregistration was successful, false otherwise.
-   */
-  unregisterById(id) {
-    for (const [signature, shortcut] of this._shortcuts.entries()) {
-      if (shortcut.id === id) {
-        this._shortcuts.delete(signature);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  /**
-   * Checks if a shortcut is registered.
-   * @param {string} shortcutStr - The shortcut string to check.
-   * @returns {boolean} True if the shortcut is registered, false otherwise.
-   */
-  isRegistered(shortcutStr) {
-    const signature = shortcutStringToSignature(shortcutStr);
-    return this._shortcuts.has(signature);
-  }
-
-  /**
-   * Gets the ID of the shortcut registered for a given shortcut string.
-   * @param {string} shortcutStr - The shortcut string.
-   * @returns {string|null} The ID of the registered shortcut, or null if not found.
-   */
-  getRegistrationId(shortcutStr) {
-    const signature = shortcutStringToSignature(shortcutStr);
-    const shortcut = this._shortcuts.get(signature);
-    return shortcut ? shortcut.id : null;
-  }
-
-  /**
-   * Checks for conflicts with a given shortcut string.
-   * @param {string} shortcutStr - The shortcut string to check.
-   * @param {string} [excludeId] - An ID to exclude from conflict checking.
-   * @returns {{hasConflict: boolean, conflicts: Array<{shortcut: string, id: string}>}}
-   */
-  checkConflicts(shortcutStr, excludeId = null) {
-    const conflicts = [];
-
-    const existingShortcut = this._shortcuts.get(shortcutStringToSignature(shortcutStr));
-    if (existingShortcut && existingShortcut.id !== excludeId) {
-      conflicts.push({ shortcut: shortcutStr, id: existingShortcut.id, source: "custom" });
-    }
-
-    const zenConflict = this._checkZenConflict(shortcutStr, excludeId);
-    if (zenConflict.hasConflict) {
-      conflicts.push({ ...zenConflict.conflictInfo, source: "zen" });
-    }
-
-    return {
-      hasConflict: conflicts.length > 0,
-      conflicts,
+    const zenShortcut = {
+      key: shortcut.getKeyName()?.toLowerCase() || "",
+      ctrl: shortcut.getModifiers().control || shortcut.getModifiers().accel,
+      alt: shortcut.getModifiers().alt,
+      shift: shortcut.getModifiers().shift,
+      meta: shortcut.getModifiers().meta,
     };
+
+    if (shortcutsEqual(parsed, zenShortcut)) {
+      return {
+        hasConflict: true,
+        conflictInfo: {
+          shortcut: shortcut.toDisplayString(),
+          id: shortcut.getID(),
+        },
+      };
+    }
   }
 
-  /**
-   * Gets all registered shortcuts.
-   * @returns {Array<{id: string, shortcutStr: string, signature: string}>} An array of all registered shortcuts.
-   */
-  getAllShortcuts() {
-    return Array.from(this._shortcuts.entries()).map(([signature, shortcut]) => ({
-      id: shortcut.id,
-      shortcutStr: shortcut.shortcutStr,
-      signature,
-    }));
-  }
+  return { hasConflict: false };
+}
 
-  /**
-   * Clears all registered shortcuts.
-   */
-  clear() {
-    this._shortcuts.clear();
+/**
+ * Handles keydown events and executes matching shortcuts.
+ * @param {KeyboardEvent} event - The keyboard event.
+ */
+function handleKeyDown(event) {
+  const signature = eventToShortcutSignature(event);
+  const shortcut = _shortcuts.get(signature);
+
+  if (shortcut) {
+    event.preventDefault();
+    event.stopPropagation();
+    shortcut.callback(event);
   }
 }
 
 /**
- * Registers a single keyboard shortcut using event listeners (simplified version).
+ * Initializes the registry and starts listening for keyboard events.
+ */
+export function initShortcutRegistry() {
+  window.addEventListener("keydown", handleKeyDown, true);
+}
+
+/**
+ * Destroys the registry and removes all event listeners.
+ */
+export function destroyShortcutRegistry() {
+  window.removeEventListener("keydown", handleKeyDown, true);
+  _shortcuts.clear();
+}
+
+/**
+ * Registers a new keyboard shortcut.
  * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+Shift+K").
  * @param {string} id - A unique identifier for this shortcut.
- * @param {Function} callback - The function to execute when shortcut is triggered.
- * @param {EventTarget} [target=window] - The event target to attach listeners to.
- * @returns {{success: boolean, unregister: Function}} An object with success status and unregister function.
+ * @param {Function} callback - The function to execute when the shortcut is triggered.
+ * @returns {boolean} True if registration was successful, false otherwise.
  */
-export function registerShortcut(shortcutStr, id, callback, target = window) {
+export function registerShortcut(shortcutStr, id, callback) {
   if (!shortcutStr || !id || typeof callback !== "function") {
-    console.error("registerShortcut: Invalid arguments", { shortcutStr, id, callback });
-    return { success: false, unregister: () => {} };
+    console.error("registerShortcutInRegistry: Invalid arguments", { shortcutStr, id, callback });
+    return false;
   }
+  unregisterShortcutById(id);
 
   const signature = shortcutStringToSignature(shortcutStr);
-  const handler = (event) => {
-    if (eventToShortcutSignature(event) === signature) {
-      event.preventDefault();
-      event.stopPropagation();
-      callback(event);
-    }
-  };
+  _shortcuts.set(signature, { id, callback, shortcutStr });
+  return true;
+}
 
-  target.addEventListener("keydown", handler, true);
+/**
+ * Unregisters a keyboard shortcut by its ID or shortcut string.
+ * @param {string} identifier - The ID or shortcut string of the shortcut to unregister.
+ * @returns {boolean} True if unregistration was successful, false otherwise.
+ */
+export function unregisterShortcut(identifier) {
+  const signature = shortcutStringToSignature(identifier);
+  const shortcut = _shortcuts.get(signature);
+
+  if (!shortcut) {
+    return false;
+  }
+
+  _shortcuts.delete(signature);
+  return true;
+}
+
+/**
+ * Unregisters a shortcut by its ID.
+ * @param {string} id - The ID of the shortcut to unregister.
+ * @returns {boolean} True if unregistration was successful, false otherwise.
+ */
+export function unregisterShortcutById(id) {
+  for (const [signature, shortcut] of _shortcuts.entries()) {
+    if (shortcut.id === id) {
+      _shortcuts.delete(signature);
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if a shortcut is registered.
+ * @param {string} shortcutStr - The shortcut string to check.
+ * @returns {boolean} True if the shortcut is registered, false otherwise.
+ */
+export function isShortcutRegistered(shortcutStr) {
+  const signature = shortcutStringToSignature(shortcutStr);
+  return _shortcuts.has(signature);
+}
+
+/**
+ * Gets the ID of the shortcut registered for a given shortcut string.
+ * @param {string} shortcutStr - The shortcut string.
+ * @returns {string|null} The ID of the registered shortcut, or null if not found.
+ */
+export function getShortcutRegistrationId(shortcutStr) {
+  const signature = shortcutStringToSignature(shortcutStr);
+  const shortcut = _shortcuts.get(signature);
+  return shortcut ? shortcut.id : null;
+}
+
+/**
+ * Checks for conflicts with a given shortcut string.
+ * @param {string} shortcutStr - The shortcut string to check.
+ * @param {string} [excludeId] - An ID to exclude from conflict checking.
+ * @returns {{hasConflict: boolean, conflicts: Array<{shortcut: string, id: string}>}}
+ */
+export function checkShortcutConflicts(shortcutStr, excludeId = null) {
+  const conflicts = [];
+
+  const existingShortcut = _shortcuts.get(shortcutStringToSignature(shortcutStr));
+  if (existingShortcut && existingShortcut.id !== excludeId) {
+    conflicts.push({ shortcut: shortcutStr, id: existingShortcut.id, source: "custom" });
+  }
+
+  const zenConflict = checkZenConflict(shortcutStr, excludeId);
+  if (zenConflict.hasConflict) {
+    conflicts.push({ ...zenConflict.conflictInfo, source: "zen" });
+  }
 
   return {
-    success: true,
-    unregister: () => target.removeEventListener("keydown", handler, true),
+    hasConflict: conflicts.length > 0,
+    conflicts,
   };
+}
+
+/**
+ * Gets all registered shortcuts.
+ * @returns {Array<{id: string, shortcutStr: string, signature: string}>} An array of all registered shortcuts.
+ */
+export function getAllRegisteredShortcuts() {
+  return Array.from(_shortcuts.entries()).map(([signature, shortcut]) => ({
+    id: shortcut.id,
+    shortcutStr: shortcut.shortcutStr,
+    signature,
+  }));
+}
+
+/**
+ * Clears all registered shortcuts.
+ */
+export function clearAllShortcuts() {
+  _shortcuts.clear();
 }

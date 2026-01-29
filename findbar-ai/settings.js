@@ -1,3 +1,4 @@
+import { eventToShortcutSignature } from "../utils/keyboard.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
@@ -49,12 +50,7 @@ export const SettingsModal = {
       return;
     }
 
-    let shortcutString = "";
-    if (event.ctrlKey || event.metaKey) shortcutString += "Ctrl+";
-    if (event.altKey) shortcutString += "Alt+";
-    if (event.shiftKey) shortcutString += "Shift+";
-    shortcutString += event.key.toUpperCase();
-
+    const shortcutString = eventToShortcutSignature(event);
     targetInput.value = shortcutString;
     this._currentPrefValues[prefKey] = shortcutString;
     PREFS.debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`);

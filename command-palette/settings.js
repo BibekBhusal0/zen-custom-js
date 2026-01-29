@@ -2,6 +2,7 @@ import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
+import { checkShortcutConflicts, eventToShortcutSignature } from "../utils/keyboard.js";
 
 const commandChainFunctions = {
   delay: {
@@ -458,14 +459,8 @@ const SettingsModal = {
       return;
     }
 
-    let shortcutString = "";
-    if (event.ctrlKey) shortcutString += "Ctrl+";
-    if (event.altKey) shortcutString += "Alt+";
-    if (event.shiftKey) shortcutString += "Shift+";
-    if (event.metaKey) shortcutString += "Meta+";
-    shortcutString += key.toUpperCase();
-
-    const conflictCheck = this._mainModule._shortcutRegistry.checkConflicts(
+    const shortcutString = eventToShortcutSignature(event)
+    const conflictCheck = checkShortcutConflicts(
       shortcutString,
       commandKey
     );

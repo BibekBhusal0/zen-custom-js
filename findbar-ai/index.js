@@ -4,7 +4,7 @@ import { PREFS } from "./utils/prefs.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { SettingsModal } from "./settings.js";
 import { addPrefListener } from "../utils/pref.js";
-import { ShortcutRegistry } from "../utils/keyboard.js";
+import { initShortcutRegistry, registerShortcut } from "../utils/keyboard.js";
 
 function setupCommandPaletteIntegration(retryCount = 0) {
   if (window.ZenCommandPalette) {
@@ -59,20 +59,18 @@ function setupCommandPaletteIntegration(retryCount = 0) {
   }
 }
 
-const registery  = new ShortcutRegistry()
 function registerUrlBarShortcut(value = PREFS.shortcutUrlbar) {
   if (!urlbarAI.enabled) return;
-  registery.register(value, "toggle-url-bar-ai", () => {
-    console.log("Opening URL bar AI")
+  registerShortcut(value, "toggle-url-bar-ai", () => {
     urlbarAI.toggleAIMode();
   });
 }
 function registerFindbarShortcut(value = PREFS.shortcutFindbar) {
   if (!browseBotFindbar.enabled) return;
-  registery.register(value, "toggle-findbar-ai-bar", () => {
+  registerShortcut(value, "toggle-findbar-ai-bar", () => {
     browseBotFindbar.expanded = !browseBotFindbar.expanded;
   });
-  registery.init()
+  initShortcutRegistry();
 }
 
 function setupShortcuts() {

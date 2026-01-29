@@ -11,7 +11,6 @@ const ReopenClosedTabs = {
   _boundToggleMenu: null,
   _boundHandleItemClick: null,
   _allTabsCache: [],
-  _unregisterShortcut: null,
 
   /**
    * Initializes the Reopen Closed Tabs mod.
@@ -41,7 +40,6 @@ const ReopenClosedTabs = {
     );
 
     if (result.success) {
-      this._unregisterShortcut = result.unregister;
       PREFS.debugLog(`Registered shortcut: ${shortcutString}`);
     } else {
       PREFS.debugError("Failed to register keyboard shortcut");
@@ -49,10 +47,6 @@ const ReopenClosedTabs = {
   },
 
   onHotkeyChange() {
-    if (this._unregisterShortcut) {
-      this._unregisterShortcut();
-      PREFS.debugLog("Unregistered previous shortcut");
-    }
     this._registerKeyboardShortcut();
     PREFS.debugLog("Registered new shortcut");
   },

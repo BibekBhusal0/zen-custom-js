@@ -16,7 +16,12 @@ import {
 import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
-import { ShortcutRegistry } from "../utils/keyboard.js";
+import {
+  destroyShortcutRegistry,
+  initShortcutRegistry,
+  registerShortcut,
+  unregisterShortcutById,
+} from "../utils/keyboard.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { addWidget } from "../utils/widget.js";
 
@@ -38,7 +43,6 @@ function openUrl(timeout = 0) {
 }
 
 export const ZenCommandPalette = {
-  _shortcutRegistry: new ShortcutRegistry(),
   /**
    * An array of dynamic command providers. Each provider is an object
    * containing a function to generate commands and an optional preference for enabling/disabling.
@@ -537,7 +541,7 @@ export const ZenCommandPalette = {
     }
 
     const shortcutId = `zen-cmd-palette-shortcut-for-${commandKey}`;
-    const success = this._shortcutRegistry.register(shortcutStr, shortcutId, () =>
+    const success = registerShortcut(shortcutStr, shortcutId, () =>
       this.executeCommandByKey(commandKey)
     );
 
@@ -553,7 +557,7 @@ export const ZenCommandPalette = {
 
   removeHotkey(commandKey) {
     const shortcutId = `zen-cmd-palette-shortcut-for-${commandKey}`;
-    const success = this._shortcutRegistry.unregisterById(shortcutId);
+    const success = unregisterShortcutById(shortcutId);
     if (success) {
       PREFS.debugLog(`Successfully unregistered shortcut for command "${commandKey}"`);
     }
@@ -696,10 +700,7 @@ export const ZenCommandPalette = {
   },
 
   destroy() {
-    if (this._shortcutRegistry) {
-      this._shortcutRegistry.destroy();
-      PREFS.debugLog("Shortcut registry destroyed.");
-    }
+    destroyShortcutRegistry();
     if (this.provider) {
       const { UrlbarProvidersManager } = ChromeUtils.importESModule(
         "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
@@ -741,7 +742,7 @@ export const ZenCommandPalette = {
     this.applyUserConfig();
     PREFS.debugLog("User config loaded and applied.");
 
-    this._shortcutRegistry.init();
+    initShortcutRegistry();
     PREFS.debugLog("Shortcut registry initialized.");
 
     this.attachUrlbarCloseListeners();
