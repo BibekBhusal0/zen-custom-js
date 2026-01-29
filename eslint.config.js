@@ -41,6 +41,7 @@ export default [
         JSWindowActorChild: "readonly",
         JSWindowActorParent: "readonly",
         TabContextMenu: "readonly",
+        gZenUIManager: "readonly",
       },
     },
   },

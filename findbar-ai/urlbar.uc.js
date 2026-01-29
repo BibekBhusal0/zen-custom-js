@@ -234,19 +234,6 @@ export const urlbarAI = {
     PREFS.debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
   },
 
-  handleGlobalKeyDown(e) {
-    // const currentShortcut = shortcutStringToSignature(PREFS.shortcutUrlbar);
-    // const eventSignature = eventToShortcutSignature(e);
-    //
-    // if (eventSignature === currentShortcut) {
-    //   PREFS.debugLog("urlbarAI: Custom shortcut detected");
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    //   gURLBar.focus();
-    //   setTimeout(() => this.toggleAIMode(), 0);
-    // }
-  },
-
   handleUrlbarKeyDown(e) {
     if (this._isAIMode) {
       if (
@@ -268,7 +255,6 @@ export const urlbarAI = {
 
   addListeners() {
     PREFS.debugLog("urlbarAI: Adding event listeners");
-    this._boundHandleGlobalKeyDown = this.handleGlobalKeyDown.bind(this);
     this._boundHandleUrlbarKeyDown = this.handleUrlbarKeyDown.bind(this);
     this._boundDisableAIMode = () => {
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
@@ -280,7 +266,6 @@ export const urlbarAI = {
       }
     };
 
-    document.addEventListener("keydown", this._boundHandleGlobalKeyDown, true);
     gURLBar.inputField.addEventListener("keydown", this._boundHandleUrlbarKeyDown, true);
     gURLBar.inputField.addEventListener("blur", this._boundDisableAIMode);
     gURLBar.view.panel.addEventListener("popuphiding", this._boundDisableAIMode);
@@ -288,10 +273,6 @@ export const urlbarAI = {
 
   removeListeners() {
     PREFS.debugLog("urlbarAI: Removing event listeners");
-    if (this._boundHandleGlobalKeyDown) {
-      document.removeEventListener("keydown", this._boundHandleGlobalKeyDown, true);
-      this._boundHandleGlobalKeyDown = null;
-    }
     if (this._boundHandleUrlbarKeyDown) {
       gURLBar.inputField.removeEventListener("keydown", this._boundHandleUrlbarKeyDown, true);
       this._boundHandleUrlbarKeyDown = null;
