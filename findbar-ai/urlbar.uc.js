@@ -138,7 +138,7 @@ export const urlbarAI = {
       return false;
     }
     try {
-      const textbox = gURLBar
+      const textbox = gURLBar;
       if (!textbox) return false;
       if (!gURLBar.view.isOpen) {
         this._hideSuggestions();
@@ -170,7 +170,7 @@ export const urlbarAI = {
       return false;
     }
     try {
-      const textbox = gURLBar
+      const textbox = gURLBar;
       if (!textbox) return false;
       if (!gURLBar.view.isOpen) {
         this._resetHideSuggestions();
@@ -222,7 +222,7 @@ export const urlbarAI = {
       gURLBar.inputField.setAttribute("placeholder", "Command to AI");
       this.animateAIOn();
       gURLBar.startQuery();
-      gURLBar.focus()
+      gURLBar.focus();
     } else {
       if (forceClose) this._closeUrlBar();
       else this.animateAIOff();

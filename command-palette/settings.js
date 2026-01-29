@@ -459,11 +459,8 @@ const SettingsModal = {
       return;
     }
 
-    const shortcutString = eventToShortcutSignature(event)
-    const conflictCheck = checkShortcutConflicts(
-      shortcutString,
-      commandKey
-    );
+    const shortcutString = eventToShortcutSignature(event);
+    const conflictCheck = checkShortcutConflicts(shortcutString, commandKey);
 
     targetInput.value = shortcutString;
 

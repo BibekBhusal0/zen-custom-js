@@ -83,17 +83,17 @@ function setupShortcuts() {
 function init() {
   // Init findbar-AI
   browseBotFindbar.init();
-  addPrefListener(PREFS.ENABLED, (val) =>{
+  addPrefListener(PREFS.ENABLED, (val) => {
     browseBotFindbar.handleEnabledChange(val);
-    registerFindbarShortcut()
+    registerFindbarShortcut();
   });
   window.browseBotFindbar = browseBotFindbar;
 
   // Init URL bar-AI
   urlbarAI.init();
-  addPrefListener(PREFS.URLBAR_AI_ENABLED, (val) =>{
-    urlbarAI.handlePrefChange()
-    registerUrlBarShortcut(val)
+  addPrefListener(PREFS.URLBAR_AI_ENABLED, (val) => {
+    urlbarAI.handlePrefChange();
+    registerUrlBarShortcut(val);
   });
 
   setupShortcuts();
