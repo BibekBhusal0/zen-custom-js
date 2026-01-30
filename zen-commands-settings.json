@@ -35,7 +35,8 @@
     "toggle-toolbar": "Ctrl+Alt+T",
     "unload-other-tabs": "Ctrl+Alt+U",
     "unload-tab": "Alt+U",
-    "browsebot:settings": "Alt+E"
+    "browsebot:settings": "Alt+E",
+    "rename-tab": "ctrl+alt+r"
   },
   "toolbarButtons": [],
   "customCommands": [
