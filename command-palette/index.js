@@ -596,7 +596,11 @@ export const ZenCommandPalette = {
     const shortcut = window.gZenKeyboardShortcutsManager._currentShortcutList.find(
       (s) => (s.getAction() === commandKey || s.getID() === commandKey) && !s.isEmpty()
     );
-    return shortcut ? shortcut.toDisplayString() : null;
+    if (shortcut) return shortcut.toDisplayString();
+
+    // Nothing found fallback to default
+    const defaultShortcuts = this._getDefaultShortcuts();
+    return defaultShortcuts[commandKey];
   },
 
   attachUrlbarCloseListeners() {

@@ -182,10 +182,11 @@ const SettingsModal = {
     if (oldShortcutsJSON !== newShortcutsJSON) {
       const oldShortcuts = oldSettings.customShortcuts || {};
       const newShortcuts = newSettings.customShortcuts || {};
+      const defautlShortcut = this._mainModule._getDefaultShortcuts()
 
       // Remove old shortcuts
       for (const [commandKey] of Object.entries(oldShortcuts)) {
-        if (!newShortcuts[commandKey]) {
+        if (!newShortcuts[commandKey] && oldShortcuts[commandKey] !== defautlShortcut[commandKey]) {
           this._mainModule.removeHotkey(commandKey);
         }
       }
