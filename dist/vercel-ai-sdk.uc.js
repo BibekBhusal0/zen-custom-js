@@ -198,36 +198,36 @@ var LoadAPIKeyError = class extends (_b8 = AISDKError, _a8$1 = symbol8$1, _b8) {
 };
 
 // src/errors/no-such-model-error.ts
-var name10$1 = "AI_NoSuchModelError";
-var marker11$1 = `vercel.ai.error.${name10$1}`;
-var symbol11$1 = Symbol.for(marker11$1);
-var _a11$1, _b11;
-var NoSuchModelError = class extends (_b11 = AISDKError, _a11$1 = symbol11$1, _b11) {
+var name10 = "AI_NoSuchModelError";
+var marker11 = `vercel.ai.error.${name10}`;
+var symbol11 = Symbol.for(marker11);
+var _a11, _b11;
+var NoSuchModelError = class extends (_b11 = AISDKError, _a11 = symbol11, _b11) {
   constructor({
-    errorName = name10$1,
+    errorName = name10,
     modelId,
     modelType,
     message = `No such ${modelType}: ${modelId}`
   }) {
     super({ name: errorName, message });
-    this[_a11$1] = true;
+    this[_a11] = true;
     this.modelId = modelId;
     this.modelType = modelType;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker11$1);
+    return AISDKError.hasMarker(error, marker11);
   }
 };
 
 // src/errors/too-many-embedding-values-for-call-error.ts
-var name11$1 = "AI_TooManyEmbeddingValuesForCallError";
-var marker12$1 = `vercel.ai.error.${name11$1}`;
+var name11 = "AI_TooManyEmbeddingValuesForCallError";
+var marker12$1 = `vercel.ai.error.${name11}`;
 var symbol12$1 = Symbol.for(marker12$1);
 var _a12$1, _b12;
 var TooManyEmbeddingValuesForCallError = class extends (_b12 = AISDKError, _a12$1 = symbol12$1, _b12) {
   constructor(options) {
     super({
-      name: name11$1,
+      name: name11,
       message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
     });
     this[_a12$1] = true;
@@ -243,44 +243,71 @@ var TooManyEmbeddingValuesForCallError = class extends (_b12 = AISDKError, _a12$
 
 // src/errors/type-validation-error.ts
 var name12$1 = "AI_TypeValidationError";
-var marker13 = `vercel.ai.error.${name12$1}`;
-var symbol13 = Symbol.for(marker13);
-var _a13, _b13;
-var TypeValidationError = class _TypeValidationError extends (_b13 = AISDKError, _a13 = symbol13, _b13) {
-  constructor({ value, cause }) {
+var marker13$1 = `vercel.ai.error.${name12$1}`;
+var symbol13$1 = Symbol.for(marker13$1);
+var _a13$1, _b13;
+var TypeValidationError = class _TypeValidationError extends (_b13 = AISDKError, _a13$1 = symbol13$1, _b13) {
+  constructor({
+    value,
+    cause,
+    context
+  }) {
+    let contextPrefix = "Type validation failed";
+    if (context == null ? void 0 : context.field) {
+      contextPrefix += ` for ${context.field}`;
+    }
+    if ((context == null ? void 0 : context.entityName) || (context == null ? void 0 : context.entityId)) {
+      contextPrefix += " (";
+      const parts = [];
+      if (context.entityName) {
+        parts.push(context.entityName);
+      }
+      if (context.entityId) {
+        parts.push(`id: "${context.entityId}"`);
+      }
+      contextPrefix += parts.join(", ");
+      contextPrefix += ")";
+    }
     super({
       name: name12$1,
-      message: `Type validation failed: Value: ${JSON.stringify(value)}.
+      message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
 Error message: ${getErrorMessage$1(cause)}`,
       cause
     });
-    this[_a13] = true;
+    this[_a13$1] = true;
     this.value = value;
+    this.context = context;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker13);
+    return AISDKError.hasMarker(error, marker13$1);
   }
   /**
    * Wraps an error into a TypeValidationError.
-   * If the cause is already a TypeValidationError with the same value, it returns the cause.
+   * If the cause is already a TypeValidationError with the same value and context, it returns the cause.
    * Otherwise, it creates a new TypeValidationError.
    *
    * @param {Object} params - The parameters for wrapping the error.
    * @param {unknown} params.value - The value that failed validation.
    * @param {unknown} params.cause - The original error or cause of the validation failure.
+   * @param {TypeValidationContext} params.context - Optional context about what is being validated.
    * @returns {TypeValidationError} A TypeValidationError instance.
    */
   static wrap({
     value,
-    cause
+    cause,
+    context
   }) {
-    return _TypeValidationError.isInstance(cause) && cause.value === value ? cause : new _TypeValidationError({ value, cause });
+    var _a15, _b15, _c;
+    if (_TypeValidationError.isInstance(cause) && cause.value === value && ((_a15 = cause.context) == null ? void 0 : _a15.field) === (context == null ? void 0 : context.field) && ((_b15 = cause.context) == null ? void 0 : _b15.entityName) === (context == null ? void 0 : context.entityName) && ((_c = cause.context) == null ? void 0 : _c.entityId) === (context == null ? void 0 : context.entityId)) {
+      return cause;
+    }
+    return new _TypeValidationError({ value, cause, context });
   }
 };
 
 // src/errors/unsupported-functionality-error.ts
-var name13 = "AI_UnsupportedFunctionalityError";
-var marker14$1 = `vercel.ai.error.${name13}`;
+var name13$1 = "AI_UnsupportedFunctionalityError";
+var marker14$1 = `vercel.ai.error.${name13$1}`;
 var symbol14$1 = Symbol.for(marker14$1);
 var _a14$1, _b14;
 var UnsupportedFunctionalityError = class extends (_b14 = AISDKError, _a14$1 = symbol14$1, _b14) {
@@ -288,7 +315,7 @@ var UnsupportedFunctionalityError = class extends (_b14 = AISDKError, _a14$1 = s
     functionality,
     message = `'${functionality}' functionality not supported.`
   }) {
-    super({ name: name13, message });
+    super({ name: name13$1, message });
     this[_a14$1] = true;
     this.functionality = functionality;
   }
@@ -6160,6 +6187,25 @@ function isAbortError(error) {
 
 // src/handle-fetch-error.ts
 var FETCH_FAILED_ERROR_MESSAGES = ["fetch failed", "failed to fetch"];
+var BUN_ERROR_CODES = [
+  "ConnectionRefused",
+  "ConnectionClosed",
+  "FailedToOpenSocket",
+  "ECONNRESET",
+  "ECONNREFUSED",
+  "ETIMEDOUT",
+  "EPIPE"
+];
+function isBunNetworkError(error) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+  const code = error.code;
+  if (typeof code === "string" && BUN_ERROR_CODES.includes(code)) {
+    return true;
+  }
+  return false;
+}
 function handleFetchError({
   error,
   url,
@@ -6180,6 +6226,15 @@ function handleFetchError({
         // retry when network error
       });
     }
+  }
+  if (isBunNetworkError(error)) {
+    return new APICallError({
+      message: `Cannot connect to API: ${error.message}`,
+      cause: error,
+      url,
+      requestBodyValues,
+      isRetryable: true
+    });
   }
   return error;
 }
@@ -6237,7 +6292,7 @@ function withUserAgentSuffix(headers, ...userAgentSuffixParts) {
 }
 
 // src/version.ts
-var VERSION$a = "4.0.9" ;
+var VERSION$a = "4.0.11" ;
 
 // src/get-from-api.ts
 var getOriginalFetch = () => globalThis.fetch;
@@ -7781,17 +7836,19 @@ function zodSchema(zodSchema2, options) {
 // src/validate-types.ts
 async function validateTypes({
   value,
-  schema
+  schema,
+  context
 }) {
-  const result = await safeValidateTypes({ value, schema });
+  const result = await safeValidateTypes({ value, schema, context });
   if (!result.success) {
-    throw TypeValidationError.wrap({ value, cause: result.error });
+    throw TypeValidationError.wrap({ value, cause: result.error, context });
   }
   return result.value;
 }
 async function safeValidateTypes({
   value,
-  schema
+  schema,
+  context
 }) {
   const actualSchema = asSchema(schema);
   try {
@@ -7804,13 +7861,13 @@ async function safeValidateTypes({
     }
     return {
       success: false,
-      error: TypeValidationError.wrap({ value, cause: result.error }),
+      error: TypeValidationError.wrap({ value, cause: result.error, context }),
       rawValue: value
     };
   } catch (error) {
     return {
       success: false,
-      error: TypeValidationError.wrap({ value, cause: error }),
+      error: TypeValidationError.wrap({ value, cause: error, context }),
       rawValue: value
     };
   }
@@ -9089,6 +9146,80 @@ var gatewayImageResponseSchema = object$1({
   ).optional(),
   providerMetadata: record(string(), providerMetadataEntrySchema).optional()
 });
+var parallelSearchInputSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      objective: string().describe(
+        "Natural-language description of the web research goal, including source or freshness guidance and broader context from the task. Maximum 5000 characters."
+      ),
+      search_queries: array$1(string()).optional().describe(
+        "Optional search queries to supplement the objective. Maximum 200 characters per query."
+      ),
+      mode: _enum(["one-shot", "agentic"]).optional().describe(
+        'Mode preset: "one-shot" for comprehensive results with longer excerpts (default), "agentic" for concise, token-efficient results for multi-step workflows.'
+      ),
+      max_results: number$1().optional().describe(
+        "Maximum number of results to return (1-20). Defaults to 10 if not specified."
+      ),
+      source_policy: object$1({
+        include_domains: array$1(string()).optional().describe("List of domains to include in search results."),
+        exclude_domains: array$1(string()).optional().describe("List of domains to exclude from search results."),
+        after_date: string().optional().describe(
+          "Only include results published after this date (ISO 8601 format)."
+        )
+      }).optional().describe(
+        "Source policy for controlling which domains to include/exclude and freshness."
+      ),
+      excerpts: object$1({
+        max_chars_per_result: number$1().optional().describe("Maximum characters per result."),
+        max_chars_total: number$1().optional().describe("Maximum total characters across all results.")
+      }).optional().describe("Excerpt configuration for controlling result length."),
+      fetch_policy: object$1({
+        max_age_seconds: number$1().optional().describe(
+          "Maximum age in seconds for cached content. Set to 0 to always fetch fresh content."
+        )
+      }).optional().describe("Fetch policy for controlling content freshness.")
+    })
+  )
+);
+var parallelSearchOutputSchema = lazySchema(
+  () => zodSchema(
+    union([
+      // Success response
+      object$1({
+        searchId: string(),
+        results: array$1(
+          object$1({
+            url: string(),
+            title: string(),
+            excerpt: string(),
+            publishDate: string().nullable().optional(),
+            relevanceScore: number$1().optional()
+          })
+        )
+      }),
+      // Error response
+      object$1({
+        error: _enum([
+          "api_error",
+          "rate_limit",
+          "timeout",
+          "invalid_input",
+          "configuration_error",
+          "unknown"
+        ]),
+        statusCode: number$1().optional(),
+        message: string()
+      })
+    ])
+  )
+);
+var parallelSearchToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "gateway.parallel_search",
+  inputSchema: parallelSearchInputSchema,
+  outputSchema: parallelSearchOutputSchema
+});
+var parallelSearch = (config = {}) => parallelSearchToolFactory(config);
 var perplexitySearchInputSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -9172,6 +9303,15 @@ var perplexitySearch = (config = {}) => perplexitySearchToolFactory(config);
 // src/gateway-tools.ts
 var gatewayTools = {
   /**
+   * Search the web using Parallel AI's Search API for LLM-optimized excerpts.
+   *
+   * Takes a natural language objective and returns relevant excerpts,
+   * replacing multiple keyword searches with a single call for broad
+   * or complex queries. Supports different search types for depth vs
+   * breadth tradeoffs.
+   */
+  parallelSearch,
+  /**
    * Search the web using Perplexity's Search API for real-time information,
    * news, research papers, and articles.
    *
@@ -9186,7 +9326,7 @@ async function getVercelRequestId() {
 }
 
 // src/version.ts
-var VERSION$9 = "3.0.23" ;
+var VERSION$9 = "3.0.29" ;
 
 // src/gateway-provider.ts
 var AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
@@ -11286,8 +11426,8 @@ var trace = TraceAPI.getInstance();
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
-  for (var name18 in all)
-    __defProp(target, name18, { get: all[name18], enumerable: true });
+  for (var name20 in all)
+    __defProp(target, name20, { get: all[name20], enumerable: true });
 };
 var name = "AI_InvalidArgumentError";
 var marker = `vercel.ai.error.${name}`;
@@ -11436,45 +11576,45 @@ var NoOutputGeneratedError = class extends AISDKError {
   }
 };
 _a9 = symbol9;
-var name10 = "AI_NoSuchToolError";
-var marker10 = `vercel.ai.error.${name10}`;
-var symbol10 = Symbol.for(marker10);
-var _a10;
+var name12 = "AI_NoSuchToolError";
+var marker12 = `vercel.ai.error.${name12}`;
+var symbol12 = Symbol.for(marker12);
+var _a12;
 var NoSuchToolError = class extends AISDKError {
   constructor({
     toolName,
     availableTools = void 0,
     message = `Model tried to call unavailable tool '${toolName}'. ${availableTools === void 0 ? "No tools are available." : `Available tools: ${availableTools.join(", ")}.`}`
   }) {
-    super({ name: name10, message });
-    this[_a10] = true;
+    super({ name: name12, message });
+    this[_a12] = true;
     this.toolName = toolName;
     this.availableTools = availableTools;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker10);
+    return AISDKError.hasMarker(error, marker12);
   }
 };
-_a10 = symbol10;
-var name11 = "AI_ToolCallRepairError";
-var marker11 = `vercel.ai.error.${name11}`;
-var symbol11 = Symbol.for(marker11);
-var _a11;
+_a12 = symbol12;
+var name13 = "AI_ToolCallRepairError";
+var marker13 = `vercel.ai.error.${name13}`;
+var symbol13 = Symbol.for(marker13);
+var _a13;
 var ToolCallRepairError = class extends AISDKError {
   constructor({
     cause,
     originalError,
     message = `Error repairing tool call: ${getErrorMessage$1(cause)}`
   }) {
-    super({ name: name11, message, cause });
-    this[_a11] = true;
+    super({ name: name13, message, cause });
+    this[_a13] = true;
     this.originalError = originalError;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker11);
+    return AISDKError.hasMarker(error, marker13);
   }
 };
-_a11 = symbol11;
+_a13 = symbol13;
 var UnsupportedModelVersionError = class extends AISDKError {
   constructor(options) {
     super({
@@ -11486,65 +11626,65 @@ var UnsupportedModelVersionError = class extends AISDKError {
     this.modelId = options.modelId;
   }
 };
-var name12 = "AI_UIMessageStreamError";
-var marker12 = `vercel.ai.error.${name12}`;
-var symbol12 = Symbol.for(marker12);
-var _a12;
+var name14 = "AI_UIMessageStreamError";
+var marker14 = `vercel.ai.error.${name14}`;
+var symbol14 = Symbol.for(marker14);
+var _a14;
 var UIMessageStreamError = class extends AISDKError {
   constructor({
     chunkType,
     chunkId,
     message
   }) {
-    super({ name: name12, message });
-    this[_a12] = true;
-    this.chunkType = chunkType;
-    this.chunkId = chunkId;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker12);
-  }
-};
-_a12 = symbol12;
-var name14 = "AI_InvalidMessageRoleError";
-var marker14 = `vercel.ai.error.${name14}`;
-var symbol14 = Symbol.for(marker14);
-var _a14;
-var InvalidMessageRoleError = class extends AISDKError {
-  constructor({
-    role,
-    message = `Invalid message role: '${role}'. Must be one of: "system", "user", "assistant", "tool".`
-  }) {
     super({ name: name14, message });
     this[_a14] = true;
-    this.role = role;
+    this.chunkType = chunkType;
+    this.chunkId = chunkId;
   }
   static isInstance(error) {
     return AISDKError.hasMarker(error, marker14);
   }
 };
 _a14 = symbol14;
-var name16 = "AI_RetryError";
+var name16 = "AI_InvalidMessageRoleError";
 var marker16 = `vercel.ai.error.${name16}`;
 var symbol16 = Symbol.for(marker16);
 var _a16;
-var RetryError = class extends AISDKError {
+var InvalidMessageRoleError = class extends AISDKError {
   constructor({
-    message,
-    reason,
-    errors
+    role,
+    message = `Invalid message role: '${role}'. Must be one of: "system", "user", "assistant", "tool".`
   }) {
     super({ name: name16, message });
     this[_a16] = true;
-    this.reason = reason;
-    this.errors = errors;
-    this.lastError = errors[errors.length - 1];
+    this.role = role;
   }
   static isInstance(error) {
     return AISDKError.hasMarker(error, marker16);
   }
 };
 _a16 = symbol16;
+var name18 = "AI_RetryError";
+var marker18 = `vercel.ai.error.${name18}`;
+var symbol18 = Symbol.for(marker18);
+var _a18;
+var RetryError = class extends AISDKError {
+  constructor({
+    message,
+    reason,
+    errors
+  }) {
+    super({ name: name18, message });
+    this[_a18] = true;
+    this.reason = reason;
+    this.errors = errors;
+    this.lastError = errors[errors.length - 1];
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker18);
+  }
+};
+_a18 = symbol18;
 
 // src/logger/log-warnings.ts
 function formatWarning({
@@ -11718,8 +11858,8 @@ function resolveLanguageModel(model) {
   return getGlobalProvider().languageModel(model);
 }
 function getGlobalProvider() {
-  var _a18;
-  return (_a18 = globalThis.AI_SDK_DEFAULT_PROVIDER) != null ? _a18 : gateway;
+  var _a20;
+  return (_a20 = globalThis.AI_SDK_DEFAULT_PROVIDER) != null ? _a20 : gateway;
 }
 
 // src/prompt/call-settings.ts
@@ -11857,11 +11997,11 @@ function detectMediaType({
 }
 
 // src/version.ts
-var VERSION$7 = "6.0.50" ;
+var VERSION$7 = "6.0.62" ;
 
 // src/util/download/download.ts
 var download = async ({ url }) => {
-  var _a18;
+  var _a20;
   const urlText = url.toString();
   try {
     const response = await fetch(urlText, {
@@ -11880,7 +12020,7 @@ var download = async ({ url }) => {
     }
     return {
       data: new Uint8Array(await response.arrayBuffer()),
-      mediaType: (_a18 = response.headers.get("content-type")) != null ? _a18 : void 0
+      mediaType: (_a20 = response.headers.get("content-type")) != null ? _a20 : void 0
     };
   } catch (error) {
     if (DownloadError.isInstance(error)) {
@@ -11921,8 +12061,8 @@ var dataContentSchema = union([
   custom(
     // Buffer might not be available in some environments such as CloudFlare:
     (value) => {
-      var _a18, _b;
-      return (_b = (_a18 = globalThis.Buffer) == null ? void 0 : _a18.isBuffer(value)) != null ? _b : false;
+      var _a20, _b;
+      return (_b = (_a20 = globalThis.Buffer) == null ? void 0 : _a20.isBuffer(value)) != null ? _b : false;
     },
     { message: "Must be a Buffer" }
   )
@@ -12212,8 +12352,8 @@ async function downloadAssets(messages, download2, supportedUrls) {
   ).flat().filter(
     (part) => part.type === "image" || part.type === "file"
   ).map((part) => {
-    var _a18;
-    const mediaType = (_a18 = part.mediaType) != null ? _a18 : part.type === "image" ? "image/*" : void 0;
+    var _a20;
+    const mediaType = (_a20 = part.mediaType) != null ? _a20 : part.type === "image" ? "image/*" : void 0;
     let data = part.type === "image" ? part.image : part.data;
     if (typeof data === "string") {
       try {
@@ -12243,7 +12383,7 @@ async function downloadAssets(messages, download2, supportedUrls) {
   );
 }
 function convertPartToLanguageModelPart(part, downloadedAssets) {
-  var _a18;
+  var _a20;
   if (part.type === "text") {
     return {
       type: "text",
@@ -12276,7 +12416,7 @@ function convertPartToLanguageModelPart(part, downloadedAssets) {
   switch (type) {
     case "image": {
       if (data instanceof Uint8Array || typeof data === "string") {
-        mediaType = (_a18 = detectMediaType({ data, signatures: imageMediaTypeSignatures })) != null ? _a18 : mediaType;
+        mediaType = (_a20 = detectMediaType({ data, signatures: imageMediaTypeSignatures })) != null ? _a20 : mediaType;
       }
       return {
         type: "file",
@@ -12458,10 +12598,10 @@ async function prepareToolsAndToolChoice({
     };
   }
   const filteredTools = activeTools != null ? Object.entries(tools).filter(
-    ([name18]) => activeTools.includes(name18)
+    ([name20]) => activeTools.includes(name20)
   ) : Object.entries(tools);
   const languageModelTools = [];
-  for (const [name18, tool2] of filteredTools) {
+  for (const [name20, tool2] of filteredTools) {
     const toolType = tool2.type;
     switch (toolType) {
       case void 0:
@@ -12469,7 +12609,7 @@ async function prepareToolsAndToolChoice({
       case "function":
         languageModelTools.push({
           type: "function",
-          name: name18,
+          name: name20,
           description: tool2.description,
           inputSchema: await asSchema(tool2.inputSchema).jsonSchema,
           ...tool2.inputExamples != null ? { inputExamples: tool2.inputExamples } : {},
@@ -12480,7 +12620,7 @@ async function prepareToolsAndToolChoice({
       case "provider":
         languageModelTools.push({
           type: "provider",
-          name: name18,
+          name: name20,
           id: tool2.id,
           args: tool2.args
         });
@@ -12795,7 +12935,7 @@ function getBaseTelemetryAttributes({
   telemetry,
   headers
 }) {
-  var _a18;
+  var _a20;
   return {
     "ai.model.provider": model.provider,
     "ai.model.id": model.modelId,
@@ -12814,7 +12954,7 @@ function getBaseTelemetryAttributes({
       return attributes;
     }, {}),
     // add metadata as attributes:
-    ...Object.entries((_a18 = telemetry == null ? void 0 : telemetry.metadata) != null ? _a18 : {}).reduce(
+    ...Object.entries((_a20 = telemetry == null ? void 0 : telemetry.metadata) != null ? _a20 : {}).reduce(
       (attributes, [key, value]) => {
         attributes[`ai.telemetry.metadata.${key}`] = value;
         return attributes;
@@ -12836,7 +12976,7 @@ var noopTracer = {
   startSpan() {
     return noopSpan;
   },
-  startActiveSpan(name18, arg1, arg2, arg3) {
+  startActiveSpan(name20, arg1, arg2, arg3) {
     if (typeof arg1 === "function") {
       return arg1(noopSpan);
     }
@@ -12903,14 +13043,14 @@ function getTracer({
   return trace.getTracer("ai");
 }
 async function recordSpan({
-  name: name18,
+  name: name20,
   tracer,
   attributes,
   fn,
   endWhenDone = true
 }) {
   return tracer.startActiveSpan(
-    name18,
+    name20,
     { attributes: await attributes },
     async (span) => {
       const ctx = context.active();
@@ -13041,12 +13181,12 @@ function createNullLanguageModelUsage() {
   };
 }
 function addLanguageModelUsage(usage1, usage2) {
-  var _a18, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+  var _a20, _b, _c, _d, _e, _f, _g, _h, _i, _j;
   return {
     inputTokens: addTokenCounts(usage1.inputTokens, usage2.inputTokens),
     inputTokenDetails: {
       noCacheTokens: addTokenCounts(
-        (_a18 = usage1.inputTokenDetails) == null ? void 0 : _a18.noCacheTokens,
+        (_a20 = usage1.inputTokenDetails) == null ? void 0 : _a20.noCacheTokens,
         (_b = usage2.inputTokenDetails) == null ? void 0 : _b.noCacheTokens
       ),
       cacheReadTokens: addTokenCounts(
@@ -13833,7 +13973,7 @@ var text = () => ({
 });
 var object = ({
   schema: inputSchema,
-  name: name18,
+  name: name20,
   description
 }) => {
   const schema = asSchema(inputSchema);
@@ -13842,7 +13982,7 @@ var object = ({
     responseFormat: resolve(schema.jsonSchema).then((jsonSchema2) => ({
       type: "json",
       schema: jsonSchema2,
-      ...name18 != null && { name: name18 },
+      ...name20 != null && { name: name20 },
       ...description != null && { description }
     })),
     async parseCompleteOutput({ text: text2 }, context2) {
@@ -13896,7 +14036,7 @@ var object = ({
 };
 var array = ({
   element: inputElementSchema,
-  name: name18,
+  name: name20,
   description
 }) => {
   const elementSchema = asSchema(inputElementSchema);
@@ -13916,7 +14056,7 @@ var array = ({
           required: ["elements"],
           additionalProperties: false
         },
-        ...name18 != null && { name: name18 },
+        ...name20 != null && { name: name20 },
         ...description != null && { description }
       };
     }),
@@ -14008,7 +14148,7 @@ var array = ({
 };
 var choice = ({
   options: choiceOptions,
-  name: name18,
+  name: name20,
   description
 }) => {
   return {
@@ -14025,7 +14165,7 @@ var choice = ({
         required: ["result"],
         additionalProperties: false
       },
-      ...name18 != null && { name: name18 },
+      ...name20 != null && { name: name20 },
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
@@ -14086,14 +14226,14 @@ var choice = ({
   };
 };
 var json = ({
-  name: name18,
+  name: name20,
   description
 } = {}) => {
   return {
     name: "json",
     responseFormat: Promise.resolve({
       type: "json",
-      ...name18 != null && { name: name18 },
+      ...name20 != null && { name: name20 },
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
@@ -14135,7 +14275,7 @@ async function parseToolCall({
   system,
   messages
 }) {
-  var _a18;
+  var _a20;
   try {
     if (tools == null) {
       if (toolCall.providerExecuted && toolCall.dynamic) {
@@ -14184,7 +14324,7 @@ async function parseToolCall({
       dynamic: true,
       invalid: true,
       error,
-      title: (_a18 = tools == null ? void 0 : tools[toolCall.toolName]) == null ? void 0 : _a18.title,
+      title: (_a20 = tools == null ? void 0 : tools[toolCall.toolName]) == null ? void 0 : _a20.title,
       providerExecuted: toolCall.providerExecuted,
       providerMetadata: toolCall.providerMetadata
     };
@@ -14512,6 +14652,7 @@ async function generateText({
   experimental_repairToolCall: repairToolCall,
   experimental_download: download2,
   experimental_context,
+  experimental_include: include,
   _internal: { generateId: generateId2 = originalGenerateId } = {},
   onStepFinish,
   onFinish,
@@ -14570,7 +14711,7 @@ async function generateText({
       }),
       tracer,
       fn: async (span) => {
-        var _a18, _b, _c, _d, _e, _f, _g, _h;
+        var _a20, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
         const initialMessages = initialPrompt.messages;
         const responseMessages = [];
         const { approvedToolApprovals, deniedToolApprovals } = collectToolApprovals({ messages: initialMessages });
@@ -14665,7 +14806,7 @@ async function generateText({
               experimental_context
             }));
             const stepModel = resolveLanguageModel(
-              (_a18 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a18 : model
+              (_a20 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a20 : model
             );
             const promptMessages = await convertToLanguageModelPrompt({
               prompt: {
@@ -14683,7 +14824,7 @@ async function generateText({
             });
             currentModelResponse = await retry(
               () => {
-                var _a19;
+                var _a21;
                 return recordSpan({
                   name: "ai.generateText.doGenerate",
                   attributes: selectTelemetryAttributes({
@@ -14715,14 +14856,14 @@ async function generateText({
                       "gen_ai.request.max_tokens": settings.maxOutputTokens,
                       "gen_ai.request.presence_penalty": settings.presencePenalty,
                       "gen_ai.request.stop_sequences": settings.stopSequences,
-                      "gen_ai.request.temperature": (_a19 = settings.temperature) != null ? _a19 : void 0,
+                      "gen_ai.request.temperature": (_a21 = settings.temperature) != null ? _a21 : void 0,
                       "gen_ai.request.top_k": settings.topK,
                       "gen_ai.request.top_p": settings.topP
                     }
                   }),
                   tracer,
                   fn: async (span2) => {
-                    var _a20, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
+                    var _a22, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
                     const stepProviderOptions = mergeObjects(
                       providerOptions,
                       prepareStepResult == null ? void 0 : prepareStepResult.providerOptions
@@ -14738,7 +14879,7 @@ async function generateText({
                       headers: headersWithUserAgent
                     });
                     const responseData = {
-                      id: (_b2 = (_a20 = result.response) == null ? void 0 : _a20.id) != null ? _b2 : generateId2(),
+                      id: (_b2 = (_a22 = result.response) == null ? void 0 : _a22.id) != null ? _b2 : generateId2(),
                       timestamp: (_d2 = (_c2 = result.response) == null ? void 0 : _c2.timestamp) != null ? _d2 : /* @__PURE__ */ new Date(),
                       modelId: (_f2 = (_e2 = result.response) == null ? void 0 : _e2.modelId) != null ? _f2 : stepModel.modelId,
                       headers: (_g2 = result.response) == null ? void 0 : _g2.headers,
@@ -14892,6 +15033,14 @@ async function generateText({
                 tools
               })
             );
+            const stepRequest = ((_g = include == null ? void 0 : include.requestBody) != null ? _g : true) ? (_h = currentModelResponse.request) != null ? _h : {} : { ...currentModelResponse.request, body: void 0 };
+            const stepResponse = {
+              ...currentModelResponse.response,
+              // deep clone msgs to avoid mutating past messages in multi-step:
+              messages: structuredClone(responseMessages),
+              // Conditionally include response body:
+              body: ((_i = include == null ? void 0 : include.responseBody) != null ? _i : true) ? (_j = currentModelResponse.response) == null ? void 0 : _j.body : void 0
+            };
             const currentStepResult = new DefaultStepResult({
               content: stepContent,
               finishReason: currentModelResponse.finishReason.unified,
@@ -14899,15 +15048,11 @@ async function generateText({
               usage: asLanguageModelUsage(currentModelResponse.usage),
               warnings: currentModelResponse.warnings,
               providerMetadata: currentModelResponse.providerMetadata,
-              request: (_g = currentModelResponse.request) != null ? _g : {},
-              response: {
-                ...currentModelResponse.response,
-                // deep clone msgs to avoid mutating past messages in multi-step:
-                messages: structuredClone(responseMessages)
-              }
+              request: stepRequest,
+              response: stepResponse
             });
             logWarnings({
-              warnings: (_h = currentModelResponse.warnings) != null ? _h : [],
+              warnings: (_k = currentModelResponse.warnings) != null ? _k : [],
               provider: stepModel.provider,
               model: stepModel.modelId
             });
@@ -15419,7 +15564,7 @@ function processUIMessageStream({
     new TransformStream({
       async transform(chunk, controller) {
         await runUpdateMessageJob(async ({ state, write }) => {
-          var _a18, _b, _c, _d;
+          var _a20, _b, _c, _d;
           function getToolInvocation(toolCallId) {
             const toolInvocations = state.message.parts.filter(isToolUIPart);
             const toolInvocation = toolInvocations.find(
@@ -15435,7 +15580,7 @@ function processUIMessageStream({
             return toolInvocation;
           }
           function updateToolPart(options) {
-            var _a19;
+            var _a21;
             const part = state.message.parts.find(
               (part2) => isStaticToolUIPart(part2) && part2.toolCallId === options.toolCallId
             );
@@ -15451,7 +15596,7 @@ function processUIMessageStream({
               if (options.title !== void 0) {
                 anyPart.title = options.title;
               }
-              anyPart.providerExecuted = (_a19 = anyOptions.providerExecuted) != null ? _a19 : part.providerExecuted;
+              anyPart.providerExecuted = (_a21 = anyOptions.providerExecuted) != null ? _a21 : part.providerExecuted;
               if (anyOptions.providerMetadata != null) {
                 part.callProviderMetadata = anyOptions.providerMetadata;
               }
@@ -15472,7 +15617,7 @@ function processUIMessageStream({
             }
           }
           function updateDynamicToolPart(options) {
-            var _a19, _b2;
+            var _a21, _b2;
             const part = state.message.parts.find(
               (part2) => part2.type === "dynamic-tool" && part2.toolCallId === options.toolCallId
             );
@@ -15484,7 +15629,7 @@ function processUIMessageStream({
               anyPart.input = anyOptions.input;
               anyPart.output = anyOptions.output;
               anyPart.errorText = anyOptions.errorText;
-              anyPart.rawInput = (_a19 = anyOptions.rawInput) != null ? _a19 : anyPart.rawInput;
+              anyPart.rawInput = (_a21 = anyOptions.rawInput) != null ? _a21 : anyPart.rawInput;
               anyPart.preliminary = anyOptions.preliminary;
               if (options.title !== void 0) {
                 anyPart.title = options.title;
@@ -15515,7 +15660,11 @@ function processUIMessageStream({
               if (messageMetadataSchema != null) {
                 await validateTypes({
                   value: mergedMetadata,
-                  schema: messageMetadataSchema
+                  schema: messageMetadataSchema,
+                  context: {
+                    field: "message.metadata",
+                    entityId: state.message.id
+                  }
                 });
               }
               state.message.metadata = mergedMetadata;
@@ -15544,7 +15693,7 @@ function processUIMessageStream({
                 });
               }
               textPart.text += chunk.delta;
-              textPart.providerMetadata = (_a18 = chunk.providerMetadata) != null ? _a18 : textPart.providerMetadata;
+              textPart.providerMetadata = (_a20 = chunk.providerMetadata) != null ? _a20 : textPart.providerMetadata;
               write();
               break;
             }
@@ -15869,9 +16018,18 @@ function processUIMessageStream({
             default: {
               if (isDataUIMessageChunk(chunk)) {
                 if ((dataPartSchemas == null ? void 0 : dataPartSchemas[chunk.type]) != null) {
+                  const partIdx = state.message.parts.findIndex(
+                    (p) => "id" in p && "data" in p && p.id === chunk.id && p.type === chunk.type
+                  );
+                  const actualPartIdx = partIdx >= 0 ? partIdx : state.message.parts.length;
                   await validateTypes({
                     value: chunk.data,
-                    schema: dataPartSchemas[chunk.type]
+                    schema: dataPartSchemas[chunk.type],
+                    context: {
+                      field: `message.parts[${actualPartIdx}].data`,
+                      entityName: chunk.type,
+                      entityId: chunk.id
+                    }
                   });
                 }
                 const dataChunk = chunk;
@@ -16013,13 +16171,13 @@ function createAsyncIterableStream(source) {
     const reader = this.getReader();
     let finished = false;
     async function cleanup(cancelStream) {
-      var _a18;
+      var _a20;
       if (finished)
         return;
       finished = true;
       try {
         if (cancelStream) {
-          await ((_a18 = reader.cancel) == null ? void 0 : _a18.call(reader));
+          await ((_a20 = reader.cancel) == null ? void 0 : _a20.call(reader));
         }
       } finally {
         try {
@@ -16185,8 +16343,8 @@ function createStitchableStream() {
 
 // src/util/now.ts
 function now() {
-  var _a18, _b;
-  return (_b = (_a18 = globalThis == null ? void 0 : globalThis.performance) == null ? void 0 : _a18.now()) != null ? _b : Date.now();
+  var _a20, _b;
+  return (_b = (_a20 = globalThis == null ? void 0 : globalThis.performance) == null ? void 0 : _a20.now()) != null ? _b : Date.now();
 }
 function runToolsTransformation({
   tools,
@@ -16459,6 +16617,7 @@ function streamText({
   onAbort,
   onStepFinish,
   experimental_context,
+  experimental_include: include,
   _internal: { now: now2 = now, generateId: generateId2 = originalGenerateId2 } = {},
   ...settings
 }) {
@@ -16504,7 +16663,8 @@ function streamText({
     now: now2,
     generateId: generateId2,
     experimental_context,
-    download: download2
+    download: download2,
+    include
   });
 }
 function createOutputTransformStream(output) {
@@ -16530,7 +16690,7 @@ function createOutputTransformStream(output) {
   }
   return new TransformStream({
     async transform(chunk, controller) {
-      var _a18;
+      var _a20;
       if (chunk.type === "finish-step" && textChunk.length > 0) {
         publishTextChunk({ controller });
       }
@@ -16557,7 +16717,7 @@ function createOutputTransformStream(output) {
       }
       text2 += chunk.text;
       textChunk += chunk.text;
-      textProviderMetadata = (_a18 = chunk.providerMetadata) != null ? _a18 : textProviderMetadata;
+      textProviderMetadata = (_a20 = chunk.providerMetadata) != null ? _a20 : textProviderMetadata;
       const result = await output.parsePartialOutput({ text: text2 });
       if (result !== void 0) {
         const currentJson = JSON.stringify(result.partial);
@@ -16602,7 +16762,8 @@ var DefaultStreamTextResult = class {
     onAbort,
     onStepFinish,
     experimental_context,
-    download: download2
+    download: download2,
+    include
   }) {
     this._totalUsage = new DelayedPromise();
     this._finishReason = new DelayedPromise();
@@ -16626,7 +16787,7 @@ var DefaultStreamTextResult = class {
     let activeReasoningContent = {};
     const eventProcessor = new TransformStream({
       async transform(chunk, controller) {
-        var _a18, _b, _c, _d;
+        var _a20, _b, _c, _d;
         controller.enqueue(chunk);
         const { part } = chunk;
         if (part.type === "text-delta" || part.type === "reasoning-delta" || part.type === "source" || part.type === "tool-call" || part.type === "tool-result" || part.type === "tool-input-start" || part.type === "tool-input-delta" || part.type === "raw") {
@@ -16656,7 +16817,7 @@ var DefaultStreamTextResult = class {
             return;
           }
           activeText.text += part.text;
-          activeText.providerMetadata = (_a18 = part.providerMetadata) != null ? _a18 : activeText.providerMetadata;
+          activeText.providerMetadata = (_a20 = part.providerMetadata) != null ? _a20 : activeText.providerMetadata;
         }
         if (part.type === "text-end") {
           const activeText = activeTextContent[part.id];
@@ -16821,8 +16982,8 @@ var DefaultStreamTextResult = class {
                 "ai.response.text": { output: () => finalStep.text },
                 "ai.response.toolCalls": {
                   output: () => {
-                    var _a18;
-                    return ((_a18 = finalStep.toolCalls) == null ? void 0 : _a18.length) ? JSON.stringify(finalStep.toolCalls) : void 0;
+                    var _a20;
+                    return ((_a20 = finalStep.toolCalls) == null ? void 0 : _a20.length) ? JSON.stringify(finalStep.toolCalls) : void 0;
                   }
                 },
                 "ai.response.providerMetadata": JSON.stringify(
@@ -17044,7 +17205,7 @@ var DefaultStreamTextResult = class {
           responseMessages,
           usage
         }) {
-          var _a18, _b, _c, _d, _e, _f;
+          var _a20, _b, _c, _d, _e, _f, _g;
           const includeRawChunks2 = self.includeRawChunks;
           const stepTimeoutId = stepTimeoutMs != null ? setTimeout(() => stepAbortController.abort(), stepTimeoutMs) : void 0;
           let chunkTimeoutId = void 0;
@@ -17070,408 +17231,420 @@ var DefaultStreamTextResult = class {
               clearTimeout(stepTimeoutId);
             }
           }
-          stepFinish = new DelayedPromise();
-          const stepInputMessages = [...initialMessages, ...responseMessages];
-          const prepareStepResult = await (prepareStep == null ? void 0 : prepareStep({
-            model,
-            steps: recordedSteps,
-            stepNumber: recordedSteps.length,
-            messages: stepInputMessages,
-            experimental_context
-          }));
-          const stepModel = resolveLanguageModel(
-            (_a18 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a18 : model
-          );
-          const promptMessages = await convertToLanguageModelPrompt({
-            prompt: {
-              system: (_b = prepareStepResult == null ? void 0 : prepareStepResult.system) != null ? _b : initialPrompt.system,
-              messages: (_c = prepareStepResult == null ? void 0 : prepareStepResult.messages) != null ? _c : stepInputMessages
-            },
-            supportedUrls: await stepModel.supportedUrls,
-            download: download2
-          });
-          const { toolChoice: stepToolChoice, tools: stepTools } = await prepareToolsAndToolChoice({
-            tools,
-            toolChoice: (_d = prepareStepResult == null ? void 0 : prepareStepResult.toolChoice) != null ? _d : toolChoice,
-            activeTools: (_e = prepareStepResult == null ? void 0 : prepareStepResult.activeTools) != null ? _e : activeTools
-          });
-          experimental_context = (_f = prepareStepResult == null ? void 0 : prepareStepResult.experimental_context) != null ? _f : experimental_context;
-          const stepProviderOptions = mergeObjects(
-            providerOptions,
-            prepareStepResult == null ? void 0 : prepareStepResult.providerOptions
-          );
-          const {
-            result: { stream: stream2, response, request },
-            doStreamSpan,
-            startTimestampMs
-          } = await retry(
-            () => recordSpan({
-              name: "ai.streamText.doStream",
-              attributes: selectTelemetryAttributes({
-                telemetry,
-                attributes: {
-                  ...assembleOperationName({
-                    operationId: "ai.streamText.doStream",
-                    telemetry
-                  }),
-                  ...baseTelemetryAttributes,
-                  // model:
-                  "ai.model.provider": stepModel.provider,
-                  "ai.model.id": stepModel.modelId,
-                  // prompt:
-                  "ai.prompt.messages": {
-                    input: () => stringifyForTelemetry(promptMessages)
-                  },
-                  "ai.prompt.tools": {
-                    // convert the language model level tools:
-                    input: () => stepTools == null ? void 0 : stepTools.map((tool2) => JSON.stringify(tool2))
-                  },
-                  "ai.prompt.toolChoice": {
-                    input: () => stepToolChoice != null ? JSON.stringify(stepToolChoice) : void 0
-                  },
-                  // standardized gen-ai llm span attributes:
-                  "gen_ai.system": stepModel.provider,
-                  "gen_ai.request.model": stepModel.modelId,
-                  "gen_ai.request.frequency_penalty": callSettings.frequencyPenalty,
-                  "gen_ai.request.max_tokens": callSettings.maxOutputTokens,
-                  "gen_ai.request.presence_penalty": callSettings.presencePenalty,
-                  "gen_ai.request.stop_sequences": callSettings.stopSequences,
-                  "gen_ai.request.temperature": callSettings.temperature,
-                  "gen_ai.request.top_k": callSettings.topK,
-                  "gen_ai.request.top_p": callSettings.topP
-                }
-              }),
-              tracer,
-              endWhenDone: false,
-              fn: async (doStreamSpan2) => ({
-                startTimestampMs: now2(),
-                // get before the call
-                doStreamSpan: doStreamSpan2,
-                result: await stepModel.doStream({
-                  ...callSettings,
-                  tools: stepTools,
-                  toolChoice: stepToolChoice,
-                  responseFormat: await (output == null ? void 0 : output.responseFormat),
-                  prompt: promptMessages,
-                  providerOptions: stepProviderOptions,
-                  abortSignal,
-                  headers,
-                  includeRawChunks: includeRawChunks2
+          try {
+            stepFinish = new DelayedPromise();
+            const stepInputMessages = [...initialMessages, ...responseMessages];
+            const prepareStepResult = await (prepareStep == null ? void 0 : prepareStep({
+              model,
+              steps: recordedSteps,
+              stepNumber: recordedSteps.length,
+              messages: stepInputMessages,
+              experimental_context
+            }));
+            const stepModel = resolveLanguageModel(
+              (_a20 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a20 : model
+            );
+            const promptMessages = await convertToLanguageModelPrompt({
+              prompt: {
+                system: (_b = prepareStepResult == null ? void 0 : prepareStepResult.system) != null ? _b : initialPrompt.system,
+                messages: (_c = prepareStepResult == null ? void 0 : prepareStepResult.messages) != null ? _c : stepInputMessages
+              },
+              supportedUrls: await stepModel.supportedUrls,
+              download: download2
+            });
+            const { toolChoice: stepToolChoice, tools: stepTools } = await prepareToolsAndToolChoice({
+              tools,
+              toolChoice: (_d = prepareStepResult == null ? void 0 : prepareStepResult.toolChoice) != null ? _d : toolChoice,
+              activeTools: (_e = prepareStepResult == null ? void 0 : prepareStepResult.activeTools) != null ? _e : activeTools
+            });
+            experimental_context = (_f = prepareStepResult == null ? void 0 : prepareStepResult.experimental_context) != null ? _f : experimental_context;
+            const stepProviderOptions = mergeObjects(
+              providerOptions,
+              prepareStepResult == null ? void 0 : prepareStepResult.providerOptions
+            );
+            const {
+              result: { stream: stream2, response, request },
+              doStreamSpan,
+              startTimestampMs
+            } = await retry(
+              () => recordSpan({
+                name: "ai.streamText.doStream",
+                attributes: selectTelemetryAttributes({
+                  telemetry,
+                  attributes: {
+                    ...assembleOperationName({
+                      operationId: "ai.streamText.doStream",
+                      telemetry
+                    }),
+                    ...baseTelemetryAttributes,
+                    // model:
+                    "ai.model.provider": stepModel.provider,
+                    "ai.model.id": stepModel.modelId,
+                    // prompt:
+                    "ai.prompt.messages": {
+                      input: () => stringifyForTelemetry(promptMessages)
+                    },
+                    "ai.prompt.tools": {
+                      // convert the language model level tools:
+                      input: () => stepTools == null ? void 0 : stepTools.map((tool2) => JSON.stringify(tool2))
+                    },
+                    "ai.prompt.toolChoice": {
+                      input: () => stepToolChoice != null ? JSON.stringify(stepToolChoice) : void 0
+                    },
+                    // standardized gen-ai llm span attributes:
+                    "gen_ai.system": stepModel.provider,
+                    "gen_ai.request.model": stepModel.modelId,
+                    "gen_ai.request.frequency_penalty": callSettings.frequencyPenalty,
+                    "gen_ai.request.max_tokens": callSettings.maxOutputTokens,
+                    "gen_ai.request.presence_penalty": callSettings.presencePenalty,
+                    "gen_ai.request.stop_sequences": callSettings.stopSequences,
+                    "gen_ai.request.temperature": callSettings.temperature,
+                    "gen_ai.request.top_k": callSettings.topK,
+                    "gen_ai.request.top_p": callSettings.topP
+                  }
+                }),
+                tracer,
+                endWhenDone: false,
+                fn: async (doStreamSpan2) => ({
+                  startTimestampMs: now2(),
+                  // get before the call
+                  doStreamSpan: doStreamSpan2,
+                  result: await stepModel.doStream({
+                    ...callSettings,
+                    tools: stepTools,
+                    toolChoice: stepToolChoice,
+                    responseFormat: await (output == null ? void 0 : output.responseFormat),
+                    prompt: promptMessages,
+                    providerOptions: stepProviderOptions,
+                    abortSignal,
+                    headers,
+                    includeRawChunks: includeRawChunks2
+                  })
                 })
               })
-            })
-          );
-          const streamWithToolResults = runToolsTransformation({
-            tools,
-            generatorStream: stream2,
-            tracer,
-            telemetry,
-            system,
-            messages: stepInputMessages,
-            repairToolCall,
-            abortSignal,
-            experimental_context,
-            generateId: generateId2
-          });
-          const stepRequest = request != null ? request : {};
-          const stepToolCalls = [];
-          const stepToolOutputs = [];
-          let warnings;
-          const activeToolCallToolNames = {};
-          let stepFinishReason = "other";
-          let stepRawFinishReason = void 0;
-          let stepUsage = createNullLanguageModelUsage();
-          let stepProviderMetadata;
-          let stepFirstChunk = true;
-          let stepResponse = {
-            id: generateId2(),
-            timestamp: /* @__PURE__ */ new Date(),
-            modelId: model.modelId
-          };
-          let activeText = "";
-          self.addStream(
-            streamWithToolResults.pipeThrough(
-              new TransformStream({
-                async transform(chunk, controller) {
-                  var _a19, _b2, _c2, _d2, _e2;
-                  resetChunkTimeout();
-                  if (chunk.type === "stream-start") {
-                    warnings = chunk.warnings;
-                    return;
-                  }
-                  if (stepFirstChunk) {
-                    const msToFirstChunk = now2() - startTimestampMs;
-                    stepFirstChunk = false;
-                    doStreamSpan.addEvent("ai.stream.firstChunk", {
-                      "ai.response.msToFirstChunk": msToFirstChunk
-                    });
-                    doStreamSpan.setAttributes({
-                      "ai.response.msToFirstChunk": msToFirstChunk
-                    });
-                    controller.enqueue({
-                      type: "start-step",
-                      request: stepRequest,
-                      warnings: warnings != null ? warnings : []
-                    });
-                  }
-                  const chunkType = chunk.type;
-                  switch (chunkType) {
-                    case "tool-approval-request":
-                    case "text-start":
-                    case "text-end": {
-                      controller.enqueue(chunk);
-                      break;
+            );
+            const streamWithToolResults = runToolsTransformation({
+              tools,
+              generatorStream: stream2,
+              tracer,
+              telemetry,
+              system,
+              messages: stepInputMessages,
+              repairToolCall,
+              abortSignal,
+              experimental_context,
+              generateId: generateId2
+            });
+            const stepRequest = ((_g = include == null ? void 0 : include.requestBody) != null ? _g : true) ? request != null ? request : {} : { ...request, body: void 0 };
+            const stepToolCalls = [];
+            const stepToolOutputs = [];
+            let warnings;
+            const activeToolCallToolNames = {};
+            let stepFinishReason = "other";
+            let stepRawFinishReason = void 0;
+            let stepUsage = createNullLanguageModelUsage();
+            let stepProviderMetadata;
+            let stepFirstChunk = true;
+            let stepResponse = {
+              id: generateId2(),
+              timestamp: /* @__PURE__ */ new Date(),
+              modelId: model.modelId
+            };
+            let activeText = "";
+            self.addStream(
+              streamWithToolResults.pipeThrough(
+                new TransformStream({
+                  async transform(chunk, controller) {
+                    var _a21, _b2, _c2, _d2, _e2;
+                    resetChunkTimeout();
+                    if (chunk.type === "stream-start") {
+                      warnings = chunk.warnings;
+                      return;
                     }
-                    case "text-delta": {
-                      if (chunk.delta.length > 0) {
+                    if (stepFirstChunk) {
+                      const msToFirstChunk = now2() - startTimestampMs;
+                      stepFirstChunk = false;
+                      doStreamSpan.addEvent("ai.stream.firstChunk", {
+                        "ai.response.msToFirstChunk": msToFirstChunk
+                      });
+                      doStreamSpan.setAttributes({
+                        "ai.response.msToFirstChunk": msToFirstChunk
+                      });
+                      controller.enqueue({
+                        type: "start-step",
+                        request: stepRequest,
+                        warnings: warnings != null ? warnings : []
+                      });
+                    }
+                    const chunkType = chunk.type;
+                    switch (chunkType) {
+                      case "tool-approval-request":
+                      case "text-start":
+                      case "text-end": {
+                        controller.enqueue(chunk);
+                        break;
+                      }
+                      case "text-delta": {
+                        if (chunk.delta.length > 0) {
+                          controller.enqueue({
+                            type: "text-delta",
+                            id: chunk.id,
+                            text: chunk.delta,
+                            providerMetadata: chunk.providerMetadata
+                          });
+                          activeText += chunk.delta;
+                        }
+                        break;
+                      }
+                      case "reasoning-start":
+                      case "reasoning-end": {
+                        controller.enqueue(chunk);
+                        break;
+                      }
+                      case "reasoning-delta": {
                         controller.enqueue({
-                          type: "text-delta",
+                          type: "reasoning-delta",
                           id: chunk.id,
                           text: chunk.delta,
                           providerMetadata: chunk.providerMetadata
                         });
-                        activeText += chunk.delta;
+                        break;
                       }
-                      break;
-                    }
-                    case "reasoning-start":
-                    case "reasoning-end": {
-                      controller.enqueue(chunk);
-                      break;
-                    }
-                    case "reasoning-delta": {
-                      controller.enqueue({
-                        type: "reasoning-delta",
-                        id: chunk.id,
-                        text: chunk.delta,
-                        providerMetadata: chunk.providerMetadata
-                      });
-                      break;
-                    }
-                    case "tool-call": {
-                      controller.enqueue(chunk);
-                      stepToolCalls.push(chunk);
-                      break;
-                    }
-                    case "tool-result": {
-                      controller.enqueue(chunk);
-                      if (!chunk.preliminary) {
-                        stepToolOutputs.push(chunk);
-                      }
-                      break;
-                    }
-                    case "tool-error": {
-                      controller.enqueue(chunk);
-                      stepToolOutputs.push(chunk);
-                      break;
-                    }
-                    case "response-metadata": {
-                      stepResponse = {
-                        id: (_a19 = chunk.id) != null ? _a19 : stepResponse.id,
-                        timestamp: (_b2 = chunk.timestamp) != null ? _b2 : stepResponse.timestamp,
-                        modelId: (_c2 = chunk.modelId) != null ? _c2 : stepResponse.modelId
-                      };
-                      break;
-                    }
-                    case "finish": {
-                      stepUsage = chunk.usage;
-                      stepFinishReason = chunk.finishReason;
-                      stepRawFinishReason = chunk.rawFinishReason;
-                      stepProviderMetadata = chunk.providerMetadata;
-                      const msToFinish = now2() - startTimestampMs;
-                      doStreamSpan.addEvent("ai.stream.finish");
-                      doStreamSpan.setAttributes({
-                        "ai.response.msToFinish": msToFinish,
-                        "ai.response.avgOutputTokensPerSecond": 1e3 * ((_d2 = stepUsage.outputTokens) != null ? _d2 : 0) / msToFinish
-                      });
-                      break;
-                    }
-                    case "file": {
-                      controller.enqueue(chunk);
-                      break;
-                    }
-                    case "source": {
-                      controller.enqueue(chunk);
-                      break;
-                    }
-                    case "tool-input-start": {
-                      activeToolCallToolNames[chunk.id] = chunk.toolName;
-                      const tool2 = tools == null ? void 0 : tools[chunk.toolName];
-                      if ((tool2 == null ? void 0 : tool2.onInputStart) != null) {
-                        await tool2.onInputStart({
-                          toolCallId: chunk.id,
-                          messages: stepInputMessages,
-                          abortSignal,
-                          experimental_context
-                        });
-                      }
-                      controller.enqueue({
-                        ...chunk,
-                        dynamic: (_e2 = chunk.dynamic) != null ? _e2 : (tool2 == null ? void 0 : tool2.type) === "dynamic",
-                        title: tool2 == null ? void 0 : tool2.title
-                      });
-                      break;
-                    }
-                    case "tool-input-end": {
-                      delete activeToolCallToolNames[chunk.id];
-                      controller.enqueue(chunk);
-                      break;
-                    }
-                    case "tool-input-delta": {
-                      const toolName = activeToolCallToolNames[chunk.id];
-                      const tool2 = tools == null ? void 0 : tools[toolName];
-                      if ((tool2 == null ? void 0 : tool2.onInputDelta) != null) {
-                        await tool2.onInputDelta({
-                          inputTextDelta: chunk.delta,
-                          toolCallId: chunk.id,
-                          messages: stepInputMessages,
-                          abortSignal,
-                          experimental_context
-                        });
-                      }
-                      controller.enqueue(chunk);
-                      break;
-                    }
-                    case "error": {
-                      controller.enqueue(chunk);
-                      stepFinishReason = "error";
-                      break;
-                    }
-                    case "raw": {
-                      if (includeRawChunks2) {
+                      case "tool-call": {
                         controller.enqueue(chunk);
+                        stepToolCalls.push(chunk);
+                        break;
                       }
-                      break;
-                    }
-                    default: {
-                      const exhaustiveCheck = chunkType;
-                      throw new Error(`Unknown chunk type: ${exhaustiveCheck}`);
-                    }
-                  }
-                },
-                // invoke onFinish callback and resolve toolResults promise when the stream is about to close:
-                async flush(controller) {
-                  const stepToolCallsJson = stepToolCalls.length > 0 ? JSON.stringify(stepToolCalls) : void 0;
-                  try {
-                    doStreamSpan.setAttributes(
-                      await selectTelemetryAttributes({
-                        telemetry,
-                        attributes: {
-                          "ai.response.finishReason": stepFinishReason,
-                          "ai.response.text": {
-                            output: () => activeText
-                          },
-                          "ai.response.toolCalls": {
-                            output: () => stepToolCallsJson
-                          },
-                          "ai.response.id": stepResponse.id,
-                          "ai.response.model": stepResponse.modelId,
-                          "ai.response.timestamp": stepResponse.timestamp.toISOString(),
-                          "ai.response.providerMetadata": JSON.stringify(stepProviderMetadata),
-                          "ai.usage.inputTokens": stepUsage.inputTokens,
-                          "ai.usage.outputTokens": stepUsage.outputTokens,
-                          "ai.usage.totalTokens": stepUsage.totalTokens,
-                          "ai.usage.reasoningTokens": stepUsage.reasoningTokens,
-                          "ai.usage.cachedInputTokens": stepUsage.cachedInputTokens,
-                          // standardized gen-ai llm span attributes:
-                          "gen_ai.response.finish_reasons": [stepFinishReason],
-                          "gen_ai.response.id": stepResponse.id,
-                          "gen_ai.response.model": stepResponse.modelId,
-                          "gen_ai.usage.input_tokens": stepUsage.inputTokens,
-                          "gen_ai.usage.output_tokens": stepUsage.outputTokens
+                      case "tool-result": {
+                        controller.enqueue(chunk);
+                        if (!chunk.preliminary) {
+                          stepToolOutputs.push(chunk);
                         }
-                      })
-                    );
-                  } catch (error) {
-                  } finally {
-                    doStreamSpan.end();
-                  }
-                  controller.enqueue({
-                    type: "finish-step",
-                    finishReason: stepFinishReason,
-                    rawFinishReason: stepRawFinishReason,
-                    usage: stepUsage,
-                    providerMetadata: stepProviderMetadata,
-                    response: {
-                      ...stepResponse,
-                      headers: response == null ? void 0 : response.headers
-                    }
-                  });
-                  const combinedUsage = addLanguageModelUsage(usage, stepUsage);
-                  await stepFinish.promise;
-                  const clientToolCalls = stepToolCalls.filter(
-                    (toolCall) => toolCall.providerExecuted !== true
-                  );
-                  const clientToolOutputs = stepToolOutputs.filter(
-                    (toolOutput) => toolOutput.providerExecuted !== true
-                  );
-                  for (const toolCall of stepToolCalls) {
-                    if (toolCall.providerExecuted !== true)
-                      continue;
-                    const tool2 = tools == null ? void 0 : tools[toolCall.toolName];
-                    if ((tool2 == null ? void 0 : tool2.type) === "provider" && tool2.supportsDeferredResults) {
-                      const hasResultInStep = stepToolOutputs.some(
-                        (output2) => output2.type === "tool-result" && output2.toolCallId === toolCall.toolCallId
-                      );
-                      if (!hasResultInStep) {
-                        pendingDeferredToolCalls.set(toolCall.toolCallId, {
-                          toolName: toolCall.toolName
+                        break;
+                      }
+                      case "tool-error": {
+                        controller.enqueue(chunk);
+                        stepToolOutputs.push(chunk);
+                        break;
+                      }
+                      case "response-metadata": {
+                        stepResponse = {
+                          id: (_a21 = chunk.id) != null ? _a21 : stepResponse.id,
+                          timestamp: (_b2 = chunk.timestamp) != null ? _b2 : stepResponse.timestamp,
+                          modelId: (_c2 = chunk.modelId) != null ? _c2 : stepResponse.modelId
+                        };
+                        break;
+                      }
+                      case "finish": {
+                        stepUsage = chunk.usage;
+                        stepFinishReason = chunk.finishReason;
+                        stepRawFinishReason = chunk.rawFinishReason;
+                        stepProviderMetadata = chunk.providerMetadata;
+                        const msToFinish = now2() - startTimestampMs;
+                        doStreamSpan.addEvent("ai.stream.finish");
+                        doStreamSpan.setAttributes({
+                          "ai.response.msToFinish": msToFinish,
+                          "ai.response.avgOutputTokensPerSecond": 1e3 * ((_d2 = stepUsage.outputTokens) != null ? _d2 : 0) / msToFinish
                         });
+                        break;
+                      }
+                      case "file": {
+                        controller.enqueue(chunk);
+                        break;
+                      }
+                      case "source": {
+                        controller.enqueue(chunk);
+                        break;
+                      }
+                      case "tool-input-start": {
+                        activeToolCallToolNames[chunk.id] = chunk.toolName;
+                        const tool2 = tools == null ? void 0 : tools[chunk.toolName];
+                        if ((tool2 == null ? void 0 : tool2.onInputStart) != null) {
+                          await tool2.onInputStart({
+                            toolCallId: chunk.id,
+                            messages: stepInputMessages,
+                            abortSignal,
+                            experimental_context
+                          });
+                        }
+                        controller.enqueue({
+                          ...chunk,
+                          dynamic: (_e2 = chunk.dynamic) != null ? _e2 : (tool2 == null ? void 0 : tool2.type) === "dynamic",
+                          title: tool2 == null ? void 0 : tool2.title
+                        });
+                        break;
+                      }
+                      case "tool-input-end": {
+                        delete activeToolCallToolNames[chunk.id];
+                        controller.enqueue(chunk);
+                        break;
+                      }
+                      case "tool-input-delta": {
+                        const toolName = activeToolCallToolNames[chunk.id];
+                        const tool2 = tools == null ? void 0 : tools[toolName];
+                        if ((tool2 == null ? void 0 : tool2.onInputDelta) != null) {
+                          await tool2.onInputDelta({
+                            inputTextDelta: chunk.delta,
+                            toolCallId: chunk.id,
+                            messages: stepInputMessages,
+                            abortSignal,
+                            experimental_context
+                          });
+                        }
+                        controller.enqueue(chunk);
+                        break;
+                      }
+                      case "error": {
+                        controller.enqueue(chunk);
+                        stepFinishReason = "error";
+                        break;
+                      }
+                      case "raw": {
+                        if (includeRawChunks2) {
+                          controller.enqueue(chunk);
+                        }
+                        break;
+                      }
+                      default: {
+                        const exhaustiveCheck = chunkType;
+                        throw new Error(
+                          `Unknown chunk type: ${exhaustiveCheck}`
+                        );
                       }
                     }
-                  }
-                  for (const output2 of stepToolOutputs) {
-                    if (output2.type === "tool-result") {
-                      pendingDeferredToolCalls.delete(output2.toolCallId);
-                    }
-                  }
-                  clearStepTimeout();
-                  clearChunkTimeout();
-                  if (
-                    // Continue if:
-                    // 1. There are client tool calls that have all been executed, OR
-                    // 2. There are pending deferred results from provider-executed tools
-                    (clientToolCalls.length > 0 && clientToolOutputs.length === clientToolCalls.length || pendingDeferredToolCalls.size > 0) && // continue until a stop condition is met:
-                    !await isStopConditionMet({
-                      stopConditions,
-                      steps: recordedSteps
-                    })
-                  ) {
-                    responseMessages.push(
-                      ...await toResponseMessages({
-                        content: (
-                          // use transformed content to create the messages for the next step:
-                          recordedSteps[recordedSteps.length - 1].content
-                        ),
-                        tools
-                      })
-                    );
+                  },
+                  // invoke onFinish callback and resolve toolResults promise when the stream is about to close:
+                  async flush(controller) {
+                    const stepToolCallsJson = stepToolCalls.length > 0 ? JSON.stringify(stepToolCalls) : void 0;
                     try {
-                      await streamStep({
-                        currentStep: currentStep + 1,
-                        responseMessages,
-                        usage: combinedUsage
-                      });
+                      doStreamSpan.setAttributes(
+                        await selectTelemetryAttributes({
+                          telemetry,
+                          attributes: {
+                            "ai.response.finishReason": stepFinishReason,
+                            "ai.response.text": {
+                              output: () => activeText
+                            },
+                            "ai.response.toolCalls": {
+                              output: () => stepToolCallsJson
+                            },
+                            "ai.response.id": stepResponse.id,
+                            "ai.response.model": stepResponse.modelId,
+                            "ai.response.timestamp": stepResponse.timestamp.toISOString(),
+                            "ai.response.providerMetadata": JSON.stringify(stepProviderMetadata),
+                            "ai.usage.inputTokens": stepUsage.inputTokens,
+                            "ai.usage.outputTokens": stepUsage.outputTokens,
+                            "ai.usage.totalTokens": stepUsage.totalTokens,
+                            "ai.usage.reasoningTokens": stepUsage.reasoningTokens,
+                            "ai.usage.cachedInputTokens": stepUsage.cachedInputTokens,
+                            // standardized gen-ai llm span attributes:
+                            "gen_ai.response.finish_reasons": [
+                              stepFinishReason
+                            ],
+                            "gen_ai.response.id": stepResponse.id,
+                            "gen_ai.response.model": stepResponse.modelId,
+                            "gen_ai.usage.input_tokens": stepUsage.inputTokens,
+                            "gen_ai.usage.output_tokens": stepUsage.outputTokens
+                          }
+                        })
+                      );
                     } catch (error) {
+                    } finally {
+                      doStreamSpan.end();
+                    }
+                    controller.enqueue({
+                      type: "finish-step",
+                      finishReason: stepFinishReason,
+                      rawFinishReason: stepRawFinishReason,
+                      usage: stepUsage,
+                      providerMetadata: stepProviderMetadata,
+                      response: {
+                        ...stepResponse,
+                        headers: response == null ? void 0 : response.headers
+                      }
+                    });
+                    const combinedUsage = addLanguageModelUsage(
+                      usage,
+                      stepUsage
+                    );
+                    await stepFinish.promise;
+                    const clientToolCalls = stepToolCalls.filter(
+                      (toolCall) => toolCall.providerExecuted !== true
+                    );
+                    const clientToolOutputs = stepToolOutputs.filter(
+                      (toolOutput) => toolOutput.providerExecuted !== true
+                    );
+                    for (const toolCall of stepToolCalls) {
+                      if (toolCall.providerExecuted !== true)
+                        continue;
+                      const tool2 = tools == null ? void 0 : tools[toolCall.toolName];
+                      if ((tool2 == null ? void 0 : tool2.type) === "provider" && tool2.supportsDeferredResults) {
+                        const hasResultInStep = stepToolOutputs.some(
+                          (output2) => (output2.type === "tool-result" || output2.type === "tool-error") && output2.toolCallId === toolCall.toolCallId
+                        );
+                        if (!hasResultInStep) {
+                          pendingDeferredToolCalls.set(toolCall.toolCallId, {
+                            toolName: toolCall.toolName
+                          });
+                        }
+                      }
+                    }
+                    for (const output2 of stepToolOutputs) {
+                      if (output2.type === "tool-result" || output2.type === "tool-error") {
+                        pendingDeferredToolCalls.delete(output2.toolCallId);
+                      }
+                    }
+                    clearStepTimeout();
+                    clearChunkTimeout();
+                    if (
+                      // Continue if:
+                      // 1. There are client tool calls that have all been executed, OR
+                      // 2. There are pending deferred results from provider-executed tools
+                      (clientToolCalls.length > 0 && clientToolOutputs.length === clientToolCalls.length || pendingDeferredToolCalls.size > 0) && // continue until a stop condition is met:
+                      !await isStopConditionMet({
+                        stopConditions,
+                        steps: recordedSteps
+                      })
+                    ) {
+                      responseMessages.push(
+                        ...await toResponseMessages({
+                          content: (
+                            // use transformed content to create the messages for the next step:
+                            recordedSteps[recordedSteps.length - 1].content
+                          ),
+                          tools
+                        })
+                      );
+                      try {
+                        await streamStep({
+                          currentStep: currentStep + 1,
+                          responseMessages,
+                          usage: combinedUsage
+                        });
+                      } catch (error) {
+                        controller.enqueue({
+                          type: "error",
+                          error
+                        });
+                        self.closeStream();
+                      }
+                    } else {
                       controller.enqueue({
-                        type: "error",
-                        error
+                        type: "finish",
+                        finishReason: stepFinishReason,
+                        rawFinishReason: stepRawFinishReason,
+                        totalUsage: combinedUsage
                       });
                       self.closeStream();
                     }
-                  } else {
-                    controller.enqueue({
-                      type: "finish",
-                      finishReason: stepFinishReason,
-                      rawFinishReason: stepRawFinishReason,
-                      totalUsage: combinedUsage
-                    });
-                    self.closeStream();
                   }
-                }
-              })
-            )
-          );
+                })
+              )
+            );
+          } finally {
+            clearStepTimeout();
+            clearChunkTimeout();
+          }
         }
         await streamStep({
           currentStep: 0,
@@ -17562,13 +17735,13 @@ var DefaultStreamTextResult = class {
     return this._rawFinishReason.promise;
   }
   /**
-  Split out a new stream from the original stream.
-  The original stream is replaced to allow for further splitting,
-  since we do not know how many times the stream will be split.
-  
-  Note: this leads to buffering the stream content on the server.
-  However, the LLM results are expected to be small enough to not cause issues.
-     */
+   * Split out a new stream from the original stream.
+   * The original stream is replaced to allow for further splitting,
+   * since we do not know how many times the stream will be split.
+   *
+   * Note: this leads to buffering the stream content on the server.
+   * However, the LLM results are expected to be small enough to not cause issues.
+   */
   teeStream() {
     const [stream1, stream2] = this.baseStream.tee();
     this.baseStream = stream2;
@@ -17599,14 +17772,14 @@ var DefaultStreamTextResult = class {
     );
   }
   async consumeStream(options) {
-    var _a18;
+    var _a20;
     try {
       await consumeStream({
         stream: this.fullStream,
         onError: options == null ? void 0 : options.onError
       });
     } catch (error) {
-      (_a18 = options == null ? void 0 : options.onError) == null ? void 0 : _a18.call(options, error);
+      (_a20 = options == null ? void 0 : options.onError) == null ? void 0 : _a20.call(options, error);
     }
   }
   get experimental_partialOutputStream() {
@@ -17626,8 +17799,8 @@ var DefaultStreamTextResult = class {
     );
   }
   get elementStream() {
-    var _a18, _b, _c;
-    const transform = (_a18 = this.outputSpecification) == null ? void 0 : _a18.createElementStreamTransform();
+    var _a20, _b, _c;
+    const transform = (_a20 = this.outputSpecification) == null ? void 0 : _a20.createElementStreamTransform();
     if (transform == null) {
       throw new UnsupportedFunctionalityError({
         functionality: `element streams in ${(_c = (_b = this.outputSpecification) == null ? void 0 : _b.name) != null ? _c : "text"} mode`
@@ -17637,8 +17810,8 @@ var DefaultStreamTextResult = class {
   }
   get output() {
     return this.finalStep.then((step) => {
-      var _a18;
-      const output = (_a18 = this.outputSpecification) != null ? _a18 : text();
+      var _a20;
+      const output = (_a20 = this.outputSpecification) != null ? _a20 : text();
       return output.parseCompleteOutput(
         { text: step.text },
         {
@@ -17665,8 +17838,8 @@ var DefaultStreamTextResult = class {
       responseMessageId: generateMessageId
     }) : void 0;
     const isDynamic = (part) => {
-      var _a18;
-      const tool2 = (_a18 = this.tools) == null ? void 0 : _a18[part.toolName];
+      var _a20;
+      const tool2 = (_a20 = this.tools) == null ? void 0 : _a20[part.toolName];
       if (tool2 == null) {
         return part.dynamic;
       }
@@ -18187,10 +18360,10 @@ function mapMistralFinishReason(finishReason) {
 }
 var mistralLanguageModelOptions = object$1({
   /**
-  Whether to inject a safety prompt before all conversations.
-  
-  Defaults to `false`.
-     */
+   * Whether to inject a safety prompt before all conversations.
+   *
+   * Defaults to `false`.
+   */
   safePrompt: boolean().optional(),
   documentImageLimit: number$1().optional(),
   documentPageLimit: number$1().optional(),
@@ -18769,7 +18942,7 @@ var MistralTextEmbeddingResponseSchema = object$1({
 });
 
 // src/version.ts
-var VERSION$6 = "3.0.12" ;
+var VERSION$6 = "3.0.16" ;
 
 // src/mistral-provider.ts
 function createMistral(options = {}) {
@@ -18824,7 +18997,7 @@ createMistral();
 // src/google-provider.ts
 
 // src/version.ts
-var VERSION$5 = "3.0.13" ;
+var VERSION$5 = "3.0.18" ;
 var googleErrorDataSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -20268,7 +20441,7 @@ var getGroundingMetadataSchema = () => object$1({
         startIndex: number$1().nullish(),
         endIndex: number$1().nullish(),
         text: string().nullish()
-      }),
+      }).nullish(),
       segment_text: string().nullish(),
       groundingChunkIndices: array$1(number$1()).nullish(),
       supportChunkIndices: array$1(number$1()).nullish(),
@@ -20325,7 +20498,7 @@ var getSafetyRatingSchema = () => object$1({
   severityScore: number$1().nullish(),
   blocked: boolean().nullish()
 });
-var usageSchema$2 = object$1({
+var usageSchema$1 = object$1({
   cachedContentTokenCount: number$1().nullish(),
   thoughtsTokenCount: number$1().nullish(),
   promptTokenCount: number$1().nullish(),
@@ -20354,7 +20527,7 @@ var responseSchema = lazySchema(
           urlContextMetadata: getUrlContextMetadataSchema().nullish()
         })
       ),
-      usageMetadata: usageSchema$2.nullish(),
+      usageMetadata: usageSchema$1.nullish(),
       promptFeedback: object$1({
         blockReason: string().nullish(),
         safetyRatings: array$1(getSafetyRatingSchema()).nullish()
@@ -20374,7 +20547,7 @@ var chunkSchema = lazySchema(
           urlContextMetadata: getUrlContextMetadataSchema().nullish()
         })
       ).nullish(),
-      usageMetadata: usageSchema$2.nullish(),
+      usageMetadata: usageSchema$1.nullish(),
       promptFeedback: object$1({
         blockReason: string().nullish(),
         safetyRatings: array$1(getSafetyRatingSchema()).nullish()
@@ -20413,12 +20586,12 @@ var fileSearchArgsBaseSchema = object$1({
     "Metadata filter to apply to the file search retrieval documents. See https://google.aip.dev/160 for the syntax of the filter expression."
   ).optional()
 }).passthrough();
-var fileSearchArgsSchema$1 = lazySchema(
+var fileSearchArgsSchema$2 = lazySchema(
   () => zodSchema(fileSearchArgsBaseSchema)
 );
-var fileSearch$1 = createProviderToolFactory({
+var fileSearch$2 = createProviderToolFactory({
   id: "google.file_search",
-  inputSchema: fileSearchArgsSchema$1
+  inputSchema: fileSearchArgsSchema$2
 });
 var googleMaps = createProviderToolFactory({
   id: "google.google_maps",
@@ -20488,7 +20661,7 @@ var googleTools = {
    *
    * @see https://ai.google.dev/gemini-api/docs/file-search
    */
-  fileSearch: fileSearch$1,
+  fileSearch: fileSearch$2,
   /**
    * A tool that enables the model to generate and run Python code.
    * Must have name "code_execution".
@@ -21973,42 +22146,42 @@ var openaiCompletionProviderOptions = lazySchema(
   () => zodSchema(
     object$1({
       /**
-      Echo back the prompt in addition to the completion.
-         */
+       * Echo back the prompt in addition to the completion.
+       */
       echo: boolean().optional(),
       /**
-      Modify the likelihood of specified tokens appearing in the completion.
-      
-      Accepts a JSON object that maps tokens (specified by their token ID in
-      the GPT tokenizer) to an associated bias value from -100 to 100. You
-      can use this tokenizer tool to convert text to token IDs. Mathematically,
-      the bias is added to the logits generated by the model prior to sampling.
-      The exact effect will vary per model, but values between -1 and 1 should
-      decrease or increase likelihood of selection; values like -100 or 100
-      should result in a ban or exclusive selection of the relevant token.
-      
-      As an example, you can pass {"50256": -100} to prevent the <|endoftext|>
-      token from being generated.
+       * Modify the likelihood of specified tokens appearing in the completion.
+       *
+       * Accepts a JSON object that maps tokens (specified by their token ID in
+       * the GPT tokenizer) to an associated bias value from -100 to 100. You
+       * can use this tokenizer tool to convert text to token IDs. Mathematically,
+       * the bias is added to the logits generated by the model prior to sampling.
+       * The exact effect will vary per model, but values between -1 and 1 should
+       * decrease or increase likelihood of selection; values like -100 or 100
+       * should result in a ban or exclusive selection of the relevant token.
+       *
+       * As an example, you can pass {"50256": -100} to prevent the <|endoftext|>
+       * token from being generated.
        */
       logitBias: record(string(), number$1()).optional(),
       /**
-      The suffix that comes after a completion of inserted text.
+       * The suffix that comes after a completion of inserted text.
        */
       suffix: string().optional(),
       /**
-      A unique identifier representing your end-user, which can help OpenAI to
-      monitor and detect abuse. Learn more.
+       * A unique identifier representing your end-user, which can help OpenAI to
+       * monitor and detect abuse. Learn more.
        */
       user: string().optional(),
       /**
-      Return the log probabilities of the tokens. Including logprobs will increase
-      the response size and can slow down response times. However, it can
-      be useful to better understand how the model is behaving.
-      Setting to true will return the log probabilities of the tokens that
-      were generated.
-      Setting to a number will return the log probabilities of the top n
-      tokens that were generated.
-         */
+       * Return the log probabilities of the tokens. Including logprobs will increase
+       * the response size and can slow down response times. However, it can
+       * be useful to better understand how the model is behaving.
+       * Setting to true will return the log probabilities of the tokens that
+       * were generated.
+       * Setting to a number will return the log probabilities of the top n
+       * tokens that were generated.
+       */
       logprobs: union([boolean(), number$1()]).optional()
     })
   )
@@ -22246,14 +22419,14 @@ var openaiEmbeddingProviderOptions = lazySchema(
   () => zodSchema(
     object$1({
       /**
-      The number of dimensions the resulting output embeddings should have.
-      Only supported in text-embedding-3 and later models.
-         */
+       * The number of dimensions the resulting output embeddings should have.
+       * Only supported in text-embedding-3 and later models.
+       */
       dimensions: number$1().optional(),
       /**
-      A unique identifier representing your end-user, which can help OpenAI to
-      monitor and detect abuse. Learn more.
-      */
+       * A unique identifier representing your end-user, which can help OpenAI to
+       * monitor and detect abuse. Learn more.
+       */
       user: string().optional()
     })
   )
@@ -22630,7 +22803,7 @@ var compoundFilterSchema = object$1({
     union([comparisonFilterSchema, lazy(() => compoundFilterSchema)])
   )
 });
-var fileSearchArgsSchema = lazySchema(
+var fileSearchArgsSchema$1 = lazySchema(
   () => zodSchema(
     object$1({
       vectorStoreIds: array$1(string()),
@@ -22643,7 +22816,7 @@ var fileSearchArgsSchema = lazySchema(
     })
   )
 );
-var fileSearchOutputSchema = lazySchema(
+var fileSearchOutputSchema$1 = lazySchema(
   () => zodSchema(
     object$1({
       queries: array$1(string()),
@@ -22659,10 +22832,10 @@ var fileSearchOutputSchema = lazySchema(
     })
   )
 );
-var fileSearch = createProviderToolFactoryWithOutputSchema({
+var fileSearch$1 = createProviderToolFactoryWithOutputSchema({
   id: "openai.file_search",
   inputSchema: object$1({}),
-  outputSchema: fileSearchOutputSchema
+  outputSchema: fileSearchOutputSchema$1
 });
 var imageGenerationArgsSchema = lazySchema(
   () => zodSchema(
@@ -22930,7 +23103,7 @@ var openaiTools = {
    * @param ranking - The ranking options to use for the file search.
    * @param filters - The filters to use for the file search.
    */
-  fileSearch,
+  fileSearch: fileSearch$1,
   /**
    * The image generation tool allows you to generate images using a text prompt,
    * and optionally image inputs. It leverages the GPT Image model,
@@ -24328,7 +24501,7 @@ async function prepareResponsesTools$2({
           case "openai.file_search": {
             const args = await validateTypes({
               value: tool.args,
-              schema: fileSearchArgsSchema
+              schema: fileSearchArgsSchema$1
             });
             openaiTools2.push({
               type: "file_search",
@@ -26255,7 +26428,7 @@ var OpenAITranscriptionModel = class {
 };
 
 // src/version.ts
-var VERSION$4 = "3.0.19" ;
+var VERSION$4 = "3.0.23" ;
 
 // src/openai-provider.ts
 function createOpenAI(options = {}) {
@@ -26359,7 +26532,7 @@ createOpenAI();
 // src/anthropic-provider.ts
 
 // src/version.ts
-var VERSION$3 = "3.0.23" ;
+var VERSION$3 = "3.0.31" ;
 var anthropicErrorDataSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -27003,7 +27176,8 @@ var anthropicMessagesChunkSchema = lazySchema(
         usage: looseObject({
           input_tokens: number$1().nullish(),
           output_tokens: number$1(),
-          cache_creation_input_tokens: number$1().nullish()
+          cache_creation_input_tokens: number$1().nullish(),
+          cache_read_input_tokens: number$1().nullish()
         })
       }),
       object$1({
@@ -27409,6 +27583,19 @@ async function prepareTools$2({
               display_width_px: tool.args.displayWidthPx,
               display_height_px: tool.args.displayHeightPx,
               display_number: tool.args.displayNumber,
+              cache_control: void 0
+            });
+            break;
+          }
+          case "anthropic.computer_20251124": {
+            betas.add("computer-use-2025-11-24");
+            anthropicTools2.push({
+              name: "computer",
+              type: "computer_20251124",
+              display_width_px: tool.args.displayWidthPx,
+              display_height_px: tool.args.displayHeightPx,
+              display_number: tool.args.displayNumber,
+              enable_zoom: tool.args.enableZoom,
               cache_control: void 0
             });
             break;
@@ -28660,6 +28847,15 @@ var AnthropicMessagesLanguageModel = class {
   get provider() {
     return this.config.provider;
   }
+  /**
+   * Extracts the dynamic provider name from the config.provider string.
+   * e.g., 'my-custom-anthropic.messages' -> 'my-custom-anthropic'
+   */
+  get providerOptionsName() {
+    const provider = this.config.provider;
+    const dotIndex = provider.indexOf(".");
+    return dotIndex === -1 ? provider : provider.substring(0, dotIndex);
+  }
   get supportedUrls() {
     var _a, _b, _c;
     return (_c = (_b = (_a = this.config).supportedUrls) == null ? void 0 : _b.call(_a)) != null ? _c : {};
@@ -28716,11 +28912,23 @@ var AnthropicMessagesLanguageModel = class {
         });
       }
     }
-    const anthropicOptions = await parseProviderOptions({
+    const providerOptionsName = this.providerOptionsName;
+    const canonicalOptions = await parseProviderOptions({
       provider: "anthropic",
       providerOptions,
       schema: anthropicProviderOptions
     });
+    const customProviderOptions = providerOptionsName !== "anthropic" ? await parseProviderOptions({
+      provider: providerOptionsName,
+      providerOptions,
+      schema: anthropicProviderOptions
+    }) : null;
+    const usedCustomProviderKey = customProviderOptions != null;
+    const anthropicOptions = Object.assign(
+      {},
+      canonicalOptions != null ? canonicalOptions : {},
+      customProviderOptions != null ? customProviderOptions : {}
+    );
     const {
       maxOutputTokens: maxOutputTokensForModel,
       supportsStructuredOutput: modelSupportsStructuredOutput,
@@ -28980,7 +29188,9 @@ var AnthropicMessagesLanguageModel = class {
       warnings: [...warnings, ...toolWarnings, ...cacheWarnings],
       betas: /* @__PURE__ */ new Set([...betas, ...toolsBetas, ...userSuppliedBetas]),
       usesJsonResponseTool: jsonResponseTool != null,
-      toolNameMapping
+      toolNameMapping,
+      providerOptionsName,
+      usedCustomProviderKey
     };
   }
   async getHeaders({
@@ -29037,8 +29247,16 @@ var AnthropicMessagesLanguageModel = class {
     });
   }
   async doGenerate(options) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
-    const { args, warnings, betas, usesJsonResponseTool, toolNameMapping } = await this.getArgs({
+    var _a, _b, _c, _d, _e, _f;
+    const {
+      args,
+      warnings,
+      betas,
+      usesJsonResponseTool,
+      toolNameMapping,
+      providerOptionsName,
+      usedCustomProviderKey
+    } = await this.getArgs({
       ...options,
       stream: false,
       userSuppliedBetas: await this.getBetasFromHeaders(options.headers)
@@ -29386,25 +29604,33 @@ var AnthropicMessagesLanguageModel = class {
         body: rawResponse
       },
       warnings,
-      providerMetadata: {
-        anthropic: {
+      providerMetadata: (() => {
+        var _a2, _b2, _c2, _d2, _e2;
+        const anthropicMetadata = {
           usage: response.usage,
-          cacheCreationInputTokens: (_g = response.usage.cache_creation_input_tokens) != null ? _g : null,
-          stopSequence: (_h = response.stop_sequence) != null ? _h : null,
+          cacheCreationInputTokens: (_a2 = response.usage.cache_creation_input_tokens) != null ? _a2 : null,
+          stopSequence: (_b2 = response.stop_sequence) != null ? _b2 : null,
           container: response.container ? {
             expiresAt: response.container.expires_at,
             id: response.container.id,
-            skills: (_j = (_i = response.container.skills) == null ? void 0 : _i.map((skill) => ({
+            skills: (_d2 = (_c2 = response.container.skills) == null ? void 0 : _c2.map((skill) => ({
               type: skill.type,
               skillId: skill.skill_id,
               version: skill.version
-            }))) != null ? _j : null
+            }))) != null ? _d2 : null
           } : null,
-          contextManagement: (_k = mapAnthropicResponseContextManagement(
+          contextManagement: (_e2 = mapAnthropicResponseContextManagement(
             response.context_management
-          )) != null ? _k : null
+          )) != null ? _e2 : null
+        };
+        const providerMetadata = {
+          anthropic: anthropicMetadata
+        };
+        if (usedCustomProviderKey && providerOptionsName !== "anthropic") {
+          providerMetadata[providerOptionsName] = anthropicMetadata;
         }
-      }
+        return providerMetadata;
+      })()
     };
   }
   async doStream(options) {
@@ -29414,7 +29640,9 @@ var AnthropicMessagesLanguageModel = class {
       warnings,
       betas,
       usesJsonResponseTool,
-      toolNameMapping
+      toolNameMapping,
+      providerOptionsName,
+      usedCustomProviderKey
     } = await this.getArgs({
       ...options,
       stream: true,
@@ -30026,6 +30254,13 @@ var AnthropicMessagesLanguageModel = class {
                 usage.input_tokens = value.usage.input_tokens;
               }
               usage.output_tokens = value.usage.output_tokens;
+              if (value.usage.cache_read_input_tokens != null) {
+                usage.cache_read_input_tokens = value.usage.cache_read_input_tokens;
+              }
+              if (value.usage.cache_creation_input_tokens != null) {
+                usage.cache_creation_input_tokens = value.usage.cache_creation_input_tokens;
+                cacheCreationInputTokens = value.usage.cache_creation_input_tokens;
+              }
               finishReason = {
                 unified: mapAnthropicStopReason({
                   finishReason: value.delta.stop_reason,
@@ -30055,19 +30290,24 @@ var AnthropicMessagesLanguageModel = class {
               return;
             }
             case "message_stop": {
+              const anthropicMetadata = {
+                usage: rawUsage != null ? rawUsage : null,
+                cacheCreationInputTokens,
+                stopSequence,
+                container,
+                contextManagement
+              };
+              const providerMetadata = {
+                anthropic: anthropicMetadata
+              };
+              if (usedCustomProviderKey && providerOptionsName !== "anthropic") {
+                providerMetadata[providerOptionsName] = anthropicMetadata;
+              }
               controller.enqueue({
                 type: "finish",
                 finishReason,
                 usage: convertAnthropicMessagesUsage(usage),
-                providerMetadata: {
-                  anthropic: {
-                    usage: rawUsage != null ? rawUsage : null,
-                    cacheCreationInputTokens,
-                    stopSequence,
-                    container,
-                    contextManagement
-                  }
-                }
+                providerMetadata
               });
               return;
             }
@@ -30263,6 +30503,47 @@ var computer_20250124 = createProviderToolFactory({
   id: "anthropic.computer_20250124",
   inputSchema: computer_20250124InputSchema
 });
+var computer_20251124InputSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      action: _enum([
+        "key",
+        "hold_key",
+        "type",
+        "cursor_position",
+        "mouse_move",
+        "left_mouse_down",
+        "left_mouse_up",
+        "left_click",
+        "left_click_drag",
+        "right_click",
+        "middle_click",
+        "double_click",
+        "triple_click",
+        "scroll",
+        "wait",
+        "screenshot",
+        "zoom"
+      ]),
+      coordinate: tuple([number$1().int(), number$1().int()]).optional(),
+      duration: number$1().optional(),
+      region: tuple([
+        number$1().int(),
+        number$1().int(),
+        number$1().int(),
+        number$1().int()
+      ]).optional(),
+      scroll_amount: number$1().optional(),
+      scroll_direction: _enum(["up", "down", "left", "right"]).optional(),
+      start_coordinate: tuple([number$1().int(), number$1().int()]).optional(),
+      text: string().optional()
+    })
+  )
+);
+var computer_20251124 = createProviderToolFactory({
+  id: "anthropic.computer_20251124",
+  inputSchema: computer_20251124InputSchema
+});
 var memory_20250818InputSchema = lazySchema(
   () => zodSchema(
     discriminatedUnion("command", [
@@ -30449,6 +30730,22 @@ var anthropicTools = {
    */
   computer_20250124,
   /**
+   * Claude can interact with computer environments through the computer use tool, which
+   * provides screenshot capabilities and mouse/keyboard control for autonomous desktop interaction.
+   *
+   * This version adds the zoom action for detailed screen region inspection.
+   *
+   * Image results are supported.
+   *
+   * Supported models: Claude Opus 4.5
+   *
+   * @param displayWidthPx - The width of the display being controlled by the model in pixels.
+   * @param displayHeightPx - The height of the display being controlled by the model in pixels.
+   * @param displayNumber - The display number to control (only relevant for X11 environments). If specified, the tool will be provided a display number in the tool definition.
+   * @param enableZoom - Enable zoom action. Set to true to allow Claude to zoom into specific screen regions. Default: false.
+   */
+  computer_20251124,
+  /**
    * The memory tool enables Claude to store and retrieve information across conversations through a memory file directory.
    * Claude can create, read, update, and delete files that persist between sessions,
    * allowing it to build knowledge over time without keeping everything in the context window.
@@ -30616,7 +30913,7 @@ function createAnthropic(options = {}) {
 createAnthropic();
 
 // src/chat/openai-compatible-chat-language-model.ts
-var openaiCompatibleErrorDataSchema$1 = object$1({
+var openaiCompatibleErrorDataSchema = object$1({
   error: object$1({
     message: string(),
     // The additional information below is handled loosely to support
@@ -30627,11 +30924,274 @@ var openaiCompatibleErrorDataSchema$1 = object$1({
     code: union([string(), number$1()]).nullish()
   })
 });
-var defaultOpenAICompatibleErrorStructure$1 = {
-  errorSchema: openaiCompatibleErrorDataSchema$1,
+var defaultOpenAICompatibleErrorStructure = {
+  errorSchema: openaiCompatibleErrorDataSchema,
   errorToMessage: (data) => data.error.message
 };
-object$1({
+
+// src/chat/convert-openai-compatible-chat-usage.ts
+function convertOpenAICompatibleChatUsage(usage) {
+  var _a, _b, _c, _d, _e, _f;
+  if (usage == null) {
+    return {
+      inputTokens: {
+        total: void 0,
+        noCache: void 0,
+        cacheRead: void 0,
+        cacheWrite: void 0
+      },
+      outputTokens: {
+        total: void 0,
+        text: void 0,
+        reasoning: void 0
+      },
+      raw: void 0
+    };
+  }
+  const promptTokens = (_a = usage.prompt_tokens) != null ? _a : 0;
+  const completionTokens = (_b = usage.completion_tokens) != null ? _b : 0;
+  const cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0;
+  const reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
+  return {
+    inputTokens: {
+      total: promptTokens,
+      noCache: promptTokens - cacheReadTokens,
+      cacheRead: cacheReadTokens,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: completionTokens,
+      text: completionTokens - reasoningTokens,
+      reasoning: reasoningTokens
+    },
+    raw: usage
+  };
+}
+function getOpenAIMetadata(message) {
+  var _a, _b;
+  return (_b = (_a = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a.openaiCompatible) != null ? _b : {};
+}
+function getAudioFormat(mediaType) {
+  switch (mediaType) {
+    case "audio/wav":
+      return "wav";
+    case "audio/mp3":
+    case "audio/mpeg":
+      return "mp3";
+    default:
+      return null;
+  }
+}
+function convertToOpenAICompatibleChatMessages(prompt) {
+  var _a, _b, _c;
+  const messages = [];
+  for (const { role, content, ...message } of prompt) {
+    const metadata = getOpenAIMetadata({ ...message });
+    switch (role) {
+      case "system": {
+        messages.push({ role: "system", content, ...metadata });
+        break;
+      }
+      case "user": {
+        if (content.length === 1 && content[0].type === "text") {
+          messages.push({
+            role: "user",
+            content: content[0].text,
+            ...getOpenAIMetadata(content[0])
+          });
+          break;
+        }
+        messages.push({
+          role: "user",
+          content: content.map((part) => {
+            var _a2;
+            const partMetadata = getOpenAIMetadata(part);
+            switch (part.type) {
+              case "text": {
+                return { type: "text", text: part.text, ...partMetadata };
+              }
+              case "file": {
+                if (part.mediaType.startsWith("image/")) {
+                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
+                  return {
+                    type: "image_url",
+                    image_url: {
+                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType.startsWith("audio/")) {
+                  if (part.data instanceof URL) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "audio file parts with URLs"
+                    });
+                  }
+                  const format = getAudioFormat(part.mediaType);
+                  if (format === null) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: `audio media type ${part.mediaType}`
+                    });
+                  }
+                  return {
+                    type: "input_audio",
+                    input_audio: {
+                      data: convertToBase64(part.data),
+                      format
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType === "application/pdf") {
+                  if (part.data instanceof URL) {
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "PDF file parts with URLs"
+                    });
+                  }
+                  return {
+                    type: "file",
+                    file: {
+                      filename: (_a2 = part.filename) != null ? _a2 : "document.pdf",
+                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType.startsWith("text/")) {
+                  const textContent = part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? part.data : new TextDecoder().decode(part.data);
+                  return {
+                    type: "text",
+                    text: textContent,
+                    ...partMetadata
+                  };
+                }
+                throw new UnsupportedFunctionalityError({
+                  functionality: `file part media type ${part.mediaType}`
+                });
+              }
+            }
+          }),
+          ...metadata
+        });
+        break;
+      }
+      case "assistant": {
+        let text = "";
+        let reasoning = "";
+        const toolCalls = [];
+        for (const part of content) {
+          const partMetadata = getOpenAIMetadata(part);
+          switch (part.type) {
+            case "text": {
+              text += part.text;
+              break;
+            }
+            case "reasoning": {
+              reasoning += part.text;
+              break;
+            }
+            case "tool-call": {
+              const thoughtSignature = (_b = (_a = part.providerOptions) == null ? void 0 : _a.google) == null ? void 0 : _b.thoughtSignature;
+              toolCalls.push({
+                id: part.toolCallId,
+                type: "function",
+                function: {
+                  name: part.toolName,
+                  arguments: JSON.stringify(part.input)
+                },
+                ...partMetadata,
+                // Include extra_content for Google Gemini thought signatures
+                ...thoughtSignature ? {
+                  extra_content: {
+                    google: {
+                      thought_signature: String(thoughtSignature)
+                    }
+                  }
+                } : {}
+              });
+              break;
+            }
+          }
+        }
+        messages.push({
+          role: "assistant",
+          content: text,
+          ...reasoning.length > 0 ? { reasoning_content: reasoning } : {},
+          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
+          ...metadata
+        });
+        break;
+      }
+      case "tool": {
+        for (const toolResponse of content) {
+          if (toolResponse.type === "tool-approval-response") {
+            continue;
+          }
+          const output = toolResponse.output;
+          let contentValue;
+          switch (output.type) {
+            case "text":
+            case "error-text":
+              contentValue = output.value;
+              break;
+            case "execution-denied":
+              contentValue = (_c = output.reason) != null ? _c : "Tool execution denied.";
+              break;
+            case "content":
+            case "json":
+            case "error-json":
+              contentValue = JSON.stringify(output.value);
+              break;
+          }
+          const toolResponseMetadata = getOpenAIMetadata(toolResponse);
+          messages.push({
+            role: "tool",
+            tool_call_id: toolResponse.toolCallId,
+            content: contentValue,
+            ...toolResponseMetadata
+          });
+        }
+        break;
+      }
+      default: {
+        const _exhaustiveCheck = role;
+        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
+      }
+    }
+  }
+  return messages;
+}
+
+// src/chat/get-response-metadata.ts
+function getResponseMetadata$3({
+  id,
+  model,
+  created
+}) {
+  return {
+    id: id != null ? id : void 0,
+    modelId: model != null ? model : void 0,
+    timestamp: created != null ? new Date(created * 1e3) : void 0
+  };
+}
+
+// src/chat/map-openai-compatible-finish-reason.ts
+function mapOpenAICompatibleFinishReason(finishReason) {
+  switch (finishReason) {
+    case "stop":
+      return "stop";
+    case "length":
+      return "length";
+    case "content_filter":
+      return "content-filter";
+    case "function_call":
+    case "tool_calls":
+      return "tool-calls";
+    default:
+      return "other";
+  }
+}
+var openaiCompatibleProviderOptions = object$1({
   /**
    * A unique identifier representing your end-user, which can help the provider to
    * monitor and detect abuse.
@@ -30654,7 +31214,546 @@ object$1({
    */
   strictJsonSchema: boolean().optional()
 });
-var openaiCompatibleTokenUsageSchema$1 = object$1({
+function prepareTools$1({
+  tools,
+  toolChoice
+}) {
+  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
+  const toolWarnings = [];
+  if (tools == null) {
+    return { tools: void 0, toolChoice: void 0, toolWarnings };
+  }
+  const openaiCompatTools = [];
+  for (const tool of tools) {
+    if (tool.type === "provider") {
+      toolWarnings.push({
+        type: "unsupported",
+        feature: `provider-defined tool ${tool.id}`
+      });
+    } else {
+      openaiCompatTools.push({
+        type: "function",
+        function: {
+          name: tool.name,
+          description: tool.description,
+          parameters: tool.inputSchema,
+          ...tool.strict != null ? { strict: tool.strict } : {}
+        }
+      });
+    }
+  }
+  if (toolChoice == null) {
+    return { tools: openaiCompatTools, toolChoice: void 0, toolWarnings };
+  }
+  const type = toolChoice.type;
+  switch (type) {
+    case "auto":
+    case "none":
+    case "required":
+      return { tools: openaiCompatTools, toolChoice: type, toolWarnings };
+    case "tool":
+      return {
+        tools: openaiCompatTools,
+        toolChoice: {
+          type: "function",
+          function: { name: toolChoice.toolName }
+        },
+        toolWarnings
+      };
+    default: {
+      const _exhaustiveCheck = type;
+      throw new UnsupportedFunctionalityError({
+        functionality: `tool choice type: ${_exhaustiveCheck}`
+      });
+    }
+  }
+}
+
+// src/chat/openai-compatible-chat-language-model.ts
+var OpenAICompatibleChatLanguageModel = class {
+  // type inferred via constructor
+  constructor(modelId, config) {
+    this.specificationVersion = "v3";
+    var _a, _b;
+    this.modelId = modelId;
+    this.config = config;
+    const errorStructure = (_a = config.errorStructure) != null ? _a : defaultOpenAICompatibleErrorStructure;
+    this.chunkSchema = createOpenAICompatibleChatChunkSchema(
+      errorStructure.errorSchema
+    );
+    this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure);
+    this.supportsStructuredOutputs = (_b = config.supportsStructuredOutputs) != null ? _b : false;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  get providerOptionsName() {
+    return this.config.provider.split(".")[0].trim();
+  }
+  get supportedUrls() {
+    var _a, _b, _c;
+    return (_c = (_b = (_a = this.config).supportedUrls) == null ? void 0 : _b.call(_a)) != null ? _c : {};
+  }
+  transformRequestBody(args) {
+    var _a, _b, _c;
+    return (_c = (_b = (_a = this.config).transformRequestBody) == null ? void 0 : _b.call(_a, args)) != null ? _c : args;
+  }
+  async getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    topK,
+    frequencyPenalty,
+    presencePenalty,
+    providerOptions,
+    stopSequences,
+    responseFormat,
+    seed,
+    toolChoice,
+    tools
+  }) {
+    var _a, _b, _c, _d, _e;
+    const warnings = [];
+    const deprecatedOptions = await parseProviderOptions({
+      provider: "openai-compatible",
+      providerOptions,
+      schema: openaiCompatibleProviderOptions
+    });
+    if (deprecatedOptions != null) {
+      warnings.push({
+        type: "other",
+        message: `The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead.`
+      });
+    }
+    const compatibleOptions = Object.assign(
+      deprecatedOptions != null ? deprecatedOptions : {},
+      (_a = await parseProviderOptions({
+        provider: "openaiCompatible",
+        providerOptions,
+        schema: openaiCompatibleProviderOptions
+      })) != null ? _a : {},
+      (_b = await parseProviderOptions({
+        provider: this.providerOptionsName,
+        providerOptions,
+        schema: openaiCompatibleProviderOptions
+      })) != null ? _b : {}
+    );
+    const strictJsonSchema = (_c = compatibleOptions == null ? void 0 : compatibleOptions.strictJsonSchema) != null ? _c : true;
+    if (topK != null) {
+      warnings.push({ type: "unsupported", feature: "topK" });
+    }
+    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !this.supportsStructuredOutputs) {
+      warnings.push({
+        type: "unsupported",
+        feature: "responseFormat",
+        details: "JSON response format schema is only supported with structuredOutputs"
+      });
+    }
+    const {
+      tools: openaiTools,
+      toolChoice: openaiToolChoice,
+      toolWarnings
+    } = prepareTools$1({
+      tools,
+      toolChoice
+    });
+    return {
+      args: {
+        // model id:
+        model: this.modelId,
+        // model specific settings:
+        user: compatibleOptions.user,
+        // standardized settings:
+        max_tokens: maxOutputTokens,
+        temperature,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
+        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? this.supportsStructuredOutputs === true && responseFormat.schema != null ? {
+          type: "json_schema",
+          json_schema: {
+            schema: responseFormat.schema,
+            strict: strictJsonSchema,
+            name: (_d = responseFormat.name) != null ? _d : "response",
+            description: responseFormat.description
+          }
+        } : { type: "json_object" } : void 0,
+        stop: stopSequences,
+        seed,
+        ...Object.fromEntries(
+          Object.entries(
+            (_e = providerOptions == null ? void 0 : providerOptions[this.providerOptionsName]) != null ? _e : {}
+          ).filter(
+            ([key]) => !Object.keys(openaiCompatibleProviderOptions.shape).includes(key)
+          )
+        ),
+        reasoning_effort: compatibleOptions.reasoningEffort,
+        verbosity: compatibleOptions.textVerbosity,
+        // messages:
+        messages: convertToOpenAICompatibleChatMessages(prompt),
+        // tools:
+        tools: openaiTools,
+        tool_choice: openaiToolChoice
+      },
+      warnings: [...warnings, ...toolWarnings]
+    };
+  }
+  async doGenerate(options) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const { args, warnings } = await this.getArgs({ ...options });
+    const transformedBody = this.transformRequestBody(args);
+    const body = JSON.stringify(transformedBody);
+    const {
+      responseHeaders,
+      value: responseBody,
+      rawValue: rawResponse
+    } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: transformedBody,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(
+        OpenAICompatibleChatResponseSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    const choice = responseBody.choices[0];
+    const content = [];
+    const text = choice.message.content;
+    if (text != null && text.length > 0) {
+      content.push({ type: "text", text });
+    }
+    const reasoning = (_a = choice.message.reasoning_content) != null ? _a : choice.message.reasoning;
+    if (reasoning != null && reasoning.length > 0) {
+      content.push({
+        type: "reasoning",
+        text: reasoning
+      });
+    }
+    if (choice.message.tool_calls != null) {
+      for (const toolCall of choice.message.tool_calls) {
+        const thoughtSignature = (_c = (_b = toolCall.extra_content) == null ? void 0 : _b.google) == null ? void 0 : _c.thought_signature;
+        content.push({
+          type: "tool-call",
+          toolCallId: (_d = toolCall.id) != null ? _d : generateId(),
+          toolName: toolCall.function.name,
+          input: toolCall.function.arguments,
+          ...thoughtSignature ? {
+            providerMetadata: {
+              [this.providerOptionsName]: { thoughtSignature }
+            }
+          } : {}
+        });
+      }
+    }
+    const providerMetadata = {
+      [this.providerOptionsName]: {},
+      ...await ((_f = (_e = this.config.metadataExtractor) == null ? void 0 : _e.extractMetadata) == null ? void 0 : _f.call(_e, {
+        parsedBody: rawResponse
+      }))
+    };
+    const completionTokenDetails = (_g = responseBody.usage) == null ? void 0 : _g.completion_tokens_details;
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens) != null) {
+      providerMetadata[this.providerOptionsName].acceptedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens;
+    }
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens) != null) {
+      providerMetadata[this.providerOptionsName].rejectedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens;
+    }
+    return {
+      content,
+      finishReason: {
+        unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
+        raw: (_h = choice.finish_reason) != null ? _h : void 0
+      },
+      usage: convertOpenAICompatibleChatUsage(responseBody.usage),
+      providerMetadata,
+      request: { body },
+      response: {
+        ...getResponseMetadata$3(responseBody),
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      warnings
+    };
+  }
+  async doStream(options) {
+    var _a;
+    const { args, warnings } = await this.getArgs({ ...options });
+    const body = this.transformRequestBody({
+      ...args,
+      stream: true,
+      // only include stream_options when in strict compatibility mode:
+      stream_options: this.config.includeUsage ? { include_usage: true } : void 0
+    });
+    const metadataExtractor = (_a = this.config.metadataExtractor) == null ? void 0 : _a.createStreamExtractor();
+    const { responseHeaders, value: response } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler(
+        this.chunkSchema
+      ),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    const toolCalls = [];
+    let finishReason = {
+      unified: "other",
+      raw: void 0
+    };
+    let usage = void 0;
+    let isFirstChunk = true;
+    const providerOptionsName = this.providerOptionsName;
+    let isActiveReasoning = false;
+    let isActiveText = false;
+    return {
+      stream: response.pipeThrough(
+        new TransformStream({
+          start(controller) {
+            controller.enqueue({ type: "stream-start", warnings });
+          },
+          transform(chunk, controller) {
+            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+            if (options.includeRawChunks) {
+              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
+            }
+            if (!chunk.success) {
+              finishReason = { unified: "error", raw: void 0 };
+              controller.enqueue({ type: "error", error: chunk.error });
+              return;
+            }
+            metadataExtractor == null ? void 0 : metadataExtractor.processChunk(chunk.rawValue);
+            if ("error" in chunk.value) {
+              finishReason = { unified: "error", raw: void 0 };
+              controller.enqueue({
+                type: "error",
+                error: chunk.value.error.message
+              });
+              return;
+            }
+            const value = chunk.value;
+            if (isFirstChunk) {
+              isFirstChunk = false;
+              controller.enqueue({
+                type: "response-metadata",
+                ...getResponseMetadata$3(value)
+              });
+            }
+            if (value.usage != null) {
+              usage = value.usage;
+            }
+            const choice = value.choices[0];
+            if ((choice == null ? void 0 : choice.finish_reason) != null) {
+              finishReason = {
+                unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
+                raw: (_a2 = choice.finish_reason) != null ? _a2 : void 0
+              };
+            }
+            if ((choice == null ? void 0 : choice.delta) == null) {
+              return;
+            }
+            const delta = choice.delta;
+            const reasoningContent = (_b = delta.reasoning_content) != null ? _b : delta.reasoning;
+            if (reasoningContent) {
+              if (!isActiveReasoning) {
+                controller.enqueue({
+                  type: "reasoning-start",
+                  id: "reasoning-0"
+                });
+                isActiveReasoning = true;
+              }
+              controller.enqueue({
+                type: "reasoning-delta",
+                id: "reasoning-0",
+                delta: reasoningContent
+              });
+            }
+            if (delta.content) {
+              if (isActiveReasoning) {
+                controller.enqueue({
+                  type: "reasoning-end",
+                  id: "reasoning-0"
+                });
+                isActiveReasoning = false;
+              }
+              if (!isActiveText) {
+                controller.enqueue({ type: "text-start", id: "txt-0" });
+                isActiveText = true;
+              }
+              controller.enqueue({
+                type: "text-delta",
+                id: "txt-0",
+                delta: delta.content
+              });
+            }
+            if (delta.tool_calls != null) {
+              if (isActiveReasoning) {
+                controller.enqueue({
+                  type: "reasoning-end",
+                  id: "reasoning-0"
+                });
+                isActiveReasoning = false;
+              }
+              for (const toolCallDelta of delta.tool_calls) {
+                const index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length;
+                if (toolCalls[index] == null) {
+                  if (toolCallDelta.id == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'id' to be a string.`
+                    });
+                  }
+                  if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null) {
+                    throw new InvalidResponseDataError({
+                      data: toolCallDelta,
+                      message: `Expected 'function.name' to be a string.`
+                    });
+                  }
+                  controller.enqueue({
+                    type: "tool-input-start",
+                    id: toolCallDelta.id,
+                    toolName: toolCallDelta.function.name
+                  });
+                  toolCalls[index] = {
+                    id: toolCallDelta.id,
+                    type: "function",
+                    function: {
+                      name: toolCallDelta.function.name,
+                      arguments: (_e = toolCallDelta.function.arguments) != null ? _e : ""
+                    },
+                    hasFinished: false,
+                    thoughtSignature: (_h = (_g = (_f = toolCallDelta.extra_content) == null ? void 0 : _f.google) == null ? void 0 : _g.thought_signature) != null ? _h : void 0
+                  };
+                  const toolCall2 = toolCalls[index];
+                  if (((_i = toolCall2.function) == null ? void 0 : _i.name) != null && ((_j = toolCall2.function) == null ? void 0 : _j.arguments) != null) {
+                    if (toolCall2.function.arguments.length > 0) {
+                      controller.enqueue({
+                        type: "tool-input-delta",
+                        id: toolCall2.id,
+                        delta: toolCall2.function.arguments
+                      });
+                    }
+                    if (isParsableJson(toolCall2.function.arguments)) {
+                      controller.enqueue({
+                        type: "tool-input-end",
+                        id: toolCall2.id
+                      });
+                      controller.enqueue({
+                        type: "tool-call",
+                        toolCallId: (_k = toolCall2.id) != null ? _k : generateId(),
+                        toolName: toolCall2.function.name,
+                        input: toolCall2.function.arguments,
+                        ...toolCall2.thoughtSignature ? {
+                          providerMetadata: {
+                            [providerOptionsName]: {
+                              thoughtSignature: toolCall2.thoughtSignature
+                            }
+                          }
+                        } : {}
+                      });
+                      toolCall2.hasFinished = true;
+                    }
+                  }
+                  continue;
+                }
+                const toolCall = toolCalls[index];
+                if (toolCall.hasFinished) {
+                  continue;
+                }
+                if (((_l = toolCallDelta.function) == null ? void 0 : _l.arguments) != null) {
+                  toolCall.function.arguments += (_n = (_m = toolCallDelta.function) == null ? void 0 : _m.arguments) != null ? _n : "";
+                }
+                controller.enqueue({
+                  type: "tool-input-delta",
+                  id: toolCall.id,
+                  delta: (_o = toolCallDelta.function.arguments) != null ? _o : ""
+                });
+                if (((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson(toolCall.function.arguments)) {
+                  controller.enqueue({
+                    type: "tool-input-end",
+                    id: toolCall.id
+                  });
+                  controller.enqueue({
+                    type: "tool-call",
+                    toolCallId: (_r = toolCall.id) != null ? _r : generateId(),
+                    toolName: toolCall.function.name,
+                    input: toolCall.function.arguments,
+                    ...toolCall.thoughtSignature ? {
+                      providerMetadata: {
+                        [providerOptionsName]: {
+                          thoughtSignature: toolCall.thoughtSignature
+                        }
+                      }
+                    } : {}
+                  });
+                  toolCall.hasFinished = true;
+                }
+              }
+            }
+          },
+          flush(controller) {
+            var _a2, _b, _c, _d, _e;
+            if (isActiveReasoning) {
+              controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
+            }
+            if (isActiveText) {
+              controller.enqueue({ type: "text-end", id: "txt-0" });
+            }
+            for (const toolCall of toolCalls.filter(
+              (toolCall2) => !toolCall2.hasFinished
+            )) {
+              controller.enqueue({
+                type: "tool-input-end",
+                id: toolCall.id
+              });
+              controller.enqueue({
+                type: "tool-call",
+                toolCallId: (_a2 = toolCall.id) != null ? _a2 : generateId(),
+                toolName: toolCall.function.name,
+                input: toolCall.function.arguments,
+                ...toolCall.thoughtSignature ? {
+                  providerMetadata: {
+                    [providerOptionsName]: {
+                      thoughtSignature: toolCall.thoughtSignature
+                    }
+                  }
+                } : {}
+              });
+            }
+            const providerMetadata = {
+              [providerOptionsName]: {},
+              ...metadataExtractor == null ? void 0 : metadataExtractor.buildMetadata()
+            };
+            if (((_b = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _b.accepted_prediction_tokens) != null) {
+              providerMetadata[providerOptionsName].acceptedPredictionTokens = (_c = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _c.accepted_prediction_tokens;
+            }
+            if (((_d = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens) != null) {
+              providerMetadata[providerOptionsName].rejectedPredictionTokens = (_e = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _e.rejected_prediction_tokens;
+            }
+            controller.enqueue({
+              type: "finish",
+              finishReason,
+              usage: convertOpenAICompatibleChatUsage(usage),
+              providerMetadata
+            });
+          }
+        })
+      ),
+      request: { body },
+      response: { headers: responseHeaders }
+    };
+  }
+};
+var openaiCompatibleTokenUsageSchema = object$1({
   prompt_tokens: number$1().nullish(),
   completion_tokens: number$1().nullish(),
   total_tokens: number$1().nullish(),
@@ -30667,7 +31766,7 @@ var openaiCompatibleTokenUsageSchema$1 = object$1({
     rejected_prediction_tokens: number$1().nullish()
   }).nullish()
 }).nullish();
-looseObject({
+var OpenAICompatibleChatResponseSchema = looseObject({
   id: string().nullish(),
   created: number$1().nullish(),
   model: string().nullish(),
@@ -30697,9 +31796,9 @@ looseObject({
       finish_reason: string().nullish()
     })
   ),
-  usage: openaiCompatibleTokenUsageSchema$1
+  usage: openaiCompatibleTokenUsageSchema
 });
-looseObject({
+var chunkBaseSchema = looseObject({
   id: string().nullish(),
   created: number$1().nullish(),
   model: string().nullish(),
@@ -30733,8 +31832,9 @@ looseObject({
       finish_reason: string().nullish()
     })
   ),
-  usage: openaiCompatibleTokenUsageSchema$1
+  usage: openaiCompatibleTokenUsageSchema
 });
+var createOpenAICompatibleChatChunkSchema = (errorSchema) => union([chunkBaseSchema, errorSchema]);
 object$1({
   /**
    * Echo back the prompt in addition to the completion.
@@ -30757,7 +31857,7 @@ object$1({
    */
   user: string().optional()
 });
-var usageSchema$1 = object$1({
+var usageSchema = object$1({
   prompt_tokens: number$1(),
   completion_tokens: number$1(),
   total_tokens: number$1()
@@ -30772,7 +31872,7 @@ object$1({
       finish_reason: string()
     })
   ),
-  usage: usageSchema$1.nullish()
+  usage: usageSchema.nullish()
 });
 object$1({
   /**
@@ -30857,7 +31957,7 @@ var OpenAICompatibleImageModel = class {
           ...args
         }),
         failedResponseHandler: createJsonErrorResponseHandler(
-          (_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure$1
+          (_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure
         ),
         successfulResponseHandler: createJsonResponseHandler(
           openaiCompatibleImageResponseSchema
@@ -30890,7 +31990,7 @@ var OpenAICompatibleImageModel = class {
         response_format: "b64_json"
       },
       failedResponseHandler: createJsonErrorResponseHandler(
-        (_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure$1
+        (_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure
       ),
       successfulResponseHandler: createJsonResponseHandler(
         openaiCompatibleImageResponseSchema
@@ -31055,7 +32155,7 @@ function convertXaiChatUsage(usage) {
 }
 
 // src/get-response-metadata.ts
-function getResponseMetadata$3({
+function getResponseMetadata$2({
   id,
   model,
   created,
@@ -31177,7 +32277,7 @@ var xaiFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: xaiErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
-function prepareTools$1({
+function prepareTools({
   tools,
   toolChoice
 }) {
@@ -31285,7 +32385,7 @@ var XaiChatLanguageModel = class {
       tools: xaiTools2,
       toolChoice: xaiToolChoice,
       toolWarnings
-    } = prepareTools$1({
+    } = prepareTools({
       tools,
       toolChoice
     });
@@ -31433,7 +32533,7 @@ var XaiChatLanguageModel = class {
       // defined when there is no error
       request: { body },
       response: {
-        ...getResponseMetadata$3(response),
+        ...getResponseMetadata$2(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -31522,7 +32622,7 @@ var XaiChatLanguageModel = class {
             if (isFirstChunk) {
               controller.enqueue({
                 type: "response-metadata",
-                ...getResponseMetadata$3(value)
+                ...getResponseMetadata$2(value)
               });
               isFirstChunk = false;
             }
@@ -31980,6 +33080,20 @@ var outputItemSchema = discriminatedUnion("type", [
     ...toolCallSchema.shape
   }),
   object$1({
+    type: literal("file_search_call"),
+    id: string(),
+    status: string(),
+    queries: array$1(string()).optional(),
+    results: array$1(
+      object$1({
+        file_id: string(),
+        filename: string(),
+        score: number$1(),
+        text: string()
+      })
+    ).nullish()
+  }),
+  object$1({
     type: literal("custom_tool_call"),
     ...toolCallSchema.shape
   }),
@@ -32148,6 +33262,21 @@ var xaiResponsesChunkSchema = union([
     output_index: number$1()
   }),
   object$1({
+    type: literal("response.file_search_call.in_progress"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.file_search_call.searching"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
+    type: literal("response.file_search_call.completed"),
+    item_id: string(),
+    output_index: number$1()
+  }),
+  object$1({
     type: literal("response.custom_tool_call_input.done"),
     item_id: string(),
     output_index: number$1()
@@ -32284,8 +33413,42 @@ var xaiResponsesProviderOptions = object$1({
   /**
    * The ID of the previous response from the model.
    */
-  previousResponseId: string().optional()
+  previousResponseId: string().optional(),
+  /**
+   * Specify additional output data to include in the model response.
+   * Example values: 'file_search_call.results'.
+   */
+  include: array$1(_enum(["file_search_call.results"])).nullish()
 });
+var fileSearchArgsSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      vectorStoreIds: array$1(string()),
+      maxNumResults: number$1().optional()
+    })
+  )
+);
+var fileSearchOutputSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      queries: array$1(string()),
+      results: array$1(
+        object$1({
+          fileId: string(),
+          filename: string(),
+          score: number$1().min(0).max(1),
+          text: string()
+        })
+      ).nullable()
+    })
+  )
+);
+var fileSearchToolFactory = createProviderToolFactoryWithOutputSchema({
+  id: "xai.file_search",
+  inputSchema: lazySchema(() => zodSchema(object$1({}))),
+  outputSchema: fileSearchOutputSchema
+});
+var fileSearch = (args) => fileSearchToolFactory(args);
 var mcpServerArgsSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -32440,8 +33603,14 @@ async function prepareResponsesTools$1({
           break;
         }
         case "xai.file_search": {
+          const args = await validateTypes({
+            value: tool.args,
+            schema: fileSearchArgsSchema
+          });
           xaiTools2.push({
-            type: "file_search"
+            type: "file_search",
+            vector_store_ids: args.vectorStoreIds,
+            max_num_results: args.maxNumResults
           });
           break;
         }
@@ -32498,56 +33667,11 @@ async function prepareResponsesTools$1({
         };
       }
       if (selectedTool.type === "provider") {
-        switch (selectedTool.id) {
-          case "xai.web_search":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "web_search" },
-              toolWarnings
-            };
-          case "xai.x_search":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "x_search" },
-              toolWarnings
-            };
-          case "xai.code_execution":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "code_interpreter" },
-              toolWarnings
-            };
-          case "xai.view_image":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "view_image" },
-              toolWarnings
-            };
-          case "xai.view_x_video":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "view_x_video" },
-              toolWarnings
-            };
-          case "xai.file_search":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "file_search" },
-              toolWarnings
-            };
-          case "xai.mcp":
-            return {
-              tools: xaiTools2,
-              toolChoice: { type: "mcp" },
-              toolWarnings
-            };
-          default:
-            toolWarnings.push({
-              type: "unsupported",
-              feature: `provider-defined tool ${selectedTool.name}`
-            });
-            return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
-        }
+        toolWarnings.push({
+          type: "unsupported",
+          feature: `toolChoice for server-side tool "${selectedTool.name}"`
+        });
+        return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
       }
       return {
         tools: xaiTools2,
@@ -32589,7 +33713,7 @@ var XaiResponsesLanguageModel = class {
     tools,
     toolChoice
   }) {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
     const warnings = [];
     const options = (_a = await parseProviderOptions({
       provider: "xai",
@@ -32611,6 +33735,9 @@ var XaiResponsesLanguageModel = class {
     const mcpToolName = (_e = tools == null ? void 0 : tools.find(
       (tool) => tool.type === "provider" && tool.id === "xai.mcp"
     )) == null ? void 0 : _e.name;
+    const fileSearchToolName = (_f = tools == null ? void 0 : tools.find(
+      (tool) => tool.type === "provider" && tool.id === "xai.file_search"
+    )) == null ? void 0 : _f.name;
     const { input, inputWarnings } = await convertToXaiResponsesInput({
       prompt});
     warnings.push(...inputWarnings);
@@ -32623,6 +33750,14 @@ var XaiResponsesLanguageModel = class {
       toolChoice
     });
     warnings.push(...toolWarnings);
+    let include = options.include ? [...options.include] : void 0;
+    if (options.store === false) {
+      if (include == null) {
+        include = ["reasoning.encrypted_content"];
+      } else {
+        include = [...include, "reasoning.encrypted_content"];
+      }
+    }
     const baseArgs = {
       model: this.modelId,
       input,
@@ -32635,7 +33770,7 @@ var XaiResponsesLanguageModel = class {
           format: responseFormat.schema != null ? {
             type: "json_schema",
             strict: true,
-            name: (_f = responseFormat.name) != null ? _f : "response",
+            name: (_g = responseFormat.name) != null ? _g : "response",
             description: responseFormat.description,
             schema: responseFormat.schema
           } : { type: "json_object" }
@@ -32645,8 +33780,10 @@ var XaiResponsesLanguageModel = class {
         reasoning: { effort: options.reasoningEffort }
       },
       ...options.store === false && {
-        store: options.store,
-        include: ["reasoning.encrypted_content"]
+        store: options.store
+      },
+      ...include != null && {
+        include
       },
       ...options.previousResponseId != null && {
         previous_response_id: options.previousResponseId
@@ -32664,18 +33801,20 @@ var XaiResponsesLanguageModel = class {
       webSearchToolName,
       xSearchToolName,
       codeExecutionToolName,
-      mcpToolName
+      mcpToolName,
+      fileSearchToolName
     };
   }
   async doGenerate(options) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
     const {
       args: body,
       warnings,
       webSearchToolName,
       xSearchToolName,
       codeExecutionToolName,
-      mcpToolName
+      mcpToolName,
+      fileSearchToolName
     } = await this.getArgs(options);
     const {
       responseHeaders,
@@ -32705,18 +33844,43 @@ var XaiResponsesLanguageModel = class {
       "x_thread_fetch"
     ];
     for (const part of response.output) {
+      if (part.type === "file_search_call") {
+        const toolName = fileSearchToolName != null ? fileSearchToolName : "file_search";
+        content.push({
+          type: "tool-call",
+          toolCallId: part.id,
+          toolName,
+          input: "",
+          providerExecuted: true
+        });
+        content.push({
+          type: "tool-result",
+          toolCallId: part.id,
+          toolName,
+          result: {
+            queries: (_b = part.queries) != null ? _b : [],
+            results: (_d = (_c = part.results) == null ? void 0 : _c.map((result) => ({
+              fileId: result.file_id,
+              filename: result.filename,
+              score: result.score,
+              text: result.text
+            }))) != null ? _d : null
+          }
+        });
+        continue;
+      }
       if (part.type === "web_search_call" || part.type === "x_search_call" || part.type === "code_interpreter_call" || part.type === "code_execution_call" || part.type === "view_image_call" || part.type === "view_x_video_call" || part.type === "custom_tool_call" || part.type === "mcp_call") {
-        let toolName = (_b = part.name) != null ? _b : "";
-        if (webSearchSubTools.includes((_c = part.name) != null ? _c : "") || part.type === "web_search_call") {
+        let toolName = (_e = part.name) != null ? _e : "";
+        if (webSearchSubTools.includes((_f = part.name) != null ? _f : "") || part.type === "web_search_call") {
           toolName = webSearchToolName != null ? webSearchToolName : "web_search";
-        } else if (xSearchSubTools.includes((_d = part.name) != null ? _d : "") || part.type === "x_search_call") {
+        } else if (xSearchSubTools.includes((_g = part.name) != null ? _g : "") || part.type === "x_search_call") {
           toolName = xSearchToolName != null ? xSearchToolName : "x_search";
         } else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call") {
           toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
         } else if (part.type === "mcp_call") {
-          toolName = (_e = mcpToolName != null ? mcpToolName : part.name) != null ? _e : "mcp";
+          toolName = (_h = mcpToolName != null ? mcpToolName : part.name) != null ? _h : "mcp";
         }
-        const toolInput = part.type === "custom_tool_call" ? (_f = part.input) != null ? _f : "" : part.type === "mcp_call" ? (_g = part.arguments) != null ? _g : "" : (_h = part.arguments) != null ? _h : "";
+        const toolInput = part.type === "custom_tool_call" ? (_i = part.input) != null ? _i : "" : part.type === "mcp_call" ? (_j = part.arguments) != null ? _j : "" : (_k = part.arguments) != null ? _k : "";
         content.push({
           type: "tool-call",
           toolCallId: part.id,
@@ -32743,7 +33907,7 @@ var XaiResponsesLanguageModel = class {
                     sourceType: "url",
                     id: this.config.generateId(),
                     url: annotation.url,
-                    title: (_i = annotation.title) != null ? _i : annotation.url
+                    title: (_l = annotation.title) != null ? _l : annotation.url
                   });
                 }
               }
@@ -32792,7 +33956,7 @@ var XaiResponsesLanguageModel = class {
       content,
       finishReason: {
         unified: mapXaiResponsesFinishReason(response.status),
-        raw: (_j = response.status) != null ? _j : void 0
+        raw: (_m = response.status) != null ? _m : void 0
       },
       usage: response.usage ? convertXaiResponsesUsage(response.usage) : {
         inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 },
@@ -32800,7 +33964,7 @@ var XaiResponsesLanguageModel = class {
       },
       request: { body },
       response: {
-        ...getResponseMetadata$3(response),
+        ...getResponseMetadata$2(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -32815,7 +33979,8 @@ var XaiResponsesLanguageModel = class {
       webSearchToolName,
       xSearchToolName,
       codeExecutionToolName,
-      mcpToolName
+      mcpToolName,
+      fileSearchToolName
     } = await this.getArgs(options);
     const body = {
       ...args,
@@ -32849,7 +34014,7 @@ var XaiResponsesLanguageModel = class {
             controller.enqueue({ type: "stream-start", warnings });
           },
           transform(chunk, controller) {
-            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
             if (options.includeRawChunks) {
               controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
             }
@@ -32862,7 +34027,7 @@ var XaiResponsesLanguageModel = class {
               if (isFirstChunk) {
                 controller.enqueue({
                   type: "response-metadata",
-                  ...getResponseMetadata$3(event.response)
+                  ...getResponseMetadata$2(event.response)
                 });
                 isFirstChunk = false;
               }
@@ -32870,6 +34035,7 @@ var XaiResponsesLanguageModel = class {
             }
             if (event.type === "response.reasoning_summary_part.added") {
               const blockId = `reasoning-${event.item_id}`;
+              activeReasoning[event.item_id] = {};
               controller.enqueue({
                 type: "reasoning-start",
                 id: blockId,
@@ -32962,9 +34128,22 @@ var XaiResponsesLanguageModel = class {
               const part = event.item;
               if (part.type === "reasoning") {
                 if (event.type === "response.output_item.done") {
+                  const blockId = `reasoning-${part.id}`;
+                  if (!(part.id in activeReasoning)) {
+                    activeReasoning[part.id] = {};
+                    controller.enqueue({
+                      type: "reasoning-start",
+                      id: blockId,
+                      providerMetadata: {
+                        xai: {
+                          ...part.id && { itemId: part.id }
+                        }
+                      }
+                    });
+                  }
                   controller.enqueue({
                     type: "reasoning-end",
-                    id: `reasoning-${part.id}`,
+                    id: blockId,
                     providerMetadata: {
                       xai: {
                         ...part.encrypted_content && {
@@ -32975,6 +34154,50 @@ var XaiResponsesLanguageModel = class {
                     }
                   });
                   delete activeReasoning[part.id];
+                }
+                return;
+              }
+              if (part.type === "file_search_call") {
+                const toolName = fileSearchToolName != null ? fileSearchToolName : "file_search";
+                if (!seenToolCalls.has(part.id)) {
+                  seenToolCalls.add(part.id);
+                  controller.enqueue({
+                    type: "tool-input-start",
+                    id: part.id,
+                    toolName
+                  });
+                  controller.enqueue({
+                    type: "tool-input-delta",
+                    id: part.id,
+                    delta: ""
+                  });
+                  controller.enqueue({
+                    type: "tool-input-end",
+                    id: part.id
+                  });
+                  controller.enqueue({
+                    type: "tool-call",
+                    toolCallId: part.id,
+                    toolName,
+                    input: "",
+                    providerExecuted: true
+                  });
+                }
+                if (event.type === "response.output_item.done") {
+                  controller.enqueue({
+                    type: "tool-result",
+                    toolCallId: part.id,
+                    toolName,
+                    result: {
+                      queries: (_c = part.queries) != null ? _c : [],
+                      results: (_e = (_d = part.results) == null ? void 0 : _d.map((result) => ({
+                        fileId: result.file_id,
+                        filename: result.filename,
+                        score: result.score,
+                        text: result.text
+                      }))) != null ? _e : null
+                    }
+                  });
                 }
                 return;
               }
@@ -32990,17 +34213,17 @@ var XaiResponsesLanguageModel = class {
                   "x_semantic_search",
                   "x_thread_fetch"
                 ];
-                let toolName = (_c = part.name) != null ? _c : "";
-                if (webSearchSubTools.includes((_d = part.name) != null ? _d : "") || part.type === "web_search_call") {
+                let toolName = (_f = part.name) != null ? _f : "";
+                if (webSearchSubTools.includes((_g = part.name) != null ? _g : "") || part.type === "web_search_call") {
                   toolName = webSearchToolName != null ? webSearchToolName : "web_search";
-                } else if (xSearchSubTools.includes((_e = part.name) != null ? _e : "") || part.type === "x_search_call") {
+                } else if (xSearchSubTools.includes((_h = part.name) != null ? _h : "") || part.type === "x_search_call") {
                   toolName = xSearchToolName != null ? xSearchToolName : "x_search";
                 } else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call") {
                   toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
                 } else if (part.type === "mcp_call") {
-                  toolName = (_f = mcpToolName != null ? mcpToolName : part.name) != null ? _f : "mcp";
+                  toolName = (_i = mcpToolName != null ? mcpToolName : part.name) != null ? _i : "mcp";
                 }
-                const toolInput = part.type === "custom_tool_call" ? (_g = part.input) != null ? _g : "" : part.type === "mcp_call" ? (_h = part.arguments) != null ? _h : "" : (_i = part.arguments) != null ? _i : "";
+                const toolInput = part.type === "custom_tool_call" ? (_j = part.input) != null ? _j : "" : part.type === "mcp_call" ? (_k = part.arguments) != null ? _k : "" : (_l = part.arguments) != null ? _l : "";
                 const shouldEmit = part.type === "custom_tool_call" ? event.type === "response.output_item.done" : !seenToolCalls.has(part.id);
                 if (shouldEmit && !seenToolCalls.has(part.id)) {
                   seenToolCalls.add(part.id);
@@ -33053,7 +34276,7 @@ var XaiResponsesLanguageModel = class {
                           sourceType: "url",
                           id: self.config.generateId(),
                           url: annotation.url,
-                          title: (_j = annotation.title) != null ? _j : annotation.url
+                          title: (_m = annotation.title) != null ? _m : annotation.url
                         });
                       }
                     }
@@ -33139,6 +34362,7 @@ var viewXVideo = (args = {}) => viewXVideoToolFactory(args);
 // src/tool/index.ts
 var xaiTools = {
   codeExecution,
+  fileSearch,
   mcpServer,
   viewImage,
   viewXVideo,
@@ -33147,7 +34371,7 @@ var xaiTools = {
 };
 
 // src/version.ts
-var VERSION$2 = "3.0.35" ;
+var VERSION$2 = "3.0.43" ;
 
 // src/xai-provider.ts
 var xaiErrorStructure = {
@@ -33441,7 +34665,7 @@ var PerplexityLanguageModel = class {
       usage: convertPerplexityUsage(response.usage),
       request: { body },
       response: {
-        ...getResponseMetadata$2(response),
+        ...getResponseMetadata$1(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -33515,7 +34739,7 @@ var PerplexityLanguageModel = class {
             if (isFirstChunk) {
               controller.enqueue({
                 type: "response-metadata",
-                ...getResponseMetadata$2(value)
+                ...getResponseMetadata$1(value)
               });
               (_a = value.citations) == null ? void 0 : _a.forEach((url) => {
                 controller.enqueue({
@@ -33584,7 +34808,7 @@ var PerplexityLanguageModel = class {
     };
   }
 };
-function getResponseMetadata$2({
+function getResponseMetadata$1({
   id,
   model,
   created
@@ -33656,7 +34880,7 @@ var errorToMessage = (data) => {
 };
 
 // src/version.ts
-var VERSION$1 = "3.0.11" ;
+var VERSION$1 = "3.0.15" ;
 
 // src/perplexity-provider.ts
 function createPerplexity(options = {}) {
@@ -33696,987 +34920,10 @@ function createPerplexity(options = {}) {
 }
 createPerplexity();
 
-// src/chat/openai-compatible-chat-language-model.ts
-var openaiCompatibleErrorDataSchema = object$1({
-  error: object$1({
-    message: string(),
-    // The additional information below is handled loosely to support
-    // OpenAI-compatible providers that have slightly different error
-    // responses:
-    type: string().nullish(),
-    param: any().nullish(),
-    code: union([string(), number$1()]).nullish()
-  })
-});
-var defaultOpenAICompatibleErrorStructure = {
-  errorSchema: openaiCompatibleErrorDataSchema,
-  errorToMessage: (data) => data.error.message
-};
-
-// src/chat/convert-openai-compatible-chat-usage.ts
-function convertOpenAICompatibleChatUsage(usage) {
-  var _a, _b, _c, _d, _e, _f;
-  if (usage == null) {
-    return {
-      inputTokens: {
-        total: void 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: void 0,
-        text: void 0,
-        reasoning: void 0
-      },
-      raw: void 0
-    };
-  }
-  const promptTokens = (_a = usage.prompt_tokens) != null ? _a : 0;
-  const completionTokens = (_b = usage.completion_tokens) != null ? _b : 0;
-  const cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0;
-  const reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
-  return {
-    inputTokens: {
-      total: promptTokens,
-      noCache: promptTokens - cacheReadTokens,
-      cacheRead: cacheReadTokens,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: completionTokens,
-      text: completionTokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-function getOpenAIMetadata(message) {
-  var _a, _b;
-  return (_b = (_a = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a.openaiCompatible) != null ? _b : {};
-}
-function getAudioFormat(mediaType) {
-  switch (mediaType) {
-    case "audio/wav":
-      return "wav";
-    case "audio/mp3":
-    case "audio/mpeg":
-      return "mp3";
-    default:
-      return null;
-  }
-}
-function convertToOpenAICompatibleChatMessages(prompt) {
-  var _a, _b, _c;
-  const messages = [];
-  for (const { role, content, ...message } of prompt) {
-    const metadata = getOpenAIMetadata({ ...message });
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content, ...metadata });
-        break;
-      }
-      case "user": {
-        if (content.length === 1 && content[0].type === "text") {
-          messages.push({
-            role: "user",
-            content: content[0].text,
-            ...getOpenAIMetadata(content[0])
-          });
-          break;
-        }
-        messages.push({
-          role: "user",
-          content: content.map((part) => {
-            var _a2;
-            const partMetadata = getOpenAIMetadata(part);
-            switch (part.type) {
-              case "text": {
-                return { type: "text", text: part.text, ...partMetadata };
-              }
-              case "file": {
-                if (part.mediaType.startsWith("image/")) {
-                  const mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-                  return {
-                    type: "image_url",
-                    image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType.startsWith("audio/")) {
-                  if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError({
-                      functionality: "audio file parts with URLs"
-                    });
-                  }
-                  const format = getAudioFormat(part.mediaType);
-                  if (format === null) {
-                    throw new UnsupportedFunctionalityError({
-                      functionality: `audio media type ${part.mediaType}`
-                    });
-                  }
-                  return {
-                    type: "input_audio",
-                    input_audio: {
-                      data: convertToBase64(part.data),
-                      format
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType === "application/pdf") {
-                  if (part.data instanceof URL) {
-                    throw new UnsupportedFunctionalityError({
-                      functionality: "PDF file parts with URLs"
-                    });
-                  }
-                  return {
-                    type: "file",
-                    file: {
-                      filename: (_a2 = part.filename) != null ? _a2 : "document.pdf",
-                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType.startsWith("text/")) {
-                  const textContent = part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? part.data : new TextDecoder().decode(part.data);
-                  return {
-                    type: "text",
-                    text: textContent,
-                    ...partMetadata
-                  };
-                }
-                throw new UnsupportedFunctionalityError({
-                  functionality: `file part media type ${part.mediaType}`
-                });
-              }
-            }
-          }),
-          ...metadata
-        });
-        break;
-      }
-      case "assistant": {
-        let text = "";
-        const toolCalls = [];
-        for (const part of content) {
-          const partMetadata = getOpenAIMetadata(part);
-          switch (part.type) {
-            case "text": {
-              text += part.text;
-              break;
-            }
-            case "tool-call": {
-              const thoughtSignature = (_b = (_a = part.providerOptions) == null ? void 0 : _a.google) == null ? void 0 : _b.thoughtSignature;
-              toolCalls.push({
-                id: part.toolCallId,
-                type: "function",
-                function: {
-                  name: part.toolName,
-                  arguments: JSON.stringify(part.input)
-                },
-                ...partMetadata,
-                // Include extra_content for Google Gemini thought signatures
-                ...thoughtSignature ? {
-                  extra_content: {
-                    google: {
-                      thought_signature: String(thoughtSignature)
-                    }
-                  }
-                } : {}
-              });
-              break;
-            }
-          }
-        }
-        messages.push({
-          role: "assistant",
-          content: text,
-          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
-          ...metadata
-        });
-        break;
-      }
-      case "tool": {
-        for (const toolResponse of content) {
-          if (toolResponse.type === "tool-approval-response") {
-            continue;
-          }
-          const output = toolResponse.output;
-          let contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "execution-denied":
-              contentValue = (_c = output.reason) != null ? _c : "Tool execution denied.";
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          const toolResponseMetadata = getOpenAIMetadata(toolResponse);
-          messages.push({
-            role: "tool",
-            tool_call_id: toolResponse.toolCallId,
-            content: contentValue,
-            ...toolResponseMetadata
-          });
-        }
-        break;
-      }
-      default: {
-        const _exhaustiveCheck = role;
-        throw new Error(`Unsupported role: ${_exhaustiveCheck}`);
-      }
-    }
-  }
-  return messages;
-}
-
-// src/chat/get-response-metadata.ts
-function getResponseMetadata$1({
-  id,
-  model,
-  created
-}) {
-  return {
-    id: id != null ? id : void 0,
-    modelId: model != null ? model : void 0,
-    timestamp: created != null ? new Date(created * 1e3) : void 0
-  };
-}
-
-// src/chat/map-openai-compatible-finish-reason.ts
-function mapOpenAICompatibleFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-      return "stop";
-    case "length":
-      return "length";
-    case "content_filter":
-      return "content-filter";
-    case "function_call":
-    case "tool_calls":
-      return "tool-calls";
-    default:
-      return "other";
-  }
-}
-var openaiCompatibleProviderOptions = object$1({
-  /**
-   * A unique identifier representing your end-user, which can help the provider to
-   * monitor and detect abuse.
-   */
-  user: string().optional(),
-  /**
-   * Reasoning effort for reasoning models. Defaults to `medium`.
-   */
-  reasoningEffort: string().optional(),
-  /**
-   * Controls the verbosity of the generated text. Defaults to `medium`.
-   */
-  textVerbosity: string().optional(),
-  /**
-   * Whether to use strict JSON schema validation.
-   * When true, the model uses constrained decoding to guarantee schema compliance.
-   * Only used when the provider supports structured outputs and a schema is provided.
-   *
-   * @default true
-   */
-  strictJsonSchema: boolean().optional()
-});
-function prepareTools({
-  tools,
-  toolChoice
-}) {
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  const toolWarnings = [];
-  if (tools == null) {
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  }
-  const openaiCompatTools = [];
-  for (const tool of tools) {
-    if (tool.type === "provider") {
-      toolWarnings.push({
-        type: "unsupported",
-        feature: `provider-defined tool ${tool.id}`
-      });
-    } else {
-      openaiCompatTools.push({
-        type: "function",
-        function: {
-          name: tool.name,
-          description: tool.description,
-          parameters: tool.inputSchema,
-          ...tool.strict != null ? { strict: tool.strict } : {}
-        }
-      });
-    }
-  }
-  if (toolChoice == null) {
-    return { tools: openaiCompatTools, toolChoice: void 0, toolWarnings };
-  }
-  const type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-    case "required":
-      return { tools: openaiCompatTools, toolChoice: type, toolWarnings };
-    case "tool":
-      return {
-        tools: openaiCompatTools,
-        toolChoice: {
-          type: "function",
-          function: { name: toolChoice.toolName }
-        },
-        toolWarnings
-      };
-    default: {
-      const _exhaustiveCheck = type;
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${_exhaustiveCheck}`
-      });
-    }
-  }
-}
-
-// src/chat/openai-compatible-chat-language-model.ts
-var OpenAICompatibleChatLanguageModel = class {
-  // type inferred via constructor
-  constructor(modelId, config) {
-    this.specificationVersion = "v3";
-    var _a, _b;
-    this.modelId = modelId;
-    this.config = config;
-    const errorStructure = (_a = config.errorStructure) != null ? _a : defaultOpenAICompatibleErrorStructure;
-    this.chunkSchema = createOpenAICompatibleChatChunkSchema(
-      errorStructure.errorSchema
-    );
-    this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure);
-    this.supportsStructuredOutputs = (_b = config.supportsStructuredOutputs) != null ? _b : false;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  get providerOptionsName() {
-    return this.config.provider.split(".")[0].trim();
-  }
-  get supportedUrls() {
-    var _a, _b, _c;
-    return (_c = (_b = (_a = this.config).supportedUrls) == null ? void 0 : _b.call(_a)) != null ? _c : {};
-  }
-  transformRequestBody(args) {
-    var _a, _b, _c;
-    return (_c = (_b = (_a = this.config).transformRequestBody) == null ? void 0 : _b.call(_a, args)) != null ? _c : args;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    providerOptions,
-    stopSequences,
-    responseFormat,
-    seed,
-    toolChoice,
-    tools
-  }) {
-    var _a, _b, _c, _d, _e;
-    const warnings = [];
-    const deprecatedOptions = await parseProviderOptions({
-      provider: "openai-compatible",
-      providerOptions,
-      schema: openaiCompatibleProviderOptions
-    });
-    if (deprecatedOptions != null) {
-      warnings.push({
-        type: "other",
-        message: `The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead.`
-      });
-    }
-    const compatibleOptions = Object.assign(
-      deprecatedOptions != null ? deprecatedOptions : {},
-      (_a = await parseProviderOptions({
-        provider: "openaiCompatible",
-        providerOptions,
-        schema: openaiCompatibleProviderOptions
-      })) != null ? _a : {},
-      (_b = await parseProviderOptions({
-        provider: this.providerOptionsName,
-        providerOptions,
-        schema: openaiCompatibleProviderOptions
-      })) != null ? _b : {}
-    );
-    const strictJsonSchema = (_c = compatibleOptions == null ? void 0 : compatibleOptions.strictJsonSchema) != null ? _c : true;
-    if (topK != null) {
-      warnings.push({ type: "unsupported", feature: "topK" });
-    }
-    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !this.supportsStructuredOutputs) {
-      warnings.push({
-        type: "unsupported",
-        feature: "responseFormat",
-        details: "JSON response format schema is only supported with structuredOutputs"
-      });
-    }
-    const {
-      tools: openaiTools,
-      toolChoice: openaiToolChoice,
-      toolWarnings
-    } = prepareTools({
-      tools,
-      toolChoice
-    });
-    return {
-      args: {
-        // model id:
-        model: this.modelId,
-        // model specific settings:
-        user: compatibleOptions.user,
-        // standardized settings:
-        max_tokens: maxOutputTokens,
-        temperature,
-        top_p: topP,
-        frequency_penalty: frequencyPenalty,
-        presence_penalty: presencePenalty,
-        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? this.supportsStructuredOutputs === true && responseFormat.schema != null ? {
-          type: "json_schema",
-          json_schema: {
-            schema: responseFormat.schema,
-            strict: strictJsonSchema,
-            name: (_d = responseFormat.name) != null ? _d : "response",
-            description: responseFormat.description
-          }
-        } : { type: "json_object" } : void 0,
-        stop: stopSequences,
-        seed,
-        ...Object.fromEntries(
-          Object.entries(
-            (_e = providerOptions == null ? void 0 : providerOptions[this.providerOptionsName]) != null ? _e : {}
-          ).filter(
-            ([key]) => !Object.keys(openaiCompatibleProviderOptions.shape).includes(key)
-          )
-        ),
-        reasoning_effort: compatibleOptions.reasoningEffort,
-        verbosity: compatibleOptions.textVerbosity,
-        // messages:
-        messages: convertToOpenAICompatibleChatMessages(prompt),
-        // tools:
-        tools: openaiTools,
-        tool_choice: openaiToolChoice
-      },
-      warnings: [...warnings, ...toolWarnings]
-    };
-  }
-  async doGenerate(options) {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    const { args, warnings } = await this.getArgs({ ...options });
-    const transformedBody = this.transformRequestBody(args);
-    const body = JSON.stringify(transformedBody);
-    const {
-      responseHeaders,
-      value: responseBody,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: this.config.url({
-        path: "/chat/completions",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body: transformedBody,
-      failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(
-        OpenAICompatibleChatResponseSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    const choice = responseBody.choices[0];
-    const content = [];
-    const text = choice.message.content;
-    if (text != null && text.length > 0) {
-      content.push({ type: "text", text });
-    }
-    const reasoning = (_a = choice.message.reasoning_content) != null ? _a : choice.message.reasoning;
-    if (reasoning != null && reasoning.length > 0) {
-      content.push({
-        type: "reasoning",
-        text: reasoning
-      });
-    }
-    if (choice.message.tool_calls != null) {
-      for (const toolCall of choice.message.tool_calls) {
-        const thoughtSignature = (_c = (_b = toolCall.extra_content) == null ? void 0 : _b.google) == null ? void 0 : _c.thought_signature;
-        content.push({
-          type: "tool-call",
-          toolCallId: (_d = toolCall.id) != null ? _d : generateId(),
-          toolName: toolCall.function.name,
-          input: toolCall.function.arguments,
-          ...thoughtSignature ? {
-            providerMetadata: {
-              [this.providerOptionsName]: { thoughtSignature }
-            }
-          } : {}
-        });
-      }
-    }
-    const providerMetadata = {
-      [this.providerOptionsName]: {},
-      ...await ((_f = (_e = this.config.metadataExtractor) == null ? void 0 : _e.extractMetadata) == null ? void 0 : _f.call(_e, {
-        parsedBody: rawResponse
-      }))
-    };
-    const completionTokenDetails = (_g = responseBody.usage) == null ? void 0 : _g.completion_tokens_details;
-    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens) != null) {
-      providerMetadata[this.providerOptionsName].acceptedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens;
-    }
-    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens) != null) {
-      providerMetadata[this.providerOptionsName].rejectedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens;
-    }
-    return {
-      content,
-      finishReason: {
-        unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
-        raw: (_h = choice.finish_reason) != null ? _h : void 0
-      },
-      usage: convertOpenAICompatibleChatUsage(responseBody.usage),
-      providerMetadata,
-      request: { body },
-      response: {
-        ...getResponseMetadata$1(responseBody),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    var _a;
-    const { args, warnings } = await this.getArgs({ ...options });
-    const body = this.transformRequestBody({
-      ...args,
-      stream: true,
-      // only include stream_options when in strict compatibility mode:
-      stream_options: this.config.includeUsage ? { include_usage: true } : void 0
-    });
-    const metadataExtractor = (_a = this.config.metadataExtractor) == null ? void 0 : _a.createStreamExtractor();
-    const { responseHeaders, value: response } = await postJsonToApi({
-      url: this.config.url({
-        path: "/chat/completions",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(
-        this.chunkSchema
-      ),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    const toolCalls = [];
-    let finishReason = {
-      unified: "other",
-      raw: void 0
-    };
-    let usage = void 0;
-    let isFirstChunk = true;
-    const providerOptionsName = this.providerOptionsName;
-    let isActiveReasoning = false;
-    let isActiveText = false;
-    return {
-      stream: response.pipeThrough(
-        new TransformStream({
-          start(controller) {
-            controller.enqueue({ type: "stream-start", warnings });
-          },
-          transform(chunk, controller) {
-            var _a2, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
-            if (options.includeRawChunks) {
-              controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-            }
-            if (!chunk.success) {
-              finishReason = { unified: "error", raw: void 0 };
-              controller.enqueue({ type: "error", error: chunk.error });
-              return;
-            }
-            metadataExtractor == null ? void 0 : metadataExtractor.processChunk(chunk.rawValue);
-            if ("error" in chunk.value) {
-              finishReason = { unified: "error", raw: void 0 };
-              controller.enqueue({
-                type: "error",
-                error: chunk.value.error.message
-              });
-              return;
-            }
-            const value = chunk.value;
-            if (isFirstChunk) {
-              isFirstChunk = false;
-              controller.enqueue({
-                type: "response-metadata",
-                ...getResponseMetadata$1(value)
-              });
-            }
-            if (value.usage != null) {
-              usage = value.usage;
-            }
-            const choice = value.choices[0];
-            if ((choice == null ? void 0 : choice.finish_reason) != null) {
-              finishReason = {
-                unified: mapOpenAICompatibleFinishReason(choice.finish_reason),
-                raw: (_a2 = choice.finish_reason) != null ? _a2 : void 0
-              };
-            }
-            if ((choice == null ? void 0 : choice.delta) == null) {
-              return;
-            }
-            const delta = choice.delta;
-            const reasoningContent = (_b = delta.reasoning_content) != null ? _b : delta.reasoning;
-            if (reasoningContent) {
-              if (!isActiveReasoning) {
-                controller.enqueue({
-                  type: "reasoning-start",
-                  id: "reasoning-0"
-                });
-                isActiveReasoning = true;
-              }
-              controller.enqueue({
-                type: "reasoning-delta",
-                id: "reasoning-0",
-                delta: reasoningContent
-              });
-            }
-            if (delta.content) {
-              if (isActiveReasoning) {
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: "reasoning-0"
-                });
-                isActiveReasoning = false;
-              }
-              if (!isActiveText) {
-                controller.enqueue({ type: "text-start", id: "txt-0" });
-                isActiveText = true;
-              }
-              controller.enqueue({
-                type: "text-delta",
-                id: "txt-0",
-                delta: delta.content
-              });
-            }
-            if (delta.tool_calls != null) {
-              if (isActiveReasoning) {
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: "reasoning-0"
-                });
-                isActiveReasoning = false;
-              }
-              for (const toolCallDelta of delta.tool_calls) {
-                const index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length;
-                if (toolCalls[index] == null) {
-                  if (toolCallDelta.id == null) {
-                    throw new InvalidResponseDataError({
-                      data: toolCallDelta,
-                      message: `Expected 'id' to be a string.`
-                    });
-                  }
-                  if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null) {
-                    throw new InvalidResponseDataError({
-                      data: toolCallDelta,
-                      message: `Expected 'function.name' to be a string.`
-                    });
-                  }
-                  controller.enqueue({
-                    type: "tool-input-start",
-                    id: toolCallDelta.id,
-                    toolName: toolCallDelta.function.name
-                  });
-                  toolCalls[index] = {
-                    id: toolCallDelta.id,
-                    type: "function",
-                    function: {
-                      name: toolCallDelta.function.name,
-                      arguments: (_e = toolCallDelta.function.arguments) != null ? _e : ""
-                    },
-                    hasFinished: false,
-                    thoughtSignature: (_h = (_g = (_f = toolCallDelta.extra_content) == null ? void 0 : _f.google) == null ? void 0 : _g.thought_signature) != null ? _h : void 0
-                  };
-                  const toolCall2 = toolCalls[index];
-                  if (((_i = toolCall2.function) == null ? void 0 : _i.name) != null && ((_j = toolCall2.function) == null ? void 0 : _j.arguments) != null) {
-                    if (toolCall2.function.arguments.length > 0) {
-                      controller.enqueue({
-                        type: "tool-input-delta",
-                        id: toolCall2.id,
-                        delta: toolCall2.function.arguments
-                      });
-                    }
-                    if (isParsableJson(toolCall2.function.arguments)) {
-                      controller.enqueue({
-                        type: "tool-input-end",
-                        id: toolCall2.id
-                      });
-                      controller.enqueue({
-                        type: "tool-call",
-                        toolCallId: (_k = toolCall2.id) != null ? _k : generateId(),
-                        toolName: toolCall2.function.name,
-                        input: toolCall2.function.arguments,
-                        ...toolCall2.thoughtSignature ? {
-                          providerMetadata: {
-                            [providerOptionsName]: {
-                              thoughtSignature: toolCall2.thoughtSignature
-                            }
-                          }
-                        } : {}
-                      });
-                      toolCall2.hasFinished = true;
-                    }
-                  }
-                  continue;
-                }
-                const toolCall = toolCalls[index];
-                if (toolCall.hasFinished) {
-                  continue;
-                }
-                if (((_l = toolCallDelta.function) == null ? void 0 : _l.arguments) != null) {
-                  toolCall.function.arguments += (_n = (_m = toolCallDelta.function) == null ? void 0 : _m.arguments) != null ? _n : "";
-                }
-                controller.enqueue({
-                  type: "tool-input-delta",
-                  id: toolCall.id,
-                  delta: (_o = toolCallDelta.function.arguments) != null ? _o : ""
-                });
-                if (((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson(toolCall.function.arguments)) {
-                  controller.enqueue({
-                    type: "tool-input-end",
-                    id: toolCall.id
-                  });
-                  controller.enqueue({
-                    type: "tool-call",
-                    toolCallId: (_r = toolCall.id) != null ? _r : generateId(),
-                    toolName: toolCall.function.name,
-                    input: toolCall.function.arguments,
-                    ...toolCall.thoughtSignature ? {
-                      providerMetadata: {
-                        [providerOptionsName]: {
-                          thoughtSignature: toolCall.thoughtSignature
-                        }
-                      }
-                    } : {}
-                  });
-                  toolCall.hasFinished = true;
-                }
-              }
-            }
-          },
-          flush(controller) {
-            var _a2, _b, _c, _d, _e;
-            if (isActiveReasoning) {
-              controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
-            }
-            if (isActiveText) {
-              controller.enqueue({ type: "text-end", id: "txt-0" });
-            }
-            for (const toolCall of toolCalls.filter(
-              (toolCall2) => !toolCall2.hasFinished
-            )) {
-              controller.enqueue({
-                type: "tool-input-end",
-                id: toolCall.id
-              });
-              controller.enqueue({
-                type: "tool-call",
-                toolCallId: (_a2 = toolCall.id) != null ? _a2 : generateId(),
-                toolName: toolCall.function.name,
-                input: toolCall.function.arguments,
-                ...toolCall.thoughtSignature ? {
-                  providerMetadata: {
-                    [providerOptionsName]: {
-                      thoughtSignature: toolCall.thoughtSignature
-                    }
-                  }
-                } : {}
-              });
-            }
-            const providerMetadata = {
-              [providerOptionsName]: {},
-              ...metadataExtractor == null ? void 0 : metadataExtractor.buildMetadata()
-            };
-            if (((_b = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _b.accepted_prediction_tokens) != null) {
-              providerMetadata[providerOptionsName].acceptedPredictionTokens = (_c = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _c.accepted_prediction_tokens;
-            }
-            if (((_d = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens) != null) {
-              providerMetadata[providerOptionsName].rejectedPredictionTokens = (_e = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _e.rejected_prediction_tokens;
-            }
-            controller.enqueue({
-              type: "finish",
-              finishReason,
-              usage: convertOpenAICompatibleChatUsage(usage),
-              providerMetadata
-            });
-          }
-        })
-      ),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-};
-var openaiCompatibleTokenUsageSchema = object$1({
-  prompt_tokens: number$1().nullish(),
-  completion_tokens: number$1().nullish(),
-  total_tokens: number$1().nullish(),
-  prompt_tokens_details: object$1({
-    cached_tokens: number$1().nullish()
-  }).nullish(),
-  completion_tokens_details: object$1({
-    reasoning_tokens: number$1().nullish(),
-    accepted_prediction_tokens: number$1().nullish(),
-    rejected_prediction_tokens: number$1().nullish()
-  }).nullish()
-}).nullish();
-var OpenAICompatibleChatResponseSchema = looseObject({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      message: object$1({
-        role: literal("assistant").nullish(),
-        content: string().nullish(),
-        reasoning_content: string().nullish(),
-        reasoning: string().nullish(),
-        tool_calls: array$1(
-          object$1({
-            id: string().nullish(),
-            function: object$1({
-              name: string(),
-              arguments: string()
-            }),
-            // Support for Google Gemini thought signatures via OpenAI compatibility
-            extra_content: object$1({
-              google: object$1({
-                thought_signature: string().nullish()
-              }).nullish()
-            }).nullish()
-          })
-        ).nullish()
-      }),
-      finish_reason: string().nullish()
-    })
-  ),
-  usage: openaiCompatibleTokenUsageSchema
-});
-var chunkBaseSchema = looseObject({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      delta: object$1({
-        role: _enum(["assistant"]).nullish(),
-        content: string().nullish(),
-        // Most openai-compatible models set `reasoning_content`, but some
-        // providers serving `gpt-oss` set `reasoning`. See #7866
-        reasoning_content: string().nullish(),
-        reasoning: string().nullish(),
-        tool_calls: array$1(
-          object$1({
-            index: number$1().nullish(),
-            //google does not send index
-            id: string().nullish(),
-            function: object$1({
-              name: string().nullish(),
-              arguments: string().nullish()
-            }),
-            // Support for Google Gemini thought signatures via OpenAI compatibility
-            extra_content: object$1({
-              google: object$1({
-                thought_signature: string().nullish()
-              }).nullish()
-            }).nullish()
-          })
-        ).nullish()
-      }).nullish(),
-      finish_reason: string().nullish()
-    })
-  ),
-  usage: openaiCompatibleTokenUsageSchema
-});
-var createOpenAICompatibleChatChunkSchema = (errorSchema) => union([chunkBaseSchema, errorSchema]);
-object$1({
-  /**
-   * Echo back the prompt in addition to the completion.
-   */
-  echo: boolean().optional(),
-  /**
-   * Modify the likelihood of specified tokens appearing in the completion.
-   *
-   * Accepts a JSON object that maps tokens (specified by their token ID in
-   * the GPT tokenizer) to an associated bias value from -100 to 100.
-   */
-  logitBias: record(string(), number$1()).optional(),
-  /**
-   * The suffix that comes after a completion of inserted text.
-   */
-  suffix: string().optional(),
-  /**
-   * A unique identifier representing your end-user, which can help providers to
-   * monitor and detect abuse.
-   */
-  user: string().optional()
-});
-var usageSchema = object$1({
-  prompt_tokens: number$1(),
-  completion_tokens: number$1(),
-  total_tokens: number$1()
-});
-object$1({
-  id: string().nullish(),
-  created: number$1().nullish(),
-  model: string().nullish(),
-  choices: array$1(
-    object$1({
-      text: string(),
-      finish_reason: string()
-    })
-  ),
-  usage: usageSchema.nullish()
-});
-object$1({
-  /**
-   * The number of dimensions the resulting output embeddings should have.
-   * Only supported in text-embedding-3 and later models.
-   */
-  dimensions: number$1().optional(),
-  /**
-   * A unique identifier representing your end-user, which can help providers to
-   * monitor and detect abuse.
-   */
-  user: string().optional()
-});
-object$1({
-  data: array$1(object$1({ embedding: array$1(number$1()) })),
-  usage: object$1({ prompt_tokens: number$1() }).nullish(),
-  providerMetadata: record(string(), record(string(), any())).optional()
-});
-object$1({
-  data: array$1(object$1({ b64_json: string() }))
-});
-
 // src/cerebras-provider.ts
 
 // src/version.ts
-var VERSION = "2.0.21" ;
+var VERSION = "2.0.27" ;
 
 // src/cerebras-provider.ts
 var cerebrasErrorSchema = object$1({

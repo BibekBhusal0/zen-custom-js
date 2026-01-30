@@ -2,7 +2,7 @@
 // @name            Browse Bot
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
-// @version         2.5.7
+// @version         2.5.8
 // @lastUpdated     2026-01-29
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
@@ -905,7 +905,7 @@ function shortcutStringToSignature(shortcutStr) {
     .replace(/control/g, "ctrl")
     .replace(/option/g, "alt")
     .split("+")
-    .map(s => normalizeKeyName(s.trim()))
+    .map((s) => normalizeKeyName(s.trim()))
     .join("+");
 }
 
@@ -5803,19 +5803,6 @@ const urlbarAI = {
     PREFS.debugLog(`urlbarAI: AI mode is now ${this._isAIMode ? "ON" : "OFF"}`);
   },
 
-  handleGlobalKeyDown(e) {
-    // const currentShortcut = shortcutStringToSignature(PREFS.shortcutUrlbar);
-    // const eventSignature = eventToShortcutSignature(e);
-    //
-    // if (eventSignature === currentShortcut) {
-    //   PREFS.debugLog("urlbarAI: Custom shortcut detected");
-    //   e.preventDefault();
-    //   e.stopPropagation();
-    //   gURLBar.focus();
-    //   setTimeout(() => this.toggleAIMode(), 0);
-    // }
-  },
-
   handleUrlbarKeyDown(e) {
     if (this._isAIMode) {
       if (
@@ -5837,7 +5824,6 @@ const urlbarAI = {
 
   addListeners() {
     PREFS.debugLog("urlbarAI: Adding event listeners");
-    this._boundHandleGlobalKeyDown = this.handleGlobalKeyDown.bind(this);
     this._boundHandleUrlbarKeyDown = this.handleUrlbarKeyDown.bind(this);
     this._boundDisableAIMode = () => {
       gURLBar.inputField.setAttribute("placeholder", this._originalPlaceholder);
@@ -5849,7 +5835,6 @@ const urlbarAI = {
       }
     };
 
-    document.addEventListener("keydown", this._boundHandleGlobalKeyDown, true);
     gURLBar.inputField.addEventListener("keydown", this._boundHandleUrlbarKeyDown, true);
     gURLBar.inputField.addEventListener("blur", this._boundDisableAIMode);
     gURLBar.view.panel.addEventListener("popuphiding", this._boundDisableAIMode);
@@ -5857,10 +5842,6 @@ const urlbarAI = {
 
   removeListeners() {
     PREFS.debugLog("urlbarAI: Removing event listeners");
-    if (this._boundHandleGlobalKeyDown) {
-      document.removeEventListener("keydown", this._boundHandleGlobalKeyDown, true);
-      this._boundHandleGlobalKeyDown = null;
-    }
     if (this._boundHandleUrlbarKeyDown) {
       gURLBar.inputField.removeEventListener("keydown", this._boundHandleUrlbarKeyDown, true);
       this._boundHandleUrlbarKeyDown = null;

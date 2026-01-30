@@ -24,15 +24,15 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
-    "@ai-sdk/anthropic": "^3.0.23",
-    "@ai-sdk/cerebras": "^2.0.21",
-    "@ai-sdk/google": "^3.0.13",
-    "@ai-sdk/mistral": "^3.0.12",
-    "@ai-sdk/openai": "^3.0.19",
-    "@ai-sdk/perplexity": "^3.0.11",
-    "@ai-sdk/xai": "^3.0.35",
-    "ai": "^6.0.50",
-    "ollama-ai-provider-v2": "^3.0.2",
+    "@ai-sdk/anthropic": "^3.0.31",
+    "@ai-sdk/cerebras": "^2.0.27",
+    "@ai-sdk/google": "^3.0.18",
+    "@ai-sdk/mistral": "^3.0.16",
+    "@ai-sdk/openai": "^3.0.23",
+    "@ai-sdk/perplexity": "^3.0.15",
+    "@ai-sdk/xai": "^3.0.43",
+    "ai": "^6.0.62",
+    "ollama-ai-provider-v2": "^3.0.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
@@ -44,7 +44,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.5",
     "prettier": "^3.8.1",
-    "rollup": "^4.56.0",
+    "rollup": "^4.57.0",
     "rollup-plugin-string": "^3.0.0"
   }
 }
