@@ -18,6 +18,7 @@ import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
 import {
   destroyShortcutRegistry,
+  getPrettyShortcut,
   initShortcutRegistry,
   registerShortcut,
   unregisterShortcutById,
@@ -582,7 +583,7 @@ export const ZenCommandPalette = {
   getShortcutForCommand(commandKey) {
     // First, check for user-defined custom shortcuts
     if (this._userConfig.customShortcuts?.[commandKey]) {
-      return this._userConfig.customShortcuts[commandKey];
+      return getPrettyShortcut(this._userConfig.customShortcuts[commandKey]);
     }
 
     // Then, check Zen's native shortcut manager
@@ -600,7 +601,8 @@ export const ZenCommandPalette = {
 
     // Nothing found fallback to default
     const defaultShortcuts = this._getDefaultShortcuts();
-    return defaultShortcuts[commandKey];
+    const df = defaultShortcuts[commandKey];
+    if (df) return getPrettyShortcut(df);
   },
 
   attachUrlbarCloseListeners() {

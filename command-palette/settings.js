@@ -2,7 +2,7 @@ import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
-import { checkShortcutConflicts, eventToShortcutSignature } from "../utils/keyboard.js";
+import { checkShortcutConflicts, eventToShortcutSignature, getPrettyShortcut } from "../utils/keyboard.js";
 
 const commandChainFunctions = {
   delay: {
@@ -311,9 +311,10 @@ const SettingsModal = {
     const allowToolbarButton = cmd.allowShortcuts !== false;
 
     const shortcutValue = customShortcut || nativeShortcut || "";
+    const prettyShortcut = shortcutValue? getPrettyShortcut(shortcutValue): ""
     const shortcutInputHtml = `<div class="shortcut-input-wrapper">
       <input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
-        shortcutValue
+        prettyShortcut
       )}" ${!allowShortcutChange ? "readonly" : ""} />
       <span class="shortcut-conflict-warning" hidden title="Shortcut conflict"></span>
     </div>`;
@@ -463,7 +464,7 @@ const SettingsModal = {
     const shortcutString = eventToShortcutSignature(event);
     const conflictCheck = checkShortcutConflicts(shortcutString, commandKey);
 
-    targetInput.value = shortcutString;
+    targetInput.value = getPrettyShortcut( shortcutString );
 
     if (conflictCheck.hasConflict) {
       targetInput.classList.add("conflict");

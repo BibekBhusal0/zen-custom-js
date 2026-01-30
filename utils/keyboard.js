@@ -12,6 +12,33 @@ export function eventToShortcutSignature(event) {
   return modifiers.join("+");
 }
 
+/**
+ * Creates a pretty name for shortcut
+ * @param {shortcutStr} string - shortcut string.
+ * @returns {string} Pretty name.
+ */
+export function getPrettyShortcut(shortcutStr) {
+  if (!shortcutStr) return "";
+  const pretty = shortcutStr
+    .toLowerCase()
+    .replace(/control/g, "⌘")
+    .replace(/accel/g, "⌘")
+    .replace(/ctrl/g, "⌘")
+    .replace(/shift/g, "⇧")
+    .replace(/option/g, "Alt")
+    .replace(/alt/g, "Alt")
+    .replace(/space/g, "␣")
+    .replace(/spacebar/g, "␣")
+    .replace(/enter/g, "↩")
+    .replace(/arrowright/g, "→")
+    .replace(/arrowleft/g, "←")
+    .replace(/arrowup/g, "↑")
+    .replace(/arrowdown/g, "↓");
+
+  // Capatalize first letter
+  return pretty ? pretty[0].toUpperCase() + pretty.slice(1) : "";
+}
+
 function normalizeKeyName(key) {
   if (!key) return "";
   const k = key.toLowerCase();
