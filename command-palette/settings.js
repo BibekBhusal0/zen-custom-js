@@ -2,7 +2,11 @@ import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
-import { checkShortcutConflicts, eventToShortcutSignature, getPrettyShortcut } from "../utils/keyboard.js";
+import {
+  checkShortcutConflicts,
+  eventToShortcutSignature,
+  getPrettyShortcut,
+} from "../utils/keyboard.js";
 
 const commandChainFunctions = {
   delay: {
@@ -182,7 +186,7 @@ const SettingsModal = {
     if (oldShortcutsJSON !== newShortcutsJSON) {
       const oldShortcuts = oldSettings.customShortcuts || {};
       const newShortcuts = newSettings.customShortcuts || {};
-      const defautlShortcut = this._mainModule._getDefaultShortcuts()
+      const defautlShortcut = this._mainModule._getDefaultShortcuts();
 
       // Remove old shortcuts
       for (const [commandKey] of Object.entries(oldShortcuts)) {
@@ -311,7 +315,7 @@ const SettingsModal = {
     const allowToolbarButton = cmd.allowShortcuts !== false;
 
     const shortcutValue = customShortcut || nativeShortcut || "";
-    const prettyShortcut = shortcutValue? getPrettyShortcut(shortcutValue): ""
+    const prettyShortcut = shortcutValue ? getPrettyShortcut(shortcutValue) : "";
     const shortcutInputHtml = `<div class="shortcut-input-wrapper">
       <input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
         prettyShortcut
@@ -464,7 +468,7 @@ const SettingsModal = {
     const shortcutString = eventToShortcutSignature(event);
     const conflictCheck = checkShortcutConflicts(shortcutString, commandKey);
 
-    targetInput.value = getPrettyShortcut( shortcutString );
+    targetInput.value = getPrettyShortcut(shortcutString);
 
     if (conflictCheck.hasConflict) {
       targetInput.classList.add("conflict");
