@@ -84,7 +84,7 @@ The command palette includes default keyboard shortcuts that can be overridden b
 | -------------------------- | ---------------- | ---------------------------------------------------------- |
 | Open Command Palette       | `Ctrl+Shift+P`   | Opens the command palette to search all available commands |
 | Command Configure Commands | `Ctrl+,`         | Opens Command palette Settings to Customize commands       |
-| Repeat Last Command | `Ctrl+.`         | Repeat Last command run from command palette.|
+| Repeat Last Command        | `Ctrl+.`         | Repeat Last command run from command palette.              |
 
 ## 📋 Available Commands
 
