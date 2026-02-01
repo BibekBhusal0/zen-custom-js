@@ -278,6 +278,7 @@ export const commands = [
     label: "New Tab",
     icon: "chrome://browser/skin/zen-icons/plus.svg",
     tags: ["new", "home", "black", "tab"],
+    openUrl: true,
   },
   {
     key: "home",
