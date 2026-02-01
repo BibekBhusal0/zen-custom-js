@@ -1,3 +1,4 @@
+import { showToast } from "../utils/toast.js";
 // This file is adapted from the command list in ZBar-Zen by Darsh-A
 // https://github.com/Darsh-A/ZBar-Zen/blob/main/command_bar.uc.js
 import { svgToUrl, icons } from "../utils/icon.js";
@@ -679,7 +680,7 @@ export const commands = [
     tags: ["profile", "new", "create"],
   },
 
-  // ----------- Command Palette Settings -----------
+  // ----------- Command Palette -----------
   {
     key: "command-palette:settings-commands",
     label: "Command Palette: Configure Commands",
@@ -718,6 +719,16 @@ export const commands = [
     },
     tags: ["commands", "palette", "all", "shortcuts"],
     openUrl: true,
+  },
+  {
+    key: "command-palette:repeat-last",
+    label: "Repeat Last Command",
+    command: () => {
+      const cmd = ZenCommandPalette._recentCommands[0];
+      if (cmd) ZenCommandPalette.executeCommand(cmd);
+      else showToast({ title: "No Recent Command Found" });
+    },
+    tags: ["commands", "palette", "all", "shortcuts"],
   },
 
   // ----------- Tidy Tabs --------

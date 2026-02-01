@@ -167,7 +167,9 @@ export const ZenCommandPalette = {
    * @param {object} cmd - The command object that was executed.
    */
   addRecentCommand(cmd) {
+    const commandsToNotInclude = ["command-palette:repeat-last", "command-palette:show"];
     if (!cmd || !cmd.key) return;
+    if (commandsToNotInclude.includes(cmd.key)) return;
 
     const existingIndex = this._recentCommands.indexOf(cmd.key);
     if (existingIndex > -1) {
@@ -649,6 +651,7 @@ export const ZenCommandPalette = {
     return {
       "command-palette:settings-commands": "Ctrl+,",
       "command-palette:show": "Ctrl+Shift+p",
+      "command-palette:repeat-last": "Ctrl+.",
     };
   },
 
