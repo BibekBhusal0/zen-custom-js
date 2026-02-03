@@ -610,23 +610,22 @@ export const ZenCommandPalette = {
     if (df) return getPrettyShortcut(df);
   },
 
-  attachUrlbarCloseListeners() {
-    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
-    const gURLBar = browserWindow.gURLBar;
-
-    if (gURLBar.hasAttribute("zen-cmd-listeners-attached")) {
-      return;
-    }
-
+  attachUrlbarListeners() {
     const onUrlbarClose = () => {
-      const isPrefixModeActive = this.provider?._isInPrefixMode ?? false;
       if (this.provider) this.provider.dispose();
-      if (isPrefixModeActive) gURLBar.value = "";
     };
+
+    gURLBar.inputField.addEventListener("keydown", (event) => {
+      if (this.provider?._isInPrefixMode && gURLBar.value === "") {
+        if (event.key === "Backspace" || event.key === "Escape") {
+          event.preventDefault();
+          this._exitPrefixMode();
+        }
+      }
+    });
 
     gURLBar.inputField.addEventListener("blur", onUrlbarClose);
     gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
-    gURLBar.setAttribute("zen-cmd-listeners-attached", "true");
     PREFS.debugLog("URL bar close listeners attached.");
   },
 
@@ -770,18 +769,8 @@ export const ZenCommandPalette = {
     initShortcutRegistry();
     PREFS.debugLog("Shortcut registry initialized.");
 
-    this.attachUrlbarCloseListeners();
+    this.attachUrlbarListeners();
 
-    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
-    const gURLBar = browserWindow.gURLBar;
-    gURLBar.inputField.addEventListener("keydown", (event) => {
-      if (this.provider?._isInPrefixMode && gURLBar.value === "") {
-        if (event.key === "Backspace" || event.key === "Escape") {
-          event.preventDefault();
-          this._exitPrefixMode();
-        }
-      }
-    });
 
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
