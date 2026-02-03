@@ -1,0 +1,12 @@
+/* https://github.com/qumeqa/floating-statusbar/blob/main/userChrome.css */
+
+#statuspanel {
+  margin: 10px !important;
+}
+
+#statuspanel-label {
+  border-radius: 100px !important;
+  padding: 6px 12px !important;
+  border: none !important;
+  background: var(--arrowpanel-background) !important;
+}
