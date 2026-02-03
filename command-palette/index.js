@@ -616,10 +616,10 @@ export const ZenCommandPalette = {
     };
 
     gURLBar.inputField.addEventListener("keydown", (event) => {
-      if (this.provider?._isInPrefixMode && gURLBar.value === "") {
-        if (event.key === "Backspace" || event.key === "Escape") {
+      if (this.provider?._isInPrefixMode) {
+        if (event.key === "Backspace" && gURLBar.selectionStart === 0) {
           event.preventDefault();
-          this._exitPrefixMode();
+          this.provider.dispose(true);
         }
       }
     });
@@ -947,12 +947,15 @@ export const ZenCommandPalette = {
           }
         }
 
-        dispose() {
+        dispose(preserveValue = false) {
           PREFS.resetTempMaxRichResults();
           const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
           const gURLBar = browserWindow.gURLBar;
           gURLBar.removeAttribute("zen-cmd-palette-prefix-mode");
-          if (this._isInPrefixMode) gURLBar.value = "";
+          if (this._isInPrefixMode) {
+            if (!preserveValue) gURLBar.value = "";
+            gURLBar.startQuery();
+          }
           this._isInPrefixMode = false;
           setTimeout(() => {
             self.clearDynamicCommandsCache();
