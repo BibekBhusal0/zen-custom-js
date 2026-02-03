@@ -37,6 +37,8 @@ function doCommand(command) {
 }
 
 function openUrl(timeout = 0) {
+  const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+  const gURLBar = browserWindow.gURLBar;
   setTimeout(() => {
     gURLBar.startQuery();
     gURLBar.focus();
@@ -145,6 +147,8 @@ export const ZenCommandPalette = {
 
   _closeUrlBar() {
     try {
+      const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+      const gURLBar = browserWindow.gURLBar;
       gURLBar.value = "";
       if (window.gZenUIManager && typeof window.gZenUIManager.handleUrlbarClose === "function") {
         window.gZenUIManager.handleUrlbarClose(false, false);
@@ -612,6 +616,8 @@ export const ZenCommandPalette = {
       return;
     }
 
+    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+    const gURLBar = browserWindow.gURLBar;
     const onUrlbarClose = () => {
       const isPrefixModeActive = this.provider?._isInPrefixMode ?? false;
       if (this.provider) this.provider.dispose();
@@ -766,6 +772,8 @@ export const ZenCommandPalette = {
 
     this.attachUrlbarCloseListeners();
 
+    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+    const gURLBar = browserWindow.gURLBar;
     gURLBar.inputField.addEventListener("keydown", (event) => {
       if (this.provider?._isInPrefixMode && gURLBar.value === "") {
         if (event.key === "Backspace" || event.key === "Escape") {
@@ -857,6 +865,8 @@ export const ZenCommandPalette = {
 
             if (isEnteringPrefixMode) {
               this._isInPrefixMode = true;
+              const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+              const gURLBar = browserWindow.gURLBar;
               gURLBar.setAttribute("zen-cmd-palette-prefix-mode", "true");
               query = input.substring(PREFS.prefix.length).trim();
               gURLBar.value = query;
@@ -953,6 +963,8 @@ export const ZenCommandPalette = {
 
         dispose() {
           PREFS.resetTempMaxRichResults();
+          const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+          const gURLBar = browserWindow.gURLBar;
           gURLBar.removeAttribute("zen-cmd-palette-prefix-mode");
           this._isInPrefixMode = false;
           setTimeout(() => {
@@ -964,6 +976,8 @@ export const ZenCommandPalette = {
           const cmd = details.result._zenCmd;
           if (cmd) {
             PREFS.debugLog("Executing command from onEngagement:", cmd.key);
+            const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+            const gURLBar = browserWindow.gURLBar;
             if (cmd.openUrl) gURLBar.value = "";
             else self._closeUrlBar();
             self.addRecentCommand(cmd);
@@ -997,12 +1011,8 @@ export const ZenCommandPalette = {
       }
 
       this.provider = new ZenCommandProvider();
-      if (!UrlbarProvidersManager.getProvider(this.provider.name)) {
-        UrlbarProvidersManager.registerProvider(this.provider);
-        PREFS.debugLog("Zen Command Palette provider registered.");
-      } else {
-        PREFS.debugLog("Zen Command Palette provider already registered, skipping.");
-      }
+      UrlbarProvidersManager.registerProvider(this.provider);
+      PREFS.debugLog("Zen Command Palette provider registered.");
     } catch (e) {
       PREFS.debugError("Failed to create/register Urlbar provider:", e);
     }

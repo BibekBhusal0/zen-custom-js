@@ -148,15 +148,16 @@ export async function generateSearchEngineCommands() {
       key: `search:${engineName}`,
       label: `Search with: ${engineName}`,
       command: () => {
-        if (window.gURLBar) {
+        const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+        const gURLBar = browserWindow.gURLBar;
+        if (gURLBar) {
           // Clear the command text from the urlbar before changing mode. This is the key fix.
-          window.gURLBar.value = "";
-          window.gURLBar.searchMode = {
+          gURLBar.value = "";
+          gURLBar.searchMode = {
             engineName,
-            // "oneoff" is the entry type used by urlbar one-off buttons.
             entry: "oneoff",
           };
-          window.gURLBar.focus();
+          gURLBar.focus();
         }
       },
       condition: () => {
