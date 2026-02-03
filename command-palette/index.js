@@ -771,7 +771,6 @@ export const ZenCommandPalette = {
 
     this.attachUrlbarListeners();
 
-
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
     );
@@ -953,7 +952,6 @@ export const ZenCommandPalette = {
           const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
           const gURLBar = browserWindow.gURLBar;
           gURLBar.removeAttribute("zen-cmd-palette-prefix-mode");
-          console.log("disposing")
           if (this._isInPrefixMode) gURLBar.value = "";
           this._isInPrefixMode = false;
           setTimeout(() => {
@@ -999,11 +997,16 @@ export const ZenCommandPalette = {
         }
       }
 
-      this.provider = new ZenCommandProvider();
-      if (!UrlbarProvidersManager.getProvider(this.provider.name)) {
+      // Check if a provider with the same name is already registered
+      const existingProvider = UrlbarProvidersManager.getProvider("TestProvider");
+      if (existingProvider) {
+        this.provider = existingProvider;
+        PREFS.debugLog("Using existing shared provider instance.");
+      } else {
+        this.provider = new ZenCommandProvider();
         UrlbarProvidersManager.registerProvider(this.provider);
+        PREFS.debugLog("Zen Command Palette provider registered.");
       }
-      PREFS.debugLog("Zen Command Palette provider registered.");
     } catch (e) {
       PREFS.debugError("Failed to create/register Urlbar provider:", e);
     }
