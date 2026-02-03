@@ -134,7 +134,6 @@ export const ZenCommandPalette = {
   MAX_RECENT_COMMANDS: 20,
   _dynamicCommandsCache: null,
   _userConfig: {},
-  _closeListenersAttached: false,
   _globalActions: null,
 
   safeStr(x) {
@@ -612,12 +611,13 @@ export const ZenCommandPalette = {
   },
 
   attachUrlbarCloseListeners() {
-    if (this._closeListenersAttached) {
+    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+    const gURLBar = browserWindow.gURLBar;
+
+    if (gURLBar.hasAttribute("zen-cmd-listeners-attached")) {
       return;
     }
 
-    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
-    const gURLBar = browserWindow.gURLBar;
     const onUrlbarClose = () => {
       const isPrefixModeActive = this.provider?._isInPrefixMode ?? false;
       if (this.provider) this.provider.dispose();
@@ -626,7 +626,7 @@ export const ZenCommandPalette = {
 
     gURLBar.inputField.addEventListener("blur", onUrlbarClose);
     gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
-    this._closeListenersAttached = true;
+    gURLBar.setAttribute("zen-cmd-listeners-attached", "true");
     PREFS.debugLog("URL bar close listeners attached.");
   },
 
@@ -782,8 +782,6 @@ export const ZenCommandPalette = {
         }
       }
     });
-
-    window.addEventListener("unload", () => this.destroy(), { once: true });
 
     const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
@@ -966,6 +964,8 @@ export const ZenCommandPalette = {
           const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
           const gURLBar = browserWindow.gURLBar;
           gURLBar.removeAttribute("zen-cmd-palette-prefix-mode");
+          console.log("disposing")
+          if (this._isInPrefixMode) gURLBar.value = "";
           this._isInPrefixMode = false;
           setTimeout(() => {
             self.clearDynamicCommandsCache();
@@ -1011,7 +1011,9 @@ export const ZenCommandPalette = {
       }
 
       this.provider = new ZenCommandProvider();
-      UrlbarProvidersManager.registerProvider(this.provider);
+      if (!UrlbarProvidersManager.getProvider(this.provider.name)) {
+        UrlbarProvidersManager.registerProvider(this.provider);
+      }
       PREFS.debugLog("Zen Command Palette provider registered.");
     } catch (e) {
       PREFS.debugError("Failed to create/register Urlbar provider:", e);
