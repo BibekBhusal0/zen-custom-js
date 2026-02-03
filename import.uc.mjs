@@ -11,6 +11,6 @@ import "./reopen-closed-tabs/index.js";
 import "./search-engine-select/index.js";
 import "./dist/browse-bot.uc.mjs";
 
-// Otehr scripts
+// Other scripts
 import "./others/tab-explode.js";
 import "./others/invert-pdf.js";
