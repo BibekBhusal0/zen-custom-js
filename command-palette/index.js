@@ -997,8 +997,12 @@ export const ZenCommandPalette = {
       }
 
       this.provider = new ZenCommandProvider();
-      UrlbarProvidersManager.registerProvider(this.provider);
-      PREFS.debugLog("Zen Command Palette provider registered.");
+      if (!UrlbarProvidersManager.getProvider(this.provider.name)) {
+        UrlbarProvidersManager.registerProvider(this.provider);
+        PREFS.debugLog("Zen Command Palette provider registered.");
+      } else {
+        PREFS.debugLog("Zen Command Palette provider already registered, skipping.");
+      }
     } catch (e) {
       PREFS.debugError("Failed to create/register Urlbar provider:", e);
     }
