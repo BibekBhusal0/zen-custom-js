@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 4. Search for Zen Command Palette.
 5. Click Install.
 6. A toast for restart should appear — click on that to restart Zen.
-7. Feel productive !
+7. Feel productive!
 
 > [!NOTE]
 > If you want to try Early Beta version you can use the beta branch `https://github.com/Vertex-Mods/Zen-Command-Palette/tree/beta`
@@ -35,14 +35,14 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 The Zen Command Palette can be configured via its own settings. Simply press `Ctrl + ,` and you will see command settings popup. Which will allow adding more commands and configuration like keyboard shortcut, icon, hiding commands, creating toolbar icon.
 
-### Creating Toolbar icons
+### Creating Toolbar Icons
 
 https://github.com/user-attachments/assets/bdd87f58-f6f7-480c-8ffe-1150d571f482
 
 > [!Note]
-> In current version it don't need restart to get the toolbar icon.
+> In current version it doesn't need to restart to get the toolbar icon.
 
-### Making custom commands
+### Making Custom Commands
 
 https://github.com/user-attachments/assets/71dae23a-bb0c-4a04-add6-450d344751a0
 
@@ -57,7 +57,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | Preference Key                                         | Type    | Default                             | Description                                                                  |
 | ------------------------------------------------------ | ------- | ----------------------------------- | ---------------------------------------------------------------------------- |
 | `zen-command-palette.prefix`                           | string  | `:`                                 | Prefix after entering which commands will appear                             |
-| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Preifx.           |
+| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Prefix.           |
 | `zen-command-palette.debug-mode`                       | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.         |
 | `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without prefix).   |
 | `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the prefix.            |
@@ -187,7 +187,7 @@ The following commands are now native:
 
 ### View & Display
 
-- Toggle Fullscreen
+- Toggle Full screen
 - Toggle Reader Mode
 - Zoom In
 - Zoom Out
@@ -259,7 +259,7 @@ The following commands are now native:
 
 Adding your own commands from other scripts is straightforward. The `ZenCommandPalette` object is exposed on the `window`, allowing you to use its API to add both static and dynamic commands. I encourage all mod creators to incorporate this into their own mods (especially ones with JS).
 
-### Other mods which support Command Palette
+### Other Mods Which Support Command Palette
 
 - [Advanced Tab Groups](https://github.com/12th-devs/Advanced-Tab-Groups)
 - [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
@@ -320,17 +320,17 @@ if (window.ZenCommandPalette) {
 
 ## ❓ FAQ
 
-I am not making up the questions. I have been asked these questions in reddit and discord muliple times.
+I am not making up the questions. I have been asked these questions in Reddit and discord multiple times.
 
 <details>
 <summary><h3>What is difference between this and native zen command bar (released recently)</h3></summary>
-Zen command bar don't contain too much commands to optimize for performance, this mod contain 100+ static commands. And on top of it, this provides API making easy for user to add more commands. Already 4 other mods (1 unreleased version) support the command palette.
+Zen command bar don't contain too much commands to optimize for performance, this mod contain 100+ static commands. And on top of it, this provides API making easy for user to add more commands. Already 4 other mods support the command palette.
 
-Another Benifit of this mod, is that this allows setting custom keymaps to commands, and allow adding them as toolbar icons.
+Another Benefit of this mod, is that this allows setting custom keymaps to commands, and allow adding them as toolbar icons.
 
 </details>
 
-## 🙏 Credits and Acknowledgements
+## 🙏 Credits and Acknowledgments
 
 This mod is released through [Vertex Mods](https://github.com/Vertex-Mods/), and I, [Bibek Bhusal](https://github.com/BibekBhusal0), am the creator of this mod.
 
