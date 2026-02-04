@@ -162,7 +162,8 @@ function checkZenConflict(shortcutStr, excludeId = null) {
  */
 function handleKeyDown(event) {
   // Don't save if input is in focus
-  if (event.target && event.target.classList && event.target.classList.contains("shortcut-input")) {
+  const t = event.target;
+  if (t && (t.tagName === "input" || t.tagName === "textarea" || t.isContentEditable)) {
     return;
   }
 
