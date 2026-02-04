@@ -36,7 +36,9 @@
     "unload-other-tabs": "Ctrl+Alt+U",
     "unload-tab": "Alt+U",
     "browsebot:settings": "Alt+E",
-    "rename-tab": "ctrl+alt+r"
+    "rename-tab": "ctrl+alt+r",
+    "command-palette:settings-commands": "",
+    "zen:global-action-add-to-essentials": ""
   },
   "toolbarButtons": [],
   "customCommands": [

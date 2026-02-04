@@ -697,7 +697,7 @@ export const ZenCommandPalette = {
     const customShortcuts = this._userConfig.customShortcuts || {};
 
     for (const [commandKey, shortcutStr] of Object.entries(defaultShortcuts)) {
-      if (!customShortcuts[commandKey]) customShortcuts[commandKey] = shortcutStr;
+      if (customShortcuts[commandKey] === undefined) customShortcuts[commandKey] = shortcutStr;
     }
 
     let appliedCount = 0;
