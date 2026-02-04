@@ -3,6 +3,13 @@
     "cmd_maximizeWindow",
     "cmd_minimizeWindow",
     "Browser:OpenFile",
+    "sine:install:browse-bot",
+    "sine:install:compact-settings",
+    "sine:install:floating-sidebar",
+    "sine:install:reopen-closed-tabs",
+    "sine:install:search-engine-select",
+    "sine:install:settings-shortcuts-search",
+    "sine:install:zen-command-palette",
     "sine:uninstall:No-Gaps",
     "sine:uninstall:642854b5-88b4-4c40-b256-e035532109df",
     "sine:uninstall:zen-custom-js"
@@ -30,8 +37,7 @@
     "unload-other-tabs": "Ctrl+Alt+U",
     "unload-tab": "Alt+U",
     "browsebot:settings": "Alt+E",
-    "rename-tab": "ctrl+alt+r",
-    "command-palette:settings-commands": "ctrl+alt+shift+e"
+    "rename-tab": "ctrl+alt+r"
   },
   "toolbarButtons": [],
   "customCommands": [
