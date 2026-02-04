@@ -21,6 +21,7 @@ body:
       options:
         - BrowseBot
         - Compact Settings
+        - Command Palette
         - Floating Sidebar
         - Reopen Closed Tabs
         - Search Engine Icon
