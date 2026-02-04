@@ -118,8 +118,7 @@ const SettingsModal = {
     for (const [commandKey, shortcut] of Object.entries(
       this._currentSettings.customShortcuts || {}
     )) {
-      // FIXED (Bug): Allow saving empty strings (to unbind defaults)
-      // Check if shortcut is not undefined (allows "") and is different from default
+      // Only save if default shortcut is changed/removed
       if (shortcut !== undefined && defaultShortcuts[commandKey] !== shortcut) {
         filteredCustomShortcuts[commandKey] = shortcut;
       }
@@ -448,7 +447,7 @@ const SettingsModal = {
     if (key === "Backspace" || key === "Delete") {
       targetInput.value = "";
       if (commandKey) {
-        // FIXED (Bug): Set to empty string to indicate "unbound" instead of deleting
+        // Set to empty string to indicate "unbound" instead of deleting
         this._currentSettings.customShortcuts[commandKey] = "";
       }
       clearConflict();
@@ -488,7 +487,6 @@ const SettingsModal = {
         `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}":`,
         conflictCheck.conflicts
       );
-      // FIXED (Bug): Save the shortcut anyway, allowing user override despite conflict
       this._currentSettings.customShortcuts[commandKey] = shortcutString;
     } else {
       clearConflict();
