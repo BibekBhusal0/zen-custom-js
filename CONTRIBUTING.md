@@ -2,9 +2,18 @@
 
 If you'd like to contribute, you can get started by reading this guide, where I will explain file structure and standards for the contribution. Thank you for considering a contribution!
 
-## About This Project
+## About this Project
 
 This GitHub repo contains multiple mods made specifically for Zen Browser, which I made to solve specific problems I had or to enhance my browsing experience.
+
+## Opening an Issue
+
+If you have questions or feature ideas or run into issues you can open an issue.
+
+Before opening issue make sure to check all issues if similar issues has been created previously or not. If you are reporting bug or giving feature recommendation I suggest you use issues template.
+
+> [!Note]
+> If mod is in beta/unreleased version, issues, and bugs are expected, and docs might not be up-to-date. You don't need to open issues for it.
 
 ## Getting Started
 
@@ -217,7 +226,6 @@ The publishing workflow automatically handles releasing mods to individual repos
    - Versions ending with `b` (e.g., `1.0.1b`) → published to `beta` branch
    - Standard versions (e.g., `1.0.1`) → published to `main` branch with release tag
 4. **Release Notes**: If `release-notes.md` contains actual content (not just the template), a GitHub release is created automatically
-5. **Sine Store Integration**: Stable releases automatically create a Pull Request to the Sine Store repository
 
 #### Updating a Mod
 
@@ -319,22 +327,10 @@ Before submitting your pull request:
 
 - [ ] Test your changes thoroughly (more closely if it's vibecoded!)
 - [ ] Update relevant documentation
-- [ ] Follow the file size guidelines (under 1.5k lines per file)
 - [ ] Use descriptive commit messages
 - [ ] Don't worry about formatting (it's automated!)
 
 Please be nice when discussing things in pull requests! 💙
-
-## Questions or Issues?
-
-If you have questions or run into issues:
-
-- Open an issue for bugs or feature requests (issue templates available)
-- Check existing issues to see if your question has been answered
-- Feel free to ask for clarification in your PR
-
-> [!Note]
-> If mod is in beta version or is unreleased, issues and bugs are expected, and docs might not be up-to-date—you don't need to open issues for it.
 
 ## License
 
