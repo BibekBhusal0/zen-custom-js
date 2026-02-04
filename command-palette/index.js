@@ -587,8 +587,11 @@ export const ZenCommandPalette = {
    */
   getShortcutForCommand(commandKey) {
     // First, check for user-defined custom shortcuts
-    if (this._userConfig.customShortcuts?.[commandKey]) {
-      return getPrettyShortcut(this._userConfig.customShortcuts[commandKey]);
+    const userShortcut = this._userConfig.customShortcuts?.[commandKey];
+    if (userShortcut !== undefined) {
+      if (userShortcut) return getPrettyShortcut(userShortcut);
+      // shortcut is empty string ""
+      else return;
     }
 
     // Then, check Zen's native shortcut manager
@@ -697,7 +700,7 @@ export const ZenCommandPalette = {
     const customShortcuts = this._userConfig.customShortcuts || {};
 
     for (const [commandKey, shortcutStr] of Object.entries(defaultShortcuts)) {
-      if (!customShortcuts[commandKey]) customShortcuts[commandKey] = shortcutStr;
+      if (customShortcuts[commandKey] === undefined) customShortcuts[commandKey] = shortcutStr;
     }
 
     let appliedCount = 0;
