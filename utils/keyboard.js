@@ -161,6 +161,13 @@ function checkZenConflict(shortcutStr, excludeId = null) {
  * @param {KeyboardEvent} event - The keyboard event.
  */
 function handleKeyDown(event) {
+  // FIXED (Bug): If typing in the shortcut editor, ignore global commands!
+  // This prevents the browser from executing the command (e.g. Open Settings)
+  // before the input field can capture the key combination.
+  if (event.target && event.target.classList && event.target.classList.contains("shortcut-input")) {
+    return;
+  }
+
   const signature = eventToShortcutSignature(event);
   const shortcut = _shortcuts.get(signature);
 

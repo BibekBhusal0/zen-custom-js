@@ -118,8 +118,9 @@ const SettingsModal = {
     for (const [commandKey, shortcut] of Object.entries(
       this._currentSettings.customShortcuts || {}
     )) {
-      // Only save if: shortcut is not a default shortcut
-      if (shortcut && defaultShortcuts[commandKey] !== shortcut) {
+      // FIXED (Bug): Allow saving empty strings (to unbind defaults)
+      // Check if shortcut is not undefined (allows "") and is different from default
+      if (shortcut !== undefined && defaultShortcuts[commandKey] !== shortcut) {
         filteredCustomShortcuts[commandKey] = shortcut;
       }
     }
@@ -447,7 +448,8 @@ const SettingsModal = {
     if (key === "Backspace" || key === "Delete") {
       targetInput.value = "";
       if (commandKey) {
-        delete this._currentSettings.customShortcuts[commandKey];
+        // FIXED (Bug): Set to empty string to indicate "unbound" instead of deleting
+        this._currentSettings.customShortcuts[commandKey] = "";
       }
       clearConflict();
       window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
@@ -486,7 +488,8 @@ const SettingsModal = {
         `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}":`,
         conflictCheck.conflicts
       );
-      delete this._currentSettings.customShortcuts[commandKey];
+      // FIXED (Bug): Save the shortcut anyway, allowing user override despite conflict
+      this._currentSettings.customShortcuts[commandKey] = shortcutString;
     } else {
       clearConflict();
       this._currentSettings.customShortcuts[commandKey] = shortcutString;
@@ -1111,13 +1114,13 @@ const SettingsModal = {
             </div>
             <div id="settings-tab-content" class="cmd-settings-tab-content" hidden>
               <!-- Content will be populated by _populateSettingsTab -->
-            </div>
+              </div>
             <div id="custom-commands-tab-content" class="cmd-settings-tab-content" hidden>
               <!-- Content will be populated by _populateCustomCommandsTab -->
-            </div>
+              </div>
             <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
               <!-- Content will be populated by _populateHelpTab -->
-            </div>
+              </div>
           </div>
         </div>
       </div>
