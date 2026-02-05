@@ -13,7 +13,7 @@
 // To make changes, please edit the source files in the repository:
 // https://github.com/BibekBhusal0/zen-custom-js
 
-import { n as number, t as tool, o as object, s as string, a as array, c as createCerebras, b as createPerplexity, d as createOpenAI, e as createOllama, f as createMistral, x as xai, g as createGoogleGenerativeAI, h as createAnthropic, i as stepCountIs, j as generateText, k as streamText, l as output_exports } from './vercel-ai-sdk.uc.js';
+import { n as number, t as tool, o as object, s as string, a as array, c as createCerebras, b as createPerplexity, d as createOpenAI, e as createOllama, f as createMistral, x as xai, g as createGoogleGenerativeAI, h as createAnthropic, i as stepCountIs, j as generateText, k as streamText, l as output_exports } from './vercel-ai-sdk.uc.mjs';
 
 function setPref(key, value) {
   try {
