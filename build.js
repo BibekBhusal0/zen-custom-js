@@ -87,13 +87,21 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
     "iife",
     "--target",
     "browser",
-    "--entry-naming",
-    `${theme.id}.uc.js`,
     "--banner",
     banner,
   ];
 
   if (isWatch) args.push("--watch");
+  if (theme.id === "browse-bot") {
+    args.push(
+      "--splitting",
+      "--entry-naming",
+      "browse-bot.uc.mjs",
+      "--chunk-naming",
+      "vercel-ai-sdk.uc.mjs"
+    );
+  } else args.push("--entry-naming", `${theme.id}.uc.js`);
+
   const child = spawn("bun", args, { stdio: "inherit" });
 
   return new Promise((resolve, reject) => {
