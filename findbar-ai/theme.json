@@ -10,9 +10,6 @@
   "scripts": {
     "browse-bot.uc.mjs": {
       "include": ["chrome://browser/content/browser.xhtml"]
-    },
-    "vercel-ai-sdk.uc.js": {
-      "include": ["chrome://browser/content/browser.xhtml"]
     }
   },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Browse-Bot/main/README.md",
