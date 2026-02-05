@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { spawn } from "child_process";
 
 const getSubdirectories = (dir) => {
   return fs.readdirSync(dir).filter((file) => {
@@ -73,40 +74,46 @@ const createBanner = (themePath) => {
   return banner;
 };
 
-// Build function
-async function buildMod(dir, themePath, entryFile, theme) {
+// Build function using Bun CLI
+function buildMod(themePath, entryFile, theme, isWatch = false) {
   const banner = createBanner(themePath);
-  console.log(`Building ${dir} (${theme.id})...`);
 
-  try {
-    const result = await Bun.build({
-      entrypoints: [entryFile],
-      outdir: "./dist",
-      format: "iife",
-      naming: `${theme.id}.uc.js`,
-      minify: false,
-      sourcemap: "none",
-      external: [],
-      target: "browser",
+  const args = [
+    "build",
+    entryFile,
+    "--outdir",
+    "./dist",
+    "--format",
+    "iife",
+    "--target",
+    "browser",
+    "--entry-naming",
+    `${theme.id}.uc.js`,
+    "--banner",
+    banner,
+  ];
+
+  if (isWatch) args.push("--watch");
+  const child = spawn("bun", args, { stdio: "inherit" });
+
+  return new Promise((resolve, reject) => {
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Build failed with code ${code}`));
+      }
     });
 
-    if (result.success) {
-      const outputPath = result.outputs[0].path;
-      const content = await Bun.file(outputPath).text();
-      const banneredContent = banner + content;
-      await Bun.write(outputPath, banneredContent);
-      console.log(`✓ Built ${outputPath}`);
-    }
-  } catch (error) {
-    console.error(`✗ Failed to build ${dir}:`, error);
-    process.exit(1);
-  }
+    child.on("error", reject);
+  });
 }
 
 // Main build function
 async function build() {
   const mods = getSubdirectories(process.cwd());
   const target = process.env.TARGET;
+  const isWatch = process.argv.includes("--watch");
 
   let modsToBuild = mods;
   if (target) {
@@ -121,7 +128,6 @@ async function build() {
     });
   }
 
-  // Build each mod
   for (const dir of modsToBuild) {
     const themePath = path.join(dir, "theme.json");
     const entryFile = path.join(dir, "index.js");
@@ -133,10 +139,10 @@ async function build() {
     const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
     if (!theme.scripts) continue;
 
-    await buildMod(dir, themePath, entryFile, theme);
+    await buildMod(themePath, entryFile, theme, isWatch);
   }
-
-  console.log("Build completed!");
 }
 
-await build();
+build().catch(() => {
+  process.exit(1);
+});
