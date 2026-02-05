@@ -107,10 +107,6 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
     };
 
     if (theme.id === "browse-bot") {
-      const buildType = process.env.BUILD_TYPE;
-      const isDevBuild = buildType === "dev";
-      const isTargetedBuild = buildType === "targeted";
-
       const esmConfig = {
         ...baseConfig,
         output: {
@@ -136,26 +132,7 @@ const configs = getSubdirectories(process.cwd()).flatMap((dir) => {
         },
       };
 
-      const umdAllConfig = {
-        ...baseConfig,
-        output: {
-          file: `dist/browse-bot-all.uc.js`,
-          format: "umd",
-          name: "browse_bot_all",
-          banner,
-          inlineDynamicImports: true,
-        },
-      };
-
-      if (isTargetedBuild) {
-        return [umdAllConfig];
-      }
-
-      if (isDevBuild) {
-        return [esmConfig];
-      }
-
-      return [esmConfig, umdAllConfig];
+      return [esmConfig];
     }
 
     const umdConfig = {
