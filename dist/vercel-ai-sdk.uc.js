@@ -221,29 +221,29 @@ var NoSuchModelError = class extends (_b11 = AISDKError, _a11 = symbol11, _b11) 
 
 // src/errors/too-many-embedding-values-for-call-error.ts
 var name11 = "AI_TooManyEmbeddingValuesForCallError";
-var marker12$1 = `vercel.ai.error.${name11}`;
-var symbol12$1 = Symbol.for(marker12$1);
-var _a12$1, _b12;
-var TooManyEmbeddingValuesForCallError = class extends (_b12 = AISDKError, _a12$1 = symbol12$1, _b12) {
+var marker12 = `vercel.ai.error.${name11}`;
+var symbol12 = Symbol.for(marker12);
+var _a12, _b12;
+var TooManyEmbeddingValuesForCallError = class extends (_b12 = AISDKError, _a12 = symbol12, _b12) {
   constructor(options) {
     super({
       name: name11,
       message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
     });
-    this[_a12$1] = true;
+    this[_a12] = true;
     this.provider = options.provider;
     this.modelId = options.modelId;
     this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall;
     this.values = options.values;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker12$1);
+    return AISDKError.hasMarker(error, marker12);
   }
 };
 
 // src/errors/type-validation-error.ts
-var name12$1 = "AI_TypeValidationError";
-var marker13$1 = `vercel.ai.error.${name12$1}`;
+var name12 = "AI_TypeValidationError";
+var marker13$1 = `vercel.ai.error.${name12}`;
 var symbol13$1 = Symbol.for(marker13$1);
 var _a13$1, _b13;
 var TypeValidationError = class _TypeValidationError extends (_b13 = AISDKError, _a13$1 = symbol13$1, _b13) {
@@ -269,7 +269,7 @@ var TypeValidationError = class _TypeValidationError extends (_b13 = AISDKError,
       contextPrefix += ")";
     }
     super({
-      name: name12$1,
+      name: name12,
       message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
 Error message: ${getErrorMessage$1(cause)}`,
       cause
@@ -6292,7 +6292,7 @@ function withUserAgentSuffix(headers, ...userAgentSuffixParts) {
 }
 
 // src/version.ts
-var VERSION$a = "4.0.11" ;
+var VERSION$a = "4.0.13" ;
 
 // src/get-from-api.ts
 var getOriginalFetch = () => globalThis.fetch;
@@ -9326,7 +9326,7 @@ async function getVercelRequestId() {
 }
 
 // src/version.ts
-var VERSION$9 = "3.0.29" ;
+var VERSION$9 = "3.0.32" ;
 
 // src/gateway-provider.ts
 var AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
@@ -11426,8 +11426,8 @@ var trace = TraceAPI.getInstance();
 
 var __defProp = Object.defineProperty;
 var __export = (target, all) => {
-  for (var name20 in all)
-    __defProp(target, name20, { get: all[name20], enumerable: true });
+  for (var name21 in all)
+    __defProp(target, name21, { get: all[name21], enumerable: true });
 };
 var name = "AI_InvalidArgumentError";
 var marker = `vercel.ai.error.${name}`;
@@ -11576,45 +11576,45 @@ var NoOutputGeneratedError = class extends AISDKError {
   }
 };
 _a9 = symbol9;
-var name12 = "AI_NoSuchToolError";
-var marker12 = `vercel.ai.error.${name12}`;
-var symbol12 = Symbol.for(marker12);
-var _a12;
+var name13 = "AI_NoSuchToolError";
+var marker13 = `vercel.ai.error.${name13}`;
+var symbol13 = Symbol.for(marker13);
+var _a13;
 var NoSuchToolError = class extends AISDKError {
   constructor({
     toolName,
     availableTools = void 0,
     message = `Model tried to call unavailable tool '${toolName}'. ${availableTools === void 0 ? "No tools are available." : `Available tools: ${availableTools.join(", ")}.`}`
   }) {
-    super({ name: name12, message });
-    this[_a12] = true;
+    super({ name: name13, message });
+    this[_a13] = true;
     this.toolName = toolName;
     this.availableTools = availableTools;
-  }
-  static isInstance(error) {
-    return AISDKError.hasMarker(error, marker12);
-  }
-};
-_a12 = symbol12;
-var name13 = "AI_ToolCallRepairError";
-var marker13 = `vercel.ai.error.${name13}`;
-var symbol13 = Symbol.for(marker13);
-var _a13;
-var ToolCallRepairError = class extends AISDKError {
-  constructor({
-    cause,
-    originalError,
-    message = `Error repairing tool call: ${getErrorMessage$1(cause)}`
-  }) {
-    super({ name: name13, message, cause });
-    this[_a13] = true;
-    this.originalError = originalError;
   }
   static isInstance(error) {
     return AISDKError.hasMarker(error, marker13);
   }
 };
 _a13 = symbol13;
+var name14 = "AI_ToolCallRepairError";
+var marker14 = `vercel.ai.error.${name14}`;
+var symbol14 = Symbol.for(marker14);
+var _a14;
+var ToolCallRepairError = class extends AISDKError {
+  constructor({
+    cause,
+    originalError,
+    message = `Error repairing tool call: ${getErrorMessage$1(cause)}`
+  }) {
+    super({ name: name14, message, cause });
+    this[_a14] = true;
+    this.originalError = originalError;
+  }
+  static isInstance(error) {
+    return AISDKError.hasMarker(error, marker14);
+  }
+};
+_a14 = symbol14;
 var UnsupportedModelVersionError = class extends AISDKError {
   constructor(options) {
     super({
@@ -11626,65 +11626,65 @@ var UnsupportedModelVersionError = class extends AISDKError {
     this.modelId = options.modelId;
   }
 };
-var name14 = "AI_UIMessageStreamError";
-var marker14 = `vercel.ai.error.${name14}`;
-var symbol14 = Symbol.for(marker14);
-var _a14;
+var name15 = "AI_UIMessageStreamError";
+var marker15 = `vercel.ai.error.${name15}`;
+var symbol15 = Symbol.for(marker15);
+var _a15;
 var UIMessageStreamError = class extends AISDKError {
   constructor({
     chunkType,
     chunkId,
     message
   }) {
-    super({ name: name14, message });
-    this[_a14] = true;
+    super({ name: name15, message });
+    this[_a15] = true;
     this.chunkType = chunkType;
     this.chunkId = chunkId;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker14);
+    return AISDKError.hasMarker(error, marker15);
   }
 };
-_a14 = symbol14;
-var name16 = "AI_InvalidMessageRoleError";
-var marker16 = `vercel.ai.error.${name16}`;
-var symbol16 = Symbol.for(marker16);
-var _a16;
+_a15 = symbol15;
+var name17 = "AI_InvalidMessageRoleError";
+var marker17 = `vercel.ai.error.${name17}`;
+var symbol17 = Symbol.for(marker17);
+var _a17;
 var InvalidMessageRoleError = class extends AISDKError {
   constructor({
     role,
     message = `Invalid message role: '${role}'. Must be one of: "system", "user", "assistant", "tool".`
   }) {
-    super({ name: name16, message });
-    this[_a16] = true;
+    super({ name: name17, message });
+    this[_a17] = true;
     this.role = role;
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker16);
+    return AISDKError.hasMarker(error, marker17);
   }
 };
-_a16 = symbol16;
-var name18 = "AI_RetryError";
-var marker18 = `vercel.ai.error.${name18}`;
-var symbol18 = Symbol.for(marker18);
-var _a18;
+_a17 = symbol17;
+var name19 = "AI_RetryError";
+var marker19 = `vercel.ai.error.${name19}`;
+var symbol19 = Symbol.for(marker19);
+var _a19;
 var RetryError = class extends AISDKError {
   constructor({
     message,
     reason,
     errors
   }) {
-    super({ name: name18, message });
-    this[_a18] = true;
+    super({ name: name19, message });
+    this[_a19] = true;
     this.reason = reason;
     this.errors = errors;
     this.lastError = errors[errors.length - 1];
   }
   static isInstance(error) {
-    return AISDKError.hasMarker(error, marker18);
+    return AISDKError.hasMarker(error, marker19);
   }
 };
-_a18 = symbol18;
+_a19 = symbol19;
 
 // src/logger/log-warnings.ts
 function formatWarning({
@@ -11858,8 +11858,8 @@ function resolveLanguageModel(model) {
   return getGlobalProvider().languageModel(model);
 }
 function getGlobalProvider() {
-  var _a20;
-  return (_a20 = globalThis.AI_SDK_DEFAULT_PROVIDER) != null ? _a20 : gateway;
+  var _a21;
+  return (_a21 = globalThis.AI_SDK_DEFAULT_PROVIDER) != null ? _a21 : gateway;
 }
 
 // src/prompt/call-settings.ts
@@ -11997,11 +11997,11 @@ function detectMediaType({
 }
 
 // src/version.ts
-var VERSION$7 = "6.0.62" ;
+var VERSION$7 = "6.0.68" ;
 
 // src/util/download/download.ts
 var download = async ({ url }) => {
-  var _a20;
+  var _a21;
   const urlText = url.toString();
   try {
     const response = await fetch(urlText, {
@@ -12020,7 +12020,7 @@ var download = async ({ url }) => {
     }
     return {
       data: new Uint8Array(await response.arrayBuffer()),
-      mediaType: (_a20 = response.headers.get("content-type")) != null ? _a20 : void 0
+      mediaType: (_a21 = response.headers.get("content-type")) != null ? _a21 : void 0
     };
   } catch (error) {
     if (DownloadError.isInstance(error)) {
@@ -12061,8 +12061,8 @@ var dataContentSchema = union([
   custom(
     // Buffer might not be available in some environments such as CloudFlare:
     (value) => {
-      var _a20, _b;
-      return (_b = (_a20 = globalThis.Buffer) == null ? void 0 : _a20.isBuffer(value)) != null ? _b : false;
+      var _a21, _b;
+      return (_b = (_a21 = globalThis.Buffer) == null ? void 0 : _a21.isBuffer(value)) != null ? _b : false;
     },
     { message: "Must be a Buffer" }
   )
@@ -12352,8 +12352,8 @@ async function downloadAssets(messages, download2, supportedUrls) {
   ).flat().filter(
     (part) => part.type === "image" || part.type === "file"
   ).map((part) => {
-    var _a20;
-    const mediaType = (_a20 = part.mediaType) != null ? _a20 : part.type === "image" ? "image/*" : void 0;
+    var _a21;
+    const mediaType = (_a21 = part.mediaType) != null ? _a21 : part.type === "image" ? "image/*" : void 0;
     let data = part.type === "image" ? part.image : part.data;
     if (typeof data === "string") {
       try {
@@ -12383,7 +12383,7 @@ async function downloadAssets(messages, download2, supportedUrls) {
   );
 }
 function convertPartToLanguageModelPart(part, downloadedAssets) {
-  var _a20;
+  var _a21;
   if (part.type === "text") {
     return {
       type: "text",
@@ -12416,7 +12416,7 @@ function convertPartToLanguageModelPart(part, downloadedAssets) {
   switch (type) {
     case "image": {
       if (data instanceof Uint8Array || typeof data === "string") {
-        mediaType = (_a20 = detectMediaType({ data, signatures: imageMediaTypeSignatures })) != null ? _a20 : mediaType;
+        mediaType = (_a21 = detectMediaType({ data, signatures: imageMediaTypeSignatures })) != null ? _a21 : mediaType;
       }
       return {
         type: "file",
@@ -12598,10 +12598,10 @@ async function prepareToolsAndToolChoice({
     };
   }
   const filteredTools = activeTools != null ? Object.entries(tools).filter(
-    ([name20]) => activeTools.includes(name20)
+    ([name21]) => activeTools.includes(name21)
   ) : Object.entries(tools);
   const languageModelTools = [];
-  for (const [name20, tool2] of filteredTools) {
+  for (const [name21, tool2] of filteredTools) {
     const toolType = tool2.type;
     switch (toolType) {
       case void 0:
@@ -12609,7 +12609,7 @@ async function prepareToolsAndToolChoice({
       case "function":
         languageModelTools.push({
           type: "function",
-          name: name20,
+          name: name21,
           description: tool2.description,
           inputSchema: await asSchema(tool2.inputSchema).jsonSchema,
           ...tool2.inputExamples != null ? { inputExamples: tool2.inputExamples } : {},
@@ -12620,7 +12620,7 @@ async function prepareToolsAndToolChoice({
       case "provider":
         languageModelTools.push({
           type: "provider",
-          name: name20,
+          name: name21,
           id: tool2.id,
           args: tool2.args
         });
@@ -12935,7 +12935,7 @@ function getBaseTelemetryAttributes({
   telemetry,
   headers
 }) {
-  var _a20;
+  var _a21;
   return {
     "ai.model.provider": model.provider,
     "ai.model.id": model.modelId,
@@ -12954,7 +12954,7 @@ function getBaseTelemetryAttributes({
       return attributes;
     }, {}),
     // add metadata as attributes:
-    ...Object.entries((_a20 = telemetry == null ? void 0 : telemetry.metadata) != null ? _a20 : {}).reduce(
+    ...Object.entries((_a21 = telemetry == null ? void 0 : telemetry.metadata) != null ? _a21 : {}).reduce(
       (attributes, [key, value]) => {
         attributes[`ai.telemetry.metadata.${key}`] = value;
         return attributes;
@@ -12976,7 +12976,7 @@ var noopTracer = {
   startSpan() {
     return noopSpan;
   },
-  startActiveSpan(name20, arg1, arg2, arg3) {
+  startActiveSpan(name21, arg1, arg2, arg3) {
     if (typeof arg1 === "function") {
       return arg1(noopSpan);
     }
@@ -13043,14 +13043,14 @@ function getTracer({
   return trace.getTracer("ai");
 }
 async function recordSpan({
-  name: name20,
+  name: name21,
   tracer,
   attributes,
   fn,
   endWhenDone = true
 }) {
   return tracer.startActiveSpan(
-    name20,
+    name21,
     { attributes: await attributes },
     async (span) => {
       const ctx = context.active();
@@ -13181,12 +13181,12 @@ function createNullLanguageModelUsage() {
   };
 }
 function addLanguageModelUsage(usage1, usage2) {
-  var _a20, _b, _c, _d, _e, _f, _g, _h, _i, _j;
+  var _a21, _b, _c, _d, _e, _f, _g, _h, _i, _j;
   return {
     inputTokens: addTokenCounts(usage1.inputTokens, usage2.inputTokens),
     inputTokenDetails: {
       noCacheTokens: addTokenCounts(
-        (_a20 = usage1.inputTokenDetails) == null ? void 0 : _a20.noCacheTokens,
+        (_a21 = usage1.inputTokenDetails) == null ? void 0 : _a21.noCacheTokens,
         (_b = usage2.inputTokenDetails) == null ? void 0 : _b.noCacheTokens
       ),
       cacheReadTokens: addTokenCounts(
@@ -13973,7 +13973,7 @@ var text = () => ({
 });
 var object = ({
   schema: inputSchema,
-  name: name20,
+  name: name21,
   description
 }) => {
   const schema = asSchema(inputSchema);
@@ -13982,7 +13982,7 @@ var object = ({
     responseFormat: resolve(schema.jsonSchema).then((jsonSchema2) => ({
       type: "json",
       schema: jsonSchema2,
-      ...name20 != null && { name: name20 },
+      ...name21 != null && { name: name21 },
       ...description != null && { description }
     })),
     async parseCompleteOutput({ text: text2 }, context2) {
@@ -14036,7 +14036,7 @@ var object = ({
 };
 var array = ({
   element: inputElementSchema,
-  name: name20,
+  name: name21,
   description
 }) => {
   const elementSchema = asSchema(inputElementSchema);
@@ -14056,7 +14056,7 @@ var array = ({
           required: ["elements"],
           additionalProperties: false
         },
-        ...name20 != null && { name: name20 },
+        ...name21 != null && { name: name21 },
         ...description != null && { description }
       };
     }),
@@ -14148,7 +14148,7 @@ var array = ({
 };
 var choice = ({
   options: choiceOptions,
-  name: name20,
+  name: name21,
   description
 }) => {
   return {
@@ -14165,7 +14165,7 @@ var choice = ({
         required: ["result"],
         additionalProperties: false
       },
-      ...name20 != null && { name: name20 },
+      ...name21 != null && { name: name21 },
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
@@ -14226,14 +14226,14 @@ var choice = ({
   };
 };
 var json = ({
-  name: name20,
+  name: name21,
   description
 } = {}) => {
   return {
     name: "json",
     responseFormat: Promise.resolve({
       type: "json",
-      ...name20 != null && { name: name20 },
+      ...name21 != null && { name: name21 },
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
@@ -14275,7 +14275,7 @@ async function parseToolCall({
   system,
   messages
 }) {
-  var _a20;
+  var _a21;
   try {
     if (tools == null) {
       if (toolCall.providerExecuted && toolCall.dynamic) {
@@ -14324,7 +14324,7 @@ async function parseToolCall({
       dynamic: true,
       invalid: true,
       error,
-      title: (_a20 = tools == null ? void 0 : tools[toolCall.toolName]) == null ? void 0 : _a20.title,
+      title: (_a21 = tools == null ? void 0 : tools[toolCall.toolName]) == null ? void 0 : _a21.title,
       providerExecuted: toolCall.providerExecuted,
       providerMetadata: toolCall.providerMetadata
     };
@@ -14711,7 +14711,7 @@ async function generateText({
       }),
       tracer,
       fn: async (span) => {
-        var _a20, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+        var _a21, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k;
         const initialMessages = initialPrompt.messages;
         const responseMessages = [];
         const { approvedToolApprovals, deniedToolApprovals } = collectToolApprovals({ messages: initialMessages });
@@ -14806,7 +14806,7 @@ async function generateText({
               experimental_context
             }));
             const stepModel = resolveLanguageModel(
-              (_a20 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a20 : model
+              (_a21 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a21 : model
             );
             const promptMessages = await convertToLanguageModelPrompt({
               prompt: {
@@ -14824,7 +14824,7 @@ async function generateText({
             });
             currentModelResponse = await retry(
               () => {
-                var _a21;
+                var _a22;
                 return recordSpan({
                   name: "ai.generateText.doGenerate",
                   attributes: selectTelemetryAttributes({
@@ -14856,14 +14856,14 @@ async function generateText({
                       "gen_ai.request.max_tokens": settings.maxOutputTokens,
                       "gen_ai.request.presence_penalty": settings.presencePenalty,
                       "gen_ai.request.stop_sequences": settings.stopSequences,
-                      "gen_ai.request.temperature": (_a21 = settings.temperature) != null ? _a21 : void 0,
+                      "gen_ai.request.temperature": (_a22 = settings.temperature) != null ? _a22 : void 0,
                       "gen_ai.request.top_k": settings.topK,
                       "gen_ai.request.top_p": settings.topP
                     }
                   }),
                   tracer,
                   fn: async (span2) => {
-                    var _a22, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
+                    var _a23, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
                     const stepProviderOptions = mergeObjects(
                       providerOptions,
                       prepareStepResult == null ? void 0 : prepareStepResult.providerOptions
@@ -14879,7 +14879,7 @@ async function generateText({
                       headers: headersWithUserAgent
                     });
                     const responseData = {
-                      id: (_b2 = (_a22 = result.response) == null ? void 0 : _a22.id) != null ? _b2 : generateId2(),
+                      id: (_b2 = (_a23 = result.response) == null ? void 0 : _a23.id) != null ? _b2 : generateId2(),
                       timestamp: (_d2 = (_c2 = result.response) == null ? void 0 : _c2.timestamp) != null ? _d2 : /* @__PURE__ */ new Date(),
                       modelId: (_f2 = (_e2 = result.response) == null ? void 0 : _e2.modelId) != null ? _f2 : stepModel.modelId,
                       headers: (_g2 = result.response) == null ? void 0 : _g2.headers,
@@ -15564,7 +15564,7 @@ function processUIMessageStream({
     new TransformStream({
       async transform(chunk, controller) {
         await runUpdateMessageJob(async ({ state, write }) => {
-          var _a20, _b, _c, _d;
+          var _a21, _b, _c, _d;
           function getToolInvocation(toolCallId) {
             const toolInvocations = state.message.parts.filter(isToolUIPart);
             const toolInvocation = toolInvocations.find(
@@ -15580,7 +15580,7 @@ function processUIMessageStream({
             return toolInvocation;
           }
           function updateToolPart(options) {
-            var _a21;
+            var _a22;
             const part = state.message.parts.find(
               (part2) => isStaticToolUIPart(part2) && part2.toolCallId === options.toolCallId
             );
@@ -15596,7 +15596,7 @@ function processUIMessageStream({
               if (options.title !== void 0) {
                 anyPart.title = options.title;
               }
-              anyPart.providerExecuted = (_a21 = anyOptions.providerExecuted) != null ? _a21 : part.providerExecuted;
+              anyPart.providerExecuted = (_a22 = anyOptions.providerExecuted) != null ? _a22 : part.providerExecuted;
               if (anyOptions.providerMetadata != null) {
                 part.callProviderMetadata = anyOptions.providerMetadata;
               }
@@ -15617,7 +15617,7 @@ function processUIMessageStream({
             }
           }
           function updateDynamicToolPart(options) {
-            var _a21, _b2;
+            var _a22, _b2;
             const part = state.message.parts.find(
               (part2) => part2.type === "dynamic-tool" && part2.toolCallId === options.toolCallId
             );
@@ -15629,7 +15629,7 @@ function processUIMessageStream({
               anyPart.input = anyOptions.input;
               anyPart.output = anyOptions.output;
               anyPart.errorText = anyOptions.errorText;
-              anyPart.rawInput = (_a21 = anyOptions.rawInput) != null ? _a21 : anyPart.rawInput;
+              anyPart.rawInput = (_a22 = anyOptions.rawInput) != null ? _a22 : anyPart.rawInput;
               anyPart.preliminary = anyOptions.preliminary;
               if (options.title !== void 0) {
                 anyPart.title = options.title;
@@ -15693,7 +15693,7 @@ function processUIMessageStream({
                 });
               }
               textPart.text += chunk.delta;
-              textPart.providerMetadata = (_a20 = chunk.providerMetadata) != null ? _a20 : textPart.providerMetadata;
+              textPart.providerMetadata = (_a21 = chunk.providerMetadata) != null ? _a21 : textPart.providerMetadata;
               write();
               break;
             }
@@ -16171,13 +16171,13 @@ function createAsyncIterableStream(source) {
     const reader = this.getReader();
     let finished = false;
     async function cleanup(cancelStream) {
-      var _a20;
+      var _a21;
       if (finished)
         return;
       finished = true;
       try {
         if (cancelStream) {
-          await ((_a20 = reader.cancel) == null ? void 0 : _a20.call(reader));
+          await ((_a21 = reader.cancel) == null ? void 0 : _a21.call(reader));
         }
       } finally {
         try {
@@ -16343,8 +16343,8 @@ function createStitchableStream() {
 
 // src/util/now.ts
 function now() {
-  var _a20, _b;
-  return (_b = (_a20 = globalThis == null ? void 0 : globalThis.performance) == null ? void 0 : _a20.now()) != null ? _b : Date.now();
+  var _a21, _b;
+  return (_b = (_a21 = globalThis == null ? void 0 : globalThis.performance) == null ? void 0 : _a21.now()) != null ? _b : Date.now();
 }
 function runToolsTransformation({
   tools,
@@ -16690,7 +16690,7 @@ function createOutputTransformStream(output) {
   }
   return new TransformStream({
     async transform(chunk, controller) {
-      var _a20;
+      var _a21;
       if (chunk.type === "finish-step" && textChunk.length > 0) {
         publishTextChunk({ controller });
       }
@@ -16717,7 +16717,7 @@ function createOutputTransformStream(output) {
       }
       text2 += chunk.text;
       textChunk += chunk.text;
-      textProviderMetadata = (_a20 = chunk.providerMetadata) != null ? _a20 : textProviderMetadata;
+      textProviderMetadata = (_a21 = chunk.providerMetadata) != null ? _a21 : textProviderMetadata;
       const result = await output.parsePartialOutput({ text: text2 });
       if (result !== void 0) {
         const currentJson = JSON.stringify(result.partial);
@@ -16787,7 +16787,7 @@ var DefaultStreamTextResult = class {
     let activeReasoningContent = {};
     const eventProcessor = new TransformStream({
       async transform(chunk, controller) {
-        var _a20, _b, _c, _d;
+        var _a21, _b, _c, _d;
         controller.enqueue(chunk);
         const { part } = chunk;
         if (part.type === "text-delta" || part.type === "reasoning-delta" || part.type === "source" || part.type === "tool-call" || part.type === "tool-result" || part.type === "tool-input-start" || part.type === "tool-input-delta" || part.type === "raw") {
@@ -16817,7 +16817,7 @@ var DefaultStreamTextResult = class {
             return;
           }
           activeText.text += part.text;
-          activeText.providerMetadata = (_a20 = part.providerMetadata) != null ? _a20 : activeText.providerMetadata;
+          activeText.providerMetadata = (_a21 = part.providerMetadata) != null ? _a21 : activeText.providerMetadata;
         }
         if (part.type === "text-end") {
           const activeText = activeTextContent[part.id];
@@ -16982,8 +16982,8 @@ var DefaultStreamTextResult = class {
                 "ai.response.text": { output: () => finalStep.text },
                 "ai.response.toolCalls": {
                   output: () => {
-                    var _a20;
-                    return ((_a20 = finalStep.toolCalls) == null ? void 0 : _a20.length) ? JSON.stringify(finalStep.toolCalls) : void 0;
+                    var _a21;
+                    return ((_a21 = finalStep.toolCalls) == null ? void 0 : _a21.length) ? JSON.stringify(finalStep.toolCalls) : void 0;
                   }
                 },
                 "ai.response.providerMetadata": JSON.stringify(
@@ -17205,7 +17205,7 @@ var DefaultStreamTextResult = class {
           responseMessages,
           usage
         }) {
-          var _a20, _b, _c, _d, _e, _f, _g;
+          var _a21, _b, _c, _d, _e, _f, _g;
           const includeRawChunks2 = self.includeRawChunks;
           const stepTimeoutId = stepTimeoutMs != null ? setTimeout(() => stepAbortController.abort(), stepTimeoutMs) : void 0;
           let chunkTimeoutId = void 0;
@@ -17242,7 +17242,7 @@ var DefaultStreamTextResult = class {
               experimental_context
             }));
             const stepModel = resolveLanguageModel(
-              (_a20 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a20 : model
+              (_a21 = prepareStepResult == null ? void 0 : prepareStepResult.model) != null ? _a21 : model
             );
             const promptMessages = await convertToLanguageModelPrompt({
               prompt: {
@@ -17355,7 +17355,7 @@ var DefaultStreamTextResult = class {
               streamWithToolResults.pipeThrough(
                 new TransformStream({
                   async transform(chunk, controller) {
-                    var _a21, _b2, _c2, _d2, _e2;
+                    var _a22, _b2, _c2, _d2, _e2;
                     resetChunkTimeout();
                     if (chunk.type === "stream-start") {
                       warnings = chunk.warnings;
@@ -17429,7 +17429,7 @@ var DefaultStreamTextResult = class {
                       }
                       case "response-metadata": {
                         stepResponse = {
-                          id: (_a21 = chunk.id) != null ? _a21 : stepResponse.id,
+                          id: (_a22 = chunk.id) != null ? _a22 : stepResponse.id,
                           timestamp: (_b2 = chunk.timestamp) != null ? _b2 : stepResponse.timestamp,
                           modelId: (_c2 = chunk.modelId) != null ? _c2 : stepResponse.modelId
                         };
@@ -17772,14 +17772,14 @@ var DefaultStreamTextResult = class {
     );
   }
   async consumeStream(options) {
-    var _a20;
+    var _a21;
     try {
       await consumeStream({
         stream: this.fullStream,
         onError: options == null ? void 0 : options.onError
       });
     } catch (error) {
-      (_a20 = options == null ? void 0 : options.onError) == null ? void 0 : _a20.call(options, error);
+      (_a21 = options == null ? void 0 : options.onError) == null ? void 0 : _a21.call(options, error);
     }
   }
   get experimental_partialOutputStream() {
@@ -17799,8 +17799,8 @@ var DefaultStreamTextResult = class {
     );
   }
   get elementStream() {
-    var _a20, _b, _c;
-    const transform = (_a20 = this.outputSpecification) == null ? void 0 : _a20.createElementStreamTransform();
+    var _a21, _b, _c;
+    const transform = (_a21 = this.outputSpecification) == null ? void 0 : _a21.createElementStreamTransform();
     if (transform == null) {
       throw new UnsupportedFunctionalityError({
         functionality: `element streams in ${(_c = (_b = this.outputSpecification) == null ? void 0 : _b.name) != null ? _c : "text"} mode`
@@ -17810,8 +17810,8 @@ var DefaultStreamTextResult = class {
   }
   get output() {
     return this.finalStep.then((step) => {
-      var _a20;
-      const output = (_a20 = this.outputSpecification) != null ? _a20 : text();
+      var _a21;
+      const output = (_a21 = this.outputSpecification) != null ? _a21 : text();
       return output.parseCompleteOutput(
         { text: step.text },
         {
@@ -17838,8 +17838,8 @@ var DefaultStreamTextResult = class {
       responseMessageId: generateMessageId
     }) : void 0;
     const isDynamic = (part) => {
-      var _a20;
-      const tool2 = (_a20 = this.tools) == null ? void 0 : _a20[part.toolName];
+      var _a21;
+      const tool2 = (_a21 = this.tools) == null ? void 0 : _a21[part.toolName];
       if (tool2 == null) {
         return part.dynamic;
       }
@@ -18942,7 +18942,7 @@ var MistralTextEmbeddingResponseSchema = object$1({
 });
 
 // src/version.ts
-var VERSION$6 = "3.0.16" ;
+var VERSION$6 = "3.0.18" ;
 
 // src/mistral-provider.ts
 function createMistral(options = {}) {
@@ -18997,7 +18997,7 @@ createMistral();
 // src/google-provider.ts
 
 // src/version.ts
-var VERSION$5 = "3.0.18" ;
+var VERSION$5 = "3.0.20" ;
 var googleErrorDataSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -20797,6 +20797,253 @@ var googleImageProviderOptionsSchema = lazySchema(
     })
   )
 );
+var GoogleGenerativeAIVideoModel = class {
+  constructor(modelId, config) {
+    this.modelId = modelId;
+    this.config = config;
+    this.specificationVersion = "v3";
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  get maxVideosPerCall() {
+    return 4;
+  }
+  async doGenerate(options) {
+    var _a, _b, _c, _d, _e, _f, _g, _h;
+    const currentDate = (_c = (_b = (_a = this.config._internal) == null ? void 0 : _a.currentDate) == null ? void 0 : _b.call(_a)) != null ? _c : /* @__PURE__ */ new Date();
+    const warnings = [];
+    const googleOptions = await parseProviderOptions({
+      provider: "google",
+      providerOptions: options.providerOptions,
+      schema: googleVideoProviderOptionsSchema
+    });
+    const instances = [{}];
+    const instance = instances[0];
+    if (options.prompt != null) {
+      instance.prompt = options.prompt;
+    }
+    if (options.image != null) {
+      if (options.image.type === "url") {
+        warnings.push({
+          type: "unsupported",
+          feature: "URL-based image input",
+          details: "Google Generative AI video models require base64-encoded images. URL will be ignored."
+        });
+      } else {
+        const base64Data = typeof options.image.data === "string" ? options.image.data : convertUint8ArrayToBase64(options.image.data);
+        instance.image = {
+          inlineData: {
+            mimeType: options.image.mediaType || "image/png",
+            data: base64Data
+          }
+        };
+      }
+    }
+    if ((googleOptions == null ? void 0 : googleOptions.referenceImages) != null) {
+      instance.referenceImages = googleOptions.referenceImages.map((refImg) => {
+        if (refImg.bytesBase64Encoded) {
+          return {
+            inlineData: {
+              mimeType: "image/png",
+              data: refImg.bytesBase64Encoded
+            }
+          };
+        } else if (refImg.gcsUri) {
+          return {
+            gcsUri: refImg.gcsUri
+          };
+        }
+        return refImg;
+      });
+    }
+    const parameters = {
+      sampleCount: options.n
+    };
+    if (options.aspectRatio) {
+      parameters.aspectRatio = options.aspectRatio;
+    }
+    if (options.resolution) {
+      const resolutionMap = {
+        "1280x720": "720p",
+        "1920x1080": "1080p",
+        "3840x2160": "4k"
+      };
+      parameters.resolution = resolutionMap[options.resolution] || options.resolution;
+    }
+    if (options.duration) {
+      parameters.durationSeconds = options.duration;
+    }
+    if (options.seed) {
+      parameters.seed = options.seed;
+    }
+    if (googleOptions != null) {
+      const opts = googleOptions;
+      if (opts.personGeneration !== void 0 && opts.personGeneration !== null) {
+        parameters.personGeneration = opts.personGeneration;
+      }
+      if (opts.negativePrompt !== void 0 && opts.negativePrompt !== null) {
+        parameters.negativePrompt = opts.negativePrompt;
+      }
+      for (const [key, value] of Object.entries(opts)) {
+        if (![
+          "pollIntervalMs",
+          "pollTimeoutMs",
+          "personGeneration",
+          "negativePrompt",
+          "referenceImages"
+        ].includes(key)) {
+          parameters[key] = value;
+        }
+      }
+    }
+    const { value: operation } = await postJsonToApi({
+      url: `${this.config.baseURL}/models/${this.modelId}:predictLongRunning`,
+      headers: combineHeaders(
+        await resolve(this.config.headers),
+        options.headers
+      ),
+      body: {
+        instances,
+        parameters
+      },
+      successfulResponseHandler: createJsonResponseHandler(
+        googleOperationSchema
+      ),
+      failedResponseHandler: googleFailedResponseHandler,
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    });
+    const operationName = operation.name;
+    if (!operationName) {
+      throw new AISDKError({
+        name: "GOOGLE_VIDEO_GENERATION_ERROR",
+        message: "No operation name returned from API"
+      });
+    }
+    const pollIntervalMs = (_d = googleOptions == null ? void 0 : googleOptions.pollIntervalMs) != null ? _d : 1e4;
+    const pollTimeoutMs = (_e = googleOptions == null ? void 0 : googleOptions.pollTimeoutMs) != null ? _e : 6e5;
+    const startTime = Date.now();
+    let finalOperation = operation;
+    let responseHeaders;
+    while (!finalOperation.done) {
+      if (Date.now() - startTime > pollTimeoutMs) {
+        throw new AISDKError({
+          name: "GOOGLE_VIDEO_GENERATION_TIMEOUT",
+          message: `Video generation timed out after ${pollTimeoutMs}ms`
+        });
+      }
+      await delay(pollIntervalMs);
+      if ((_f = options.abortSignal) == null ? void 0 : _f.aborted) {
+        throw new AISDKError({
+          name: "GOOGLE_VIDEO_GENERATION_ABORTED",
+          message: "Video generation request was aborted"
+        });
+      }
+      const { value: statusOperation, responseHeaders: pollHeaders } = await getFromApi({
+        url: `${this.config.baseURL}/${operationName}`,
+        headers: combineHeaders(
+          await resolve(this.config.headers),
+          options.headers
+        ),
+        successfulResponseHandler: createJsonResponseHandler(
+          googleOperationSchema
+        ),
+        failedResponseHandler: googleFailedResponseHandler,
+        abortSignal: options.abortSignal,
+        fetch: this.config.fetch
+      });
+      finalOperation = statusOperation;
+      responseHeaders = pollHeaders;
+    }
+    if (finalOperation.error) {
+      throw new AISDKError({
+        name: "GOOGLE_VIDEO_GENERATION_FAILED",
+        message: `Video generation failed: ${finalOperation.error.message}`
+      });
+    }
+    const response = finalOperation.response;
+    if (!((_g = response == null ? void 0 : response.generateVideoResponse) == null ? void 0 : _g.generatedSamples) || response.generateVideoResponse.generatedSamples.length === 0) {
+      throw new AISDKError({
+        name: "GOOGLE_VIDEO_GENERATION_ERROR",
+        message: `No videos in response. Response: ${JSON.stringify(finalOperation)}`
+      });
+    }
+    const videos = [];
+    const videoMetadata = [];
+    const resolvedHeaders = await resolve(this.config.headers);
+    const apiKey = resolvedHeaders == null ? void 0 : resolvedHeaders["x-goog-api-key"];
+    for (const generatedSample of response.generateVideoResponse.generatedSamples) {
+      if ((_h = generatedSample.video) == null ? void 0 : _h.uri) {
+        const urlWithAuth = apiKey ? `${generatedSample.video.uri}${generatedSample.video.uri.includes("?") ? "&" : "?"}key=${apiKey}` : generatedSample.video.uri;
+        videos.push({
+          type: "url",
+          url: urlWithAuth,
+          mediaType: "video/mp4"
+        });
+        videoMetadata.push({
+          uri: generatedSample.video.uri
+        });
+      }
+    }
+    if (videos.length === 0) {
+      throw new AISDKError({
+        name: "GOOGLE_VIDEO_GENERATION_ERROR",
+        message: "No valid videos in response"
+      });
+    }
+    return {
+      videos,
+      warnings,
+      response: {
+        timestamp: currentDate,
+        modelId: this.modelId,
+        headers: responseHeaders
+      },
+      providerMetadata: {
+        google: {
+          videos: videoMetadata
+        }
+      }
+    };
+  }
+};
+var googleOperationSchema = object$1({
+  name: string().nullish(),
+  done: boolean().nullish(),
+  error: object$1({
+    code: number$1().nullish(),
+    message: string(),
+    status: string().nullish()
+  }).nullish(),
+  response: object$1({
+    generateVideoResponse: object$1({
+      generatedSamples: array$1(
+        object$1({
+          video: object$1({
+            uri: string().nullish()
+          }).nullish()
+        })
+      ).nullish()
+    }).nullish()
+  }).nullish()
+});
+var googleVideoProviderOptionsSchema = lazySchema(
+  () => zodSchema(
+    object$1({
+      pollIntervalMs: number$1().positive().nullish(),
+      pollTimeoutMs: number$1().positive().nullish(),
+      personGeneration: _enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
+      negativePrompt: string().nullish(),
+      referenceImages: array$1(
+        object$1({
+          bytesBase64Encoded: string().nullish(),
+          gcsUri: string().nullish()
+        })
+      ).nullish()
+    }).passthrough()
+  )
+);
 
 // src/google-provider.ts
 function createGoogleGenerativeAI(options = {}) {
@@ -20848,6 +21095,16 @@ function createGoogleGenerativeAI(options = {}) {
     headers: getHeaders,
     fetch: options.fetch
   });
+  const createVideoModel = (modelId) => {
+    var _a2;
+    return new GoogleGenerativeAIVideoModel(modelId, {
+      provider: providerName,
+      baseURL,
+      headers: getHeaders,
+      fetch: options.fetch,
+      generateId: (_a2 = options.generateId) != null ? _a2 : generateId
+    });
+  };
   const provider = function(modelId) {
     if (new.target) {
       throw new Error(
@@ -20866,6 +21123,7 @@ function createGoogleGenerativeAI(options = {}) {
   provider.textEmbeddingModel = createEmbeddingModel;
   provider.image = createImageModel;
   provider.imageModel = createImageModel;
+  provider.video = createVideoModel;
   provider.tools = googleTools;
   return provider;
 }
@@ -26428,7 +26686,7 @@ var OpenAITranscriptionModel = class {
 };
 
 // src/version.ts
-var VERSION$4 = "3.0.23" ;
+var VERSION$4 = "3.0.25" ;
 
 // src/openai-provider.ts
 function createOpenAI(options = {}) {
@@ -26532,7 +26790,7 @@ createOpenAI();
 // src/anthropic-provider.ts
 
 // src/version.ts
-var VERSION$3 = "3.0.31" ;
+var VERSION$3 = "3.0.35" ;
 var anthropicErrorDataSchema = lazySchema(
   () => zodSchema(
     object$1({
@@ -27155,22 +27413,6 @@ var anthropicMessagesChunkSchema = lazySchema(
                 version: string()
               })
             ).nullish()
-          }).nullish(),
-          context_management: object$1({
-            applied_edits: array$1(
-              union([
-                object$1({
-                  type: literal("clear_tool_uses_20250919"),
-                  cleared_tool_uses: number$1(),
-                  cleared_input_tokens: number$1()
-                }),
-                object$1({
-                  type: literal("clear_thinking_20251015"),
-                  cleared_thinking_turns: number$1(),
-                  cleared_input_tokens: number$1()
-                })
-              ])
-            )
           }).nullish()
         }),
         usage: looseObject({
@@ -27178,7 +27420,23 @@ var anthropicMessagesChunkSchema = lazySchema(
           output_tokens: number$1(),
           cache_creation_input_tokens: number$1().nullish(),
           cache_read_input_tokens: number$1().nullish()
-        })
+        }),
+        context_management: object$1({
+          applied_edits: array$1(
+            union([
+              object$1({
+                type: literal("clear_tool_uses_20250919"),
+                cleared_tool_uses: number$1(),
+                cleared_input_tokens: number$1()
+              }),
+              object$1({
+                type: literal("clear_thinking_20251015"),
+                cleared_thinking_turns: number$1(),
+                cleared_input_tokens: number$1()
+              })
+            ])
+          )
+        }).nullish()
       }),
       object$1({
         type: literal("message_stop")
@@ -27398,6 +27656,7 @@ var textEditor_20250728InputSchema = lazySchema(
       file_text: string().optional(),
       insert_line: number$1().int().optional(),
       new_str: string().optional(),
+      insert_text: string().optional(),
       old_str: string().optional(),
       view_range: array$1(number$1().int()).optional()
     })
@@ -30278,9 +30537,9 @@ var AnthropicMessagesLanguageModel = class {
                   version: skill.version
                 }))) != null ? _m : null
               } : null;
-              if (value.delta.context_management) {
+              if (value.context_management) {
                 contextManagement = mapAnthropicResponseContextManagement(
-                  value.delta.context_management
+                  value.context_management
                 );
               }
               rawUsage = {
@@ -30593,6 +30852,7 @@ var textEditor_20241022InputSchema = lazySchema(
       file_text: string().optional(),
       insert_line: number$1().int().optional(),
       new_str: string().optional(),
+      insert_text: string().optional(),
       old_str: string().optional(),
       view_range: array$1(number$1().int()).optional()
     })
@@ -30610,6 +30870,7 @@ var textEditor_20250124InputSchema = lazySchema(
       file_text: string().optional(),
       insert_line: number$1().int().optional(),
       new_str: string().optional(),
+      insert_text: string().optional(),
       old_str: string().optional(),
       view_range: array$1(number$1().int()).optional()
     })
@@ -30627,6 +30888,7 @@ var textEditor_20250429InputSchema = lazySchema(
       file_text: string().optional(),
       insert_line: number$1().int().optional(),
       new_str: string().optional(),
+      insert_text: string().optional(),
       old_str: string().optional(),
       view_range: array$1(number$1().int()).optional()
     })
@@ -33277,16 +33539,6 @@ var xaiResponsesChunkSchema = union([
     output_index: number$1()
   }),
   object$1({
-    type: literal("response.custom_tool_call_input.done"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
-    type: literal("response.custom_tool_call_input.delta"),
-    item_id: string(),
-    output_index: number$1()
-  }),
-  object$1({
     type: literal("response.code_execution_call.in_progress"),
     item_id: string(),
     output_index: number$1()
@@ -34371,7 +34623,7 @@ var xaiTools = {
 };
 
 // src/version.ts
-var VERSION$2 = "3.0.43" ;
+var VERSION$2 = "3.0.46" ;
 
 // src/xai-provider.ts
 var xaiErrorStructure = {
@@ -34880,7 +35132,7 @@ var errorToMessage = (data) => {
 };
 
 // src/version.ts
-var VERSION$1 = "3.0.15" ;
+var VERSION$1 = "3.0.17" ;
 
 // src/perplexity-provider.ts
 function createPerplexity(options = {}) {
@@ -34923,7 +35175,7 @@ createPerplexity();
 // src/cerebras-provider.ts
 
 // src/version.ts
-var VERSION = "2.0.27" ;
+var VERSION = "2.0.29" ;
 
 // src/cerebras-provider.ts
 var cerebrasErrorSchema = object$1({
