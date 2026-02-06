@@ -8,21 +8,21 @@ This repository uses GitHub Actions workflows to automate code formatting, linti
 
 - **Trigger**: Pull requests
 - **Actions**: Runs ESLint to ensure code quality
-- **Command**: `npm run lint`
+- **Command**: `bun run lint`
 
 ### 2. Update and Build Resources (`.github/workflows/update-and-build.yml`)
 
 - **Trigger**: Push to main branch, manual dispatch
 - **Actions**: Single optimized workflow that handles:
-  - **Theme Updates**: Updates `updatedAt` field in all `theme.json` files
-  - **BrowseBot Build**: Builds both `browse-bot.uc.mjs` and `vercel-ai-sdk.uc.js`
-  - **Preferences Combination**: Merges all mod `preferences.json` into root `preferences.json`.
-  - **Formatting**: Runs Prettier on all files
+- **Theme Updates**: Updates `updatedAt` field in all `theme.json` files
+- **BrowseBot Build**: Creates 2 files - `browse-bot.uc.mjs` (main) and `vercel-ai-sdk.uc.mjs` (vendor bundle)
+- **Preferences Combination**: Merges all mod `preferences.json` into root `preferences.json`.
+- **Formatting**: Runs Prettier on all files
 
 ### 3. Publish Mods (`.github/workflows/publish-mods.yml`)
 
 - **Trigger**: Manual dispatch only
-- **Actions**: Runs Node.js script (`.github/scripts/publish.js`) for publishing
+- **Actions**: Runs Bun script (`.github/scripts/publish.js`) for publishing
 
 ## Publishing Overview
 
@@ -78,12 +78,9 @@ The workflow respects the following keys in `theme.json`:
   - JavaScript files are set to `true` in `theme.json` (implying local/bundled files).
   - A Pull Request is automatically created in the Sine Store repository to update the mod.
 
-## BrowsBot Special Handling
+## BrowseBot Special Handling
 
-The **BrowseBot** mod (`browse-bot`) has specific build logic:
-
-- **Beta**: Builds a single bundled file (`browse-bot-all.uc.js`).
-- **Stable**: Builds two separate files (`browse-bot.uc.js` and `vercel-ai-sdk.uc.js`).
+The **BrowseBot** mod (`browse-bot`) has specific build logic. Creates 2 files - `browse-bot.uc.mjs` (main code) and `vercel-ai-sdk.uc.mjs` (vendor bundle)
 
 ## Sine Store Integration
 

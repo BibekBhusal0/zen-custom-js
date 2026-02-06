@@ -4,30 +4,36 @@ This document provides context for code assistants working on this Zen Browser c
 
 ## Project Overview
 
-Collection of user scripts and CSS modifications for Zen Browser (Firefox-based). Each feature is self-contained in its own directory. Uses Node.js + Rollup to bundle scripts into `.uc.js` files.
+Collection of user scripts and CSS modifications for Zen Browser (Firefox-based). Each feature is self-contained in its own directory. Uses Bun as the build system to bundle scripts into `.uc.js` files.
 
-**Key Technologies**: JavaScript (ESM), CSS, Rollup.js, Node.js/npm
+**Key Technologies**: JavaScript (ESM), CSS, Bun.
 
 ## Build Commands
 
 ```bash
-npm run build                  # Build all mods
-npm run build:palette          # Build specific mod (zen-command-palette)
-npm run build:browsebot        # Build browse-bot mod
-npm run build:reopen           # Build reopen-closed-tabs mod
-npm run build:sidebar          # Build floating-sidebar mod
-npm run build:select           # Build search-engine-select mod
-npm run build:search            # Build settings-shortcuts-search mod
-npm run dev                    # Watch mode for all mods
-npm run dev:palette            # Watch specific mod
-npm run dev:browsebot          # Watch browse-bot mod
-npm run dev:reopen             # Watch reopen-closed-tabs mod
-npm run dev:sidebar            # Watch floating-sidebar mod
-npm run dev:select             # Watch search-engine-select mod
-npm run dev:search             # Watch settings-shortcuts-search mod
-npm run combine-preferences   # Combine all preferences into root file
-npm run format                 # Format code with Prettier
-npm run lint                   # Run ESLint
+# Build all mods
+bun run build
+
+# Build specific mod
+bun run build:browsebot
+bun run build:palette
+bun run build:reopen
+bun run build:sidebar
+bun run build:select
+bun run build:search
+
+# Development mode with watch (auto-rebuild on changes)
+bun run dev                    # Only watches browse-bot
+bun run dev:browsebot          # Watch specific mod
+bun run dev:palette
+bun run dev:reopen
+bun run dev:sidebar
+bun run dev:select
+bun run dev:search
+
+# Other commands
+bun run format                 # Format code with Prettier
+bun run lint                   # Run ESLint
 ```
 
 **No test framework exists** - manual testing in browser required. Bundled files go to `dist/`.
@@ -188,16 +194,16 @@ Each mod directory contains: `index.js`, `style.css`, `theme.json`, `preferences
 
 ### Build Configuration
 
-The Rollup build automatically discovers mods by:
+The Bun build system automatically discovers mods by:
 
 1. Looking for directories with `theme.json` files
 2. Checking for `index.js` entry points
 3. Generating `.uc.js` bundles using the `theme.json` metadata
-4. Special handling for `browse-bot` mod (splits vendor dependencies)
+4. Special handling for `browse-bot` mod (creates 2 files: main + vendor bundle)
 
 ### Commits and PRs
 
-Follow Conventional Commits: `feat(mod-name): description`, `fix(mod-name): description`. Run `npm run format && npm run lint` before committing.
+Follow Conventional Commits: `feat(mod-name): description`, `fix(mod-name): description`. Run `bun run format && bun run lint` before committing.
 
 ### Publishing
 
