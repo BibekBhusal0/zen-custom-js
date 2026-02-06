@@ -239,7 +239,9 @@ async function build() {
         const normalizedTarget = target.replace(/-/g, "");
         const normalizedThemeId = theme.id.replace(/-/g, "");
         const includesTarget = normalizedThemeId.includes(normalizedTarget);
-        console.log(`[build.js filter] Theme ID: ${theme.id}, Target: ${target}, Match: ${includesTarget}`);
+        console.log(
+          `[build.js filter] Theme ID: ${theme.id}, Target: ${target}, Match: ${includesTarget}`
+        );
         return includesTarget;
       } catch (e) {
         console.error(`[build.js filter] Error parsing theme.json for ${dir}: ${e.message}`);
