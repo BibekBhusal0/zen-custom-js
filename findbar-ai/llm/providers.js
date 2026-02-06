@@ -1,11 +1,13 @@
-import { createMistral } from "@ai-sdk/mistral";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { xai as createGrok } from "@ai-sdk/xai";
-import { createPerplexity } from "@ai-sdk/perplexity";
-import { createCerebras } from "@ai-sdk/cerebras";
-import { createOllama } from "ollama-ai-provider-v2";
+import {
+  createMistral,
+  createGoogleGenerativeAI,
+  createOpenAI,
+  createAnthropic,
+  createGrok,
+  createPerplexity,
+  createCerebras,
+  createOllama,
+} from "./vercel-ai-sdk.uc.mjs";
 import PREFS from "../utils/prefs.js";
 import { googleFaviconAPI } from "../../utils/favicon.js";
 

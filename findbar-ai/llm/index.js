@@ -1,6 +1,5 @@
-import { streamText, generateText, Output, stepCountIs } from "ai";
+import { streamText, generateText, Output, stepCountIs, z } from "./vercel-ai-sdk.uc.mjs";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
-import { z } from "zod";
 import {
   claude,
   gemini,

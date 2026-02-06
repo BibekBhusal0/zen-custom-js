@@ -1,4 +1,4 @@
-export { streamText, generateText, stepCountIs } from "ai";
+export { streamText, generateText, stepCountIs, Output } from "ai";
 export { tool } from "ai";
 export { createMistral } from "@ai-sdk/mistral";
 export { createGoogleGenerativeAI } from "@ai-sdk/google";

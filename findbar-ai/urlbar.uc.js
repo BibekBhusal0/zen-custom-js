@@ -1,7 +1,7 @@
 import { LLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
-import { stepCountIs } from "ai";
+import { stepCountIs } from "./vercel-ai-sdk.uc.mjs";
 import { parseElement } from "../utils/parse.js";
 
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
