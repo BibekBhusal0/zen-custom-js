@@ -14,6 +14,25 @@ const getSubdirectories = (dir) => {
   });
 };
 
+const fixBrowseBotImports = () => {
+  const mainFile = "./dist/browse-bot.uc.mjs";
+  if (fs.existsSync(mainFile)) {
+    const orignal_content = fs.readFileSync(mainFile, "utf-8");
+
+    const modules = ['@ai-sdk\\/[^"]*', "ai", "zod", "ollama-ai-provider-v2"];
+
+    let content = orignal_content;
+    for (const mod of modules) {
+      content = content.replace(
+        new RegExp('import\\s*\\{\\s*([^}]+)\\s*\\}\\s*from\\s*"' + mod + '"\\s*;', "g"),
+        'import { $1} from "./vercel-ai-sdk.uc.mjs";'
+      );
+    }
+
+    if (orignal_content !== content) fs.writeFileSync(mainFile, content);
+  }
+};
+
 const createBanner = (themePath) => {
   const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
 
@@ -74,9 +93,80 @@ const createBanner = (themePath) => {
   return banner;
 };
 
-// Build function using Bun CLI
 function buildMod(themePath, entryFile, theme, isWatch = false) {
   const banner = createBanner(themePath);
+
+  if (theme.id === "browse-bot") {
+    const externalPackages = ["@ai-sdk/*", "ai", "zod", "ollama-ai-provider-v2"];
+
+    // Build main entry with vendor packages as external
+    const mainArgs = [
+      "build",
+      entryFile,
+      "--outdir",
+      "./dist",
+      "--format",
+      "esm",
+      "--target",
+      "browser",
+      "--entry-naming",
+      "browse-bot.uc.mjs",
+      "--banner",
+      banner,
+      "--minify-syntax",
+    ];
+
+    externalPackages.forEach((pkg) => mainArgs.push("--external", pkg));
+
+    // Build vendor bundle
+    const vendorArgs = [
+      "build",
+      "./findbar-ai/vendor-entry.js",
+      "--outdir",
+      "./dist",
+      "--format",
+      "esm",
+      "--target",
+      "browser",
+      "--entry-naming",
+      "vercel-ai-sdk.uc.mjs",
+      "--minify-syntax",
+    ];
+
+    if (isWatch) {
+      mainArgs.push("--watch");
+      vendorArgs.push("--watch");
+      spawn("bun", vendorArgs, { stdio: "inherit" });
+      const mainChild = spawn("bun", mainArgs, { stdio: "inherit" });
+
+      mainChild.on("spawn", () => {
+        setTimeout(() => fixBrowseBotImports(), 1000);
+      });
+      return;
+    } else {
+      const mainChild = spawn("bun", mainArgs, { stdio: "inherit" });
+      const vendorChild = spawn("bun", vendorArgs, { stdio: "inherit" });
+
+      return new Promise((resolve, reject) => {
+        let mainDone = false;
+        let vendorDone = false;
+
+        mainChild.on("close", () => {
+          fixBrowseBotImports();
+          mainDone = true;
+          if (mainDone && vendorDone) resolve();
+        });
+
+        vendorChild.on("close", () => {
+          vendorDone = true;
+          if (mainDone && vendorDone) resolve();
+        });
+
+        mainChild.on("error", reject);
+        vendorChild.on("error", reject);
+      });
+    }
+  }
 
   const args = [
     "build",
@@ -87,20 +177,14 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
     "iife",
     "--target",
     "browser",
+    "--entry-naming",
+    `${theme.id}.uc.js`,
     "--banner",
     banner,
+    "--minify-syntax",
   ];
 
   if (isWatch) args.push("--watch");
-  if (theme.id === "browse-bot") {
-    args.push(
-      "--splitting",
-      "--entry-naming",
-      "browse-bot.uc.mjs",
-      "--chunk-naming",
-      "vercel-ai-sdk.uc.mjs"
-    );
-  } else args.push("--entry-naming", `${theme.id}.uc.js`);
 
   const child = spawn("bun", args, { stdio: "inherit" });
 
@@ -117,12 +201,20 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
   });
 }
 
-// Main build function
 async function build() {
-  const mods = getSubdirectories(process.cwd());
   const target = process.env.TARGET;
   const isWatch = process.argv.includes("--watch");
 
+  // For watch mode without target, only build browse-bot
+  if (isWatch && !target) {
+    const browseBotTheme = JSON.parse(fs.readFileSync("findbar-ai/theme.json", "utf-8"));
+    const browseBotEntry = "findbar-ai/index.js";
+
+    buildMod("findbar-ai/theme.json", browseBotEntry, browseBotTheme, true);
+    return;
+  }
+
+  const mods = getSubdirectories(process.cwd());
   let modsToBuild = mods;
   if (target) {
     modsToBuild = mods.filter((dir) => {
@@ -136,6 +228,7 @@ async function build() {
     });
   }
 
+  // Build each mod
   for (const dir of modsToBuild) {
     const themePath = path.join(dir, "theme.json");
     const entryFile = path.join(dir, "index.js");
