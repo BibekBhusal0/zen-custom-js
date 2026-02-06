@@ -189,7 +189,7 @@ function buildMod(mod) {
 
   console.log(`Building ${mod.folder}...`);
   const themeId = mod.theme.id;
-  const command = `npx cross-env TARGET=${themeId} rollup -c --bundleConfigAsCjs`;
+  const command = `TARGET=${themeId} bun build`;
 
   run(command);
 }

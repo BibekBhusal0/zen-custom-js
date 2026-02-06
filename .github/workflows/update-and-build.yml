@@ -18,14 +18,13 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: '20'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install
 
       - name: Grant read permissions
         run: find . -name "theme.json" -print0 | xargs -0 chmod a+r
@@ -33,7 +32,7 @@ jobs:
       - name: Update theme.json files
         id: update_theme
         run: |
-          node .github/scripts/update-theme.js
+          bun run update-theme
           echo "updated=$?" >> $GITHUB_OUTPUT
 
       - name: Commit theme.json changes
@@ -45,7 +44,7 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: Update theme.json"
 
       - name: Build BrowseBot
-        run: npm run build
+        run: bun run build
 
       - name: Commit BrowseBot changes
         run: |
@@ -55,7 +54,7 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: Update browsebot build"
 
       - name: Combine Preferences
-        run: npm run combine-preferences
+        run: bun run combine-preferences
 
       - name: Commit preferences changes
         run: |
@@ -65,7 +64,7 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: Update combined preferences"
 
       - name: Run Prettier
-        run: npm run format
+        run: bun run format
 
       - name: Commit formatting changes
         run: |

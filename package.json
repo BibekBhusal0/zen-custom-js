@@ -17,6 +17,7 @@
     "dev:select": "TARGET=select bun build.js --watch",
     "dev:search": "TARGET=search bun build.js --watch",
     "combine-preferences": "bun .github/scripts/combine-preferences.js",
+    "update-theme": "bun .github/scripts/update-theme.js",
     "format": "prettier --write .",
     "lint": "eslint ."
   },
