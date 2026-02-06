@@ -2,7 +2,7 @@
 // @name            Browse Bot
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
-// @version         2.5.83b
+// @version         2.5.84b
 // @lastUpdated     2026-02-06
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
@@ -15,7 +15,7 @@
 
 
 // findbar-ai/llm/index.js
-import { streamText, generateText, Output, stepCountIs } from "./vercel-ai-sdk.uc.mjs";
+import { streamText, generateText, Output, stepCountIs, z as z2 } from "./vercel-ai-sdk.uc.mjs";
 
 // utils/pref.js
 function setPref(key, value) {
@@ -3040,18 +3040,17 @@ Declined by user.`;
   }
 };
 
-// findbar-ai/llm/index.js
-import { z as z2 } from "./vercel-ai-sdk.uc.mjs";
-
 // findbar-ai/llm/providers.js
-import { createMistral } from "./vercel-ai-sdk.uc.mjs";
-import { createGoogleGenerativeAI } from "./vercel-ai-sdk.uc.mjs";
-import { createOpenAI } from "./vercel-ai-sdk.uc.mjs";
-import { createAnthropic } from "./vercel-ai-sdk.uc.mjs";
-import { xai as createGrok } from "./vercel-ai-sdk.uc.mjs";
-import { createPerplexity } from "./vercel-ai-sdk.uc.mjs";
-import { createCerebras } from "./vercel-ai-sdk.uc.mjs";
-import { createOllama } from "./vercel-ai-sdk.uc.mjs";
+import {
+  createMistral,
+  createGoogleGenerativeAI,
+  createOpenAI,
+  createAnthropic,
+  createGrok,
+  createPerplexity,
+  createCerebras,
+  createOllama
+} from "./vercel-ai-sdk.uc.mjs";
 
 // utils/favicon.js
 function googleFaviconAPI(domainOrUrl, size = 32) {

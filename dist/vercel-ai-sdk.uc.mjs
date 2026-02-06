@@ -39305,5 +39305,6 @@ export {
   xai as createGrok,
   createGoogleGenerativeAI,
   createCerebras,
-  createAnthropic
+  createAnthropic,
+  output_exports as Output
 };
