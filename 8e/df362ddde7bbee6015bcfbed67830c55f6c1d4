@@ -1,0 +1,25 @@
+.github/scripts/publish.js
+  8fd96a23832152b1 192
+build.js
+  8fd96a23832152b1 97-99,123,139,211
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.42",
+  "base_commit_sha": "8edf362ddde7bbee6015bcfbed67830c55f6c1d4",
+  "prompts": {
+    "8fd96a23832152b1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "6a2c5564-f8c9-461d-bbf7-23b0e50703de",
+        "model": "gemini-2.5-flash"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 7,
+      "total_deletions": 1,
+      "accepted_lines": 7,
+      "overriden_lines": 0
+    }
+  }
+}
