@@ -1,0 +1,23 @@
+build.js
+  a7cbed5b5243e33d 122-124,134-162
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.42",
+  "base_commit_sha": "b094f7788fade328b9d607723dd17f0ea3ef9c9f",
+  "prompts": {
+    "a7cbed5b5243e33d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3d182c513ffeCPMquxiM8CpA8J",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 47,
+      "total_deletions": 2,
+      "accepted_lines": 32,
+      "overriden_lines": 0
+    }
+  }
+}
