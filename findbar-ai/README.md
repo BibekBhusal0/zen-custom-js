@@ -70,12 +70,12 @@ For advanced users or those not using Sine or who are willing to contribute:
     git clone https://github.com/BibekBhusal0/zen-custom-js.git custom
     ```
 
-3.  **Bundle the Script**: This script uses modern JavaScript that needs to be bundled. Navigate into the new directory and run the build command:
+3.  **Bundle the Script**: This script uses bun a modern JavaScript bundler to bundle all code. Navigate into the new directory and run the build command (bun needs to be installed for this):
 
     ```bash
     cd custom
-    npm install
-    npm run build
+    bun install
+    bun run build
     ```
 
 4.  **Import the Script**: In your JS directory, create a new file `import.uc.mjs` (or add to an existing one), and add the following line:

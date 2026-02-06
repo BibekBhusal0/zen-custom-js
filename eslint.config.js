@@ -55,7 +55,7 @@ export default [
     },
   },
   {
-    files: ["rollup.config.js", ".github/scripts/*.js"],
+    files: ["build.js", ".github/scripts/*.js"],
     languageOptions: {
       globals: {
         ...globals.node,

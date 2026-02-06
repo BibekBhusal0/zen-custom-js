@@ -19,6 +19,7 @@ Before opening issue make sure to check all issues if similar issues has been cr
 
 ### Prerequisites
 
+- **Bun**: Install [Bun](https://bun.sh/).
 - **Setup `fx-autoconfig`**: Follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig) (if you are using sine it is already installed).
 - **Node.js & npm**: Only required if contributing to BrowseBot (for AI dependencies)
 
@@ -37,7 +38,7 @@ Before opening issue make sure to check all issues if similar issues has been cr
 3. Install dependencies (only required if you are contributing to BrowseBot):
 
    ```bash
-   npm install
+   bun install
    ```
 
 4. **Import the Script**: In your JS directory, create a new file `import.uc.mjs` and import the scripts you need. See [import.uc.mjs](./import.uc.mjs) for an example importing each script.
@@ -154,34 +155,32 @@ This will help you find and fix issues before they are caught by the CI.
 
 ### Build Scripts
 
-Available npm scripts for development:
+Available bun scripts for development:
 
 ```bash
 # Build all mods
-npm run build
+bun run build
 
 # Build specific mod
-npm run build:browsebot
-npm run build:palette
-npm run build:reopen
-npm run build:sidebar
-npm run build:select
-npm run build:search
+bun run build:browsebot
+bun run build:palette
+bun run build:reopen
+bun run build:sidebar
+bun run build:select
+bun run build:search
 
 # Development mode with watch (auto-rebuild on changes)
-npm run dev                # Watch all mods
-npm run dev:browsebot      # Watch specific mod
-npm run dev:palette
-npm run dev:reopen
-npm run dev:sidebar
-npm run dev:select
-npm run dev:search
+bun run dev                    # Only watches browse-bot
+bun run dev:browsebot            # Watch specific mod
+bun run dev:palette
+bun run dev:reopen
+bun run dev:sidebar
+bun run dev:select
+bun run dev:search
 
-# Format code manually
-npm run format
-
-# Run the linter
-npm run lint
+# Other commands
+bun run format                 # Format code with Prettier
+bun run lint                   # Run ESLint
 ```
 
 ### Utility Functions You Should Be Using

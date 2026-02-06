@@ -14,7 +14,7 @@
   },
   "readme": "https://raw.githubusercontent.com/Vertex-Mods/Browse-Bot/main/README.md",
   "author": "Bibek Bhusal",
-  "version": "2.5.82",
+  "version": "2.5.83b",
   "tags": [
     "ai",
     "findbar",
@@ -30,6 +30,6 @@
     "Claude"
   ],
   "createdAt": "2024-05-22",
-  "updatedAt": "2026-02-05",
+  "updatedAt": "2026-02-06",
   "fork": ["zen"]
 }

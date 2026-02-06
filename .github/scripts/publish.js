@@ -189,11 +189,7 @@ function buildMod(mod) {
 
   console.log(`Building ${mod.folder}...`);
   const themeId = mod.theme.id;
-  let command = `npx cross-env TARGET=${themeId} rollup -c --bundleConfigAsCjs`;
-
-  if (themeId === "browse-bot") {
-    command = `npx cross-env TARGET=${themeId} BUILD_TYPE=dev rollup -c --bundleConfigAsCjs`;
-  }
+  const command = `TARGET=${themeId} bun build.js`;
 
   run(command);
 }

@@ -15,25 +15,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: '20'
-          cache: 'npm'
+          bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
-
-      - name: Grant read permissions
-        run: find . -name "theme.json" -print0 | xargs -0 chmod a+r
+        run: bun install
 
       - name: Update theme.json files
         id: update_theme
         run: |
-          node .github/scripts/update-theme.js
+          bun run update-theme
           echo "updated=$?" >> $GITHUB_OUTPUT
 
       - name: Commit theme.json changes
@@ -44,19 +39,18 @@ jobs:
           git add **/theme.json
           git diff --cached --quiet || git commit -m "chore: Update theme.json"
 
-      # - name: Build BrowseBot (dev for both files)
-      #   run: |
-      #     npx cross-env TARGET=browsebot BUILD_TYPE=dev rollup -c --bundleConfigAsCjs
+      - name: Build BrowseBot
+        run: bun run build:browsebot
+
+      - name: Commit BrowseBot changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add dist/*.uc.mjs
+          git diff --cached --quiet || git commit -m "chore: Update browsebot build"
 
       - name: Combine Preferences
-        run: npm run combine-preferences
-
-      # - name: Commit BrowseBot changes
-      #   run: |
-      #     git config --local user.email "github-actions[bot]@users.noreply.github.com"
-      #     git config --local user.name "github-actions[bot]"
-      #     git add dist/browse-bot*.uc.*
-      #     git diff --cached --quiet || git commit -m "chore: Update browsebot build"
+        run: bun run combine-preferences
 
       - name: Commit preferences changes
         run: |
@@ -66,7 +60,7 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: Update combined preferences"
 
       - name: Run Prettier
-        run: npm run format
+        run: bun run format
 
       - name: Commit formatting changes
         run: |
