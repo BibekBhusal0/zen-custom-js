@@ -1,0 +1,27 @@
+WORKFLOW.md
+  a7cbed5b5243e33d 11,18,25,81
+AGENTS.md
+  a7cbed5b5243e33d 7,15-16,18-36,197,202,206
+CONTRIBUTING.md
+  a7cbed5b5243e33d 41,158,162,165-170,173-179,181-183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.42",
+  "base_commit_sha": "ea37a61c45500d46cdea81a4e6e1895b293cbbe4",
+  "prompts": {
+    "a7cbed5b5243e33d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3d182c513ffeCPMquxiM8CpA8J",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 114,
+      "total_deletions": 67,
+      "accepted_lines": 101,
+      "overriden_lines": 4
+    }
+  }
+}
