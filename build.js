@@ -94,6 +94,9 @@ const createBanner = (themePath) => {
 };
 
 function buildMod(themePath, entryFile, theme, isWatch = false) {
+  console.log(`[buildMod] Building mod: ${theme.id}`);
+  console.log(`[buildMod] Theme Path: ${themePath}`);
+  console.log(`[buildMod] Entry File: ${entryFile}`);
   const banner = createBanner(themePath);
 
   if (theme.id === "browse-bot") {
@@ -117,6 +120,7 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
     ];
 
     externalPackages.forEach((pkg) => mainArgs.push("--external", pkg));
+    console.log(`[buildMod] BrowseBot mainArgs: ${mainArgs.join(" ")}`);
 
     // Build vendor bundle
     const vendorArgs = [
@@ -132,6 +136,7 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
       "vercel-ai-sdk.uc.mjs",
       "--minify-syntax",
     ];
+    console.log(`[buildMod] BrowseBot vendorArgs: ${vendorArgs.join(" ")}`);
 
     if (isWatch) {
       mainArgs.push("--watch");
@@ -203,6 +208,7 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
 
 async function build() {
   const target = process.env.TARGET;
+  console.log(`[build.js] TARGET: ${target}`);
   const isWatch = process.argv.includes("--watch");
 
   // For watch mode without target, only build browse-bot
@@ -219,13 +225,28 @@ async function build() {
   if (target) {
     modsToBuild = mods.filter((dir) => {
       const themePath = path.join(dir, "theme.json");
-      if (!fs.existsSync(themePath)) return false;
+      console.log(`[build.js filter] Checking dir: ${dir}`);
+      console.log(`[build.js filter] Theme path: ${themePath}`);
+      const themePathExists = fs.existsSync(themePath);
+      console.log(`[build.js filter] Theme path exists: ${themePathExists}`);
 
-      const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
-      const normalizedTarget = target.replace(/-/g, "");
-      const normalizedThemeId = theme.id.replace(/-/g, "");
-      return normalizedThemeId.includes(normalizedTarget);
+      if (!themePathExists) {
+        return false;
+      }
+
+      try {
+        const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
+        const normalizedTarget = target.replace(/-/g, "");
+        const normalizedThemeId = theme.id.replace(/-/g, "");
+        const includesTarget = normalizedThemeId.includes(normalizedTarget);
+        console.log(`[build.js filter] Theme ID: ${theme.id}, Target: ${target}, Match: ${includesTarget}`);
+        return includesTarget;
+      } catch (e) {
+        console.error(`[build.js filter] Error parsing theme.json for ${dir}: ${e.message}`);
+        return false;
+      }
     });
+    console.log(`[build.js] modsToBuild (after target filter): ${modsToBuild.join(", ")}`);
   }
 
   // Build each mod
@@ -233,11 +254,17 @@ async function build() {
     const themePath = path.join(dir, "theme.json");
     const entryFile = path.join(dir, "index.js");
 
+    console.log(`[build.js] Processing directory: ${dir}`);
+    console.log(`[build.js] Theme path: ${themePath}, exists: ${fs.existsSync(themePath)}`);
+    console.log(`[build.js] Entry file: ${entryFile}, exists: ${fs.existsSync(entryFile)}`);
+
     if (!fs.existsSync(themePath) || !fs.existsSync(entryFile)) {
+      console.log(`[build.js] Skipping ${dir}: theme.json or index.js not found.`);
       continue;
     }
 
     const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
+    console.log(`[build.js] Theme scripts for ${dir}: ${theme.scripts}`);
     if (!theme.scripts) continue;
 
     await buildMod(themePath, entryFile, theme, isWatch);
