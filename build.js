@@ -14,25 +14,6 @@ const getSubdirectories = (dir) => {
   });
 };
 
-const fixBrowseBotImports = () => {
-  const mainFile = "./dist/browse-bot.uc.mjs";
-  if (fs.existsSync(mainFile)) {
-    const orignal_content = fs.readFileSync(mainFile, "utf-8");
-
-    const modules = ['@ai-sdk\\/[^"]*', "ai", "zod", "ollama-ai-provider-v2"];
-
-    let content = orignal_content;
-    for (const mod of modules) {
-      content = content.replace(
-        new RegExp('import\\s*\\{\\s*([^}]+)\\s*\\}\\s*from\\s*"' + mod + '"\\s*;', "g"),
-        'import { $1} from "./vercel-ai-sdk.uc.mjs";'
-      );
-    }
-
-    if (orignal_content !== content) fs.writeFileSync(mainFile, content);
-  }
-};
-
 const createBanner = (themePath) => {
   const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
 
@@ -97,7 +78,13 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
   const banner = createBanner(themePath);
 
   if (theme.id === "browse-bot") {
-    const externalPackages = ["@ai-sdk/*", "ai", "zod", "ollama-ai-provider-v2"];
+    const externalPackages = [
+      "@ai-sdk/*",
+      "ai",
+      "zod",
+      "ollama-ai-provider-v2",
+      "*/vercel-ai-sdk.uc.mjs",
+    ];
 
     // Build main entry with vendor packages as external
     const mainArgs = [
@@ -121,7 +108,7 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
     // Build vendor bundle
     const vendorArgs = [
       "build",
-      "./findbar-ai/vendor-entry.js",
+      "./findbar-ai/vercel-ai-sdk.uc.mjs",
       "--outdir",
       "./dist",
       "--format",
@@ -137,11 +124,8 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
       mainArgs.push("--watch");
       vendorArgs.push("--watch");
       spawn("bun", vendorArgs, { stdio: "inherit" });
-      const mainChild = spawn("bun", mainArgs, { stdio: "inherit" });
+      spawn("bun", mainArgs, { stdio: "inherit" });
 
-      mainChild.on("spawn", () => {
-        setTimeout(() => fixBrowseBotImports(), 1000);
-      });
       return;
     } else {
       const mainChild = spawn("bun", mainArgs, { stdio: "inherit" });
@@ -152,7 +136,6 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
         let vendorDone = false;
 
         mainChild.on("close", () => {
-          fixBrowseBotImports();
           mainDone = true;
           if (mainDone && vendorDone) resolve();
         });

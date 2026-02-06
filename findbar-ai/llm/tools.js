@@ -1,5 +1,5 @@
-import { tool } from "ai";
-import { z } from "zod";
+import { tool } from "./vercel-ai-sdk.uc.mjs";
+import { z } from "./vercel-ai-sdk.uc.mjs";
 import { messageManagerAPI } from "../messageManager.js";
 import { PREFS } from "../utils/prefs.js";
 import { showToast } from "../../utils/toast.js";
