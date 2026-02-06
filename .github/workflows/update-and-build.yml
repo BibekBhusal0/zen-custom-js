@@ -44,7 +44,7 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: Update theme.json"
 
       - name: Build BrowseBot
-        run: bun run build
+        run: bun run build:browsebot
 
       - name: Commit BrowseBot changes
         run: |
