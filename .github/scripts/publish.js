@@ -189,7 +189,7 @@ function buildMod(mod) {
 
   console.log(`Building ${mod.folder}...`);
   const themeId = mod.theme.id;
-  const command = `TARGET=${themeId} bun build`;
+  const command = `TARGET=${themeId} bun build.js`;
 
   run(command);
 }
