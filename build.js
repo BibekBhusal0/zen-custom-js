@@ -94,9 +94,6 @@ const createBanner = (themePath) => {
 };
 
 function buildMod(themePath, entryFile, theme, isWatch = false) {
-  console.log(`[buildMod] Building mod: ${theme.id}`);
-  console.log(`[buildMod] Theme Path: ${themePath}`);
-  console.log(`[buildMod] Entry File: ${entryFile}`);
   const banner = createBanner(themePath);
 
   if (theme.id === "browse-bot") {
@@ -120,7 +117,6 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
     ];
 
     externalPackages.forEach((pkg) => mainArgs.push("--external", pkg));
-    console.log(`[buildMod] BrowseBot mainArgs: ${mainArgs.join(" ")}`);
 
     // Build vendor bundle
     const vendorArgs = [
@@ -136,7 +132,6 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
       "vercel-ai-sdk.uc.mjs",
       "--minify-syntax",
     ];
-    console.log(`[buildMod] BrowseBot vendorArgs: ${vendorArgs.join(" ")}`);
 
     if (isWatch) {
       mainArgs.push("--watch");
@@ -208,7 +203,6 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
 
 async function build() {
   const target = process.env.TARGET;
-  console.log(`[build.js] TARGET: ${target}`);
   const isWatch = process.argv.includes("--watch");
 
   // For watch mode without target, only build browse-bot

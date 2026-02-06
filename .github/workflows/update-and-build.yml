@@ -15,7 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
           fetch-depth: 0
 
       - name: Setup Bun
@@ -25,9 +24,6 @@ jobs:
 
       - name: Install dependencies
         run: bun install
-
-      - name: Grant read permissions
-        run: find . -name "theme.json" -print0 | xargs -0 chmod a+r
 
       - name: Update theme.json files
         id: update_theme
