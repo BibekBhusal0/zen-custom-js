@@ -1,0 +1,8 @@
+name: zen-config
+root: "~/.zen/pf761izm.Default Profile/chrome/sine-mods/zen-custom-js"
+
+windows:
+  - editor: nvim :SessionLoad zen-config
+  - server: bun run dev
+  - ai: opencode
+  - misc:
