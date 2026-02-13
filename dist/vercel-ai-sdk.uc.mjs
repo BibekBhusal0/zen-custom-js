@@ -15432,6 +15432,11 @@ function convertUint8ArrayToBase64(array2) {
 function convertToBase64(value) {
   return value instanceof Uint8Array ? convertUint8ArrayToBase64(value) : value;
 }
+function convertImageModelFileToDataUri(file2) {
+  if (file2.type === "url")
+    return file2.url;
+  return `data:${file2.mediaType};base64,${typeof file2.data === "string" ? file2.data : convertUint8ArrayToBase64(file2.data)}`;
+}
 function convertToFormData(input, options = {}) {
   let { useArrayBrackets = !0 } = options, formData = new FormData;
   for (let [key, value] of Object.entries(input)) {
@@ -15465,17 +15470,67 @@ var name14 = "AI_DownloadError", marker15 = `vercel.ai.error.${name14}`, symbol1
   static isInstance(error48) {
     return AISDKError.hasMarker(error48, marker15);
   }
-};
-async function downloadBlob(url2) {
+}, DEFAULT_MAX_DOWNLOAD_SIZE = 2147483648;
+async function readResponseWithSizeLimit({
+  response,
+  url: url2,
+  maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE
+}) {
+  let contentLength = response.headers.get("content-length");
+  if (contentLength != null) {
+    let length = parseInt(contentLength, 10);
+    if (!isNaN(length) && length > maxBytes)
+      throw new DownloadError({
+        url: url2,
+        message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes (Content-Length: ${length}).`
+      });
+  }
+  let body = response.body;
+  if (body == null)
+    return new Uint8Array(0);
+  let reader = body.getReader(), chunks = [], totalBytes = 0;
   try {
-    let response = await fetch(url2);
+    while (!0) {
+      let { done, value } = await reader.read();
+      if (done)
+        break;
+      if (totalBytes += value.length, totalBytes > maxBytes)
+        throw new DownloadError({
+          url: url2,
+          message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes.`
+        });
+      chunks.push(value);
+    }
+  } finally {
+    try {
+      await reader.cancel();
+    } finally {
+      reader.releaseLock();
+    }
+  }
+  let result = new Uint8Array(totalBytes), offset = 0;
+  for (let chunk of chunks)
+    result.set(chunk, offset), offset += chunk.length;
+  return result;
+}
+async function downloadBlob(url2, options) {
+  var _a22, _b22;
+  try {
+    let response = await fetch(url2, {
+      signal: options == null ? void 0 : options.abortSignal
+    });
     if (!response.ok)
       throw new DownloadError({
         url: url2,
         statusCode: response.status,
         statusText: response.statusText
       });
-    return await response.blob();
+    let data = await readResponseWithSizeLimit({
+      response,
+      url: url2,
+      maxBytes: (_a22 = options == null ? void 0 : options.maxBytes) != null ? _a22 : DEFAULT_MAX_DOWNLOAD_SIZE
+    }), contentType = (_b22 = response.headers.get("content-type")) != null ? _b22 : void 0;
+    return new Blob([data], contentType ? { type: contentType } : void 0);
   } catch (error48) {
     if (DownloadError.isInstance(error48))
       throw error48;
@@ -15593,7 +15648,7 @@ function withUserAgentSuffix(headers, ...userAgentSuffixParts) {
   let normalizedHeaders = new Headers(normalizeHeaders(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
   return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
 }
-var VERSION = "4.0.13", getOriginalFetch = () => globalThis.fetch, getFromApi = async ({
+var VERSION = "4.0.15", getOriginalFetch = () => globalThis.fetch, getFromApi = async ({
   url: url2,
   headers = {},
   successfulResponseHandler,
@@ -17172,6 +17227,19 @@ var createJsonErrorResponseHandler = ({
       cause: error48
     });
   }
+}, createStatusCodeErrorResponseHandler = () => async ({ response, url: url2, requestBodyValues }) => {
+  let responseHeaders = extractResponseHeaders(response), responseBody = await response.text();
+  return {
+    responseHeaders,
+    value: new APICallError({
+      message: response.statusText,
+      url: url2,
+      requestBodyValues,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody
+    })
+  };
 };
 function withoutTrailingSlash(url2) {
   return url2 == null ? void 0 : url2.replace(/\/$/, "");
@@ -17339,7 +17407,7 @@ async function createGatewayErrorFromResponse({
   cause,
   authMethod
 }) {
-  var _a82;
+  var _a92;
   let parseResult = await safeValidateTypes({
     value: response,
     schema: gatewayErrorResponseSchema
@@ -17355,7 +17423,7 @@ async function createGatewayErrorFromResponse({
       generationId: rawGenerationId
     });
   }
-  let validatedResponse = parseResult.value, errorType = validatedResponse.error.type, message = validatedResponse.error.message, generationId = (_a82 = validatedResponse.generationId) != null ? _a82 : void 0;
+  let validatedResponse = parseResult.value, errorType = validatedResponse.error.type, message = validatedResponse.error.message, generationId = (_a92 = validatedResponse.generationId) != null ? _a92 : void 0;
   switch (errorType) {
     case "authentication_error":
       return GatewayAuthenticationError.createContextualError({
@@ -17416,20 +17484,72 @@ var gatewayErrorResponseSchema = lazySchema(() => zodSchema(exports_external.obj
     code: exports_external.union([exports_external.string(), exports_external.number()]).nullish()
   }),
   generationId: exports_external.string().nullish()
-})));
-function asGatewayError(error48, authMethod) {
-  var _a82;
+}))), name72 = "GatewayTimeoutError", marker82 = `vercel.ai.gateway.error.${name72}`, symbol82 = Symbol.for(marker82), _a82, _b82, GatewayTimeoutError = class _GatewayTimeoutError extends (_b82 = GatewayError, _a82 = symbol82, _b82) {
+  constructor({
+    message = "Request timed out",
+    statusCode = 408,
+    cause,
+    generationId
+  } = {}) {
+    super({ message, statusCode, cause, generationId });
+    this[_a82] = !0, this.name = name72, this.type = "timeout_error";
+  }
+  static isInstance(error48) {
+    return GatewayError.hasMarker(error48) && symbol82 in error48;
+  }
+  static createTimeoutError({
+    originalMessage,
+    statusCode = 408,
+    cause,
+    generationId
+  }) {
+    let message = `Gateway request timed out: ${originalMessage}
+
+    This is a client-side timeout. To resolve this, increase your timeout configuration: https://vercel.com/docs/ai-gateway/capabilities/video-generation#extending-timeouts-for-node.js`;
+    return new _GatewayTimeoutError({
+      message,
+      statusCode,
+      cause,
+      generationId
+    });
+  }
+};
+function isTimeoutError(error48) {
+  if (!(error48 instanceof Error))
+    return !1;
+  let errorCode = error48.code;
+  if (typeof errorCode === "string")
+    return [
+      "UND_ERR_HEADERS_TIMEOUT",
+      "UND_ERR_BODY_TIMEOUT",
+      "UND_ERR_CONNECT_TIMEOUT"
+    ].includes(errorCode);
+  return !1;
+}
+async function asGatewayError(error48, authMethod) {
+  var _a92;
   if (GatewayError.isInstance(error48))
     return error48;
-  if (APICallError.isInstance(error48))
-    return createGatewayErrorFromResponse({
+  if (isTimeoutError(error48))
+    return GatewayTimeoutError.createTimeoutError({
+      originalMessage: error48 instanceof Error ? error48.message : "Unknown error",
+      cause: error48
+    });
+  if (APICallError.isInstance(error48)) {
+    if (error48.cause && isTimeoutError(error48.cause))
+      return GatewayTimeoutError.createTimeoutError({
+        originalMessage: error48.message,
+        cause: error48
+      });
+    return await createGatewayErrorFromResponse({
       response: extractApiCallResponse(error48),
-      statusCode: (_a82 = error48.statusCode) != null ? _a82 : 500,
+      statusCode: (_a92 = error48.statusCode) != null ? _a92 : 500,
       defaultMessage: "Gateway request failed",
       cause: error48,
       authMethod
     });
-  return createGatewayErrorFromResponse({
+  }
+  return await createGatewayErrorFromResponse({
     response: {},
     statusCode: 500,
     defaultMessage: error48 instanceof Error ? `Gateway request failed: ${error48.message}` : "Unknown Gateway error",
@@ -17515,7 +17635,7 @@ var gatewayAuthMethodSchema = lazySchema(() => zodSchema(exports_external.union(
       provider: exports_external.string(),
       modelId: exports_external.string()
     }),
-    modelType: exports_external.enum(["language", "embedding", "image"]).nullish()
+    modelType: exports_external.enum(["embedding", "image", "language", "video"]).nullish()
   }))
 }))), gatewayCreditsResponseSchema = lazySchema(() => zodSchema(exports_external.object({
   balance: exports_external.string(),
@@ -17644,7 +17764,7 @@ var gatewayAuthMethodSchema = lazySchema(() => zodSchema(exports_external.union(
     abortSignal,
     providerOptions
   }) {
-    var _a82;
+    var _a92;
     let resolvedHeaders = await resolve(this.config.headers());
     try {
       let {
@@ -17668,7 +17788,7 @@ var gatewayAuthMethodSchema = lazySchema(() => zodSchema(exports_external.union(
       });
       return {
         embeddings: responseBody.embeddings,
-        usage: (_a82 = responseBody.usage) != null ? _a82 : void 0,
+        usage: (_a92 = responseBody.usage) != null ? _a92 : void 0,
         providerMetadata: responseBody.providerMetadata,
         response: { headers: responseHeaders, body: rawValue },
         warnings: []
@@ -17709,7 +17829,7 @@ var gatewayAuthMethodSchema = lazySchema(() => zodSchema(exports_external.union(
     headers,
     abortSignal
   }) {
-    var _a82;
+    var _a92, _b92, _c, _d;
     let resolvedHeaders = await resolve(this.config.headers());
     try {
       let {
@@ -17741,16 +17861,23 @@ var gatewayAuthMethodSchema = lazySchema(() => zodSchema(exports_external.union(
       });
       return {
         images: responseBody.images,
-        warnings: (_a82 = responseBody.warnings) != null ? _a82 : [],
+        warnings: (_a92 = responseBody.warnings) != null ? _a92 : [],
         providerMetadata: responseBody.providerMetadata,
         response: {
           timestamp: /* @__PURE__ */ new Date,
           modelId: this.modelId,
           headers: responseHeaders
+        },
+        ...responseBody.usage != null && {
+          usage: {
+            inputTokens: (_b92 = responseBody.usage.inputTokens) != null ? _b92 : void 0,
+            outputTokens: (_c = responseBody.usage.outputTokens) != null ? _c : void 0,
+            totalTokens: (_d = responseBody.usage.totalTokens) != null ? _d : void 0
+          }
         }
       };
     } catch (error48) {
-      throw asGatewayError(error48, await parseAuthMethod(resolvedHeaders));
+      throw await asGatewayError(error48, await parseAuthMethod(resolvedHeaders));
     }
   }
   getUrl() {
@@ -17773,13 +17900,143 @@ function maybeEncodeImageFile(file2) {
 }
 var providerMetadataEntrySchema = exports_external.object({
   images: exports_external.array(exports_external.unknown()).optional()
-}).catchall(exports_external.unknown()), gatewayImageResponseSchema = exports_external.object({
-  images: exports_external.array(exports_external.string()),
-  warnings: exports_external.array(exports_external.object({
+}).catchall(exports_external.unknown()), gatewayImageWarningSchema = exports_external.discriminatedUnion("type", [
+  exports_external.object({
+    type: exports_external.literal("unsupported"),
+    feature: exports_external.string(),
+    details: exports_external.string().optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("compatibility"),
+    feature: exports_external.string(),
+    details: exports_external.string().optional()
+  }),
+  exports_external.object({
     type: exports_external.literal("other"),
     message: exports_external.string()
-  })).optional(),
-  providerMetadata: exports_external.record(exports_external.string(), providerMetadataEntrySchema).optional()
+  })
+]), gatewayImageUsageSchema = exports_external.object({
+  inputTokens: exports_external.number().nullish(),
+  outputTokens: exports_external.number().nullish(),
+  totalTokens: exports_external.number().nullish()
+}), gatewayImageResponseSchema = exports_external.object({
+  images: exports_external.array(exports_external.string()),
+  warnings: exports_external.array(gatewayImageWarningSchema).optional(),
+  providerMetadata: exports_external.record(exports_external.string(), providerMetadataEntrySchema).optional(),
+  usage: gatewayImageUsageSchema.optional()
+}), GatewayVideoModel = class {
+  constructor(modelId, config2) {
+    this.modelId = modelId, this.config = config2, this.specificationVersion = "v3", this.maxVideosPerCall = Number.MAX_SAFE_INTEGER;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async doGenerate({
+    prompt,
+    n,
+    aspectRatio,
+    resolution,
+    duration: duration3,
+    fps,
+    seed,
+    image,
+    providerOptions,
+    headers,
+    abortSignal
+  }) {
+    var _a92;
+    let resolvedHeaders = await resolve(this.config.headers());
+    try {
+      let {
+        responseHeaders,
+        value: responseBody,
+        rawValue
+      } = await postJsonToApi({
+        url: this.getUrl(),
+        headers: combineHeaders(resolvedHeaders, headers != null ? headers : {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        body: {
+          prompt,
+          n,
+          ...aspectRatio && { aspectRatio },
+          ...resolution && { resolution },
+          ...duration3 && { duration: duration3 },
+          ...fps && { fps },
+          ...seed && { seed },
+          ...providerOptions && { providerOptions },
+          ...image && { image: maybeEncodeVideoFile(image) }
+        },
+        successfulResponseHandler: createJsonResponseHandler(gatewayVideoResponseSchema),
+        failedResponseHandler: createJsonErrorResponseHandler({
+          errorSchema: exports_external.any(),
+          errorToMessage: (data) => data
+        }),
+        ...abortSignal && { abortSignal },
+        fetch: this.config.fetch
+      });
+      return {
+        videos: responseBody.videos,
+        warnings: (_a92 = responseBody.warnings) != null ? _a92 : [],
+        providerMetadata: responseBody.providerMetadata,
+        response: {
+          timestamp: /* @__PURE__ */ new Date,
+          modelId: this.modelId,
+          headers: responseHeaders
+        }
+      };
+    } catch (error48) {
+      throw await asGatewayError(error48, await parseAuthMethod(resolvedHeaders));
+    }
+  }
+  getUrl() {
+    return `${this.config.baseURL}/video-model`;
+  }
+  getModelConfigHeaders() {
+    return {
+      "ai-video-model-specification-version": "3",
+      "ai-model-id": this.modelId
+    };
+  }
+};
+function maybeEncodeVideoFile(file2) {
+  if (file2.type === "file" && file2.data instanceof Uint8Array)
+    return {
+      ...file2,
+      data: convertUint8ArrayToBase64(file2.data)
+    };
+  return file2;
+}
+var providerMetadataEntrySchema2 = exports_external.object({
+  videos: exports_external.array(exports_external.unknown()).optional()
+}).catchall(exports_external.unknown()), gatewayVideoDataSchema = exports_external.union([
+  exports_external.object({
+    type: exports_external.literal("url"),
+    url: exports_external.string(),
+    mediaType: exports_external.string()
+  }),
+  exports_external.object({
+    type: exports_external.literal("base64"),
+    data: exports_external.string(),
+    mediaType: exports_external.string()
+  })
+]), gatewayVideoWarningSchema = exports_external.discriminatedUnion("type", [
+  exports_external.object({
+    type: exports_external.literal("unsupported"),
+    feature: exports_external.string(),
+    details: exports_external.string().optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("compatibility"),
+    feature: exports_external.string(),
+    details: exports_external.string().optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("other"),
+    message: exports_external.string()
+  })
+]), gatewayVideoResponseSchema = exports_external.object({
+  videos: exports_external.array(gatewayVideoDataSchema),
+  warnings: exports_external.array(gatewayVideoWarningSchema).optional(),
+  providerMetadata: exports_external.record(exports_external.string(), providerMetadataEntrySchema2).optional()
 }), parallelSearchInputSchema = lazySchema(() => zodSchema(exports_external.object({
   objective: exports_external.string().describe("Natural-language description of the web research goal, including source or freshness guidance and broader context from the task. Maximum 5000 characters."),
   search_queries: exports_external.array(exports_external.string()).optional().describe("Optional search queries to supplement the objective. Maximum 200 characters per query."),
@@ -17868,13 +18125,13 @@ var providerMetadataEntrySchema = exports_external.object({
   perplexitySearch
 };
 async function getVercelRequestId() {
-  var _a82;
-  return (_a82 = import_oidc.getContext().headers) == null ? void 0 : _a82["x-vercel-id"];
+  var _a92;
+  return (_a92 = import_oidc.getContext().headers) == null ? void 0 : _a92["x-vercel-id"];
 }
-var VERSION2 = "3.0.32", AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
+var VERSION2 = "3.0.45", AI_GATEWAY_PROTOCOL_VERSION = "0.0.1";
 function createGatewayProvider(options = {}) {
-  var _a82, _b82;
-  let pendingMetadata = null, metadataCache = null, cacheRefreshMillis = (_a82 = options.metadataCacheRefreshMillis) != null ? _a82 : 300000, lastFetchTime = 0, baseURL = (_b82 = withoutTrailingSlash(options.baseURL)) != null ? _b82 : "https://ai-gateway.vercel.sh/v3/ai", getHeaders = async () => {
+  var _a92, _b92;
+  let pendingMetadata = null, metadataCache = null, cacheRefreshMillis = (_a92 = options.metadataCacheRefreshMillis) != null ? _a92 : 300000, lastFetchTime = 0, baseURL = (_b92 = withoutTrailingSlash(options.baseURL)) != null ? _b92 : "https://ai-gateway.vercel.sh/v3/ai", getHeaders = async () => {
     try {
       let auth = await getGatewayAuthToken(options);
       return withUserAgentSuffix({
@@ -17920,8 +18177,8 @@ function createGatewayProvider(options = {}) {
       o11yHeaders: createO11yHeaders()
     });
   }, getAvailableModels = async () => {
-    var _a92, _b92, _c;
-    let now = (_c = (_b92 = (_a92 = options._internal) == null ? void 0 : _a92.currentDate) == null ? void 0 : _b92.call(_a92).getTime()) != null ? _c : Date.now();
+    var _a102, _b102, _c;
+    let now = (_c = (_b102 = (_a102 = options._internal) == null ? void 0 : _a102.currentDate) == null ? void 0 : _b102.call(_a102).getTime()) != null ? _c : Date.now();
     if (!pendingMetadata || now - lastFetchTime > cacheRefreshMillis)
       lastFetchTime = now, pendingMetadata = new GatewayFetchMetadata({
         baseURL,
@@ -17964,7 +18221,15 @@ function createGatewayProvider(options = {}) {
       o11yHeaders: createO11yHeaders()
     });
   };
-  return provider.embeddingModel = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.tools = gatewayTools, provider;
+  return provider.embeddingModel = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.videoModel = (modelId) => {
+    return new GatewayVideoModel(modelId, {
+      provider: "gateway",
+      baseURL,
+      headers: getHeaders,
+      fetch: options.fetch,
+      o11yHeaders: createO11yHeaders()
+    });
+  }, provider.chat = provider.languageModel, provider.embedding = provider.embeddingModel, provider.image = provider.imageModel, provider.video = provider.videoModel, provider.tools = gatewayTools, provider;
 }
 var gateway = createGatewayProvider();
 async function getGatewayAuthToken(options) {
@@ -18641,9 +18906,9 @@ var name63 = "AI_MissingToolResultsError", marker63 = `vercel.ai.error.${name63}
   }
 };
 _a63 = symbol63;
-var name72 = "AI_NoImageGeneratedError", marker73 = `vercel.ai.error.${name72}`, symbol73 = Symbol.for(marker73), _a73;
+var name73 = "AI_NoImageGeneratedError", marker73 = `vercel.ai.error.${name73}`, symbol73 = Symbol.for(marker73), _a73;
 _a73 = symbol73;
-var name82 = "AI_NoObjectGeneratedError", marker82 = `vercel.ai.error.${name82}`, symbol82 = Symbol.for(marker82), _a82, NoObjectGeneratedError = class extends AISDKError {
+var name82 = "AI_NoObjectGeneratedError", marker83 = `vercel.ai.error.${name82}`, symbol83 = Symbol.for(marker83), _a83, NoObjectGeneratedError = class extends AISDKError {
   constructor({
     message = "No object generated.",
     cause,
@@ -18653,13 +18918,13 @@ var name82 = "AI_NoObjectGeneratedError", marker82 = `vercel.ai.error.${name82}`
     finishReason
   }) {
     super({ name: name82, message, cause });
-    this[_a82] = !0, this.text = text2, this.response = response, this.usage = usage, this.finishReason = finishReason;
+    this[_a83] = !0, this.text = text2, this.response = response, this.usage = usage, this.finishReason = finishReason;
   }
   static isInstance(error48) {
-    return AISDKError.hasMarker(error48, marker82);
+    return AISDKError.hasMarker(error48, marker83);
   }
 };
-_a82 = symbol82;
+_a83 = symbol83;
 var name92 = "AI_NoOutputGeneratedError", marker92 = `vercel.ai.error.${name92}`, symbol92 = Symbol.for(marker92), _a92, NoOutputGeneratedError = class extends AISDKError {
   constructor({
     message = "No output generated.",
@@ -19022,12 +19287,17 @@ function detectMediaType({
       return signature.mediaType;
   return;
 }
-var VERSION4 = "6.0.68", download = async ({ url: url2 }) => {
+var VERSION4 = "6.0.85", download = async ({
+  url: url2,
+  maxBytes,
+  abortSignal
+}) => {
   var _a21;
   let urlText = url2.toString();
   try {
     let response = await fetch(urlText, {
-      headers: withUserAgentSuffix({}, `ai-sdk/${VERSION4}`, getRuntimeEnvironmentUserAgent())
+      headers: withUserAgentSuffix({}, `ai-sdk/${VERSION4}`, getRuntimeEnvironmentUserAgent()),
+      signal: abortSignal
     });
     if (!response.ok)
       throw new DownloadError({
@@ -19036,7 +19306,11 @@ var VERSION4 = "6.0.68", download = async ({ url: url2 }) => {
         statusText: response.statusText
       });
     return {
-      data: new Uint8Array(await response.arrayBuffer()),
+      data: await readResponseWithSizeLimit({
+        response,
+        url: urlText,
+        maxBytes: maxBytes != null ? maxBytes : DEFAULT_MAX_DOWNLOAD_SIZE
+      }),
       mediaType: (_a21 = response.headers.get("content-type")) != null ? _a21 : void 0
     };
   } catch (error48) {
@@ -20249,6 +20523,11 @@ async function executeToolCall({
     }
   });
 }
+function extractReasoningContent(content) {
+  let parts = content.filter((content2) => content2.type === "reasoning");
+  return parts.length === 0 ? void 0 : parts.map((content2) => content2.text).join(`
+`);
+}
 function extractTextContent(content) {
   let parts = content.filter((content2) => content2.type === "text");
   if (parts.length === 0)
@@ -21376,6 +21655,9 @@ async function generateText({
                       "ai.response.text": {
                         output: () => extractTextContent(result.content)
                       },
+                      "ai.response.reasoning": {
+                        output: () => extractReasoningContent(result.content)
+                      },
                       "ai.response.toolCalls": {
                         output: () => {
                           let toolCalls = asToolCalls(result.content);
@@ -21509,6 +21791,9 @@ async function generateText({
             "ai.response.finishReason": currentModelResponse.finishReason.unified,
             "ai.response.text": {
               output: () => extractTextContent(currentModelResponse.content)
+            },
+            "ai.response.reasoning": {
+              output: () => extractReasoningContent(currentModelResponse.content)
             },
             "ai.response.toolCalls": {
               output: () => {
@@ -22491,6 +22776,7 @@ function processUIMessageStream({
 function handleUIMessageStreamFinish({
   messageId,
   originalMessages = [],
+  onStepFinish,
   onFinish,
   onError,
   stream
@@ -22512,7 +22798,7 @@ function handleUIMessageStreamFinish({
       controller.enqueue(chunk);
     }
   }));
-  if (onFinish == null)
+  if (onFinish == null && onStepFinish == null)
     return idInjectedStream;
   let state = createStreamingUIMessageState({
     lastMessage: lastMessage ? structuredClone(lastMessage) : void 0,
@@ -22534,13 +22820,31 @@ function handleUIMessageStreamFinish({
       ],
       finishReason: state.finishReason
     });
+  }, callOnStepFinish = async () => {
+    if (!onStepFinish)
+      return;
+    let isContinuation = state.message.id === (lastMessage == null ? void 0 : lastMessage.id);
+    try {
+      await onStepFinish({
+        isContinuation,
+        responseMessage: structuredClone(state.message),
+        messages: [
+          ...isContinuation ? originalMessages.slice(0, -1) : originalMessages,
+          structuredClone(state.message)
+        ]
+      });
+    } catch (error48) {
+      onError(error48);
+    }
   };
   return processUIMessageStream({
     stream: idInjectedStream,
     runUpdateMessageJob,
     onError
   }).pipeThrough(new TransformStream({
-    transform(chunk, controller) {
+    async transform(chunk, controller) {
+      if (chunk.type === "finish-step")
+        await callOnStepFinish();
       controller.enqueue(chunk);
     },
     async cancel() {
@@ -23218,6 +23522,9 @@ var DefaultStreamTextResult = class {
             attributes: {
               "ai.response.finishReason": finishReason,
               "ai.response.text": { output: () => finalStep.text },
+              "ai.response.reasoning": {
+                output: () => finalStep.reasoningText
+              },
               "ai.response.toolCalls": {
                 output: () => {
                   var _a21;
@@ -23650,6 +23957,13 @@ var DefaultStreamTextResult = class {
                       "ai.response.finishReason": stepFinishReason,
                       "ai.response.text": {
                         output: () => activeText
+                      },
+                      "ai.response.reasoning": {
+                        output: () => {
+                          let reasoningParts = recordedContent.filter((c) => c.type === "reasoning");
+                          return reasoningParts.length > 0 ? reasoningParts.map((r) => r.text).join(`
+`) : void 0;
+                        }
                       },
                       "ai.response.toolCalls": {
                         output: () => stepToolCallsJson
@@ -24448,9 +24762,14 @@ var uiMessagesSchema = lazySchema(() => zodSchema(exports_external.array(exports
   ])).nonempty("Message must contain at least one part")
 })).nonempty("Messages array must not be empty")));
 var originalGenerateId3 = createIdGenerator({ prefix: "aiobj", size: 24 });
+function createDownload(options) {
+  return ({ url: url2, abortSignal }) => download({ url: url2, maxBytes: options == null ? void 0 : options.maxBytes, abortSignal });
+}
 var originalGenerateId4 = createIdGenerator({ prefix: "aiobj", size: 24 });
+var defaultDownload = createDownload();
 var name20 = "AI_NoSuchProviderError", marker20 = `vercel.ai.error.${name20}`, symbol20 = Symbol.for(marker20), _a20;
 _a20 = symbol20;
+var defaultDownload2 = createDownload();
 // node_modules/@ai-sdk/mistral/dist/index.mjs
 function convertMistralUsage(usage) {
   if (usage == null)
@@ -24787,7 +25106,7 @@ var MistralChatLanguageModel = class {
     if (choice2.message.content != null && Array.isArray(choice2.message.content)) {
       for (let part of choice2.message.content)
         if (part.type === "thinking") {
-          let reasoningText = extractReasoningContent(part.thinking);
+          let reasoningText = extractReasoningContent2(part.thinking);
           if (reasoningText.length > 0)
             content.push({ type: "reasoning", text: reasoningText });
         } else if (part.type === "text") {
@@ -24860,7 +25179,7 @@ var MistralChatLanguageModel = class {
           if (delta.content != null && Array.isArray(delta.content)) {
             for (let part of delta.content)
               if (part.type === "thinking") {
-                let reasoningDelta = extractReasoningContent(part.thinking);
+                let reasoningDelta = extractReasoningContent2(part.thinking);
                 if (reasoningDelta.length > 0) {
                   if (activeReasoningId == null) {
                     if (activeText)
@@ -24940,7 +25259,7 @@ var MistralChatLanguageModel = class {
     };
   }
 };
-function extractReasoningContent(thinking) {
+function extractReasoningContent2(thinking) {
   return thinking.filter((chunk) => chunk.type === "text").map((chunk) => chunk.text).join("");
 }
 function extractTextContent2(content) {
@@ -25079,7 +25398,7 @@ var mistralContentSchema = exports_external.union([
 }, MistralTextEmbeddingResponseSchema = exports_external.object({
   data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
   usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish()
-}), VERSION5 = "3.0.18";
+}), VERSION5 = "3.0.20";
 function createMistral(options = {}) {
   var _a21;
   let baseURL = (_a21 = withoutTrailingSlash(options.baseURL)) != null ? _a21 : "https://api.mistral.ai/v1", getHeaders = () => withUserAgentSuffix({
@@ -25111,7 +25430,7 @@ function createMistral(options = {}) {
 }
 var mistral = createMistral();
 // node_modules/@ai-sdk/google/dist/index.mjs
-var VERSION6 = "3.0.20", googleErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
+var VERSION6 = "3.0.29", googleErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
   error: exports_external.object({
     code: exports_external.number().nullable(),
     message: exports_external.string(),
@@ -25120,7 +25439,7 @@ var VERSION6 = "3.0.20", googleErrorDataSchema = lazySchema(() => zodSchema(expo
 }))), googleFailedResponseHandler = createJsonErrorResponseHandler({
   errorSchema: googleErrorDataSchema,
   errorToMessage: (data) => data.error.message
-}), googleGenerativeAIEmbeddingProviderOptions = lazySchema(() => zodSchema(exports_external.object({
+}), googleEmbeddingModelOptions = lazySchema(() => zodSchema(exports_external.object({
   outputDimensionality: exports_external.number().optional(),
   taskType: exports_external.enum([
     "SEMANTIC_SIMILARITY",
@@ -25148,7 +25467,7 @@ var VERSION6 = "3.0.20", googleErrorDataSchema = lazySchema(() => zodSchema(expo
     let googleOptions = await parseProviderOptions({
       provider: "google",
       providerOptions,
-      schema: googleGenerativeAIEmbeddingProviderOptions
+      schema: googleEmbeddingModelOptions
     });
     if (values.length > this.maxEmbeddingsPerCall)
       throw new TooManyEmbeddingValuesForCallError({
@@ -25369,8 +25688,8 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
         systemMessagesAllowed = !1, contents.push({
           role: "model",
           parts: content.map((part) => {
-            var _a24;
-            let providerOpts = (_a24 = part.providerOptions) == null ? void 0 : _a24[providerOptionsName], thoughtSignature = (providerOpts == null ? void 0 : providerOpts.thoughtSignature) != null ? String(providerOpts.thoughtSignature) : void 0;
+            var _a24, _b23, _c2;
+            let providerOpts = (_c2 = (_a24 = part.providerOptions) == null ? void 0 : _a24[providerOptionsName]) != null ? _c2 : providerOptionsName !== "google" ? (_b23 = part.providerOptions) == null ? void 0 : _b23.google : void 0, thoughtSignature = (providerOpts == null ? void 0 : providerOpts.thoughtSignature) != null ? String(providerOpts.thoughtSignature) : void 0;
             switch (part.type) {
               case "text":
                 return part.text.length === 0 ? void 0 : {
@@ -25478,7 +25797,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
 function getModelPath(modelId) {
   return modelId.includes("/") ? modelId : `models/${modelId}`;
 }
-var googleGenerativeAIProviderOptions = lazySchema(() => zodSchema(exports_external.object({
+var googleLanguageModelOptions = lazySchema(() => zodSchema(exports_external.object({
   responseModalities: exports_external.array(exports_external.enum(["TEXT", "IMAGE"])).optional(),
   thinkingConfig: exports_external.object({
     thinkingBudget: exports_external.number().optional(),
@@ -25780,13 +26099,13 @@ var GoogleGenerativeAILanguageModel = class {
     let warnings = [], providerOptionsName = this.config.provider.includes("vertex") ? "vertex" : "google", googleOptions = await parseProviderOptions({
       provider: providerOptionsName,
       providerOptions,
-      schema: googleGenerativeAIProviderOptions
+      schema: googleLanguageModelOptions
     });
     if (googleOptions == null && providerOptionsName !== "google")
       googleOptions = await parseProviderOptions({
         provider: "google",
         providerOptions,
-        schema: googleGenerativeAIProviderOptions
+        schema: googleLanguageModelOptions
       });
     if ((tools == null ? void 0 : tools.some((tool2) => tool2.type === "provider" && tool2.id === "google.vertex_rag_store")) && !this.config.provider.startsWith("google.vertex."))
       warnings.push({
@@ -25843,7 +26162,7 @@ var GoogleGenerativeAILanguageModel = class {
     };
   }
   async doGenerate(options) {
-    var _a21, _b16, _c, _d, _e, _f, _g, _h, _i;
+    var _a21, _b16, _c, _d, _e, _f, _g, _h, _i, _j;
     let { args, warnings, providerOptionsName } = await this.getArgs(options), mergedHeaders = combineHeaders(await resolve(this.config.headers), options.headers), {
       responseHeaders,
       value: response,
@@ -25874,20 +26193,27 @@ var GoogleGenerativeAILanguageModel = class {
           toolName: "code_execution",
           result: {
             outcome: part.codeExecutionResult.outcome,
-            output: part.codeExecutionResult.output
+            output: (_d = part.codeExecutionResult.output) != null ? _d : ""
           }
         }), lastCodeExecutionToolCallId = void 0;
-      else if ("text" in part && part.text != null && part.text.length > 0)
-        content.push({
-          type: part.thought === !0 ? "reasoning" : "text",
-          text: part.text,
-          providerMetadata: part.thoughtSignature ? {
-            [providerOptionsName]: {
-              thoughtSignature: part.thoughtSignature
-            }
-          } : void 0
-        });
-      else if ("functionCall" in part)
+      else if ("text" in part && part.text != null) {
+        let thoughtSignatureMetadata = part.thoughtSignature ? {
+          [providerOptionsName]: {
+            thoughtSignature: part.thoughtSignature
+          }
+        } : void 0;
+        if (part.text.length === 0) {
+          if (thoughtSignatureMetadata != null && content.length > 0) {
+            let lastContent = content[content.length - 1];
+            lastContent.providerMetadata = thoughtSignatureMetadata;
+          }
+        } else
+          content.push({
+            type: part.thought === !0 ? "reasoning" : "text",
+            text: part.text,
+            providerMetadata: thoughtSignatureMetadata
+          });
+      } else if ("functionCall" in part)
         content.push({
           type: "tool-call",
           toolCallId: this.config.generateId(),
@@ -25910,10 +26236,10 @@ var GoogleGenerativeAILanguageModel = class {
             }
           } : void 0
         });
-    let sources = (_d = extractSources({
+    let sources = (_e = extractSources({
       groundingMetadata: candidate.groundingMetadata,
       generateId: this.config.generateId
-    })) != null ? _d : [];
+    })) != null ? _e : [];
     for (let source of sources)
       content.push(source);
     return {
@@ -25923,16 +26249,16 @@ var GoogleGenerativeAILanguageModel = class {
           finishReason: candidate.finishReason,
           hasToolCalls: content.some((part) => part.type === "tool-call" && !part.providerExecuted)
         }),
-        raw: (_e = candidate.finishReason) != null ? _e : void 0
+        raw: (_f = candidate.finishReason) != null ? _f : void 0
       },
       usage: convertGoogleGenerativeAIUsage(usageMetadata),
       warnings,
       providerMetadata: {
         [providerOptionsName]: {
-          promptFeedback: (_f = response.promptFeedback) != null ? _f : null,
-          groundingMetadata: (_g = candidate.groundingMetadata) != null ? _g : null,
-          urlContextMetadata: (_h = candidate.urlContextMetadata) != null ? _h : null,
-          safetyRatings: (_i = candidate.safetyRatings) != null ? _i : null,
+          promptFeedback: (_g = response.promptFeedback) != null ? _g : null,
+          groundingMetadata: (_h = candidate.groundingMetadata) != null ? _h : null,
+          urlContextMetadata: (_i = candidate.urlContextMetadata) != null ? _i : null,
+          safetyRatings: (_j = candidate.safetyRatings) != null ? _j : null,
           usageMetadata: usageMetadata != null ? usageMetadata : null
         }
       },
@@ -25962,7 +26288,7 @@ var GoogleGenerativeAILanguageModel = class {
           controller.enqueue({ type: "stream-start", warnings });
         },
         transform(chunk, controller) {
-          var _a21, _b16, _c, _d, _e, _f, _g;
+          var _a21, _b16, _c, _d, _e, _f, _g, _h;
           if (options.includeRawChunks)
             controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
@@ -26005,11 +26331,24 @@ var GoogleGenerativeAILanguageModel = class {
                     toolName: "code_execution",
                     result: {
                       outcome: part.codeExecutionResult.outcome,
-                      output: part.codeExecutionResult.output
+                      output: (_d = part.codeExecutionResult.output) != null ? _d : ""
                     }
                   }), lastCodeExecutionToolCallId = void 0;
-              } else if ("text" in part && part.text != null && part.text.length > 0)
-                if (part.thought === !0) {
+              } else if ("text" in part && part.text != null) {
+                let thoughtSignatureMetadata = part.thoughtSignature ? {
+                  [providerOptionsName]: {
+                    thoughtSignature: part.thoughtSignature
+                  }
+                } : void 0;
+                if (part.text.length === 0) {
+                  if (thoughtSignatureMetadata != null && currentTextBlockId !== null)
+                    controller.enqueue({
+                      type: "text-delta",
+                      id: currentTextBlockId,
+                      delta: "",
+                      providerMetadata: thoughtSignatureMetadata
+                    });
+                } else if (part.thought === !0) {
                   if (currentTextBlockId !== null)
                     controller.enqueue({
                       type: "text-end",
@@ -26019,21 +26358,13 @@ var GoogleGenerativeAILanguageModel = class {
                     currentReasoningBlockId = String(blockCounter++), controller.enqueue({
                       type: "reasoning-start",
                       id: currentReasoningBlockId,
-                      providerMetadata: part.thoughtSignature ? {
-                        [providerOptionsName]: {
-                          thoughtSignature: part.thoughtSignature
-                        }
-                      } : void 0
+                      providerMetadata: thoughtSignatureMetadata
                     });
                   controller.enqueue({
                     type: "reasoning-delta",
                     id: currentReasoningBlockId,
                     delta: part.text,
-                    providerMetadata: part.thoughtSignature ? {
-                      [providerOptionsName]: {
-                        thoughtSignature: part.thoughtSignature
-                      }
-                    } : void 0
+                    providerMetadata: thoughtSignatureMetadata
                   });
                 } else {
                   if (currentReasoningBlockId !== null)
@@ -26045,24 +26376,16 @@ var GoogleGenerativeAILanguageModel = class {
                     currentTextBlockId = String(blockCounter++), controller.enqueue({
                       type: "text-start",
                       id: currentTextBlockId,
-                      providerMetadata: part.thoughtSignature ? {
-                        [providerOptionsName]: {
-                          thoughtSignature: part.thoughtSignature
-                        }
-                      } : void 0
+                      providerMetadata: thoughtSignatureMetadata
                     });
                   controller.enqueue({
                     type: "text-delta",
                     id: currentTextBlockId,
                     delta: part.text,
-                    providerMetadata: part.thoughtSignature ? {
-                      [providerOptionsName]: {
-                        thoughtSignature: part.thoughtSignature
-                      }
-                    } : void 0
+                    providerMetadata: thoughtSignatureMetadata
                   });
                 }
-              else if ("inlineData" in part)
+              } else if ("inlineData" in part)
                 controller.enqueue({
                   type: "file",
                   mediaType: part.inlineData.mimeType,
@@ -26106,10 +26429,10 @@ var GoogleGenerativeAILanguageModel = class {
               raw: candidate.finishReason
             }, providerMetadata = {
               [providerOptionsName]: {
-                promptFeedback: (_d = value.promptFeedback) != null ? _d : null,
-                groundingMetadata: (_e = candidate.groundingMetadata) != null ? _e : null,
-                urlContextMetadata: (_f = candidate.urlContextMetadata) != null ? _f : null,
-                safetyRatings: (_g = candidate.safetyRatings) != null ? _g : null
+                promptFeedback: (_e = value.promptFeedback) != null ? _e : null,
+                groundingMetadata: (_f = candidate.groundingMetadata) != null ? _f : null,
+                urlContextMetadata: (_g = candidate.urlContextMetadata) != null ? _g : null,
+                safetyRatings: (_h = candidate.safetyRatings) != null ? _h : null
               }
             }, usageMetadata != null)
               providerMetadata[providerOptionsName].usageMetadata = usageMetadata;
@@ -26289,7 +26612,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
       }).nullish(),
       codeExecutionResult: exports_external.object({
         outcome: exports_external.string(),
-        output: exports_external.string()
+        output: exports_external.string().nullish()
       }).nullish(),
       text: exports_external.string().nullish(),
       thought: exports_external.boolean().nullish(),
@@ -26392,13 +26715,21 @@ var getGroundingMetadataSchema = () => exports_external.object({
     this.modelId = modelId, this.settings = settings, this.config = config2, this.specificationVersion = "v3";
   }
   get maxImagesPerCall() {
-    var _a21;
-    return (_a21 = this.settings.maxImagesPerCall) != null ? _a21 : 4;
+    if (this.settings.maxImagesPerCall != null)
+      return this.settings.maxImagesPerCall;
+    if (isGeminiModel(this.modelId))
+      return 10;
+    return 4;
   }
   get provider() {
     return this.config.provider;
   }
   async doGenerate(options) {
+    if (isGeminiModel(this.modelId))
+      return this.doGenerateGemini(options);
+    return this.doGenerateImagen(options);
+  }
+  async doGenerateImagen(options) {
     var _a21, _b16, _c;
     let {
       prompt,
@@ -26413,7 +26744,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
       mask
     } = options, warnings = [];
     if (files != null && files.length > 0)
-      throw Error("Google Generative AI does not support image editing. Use Google Vertex AI (@ai-sdk/google-vertex) for image editing capabilities.");
+      throw Error("Google Generative AI does not support image editing with Imagen models. Use Google Vertex AI (@ai-sdk/google-vertex) for image editing capabilities.");
     if (mask != null)
       throw Error("Google Generative AI does not support image editing with masks. Use Google Vertex AI (@ai-sdk/google-vertex) for image editing capabilities.");
     if (size != null)
@@ -26431,7 +26762,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
     let googleOptions = await parseProviderOptions({
       provider: "google",
       providerOptions,
-      schema: googleImageProviderOptionsSchema
+      schema: googleImageModelOptionsSchema
     }), currentDate = (_c = (_b16 = (_a21 = this.config._internal) == null ? void 0 : _a21.currentDate) == null ? void 0 : _b16.call(_a21)) != null ? _c : /* @__PURE__ */ new Date, parameters = {
       sampleCount: n
     };
@@ -26453,10 +26784,10 @@ var getGroundingMetadataSchema = () => exports_external.object({
     });
     return {
       images: response.predictions.map((p) => p.bytesBase64Encoded),
-      warnings: warnings != null ? warnings : [],
+      warnings,
       providerMetadata: {
         google: {
-          images: response.predictions.map((prediction) => ({}))
+          images: response.predictions.map(() => ({}))
         }
       },
       response: {
@@ -26466,9 +26797,100 @@ var getGroundingMetadataSchema = () => exports_external.object({
       }
     };
   }
-}, googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+  async doGenerateGemini(options) {
+    var _a21, _b16, _c, _d, _e, _f, _g, _h, _i;
+    let {
+      prompt,
+      n,
+      size,
+      aspectRatio,
+      seed,
+      providerOptions,
+      headers,
+      abortSignal,
+      files,
+      mask
+    } = options, warnings = [];
+    if (mask != null)
+      throw Error("Gemini image models do not support mask-based image editing.");
+    if (n != null && n > 1)
+      throw Error("Gemini image models do not support generating a set number of images per call. Use n=1 or omit the n parameter.");
+    if (size != null)
+      warnings.push({
+        type: "unsupported",
+        feature: "size",
+        details: "This model does not support the `size` option. Use `aspectRatio` instead."
+      });
+    let userContent = [];
+    if (prompt != null)
+      userContent.push({ type: "text", text: prompt });
+    if (files != null && files.length > 0)
+      for (let file2 of files)
+        if (file2.type === "url")
+          userContent.push({
+            type: "file",
+            data: new URL(file2.url),
+            mediaType: "image/*"
+          });
+        else
+          userContent.push({
+            type: "file",
+            data: typeof file2.data === "string" ? file2.data : new Uint8Array(file2.data),
+            mediaType: file2.mediaType
+          });
+    let languageModelPrompt = [
+      { role: "user", content: userContent }
+    ], result = await new GoogleGenerativeAILanguageModel(this.modelId, {
+      provider: this.config.provider,
+      baseURL: this.config.baseURL,
+      headers: (_a21 = this.config.headers) != null ? _a21 : {},
+      fetch: this.config.fetch,
+      generateId: (_b16 = this.config.generateId) != null ? _b16 : generateId
+    }).doGenerate({
+      prompt: languageModelPrompt,
+      seed,
+      providerOptions: {
+        google: {
+          responseModalities: ["IMAGE"],
+          imageConfig: aspectRatio ? {
+            aspectRatio
+          } : void 0,
+          ...(_c = providerOptions == null ? void 0 : providerOptions.google) != null ? _c : {}
+        }
+      },
+      headers,
+      abortSignal
+    }), currentDate = (_f = (_e = (_d = this.config._internal) == null ? void 0 : _d.currentDate) == null ? void 0 : _e.call(_d)) != null ? _f : /* @__PURE__ */ new Date, images = [];
+    for (let part of result.content)
+      if (part.type === "file" && part.mediaType.startsWith("image/"))
+        images.push(convertToBase64(part.data));
+    return {
+      images,
+      warnings,
+      providerMetadata: {
+        google: {
+          images: images.map(() => ({}))
+        }
+      },
+      response: {
+        timestamp: currentDate,
+        modelId: this.modelId,
+        headers: (_g = result.response) == null ? void 0 : _g.headers
+      },
+      usage: result.usage ? {
+        inputTokens: result.usage.inputTokens.total,
+        outputTokens: result.usage.outputTokens.total,
+        totalTokens: ((_h = result.usage.inputTokens.total) != null ? _h : 0) + ((_i = result.usage.outputTokens.total) != null ? _i : 0)
+      } : void 0
+    };
+  }
+};
+function isGeminiModel(modelId) {
+  return modelId.startsWith("gemini-");
+}
+var googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.object({
   predictions: exports_external.array(exports_external.object({ bytesBase64Encoded: exports_external.string() })).default([])
-}))), googleImageProviderOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), googleImageModelOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
   personGeneration: exports_external.enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
   aspectRatio: exports_external.enum(["1:1", "3:4", "4:3", "9:16", "16:9"]).nullish()
 }))), GoogleGenerativeAIVideoModel = class {
@@ -26486,7 +26908,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
     let currentDate = (_c = (_b16 = (_a21 = this.config._internal) == null ? void 0 : _a21.currentDate) == null ? void 0 : _b16.call(_a21)) != null ? _c : /* @__PURE__ */ new Date, warnings = [], googleOptions = await parseProviderOptions({
       provider: "google",
       providerOptions: options.providerOptions,
-      schema: googleVideoProviderOptionsSchema
+      schema: googleVideoModelOptionsSchema
     }), instances = [{}], instance = instances[0];
     if (options.prompt != null)
       instance.prompt = options.prompt;
@@ -26653,7 +27075,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
       })).nullish()
     }).nullish()
   }).nullish()
-}), googleVideoProviderOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
+}), googleVideoModelOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
   pollIntervalMs: exports_external.number().positive().nullish(),
   pollTimeoutMs: exports_external.number().positive().nullish(),
   personGeneration: exports_external.enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
@@ -26712,7 +27134,7 @@ function createGoogleGenerativeAI(options = {}) {
       throw Error("The Google Generative AI model function cannot be called with the new keyword.");
     return createChatModel(modelId);
   };
-  return provider.specificationVersion = "v3", provider.languageModel = createChatModel, provider.chat = createChatModel, provider.generativeAI = createChatModel, provider.embedding = createEmbeddingModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbedding = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.image = createImageModel, provider.imageModel = createImageModel, provider.video = createVideoModel, provider.tools = googleTools, provider;
+  return provider.specificationVersion = "v3", provider.languageModel = createChatModel, provider.chat = createChatModel, provider.generativeAI = createChatModel, provider.embedding = createEmbeddingModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbedding = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.image = createImageModel, provider.imageModel = createImageModel, provider.video = createVideoModel, provider.videoModel = createVideoModel, provider.tools = googleTools, provider;
 }
 var google = createGoogleGenerativeAI();
 // node_modules/@ai-sdk/openai/dist/index.mjs
@@ -27064,7 +27486,7 @@ var openaiChatResponseSchema = lazySchema(() => zodSchema(exports_external.objec
     }).nullish()
   }),
   openaiErrorDataSchema
-]))), openaiChatLanguageModelOptions = lazySchema(() => zodSchema(exports_external.object({
+]))), openaiLanguageModelChatOptions = lazySchema(() => zodSchema(exports_external.object({
   logitBias: exports_external.record(exports_external.coerce.number(), exports_external.number()).optional(),
   logprobs: exports_external.union([exports_external.boolean(), exports_external.number()]).optional(),
   parallelToolCalls: exports_external.boolean().optional(),
@@ -27165,7 +27587,7 @@ var OpenAIChatLanguageModel = class {
     let warnings = [], openaiOptions = (_a21 = await parseProviderOptions({
       provider: "openai",
       providerOptions,
-      schema: openaiChatLanguageModelOptions
+      schema: openaiLanguageModelChatOptions
     })) != null ? _a21 : {}, modelCapabilities = getOpenAILanguageModelCapabilities(this.modelId), isReasoningModel = (_b16 = openaiOptions.forceReasoning) != null ? _b16 : modelCapabilities.isReasoningModel;
     if (topK != null)
       warnings.push({ type: "unsupported", feature: "topK" });
@@ -27685,7 +28107,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
     }).nullish()
   }),
   openaiErrorDataSchema
-]))), openaiCompletionProviderOptions = lazySchema(() => zodSchema(exports_external.object({
+]))), openaiLanguageModelCompletionOptions = lazySchema(() => zodSchema(exports_external.object({
   echo: exports_external.boolean().optional(),
   logitBias: exports_external.record(exports_external.string(), exports_external.number()).optional(),
   suffix: exports_external.string().optional(),
@@ -27720,12 +28142,12 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
       ...await parseProviderOptions({
         provider: "openai",
         providerOptions,
-        schema: openaiCompletionProviderOptions
+        schema: openaiLanguageModelCompletionOptions
       }),
       ...await parseProviderOptions({
         provider: this.providerOptionsName,
         providerOptions,
-        schema: openaiCompletionProviderOptions
+        schema: openaiLanguageModelCompletionOptions
       })
     };
     if (topK != null)
@@ -27874,7 +28296,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
       response: { headers: responseHeaders }
     };
   }
-}, openaiEmbeddingProviderOptions = lazySchema(() => zodSchema(exports_external.object({
+}, openaiEmbeddingModelOptions = lazySchema(() => zodSchema(exports_external.object({
   dimensions: exports_external.number().optional(),
   user: exports_external.string().optional()
 }))), openaiTextEmbeddingResponseSchema = lazySchema(() => zodSchema(exports_external.object({
@@ -27904,7 +28326,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
     let openaiOptions = (_a21 = await parseProviderOptions({
       provider: "openai",
       providerOptions,
-      schema: openaiEmbeddingProviderOptions
+      schema: openaiEmbeddingModelOptions
     })) != null ? _a21 : {}, {
       responseHeaders,
       value: response,
@@ -29469,7 +29891,7 @@ var openaiResponsesChunkSchema = lazySchema(() => zodSchema(exports_external.uni
   "chatgpt-4o-latest",
   "gpt-5-chat-latest",
   ...openaiResponsesReasoningModelIds
-], openaiResponsesProviderOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
+], openaiLanguageModelResponsesOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
   conversation: exports_external.string().nullish(),
   include: exports_external.array(exports_external.enum([
     "reasoning.encrypted_content",
@@ -29722,13 +30144,13 @@ var OpenAIResponsesLanguageModel = class {
     let providerOptionsName = this.config.provider.includes("azure") ? "azure" : "openai", openaiOptions = await parseProviderOptions({
       provider: providerOptionsName,
       providerOptions,
-      schema: openaiResponsesProviderOptionsSchema
+      schema: openaiLanguageModelResponsesOptionsSchema
     });
     if (openaiOptions == null && providerOptionsName !== "openai")
       openaiOptions = await parseProviderOptions({
         provider: "openai",
         providerOptions,
-        schema: openaiResponsesProviderOptionsSchema
+        schema: openaiLanguageModelResponsesOptionsSchema
       });
     let isReasoningModel = (_a21 = openaiOptions == null ? void 0 : openaiOptions.forceReasoning) != null ? _a21 : modelCapabilities.isReasoningModel;
     if ((openaiOptions == null ? void 0 : openaiOptions.conversation) && (openaiOptions == null ? void 0 : openaiOptions.previousResponseId))
@@ -30941,7 +31363,7 @@ function mapWebSearchOutput(action) {
 function escapeJSONDelta(delta) {
   return JSON.stringify(delta).slice(1, -1);
 }
-var openaiSpeechProviderOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
+var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
   instructions: exports_external.string().nullish(),
   speed: exports_external.number().min(0.25).max(4).default(1).nullish()
 }))), OpenAISpeechModel = class {
@@ -30963,7 +31385,7 @@ var openaiSpeechProviderOptionsSchema = lazySchema(() => zodSchema(exports_exter
     let warnings = [], openAIOptions = await parseProviderOptions({
       provider: "openai",
       providerOptions,
-      schema: openaiSpeechProviderOptionsSchema
+      schema: openaiSpeechModelOptionsSchema
     }), requestBody = {
       model: this.modelId,
       input: text2,
@@ -31053,7 +31475,7 @@ var openaiSpeechProviderOptionsSchema = lazySchema(() => zodSchema(exports_exter
     compression_ratio: exports_external.number(),
     no_speech_prob: exports_external.number()
   })).nullish()
-}))), openAITranscriptionProviderOptions = lazySchema(() => zodSchema(exports_external.object({
+}))), openAITranscriptionModelOptions = lazySchema(() => zodSchema(exports_external.object({
   include: exports_external.array(exports_external.string()).optional(),
   language: exports_external.string().optional(),
   prompt: exports_external.string().optional(),
@@ -31132,7 +31554,7 @@ var openaiSpeechProviderOptionsSchema = lazySchema(() => zodSchema(exports_exter
     let warnings = [], openAIOptions = await parseProviderOptions({
       provider: "openai",
       providerOptions,
-      schema: openAITranscriptionProviderOptions
+      schema: openAITranscriptionModelOptions
     }), formData = new FormData, blob = audio instanceof Uint8Array ? new Blob([audio]) : new Blob([convertBase64ToUint8Array(audio)]);
     formData.append("model", this.modelId);
     let fileExtension = mediaTypeToExtension(mediaType);
@@ -31201,7 +31623,7 @@ var openaiSpeechProviderOptionsSchema = lazySchema(() => zodSchema(exports_exter
       }
     };
   }
-}, VERSION7 = "3.0.25";
+}, VERSION7 = "3.0.28";
 function createOpenAI(options = {}) {
   var _a21, _b16;
   let baseURL = (_a21 = withoutTrailingSlash(loadOptionalSetting({
@@ -31265,7 +31687,7 @@ function createOpenAI(options = {}) {
 }
 var openai = createOpenAI();
 // node_modules/@ai-sdk/anthropic/dist/index.mjs
-var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
+var VERSION8 = "3.0.43", anthropicErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
   type: exports_external.literal("error"),
   error: exports_external.object({
     type: exports_external.string(),
@@ -31316,6 +31738,10 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
     exports_external.object({
       type: exports_external.literal("redacted_thinking"),
       data: exports_external.string()
+    }),
+    exports_external.object({
+      type: exports_external.literal("compaction"),
+      content: exports_external.string()
     }),
     exports_external.object({
       type: exports_external.literal("tool_use"),
@@ -31497,7 +31923,12 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
     input_tokens: exports_external.number(),
     output_tokens: exports_external.number(),
     cache_creation_input_tokens: exports_external.number().nullish(),
-    cache_read_input_tokens: exports_external.number().nullish()
+    cache_read_input_tokens: exports_external.number().nullish(),
+    iterations: exports_external.array(exports_external.object({
+      type: exports_external.union([exports_external.literal("compaction"), exports_external.literal("message")]),
+      input_tokens: exports_external.number(),
+      output_tokens: exports_external.number()
+    })).nullish()
   }),
   container: exports_external.object({
     expires_at: exports_external.string(),
@@ -31519,6 +31950,9 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
         type: exports_external.literal("clear_thinking_20251015"),
         cleared_thinking_turns: exports_external.number(),
         cleared_input_tokens: exports_external.number()
+      }),
+      exports_external.object({
+        type: exports_external.literal("compact_20260112")
       })
     ]))
   }).nullish()
@@ -31588,6 +32022,10 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
       exports_external.object({
         type: exports_external.literal("redacted_thinking"),
         data: exports_external.string()
+      }),
+      exports_external.object({
+        type: exports_external.literal("compaction"),
+        content: exports_external.string().nullish()
       }),
       exports_external.object({
         type: exports_external.literal("server_tool_use"),
@@ -31770,6 +32208,10 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
         signature: exports_external.string()
       }),
       exports_external.object({
+        type: exports_external.literal("compaction_delta"),
+        content: exports_external.string()
+      }),
+      exports_external.object({
         type: exports_external.literal("citations_delta"),
         citation: exports_external.discriminatedUnion("type", [
           exports_external.object({
@@ -31832,7 +32274,12 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
       input_tokens: exports_external.number().nullish(),
       output_tokens: exports_external.number(),
       cache_creation_input_tokens: exports_external.number().nullish(),
-      cache_read_input_tokens: exports_external.number().nullish()
+      cache_read_input_tokens: exports_external.number().nullish(),
+      iterations: exports_external.array(exports_external.object({
+        type: exports_external.union([exports_external.literal("compaction"), exports_external.literal("message")]),
+        input_tokens: exports_external.number(),
+        output_tokens: exports_external.number()
+      })).nullish()
     }),
     context_management: exports_external.object({
       applied_edits: exports_external.array(exports_external.union([
@@ -31845,6 +32292,9 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
           type: exports_external.literal("clear_thinking_20251015"),
           cleared_thinking_turns: exports_external.number(),
           cleared_input_tokens: exports_external.number()
+        }),
+        exports_external.object({
+          type: exports_external.literal("compact_20260112")
         })
       ]))
     }).nullish()
@@ -31864,13 +32314,21 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
   }).optional(),
   title: exports_external.string().optional(),
   context: exports_external.string().optional()
-}), anthropicProviderOptions = exports_external.object({
+}), anthropicLanguageModelOptions = exports_external.object({
   sendReasoning: exports_external.boolean().optional(),
   structuredOutputMode: exports_external.enum(["outputFormat", "jsonTool", "auto"]).optional(),
-  thinking: exports_external.object({
-    type: exports_external.union([exports_external.literal("enabled"), exports_external.literal("disabled")]),
-    budgetTokens: exports_external.number().optional()
-  }).optional(),
+  thinking: exports_external.discriminatedUnion("type", [
+    exports_external.object({
+      type: exports_external.literal("adaptive")
+    }),
+    exports_external.object({
+      type: exports_external.literal("enabled"),
+      budgetTokens: exports_external.number().optional()
+    }),
+    exports_external.object({
+      type: exports_external.literal("disabled")
+    })
+  ]).optional(),
   disableParallelToolUse: exports_external.boolean().optional(),
   cacheControl: exports_external.object({
     type: exports_external.literal("ephemeral"),
@@ -31895,7 +32353,8 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
     })).optional()
   }).optional(),
   toolStreaming: exports_external.boolean().optional(),
-  effort: exports_external.enum(["low", "medium", "high"]).optional(),
+  effort: exports_external.enum(["low", "medium", "high", "max"]).optional(),
+  speed: exports_external.literal("fast").optional(),
   contextManagement: exports_external.object({
     edits: exports_external.array(exports_external.discriminatedUnion("type", [
       exports_external.object({
@@ -31930,6 +32389,15 @@ var VERSION8 = "3.0.35", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
             value: exports_external.number()
           })
         ]).optional()
+      }),
+      exports_external.object({
+        type: exports_external.literal("compact_20260112"),
+        trigger: exports_external.object({
+          type: exports_external.literal("input_tokens"),
+          value: exports_external.number()
+        }).optional(),
+        pauseAfterCompaction: exports_external.boolean().optional(),
+        instructions: exports_external.string().optional()
       })
     ]))
   }).optional()
@@ -32309,9 +32777,20 @@ async function prepareTools3({
       });
   }
 }
-function convertAnthropicMessagesUsage(usage) {
+function convertAnthropicMessagesUsage({
+  usage,
+  rawUsage
+}) {
   var _a21, _b16;
-  let { input_tokens: inputTokens, output_tokens: outputTokens } = usage, cacheCreationTokens = (_a21 = usage.cache_creation_input_tokens) != null ? _a21 : 0, cacheReadTokens = (_b16 = usage.cache_read_input_tokens) != null ? _b16 : 0;
+  let cacheCreationTokens = (_a21 = usage.cache_creation_input_tokens) != null ? _a21 : 0, cacheReadTokens = (_b16 = usage.cache_read_input_tokens) != null ? _b16 : 0, inputTokens, outputTokens;
+  if (usage.iterations && usage.iterations.length > 0) {
+    let totals = usage.iterations.reduce((acc, iter) => ({
+      input: acc.input + iter.input_tokens,
+      output: acc.output + iter.output_tokens
+    }), { input: 0, output: 0 });
+    inputTokens = totals.input, outputTokens = totals.output;
+  } else
+    inputTokens = usage.input_tokens, outputTokens = usage.output_tokens;
   return {
     inputTokens: {
       total: inputTokens + cacheCreationTokens + cacheReadTokens,
@@ -32324,7 +32803,7 @@ function convertAnthropicMessagesUsage(usage) {
       text: void 0,
       reasoning: void 0
     },
-    raw: usage
+    raw: rawUsage != null ? rawUsage : usage
   };
 }
 var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_external.object({
@@ -32472,7 +32951,7 @@ async function convertToAnthropicMessagesPrompt({
   cacheControlValidator,
   toolNameMapping
 }) {
-  var _a21, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
+  var _a21, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
   let betas = /* @__PURE__ */ new Set, blocks = groupIntoBlocks(prompt), validator = cacheControlValidator || new CacheControlValidator, system = void 0, messages = [];
   async function shouldEnableCitations(providerMetadata) {
     var _a24, _b23;
@@ -32613,6 +33092,7 @@ async function convertToAnthropicMessagesPrompt({
                 switch (output.type) {
                   case "content":
                     contentValue = output.value.map((contentPart) => {
+                      var _a24;
                       switch (contentPart.type) {
                         case "text":
                           return {
@@ -32657,6 +33137,19 @@ async function convertToAnthropicMessagesPrompt({
                           warnings.push({
                             type: "other",
                             message: `unsupported tool content part type: ${contentPart.type} with media type: ${contentPart.mediaType}`
+                          });
+                          return;
+                        }
+                        case "custom": {
+                          let anthropicOptions = (_a24 = contentPart.providerOptions) == null ? void 0 : _a24.anthropic;
+                          if ((anthropicOptions == null ? void 0 : anthropicOptions.type) === "tool-reference")
+                            return {
+                              type: "tool_reference",
+                              tool_name: anthropicOptions.toolName
+                            };
+                          warnings.push({
+                            type: "other",
+                            message: "unsupported custom tool content part"
                           });
                           return;
                         }
@@ -32714,11 +33207,19 @@ async function convertToAnthropicMessagesPrompt({
             }) : void 0;
             switch (part.type) {
               case "text": {
-                anthropicContent.push({
-                  type: "text",
-                  text: isLastBlock && isLastMessage && isLastContentPart ? part.text.trim() : part.text,
-                  cache_control: cacheControl
-                });
+                let textMetadata = (_g = part.providerOptions) == null ? void 0 : _g.anthropic;
+                if ((textMetadata == null ? void 0 : textMetadata.type) === "compaction")
+                  anthropicContent.push({
+                    type: "compaction",
+                    content: part.text,
+                    cache_control: cacheControl
+                  });
+                else
+                  anthropicContent.push({
+                    type: "text",
+                    text: isLastBlock && isLastMessage && isLastContentPart ? part.text.trim() : part.text,
+                    cache_control: cacheControl
+                  });
                 break;
               }
               case "reasoning": {
@@ -32766,9 +33267,9 @@ async function convertToAnthropicMessagesPrompt({
               case "tool-call": {
                 if (part.providerExecuted) {
                   let providerToolName = toolNameMapping.toProviderToolName(part.toolName);
-                  if (((_h = (_g = part.providerOptions) == null ? void 0 : _g.anthropic) == null ? void 0 : _h.type) === "mcp-tool-use") {
+                  if (((_i = (_h = part.providerOptions) == null ? void 0 : _h.anthropic) == null ? void 0 : _i.type) === "mcp-tool-use") {
                     mcpToolUseIds.add(part.toolCallId);
-                    let serverName = (_j = (_i = part.providerOptions) == null ? void 0 : _i.anthropic) == null ? void 0 : _j.serverName;
+                    let serverName = (_k = (_j = part.providerOptions) == null ? void 0 : _j.anthropic) == null ? void 0 : _k.serverName;
                     if (serverName == null || typeof serverName !== "string") {
                       warnings.push({
                         type: "other",
@@ -32824,7 +33325,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                   break;
                 }
-                let callerOptions = (_k = part.providerOptions) == null ? void 0 : _k.anthropic, caller = (callerOptions == null ? void 0 : callerOptions.caller) ? callerOptions.caller.type === "code_execution_20250825" && callerOptions.caller.toolId ? {
+                let callerOptions = (_l = part.providerOptions) == null ? void 0 : _l.anthropic, caller = (callerOptions == null ? void 0 : callerOptions.caller) ? callerOptions.caller.type === "code_execution_20250825" && callerOptions.caller.toolId ? {
                   type: "code_execution_20250825",
                   tool_id: callerOptions.caller.toolId
                 } : callerOptions.caller.type === "direct" ? { type: "direct" } : void 0 : void 0;
@@ -32872,7 +33373,7 @@ async function convertToAnthropicMessagesPrompt({
                         tool_use_id: part.toolCallId,
                         content: {
                           type: "code_execution_tool_result_error",
-                          error_code: (_l = errorInfo.errorCode) != null ? _l : "unknown"
+                          error_code: (_m = errorInfo.errorCode) != null ? _m : "unknown"
                         },
                         cache_control: cacheControl
                       });
@@ -32883,7 +33384,7 @@ async function convertToAnthropicMessagesPrompt({
                         cache_control: cacheControl,
                         content: {
                           type: "bash_code_execution_tool_result_error",
-                          error_code: (_m = errorInfo.errorCode) != null ? _m : "unknown"
+                          error_code: (_n = errorInfo.errorCode) != null ? _n : "unknown"
                         }
                       });
                     break;
@@ -32915,7 +33416,7 @@ async function convertToAnthropicMessagesPrompt({
                         stdout: codeExecutionOutput.stdout,
                         stderr: codeExecutionOutput.stderr,
                         return_code: codeExecutionOutput.return_code,
-                        content: (_n = codeExecutionOutput.content) != null ? _n : []
+                        content: (_o = codeExecutionOutput.content) != null ? _o : []
                       },
                       cache_control: cacheControl
                     });
@@ -32933,7 +33434,7 @@ async function convertToAnthropicMessagesPrompt({
                           stdout: codeExecutionOutput.stdout,
                           stderr: codeExecutionOutput.stderr,
                           return_code: codeExecutionOutput.return_code,
-                          content: (_o = codeExecutionOutput.content) != null ? _o : []
+                          content: (_p = codeExecutionOutput.content) != null ? _p : []
                         },
                         cache_control: cacheControl
                       });
@@ -32964,7 +33465,7 @@ async function convertToAnthropicMessagesPrompt({
                       else if (typeof output.value === "object" && output.value !== null)
                         errorValue = output.value;
                     } catch (e) {
-                      let extractedErrorCode = (_p = output.value) == null ? void 0 : _p.errorCode;
+                      let extractedErrorCode = (_q = output.value) == null ? void 0 : _q.errorCode;
                       errorValue = {
                         errorCode: typeof extractedErrorCode === "string" ? extractedErrorCode : "unknown"
                       };
@@ -32974,7 +33475,7 @@ async function convertToAnthropicMessagesPrompt({
                       tool_use_id: part.toolCallId,
                       content: {
                         type: "web_fetch_tool_result_error",
-                        error_code: (_q = errorValue.errorCode) != null ? _q : "unknown"
+                        error_code: (_r = errorValue.errorCode) != null ? _r : "unknown"
                       },
                       cache_control: cacheControl
                     });
@@ -33139,6 +33640,8 @@ function mapAnthropicStopReason({
     case "max_tokens":
     case "model_context_window_exceeded":
       return "length";
+    case "compaction":
+      return "other";
     default:
       return "other";
   }
@@ -33252,11 +33755,11 @@ var AnthropicMessagesLanguageModel = class {
     let providerOptionsName = this.providerOptionsName, canonicalOptions = await parseProviderOptions({
       provider: "anthropic",
       providerOptions,
-      schema: anthropicProviderOptions
+      schema: anthropicLanguageModelOptions
     }), customProviderOptions = providerOptionsName !== "anthropic" ? await parseProviderOptions({
       provider: providerOptionsName,
       providerOptions,
-      schema: anthropicProviderOptions
+      schema: anthropicLanguageModelOptions
     }) : null, usedCustomProviderKey = customProviderOptions != null, anthropicOptions = Object.assign({}, canonicalOptions != null ? canonicalOptions : {}, customProviderOptions != null ? customProviderOptions : {}), {
       maxOutputTokens: maxOutputTokensForModel,
       supportsStructuredOutput: modelSupportsStructuredOutput,
@@ -33291,7 +33794,7 @@ var AnthropicMessagesLanguageModel = class {
       warnings,
       cacheControlValidator,
       toolNameMapping
-    }), isThinking = ((_d = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _d.type) === "enabled", thinkingBudget = (_e = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _e.budgetTokens, maxTokens = maxOutputTokens != null ? maxOutputTokens : maxOutputTokensForModel, baseArgs = {
+    }), thinkingType = (_d = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _d.type, isThinking = thinkingType === "enabled" || thinkingType === "adaptive", thinkingBudget = thinkingType === "enabled" ? (_e = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _e.budgetTokens : void 0, maxTokens = maxOutputTokens != null ? maxOutputTokens : maxOutputTokensForModel, baseArgs = {
       model: this.modelId,
       max_tokens: maxTokens,
       temperature,
@@ -33299,10 +33802,16 @@ var AnthropicMessagesLanguageModel = class {
       top_p: topP,
       stop_sequences: stopSequences,
       ...isThinking && {
-        thinking: { type: "enabled", budget_tokens: thinkingBudget }
+        thinking: {
+          type: thinkingType,
+          ...thinkingBudget != null && { budget_tokens: thinkingBudget }
+        }
       },
       ...(anthropicOptions == null ? void 0 : anthropicOptions.effort) && {
         output_config: { effort: anthropicOptions.effort }
+      },
+      ...(anthropicOptions == null ? void 0 : anthropicOptions.speed) && {
+        speed: anthropicOptions.speed
       },
       ...useStructuredOutput && (responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && {
         output_format: {
@@ -33361,6 +33870,19 @@ var AnthropicMessagesLanguageModel = class {
                   type: edit.type,
                   ...edit.keep !== void 0 && { keep: edit.keep }
                 };
+              case "compact_20260112":
+                return {
+                  type: edit.type,
+                  ...edit.trigger !== void 0 && {
+                    trigger: edit.trigger
+                  },
+                  ...edit.pauseAfterCompaction !== void 0 && {
+                    pause_after_compaction: edit.pauseAfterCompaction
+                  },
+                  ...edit.instructions !== void 0 && {
+                    instructions: edit.instructions
+                  }
+                };
               default:
                 warnings.push({
                   type: "other",
@@ -33373,7 +33895,7 @@ var AnthropicMessagesLanguageModel = class {
       }
     };
     if (isThinking) {
-      if (thinkingBudget == null)
+      if (thinkingType === "enabled" && thinkingBudget == null)
         warnings.push({
           type: "compatibility",
           feature: "extended thinking",
@@ -33418,8 +33940,10 @@ var AnthropicMessagesLanguageModel = class {
     }
     if ((anthropicOptions == null ? void 0 : anthropicOptions.mcpServers) && anthropicOptions.mcpServers.length > 0)
       betas.add("mcp-client-2025-04-04");
-    if (contextManagement)
-      betas.add("context-management-2025-06-27");
+    if (contextManagement) {
+      if (betas.add("context-management-2025-06-27"), contextManagement.edits.some((e) => e.type === "compact_20260112"))
+        betas.add("compact-2026-01-12");
+    }
     if ((anthropicOptions == null ? void 0 : anthropicOptions.container) && anthropicOptions.container.skills && anthropicOptions.container.skills.length > 0) {
       if (betas.add("code-execution-2025-08-25"), betas.add("skills-2025-10-02"), betas.add("files-api-2025-04-14"), !(tools == null ? void 0 : tools.some((tool2) => tool2.type === "provider" && tool2.id === "anthropic.code_execution_20250825")))
         warnings.push({
@@ -33429,6 +33953,8 @@ var AnthropicMessagesLanguageModel = class {
     }
     if (anthropicOptions == null ? void 0 : anthropicOptions.effort)
       betas.add("effort-2025-11-24");
+    if (anthropicOptions == null ? void 0 : anthropicOptions.speed)
+      betas.add("fast-mode-2026-02-01");
     if (stream && ((_f = anthropicOptions == null ? void 0 : anthropicOptions.toolStreaming) != null ? _f : !0))
       betas.add("fine-grained-tool-streaming-2025-05-14");
     if (useStructuredOutput && (responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null)
@@ -33569,6 +34095,18 @@ var AnthropicMessagesLanguageModel = class {
             providerMetadata: {
               anthropic: {
                 redactedData: part.data
+              }
+            }
+          });
+          break;
+        }
+        case "compaction": {
+          content.push({
+            type: "text",
+            text: part.content,
+            providerMetadata: {
+              anthropic: {
+                type: "compaction"
               }
             }
           });
@@ -33820,7 +34358,7 @@ var AnthropicMessagesLanguageModel = class {
         }),
         raw: (_d = response.stop_reason) != null ? _d : void 0
       },
-      usage: convertAnthropicMessagesUsage(response.usage),
+      usage: convertAnthropicMessagesUsage({ usage: response.usage }),
       request: { body: args },
       response: {
         id: (_e = response.id) != null ? _e : void 0,
@@ -33835,6 +34373,11 @@ var AnthropicMessagesLanguageModel = class {
           usage: response.usage,
           cacheCreationInputTokens: (_a24 = response.usage.cache_creation_input_tokens) != null ? _a24 : null,
           stopSequence: (_b23 = response.stop_sequence) != null ? _b23 : null,
+          iterations: response.usage.iterations ? response.usage.iterations.map((iter) => ({
+            type: iter.type,
+            inputTokens: iter.input_tokens,
+            outputTokens: iter.output_tokens
+          })) : null,
           container: response.container ? {
             expiresAt: response.container.expires_at,
             id: response.container.id,
@@ -33885,7 +34428,8 @@ var AnthropicMessagesLanguageModel = class {
       input_tokens: 0,
       output_tokens: 0,
       cache_creation_input_tokens: 0,
-      cache_read_input_tokens: 0
+      cache_read_input_tokens: 0,
+      iterations: null
     }, contentBlocks = {}, mcpToolCalls = {}, serverToolCalls = {}, contextManagement = null, rawUsage = void 0, cacheCreationInputTokens = null, stopSequence = null, container = null, isJsonResponseFromTool = !1, blockType = void 0, generateId3 = this.generateId, transformedStream = response.pipeThrough(new TransformStream({
       start(controller) {
         controller.enqueue({ type: "stream-start", warnings });
@@ -33928,6 +34472,18 @@ var AnthropicMessagesLanguageModel = class {
                   providerMetadata: {
                     anthropic: {
                       redactedData: part.data
+                    }
+                  }
+                });
+                return;
+              }
+              case "compaction": {
+                contentBlocks[value.index] = { type: "text" }, controller.enqueue({
+                  type: "text-start",
+                  id: String(value.index),
+                  providerMetadata: {
+                    anthropic: {
+                      type: "compaction"
                     }
                   }
                 });
@@ -34278,6 +34834,14 @@ var AnthropicMessagesLanguageModel = class {
                   });
                 return;
               }
+              case "compaction_delta": {
+                controller.enqueue({
+                  type: "text-delta",
+                  id: String(value.index),
+                  delta: value.delta.content
+                });
+                return;
+              }
               case "input_json_delta": {
                 let contentBlock = contentBlocks[value.index], delta = value.delta.partial_json;
                 if (delta.length === 0)
@@ -34379,6 +34943,8 @@ var AnthropicMessagesLanguageModel = class {
               usage.cache_read_input_tokens = value.usage.cache_read_input_tokens;
             if (value.usage.cache_creation_input_tokens != null)
               usage.cache_creation_input_tokens = value.usage.cache_creation_input_tokens, cacheCreationInputTokens = value.usage.cache_creation_input_tokens;
+            if (value.usage.iterations != null)
+              usage.iterations = value.usage.iterations;
             if (finishReason = {
               unified: mapAnthropicStopReason({
                 finishReason: value.delta.stop_reason,
@@ -34406,6 +34972,11 @@ var AnthropicMessagesLanguageModel = class {
               usage: rawUsage != null ? rawUsage : null,
               cacheCreationInputTokens,
               stopSequence,
+              iterations: usage.iterations ? usage.iterations.map((iter) => ({
+                type: iter.type,
+                inputTokens: iter.input_tokens,
+                outputTokens: iter.output_tokens
+              })) : null,
               container,
               contextManagement
             }, providerMetadata = {
@@ -34416,7 +34987,7 @@ var AnthropicMessagesLanguageModel = class {
             controller.enqueue({
               type: "finish",
               finishReason,
-              usage: convertAnthropicMessagesUsage(usage),
+              usage: convertAnthropicMessagesUsage({ usage, rawUsage }),
               providerMetadata
             });
             return;
@@ -34458,7 +35029,13 @@ var AnthropicMessagesLanguageModel = class {
   }
 };
 function getModelCapabilities(modelId) {
-  if (modelId.includes("claude-sonnet-4-5") || modelId.includes("claude-opus-4-5") || modelId.includes("claude-haiku-4-5"))
+  if (modelId.includes("claude-opus-4-6"))
+    return {
+      maxOutputTokens: 128000,
+      supportsStructuredOutput: !0,
+      isKnownModel: !0
+    };
+  else if (modelId.includes("claude-sonnet-4-5") || modelId.includes("claude-opus-4-5") || modelId.includes("claude-haiku-4-5"))
     return {
       maxOutputTokens: 64000,
       supportsStructuredOutput: !0,
@@ -34516,6 +35093,10 @@ function mapAnthropicResponseContextManagement(contextManagement) {
             type: edit.type,
             clearedThinkingTurns: edit.cleared_thinking_turns,
             clearedInputTokens: edit.cleared_input_tokens
+          };
+        case "compact_20260112":
+          return {
+            type: edit.type
           };
       }
     }).filter((edit) => edit !== void 0)
@@ -34765,906 +35346,6 @@ function createAnthropic(options = {}) {
   }, provider.tools = anthropicTools, provider;
 }
 var anthropic = createAnthropic();
-// node_modules/@ai-sdk/openai-compatible/dist/index.mjs
-var openaiCompatibleErrorDataSchema = exports_external.object({
-  error: exports_external.object({
-    message: exports_external.string(),
-    type: exports_external.string().nullish(),
-    param: exports_external.any().nullish(),
-    code: exports_external.union([exports_external.string(), exports_external.number()]).nullish()
-  })
-}), defaultOpenAICompatibleErrorStructure = {
-  errorSchema: openaiCompatibleErrorDataSchema,
-  errorToMessage: (data) => data.error.message
-};
-function convertOpenAICompatibleChatUsage(usage) {
-  var _a21, _b16, _c, _d, _e, _f;
-  if (usage == null)
-    return {
-      inputTokens: {
-        total: void 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: void 0,
-        text: void 0,
-        reasoning: void 0
-      },
-      raw: void 0
-    };
-  let promptTokens = (_a21 = usage.prompt_tokens) != null ? _a21 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0, reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
-  return {
-    inputTokens: {
-      total: promptTokens,
-      noCache: promptTokens - cacheReadTokens,
-      cacheRead: cacheReadTokens,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: completionTokens,
-      text: completionTokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-function getOpenAIMetadata(message) {
-  var _a21, _b16;
-  return (_b16 = (_a21 = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a21.openaiCompatible) != null ? _b16 : {};
-}
-function getAudioFormat(mediaType) {
-  switch (mediaType) {
-    case "audio/wav":
-      return "wav";
-    case "audio/mp3":
-    case "audio/mpeg":
-      return "mp3";
-    default:
-      return null;
-  }
-}
-function convertToOpenAICompatibleChatMessages(prompt) {
-  var _a21, _b16, _c;
-  let messages = [];
-  for (let { role, content, ...message } of prompt) {
-    let metadata = getOpenAIMetadata({ ...message });
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content, ...metadata });
-        break;
-      }
-      case "user": {
-        if (content.length === 1 && content[0].type === "text") {
-          messages.push({
-            role: "user",
-            content: content[0].text,
-            ...getOpenAIMetadata(content[0])
-          });
-          break;
-        }
-        messages.push({
-          role: "user",
-          content: content.map((part) => {
-            var _a24;
-            let partMetadata = getOpenAIMetadata(part);
-            switch (part.type) {
-              case "text":
-                return { type: "text", text: part.text, ...partMetadata };
-              case "file": {
-                if (part.mediaType.startsWith("image/")) {
-                  let mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-                  return {
-                    type: "image_url",
-                    image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType.startsWith("audio/")) {
-                  if (part.data instanceof URL)
-                    throw new UnsupportedFunctionalityError({
-                      functionality: "audio file parts with URLs"
-                    });
-                  let format = getAudioFormat(part.mediaType);
-                  if (format === null)
-                    throw new UnsupportedFunctionalityError({
-                      functionality: `audio media type ${part.mediaType}`
-                    });
-                  return {
-                    type: "input_audio",
-                    input_audio: {
-                      data: convertToBase64(part.data),
-                      format
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType === "application/pdf") {
-                  if (part.data instanceof URL)
-                    throw new UnsupportedFunctionalityError({
-                      functionality: "PDF file parts with URLs"
-                    });
-                  return {
-                    type: "file",
-                    file: {
-                      filename: (_a24 = part.filename) != null ? _a24 : "document.pdf",
-                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
-                    },
-                    ...partMetadata
-                  };
-                }
-                if (part.mediaType.startsWith("text/"))
-                  return {
-                    type: "text",
-                    text: part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? part.data : (/* @__PURE__ */ new TextDecoder()).decode(part.data),
-                    ...partMetadata
-                  };
-                throw new UnsupportedFunctionalityError({
-                  functionality: `file part media type ${part.mediaType}`
-                });
-              }
-            }
-          }),
-          ...metadata
-        });
-        break;
-      }
-      case "assistant": {
-        let text2 = "", reasoning = "", toolCalls = [];
-        for (let part of content) {
-          let partMetadata = getOpenAIMetadata(part);
-          switch (part.type) {
-            case "text": {
-              text2 += part.text;
-              break;
-            }
-            case "reasoning": {
-              reasoning += part.text;
-              break;
-            }
-            case "tool-call": {
-              let thoughtSignature = (_b16 = (_a21 = part.providerOptions) == null ? void 0 : _a21.google) == null ? void 0 : _b16.thoughtSignature;
-              toolCalls.push({
-                id: part.toolCallId,
-                type: "function",
-                function: {
-                  name: part.toolName,
-                  arguments: JSON.stringify(part.input)
-                },
-                ...partMetadata,
-                ...thoughtSignature ? {
-                  extra_content: {
-                    google: {
-                      thought_signature: String(thoughtSignature)
-                    }
-                  }
-                } : {}
-              });
-              break;
-            }
-          }
-        }
-        messages.push({
-          role: "assistant",
-          content: text2,
-          ...reasoning.length > 0 ? { reasoning_content: reasoning } : {},
-          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
-          ...metadata
-        });
-        break;
-      }
-      case "tool": {
-        for (let toolResponse of content) {
-          if (toolResponse.type === "tool-approval-response")
-            continue;
-          let output = toolResponse.output, contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "execution-denied":
-              contentValue = (_c = output.reason) != null ? _c : "Tool execution denied.";
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          let toolResponseMetadata = getOpenAIMetadata(toolResponse);
-          messages.push({
-            role: "tool",
-            tool_call_id: toolResponse.toolCallId,
-            content: contentValue,
-            ...toolResponseMetadata
-          });
-        }
-        break;
-      }
-      default:
-        throw Error(`Unsupported role: ${role}`);
-    }
-  }
-  return messages;
-}
-function getResponseMetadata3({
-  id,
-  model,
-  created
-}) {
-  return {
-    id: id != null ? id : void 0,
-    modelId: model != null ? model : void 0,
-    timestamp: created != null ? new Date(created * 1000) : void 0
-  };
-}
-function mapOpenAICompatibleFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-      return "stop";
-    case "length":
-      return "length";
-    case "content_filter":
-      return "content-filter";
-    case "function_call":
-    case "tool_calls":
-      return "tool-calls";
-    default:
-      return "other";
-  }
-}
-var openaiCompatibleProviderOptions = exports_external.object({
-  user: exports_external.string().optional(),
-  reasoningEffort: exports_external.string().optional(),
-  textVerbosity: exports_external.string().optional(),
-  strictJsonSchema: exports_external.boolean().optional()
-});
-function prepareTools4({
-  tools,
-  toolChoice
-}) {
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  let toolWarnings = [];
-  if (tools == null)
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  let openaiCompatTools = [];
-  for (let tool2 of tools)
-    if (tool2.type === "provider")
-      toolWarnings.push({
-        type: "unsupported",
-        feature: `provider-defined tool ${tool2.id}`
-      });
-    else
-      openaiCompatTools.push({
-        type: "function",
-        function: {
-          name: tool2.name,
-          description: tool2.description,
-          parameters: tool2.inputSchema,
-          ...tool2.strict != null ? { strict: tool2.strict } : {}
-        }
-      });
-  if (toolChoice == null)
-    return { tools: openaiCompatTools, toolChoice: void 0, toolWarnings };
-  let type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-    case "required":
-      return { tools: openaiCompatTools, toolChoice: type, toolWarnings };
-    case "tool":
-      return {
-        tools: openaiCompatTools,
-        toolChoice: {
-          type: "function",
-          function: { name: toolChoice.toolName }
-        },
-        toolWarnings
-      };
-    default:
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${type}`
-      });
-  }
-}
-var OpenAICompatibleChatLanguageModel = class {
-  constructor(modelId, config2) {
-    this.specificationVersion = "v3";
-    var _a21, _b16;
-    this.modelId = modelId, this.config = config2;
-    let errorStructure = (_a21 = config2.errorStructure) != null ? _a21 : defaultOpenAICompatibleErrorStructure;
-    this.chunkSchema = createOpenAICompatibleChatChunkSchema(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure), this.supportsStructuredOutputs = (_b16 = config2.supportsStructuredOutputs) != null ? _b16 : !1;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  get providerOptionsName() {
-    return this.config.provider.split(".")[0].trim();
-  }
-  get supportedUrls() {
-    var _a21, _b16, _c;
-    return (_c = (_b16 = (_a21 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a21)) != null ? _c : {};
-  }
-  transformRequestBody(args) {
-    var _a21, _b16, _c;
-    return (_c = (_b16 = (_a21 = this.config).transformRequestBody) == null ? void 0 : _b16.call(_a21, args)) != null ? _c : args;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    providerOptions,
-    stopSequences,
-    responseFormat,
-    seed,
-    toolChoice,
-    tools
-  }) {
-    var _a21, _b16, _c, _d, _e;
-    let warnings = [], deprecatedOptions = await parseProviderOptions({
-      provider: "openai-compatible",
-      providerOptions,
-      schema: openaiCompatibleProviderOptions
-    });
-    if (deprecatedOptions != null)
-      warnings.push({
-        type: "other",
-        message: "The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead."
-      });
-    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a21 = await parseProviderOptions({
-      provider: "openaiCompatible",
-      providerOptions,
-      schema: openaiCompatibleProviderOptions
-    })) != null ? _a21 : {}, (_b16 = await parseProviderOptions({
-      provider: this.providerOptionsName,
-      providerOptions,
-      schema: openaiCompatibleProviderOptions
-    })) != null ? _b16 : {}), strictJsonSchema = (_c = compatibleOptions == null ? void 0 : compatibleOptions.strictJsonSchema) != null ? _c : !0;
-    if (topK != null)
-      warnings.push({ type: "unsupported", feature: "topK" });
-    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !this.supportsStructuredOutputs)
-      warnings.push({
-        type: "unsupported",
-        feature: "responseFormat",
-        details: "JSON response format schema is only supported with structuredOutputs"
-      });
-    let {
-      tools: openaiTools2,
-      toolChoice: openaiToolChoice,
-      toolWarnings
-    } = prepareTools4({
-      tools,
-      toolChoice
-    });
-    return {
-      args: {
-        model: this.modelId,
-        user: compatibleOptions.user,
-        max_tokens: maxOutputTokens,
-        temperature,
-        top_p: topP,
-        frequency_penalty: frequencyPenalty,
-        presence_penalty: presencePenalty,
-        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? this.supportsStructuredOutputs === !0 && responseFormat.schema != null ? {
-          type: "json_schema",
-          json_schema: {
-            schema: responseFormat.schema,
-            strict: strictJsonSchema,
-            name: (_d = responseFormat.name) != null ? _d : "response",
-            description: responseFormat.description
-          }
-        } : { type: "json_object" } : void 0,
-        stop: stopSequences,
-        seed,
-        ...Object.fromEntries(Object.entries((_e = providerOptions == null ? void 0 : providerOptions[this.providerOptionsName]) != null ? _e : {}).filter(([key]) => !Object.keys(openaiCompatibleProviderOptions.shape).includes(key))),
-        reasoning_effort: compatibleOptions.reasoningEffort,
-        verbosity: compatibleOptions.textVerbosity,
-        messages: convertToOpenAICompatibleChatMessages(prompt),
-        tools: openaiTools2,
-        tool_choice: openaiToolChoice
-      },
-      warnings: [...warnings, ...toolWarnings]
-    };
-  }
-  async doGenerate(options) {
-    var _a21, _b16, _c, _d, _e, _f, _g, _h;
-    let { args, warnings } = await this.getArgs({ ...options }), transformedBody = this.transformRequestBody(args), body = JSON.stringify(transformedBody), {
-      responseHeaders,
-      value: responseBody,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: this.config.url({
-        path: "/chat/completions",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body: transformedBody,
-      failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(OpenAICompatibleChatResponseSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), choice2 = responseBody.choices[0], content = [], text2 = choice2.message.content;
-    if (text2 != null && text2.length > 0)
-      content.push({ type: "text", text: text2 });
-    let reasoning = (_a21 = choice2.message.reasoning_content) != null ? _a21 : choice2.message.reasoning;
-    if (reasoning != null && reasoning.length > 0)
-      content.push({
-        type: "reasoning",
-        text: reasoning
-      });
-    if (choice2.message.tool_calls != null)
-      for (let toolCall of choice2.message.tool_calls) {
-        let thoughtSignature = (_c = (_b16 = toolCall.extra_content) == null ? void 0 : _b16.google) == null ? void 0 : _c.thought_signature;
-        content.push({
-          type: "tool-call",
-          toolCallId: (_d = toolCall.id) != null ? _d : generateId(),
-          toolName: toolCall.function.name,
-          input: toolCall.function.arguments,
-          ...thoughtSignature ? {
-            providerMetadata: {
-              [this.providerOptionsName]: { thoughtSignature }
-            }
-          } : {}
-        });
-      }
-    let providerMetadata = {
-      [this.providerOptionsName]: {},
-      ...await ((_f = (_e = this.config.metadataExtractor) == null ? void 0 : _e.extractMetadata) == null ? void 0 : _f.call(_e, {
-        parsedBody: rawResponse
-      }))
-    }, completionTokenDetails = (_g = responseBody.usage) == null ? void 0 : _g.completion_tokens_details;
-    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens) != null)
-      providerMetadata[this.providerOptionsName].acceptedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens;
-    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens) != null)
-      providerMetadata[this.providerOptionsName].rejectedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens;
-    return {
-      content,
-      finishReason: {
-        unified: mapOpenAICompatibleFinishReason(choice2.finish_reason),
-        raw: (_h = choice2.finish_reason) != null ? _h : void 0
-      },
-      usage: convertOpenAICompatibleChatUsage(responseBody.usage),
-      providerMetadata,
-      request: { body },
-      response: {
-        ...getResponseMetadata3(responseBody),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    var _a21;
-    let { args, warnings } = await this.getArgs({ ...options }), body = this.transformRequestBody({
-      ...args,
-      stream: !0,
-      stream_options: this.config.includeUsage ? { include_usage: !0 } : void 0
-    }), metadataExtractor = (_a21 = this.config.metadataExtractor) == null ? void 0 : _a21.createStreamExtractor(), { responseHeaders, value: response } = await postJsonToApi({
-      url: this.config.url({
-        path: "/chat/completions",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(this.chunkSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), toolCalls = [], finishReason = {
-      unified: "other",
-      raw: void 0
-    }, usage = void 0, isFirstChunk = !0, providerOptionsName = this.providerOptionsName, isActiveReasoning = !1, isActiveText = !1;
-    return {
-      stream: response.pipeThrough(new TransformStream({
-        start(controller) {
-          controller.enqueue({ type: "stream-start", warnings });
-        },
-        transform(chunk, controller) {
-          var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
-          if (options.includeRawChunks)
-            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-          if (!chunk.success) {
-            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({ type: "error", error: chunk.error });
-            return;
-          }
-          if (metadataExtractor == null || metadataExtractor.processChunk(chunk.rawValue), "error" in chunk.value) {
-            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({
-              type: "error",
-              error: chunk.value.error.message
-            });
-            return;
-          }
-          let value = chunk.value;
-          if (isFirstChunk)
-            isFirstChunk = !1, controller.enqueue({
-              type: "response-metadata",
-              ...getResponseMetadata3(value)
-            });
-          if (value.usage != null)
-            usage = value.usage;
-          let choice2 = value.choices[0];
-          if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
-            finishReason = {
-              unified: mapOpenAICompatibleFinishReason(choice2.finish_reason),
-              raw: (_a24 = choice2.finish_reason) != null ? _a24 : void 0
-            };
-          if ((choice2 == null ? void 0 : choice2.delta) == null)
-            return;
-          let delta = choice2.delta, reasoningContent = (_b16 = delta.reasoning_content) != null ? _b16 : delta.reasoning;
-          if (reasoningContent) {
-            if (!isActiveReasoning)
-              controller.enqueue({
-                type: "reasoning-start",
-                id: "reasoning-0"
-              }), isActiveReasoning = !0;
-            controller.enqueue({
-              type: "reasoning-delta",
-              id: "reasoning-0",
-              delta: reasoningContent
-            });
-          }
-          if (delta.content) {
-            if (isActiveReasoning)
-              controller.enqueue({
-                type: "reasoning-end",
-                id: "reasoning-0"
-              }), isActiveReasoning = !1;
-            if (!isActiveText)
-              controller.enqueue({ type: "text-start", id: "txt-0" }), isActiveText = !0;
-            controller.enqueue({
-              type: "text-delta",
-              id: "txt-0",
-              delta: delta.content
-            });
-          }
-          if (delta.tool_calls != null) {
-            if (isActiveReasoning)
-              controller.enqueue({
-                type: "reasoning-end",
-                id: "reasoning-0"
-              }), isActiveReasoning = !1;
-            for (let toolCallDelta of delta.tool_calls) {
-              let index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length;
-              if (toolCalls[index] == null) {
-                if (toolCallDelta.id == null)
-                  throw new InvalidResponseDataError({
-                    data: toolCallDelta,
-                    message: "Expected 'id' to be a string."
-                  });
-                if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null)
-                  throw new InvalidResponseDataError({
-                    data: toolCallDelta,
-                    message: "Expected 'function.name' to be a string."
-                  });
-                controller.enqueue({
-                  type: "tool-input-start",
-                  id: toolCallDelta.id,
-                  toolName: toolCallDelta.function.name
-                }), toolCalls[index] = {
-                  id: toolCallDelta.id,
-                  type: "function",
-                  function: {
-                    name: toolCallDelta.function.name,
-                    arguments: (_e = toolCallDelta.function.arguments) != null ? _e : ""
-                  },
-                  hasFinished: !1,
-                  thoughtSignature: (_h = (_g = (_f = toolCallDelta.extra_content) == null ? void 0 : _f.google) == null ? void 0 : _g.thought_signature) != null ? _h : void 0
-                };
-                let toolCall2 = toolCalls[index];
-                if (((_i = toolCall2.function) == null ? void 0 : _i.name) != null && ((_j = toolCall2.function) == null ? void 0 : _j.arguments) != null) {
-                  if (toolCall2.function.arguments.length > 0)
-                    controller.enqueue({
-                      type: "tool-input-delta",
-                      id: toolCall2.id,
-                      delta: toolCall2.function.arguments
-                    });
-                  if (isParsableJson(toolCall2.function.arguments))
-                    controller.enqueue({
-                      type: "tool-input-end",
-                      id: toolCall2.id
-                    }), controller.enqueue({
-                      type: "tool-call",
-                      toolCallId: (_k = toolCall2.id) != null ? _k : generateId(),
-                      toolName: toolCall2.function.name,
-                      input: toolCall2.function.arguments,
-                      ...toolCall2.thoughtSignature ? {
-                        providerMetadata: {
-                          [providerOptionsName]: {
-                            thoughtSignature: toolCall2.thoughtSignature
-                          }
-                        }
-                      } : {}
-                    }), toolCall2.hasFinished = !0;
-                }
-                continue;
-              }
-              let toolCall = toolCalls[index];
-              if (toolCall.hasFinished)
-                continue;
-              if (((_l = toolCallDelta.function) == null ? void 0 : _l.arguments) != null)
-                toolCall.function.arguments += (_n = (_m = toolCallDelta.function) == null ? void 0 : _m.arguments) != null ? _n : "";
-              if (controller.enqueue({
-                type: "tool-input-delta",
-                id: toolCall.id,
-                delta: (_o = toolCallDelta.function.arguments) != null ? _o : ""
-              }), ((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson(toolCall.function.arguments))
-                controller.enqueue({
-                  type: "tool-input-end",
-                  id: toolCall.id
-                }), controller.enqueue({
-                  type: "tool-call",
-                  toolCallId: (_r = toolCall.id) != null ? _r : generateId(),
-                  toolName: toolCall.function.name,
-                  input: toolCall.function.arguments,
-                  ...toolCall.thoughtSignature ? {
-                    providerMetadata: {
-                      [providerOptionsName]: {
-                        thoughtSignature: toolCall.thoughtSignature
-                      }
-                    }
-                  } : {}
-                }), toolCall.hasFinished = !0;
-            }
-          }
-        },
-        flush(controller) {
-          var _a24, _b16, _c, _d, _e;
-          if (isActiveReasoning)
-            controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
-          if (isActiveText)
-            controller.enqueue({ type: "text-end", id: "txt-0" });
-          for (let toolCall of toolCalls.filter((toolCall2) => !toolCall2.hasFinished))
-            controller.enqueue({
-              type: "tool-input-end",
-              id: toolCall.id
-            }), controller.enqueue({
-              type: "tool-call",
-              toolCallId: (_a24 = toolCall.id) != null ? _a24 : generateId(),
-              toolName: toolCall.function.name,
-              input: toolCall.function.arguments,
-              ...toolCall.thoughtSignature ? {
-                providerMetadata: {
-                  [providerOptionsName]: {
-                    thoughtSignature: toolCall.thoughtSignature
-                  }
-                }
-              } : {}
-            });
-          let providerMetadata = {
-            [providerOptionsName]: {},
-            ...metadataExtractor == null ? void 0 : metadataExtractor.buildMetadata()
-          };
-          if (((_b16 = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _b16.accepted_prediction_tokens) != null)
-            providerMetadata[providerOptionsName].acceptedPredictionTokens = (_c = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _c.accepted_prediction_tokens;
-          if (((_d = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens) != null)
-            providerMetadata[providerOptionsName].rejectedPredictionTokens = (_e = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _e.rejected_prediction_tokens;
-          controller.enqueue({
-            type: "finish",
-            finishReason,
-            usage: convertOpenAICompatibleChatUsage(usage),
-            providerMetadata
-          });
-        }
-      })),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-}, openaiCompatibleTokenUsageSchema = exports_external.object({
-  prompt_tokens: exports_external.number().nullish(),
-  completion_tokens: exports_external.number().nullish(),
-  total_tokens: exports_external.number().nullish(),
-  prompt_tokens_details: exports_external.object({
-    cached_tokens: exports_external.number().nullish()
-  }).nullish(),
-  completion_tokens_details: exports_external.object({
-    reasoning_tokens: exports_external.number().nullish(),
-    accepted_prediction_tokens: exports_external.number().nullish(),
-    rejected_prediction_tokens: exports_external.number().nullish()
-  }).nullish()
-}).nullish(), OpenAICompatibleChatResponseSchema = exports_external.looseObject({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    message: exports_external.object({
-      role: exports_external.literal("assistant").nullish(),
-      content: exports_external.string().nullish(),
-      reasoning_content: exports_external.string().nullish(),
-      reasoning: exports_external.string().nullish(),
-      tool_calls: exports_external.array(exports_external.object({
-        id: exports_external.string().nullish(),
-        function: exports_external.object({
-          name: exports_external.string(),
-          arguments: exports_external.string()
-        }),
-        extra_content: exports_external.object({
-          google: exports_external.object({
-            thought_signature: exports_external.string().nullish()
-          }).nullish()
-        }).nullish()
-      })).nullish()
-    }),
-    finish_reason: exports_external.string().nullish()
-  })),
-  usage: openaiCompatibleTokenUsageSchema
-}), chunkBaseSchema = exports_external.looseObject({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    delta: exports_external.object({
-      role: exports_external.enum(["assistant"]).nullish(),
-      content: exports_external.string().nullish(),
-      reasoning_content: exports_external.string().nullish(),
-      reasoning: exports_external.string().nullish(),
-      tool_calls: exports_external.array(exports_external.object({
-        index: exports_external.number().nullish(),
-        id: exports_external.string().nullish(),
-        function: exports_external.object({
-          name: exports_external.string().nullish(),
-          arguments: exports_external.string().nullish()
-        }),
-        extra_content: exports_external.object({
-          google: exports_external.object({
-            thought_signature: exports_external.string().nullish()
-          }).nullish()
-        }).nullish()
-      })).nullish()
-    }).nullish(),
-    finish_reason: exports_external.string().nullish()
-  })),
-  usage: openaiCompatibleTokenUsageSchema
-}), createOpenAICompatibleChatChunkSchema = (errorSchema) => exports_external.union([chunkBaseSchema, errorSchema]);
-var openaiCompatibleCompletionProviderOptions = exports_external.object({
-  echo: exports_external.boolean().optional(),
-  logitBias: exports_external.record(exports_external.string(), exports_external.number()).optional(),
-  suffix: exports_external.string().optional(),
-  user: exports_external.string().optional()
-});
-var usageSchema2 = exports_external.object({
-  prompt_tokens: exports_external.number(),
-  completion_tokens: exports_external.number(),
-  total_tokens: exports_external.number()
-}), openaiCompatibleCompletionResponseSchema = exports_external.object({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    text: exports_external.string(),
-    finish_reason: exports_external.string()
-  })),
-  usage: usageSchema2.nullish()
-});
-var openaiCompatibleEmbeddingProviderOptions = exports_external.object({
-  dimensions: exports_external.number().optional(),
-  user: exports_external.string().optional()
-});
-var openaiTextEmbeddingResponseSchema2 = exports_external.object({
-  data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
-  usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish(),
-  providerMetadata: exports_external.record(exports_external.string(), exports_external.record(exports_external.string(), exports_external.any())).optional()
-}), OpenAICompatibleImageModel = class {
-  constructor(modelId, config2) {
-    this.modelId = modelId, this.config = config2, this.specificationVersion = "v3", this.maxImagesPerCall = 10;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  get providerOptionsKey() {
-    return this.config.provider.split(".")[0].trim();
-  }
-  getArgs(providerOptions) {
-    return {
-      ...providerOptions[this.providerOptionsKey],
-      ...providerOptions[toCamelCase(this.providerOptionsKey)]
-    };
-  }
-  async doGenerate({
-    prompt,
-    n,
-    size,
-    aspectRatio,
-    seed,
-    providerOptions,
-    headers,
-    abortSignal,
-    files,
-    mask
-  }) {
-    var _a21, _b16, _c, _d, _e;
-    let warnings = [];
-    if (aspectRatio != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "aspectRatio",
-        details: "This model does not support aspect ratio. Use `size` instead."
-      });
-    if (seed != null)
-      warnings.push({ type: "unsupported", feature: "seed" });
-    let currentDate = (_c = (_b16 = (_a21 = this.config._internal) == null ? void 0 : _a21.currentDate) == null ? void 0 : _b16.call(_a21)) != null ? _c : /* @__PURE__ */ new Date, args = this.getArgs(providerOptions);
-    if (files != null && files.length > 0) {
-      let { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi({
-        url: this.config.url({
-          path: "/images/edits",
-          modelId: this.modelId
-        }),
-        headers: combineHeaders(this.config.headers(), headers),
-        formData: convertToFormData({
-          model: this.modelId,
-          prompt,
-          image: await Promise.all(files.map((file2) => fileToBlob2(file2))),
-          mask: mask != null ? await fileToBlob2(mask) : void 0,
-          n,
-          size,
-          ...args
-        }),
-        failedResponseHandler: createJsonErrorResponseHandler((_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure),
-        successfulResponseHandler: createJsonResponseHandler(openaiCompatibleImageResponseSchema),
-        abortSignal,
-        fetch: this.config.fetch
-      });
-      return {
-        images: response2.data.map((item) => item.b64_json),
-        warnings,
-        response: {
-          timestamp: currentDate,
-          modelId: this.modelId,
-          headers: responseHeaders2
-        }
-      };
-    }
-    let { value: response, responseHeaders } = await postJsonToApi({
-      url: this.config.url({
-        path: "/images/generations",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), headers),
-      body: {
-        model: this.modelId,
-        prompt,
-        n,
-        size,
-        ...args,
-        response_format: "b64_json"
-      },
-      failedResponseHandler: createJsonErrorResponseHandler((_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure),
-      successfulResponseHandler: createJsonResponseHandler(openaiCompatibleImageResponseSchema),
-      abortSignal,
-      fetch: this.config.fetch
-    });
-    return {
-      images: response.data.map((item) => item.b64_json),
-      warnings,
-      response: {
-        timestamp: currentDate,
-        modelId: this.modelId,
-        headers: responseHeaders
-      }
-    };
-  }
-}, openaiCompatibleImageResponseSchema = exports_external.object({
-  data: exports_external.array(exports_external.object({ b64_json: exports_external.string() }))
-});
-async function fileToBlob2(file2) {
-  if (file2.type === "url")
-    return downloadBlob(file2.url);
-  let data = file2.data instanceof Uint8Array ? file2.data : convertBase64ToUint8Array(file2.data);
-  return new Blob([data], { type: file2.mediaType });
-}
-function toCamelCase(str) {
-  return str.replace(/[_-]([a-z])/g, (g) => g[1].toUpperCase());
-}
-
 // node_modules/@ai-sdk/xai/dist/index.mjs
 function convertToXaiChatMessages(prompt) {
   var _a21;
@@ -35765,23 +35446,23 @@ function convertToXaiChatMessages(prompt) {
 }
 function convertXaiChatUsage(usage) {
   var _a21, _b16, _c, _d;
-  let cacheReadTokens = (_b16 = (_a21 = usage.prompt_tokens_details) == null ? void 0 : _a21.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.completion_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
+  let cacheReadTokens = (_b16 = (_a21 = usage.prompt_tokens_details) == null ? void 0 : _a21.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.completion_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0, promptTokensIncludesCached = cacheReadTokens <= usage.prompt_tokens;
   return {
     inputTokens: {
-      total: usage.prompt_tokens,
-      noCache: usage.prompt_tokens - cacheReadTokens,
+      total: promptTokensIncludesCached ? usage.prompt_tokens : usage.prompt_tokens + cacheReadTokens,
+      noCache: promptTokensIncludesCached ? usage.prompt_tokens - cacheReadTokens : usage.prompt_tokens,
       cacheRead: cacheReadTokens,
       cacheWrite: void 0
     },
     outputTokens: {
-      total: usage.completion_tokens,
-      text: usage.completion_tokens - reasoningTokens,
+      total: usage.completion_tokens + reasoningTokens,
+      text: usage.completion_tokens,
       reasoning: reasoningTokens
     },
     raw: usage
   };
 }
-function getResponseMetadata4({
+function getResponseMetadata3({
   id,
   model,
   created,
@@ -35835,7 +35516,7 @@ var webSourceSchema = exports_external.object({
   xSourceSchema,
   newsSourceSchema,
   rssSourceSchema
-]), xaiProviderOptions = exports_external.object({
+]), xaiLanguageModelChatOptions = exports_external.object({
   reasoningEffort: exports_external.enum(["low", "high"]).optional(),
   parallel_function_calling: exports_external.boolean().optional(),
   searchParameters: exports_external.object({
@@ -35857,7 +35538,7 @@ var webSourceSchema = exports_external.object({
   errorSchema: xaiErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
-function prepareTools5({
+function prepareTools4({
   tools,
   toolChoice
 }) {
@@ -35933,7 +35614,7 @@ var XaiChatLanguageModel = class {
     let warnings = [], options = (_a21 = await parseProviderOptions({
       provider: "xai",
       providerOptions,
-      schema: xaiProviderOptions
+      schema: xaiLanguageModelChatOptions
     })) != null ? _a21 : {};
     if (topK != null)
       warnings.push({ type: "unsupported", feature: "topK" });
@@ -35949,7 +35630,7 @@ var XaiChatLanguageModel = class {
       tools: xaiTools2,
       toolChoice: xaiToolChoice,
       toolWarnings
-    } = prepareTools5({
+    } = prepareTools4({
       tools,
       toolChoice
     });
@@ -36070,10 +35751,13 @@ var XaiChatLanguageModel = class {
         unified: mapXaiFinishReason(choice2.finish_reason),
         raw: (_b16 = choice2.finish_reason) != null ? _b16 : void 0
       },
-      usage: convertXaiChatUsage(response.usage),
+      usage: response.usage ? convertXaiChatUsage(response.usage) : {
+        inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 },
+        outputTokens: { total: 0, text: 0, reasoning: 0 }
+      },
       request: { body },
       response: {
-        ...getResponseMetadata4(response),
+        ...getResponseMetadata3(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -36147,7 +35831,7 @@ var XaiChatLanguageModel = class {
           if (isFirstChunk)
             controller.enqueue({
               type: "response-metadata",
-              ...getResponseMetadata4(value)
+              ...getResponseMetadata3(value)
             }), isFirstChunk = !1;
           if (value.citations != null)
             for (let url22 of value.citations)
@@ -36240,7 +35924,19 @@ var XaiChatLanguageModel = class {
                 type: block.type === "text" ? "text-end" : "reasoning-end",
                 id: blockId
               });
-          controller.enqueue({ type: "finish", finishReason, usage });
+          controller.enqueue({
+            type: "finish",
+            finishReason,
+            usage: usage != null ? usage : {
+              inputTokens: {
+                total: 0,
+                noCache: 0,
+                cacheRead: 0,
+                cacheWrite: 0
+              },
+              outputTokens: { total: 0, text: 0, reasoning: 0 }
+            }
+          });
         }
       })),
       request: { body },
@@ -36315,6 +36011,116 @@ var XaiChatLanguageModel = class {
 }), xaiStreamErrorSchema = exports_external.object({
   code: exports_external.string(),
   error: exports_external.string()
+}), xaiImageModelOptions = exports_external.object({
+  aspect_ratio: exports_external.string().optional(),
+  output_format: exports_external.string().optional(),
+  sync_mode: exports_external.boolean().optional()
+}), XaiImageModel = class {
+  constructor(modelId, config2) {
+    this.modelId = modelId, this.config = config2, this.specificationVersion = "v3", this.maxImagesPerCall = 1;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async doGenerate({
+    prompt,
+    n,
+    size,
+    aspectRatio,
+    seed,
+    providerOptions,
+    headers,
+    abortSignal,
+    files,
+    mask
+  }) {
+    var _a21, _b16, _c, _d;
+    let warnings = [];
+    if (size != null)
+      warnings.push({
+        type: "unsupported",
+        feature: "size",
+        details: "This model does not support the `size` option. Use `aspectRatio` instead."
+      });
+    if (seed != null)
+      warnings.push({
+        type: "unsupported",
+        feature: "seed"
+      });
+    if (mask != null)
+      warnings.push({
+        type: "unsupported",
+        feature: "mask"
+      });
+    let xaiOptions = await parseProviderOptions({
+      provider: "xai",
+      providerOptions,
+      schema: xaiImageModelOptions
+    }), hasFiles = files != null && files.length > 0, imageUrl;
+    if (hasFiles) {
+      if (imageUrl = convertImageModelFileToDataUri(files[0]), files.length > 1)
+        warnings.push({
+          type: "other",
+          message: "xAI only supports a single input image. Additional images are ignored."
+        });
+    }
+    let endpoint = hasFiles ? "/images/edits" : "/images/generations", body = {
+      model: this.modelId,
+      prompt,
+      n,
+      response_format: "url"
+    };
+    if (aspectRatio != null)
+      body.aspect_ratio = aspectRatio;
+    if ((xaiOptions == null ? void 0 : xaiOptions.output_format) != null)
+      body.output_format = xaiOptions.output_format;
+    if ((xaiOptions == null ? void 0 : xaiOptions.sync_mode) != null)
+      body.sync_mode = xaiOptions.sync_mode;
+    if ((xaiOptions == null ? void 0 : xaiOptions.aspect_ratio) != null && aspectRatio == null)
+      body.aspect_ratio = xaiOptions.aspect_ratio;
+    if (imageUrl != null)
+      body.image = { url: imageUrl, type: "image_url" };
+    let baseURL = (_a21 = this.config.baseURL) != null ? _a21 : "https://api.x.ai/v1", currentDate = (_d = (_c = (_b16 = this.config._internal) == null ? void 0 : _b16.currentDate) == null ? void 0 : _c.call(_b16)) != null ? _d : /* @__PURE__ */ new Date, { value: response, responseHeaders } = await postJsonToApi({
+      url: `${baseURL}${endpoint}`,
+      headers: combineHeaders(this.config.headers(), headers),
+      body,
+      failedResponseHandler: xaiFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(xaiImageResponseSchema),
+      abortSignal,
+      fetch: this.config.fetch
+    });
+    return {
+      images: await Promise.all(response.data.map((image) => this.downloadImage(image.url, abortSignal))),
+      warnings,
+      response: {
+        timestamp: currentDate,
+        modelId: this.modelId,
+        headers: responseHeaders
+      },
+      providerMetadata: {
+        xai: {
+          images: response.data.map((item) => ({
+            ...item.revised_prompt ? { revisedPrompt: item.revised_prompt } : {}
+          }))
+        }
+      }
+    };
+  }
+  async downloadImage(url2, abortSignal) {
+    let { value } = await getFromApi({
+      url: url2,
+      abortSignal,
+      failedResponseHandler: createStatusCodeErrorResponseHandler(),
+      successfulResponseHandler: createBinaryResponseHandler(),
+      fetch: this.config.fetch
+    });
+    return value;
+  }
+}, xaiImageResponseSchema = exports_external.object({
+  data: exports_external.array(exports_external.object({
+    url: exports_external.string(),
+    revised_prompt: exports_external.string().nullish()
+  }))
 });
 async function convertToXaiResponsesInput({
   prompt
@@ -36457,11 +36263,11 @@ async function convertToXaiResponsesInput({
 }
 function convertXaiResponsesUsage(usage) {
   var _a21, _b16, _c, _d;
-  let cacheReadTokens = (_b16 = (_a21 = usage.input_tokens_details) == null ? void 0 : _a21.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.output_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
+  let cacheReadTokens = (_b16 = (_a21 = usage.input_tokens_details) == null ? void 0 : _a21.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.output_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0, inputTokensIncludesCached = cacheReadTokens <= usage.input_tokens;
   return {
     inputTokens: {
-      total: usage.input_tokens,
-      noCache: usage.input_tokens - cacheReadTokens,
+      total: inputTokensIncludesCached ? usage.input_tokens : usage.input_tokens + cacheReadTokens,
+      noCache: inputTokensIncludesCached ? usage.input_tokens - cacheReadTokens : usage.input_tokens,
       cacheRead: cacheReadTokens,
       cacheWrite: void 0
     },
@@ -36695,6 +36501,20 @@ var annotationSchema = exports_external.union([
     text: exports_external.string()
   }),
   exports_external.object({
+    type: exports_external.literal("response.reasoning_text.delta"),
+    item_id: exports_external.string(),
+    output_index: exports_external.number(),
+    content_index: exports_external.number(),
+    delta: exports_external.string()
+  }),
+  exports_external.object({
+    type: exports_external.literal("response.reasoning_text.done"),
+    item_id: exports_external.string(),
+    output_index: exports_external.number(),
+    content_index: exports_external.number(),
+    text: exports_external.string()
+  }),
+  exports_external.object({
     type: exports_external.literal("response.web_search_call.in_progress"),
     item_id: exports_external.string(),
     output_index: exports_external.number()
@@ -36799,6 +36619,18 @@ var annotationSchema = exports_external.union([
     input: exports_external.string()
   }),
   exports_external.object({
+    type: exports_external.literal("response.function_call_arguments.delta"),
+    item_id: exports_external.string(),
+    output_index: exports_external.number(),
+    delta: exports_external.string()
+  }),
+  exports_external.object({
+    type: exports_external.literal("response.function_call_arguments.done"),
+    item_id: exports_external.string(),
+    output_index: exports_external.number(),
+    arguments: exports_external.string()
+  }),
+  exports_external.object({
     type: exports_external.literal("response.mcp_call.in_progress"),
     item_id: exports_external.string(),
     output_index: exports_external.number()
@@ -36850,7 +36682,7 @@ var annotationSchema = exports_external.union([
     type: exports_external.literal("response.completed"),
     response: xaiResponsesResponseSchema
   })
-]), xaiResponsesProviderOptions = exports_external.object({
+]), xaiLanguageModelResponsesOptions = exports_external.object({
   reasoningEffort: exports_external.enum(["low", "medium", "high"]).optional(),
   store: exports_external.boolean().optional(),
   previousResponseId: exports_external.string().optional(),
@@ -37080,7 +36912,7 @@ var XaiResponsesLanguageModel = class {
     let warnings = [], options = (_a21 = await parseProviderOptions({
       provider: "xai",
       providerOptions,
-      schema: xaiResponsesProviderOptions
+      schema: xaiLanguageModelResponsesOptions
     })) != null ? _a21 : {};
     if (stopSequences != null)
       warnings.push({ type: "unsupported", feature: "stopSequences" });
@@ -37298,7 +37130,7 @@ var XaiResponsesLanguageModel = class {
       },
       request: { body },
       response: {
-        ...getResponseMetadata4(response),
+        ...getResponseMetadata3(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -37329,7 +37161,7 @@ var XaiResponsesLanguageModel = class {
     }), finishReason = {
       unified: "other",
       raw: void 0
-    }, usage = void 0, isFirstChunk = !0, contentBlocks = {}, seenToolCalls = /* @__PURE__ */ new Set, activeReasoning = {}, self2 = this;
+    }, usage = void 0, isFirstChunk = !0, contentBlocks = {}, seenToolCalls = /* @__PURE__ */ new Set, ongoingToolCalls = {}, activeReasoning = {}, self2 = this;
     return {
       stream: response.pipeThrough(new TransformStream({
         start(controller) {
@@ -37348,7 +37180,7 @@ var XaiResponsesLanguageModel = class {
             if (isFirstChunk)
               controller.enqueue({
                 type: "response-metadata",
-                ...getResponseMetadata4(event.response)
+                ...getResponseMetadata3(event.response)
               }), isFirstChunk = !1;
             return;
           }
@@ -37379,6 +37211,32 @@ var XaiResponsesLanguageModel = class {
             return;
           }
           if (event.type === "response.reasoning_summary_text.done")
+            return;
+          if (event.type === "response.reasoning_text.delta") {
+            let blockId = `reasoning-${event.item_id}`;
+            if (activeReasoning[event.item_id] == null)
+              activeReasoning[event.item_id] = {}, controller.enqueue({
+                type: "reasoning-start",
+                id: blockId,
+                providerMetadata: {
+                  xai: {
+                    itemId: event.item_id
+                  }
+                }
+              });
+            controller.enqueue({
+              type: "reasoning-delta",
+              id: blockId,
+              delta: event.delta,
+              providerMetadata: {
+                xai: {
+                  itemId: event.item_id
+                }
+              }
+            });
+            return;
+          }
+          if (event.type === "response.reasoning_text.done")
             return;
           if (event.type === "response.output_text.delta") {
             let blockId = `text-${event.item_id}`;
@@ -37432,6 +37290,18 @@ var XaiResponsesLanguageModel = class {
             return;
           }
           if (event.type === "response.custom_tool_call_input.delta" || event.type === "response.custom_tool_call_input.done")
+            return;
+          if (event.type === "response.function_call_arguments.delta") {
+            let toolCall = ongoingToolCalls[event.output_index];
+            if (toolCall != null)
+              controller.enqueue({
+                type: "tool-input-delta",
+                id: toolCall.toolCallId,
+                delta: event.delta
+              });
+            return;
+          }
+          if (event.type === "response.function_call_arguments.done")
             return;
           if (event.type === "response.output_item.added" || event.type === "response.output_item.done") {
             let part = event.item;
@@ -37569,16 +37439,17 @@ var XaiResponsesLanguageModel = class {
                 }
               }
             else if (part.type === "function_call") {
-              if (!seenToolCalls.has(part.call_id))
-                seenToolCalls.add(part.call_id), controller.enqueue({
+              if (event.type === "response.output_item.added")
+                ongoingToolCalls[event.output_index] = {
+                  toolName: part.name,
+                  toolCallId: part.call_id
+                }, controller.enqueue({
                   type: "tool-input-start",
                   id: part.call_id,
                   toolName: part.name
-                }), controller.enqueue({
-                  type: "tool-input-delta",
-                  id: part.call_id,
-                  delta: part.arguments
-                }), controller.enqueue({
+                });
+              else if (event.type === "response.output_item.done")
+                ongoingToolCalls[event.output_index] = void 0, controller.enqueue({
                   type: "tool-input-end",
                   id: part.call_id
                 }), controller.enqueue({
@@ -37597,7 +37468,19 @@ var XaiResponsesLanguageModel = class {
                 type: "text-end",
                 id: blockId
               });
-          controller.enqueue({ type: "finish", finishReason, usage });
+          controller.enqueue({
+            type: "finish",
+            finishReason,
+            usage: usage != null ? usage : {
+              inputTokens: {
+                total: 0,
+                noCache: 0,
+                cacheRead: 0,
+                cacheWrite: 0
+              },
+              outputTokens: { total: 0, text: 0, reasoning: 0 }
+            }
+          });
         }
       })),
       request: { body },
@@ -37634,10 +37517,7 @@ var XaiResponsesLanguageModel = class {
   viewXVideo,
   webSearch: webSearch2,
   xSearch
-}, VERSION9 = "3.0.46", xaiErrorStructure = {
-  errorSchema: xaiErrorDataSchema,
-  errorToMessage: (data) => data.error.message
-};
+}, VERSION9 = "3.0.56";
 function createXai(options = {}) {
   var _a21;
   let baseURL = withoutTrailingSlash((_a21 = options.baseURL) != null ? _a21 : "https://api.x.ai/v1"), getHeaders = () => withUserAgentSuffix({
@@ -37664,12 +37544,11 @@ function createXai(options = {}) {
       fetch: options.fetch
     });
   }, createImageModel = (modelId) => {
-    return new OpenAICompatibleImageModel(modelId, {
+    return new XaiImageModel(modelId, {
       provider: "xai.image",
-      url: ({ path }) => `${baseURL}${path}`,
+      baseURL,
       headers: getHeaders,
-      fetch: options.fetch,
-      errorStructure: xaiErrorStructure
+      fetch: options.fetch
     });
   }, provider = (modelId) => createChatLanguageModel(modelId);
   return provider.specificationVersion = "v3", provider.languageModel = createChatLanguageModel, provider.chat = createChatLanguageModel, provider.responses = createResponsesLanguageModel, provider.embeddingModel = (modelId) => {
@@ -37863,7 +37742,7 @@ var PerplexityLanguageModel = class {
       usage: convertPerplexityUsage(response.usage),
       request: { body },
       response: {
-        ...getResponseMetadata5(response),
+        ...getResponseMetadata4(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -37925,7 +37804,7 @@ var PerplexityLanguageModel = class {
           if (isFirstChunk)
             controller.enqueue({
               type: "response-metadata",
-              ...getResponseMetadata5(value)
+              ...getResponseMetadata4(value)
             }), (_a21 = value.citations) == null || _a21.forEach((url2) => {
               controller.enqueue({
                 type: "source",
@@ -37981,7 +37860,7 @@ var PerplexityLanguageModel = class {
     };
   }
 };
-function getResponseMetadata5({
+function getResponseMetadata4({
   id,
   model,
   created
@@ -38041,7 +37920,7 @@ var perplexityUsageSchema = exports_external.object({
 }), errorToMessage = (data) => {
   var _a21, _b16;
   return (_b16 = (_a21 = data.error.message) != null ? _a21 : data.error.type) != null ? _b16 : "unknown error";
-}, VERSION10 = "3.0.17";
+}, VERSION10 = "3.0.19";
 function createPerplexity(options = {}) {
   let getHeaders = () => withUserAgentSuffix({
     Authorization: `Bearer ${loadApiKey({
@@ -38066,8 +37945,801 @@ function createPerplexity(options = {}) {
   }, provider;
 }
 var perplexity = createPerplexity();
+// node_modules/@ai-sdk/openai-compatible/dist/index.mjs
+var openaiCompatibleErrorDataSchema = exports_external.object({
+  error: exports_external.object({
+    message: exports_external.string(),
+    type: exports_external.string().nullish(),
+    param: exports_external.any().nullish(),
+    code: exports_external.union([exports_external.string(), exports_external.number()]).nullish()
+  })
+}), defaultOpenAICompatibleErrorStructure = {
+  errorSchema: openaiCompatibleErrorDataSchema,
+  errorToMessage: (data) => data.error.message
+};
+function convertOpenAICompatibleChatUsage(usage) {
+  var _a21, _b16, _c, _d, _e, _f;
+  if (usage == null)
+    return {
+      inputTokens: {
+        total: void 0,
+        noCache: void 0,
+        cacheRead: void 0,
+        cacheWrite: void 0
+      },
+      outputTokens: {
+        total: void 0,
+        text: void 0,
+        reasoning: void 0
+      },
+      raw: void 0
+    };
+  let promptTokens = (_a21 = usage.prompt_tokens) != null ? _a21 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0, reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
+  return {
+    inputTokens: {
+      total: promptTokens,
+      noCache: promptTokens - cacheReadTokens,
+      cacheRead: cacheReadTokens,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: completionTokens,
+      text: completionTokens - reasoningTokens,
+      reasoning: reasoningTokens
+    },
+    raw: usage
+  };
+}
+function getOpenAIMetadata(message) {
+  var _a21, _b16;
+  return (_b16 = (_a21 = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a21.openaiCompatible) != null ? _b16 : {};
+}
+function getAudioFormat(mediaType) {
+  switch (mediaType) {
+    case "audio/wav":
+      return "wav";
+    case "audio/mp3":
+    case "audio/mpeg":
+      return "mp3";
+    default:
+      return null;
+  }
+}
+function convertToOpenAICompatibleChatMessages(prompt) {
+  var _a21, _b16, _c;
+  let messages = [];
+  for (let { role, content, ...message } of prompt) {
+    let metadata = getOpenAIMetadata({ ...message });
+    switch (role) {
+      case "system": {
+        messages.push({ role: "system", content, ...metadata });
+        break;
+      }
+      case "user": {
+        if (content.length === 1 && content[0].type === "text") {
+          messages.push({
+            role: "user",
+            content: content[0].text,
+            ...getOpenAIMetadata(content[0])
+          });
+          break;
+        }
+        messages.push({
+          role: "user",
+          content: content.map((part) => {
+            var _a24;
+            let partMetadata = getOpenAIMetadata(part);
+            switch (part.type) {
+              case "text":
+                return { type: "text", text: part.text, ...partMetadata };
+              case "file": {
+                if (part.mediaType.startsWith("image/")) {
+                  let mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
+                  return {
+                    type: "image_url",
+                    image_url: {
+                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType.startsWith("audio/")) {
+                  if (part.data instanceof URL)
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "audio file parts with URLs"
+                    });
+                  let format = getAudioFormat(part.mediaType);
+                  if (format === null)
+                    throw new UnsupportedFunctionalityError({
+                      functionality: `audio media type ${part.mediaType}`
+                    });
+                  return {
+                    type: "input_audio",
+                    input_audio: {
+                      data: convertToBase64(part.data),
+                      format
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType === "application/pdf") {
+                  if (part.data instanceof URL)
+                    throw new UnsupportedFunctionalityError({
+                      functionality: "PDF file parts with URLs"
+                    });
+                  return {
+                    type: "file",
+                    file: {
+                      filename: (_a24 = part.filename) != null ? _a24 : "document.pdf",
+                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
+                    },
+                    ...partMetadata
+                  };
+                }
+                if (part.mediaType.startsWith("text/"))
+                  return {
+                    type: "text",
+                    text: part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? part.data : (/* @__PURE__ */ new TextDecoder()).decode(part.data),
+                    ...partMetadata
+                  };
+                throw new UnsupportedFunctionalityError({
+                  functionality: `file part media type ${part.mediaType}`
+                });
+              }
+            }
+          }),
+          ...metadata
+        });
+        break;
+      }
+      case "assistant": {
+        let text2 = "", reasoning = "", toolCalls = [];
+        for (let part of content) {
+          let partMetadata = getOpenAIMetadata(part);
+          switch (part.type) {
+            case "text": {
+              text2 += part.text;
+              break;
+            }
+            case "reasoning": {
+              reasoning += part.text;
+              break;
+            }
+            case "tool-call": {
+              let thoughtSignature = (_b16 = (_a21 = part.providerOptions) == null ? void 0 : _a21.google) == null ? void 0 : _b16.thoughtSignature;
+              toolCalls.push({
+                id: part.toolCallId,
+                type: "function",
+                function: {
+                  name: part.toolName,
+                  arguments: JSON.stringify(part.input)
+                },
+                ...partMetadata,
+                ...thoughtSignature ? {
+                  extra_content: {
+                    google: {
+                      thought_signature: String(thoughtSignature)
+                    }
+                  }
+                } : {}
+              });
+              break;
+            }
+          }
+        }
+        messages.push({
+          role: "assistant",
+          content: text2,
+          ...reasoning.length > 0 ? { reasoning_content: reasoning } : {},
+          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
+          ...metadata
+        });
+        break;
+      }
+      case "tool": {
+        for (let toolResponse of content) {
+          if (toolResponse.type === "tool-approval-response")
+            continue;
+          let output = toolResponse.output, contentValue;
+          switch (output.type) {
+            case "text":
+            case "error-text":
+              contentValue = output.value;
+              break;
+            case "execution-denied":
+              contentValue = (_c = output.reason) != null ? _c : "Tool execution denied.";
+              break;
+            case "content":
+            case "json":
+            case "error-json":
+              contentValue = JSON.stringify(output.value);
+              break;
+          }
+          let toolResponseMetadata = getOpenAIMetadata(toolResponse);
+          messages.push({
+            role: "tool",
+            tool_call_id: toolResponse.toolCallId,
+            content: contentValue,
+            ...toolResponseMetadata
+          });
+        }
+        break;
+      }
+      default:
+        throw Error(`Unsupported role: ${role}`);
+    }
+  }
+  return messages;
+}
+function getResponseMetadata5({
+  id,
+  model,
+  created
+}) {
+  return {
+    id: id != null ? id : void 0,
+    modelId: model != null ? model : void 0,
+    timestamp: created != null ? new Date(created * 1000) : void 0
+  };
+}
+function mapOpenAICompatibleFinishReason(finishReason) {
+  switch (finishReason) {
+    case "stop":
+      return "stop";
+    case "length":
+      return "length";
+    case "content_filter":
+      return "content-filter";
+    case "function_call":
+    case "tool_calls":
+      return "tool-calls";
+    default:
+      return "other";
+  }
+}
+var openaiCompatibleLanguageModelChatOptions = exports_external.object({
+  user: exports_external.string().optional(),
+  reasoningEffort: exports_external.string().optional(),
+  textVerbosity: exports_external.string().optional(),
+  strictJsonSchema: exports_external.boolean().optional()
+});
+function prepareTools5({
+  tools,
+  toolChoice
+}) {
+  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
+  let toolWarnings = [];
+  if (tools == null)
+    return { tools: void 0, toolChoice: void 0, toolWarnings };
+  let openaiCompatTools = [];
+  for (let tool2 of tools)
+    if (tool2.type === "provider")
+      toolWarnings.push({
+        type: "unsupported",
+        feature: `provider-defined tool ${tool2.id}`
+      });
+    else
+      openaiCompatTools.push({
+        type: "function",
+        function: {
+          name: tool2.name,
+          description: tool2.description,
+          parameters: tool2.inputSchema,
+          ...tool2.strict != null ? { strict: tool2.strict } : {}
+        }
+      });
+  if (toolChoice == null)
+    return { tools: openaiCompatTools, toolChoice: void 0, toolWarnings };
+  let type = toolChoice.type;
+  switch (type) {
+    case "auto":
+    case "none":
+    case "required":
+      return { tools: openaiCompatTools, toolChoice: type, toolWarnings };
+    case "tool":
+      return {
+        tools: openaiCompatTools,
+        toolChoice: {
+          type: "function",
+          function: { name: toolChoice.toolName }
+        },
+        toolWarnings
+      };
+    default:
+      throw new UnsupportedFunctionalityError({
+        functionality: `tool choice type: ${type}`
+      });
+  }
+}
+var OpenAICompatibleChatLanguageModel = class {
+  constructor(modelId, config2) {
+    this.specificationVersion = "v3";
+    var _a21, _b16;
+    this.modelId = modelId, this.config = config2;
+    let errorStructure = (_a21 = config2.errorStructure) != null ? _a21 : defaultOpenAICompatibleErrorStructure;
+    this.chunkSchema = createOpenAICompatibleChatChunkSchema(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure), this.supportsStructuredOutputs = (_b16 = config2.supportsStructuredOutputs) != null ? _b16 : !1;
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  get providerOptionsName() {
+    return this.config.provider.split(".")[0].trim();
+  }
+  get supportedUrls() {
+    var _a21, _b16, _c;
+    return (_c = (_b16 = (_a21 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a21)) != null ? _c : {};
+  }
+  transformRequestBody(args) {
+    var _a21, _b16, _c;
+    return (_c = (_b16 = (_a21 = this.config).transformRequestBody) == null ? void 0 : _b16.call(_a21, args)) != null ? _c : args;
+  }
+  async getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    topK,
+    frequencyPenalty,
+    presencePenalty,
+    providerOptions,
+    stopSequences,
+    responseFormat,
+    seed,
+    toolChoice,
+    tools
+  }) {
+    var _a21, _b16, _c, _d, _e;
+    let warnings = [], deprecatedOptions = await parseProviderOptions({
+      provider: "openai-compatible",
+      providerOptions,
+      schema: openaiCompatibleLanguageModelChatOptions
+    });
+    if (deprecatedOptions != null)
+      warnings.push({
+        type: "other",
+        message: "The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead."
+      });
+    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a21 = await parseProviderOptions({
+      provider: "openaiCompatible",
+      providerOptions,
+      schema: openaiCompatibleLanguageModelChatOptions
+    })) != null ? _a21 : {}, (_b16 = await parseProviderOptions({
+      provider: this.providerOptionsName,
+      providerOptions,
+      schema: openaiCompatibleLanguageModelChatOptions
+    })) != null ? _b16 : {}), strictJsonSchema = (_c = compatibleOptions == null ? void 0 : compatibleOptions.strictJsonSchema) != null ? _c : !0;
+    if (topK != null)
+      warnings.push({ type: "unsupported", feature: "topK" });
+    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !this.supportsStructuredOutputs)
+      warnings.push({
+        type: "unsupported",
+        feature: "responseFormat",
+        details: "JSON response format schema is only supported with structuredOutputs"
+      });
+    let {
+      tools: openaiTools2,
+      toolChoice: openaiToolChoice,
+      toolWarnings
+    } = prepareTools5({
+      tools,
+      toolChoice
+    });
+    return {
+      args: {
+        model: this.modelId,
+        user: compatibleOptions.user,
+        max_tokens: maxOutputTokens,
+        temperature,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
+        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? this.supportsStructuredOutputs === !0 && responseFormat.schema != null ? {
+          type: "json_schema",
+          json_schema: {
+            schema: responseFormat.schema,
+            strict: strictJsonSchema,
+            name: (_d = responseFormat.name) != null ? _d : "response",
+            description: responseFormat.description
+          }
+        } : { type: "json_object" } : void 0,
+        stop: stopSequences,
+        seed,
+        ...Object.fromEntries(Object.entries((_e = providerOptions == null ? void 0 : providerOptions[this.providerOptionsName]) != null ? _e : {}).filter(([key]) => !Object.keys(openaiCompatibleLanguageModelChatOptions.shape).includes(key))),
+        reasoning_effort: compatibleOptions.reasoningEffort,
+        verbosity: compatibleOptions.textVerbosity,
+        messages: convertToOpenAICompatibleChatMessages(prompt),
+        tools: openaiTools2,
+        tool_choice: openaiToolChoice
+      },
+      warnings: [...warnings, ...toolWarnings]
+    };
+  }
+  async doGenerate(options) {
+    var _a21, _b16, _c, _d, _e, _f, _g, _h;
+    let { args, warnings } = await this.getArgs({ ...options }), transformedBody = this.transformRequestBody(args), body = JSON.stringify(transformedBody), {
+      responseHeaders,
+      value: responseBody,
+      rawValue: rawResponse
+    } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body: transformedBody,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(OpenAICompatibleChatResponseSchema),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    }), choice2 = responseBody.choices[0], content = [], text2 = choice2.message.content;
+    if (text2 != null && text2.length > 0)
+      content.push({ type: "text", text: text2 });
+    let reasoning = (_a21 = choice2.message.reasoning_content) != null ? _a21 : choice2.message.reasoning;
+    if (reasoning != null && reasoning.length > 0)
+      content.push({
+        type: "reasoning",
+        text: reasoning
+      });
+    if (choice2.message.tool_calls != null)
+      for (let toolCall of choice2.message.tool_calls) {
+        let thoughtSignature = (_c = (_b16 = toolCall.extra_content) == null ? void 0 : _b16.google) == null ? void 0 : _c.thought_signature;
+        content.push({
+          type: "tool-call",
+          toolCallId: (_d = toolCall.id) != null ? _d : generateId(),
+          toolName: toolCall.function.name,
+          input: toolCall.function.arguments,
+          ...thoughtSignature ? {
+            providerMetadata: {
+              [this.providerOptionsName]: { thoughtSignature }
+            }
+          } : {}
+        });
+      }
+    let providerMetadata = {
+      [this.providerOptionsName]: {},
+      ...await ((_f = (_e = this.config.metadataExtractor) == null ? void 0 : _e.extractMetadata) == null ? void 0 : _f.call(_e, {
+        parsedBody: rawResponse
+      }))
+    }, completionTokenDetails = (_g = responseBody.usage) == null ? void 0 : _g.completion_tokens_details;
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens) != null)
+      providerMetadata[this.providerOptionsName].acceptedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens;
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens) != null)
+      providerMetadata[this.providerOptionsName].rejectedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens;
+    return {
+      content,
+      finishReason: {
+        unified: mapOpenAICompatibleFinishReason(choice2.finish_reason),
+        raw: (_h = choice2.finish_reason) != null ? _h : void 0
+      },
+      usage: convertOpenAICompatibleChatUsage(responseBody.usage),
+      providerMetadata,
+      request: { body },
+      response: {
+        ...getResponseMetadata5(responseBody),
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      warnings
+    };
+  }
+  async doStream(options) {
+    var _a21;
+    let { args, warnings } = await this.getArgs({ ...options }), body = this.transformRequestBody({
+      ...args,
+      stream: !0,
+      stream_options: this.config.includeUsage ? { include_usage: !0 } : void 0
+    }), metadataExtractor = (_a21 = this.config.metadataExtractor) == null ? void 0 : _a21.createStreamExtractor(), { responseHeaders, value: response } = await postJsonToApi({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders(this.config.headers(), options.headers),
+      body,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler(this.chunkSchema),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    }), toolCalls = [], finishReason = {
+      unified: "other",
+      raw: void 0
+    }, usage = void 0, isFirstChunk = !0, providerOptionsName = this.providerOptionsName, isActiveReasoning = !1, isActiveText = !1;
+    return {
+      stream: response.pipeThrough(new TransformStream({
+        start(controller) {
+          controller.enqueue({ type: "stream-start", warnings });
+        },
+        transform(chunk, controller) {
+          var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+          if (options.includeRawChunks)
+            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
+          if (!chunk.success) {
+            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({ type: "error", error: chunk.error });
+            return;
+          }
+          if (metadataExtractor == null || metadataExtractor.processChunk(chunk.rawValue), "error" in chunk.value) {
+            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({
+              type: "error",
+              error: chunk.value.error.message
+            });
+            return;
+          }
+          let value = chunk.value;
+          if (isFirstChunk)
+            isFirstChunk = !1, controller.enqueue({
+              type: "response-metadata",
+              ...getResponseMetadata5(value)
+            });
+          if (value.usage != null)
+            usage = value.usage;
+          let choice2 = value.choices[0];
+          if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
+            finishReason = {
+              unified: mapOpenAICompatibleFinishReason(choice2.finish_reason),
+              raw: (_a24 = choice2.finish_reason) != null ? _a24 : void 0
+            };
+          if ((choice2 == null ? void 0 : choice2.delta) == null)
+            return;
+          let delta = choice2.delta, reasoningContent = (_b16 = delta.reasoning_content) != null ? _b16 : delta.reasoning;
+          if (reasoningContent) {
+            if (!isActiveReasoning)
+              controller.enqueue({
+                type: "reasoning-start",
+                id: "reasoning-0"
+              }), isActiveReasoning = !0;
+            controller.enqueue({
+              type: "reasoning-delta",
+              id: "reasoning-0",
+              delta: reasoningContent
+            });
+          }
+          if (delta.content) {
+            if (isActiveReasoning)
+              controller.enqueue({
+                type: "reasoning-end",
+                id: "reasoning-0"
+              }), isActiveReasoning = !1;
+            if (!isActiveText)
+              controller.enqueue({ type: "text-start", id: "txt-0" }), isActiveText = !0;
+            controller.enqueue({
+              type: "text-delta",
+              id: "txt-0",
+              delta: delta.content
+            });
+          }
+          if (delta.tool_calls != null) {
+            if (isActiveReasoning)
+              controller.enqueue({
+                type: "reasoning-end",
+                id: "reasoning-0"
+              }), isActiveReasoning = !1;
+            for (let toolCallDelta of delta.tool_calls) {
+              let index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length;
+              if (toolCalls[index] == null) {
+                if (toolCallDelta.id == null)
+                  throw new InvalidResponseDataError({
+                    data: toolCallDelta,
+                    message: "Expected 'id' to be a string."
+                  });
+                if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null)
+                  throw new InvalidResponseDataError({
+                    data: toolCallDelta,
+                    message: "Expected 'function.name' to be a string."
+                  });
+                controller.enqueue({
+                  type: "tool-input-start",
+                  id: toolCallDelta.id,
+                  toolName: toolCallDelta.function.name
+                }), toolCalls[index] = {
+                  id: toolCallDelta.id,
+                  type: "function",
+                  function: {
+                    name: toolCallDelta.function.name,
+                    arguments: (_e = toolCallDelta.function.arguments) != null ? _e : ""
+                  },
+                  hasFinished: !1,
+                  thoughtSignature: (_h = (_g = (_f = toolCallDelta.extra_content) == null ? void 0 : _f.google) == null ? void 0 : _g.thought_signature) != null ? _h : void 0
+                };
+                let toolCall2 = toolCalls[index];
+                if (((_i = toolCall2.function) == null ? void 0 : _i.name) != null && ((_j = toolCall2.function) == null ? void 0 : _j.arguments) != null) {
+                  if (toolCall2.function.arguments.length > 0)
+                    controller.enqueue({
+                      type: "tool-input-delta",
+                      id: toolCall2.id,
+                      delta: toolCall2.function.arguments
+                    });
+                  if (isParsableJson(toolCall2.function.arguments))
+                    controller.enqueue({
+                      type: "tool-input-end",
+                      id: toolCall2.id
+                    }), controller.enqueue({
+                      type: "tool-call",
+                      toolCallId: (_k = toolCall2.id) != null ? _k : generateId(),
+                      toolName: toolCall2.function.name,
+                      input: toolCall2.function.arguments,
+                      ...toolCall2.thoughtSignature ? {
+                        providerMetadata: {
+                          [providerOptionsName]: {
+                            thoughtSignature: toolCall2.thoughtSignature
+                          }
+                        }
+                      } : {}
+                    }), toolCall2.hasFinished = !0;
+                }
+                continue;
+              }
+              let toolCall = toolCalls[index];
+              if (toolCall.hasFinished)
+                continue;
+              if (((_l = toolCallDelta.function) == null ? void 0 : _l.arguments) != null)
+                toolCall.function.arguments += (_n = (_m = toolCallDelta.function) == null ? void 0 : _m.arguments) != null ? _n : "";
+              if (controller.enqueue({
+                type: "tool-input-delta",
+                id: toolCall.id,
+                delta: (_o = toolCallDelta.function.arguments) != null ? _o : ""
+              }), ((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson(toolCall.function.arguments))
+                controller.enqueue({
+                  type: "tool-input-end",
+                  id: toolCall.id
+                }), controller.enqueue({
+                  type: "tool-call",
+                  toolCallId: (_r = toolCall.id) != null ? _r : generateId(),
+                  toolName: toolCall.function.name,
+                  input: toolCall.function.arguments,
+                  ...toolCall.thoughtSignature ? {
+                    providerMetadata: {
+                      [providerOptionsName]: {
+                        thoughtSignature: toolCall.thoughtSignature
+                      }
+                    }
+                  } : {}
+                }), toolCall.hasFinished = !0;
+            }
+          }
+        },
+        flush(controller) {
+          var _a24, _b16, _c, _d, _e;
+          if (isActiveReasoning)
+            controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
+          if (isActiveText)
+            controller.enqueue({ type: "text-end", id: "txt-0" });
+          for (let toolCall of toolCalls.filter((toolCall2) => !toolCall2.hasFinished))
+            controller.enqueue({
+              type: "tool-input-end",
+              id: toolCall.id
+            }), controller.enqueue({
+              type: "tool-call",
+              toolCallId: (_a24 = toolCall.id) != null ? _a24 : generateId(),
+              toolName: toolCall.function.name,
+              input: toolCall.function.arguments,
+              ...toolCall.thoughtSignature ? {
+                providerMetadata: {
+                  [providerOptionsName]: {
+                    thoughtSignature: toolCall.thoughtSignature
+                  }
+                }
+              } : {}
+            });
+          let providerMetadata = {
+            [providerOptionsName]: {},
+            ...metadataExtractor == null ? void 0 : metadataExtractor.buildMetadata()
+          };
+          if (((_b16 = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _b16.accepted_prediction_tokens) != null)
+            providerMetadata[providerOptionsName].acceptedPredictionTokens = (_c = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _c.accepted_prediction_tokens;
+          if (((_d = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens) != null)
+            providerMetadata[providerOptionsName].rejectedPredictionTokens = (_e = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _e.rejected_prediction_tokens;
+          controller.enqueue({
+            type: "finish",
+            finishReason,
+            usage: convertOpenAICompatibleChatUsage(usage),
+            providerMetadata
+          });
+        }
+      })),
+      request: { body },
+      response: { headers: responseHeaders }
+    };
+  }
+}, openaiCompatibleTokenUsageSchema = exports_external.looseObject({
+  prompt_tokens: exports_external.number().nullish(),
+  completion_tokens: exports_external.number().nullish(),
+  total_tokens: exports_external.number().nullish(),
+  prompt_tokens_details: exports_external.object({
+    cached_tokens: exports_external.number().nullish()
+  }).nullish(),
+  completion_tokens_details: exports_external.object({
+    reasoning_tokens: exports_external.number().nullish(),
+    accepted_prediction_tokens: exports_external.number().nullish(),
+    rejected_prediction_tokens: exports_external.number().nullish()
+  }).nullish()
+}).nullish(), OpenAICompatibleChatResponseSchema = exports_external.looseObject({
+  id: exports_external.string().nullish(),
+  created: exports_external.number().nullish(),
+  model: exports_external.string().nullish(),
+  choices: exports_external.array(exports_external.object({
+    message: exports_external.object({
+      role: exports_external.literal("assistant").nullish(),
+      content: exports_external.string().nullish(),
+      reasoning_content: exports_external.string().nullish(),
+      reasoning: exports_external.string().nullish(),
+      tool_calls: exports_external.array(exports_external.object({
+        id: exports_external.string().nullish(),
+        function: exports_external.object({
+          name: exports_external.string(),
+          arguments: exports_external.string()
+        }),
+        extra_content: exports_external.object({
+          google: exports_external.object({
+            thought_signature: exports_external.string().nullish()
+          }).nullish()
+        }).nullish()
+      })).nullish()
+    }),
+    finish_reason: exports_external.string().nullish()
+  })),
+  usage: openaiCompatibleTokenUsageSchema
+}), chunkBaseSchema = exports_external.looseObject({
+  id: exports_external.string().nullish(),
+  created: exports_external.number().nullish(),
+  model: exports_external.string().nullish(),
+  choices: exports_external.array(exports_external.object({
+    delta: exports_external.object({
+      role: exports_external.enum(["assistant"]).nullish(),
+      content: exports_external.string().nullish(),
+      reasoning_content: exports_external.string().nullish(),
+      reasoning: exports_external.string().nullish(),
+      tool_calls: exports_external.array(exports_external.object({
+        index: exports_external.number().nullish(),
+        id: exports_external.string().nullish(),
+        function: exports_external.object({
+          name: exports_external.string().nullish(),
+          arguments: exports_external.string().nullish()
+        }),
+        extra_content: exports_external.object({
+          google: exports_external.object({
+            thought_signature: exports_external.string().nullish()
+          }).nullish()
+        }).nullish()
+      })).nullish()
+    }).nullish(),
+    finish_reason: exports_external.string().nullish()
+  })),
+  usage: openaiCompatibleTokenUsageSchema
+}), createOpenAICompatibleChatChunkSchema = (errorSchema) => exports_external.union([chunkBaseSchema, errorSchema]);
+var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
+  echo: exports_external.boolean().optional(),
+  logitBias: exports_external.record(exports_external.string(), exports_external.number()).optional(),
+  suffix: exports_external.string().optional(),
+  user: exports_external.string().optional()
+});
+var usageSchema2 = exports_external.object({
+  prompt_tokens: exports_external.number(),
+  completion_tokens: exports_external.number(),
+  total_tokens: exports_external.number()
+}), openaiCompatibleCompletionResponseSchema = exports_external.object({
+  id: exports_external.string().nullish(),
+  created: exports_external.number().nullish(),
+  model: exports_external.string().nullish(),
+  choices: exports_external.array(exports_external.object({
+    text: exports_external.string(),
+    finish_reason: exports_external.string()
+  })),
+  usage: usageSchema2.nullish()
+});
+var openaiCompatibleEmbeddingModelOptions = exports_external.object({
+  dimensions: exports_external.number().optional(),
+  user: exports_external.string().optional()
+});
+var openaiTextEmbeddingResponseSchema2 = exports_external.object({
+  data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
+  usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish(),
+  providerMetadata: exports_external.record(exports_external.string(), exports_external.record(exports_external.string(), exports_external.any())).optional()
+});
+var openaiCompatibleImageResponseSchema = exports_external.object({
+  data: exports_external.array(exports_external.object({ b64_json: exports_external.string() }))
+});
+
 // node_modules/@ai-sdk/cerebras/dist/index.mjs
-var VERSION11 = "2.0.29", cerebrasErrorSchema = exports_external.object({
+var VERSION11 = "2.0.33", cerebrasErrorSchema = exports_external.object({
   message: exports_external.string(),
   type: exports_external.string(),
   param: exports_external.string(),
