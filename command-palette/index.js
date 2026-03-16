@@ -872,6 +872,16 @@ export const ZenCommandPalette = {
               const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
               const gURLBar = browserWindow.gURLBar;
               gURLBar.setAttribute("zen-cmd-palette-prefix-mode", "true");
+              // Insert indicator inside .urlbar-input-box before the <input>,
+              // matching where #urlbar-search-mode-indicator lives natively
+              if (!browserWindow.document.getElementById("zen-cmd-palette-mode-indicator")) {
+                const indicator = browserWindow.document.createElement("label");
+                indicator.id = "zen-cmd-palette-mode-indicator";
+                indicator.textContent = "Commands";
+                const inputBox = gURLBar.querySelector(".urlbar-input-box");
+                const inputEl = inputBox?.querySelector("input");
+                if (inputBox && inputEl) inputBox.insertBefore(indicator, inputEl);
+              }
               query = input.substring(PREFS.prefix.length).trim();
               gURLBar.value = query;
             } else {
@@ -970,6 +980,7 @@ export const ZenCommandPalette = {
           const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
           const gURLBar = browserWindow.gURLBar;
           gURLBar.removeAttribute("zen-cmd-palette-prefix-mode");
+          browserWindow.document.getElementById("zen-cmd-palette-mode-indicator")?.remove();
           if (this._isInPrefixMode) {
             if (!preserveValue) gURLBar.value = "";
             gURLBar.startQuery();
