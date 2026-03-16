@@ -784,6 +784,21 @@ export const ZenCommandPalette = {
       "moz-src:///browser/components/urlbar/UrlbarResult.sys.mjs"
     );
 
+    // Polyfill for payloadAndSimpleHighlights removed in newer Firefox/Zen versions
+    if (typeof UrlbarResult.payloadAndSimpleHighlights !== "function") {
+      UrlbarResult.payloadAndSimpleHighlights = (_reusable, payloadObj) => {
+        const payload = {};
+        const payloadHighlights = {};
+        for (const [key, value] of Object.entries(payloadObj)) {
+          if (value !== undefined) {
+            payload[key] = value;
+            payloadHighlights[key] = [[String(value ?? ""), false]];
+          }
+        }
+        return { payload, payloadHighlights };
+      };
+    }
+
     if (typeof UrlbarProvider === "undefined" || typeof UrlbarProvidersManager === "undefined") {
       PREFS.debugError(
         "UrlbarProvider or UrlbarProvidersManager not available; provider not registered."
