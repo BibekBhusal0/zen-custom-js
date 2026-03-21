@@ -983,7 +983,7 @@ export const browseBotFindbar = {
     if (promptInput && text) promptInput.value = text;
   },
   async setPromptTextFromSelection() {
-    let text = "";
+    let text;
     const selection = await messageManagerAPI.getSelectedText();
     if (!selection || !selection.hasSelection) text = this?.findbar?._findField?.value;
     else text = selection.selectedText;
@@ -1143,7 +1143,7 @@ export const browseBotFindbar = {
   },
   handleContextMenuClick: async function () {
     const selection = await messageManagerAPI.getSelectedText();
-    let finalMessage = "";
+    let finalMessage;
     if (selection.hasSelection) {
       const commandTemplate = PREFS.contextMenuCommandWithSelection;
       finalMessage = commandTemplate.replace("{selection}", selection.selectedText);
