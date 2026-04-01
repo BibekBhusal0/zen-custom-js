@@ -729,10 +729,10 @@ export const ZenCommandPalette = {
   destroy() {
     destroyShortcutRegistry();
     if (this.provider) {
-      const { UrlbarProvidersManager } = ChromeUtils.importESModule(
+      const { ProvidersManager } = ChromeUtils.importESModule(
         "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
       );
-      UrlbarProvidersManager.unregisterProvider(this.provider);
+      ProvidersManager.getInstanceForSap("urlbar").unregisterProvider(this.provider);
       this.provider = null;
       PREFS.debugLog("Urlbar provider unregistered.");
     }
@@ -774,12 +774,25 @@ export const ZenCommandPalette = {
 
     this.attachUrlbarListeners();
 
-    const { UrlbarUtils, UrlbarProvider } = ChromeUtils.importESModule(
+    const { UrlbarUtils, UrlbarProvider: UrlbarProviderFromUtils } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
     );
-    const { UrlbarProvidersManager } = ChromeUtils.importESModule(
+
+    // UrlbarProvider was moved to its own module in newer Zen/Firefox versions
+    let UrlbarProvider = UrlbarProviderFromUtils;
+    if (typeof UrlbarProvider === "undefined") {
+      try {
+        ({ UrlbarProvider } = ChromeUtils.importESModule(
+          "moz-src:///browser/components/urlbar/UrlbarProvider.sys.mjs"
+        ));
+      } catch (e) {
+        PREFS.debugError("Could not import UrlbarProvider from any known module.", e);
+      }
+    }
+    const { ProvidersManager } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarProvidersManager.sys.mjs"
     );
+    const UrlbarProvidersManager = ProvidersManager.getInstanceForSap("urlbar");
     const { UrlbarResult } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarResult.sys.mjs"
     );
@@ -899,20 +912,18 @@ export const ZenCommandPalette = {
             const addResult = (cmd, isHeuristic = false) => {
               if (!cmd) return;
               const shortcut = self.getShortcutForCommand(cmd.key);
-              const { payload, payloadHighlights } = UrlbarResult.payloadAndSimpleHighlights([], {
-                suggestion: cmd.label,
-                title: cmd.label,
-                query: input,
-                keywords: cmd?.tags,
-                icon: cmd.icon || "chrome://browser/skin/trending.svg",
-                shortcutContent: shortcut,
-                dynamicType: DYNAMIC_TYPE_NAME,
-              });
               const result = new UrlbarResult({
                 type: UrlbarUtils.RESULT_TYPE.DYNAMIC,
                 source: UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
-                payload,
-                payloadHighlights,
+                payload: {
+                  suggestion: cmd.label,
+                  title: cmd.label,
+                  query: input,
+                  keywords: cmd?.tags,
+                  icon: cmd.icon || "chrome://browser/skin/trending.svg",
+                  shortcutContent: shortcut,
+                  dynamicType: DYNAMIC_TYPE_NAME,
+                },
               });
               if (isHeuristic) result.heuristic = true;
               result._zenCmd = cmd;
