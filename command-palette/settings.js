@@ -681,7 +681,7 @@ const SettingsModal = {
       </div>
     `;
 
-    let typeSpecificHtml = "";
+    let typeSpecificHtml;
     if (cmd.type === "js") {
       typeSpecificHtml = `
         <div class="setting-item-vertical">

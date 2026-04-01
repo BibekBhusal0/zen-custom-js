@@ -459,23 +459,23 @@ async function frameScript() {
             childList: !0,
             subtree: !0
           }), win.setTimeout(() => {
-            observer.disconnect(), reject(Error(`Timeout waiting for ${selector}`));
+            observer.disconnect(), reject(new Error(`Timeout waiting for ${selector}`));
           }, timeout);
         }).catch((e) => {
-          reject(Error(`waitForSelectorWithObserver failed: ${e.message}`));
+          reject(new Error(`waitForSelectorWithObserver failed: ${e.message}`));
         });
       });
     }
     if (!doc.querySelector("ytd-transcript-renderer")) {
       let button = doc.querySelector('button[aria-label="Show transcript"]');
       if (!button)
-        throw Error('"Show transcript" button not found — transcript may not be available.');
+        throw new Error('"Show transcript" button not found — transcript may not be available.');
       button.click(), await waitForSelectorWithObserver("ytd-transcript-renderer", 5000);
     }
     await waitForSelectorWithObserver("ytd-transcript-segment-renderer .segment-text", 5000);
     let segments = Array.from(doc.querySelectorAll("ytd-transcript-segment-renderer .segment-text"));
     if (!segments.length)
-      throw Error("Transcript segments found, but all are empty.");
+      throw new Error("Transcript segments found, but all are empty.");
     return segments.map((el) => el.textContent.trim()).filter(Boolean).join(`
 `);
   }
@@ -518,13 +518,13 @@ async function frameScript() {
     ClickElement: ({ selector }) => {
       let element = content.document.querySelector(selector);
       if (!element)
-        throw Error(`Element with selector "${selector}" not found.`);
+        throw new Error(`Element with selector "${selector}" not found.`);
       return element.click(), { result: `Clicked element with selector "${selector}".` };
     },
     FillForm: ({ selector, value }) => {
       let element = content.document.querySelector(selector);
       if (!element)
-        throw Error(`Element with selector "${selector}" not found.`);
+        throw new Error(`Element with selector "${selector}" not found.`);
       return element.value = value, element.dispatchEvent(new Event("input", { bubbles: !0 })), {
         result: `Filled element with selector "${selector}" with value "${value}".`
       };
@@ -562,12 +562,12 @@ var currentMessageManager = null, updateMessageManager = () => {
 }, messageManagerAPI = {
   send(cmd, data = {}) {
     if (updateMessageManager(), !currentMessageManager)
-      return PREFS2.debugError("No message manager available."), Promise.reject(Error("No message manager available."));
+      return PREFS2.debugError("No message manager available."), Promise.reject(new Error("No message manager available."));
     return new Promise((resolve, reject) => {
       let listener = (msg) => {
         if (msg.data.command === cmd)
           if (currentMessageManager.removeMessageListener("FindbarAI:Result", listener), msg.data.result && msg.data.result.error)
-            reject(Error(msg.data.result.error));
+            reject(new Error(msg.data.result.error));
           else
             resolve(msg.data.result);
       };

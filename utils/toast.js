@@ -76,7 +76,7 @@ function showToast(options = {}) {
         debugLog(`Toast found in window ${windowCount}:`, !!toast);
 
         if (toast) {
-          foundToast = true;
+          // foundToast = true;
           debugLog("Toast element found, starting text replacement...");
 
           // Replace title text
