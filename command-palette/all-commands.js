@@ -238,6 +238,12 @@ export const commands = [
     icon: "chrome://global/skin/icons/edit.svg",
     tags: ["folder", "rename", "change", "tab", "group"],
   },
+  {
+    key: "cmd_zenNewLiveFolder",
+    label: "Create Live Folder",
+    icon: "chrome://browser/skin/zen-icons/sidebar.svg",
+    tags: ["live", "rss", "feed", "new", "create", "folder"],
+  },
 
   // ----------- Tab Management -----------
   {
