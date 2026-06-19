@@ -1,0 +1,21 @@
+utils/pref.js
+  s_1a780d01a039dd::t_b60f44e1605aab 19-21,23,25,27-28
+dist/browse-bot.uc.mjs
+  s_1a780d01a039dd::t_b988eae96e5938 34-42
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "e5c5bba90c4a757c73f0c15f006aa4efd3be4d4c",
+  "prompts": {},
+  "sessions": {
+    "s_1a780d01a039dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11fdbb084ffe4DMHwJIxX3jz7g",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
