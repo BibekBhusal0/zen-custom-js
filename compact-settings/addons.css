@@ -3,42 +3,55 @@
 
 @-moz-document url-prefix("about:addons") {
   #full {
-    --sidebar-collapsed-width: 52px;
+    --sidebar-collapsed-width: 45px;
     --sidebar-expanded-width: 200px;
     @media -moz-pref("compact-settings.compact-addons.enabled") {
       display: block !important;
+
       #sidebar {
         position: absolute !important;
-        width: auto !important;
         z-index: 20 !important;
-
-        #categories,
-        sidebar-footer {
-          @media -moz-pref("compact-settings.animation.enabled") {
-            transition: width 100ms ease !important;
-          }
-          width: var(--sidebar-collapsed-width) !important;
-        }
 
         .category,
         .sidebar-footer-list {
-          width: calc(var(--sidebar-expanded-width) - 20px) !important;
+          width: 50px !important;
           margin-left: 5px !important;
         }
+      }
 
-        .sidebar-footer-list img {
-          scale: 1.4 !important;
-          margin-left: 15px !important;
-          margin-right: 12px !important;
-        }
+      @media (min-width: 830px) {
+        #sidebar {
+          position: absolute !important;
+          width: auto !important;
+          z-index: 20 !important;
 
-        .category[aria-selected="true"] {
-          color: var(--zen-primary-color) !important;
-        }
+          #categories,
+          sidebar-footer {
+            @media -moz-pref("compact-settings.animation.enabled") {
+              transition: width 100ms ease !important;
+            }
+            width: var(--sidebar-collapsed-width) !important;
+          }
 
-        &:hover {
-          #categories {
-            width: var(--sidebar-expanded-width) !important;
+          .category,
+          .sidebar-footer-list {
+            width: calc(var(--sidebar-expanded-width) - 20px) !important;
+          }
+
+          .sidebar-footer-list img {
+            scale: 1.4 !important;
+            margin-left: 15px !important;
+            margin-right: 12px !important;
+          }
+
+          .category[aria-selected="true"] {
+            color: var(--zen-primary-color) !important;
+          }
+
+          &:hover {
+            #categories {
+              width: var(--sidebar-expanded-width) !important;
+            }
           }
         }
       }
