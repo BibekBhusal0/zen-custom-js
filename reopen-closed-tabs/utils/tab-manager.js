@@ -82,9 +82,8 @@ const TabManager = {
         const isEssential = tab.hasAttribute("zen-essential");
 
         const browser = tab.linkedBrowser;
-        const win = tab.ownerGlobal;
         const workspaceId = tab.getAttribute("zen-workspace-id");
-        const workspace = workspaceId && win.gZenWorkspaces.getWorkspaceFromId(workspaceId);
+        const workspace = workspaceId && gZenWorkspaces.getWorkspaceFromId(workspaceId);
         const folder = tab.group?.isZenFolder ? this._getFolderBreadcrumbs(tab.group) : null;
 
         const tabInfo = {
@@ -126,8 +125,7 @@ const TabManager = {
       // If the tab is already open, switch to it.
       if (!tabData.isClosed && tabData.tabElement) {
         const tab = tabData.tabElement;
-        const win = tab.ownerGlobal;
-        win.gZenWorkspaces.switchTabIfNeeded(tab);
+        gZenWorkspaces.switchTabIfNeeded(tab);
         return;
       }
 
