@@ -60,13 +60,14 @@
     }
   }
 
-  groupbox, .moz-card {
+  groupbox,
+  .moz-card {
     /*   background: var(--zen-colors-tertiary) !important; */
     background: var(--zen-colors-border-contrast) !important;
     border-radius: 8px !important;
     padding: 14px !important;
   }
-  #search-container{
+  #search-container {
     border-radius: 8px !important;
     padding: 14px !important;
   }
