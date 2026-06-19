@@ -1,0 +1,23 @@
+search-engine-select/index.js
+  s_1a780d01a039dd::t_77ee7df9926328 294
+  s_1a780d01a039dd::t_dea8ef3925d5ce 416,418,421
+  s_1a780d01a039dd::t_6e4a2a931cc9ff 185,188
+  s_1a780d01a039dd::t_f6cf903df75f61 45
+  s_1a780d01a039dd::t_eab5f79eb86d7c 417,422-438
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "a8979b5547ea691cc10ac238681c3ac09a6f14ce",
+  "prompts": {},
+  "sessions": {
+    "s_1a780d01a039dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11fdbb084ffe4DMHwJIxX3jz7g",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
