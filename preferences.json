@@ -267,7 +267,7 @@
   },
   {
     "type": "text",
-    "label": "**Compact Settings**",
+    "label": "**compact-settings**",
     "size": "18px",
     "margin": "20px 0 10px 0"
   },
@@ -1694,7 +1694,7 @@
     "defaultValue": false
   },
   {
-    "type": "text",
+    "type": "string",
     "property": "extensions.reopen-closed-tabs.shortcut-key",
     "label": "Activation Shortcut",
     "defaultValue": "Alt+A"
