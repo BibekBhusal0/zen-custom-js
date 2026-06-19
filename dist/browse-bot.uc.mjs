@@ -3,7 +3,7 @@
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
 // @version         2.5.84b
-// @lastUpdated     2026-04-01
+// @lastUpdated     2026-06-19
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
 // ==/UserScript==
@@ -34,9 +34,9 @@ var getPref = (key, defaultValue) => {
     let prefService = Services.prefs, type = prefService.getPrefType(key);
     if (type === prefService.PREF_STRING)
       return prefService.getStringPref(key);
-    if (type === prefService.PREF_INT)
+    else if (type === prefService.PREF_INT)
       return prefService.getIntPref(key);
-    if (type === prefService.PREF_BOOL)
+    else if (type === prefService.PREF_BOOL)
       return prefService.getBoolPref(key);
     return defaultValue;
   } catch (e) {
@@ -1275,6 +1275,24 @@ function showToast(options = {}) {
   }
 }
 
+// utils/search-service.js
+var _searchService;
+async function getSearchService() {
+  if (_searchService)
+    return _searchService;
+  let { SearchService } = ChromeUtils.importESModule("moz-src:///toolkit/components/search/SearchService.sys.mjs");
+  return _searchService = SearchService, _searchService;
+}
+async function getVisibleEngines() {
+  return (await getSearchService()).getVisibleEngines();
+}
+async function getEngineByName(name) {
+  return (await getSearchService()).getEngineByName(name);
+}
+async function getDefaultEngine() {
+  return (await getSearchService()).getDefault();
+}
+
 // findbar-ai/llm/tools.js
 var TabIdManager = new class {
   #tabIdMap = /* @__PURE__ */ new WeakMap;
@@ -1340,7 +1358,7 @@ function mapTabToObject(tab) {
 }
 async function getSearchURL(engineName, searchTerm) {
   try {
-    let engine = await Services.search.getEngineByName(engineName);
+    let engine = await getEngineByName(engineName);
     if (!engine)
       return PREFS2.debugError(`No search engine found with name: ${engineName}`), null;
     let submission = engine.getSubmission(searchTerm.trim());
@@ -1352,7 +1370,7 @@ async function getSearchURL(engineName, searchTerm) {
   }
 }
 async function search(args) {
-  let { searchTerm, engineName, where } = args, defaultEngineName = Services.search.defaultEngine.name, searchEngineName = engineName || defaultEngineName;
+  let { searchTerm, engineName, where } = args, defaultEngineName = (await getDefaultEngine()).name, searchEngineName = engineName || defaultEngineName;
   if (!searchTerm)
     return { error: "Search tool requires a searchTerm." };
   let url = await getSearchURL(searchEngineName, searchTerm);
@@ -1828,7 +1846,7 @@ var toolNameMapping = {
 }, tabsInstructions = "If you open tab in glace it will create new small popup window to show the tab, vsplit and hsplit means it will open new tab in vertical and horizontal split with current tab respectively.", toolGroups = {
   search: {
     moreInstructions: async () => {
-      let engineNames = (await Services.search.getVisibleEngines()).map((e) => e.name).join(", "), defaultEngineName = Services.search.defaultEngine.name;
+      let searchEngines = await getVisibleEngines(), defaultEngine = await getDefaultEngine(), engineNames = searchEngines.map((e) => e.name).join(", "), defaultEngineName = defaultEngine.name;
       return `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.
 ` + tabsInstructions;
     },
