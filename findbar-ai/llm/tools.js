@@ -3,7 +3,11 @@ import { z } from "./vercel-ai-sdk.uc.mjs";
 import { messageManagerAPI } from "../messageManager.js";
 import { PREFS } from "../utils/prefs.js";
 import { showToast } from "../../utils/toast.js";
-import { getEngineByName, getDefaultEngine, getVisibleEngines } from "../../utils/search-service.js";
+import {
+  getEngineByName,
+  getDefaultEngine,
+  getVisibleEngines,
+} from "../../utils/search-service.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
