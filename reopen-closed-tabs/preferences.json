@@ -15,7 +15,7 @@
     "defaultValue": false
   },
   {
-    "type": "text",
+    "type": "string",
     "property": "extensions.reopen-closed-tabs.shortcut-key",
     "label": "Activation Shortcut",
     "defaultValue": "Alt+A"
