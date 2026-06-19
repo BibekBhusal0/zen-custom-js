@@ -21,6 +21,7 @@
     }
   }
 
+  /* FIX: color not correct (showing white background dark mode) */
   .zen-keyboard-filter-popover {
     position: absolute;
     background-color: var(--in-content-box-background, #fff);

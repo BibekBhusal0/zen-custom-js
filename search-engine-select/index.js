@@ -42,6 +42,7 @@ const SearchEngineSwitcher = {
   async buildEngineRegexCache() {
     PREFS.debugLog("Building engine regex cache...");
     this._engineCache = [];
+    // BUG: getVariableEngine not defined
     const engines = await Services.search.getVisibleEngines();
     const PLACEHOLDER = "SEARCH_TERM_PLACEHOLDER_E6A8D";
 
@@ -291,6 +292,7 @@ const SearchEngineSwitcher = {
 
   async populateEngineList() {
     this._engineOptions.innerHTML = "";
+    // BUG: getVariableEngine not defined
     const engines = await Services.search.getVisibleEngines();
     engines.forEach((engine) => {
       const option = parseElement(`
