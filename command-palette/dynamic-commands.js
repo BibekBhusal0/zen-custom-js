@@ -141,9 +141,6 @@ export async function generateAboutPageCommands() {
  */
 export async function generateSearchEngineCommands() {
   const engines = await getVisibleEngines();
-  const defaultEngine = await getDefaultEngine();
-
-  const defaultEngineName = defaultEngine.name;
   return engines.map((engine) => {
     const engineName = engine.name;
     return {
@@ -161,10 +158,6 @@ export async function generateSearchEngineCommands() {
           };
           gURLBar.focus();
         }
-      },
-      condition: () => {
-        const currentEngineName = window.gURLBar.searchMode?.engineName || defaultEngineName;
-        return currentEngineName !== engineName;
       },
       icon: getSearchEngineFavicon(engine),
       tags: ["search", "engine", engineName.toLowerCase()],

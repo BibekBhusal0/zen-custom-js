@@ -713,6 +713,7 @@ export const commands = [
     key: "command-palette:show",
     label: "Search Commands",
     command: () => {
+      if (gURLBar.searchMode?.engineName) gURLBar.searchMode = null;
       gURLBar.value = PREFS.prefix;
       gURLBar.focus();
       gZenUIManager.onUrlbarOpen();
