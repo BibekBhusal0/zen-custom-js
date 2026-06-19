@@ -68,7 +68,6 @@ const TabManager = {
    * Fetches a list of currently open tabs across all browser windows and workspaces.
    * @returns {Promise<Array<object>>} A promise resolving to an array of open tab data.
    */
-  // FIX: not working (Don't know why)
   async getOpenTabs() {
     PREFS.debugLog("Fetching open tabs.");
     const openTabs = [];
