@@ -1,0 +1,35 @@
+command-palette/dynamic-commands.js
+  s_1a780d01a039dd::t_4f307606b80648 166
+  s_1a780d01a039dd::t_4ab9904f645ecd 8
+search-engine-icon/index.js
+  s_1a780d01a039dd::t_6b745050c06299 3,13
+search-engine-select/index.js
+  s_1a780d01a039dd::t_0d0eeef6eac222 6
+  s_1a780d01a039dd::t_a82ce2acf9dda4 46,295
+  s_1a780d01a039dd::t_02b96170356053 186
+utils/search-service.js
+  s_1a780d01a039dd::t_c804f393faa615 1-8,10-15,44
+  s_1a780d01a039dd::t_b7a01545218465 9,16-43
+findbar-ai/llm/tools.js
+  s_1a780d01a039dd::t_3dc27222226963 6
+  s_1a780d01a039dd::t_77646165f429a5 142-143
+  s_1a780d01a039dd::t_cd434161352aa6 921-922
+  s_1a780d01a039dd::t_28f8d4cd0f7c50 924
+  s_1a780d01a039dd::t_78f1208a4032db 123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "59c04512920757f61a2bf5e905381bc7c21618d7",
+  "prompts": {},
+  "sessions": {
+    "s_1a780d01a039dd": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11fdbb084ffe4DMHwJIxX3jz7g",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
