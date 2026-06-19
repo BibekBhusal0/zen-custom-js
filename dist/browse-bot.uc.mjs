@@ -31,20 +31,17 @@ function setPref(key, value) {
 }
 var getPref = (key, defaultValue) => {
   try {
-    let prefService = Services.prefs;
-    if (prefService.prefHasUserValue(key))
-      switch (prefService.getPrefType(key)) {
-        case prefService.PREF_STRING:
-          return prefService.getStringPref(key);
-        case prefService.PREF_INT:
-          return prefService.getIntPref(key);
-        case prefService.PREF_BOOL:
-          return prefService.getBoolPref(key);
-      }
-  } catch {
+    let prefService = Services.prefs, type = prefService.getPrefType(key);
+    if (type === prefService.PREF_STRING)
+      return prefService.getStringPref(key);
+    if (type === prefService.PREF_INT)
+      return prefService.getIntPref(key);
+    if (type === prefService.PREF_BOOL)
+      return prefService.getBoolPref(key);
+    return defaultValue;
+  } catch (e) {
     return defaultValue;
   }
-  return defaultValue;
 }, setPrefIfUnset = (key, value) => {
   if (Services.prefs.getPrefType(key) === 0)
     setPref(key, value);

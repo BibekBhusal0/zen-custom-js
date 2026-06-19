@@ -22,8 +22,8 @@ const isCompactMode = () => gZenCompactModeManager?.preference;
 const inGlance = () => gBrowser.selectedTab.hasAttribute("glance-id");
 const togglePref = (prefName) => {
   const pref = getPref(prefName);
-  if (typeof pref === "boolean") return;
-  setPref(!pref);
+  if (typeof pref !== "boolean") return;
+  setPref(prefName, !pref);
 };
 
 function isPinnedTabDifferent() {

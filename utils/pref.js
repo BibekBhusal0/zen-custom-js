@@ -16,20 +16,18 @@ export function setPref(key, value) {
 export const getPref = (key, defaultValue) => {
   try {
     const prefService = Services.prefs;
-    if (prefService.prefHasUserValue(key)) {
-      switch (prefService.getPrefType(key)) {
-        case prefService.PREF_STRING:
-          return prefService.getStringPref(key);
-        case prefService.PREF_INT:
-          return prefService.getIntPref(key);
-        case prefService.PREF_BOOL:
-          return prefService.getBoolPref(key);
-      }
+    const type = prefService.getPrefType(key);
+    if (type === prefService.PREF_STRING) {
+      return prefService.getStringPref(key);
+    } else if (type === prefService.PREF_INT) {
+      return prefService.getIntPref(key);
+    } else if (type === prefService.PREF_BOOL) {
+      return prefService.getBoolPref(key);
     }
-  } catch {
+    return defaultValue;
+  } catch (e) {
     return defaultValue;
   }
-  return defaultValue;
 };
 
 export const setPrefIfUnset = (key, value) => {
