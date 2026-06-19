@@ -3,6 +3,7 @@ import { z } from "./vercel-ai-sdk.uc.mjs";
 import { messageManagerAPI } from "../messageManager.js";
 import { PREFS } from "../utils/prefs.js";
 import { showToast } from "../../utils/toast.js";
+import { getEngineByName, getDefaultEngine, getVisibleEngines } from "../../utils/search-service.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
@@ -119,7 +120,7 @@ function mapTabToObject(tab) {
 // ╰─────────────────────────────────────────────────────────╯
 async function getSearchURL(engineName, searchTerm) {
   try {
-    const engine = await Services.search.getEngineByName(engineName);
+    const engine = await getEngineByName(engineName);
     if (!engine) {
       PREFS.debugError(`No search engine found with name: ${engineName}`);
       return null;
@@ -138,7 +139,8 @@ async function getSearchURL(engineName, searchTerm) {
 
 async function search(args) {
   const { searchTerm, engineName, where } = args;
-  const defaultEngineName = Services.search.defaultEngine.name;
+  const defaultEngine = await getDefaultEngine();
+  const defaultEngineName = defaultEngine.name;
   const searchEngineName = engineName || defaultEngineName;
   if (!searchTerm) return { error: "Search tool requires a searchTerm." };
 
@@ -916,9 +918,10 @@ const tabsInstructions = `If you open tab in glace it will create new small popu
 const toolGroups = {
   search: {
     moreInstructions: async () => {
-      const searchEngines = await Services.search.getVisibleEngines();
+      const searchEngines = await getVisibleEngines();
+      const defaultEngine = await getDefaultEngine();
       const engineNames = searchEngines.map((e) => e.name).join(", ");
-      const defaultEngineName = Services.search.defaultEngine.name;
+      const defaultEngineName = defaultEngine.name;
       return (
         `For the search tool, available engines are: ${engineNames}. The default is '${defaultEngineName}'.` +
         "\n" +

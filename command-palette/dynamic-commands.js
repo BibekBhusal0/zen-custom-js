@@ -5,6 +5,7 @@ import { Storage } from "./utils/storage.js";
 import { ZenCommandPalette } from "./index.js";
 import { showToast } from "../utils/toast.js";
 import { isNotEmptyTab } from "./utils/notEmptyTab.js";
+import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -139,9 +140,10 @@ export async function generateAboutPageCommands() {
  * @returns {Promise<Array<object>>} A promise that resolves to an array of search engine commands.
  */
 export async function generateSearchEngineCommands() {
-  if (!Services.search) return [];
+  const engines = await getVisibleEngines();
+  const defaultEngine = await getDefaultEngine();
 
-  const engines = await Services.search.getVisibleEngines();
+  const defaultEngineName = defaultEngine.name;
   return engines.map((engine) => {
     const engineName = engine.name;
     return {
@@ -161,8 +163,7 @@ export async function generateSearchEngineCommands() {
         }
       },
       condition: () => {
-        const currentEngineName =
-          window.gURLBar.searchMode?.engineName || Services.search.defaultEngine?.name;
+        const currentEngineName = window.gURLBar.searchMode?.engineName || defaultEngineName;
         return currentEngineName !== engineName;
       },
       icon: getSearchEngineFavicon(engine),

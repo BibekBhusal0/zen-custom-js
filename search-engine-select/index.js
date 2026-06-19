@@ -3,6 +3,7 @@ import { startupFinish } from "../utils/startup-finish.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { PREFS } from "./utils/prefs.js";
 import { addPrefListener } from "../utils/pref.js";
+import { getVisibleEngines, getEngineByName, getDefaultEngine } from "../utils/search-service.js";
 
 const SearchEngineSwitcher = {
   _container: null,
@@ -42,7 +43,7 @@ const SearchEngineSwitcher = {
   async buildEngineRegexCache() {
     PREFS.debugLog("Building engine regex cache...");
     this._engineCache = [];
-    const engines = await getVariableEngines();
+    const engines = await getVisibleEngines();
     const PLACEHOLDER = "SEARCH_TERM_PLACEHOLDER_E6A8D";
 
     for (const engine of engines) {
@@ -182,7 +183,7 @@ const SearchEngineSwitcher = {
       const engineName = document
         .getElementById("urlbar-search-mode-indicator-title")
         .innerText.trim();
-      engine = await searchEngineByName(engineName);
+      engine = await getEngineByName(engineName);
     } catch {
       PREFS.debugLog("Search indicator not found. Using default engine.");
       engine = await getDefaultEngine();
@@ -291,7 +292,7 @@ const SearchEngineSwitcher = {
 
   async populateEngineList() {
     this._engineOptions.innerHTML = "";
-    const engines = await getVariableEngines();
+    const engines = await getVisibleEngines();
     engines.forEach((engine) => {
       const option = parseElement(`
         <div class="ses-engine-option" title="Search with ${escapeXmlAttribute(engine.name)}">
@@ -412,31 +413,6 @@ const SearchEngineSwitcher = {
     this._boundListeners = {};
   },
 };
-
-let _searchService;
-async function getSearchService() {
-  if (_searchService) return _searchService;
-  const { SearchService } = ChromeUtils.importESModule(
-    "moz-src:///toolkit/components/search/SearchService.sys.mjs"
-  );
-  _searchService = SearchService;
-  return _searchService;
-}
-
-async function getVariableEngines() {
-  const ss = await getSearchService();
-  return ss.getVisibleEngines();
-}
-
-async function searchEngineByName(name) {
-  const ss = await getSearchService();
-  return ss.getEngineByName(name);
-}
-
-async function getDefaultEngine() {
-  const ss = await getSearchService();
-  return ss.getDefault();
-}
 
 function init() {
   const handleEnabledChange = (pref) => {

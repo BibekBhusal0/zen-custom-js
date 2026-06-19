@@ -1,5 +1,6 @@
 import { getSearchEngineFavicon } from "../utils/favicon.js";
 import { startupFinish } from "../utils/startup-finish.js";
+import { getEngineByName } from "../utils/search-service.js";
 
 let currentEngine = null;
 
@@ -9,7 +10,7 @@ async function updateFavicon() {
   const engineName = component.innerText;
   if (engineName === currentEngine) return false;
   currentEngine = engineName;
-  const engine = await Services.search.getEngineByName(engineName);
+  const engine = await getEngineByName(engineName);
 
   const resetStyle = () => {
     component.style.backgroundImage = "";
