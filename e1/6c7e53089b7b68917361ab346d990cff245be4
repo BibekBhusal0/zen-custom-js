@@ -1,0 +1,34 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.40",
+  "base_commit_sha": "e16c7e53089b7b68917361ab346d990cff245be4",
+  "prompts": {
+    "155a4b13038b1bb9": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3fb961258ffeVidwdg0Yho29iZ",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 30,
+      "total_deletions": 11,
+      "accepted_lines": 18,
+      "overriden_lines": 2
+    },
+    "71f890b6ef8cb605": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3f6ee888fffedmANYQeZP9mMWE",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 26,
+      "total_deletions": 16,
+      "accepted_lines": 18,
+      "overriden_lines": 1
+    }
+  }
+}

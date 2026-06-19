@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.42",
+  "base_commit_sha": "3fc79dd693935bb1d95330a047d153dcc0a77b64",
+  "prompts": {
+    "a7cbed5b5243e33d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3d182c513ffeCPMquxiM8CpA8J",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 10,
+      "total_deletions": 14,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}

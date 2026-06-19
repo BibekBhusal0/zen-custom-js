@@ -1,0 +1,23 @@
+build.js
+  8fd96a23832152b1 222,227
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.42",
+  "base_commit_sha": "46dba7eacc4e0da1639c9699350d261970d1efa0",
+  "prompts": {
+    "8fd96a23832152b1": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "6a2c5564-f8c9-461d-bbf7-23b0e50703de",
+        "model": "gemini-2.5-flash"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 6,
+      "total_deletions": 35,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}

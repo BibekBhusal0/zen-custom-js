@@ -1,0 +1,25 @@
+.github/scripts/publish.js
+  a7cbed5b5243e33d 192
+package.json
+  a7cbed5b5243e33d 6-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.42",
+  "base_commit_sha": "c7ec4334d662b2b497a06115f93811cbef82ec92",
+  "prompts": {
+    "a7cbed5b5243e33d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3d182c513ffeCPMquxiM8CpA8J",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 15,
+      "total_deletions": 22,
+      "accepted_lines": 14,
+      "overriden_lines": 0
+    }
+  }
+}

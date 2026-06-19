@@ -1,0 +1,23 @@
+utils/keyboard.js
+  20057900ec6c3910 77-78,80,83,85-89,93,95-97,100-105,108-114,119-120,123-128,130-133,135,138,144-147,149-150,153-157,160-161,164,167-168,172-174,176-177,179-180,184-185,188-197,200-201,208-211,214-226,228,230-235,238-240,247-260,264-265
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.0.37",
+  "base_commit_sha": "decdc4c6ae31b2b6b8dc2ea9a652612d7590b21c",
+  "prompts": {
+    "20057900ec6c3910": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_3f73e4c28ffeV13AiLiA3zc7kb",
+        "model": "opencode/big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>",
+      "messages": [],
+      "total_additions": 183,
+      "total_deletions": 180,
+      "accepted_lines": 126,
+      "overriden_lines": 1
+    }
+  }
+}
