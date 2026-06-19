@@ -21,11 +21,10 @@
     }
   }
 
-  /* FIX: color not correct (showing white background dark mode) */
   .zen-keyboard-filter-popover {
     position: absolute;
-    background-color: var(--in-content-box-background, #fff);
-    border: 1px solid var(--in-content-border-color, #ccc);
+    background-color: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));
+    border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3));
     border-radius: 6px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     padding: 10px;
