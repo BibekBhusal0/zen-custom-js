@@ -3,7 +3,7 @@
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
 // @version         2.5.84b
-// @lastUpdated     2026-06-20
+// @lastUpdated     2026-06-21
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
 // ==/UserScript==
@@ -1203,7 +1203,7 @@ function showToast(options = {}) {
   debugLog("Generated toast ID:", toastId);
   try {
     debugLog("Importing uc_api module...");
-    let ucAPI = ChromeUtils.importESModule("chrome://userscripts/content/engine/utils/uc_api.sys.mjs").default;
+    let ucAPI = ChromeUtils.importESModule("chrome://userscripts/content/utils/uc_api.sys.mjs").default;
     debugLog("uc_api module imported successfully:", !!ucAPI);
     let showToastOptions = {
       id: toastId,
