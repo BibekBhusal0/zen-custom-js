@@ -109,16 +109,36 @@
     "property": "extension.browse-bot.claude-model",
     "label": "Claude Model",
     "type": "dropdown",
-    "defaultValue": "claude-opus-4-1",
+    "defaultValue": "claude-opus-4-8",
     "description": "Select the Claude model to use.",
     "options": [
       {
-        "value": "claude-hiku-4-5",
-        "label": "Claude Hiku 4.5"
+        "value": "claude-fable-5",
+        "label": "Claude Fable 5"
       },
       {
-        "value": "claude-sonnet-4-5",
-        "label": "Claude Sonnet 4.5"
+        "value": "claude-opus-4-8",
+        "label": "Claude Opus 4.8"
+      },
+      {
+        "value": "claude-opus-4-7",
+        "label": "Claude Opus 4.7"
+      },
+      {
+        "value": "claude-opus-4-6",
+        "label": "Claude Opus 4.6"
+      },
+      {
+        "value": "claude-sonnet-4-6",
+        "label": "Claude Sonnet 4.6"
+      },
+      {
+        "value": "claude-opus-4-5",
+        "label": "Claude Opus 4.5"
+      },
+      {
+        "value": "claude-hiku-4-5",
+        "label": "Claude Hiku 4.5"
       },
       {
         "value": "claude-sonnet-4-5",
@@ -178,8 +198,24 @@
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
       {
+        "value": "gemini-3.5-flash",
+        "label": "Gemini 3.5 Flash"
+      },
+      {
+        "value": "gemini-3.1-pro-preview",
+        "label": "Gemini 3.1 Pro Preview"
+      },
+      {
+        "value": "gemini-3.1-flash-image-preview",
+        "label": "Gemini 3.1 Flash Image Preview"
+      },
+      {
+        "value": "gemini-3.1-flash-lite-preview",
+        "label": "Gemini 3.1 Flash Lite Preview"
+      },
+      {
         "value": "gemini-3-pro-preview",
-        "label": "Gemini 3 Pro (Preview)"
+        "label": "Gemini 3 Pro Preview"
       },
       {
         "value": "gemini-2.5-pro",
@@ -254,6 +290,26 @@
     "defaultValue": "grok-4",
     "description": "Select the Grok model to use.",
     "options": [
+      {
+        "value": "grok-4.20-reasoning",
+        "label": "Grok 4.20 (Reasoning)"
+      },
+      {
+        "value": "grok-4.20-non-reasoning",
+        "label": "Grok 4.20 (Non-Reasoning)"
+      },
+      {
+        "value": "grok-4-1-fast-reasoning",
+        "label": "Grok 4.1 Fast (Reasoning)"
+      },
+      {
+        "value": "grok-4-1-fast-non-reasoning",
+        "label": "Grok 4.1 Fast (Non-Reasoning)"
+      },
+      {
+        "value": "grok-4-1",
+        "label": "Grok 4.1"
+      },
       {
         "value": "grok-4-fast-non-reasoning",
         "label": "Grok 4 Fast (Non-Reasoning)"
@@ -534,6 +590,30 @@
     "description": "Select the OpenAI model to use.",
     "options": [
       {
+        "value": "gpt-5.5",
+        "label": "GPT 5.5"
+      },
+      {
+        "value": "gpt-5.4-pro",
+        "label": "GPT 5.4 Pro"
+      },
+      {
+        "value": "gpt-5.4",
+        "label": "GPT 5.4"
+      },
+      {
+        "value": "gpt-5.4-mini",
+        "label": "GPT 5.4 Mini"
+      },
+      {
+        "value": "gpt-5.4-nano",
+        "label": "GPT 5.4 Nano"
+      },
+      {
+        "value": "gpt-5.3-chat-latest",
+        "label": "GPT 5.3 Latest"
+      },
+      {
         "value": "gpt-5.2-pro",
         "label": "GPT 5.2 Pro"
       },
@@ -556,6 +636,14 @@
       {
         "value": "gpt-5.1-chat-latest",
         "label": "GPT 5.1 Latest"
+      },
+      {
+        "value": "gpt-5.1",
+        "label": "GPT 5.1"
+      },
+      {
+        "value": "gpt-5-pro",
+        "label": "GPT 5 Pro"
       },
       {
         "value": "gpt-4.1",
