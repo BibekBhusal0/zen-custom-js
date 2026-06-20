@@ -5,7 +5,7 @@ import { Storage } from "./utils/storage.js";
 import { ZenCommandPalette } from "./index.js";
 import { showToast } from "../utils/toast.js";
 import { isNotEmptyTab } from "./utils/notEmptyTab.js";
-import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
+import { getVisibleEngines } from "../utils/search-service.js";
 
 const commandChainUtils = {
   async openLink(params) {

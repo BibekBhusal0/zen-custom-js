@@ -210,7 +210,7 @@ async function build() {
         const normalizedThemeId = theme.id.replace(/-/g, "");
         const includesTarget = normalizedThemeId.includes(normalizedTarget);
         return includesTarget;
-      } catch (e) {
+      } catch {
         return false;
       }
     });
