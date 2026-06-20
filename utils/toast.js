@@ -38,8 +38,7 @@ function showToast(options = {}) {
     // Import the uc_api module
     debugLog("Importing uc_api module...");
     const ucAPI = ChromeUtils.importESModule(
-      // FIX: This impoprt is not working
-      "chrome://userscripts/content/engine/utils/uc_api.sys.mjs"
+      "chrome://userscripts/content/utils/uc_api.sys.mjs"
     ).default;
     debugLog("uc_api module imported successfully:", !!ucAPI);
 
