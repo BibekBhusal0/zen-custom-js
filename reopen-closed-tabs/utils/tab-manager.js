@@ -37,6 +37,49 @@ const TabManager = {
   },
 
   /**
+   * Fetches a list of tabs synced from other devices via Firefox Sync.
+   * @returns {Promise<Array<object>>} A promise resolving to an array of synced tab data.
+   */
+  async getSyncedTabs() {
+    PREFS.debugLog("Fetching synced tabs.");
+    try {
+      const { SyncedTabs } = ChromeUtils.importESModule(
+        "resource://services-sync/SyncedTabs.sys.mjs"
+      );
+
+      if (!SyncedTabs) {
+        PREFS.debugError("SyncedTabs module not available.");
+        return [];
+      }
+
+      await SyncedTabs.syncTabs();
+      const clients = await SyncedTabs.getTabClients();
+
+      const syncedTabs = [];
+      for (const client of clients) {
+        for (const tab of client.tabs) {
+          syncedTabs.push({
+            url: tab.url,
+            title: tab.title,
+            isClosed: false,
+            isSynced: true,
+            clientName: client.name,
+            faviconUrl: tab.icon,
+            lastUsed: tab.lastUsed,
+          });
+        }
+      }
+
+      syncedTabs.sort((a, b) => b.lastUsed - a.lastUsed);
+      PREFS.debugLog("Synced tabs fetched:", syncedTabs);
+      return syncedTabs;
+    } catch (e) {
+      PREFS.debugError("Error fetching synced tabs:", e);
+      return [];
+    }
+  },
+
+  /**
    * Removes a closed tab from the session store.
    * @param {object} tabData - The data of the closed tab to remove, specifically containing sessionIndex.
    */

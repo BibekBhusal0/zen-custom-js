@@ -15,6 +15,12 @@
     "defaultValue": false
   },
   {
+    "type": "checkbox",
+    "property": "extensions.reopen-closed-tabs.show-sync-tabs",
+    "label": "Show Synced Tabs in Menu",
+    "defaultValue": true
+  },
+  {
     "type": "string",
     "property": "extensions.reopen-closed-tabs.shortcut-key",
     "label": "Activation Shortcut",

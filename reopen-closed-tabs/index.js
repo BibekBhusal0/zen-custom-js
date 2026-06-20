@@ -145,10 +145,16 @@ const ReopenClosedTabs = {
 
     const closedTabs = await TabManager.getRecentlyClosedTabs();
     const showOpenTabs = PREFS.showOpenTabs;
+    const showSyncTabs = PREFS.showSyncTabs;
     let openTabs = [];
+    let syncedTabs = [];
 
     if (showOpenTabs) {
       openTabs = await TabManager.getOpenTabs();
+    }
+
+    if (showSyncTabs) {
+      syncedTabs = await TabManager.getSyncedTabs();
     }
 
     if (closedTabs.length > 0) {
@@ -159,7 +165,11 @@ const ReopenClosedTabs = {
       this._renderGroup(allItemsContainer, "Open Tabs", openTabs);
     }
 
-    if (closedTabs.length === 0 && openTabs.length === 0) {
+    if (syncedTabs.length > 0) {
+      this._renderGroup(allItemsContainer, "Synced Tabs", syncedTabs);
+    }
+
+    if (closedTabs.length === 0 && openTabs.length === 0 && syncedTabs.length === 0) {
       const noTabsItem = parseElement(
         `<label class="reopen-closed-tab-item-disabled" value="No tabs to display."/>`,
         "xul"
@@ -167,7 +177,7 @@ const ReopenClosedTabs = {
       allItemsContainer.appendChild(noTabsItem);
     }
 
-    this._allTabsCache = [...closedTabs, ...openTabs];
+    this._allTabsCache = [...closedTabs, ...openTabs, ...syncedTabs];
 
     const firstItem = allItemsContainer.querySelector(".reopen-closed-tab-item");
     if (firstItem) {
@@ -225,6 +235,9 @@ const ReopenClosedTabs = {
       if (tab.closedAt) {
         contextParts = ["Closed " + timeAgo(tab.closedAt)];
       }
+    } else if (tab.isSynced) {
+      if (tab.lastUsed) contextParts.push(timeAgo(tab.lastUsed));
+      if (tab.clientName) contextParts.push("From " + escapeXmlAttribute(tab.clientName));
     } else {
       if (tab.lastAccessed) contextParts.push(timeAgo(tab.lastAccessed));
       if (tab.workspace) contextParts.push(escapeXmlAttribute(tab.workspace));
@@ -280,11 +293,13 @@ const ReopenClosedTabs = {
       const url = (tab.url || "").toLowerCase();
       const workspace = (tab.workspace || "").toLowerCase();
       const folder = (tab.folder || "").toLowerCase();
+      const clientName = (tab.clientName || "").toLowerCase();
       return (
         title.includes(lowerQuery) ||
         url.includes(lowerQuery) ||
         workspace.includes(lowerQuery) ||
-        folder.includes(lowerQuery)
+        folder.includes(lowerQuery) ||
+        clientName.includes(lowerQuery)
       );
     });
 
@@ -302,13 +317,17 @@ const ReopenClosedTabs = {
       } else {
         // Re-render groups with filtered tabs
         const closedTabs = filteredTabs.filter((t) => t.isClosed);
-        const openTabs = filteredTabs.filter((t) => !t.isClosed);
+        const openTabs = filteredTabs.filter((t) => !t.isClosed && !t.isSynced);
+        const syncedTabs = filteredTabs.filter((t) => t.isSynced);
 
         if (closedTabs.length > 0) {
           this._renderGroup(tabItemsContainer, "Recently Closed", closedTabs);
         }
         if (openTabs.length > 0) {
           this._renderGroup(tabItemsContainer, "Open Tabs", openTabs);
+        }
+        if (syncedTabs.length > 0) {
+          this._renderGroup(tabItemsContainer, "Synced Tabs", syncedTabs);
         }
 
         const firstItem = tabItemsContainer.querySelector(".reopen-closed-tab-item");
