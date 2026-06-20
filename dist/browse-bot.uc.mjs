@@ -3,7 +3,7 @@
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
 // @version         2.5.84b
-// @lastUpdated     2026-06-19
+// @lastUpdated     2026-06-20
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
 // ==/UserScript==
@@ -3141,6 +3141,10 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("gemini.google.com"),
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
   AVAILABLE_MODELS: [
+    "gemini-3.5-flash",
+    "gemini-3.1-pro-preview",
+    "gemini-3.1-flash-image-preview",
+    "gemini-3.1-flash-lite-preview",
     "gemini-3-pro-preview",
     "gemini-2.5-pro",
     "gemini-2.5-flash",
@@ -3154,6 +3158,10 @@ var providerPrototype = {
     "gemini-1.5-flash-8b-latest"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "gemini-3.5-flash": "Gemini 3.5 Flash",
+    "gemini-3.1-pro-preview": "Gemini 3.1 Pro Preview",
+    "gemini-3.1-flash-image-preview": "Gemini 3.1 Flash Image Preview",
+    "gemini-3.1-flash-lite-preview": "Gemini 3.1 Flash Lite Preview",
     "gemini-3-pro-preview": "Gemini 3 Pro Preview",
     "gemini-2.5-pro": "Gemini 2.5 Pro",
     "gemini-2.5-flash": "Gemini 2.5 Flash",
@@ -3175,6 +3183,12 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("chatgpt.com"),
   apiKeyUrl: "https://platform.openai.com/account/api-keys",
   AVAILABLE_MODELS: [
+    "gpt-5.5",
+    "gpt-5.4-pro",
+    "gpt-5.4",
+    "gpt-5.4-mini",
+    "gpt-5.4-nano",
+    "gpt-5.3-chat-latest",
     "gpt-5.2-pro",
     "gpt-5.2-chat-latest",
     "gpt-5.2",
@@ -3202,6 +3216,12 @@ var providerPrototype = {
     "gpt-5-codex"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "gpt-5.5": "GPT 5.5",
+    "gpt-5.4-pro": "GPT 5.4 Pro",
+    "gpt-5.4": "GPT 5.4",
+    "gpt-5.4-mini": "GPT 5.4 Mini",
+    "gpt-5.4-nano": "GPT 5.4 Nano",
+    "gpt-5.3-chat-latest": "GPT 5.3 Latest",
     "gpt-5.2-pro": "GPT 5.2 Pro",
     "gpt-5.2-chat-latest": "GPT 5.2 Latest",
     "gpt-5.2": "GPT 5.2",
@@ -3237,6 +3257,11 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("anthropic.com"),
   apiKeyUrl: "https://console.anthropic.com/dashboard",
   AVAILABLE_MODELS: [
+    "claude-fable-5",
+    "claude-opus-4-8",
+    "claude-opus-4-7",
+    "claude-opus-4-6",
+    "claude-sonnet-4-6",
     "claude-opus-4-5",
     "claude-hiku-4-5",
     "claude-sonnet-4-5",
@@ -3247,6 +3272,11 @@ var providerPrototype = {
     "claude-3-5-haiku-latest"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "claude-fable-5": "Claude Fable 5",
+    "claude-opus-4-8": "Claude Opus 4.8",
+    "claude-opus-4-7": "Claude Opus 4.7",
+    "claude-opus-4-6": "Claude Opus 4.6",
+    "claude-sonnet-4-6": "Claude Sonnet 4.6",
     "claude-opus-4-5": "Claude Opus 4.5",
     "claude-hiku-4-5": "Claude Hiku 4.5",
     "claude-sonnet-4-5": "Claude Sonnet 4.5",
@@ -3265,6 +3295,11 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("x.ai"),
   apiKeyUrl: "https://x.ai/api",
   AVAILABLE_MODELS: [
+    "grok-4.20-reasoning",
+    "grok-4.20-non-reasoning",
+    "grok-4-1-fast-reasoning",
+    "grok-4-1-fast-non-reasoning",
+    "grok-4-1",
     "grok-4-fast-non-reasoning",
     "grok-4-fast-reasoning",
     "grok-code-fast-1",
@@ -3281,6 +3316,11 @@ var providerPrototype = {
     "grok-2-latest"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "grok-4.20-reasoning": "Grok 4.20 (Reasoning)",
+    "grok-4.20-non-reasoning": "Grok 4.20 (Non-Reasoning)",
+    "grok-4-1-fast-reasoning": "Grok 4.1 Fast (Reasoning)",
+    "grok-4-1-fast-non-reasoning": "Grok 4.1 Fast (Non-Reasoning)",
+    "grok-4-1": "Grok 4.1",
     "grok-4-fast-non-reasoning": "Grok 4 Fast (Non-Reasoning)",
     "grok-4-fast-reasoning": "Grok 4 Fast (Reasoning)",
     "grok-code-fast-1": "Grok Code Fast 1",
