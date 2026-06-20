@@ -39,7 +39,7 @@ var getPref = (key, defaultValue) => {
     else if (type === prefService.PREF_BOOL)
       return prefService.getBoolPref(key);
     return defaultValue;
-  } catch (e) {
+  } catch {
     return defaultValue;
   }
 }, setPrefIfUnset = (key, value) => {
