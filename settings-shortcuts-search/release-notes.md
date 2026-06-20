@@ -1,3 +1,7 @@
+# New Features
+
 # Fixes
 
-- Popover color
+# Others
+
+# Contributes
