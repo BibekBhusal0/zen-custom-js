@@ -1,0 +1,28 @@
+reopen-closed-tabs/utils/prefs.js
+  s_041e4be337f47d::t_55bcb749e7a26a 14
+  s_041e4be337f47d::t_a689ba9632f34b 32-39
+reopen-closed-tabs/preferences.json
+  s_041e4be337f47d::t_dfeccec544f2c3 18-22
+reopen-closed-tabs/utils/tab-manager.js
+  s_041e4be337f47d::t_fabb279381488a 40-81
+reopen-closed-tabs/index.js
+  s_041e4be337f47d::t_3658ec9d8f1ef5 296,301-302,320-321,329-330
+  s_041e4be337f47d::t_161ecedc5b312f 148,150,156-159,168-172,180
+  s_041e4be337f47d::t_9da3dc1ea0c8fd 238-240
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "80e2da32e4b27cb2dc277af5d29d3167446f090d",
+  "prompts": {},
+  "sessions": {
+    "s_041e4be337f47d": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_119fac097ffe6DZVAM12JNvnni",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
