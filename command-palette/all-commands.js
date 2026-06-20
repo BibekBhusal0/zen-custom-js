@@ -776,4 +776,36 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/folder.svg",
     tags: ["folder", "expand", "group", "tabs", "all"],
   },
+
+  // ----------- Live Folders ------------
+  {
+    key: "live-folder-github-pull-requests",
+    label: "Create Live Folder - Github Pull Requests",
+    icon: "chrome://browser/skin/zen-icons/selectable/logo-github.svg",
+    tags: ["live", "github", "Pull requests", "new", "create", "folder"],
+    command: () => {
+      const cmd = document.querySelector('[data-l10n-id="zen-live-folder-github-pull-requests"]');
+      if (cmd) cmd.doCommand();
+    },
+  },
+  {
+    key: "live-folder-github-issues",
+    label: "Create Live Folder - Github Issues",
+    icon: "chrome://browser/skin/zen-icons/selectable/logo-github.svg",
+    tags: ["live", "github", "issues", "new", "create", "folder"],
+    command: () => {
+      const cmd = document.querySelector('[data-l10n-id="zen-live-folder-github-issues"]');
+      if (cmd) cmd.doCommand();
+    },
+  },
+  {
+    key: "live-folder-rss",
+    label: "Create Live Folder - RSS",
+    icon: "chrome://browser/skin/zen-icons/selectable/logo-rss.svg",
+    tags: ["live", "github", "rss", "new", "create", "folder"],
+    command: () => {
+      const cmd = document.querySelector('[data-l10n-id="zen-live-folder-type-rss"]');
+      if (cmd) cmd.doCommand();
+    },
+  },
 ];
