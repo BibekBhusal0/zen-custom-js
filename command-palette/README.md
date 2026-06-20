@@ -338,6 +338,8 @@ Thanks to [12th-devs](https://github.com/12th-devs/) and [CompTechGuy](https://g
 
 Thanks to [Bliwi](https://github.com/Bliwi) for adding commands for Advanced Tab Groups.
 
+Thanks to [okilonet1](https://github.com/okilonet1) fixing multiple bugs.
+
 Special thanks to [ferrocyante](https://github.com/ferrocyante) that I don't have to go through pain of writing CSS.
 
 Special thanks to [Darsh-A](https://github.com/Darsh-A/) entire command list is adapted from her project **[ZBar-Zen](https://github.com/Darsh-A/ZBar-Zen)**. This will not have been possible without command list from [Darsh-A](https://github.com/Darsh-A/).
