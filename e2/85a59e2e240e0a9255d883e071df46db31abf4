@@ -1,0 +1,22 @@
+findbar-ai/preferences.json
+  s_bf2fa968e06b85::t_db359fdc20d3cd 201-215,218
+  s_bf2fa968e06b85::t_86ddcacc36c4b3 593-615,640-646
+  s_bf2fa968e06b85::t_b615518297c2b5 112,116-117,120-141
+  s_bf2fa968e06b85::t_72126273c79822 294-312
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "e285a59e2e240e0a9255d883e071df46db31abf4",
+  "prompts": {},
+  "sessions": {
+    "s_bf2fa968e06b85": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_11c9a31c9ffe4qw1JgbV52UO4z",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
