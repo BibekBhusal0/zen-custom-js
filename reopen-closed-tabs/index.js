@@ -143,18 +143,12 @@ const ReopenClosedTabs = {
     );
     mainVbox.appendChild(allItemsContainer);
 
-    const closedTabs = await TabManager.getRecentlyClosedTabs();
     const showOpenTabs = PREFS.showOpenTabs;
-    const showSyncTabs = PREFS.showSyncTabs;
-    let openTabs = [];
-    let syncedTabs = [];
 
+    const closedTabs = await TabManager.getRecentlyClosedTabs();
+    let openTabs = [];
     if (showOpenTabs) {
       openTabs = await TabManager.getOpenTabs();
-    }
-
-    if (showSyncTabs) {
-      syncedTabs = await TabManager.getSyncedTabs();
     }
 
     if (closedTabs.length > 0) {
@@ -165,11 +159,7 @@ const ReopenClosedTabs = {
       this._renderGroup(allItemsContainer, "Open Tabs", openTabs);
     }
 
-    if (syncedTabs.length > 0) {
-      this._renderGroup(allItemsContainer, "Synced Tabs", syncedTabs);
-    }
-
-    if (closedTabs.length === 0 && openTabs.length === 0 && syncedTabs.length === 0) {
+    if (closedTabs.length === 0 && openTabs.length === 0) {
       const noTabsItem = parseElement(
         `<label class="reopen-closed-tab-item-disabled" value="No tabs to display."/>`,
         "xul"
@@ -177,7 +167,7 @@ const ReopenClosedTabs = {
       allItemsContainer.appendChild(noTabsItem);
     }
 
-    this._allTabsCache = [...closedTabs, ...openTabs, ...syncedTabs];
+    this._allTabsCache = [...closedTabs, ...openTabs];
 
     const firstItem = allItemsContainer.querySelector(".reopen-closed-tab-item");
     if (firstItem) {
@@ -199,6 +189,36 @@ const ReopenClosedTabs = {
         },
         { once: true }
       );
+    }
+
+    if (PREFS.showSyncTabs) {
+      this._loadSyncedTabsAsync(allItemsContainer, panel);
+    }
+  },
+
+  async _loadSyncedTabsAsync(container, panel) {
+    const syncedTabs = await TabManager.getSyncedTabs();
+    if (syncedTabs.length === 0) return;
+
+    this._renderGroup(container, "Synced Tabs", syncedTabs);
+    this._allTabsCache.push(...syncedTabs);
+
+    const searchInput = panel.querySelector("#reopen-closed-tabs-search-input");
+    if (searchInput && searchInput.value) {
+      this._filterTabs(searchInput.value, panel);
+      return;
+    }
+
+    const noTabsItem = container.querySelector(".reopen-closed-tab-item-disabled");
+    if (noTabsItem) {
+      noTabsItem.remove();
+    }
+
+    if (!container.querySelector(".reopen-closed-tab-item[selected]")) {
+      const firstItem = container.querySelector(".reopen-closed-tab-item");
+      if (firstItem) {
+        firstItem.setAttribute("selected", "true");
+      }
     }
   },
 
