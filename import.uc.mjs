@@ -15,3 +15,8 @@ import "./dist/browse-bot.uc.mjs";
 // Other scripts
 import "./others/tab-explode.js";
 import "./others/invert-pdf.js";
+
+// // WARN: THESE SETTINGS ARE FOR
+// // Only run one time to install mods and to set prefs
+// import "./others/set-prefs.js";
+// import "./others/install-mods.js";
