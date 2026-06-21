@@ -667,13 +667,21 @@ browser {
         font-weight: 500;
 
         &[data-status="loading"] {
-          /* FIX: hiding loading indicator from css unelss i figure out a way to hide it correctly*/
-          display: none !important;
-          background-color: var(--browse-bot-muted-bg);
+          background-color: color-mix(in srgb, var(--browse-bot-muted-bg) 60%, transparent 40%);
           color: var(--browse-bot-muted);
+          opacity: 0.8;
 
           .tool-call-icon {
             animation: spin 0.7s linear infinite;
+          }
+
+          .tool-call-name::after {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            margin-left: 2px;
+            animation: pulse 1s ease-in-out infinite;
+            vertical-align: middle;
           }
         }
 

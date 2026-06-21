@@ -515,7 +515,7 @@ export const browseBotFindbar = {
     existingLoadingItems.forEach((item) => item.remove());
 
     let toolDiv = parseElement(`
-<div class="tool-call-status" data-tool-name="${toolName} data-status="${status}">
+<div class="tool-call-status" data-tool-name="${toolName}" data-status="${status}">
   <span class="tool-call-icon">${icons[status] || ""}</span>
   <span class="tool-call-name">${friendlyName}</span>
 </div>
