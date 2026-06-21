@@ -58,8 +58,7 @@ sidebarWidthUpdate();
 function parseMD(markdown, convertHTML = true) {
   let htmlContent = parseElement(`<div class="markdown-body"></div>`);
   try {
-    // FIX: This impoprt is not working
-    const parse = ChromeUtils.importESModule("chrome://userscripts/content/engine/utils/dom.mjs")
+    const parse = ChromeUtils.importESModule("chrome://userscripts/content/utils/dom.mjs")
       .default.parseMD;
     const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
     parse(htmlContent, markdown, "", browserWindow || window);

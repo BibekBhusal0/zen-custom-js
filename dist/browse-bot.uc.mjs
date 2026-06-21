@@ -2196,7 +2196,7 @@ sidebarWidthUpdate();
 function parseMD(markdown, convertHTML = !0) {
   let htmlContent = parseElement('<div class="markdown-body"></div>');
   try {
-    let parse = ChromeUtils.importESModule("chrome://userscripts/content/engine/utils/dom.mjs").default.parseMD, browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+    let parse = ChromeUtils.importESModule("chrome://userscripts/content/utils/dom.mjs").default.parseMD, browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
     parse(htmlContent, markdown, "", browserWindow || window);
   } catch {
     PREFS2.debugLog("Parsing markdown failed"), htmlContent.innerHTML = markdown;
