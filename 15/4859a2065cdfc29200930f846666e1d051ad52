@@ -1,0 +1,21 @@
+findbar-ai/findbar-ai.uc.js
+  s_2811d376c59144::t_ee022dcf3d0df9 518
+findbar-ai/styles/findbar.css
+  s_2811d376c59144::t_c135f903af1842 670,672,677-684
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "154859a2065cdfc29200930f846666e1d051ad52",
+  "prompts": {},
+  "sessions": {
+    "s_2811d376c59144": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_116601f58ffe1g1cHcdBhB3L9z",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
