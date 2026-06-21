@@ -18,9 +18,13 @@
   "customShortcuts": {
     "Browser:NextTab": "Alt+J",
     "Browser:PrevTab": "Alt+K",
+    "Browser:Back": "Alt+H",
+    "Browser:Forward": "Alt+L",
+    "key_browserConsole": "Ctrl+Shift+K",
+    "key_webConsole": "Ctrl+Shift+J",
     "app:clear-startupCache": "Ctrl+Alt+Shift+R",
     "app:minimize-memory": "Ctrl+Alt+Shift+M",
-    "cmd_zenCompactModeShowSidebar": "Alt+S",
+    "cmd_zenCompactModeShowSidebar": "alt+A",
     "cmd_zenCompactModeShowToolbar": "Alt+T",
     "custom:advanced-settings": "Ctrl+Alt+Shift+S",
     "custom:close-and-next": "Ctrl+Alt+N",
@@ -37,7 +41,15 @@
     "unload-other-tabs": "Ctrl+Alt+U",
     "unload-tab": "Alt+U",
     "browsebot:settings": "Alt+E",
-    "rename-tab": "ctrl+alt+r"
+    "rename-tab": "Ctrl+Alt+R",
+    "cmd_zenNewEmptySplit": "Ctrl+/",
+    "cmd_zenCompactModeToggle": "Alt+Z",
+    "cmd_zenToggleSidebar": "Alt+W",
+    "cmd_zenWorkspaceForward": "Ctrl+`",
+    "cmd_zenWorkspaceBackward": "Ctrl+Shift+~",
+    "cmd_zenCloseUnpinnedTabs": "Alt+C",
+    "cmd_zenSplitViewUnsplit": "Ctrl+Shift+?",
+    "cmd_zenPinnedTabReset": "Alt+R"
   },
   "toolbarButtons": [],
   "customCommands": [
@@ -108,3 +120,4 @@
     }
   ]
 }
+
