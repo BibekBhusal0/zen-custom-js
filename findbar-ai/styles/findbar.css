@@ -572,7 +572,7 @@ browser {
           flex-grow: 1 !important;
           display: flex !important;
           align-items: center !important;
-          border-radius: 8 !important;
+          border-radius: 0 !important;
           padding: 0 !important;
           min-height: 20px !important;
           max-height: 160px !important;
