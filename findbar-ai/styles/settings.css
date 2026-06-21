@@ -182,7 +182,7 @@
       }
 
       &[data-expanded="false"] {
-        max-height: 22px !important;
+        max-height: 20px !important;
 
         .accordion-header::after {
           transform: translateY(-50%) rotate(270deg);
