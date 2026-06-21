@@ -1,0 +1,19 @@
+others/install-mods.js
+  s_0fd0446bb5df60::t_03719c2c2e059e 3,9,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.9",
+  "base_commit_sha": "d8a0dcd8571c404f135603fd1b42b16be9ccab18",
+  "prompts": {},
+  "sessions": {
+    "s_0fd0446bb5df60": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_114ac687effeMYFlSME8ZBA3PK",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
