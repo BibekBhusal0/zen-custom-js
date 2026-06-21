@@ -58,8 +58,8 @@ sidebarWidthUpdate();
 function parseMD(markdown, convertHTML = true) {
   let htmlContent = parseElement(`<div class="markdown-body"></div>`);
   try {
-    const parse = ChromeUtils.importESModule("chrome://userscripts/content/utils/dom.mjs")
-      .default.parseMD;
+    const parse = ChromeUtils.importESModule("chrome://userscripts/content/utils/dom.mjs").default
+      .parseMD;
     const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
     parse(htmlContent, markdown, "", browserWindow || window);
   } catch {
