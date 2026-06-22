@@ -24,7 +24,7 @@
     "app:minimize-memory": "Ctrl+Alt+Shift+M",
     "browsebot:settings": "Alt+E",
     "cmd_zenCloseUnpinnedTabs": "Alt+C",
-    "cmd_zenCompactModeShowSidebar": "alt+A",
+    "cmd_zenCompactModeShowSidebar": "Alt+S",
     "cmd_zenCompactModeShowToolbar": "Alt+T",
     "cmd_zenCompactModeToggle": "Alt+Z",
     "cmd_zenNewEmptySplit": "Ctrl+/",
