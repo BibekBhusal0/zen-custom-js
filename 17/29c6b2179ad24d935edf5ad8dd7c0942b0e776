@@ -1,0 +1,30 @@
+findbar-ai/findbar-ai.uc.js
+  s_9ff373f8359d3f::t_934654e98af7b3 410-412
+  s_9ff373f8359d3f::t_1d111a406bf27f 490-491,494-499,502-504,511-512,516-522
+  s_9ff373f8359d3f::t_844a5b74adf4ff 437-439,443-446,448,453-455,459,463-465
+  s_9ff373f8359d3f::t_acc72f85725714 449,457-458
+  s_9ff373f8359d3f::t_e4bed67f9d971c 993-999,1006
+dist/browse-bot.uc.mjs
+  s_9ff373f8359d3f::t_acc72f85725714 2473-2475,2493-2495,2507,2509-2512,2514-2520,2528,2530-2534,2537,2545-2551,2839-2843,2847
+findbar-ai/llm/providers.js
+  s_9ff373f8359d3f::t_acc72f85725714 415-435
+findbar-ai/styles/findbar.css
+  s_9ff373f8359d3f::t_183b842a9f03c8 1-4
+  s_9ff373f8359d3f::t_9c2ba5c381d701 437,440-442,445-460,462-464,466-468,470-474,477-479
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.11",
+  "base_commit_sha": "1729c6b2179ad24d935edf5ad8dd7c0942b0e776",
+  "prompts": {},
+  "sessions": {
+    "s_9ff373f8359d3f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10a5e90a0ffeGLhwFqikydm25k",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
