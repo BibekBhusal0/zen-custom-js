@@ -407,9 +407,9 @@ export const browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="text" id="custom-base-url" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" style="display: none;" />
-              <input type="text" id="custom-model-name" placeholder="Enter Model Name (e.g. deepseek-chat)" style="display: none" />
-              <div style="display: flex; gap: 8px; width: 100%;">
+              <input type="text" id="base-url" class="api-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
+              <input type="text" id="model-name" class="api-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
+              <div class="api-key-row">
                 <input type="password" id="api-key" placeholder="Enter your API key" />
                 <button id="save-api-key">Save</button>
               </div>
@@ -434,46 +434,41 @@ export const browseBotFindbar = {
 
     const updateUIForProvider = (providerName) => {
       const provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[providerName];
-      const customBaseUrlInput = container.querySelector("#custom-base-url");
-      const customModelNameInput = container.querySelector("#custom-model-name");
+      const baseUrlInput = container.querySelector("#base-url");
+      const modelNameInput = container.querySelector("#model-name");
+      const apiKeyRow = container.querySelector(".api-key-row");
 
       if (providerName === "ollama") {
         description.textContent =
-          "Ollama is selected. You can customize the Base URL below or use the default.";
-        input.type = "text";
-        input.placeholder = "Enter Ollama Base URL";
-        input.value = PREFS.ollamaBaseUrl || "";
+          "Ollama is selected. Configure the Base URL and Model name below.";
+        baseUrlInput?.classList.remove("hidden");
+        modelNameInput?.classList.remove("hidden");
+        apiKeyRow?.classList.add("hidden");
         getApiKeyLink.style.display = "none";
-        if (customBaseUrlInput) customBaseUrlInput.style.display = "none";
-        if (customModelNameInput) customModelNameInput.style.display = "none";
+        if (baseUrlInput) baseUrlInput.value = PREFS.ollamaBaseUrl || "";
+        if (modelNameInput) modelNameInput.value = PREFS.getPref(PREFS.OLLAMA_MODEL) || "";
       } else if (providerName === "custom") {
         description.textContent =
           "Custom Provider is selected. Please enter the API Endpoint, Model name, and your API Key.";
-        input.type = "password";
-        input.placeholder = "Enter your API key";
-        input.value = PREFS.getPref(PREFS.CUSTOM_API_KEY) || "";
+        baseUrlInput?.classList.remove("hidden");
+        modelNameInput?.classList.remove("hidden");
+        apiKeyRow?.classList.remove("hidden");
         getApiKeyLink.style.display = "none";
-        if (customBaseUrlInput) {
-          customBaseUrlInput.style.display = "block";
-          customBaseUrlInput.value = PREFS.getPref(PREFS.CUSTOM_BASE_URL) || "";
-        }
-        if (customModelNameInput) {
-          customModelNameInput.style.display = "block";
-          customModelNameInput.value = PREFS.getPref(PREFS.CUSTOM_MODEL) || "";
-        }
+        if (baseUrlInput) baseUrlInput.value = PREFS.getPref(PREFS.CUSTOM_BASE_URL) || "";
+        if (modelNameInput) modelNameInput.value = PREFS.getPref(PREFS.CUSTOM_MODEL) || "";
+        input.value = PREFS.getPref(PREFS.CUSTOM_API_KEY) || "";
       } else {
         description.textContent =
           "To use AI features, you need to set up your API key and select a provider.";
-        input.type = "password";
-        input.placeholder = "Enter your API key";
+        baseUrlInput?.classList.add("hidden");
+        modelNameInput?.classList.add("hidden");
+        apiKeyRow?.classList.remove("hidden");
         input.value = provider.apiKey || "";
         getApiKeyLink.style.display = provider.apiKeyUrl ? "inline-block" : "none";
         getApiKeyLink.disabled = !provider.apiKeyUrl;
         getApiKeyLink.title = provider.apiKeyUrl
           ? "Get API Key"
           : "No API key link available for this provider.";
-        if (customBaseUrlInput) customBaseUrlInput.style.display = "none";
-        if (customModelNameInput) customModelNameInput.style.display = "none";
       }
     };
 
@@ -491,34 +486,40 @@ export const browseBotFindbar = {
     });
 
     saveBtn.addEventListener("click", () => {
-      const value = input.value.trim();
       const providerName = browseBotFindbarLLM.currentProvider.name;
+      const baseUrlInput = container.querySelector("#base-url");
+      const modelNameInput = container.querySelector("#model-name");
 
       if (providerName === "ollama") {
-        if (value) {
-          PREFS.ollamaBaseUrl = value;
-        }
+        const baseUrl = baseUrlInput ? baseUrlInput.value.trim() : "";
+        const model = modelNameInput ? modelNameInput.value.trim() : "";
+
+        if (baseUrl) PREFS.ollamaBaseUrl = baseUrl;
+        if (model) PREFS.setPref(PREFS.OLLAMA_MODEL, model);
+
         this.showAIInterface();
       } else if (providerName === "custom") {
-        const customBaseUrlInput = container.querySelector("#custom-base-url");
-        const customModelNameInput = container.querySelector("#custom-model-name");
-
-        const endpoint = customBaseUrlInput ? customBaseUrlInput.value.trim() : "";
-        const model = customModelNameInput ? customModelNameInput.value.trim() : "";
+        const endpoint = baseUrlInput ? baseUrlInput.value.trim() : "";
+        const model = modelNameInput ? modelNameInput.value.trim() : "";
+        const value = input.value.trim();
 
         if (endpoint) PREFS.setPref(PREFS.CUSTOM_BASE_URL, endpoint);
         if (model) PREFS.setPref(PREFS.CUSTOM_MODEL, model);
         if (value) PREFS.setPref(PREFS.CUSTOM_API_KEY, value);
 
         this.showAIInterface();
-      } else if (value) {
-        browseBotFindbarLLM.currentProvider.apiKey = value; // This also updates PREFS.mistralApiKey/geminiApiKey internally
+      } else if (input.value.trim()) {
+        browseBotFindbarLLM.currentProvider.apiKey = input.value.trim(); // This also updates PREFS.mistralApiKey/geminiApiKey internally
         this.showAIInterface(); // Refresh UI after saving key
       }
     });
-    input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter") saveBtn.click();
-    });
+    [input, container.querySelector("#base-url"), container.querySelector("#model-name")].forEach(
+      (el) => {
+        el?.addEventListener("keypress", (e) => {
+          if (e.key === "Enter") saveBtn.click();
+        });
+      }
+    );
     return container;
   },
 
@@ -989,16 +990,20 @@ export const browseBotFindbar = {
     setTimeout(() => this._updateFindbarDimensions(), 10);
   },
 
+  _needsSetup() {
+    if (browseBotFindbarLLM.currentProvider.name === "ollama") {
+      return !PREFS.ollamaBaseUrl || !PREFS.getPref(PREFS.OLLAMA_MODEL);
+    }
+    return !browseBotFindbarLLM.currentProvider.apiKey;
+  },
+
   showAIInterface() {
     if (!this.findbar) return;
     this.removeAIInterface();
 
     this.findbar.classList.remove("ai-settings-active");
 
-    if (
-      !browseBotFindbarLLM.currentProvider.apiKey &&
-      browseBotFindbarLLM.currentProvider.name !== "ollama"
-    ) {
+    if (this._needsSetup()) {
       this.apiKeyContainer = this.createAPIKeyInterface();
       this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     } else {

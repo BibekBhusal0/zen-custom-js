@@ -1,3 +1,7 @@
+.hidden {
+  display: none !important;
+}
+
 browser {
   will-change: transform;
 }
@@ -430,37 +434,49 @@ browser {
 
       .api-key-input-group {
         display: flex;
+        flex-direction: column;
         gap: 8px;
+
+        .api-input {
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .api-key-row {
+          display: flex;
+          gap: 8px;
+          width: 100%;
+
+          button {
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--browse-bot-primary-bg) !important;
+            min-width: 60px !important;
+            font-size: 17px !important;
+            appearance: none !important;
+            outline: none !important;
+
+            &:hover {
+              transform: translateY(-1px);
+            }
+
+            &:active {
+              transform: translateY(0);
+            }
+
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+              transform: none;
+            }
+          }
+        }
 
         input {
           flex-grow: 1 !important;
-        }
-
-        button {
-          cursor: pointer;
-          font-weight: 600;
-          transition: all 0.2s ease;
-          position: relative;
-          overflow: hidden;
-          background-color: var(--browse-bot-primary-bg) !important;
-          min-width: 60px !important;
-          font-size: 17px !important;
-          appearance: none !important;
-          outline: none !important;
-
-          &:hover {
-            transform: translateY(-1px);
-          }
-
-          &:active {
-            transform: translateY(0);
-          }
-
-          &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-          }
         }
       }
 

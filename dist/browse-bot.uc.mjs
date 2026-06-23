@@ -2470,9 +2470,9 @@ var browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="text" id="custom-base-url" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" style="display: none;" />
-              <input type="text" id="custom-model-name" placeholder="Enter Model Name (e.g. deepseek-chat)" style="display: none" />
-              <div style="display: flex; gap: 8px; width: 100%;">
+              <input type="text" id="base-url" class="api-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
+              <input type="text" id="model-name" class="api-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
+              <div class="api-key-row">
                 <input type="password" id="api-key" placeholder="Enter your API key" />
                 <button id="save-api-key">Save</button>
               </div>
@@ -2490,9 +2490,9 @@ var browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="text" id="custom-base-url" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" style="display: none;" />
-              <input type="text" id="custom-model-name" placeholder="Enter Model Name (e.g. deepseek-chat)" style="display: none" />
-              <div style="display: flex; gap: 8px; width: 100%;">
+              <input type="text" id="base-url" class="api-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
+              <input type="text" id="model-name" class="api-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
+              <div class="api-key-row">
                 <input type="password" id="api-key" placeholder="Enter your API key" />
                 <button id="save-api-key">Save</button>
               </div>
@@ -2504,23 +2504,20 @@ var browseBotFindbar = {
         </div>`);
     container.querySelector(".provider-selection-group").appendChild(providerSelectorXulElement);
     let providerSelector = container.querySelector("#provider-selector"), input = container.querySelector("#api-key"), saveBtn = container.querySelector("#save-api-key"), getApiKeyLink = container.querySelector("#get-api-key-link"), description = container.querySelector(".ai-setup-content").querySelector("p"), updateUIForProvider = (providerName) => {
-      let provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[providerName], customBaseUrlInput = container.querySelector("#custom-base-url"), customModelNameInput = container.querySelector("#custom-model-name");
+      let provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[providerName], baseUrlInput = container.querySelector("#base-url"), modelNameInput = container.querySelector("#model-name"), apiKeyRow = container.querySelector(".api-key-row");
       if (providerName === "ollama") {
-        if (description.textContent = "Ollama is selected. You can customize the Base URL below or use the default.", input.type = "text", input.placeholder = "Enter Ollama Base URL", input.value = PREFS2.ollamaBaseUrl || "", getApiKeyLink.style.display = "none", customBaseUrlInput)
-          customBaseUrlInput.style.display = "none";
-        if (customModelNameInput)
-          customModelNameInput.style.display = "none";
+        if (description.textContent = "Ollama is selected. Configure the Base URL and Model name below.", baseUrlInput?.classList.remove("hidden"), modelNameInput?.classList.remove("hidden"), apiKeyRow?.classList.add("hidden"), getApiKeyLink.style.display = "none", baseUrlInput)
+          baseUrlInput.value = PREFS2.ollamaBaseUrl || "";
+        if (modelNameInput)
+          modelNameInput.value = PREFS2.getPref(PREFS2.OLLAMA_MODEL) || "";
       } else if (providerName === "custom") {
-        if (description.textContent = "Custom Provider is selected. Please enter the API Endpoint, Model name, and your API Key.", input.type = "password", input.placeholder = "Enter your API key", input.value = PREFS2.getPref(PREFS2.CUSTOM_API_KEY) || "", getApiKeyLink.style.display = "none", customBaseUrlInput)
-          customBaseUrlInput.style.display = "block", customBaseUrlInput.value = PREFS2.getPref(PREFS2.CUSTOM_BASE_URL) || "";
-        if (customModelNameInput)
-          customModelNameInput.style.display = "block", customModelNameInput.value = PREFS2.getPref(PREFS2.CUSTOM_MODEL) || "";
-      } else {
-        if (description.textContent = "To use AI features, you need to set up your API key and select a provider.", input.type = "password", input.placeholder = "Enter your API key", input.value = provider.apiKey || "", getApiKeyLink.style.display = provider.apiKeyUrl ? "inline-block" : "none", getApiKeyLink.disabled = !provider.apiKeyUrl, getApiKeyLink.title = provider.apiKeyUrl ? "Get API Key" : "No API key link available for this provider.", customBaseUrlInput)
-          customBaseUrlInput.style.display = "none";
-        if (customModelNameInput)
-          customModelNameInput.style.display = "none";
-      }
+        if (description.textContent = "Custom Provider is selected. Please enter the API Endpoint, Model name, and your API Key.", baseUrlInput?.classList.remove("hidden"), modelNameInput?.classList.remove("hidden"), apiKeyRow?.classList.remove("hidden"), getApiKeyLink.style.display = "none", baseUrlInput)
+          baseUrlInput.value = PREFS2.getPref(PREFS2.CUSTOM_BASE_URL) || "";
+        if (modelNameInput)
+          modelNameInput.value = PREFS2.getPref(PREFS2.CUSTOM_MODEL) || "";
+        input.value = PREFS2.getPref(PREFS2.CUSTOM_API_KEY) || "";
+      } else
+        description.textContent = "To use AI features, you need to set up your API key and select a provider.", baseUrlInput?.classList.add("hidden"), modelNameInput?.classList.add("hidden"), apiKeyRow?.classList.remove("hidden"), input.value = provider.apiKey || "", getApiKeyLink.style.display = provider.apiKeyUrl ? "inline-block" : "none", getApiKeyLink.disabled = !provider.apiKeyUrl, getApiKeyLink.title = provider.apiKeyUrl ? "Get API Key" : "No API key link available for this provider.";
     };
     return updateUIForProvider(currentProviderName), providerSelector.addEventListener("command", (e) => {
       let selectedProviderName = e.target.value;
@@ -2528,13 +2525,16 @@ var browseBotFindbar = {
     }), getApiKeyLink.addEventListener("click", () => {
       openTrustedLinkIn(browseBotFindbarLLM.currentProvider.apiKeyUrl, "tab");
     }), saveBtn.addEventListener("click", () => {
-      let value = input.value.trim(), providerName = browseBotFindbarLLM.currentProvider.name;
+      let providerName = browseBotFindbarLLM.currentProvider.name, baseUrlInput = container.querySelector("#base-url"), modelNameInput = container.querySelector("#model-name");
       if (providerName === "ollama") {
-        if (value)
-          PREFS2.ollamaBaseUrl = value;
+        let baseUrl = baseUrlInput ? baseUrlInput.value.trim() : "", model = modelNameInput ? modelNameInput.value.trim() : "";
+        if (baseUrl)
+          PREFS2.ollamaBaseUrl = baseUrl;
+        if (model)
+          PREFS2.setPref(PREFS2.OLLAMA_MODEL, model);
         this.showAIInterface();
       } else if (providerName === "custom") {
-        let customBaseUrlInput = container.querySelector("#custom-base-url"), customModelNameInput = container.querySelector("#custom-model-name"), endpoint = customBaseUrlInput ? customBaseUrlInput.value.trim() : "", model = customModelNameInput ? customModelNameInput.value.trim() : "";
+        let endpoint = baseUrlInput ? baseUrlInput.value.trim() : "", model = modelNameInput ? modelNameInput.value.trim() : "", value = input.value.trim();
         if (endpoint)
           PREFS2.setPref(PREFS2.CUSTOM_BASE_URL, endpoint);
         if (model)
@@ -2542,11 +2542,13 @@ var browseBotFindbar = {
         if (value)
           PREFS2.setPref(PREFS2.CUSTOM_API_KEY, value);
         this.showAIInterface();
-      } else if (value)
-        browseBotFindbarLLM.currentProvider.apiKey = value, this.showAIInterface();
-    }), input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter")
-        saveBtn.click();
+      } else if (input.value.trim())
+        browseBotFindbarLLM.currentProvider.apiKey = input.value.trim(), this.showAIInterface();
+    }), [input, container.querySelector("#base-url"), container.querySelector("#model-name")].forEach((el) => {
+      el?.addEventListener("keypress", (e) => {
+        if (e.key === "Enter")
+          saveBtn.click();
+      });
     }), container;
   },
   _removeToolCallUI() {
@@ -2834,10 +2836,15 @@ Declined by user.`;
     }
     messageDiv.appendChild(contentDiv), messagesContainer.appendChild(messageDiv), messagesContainer.scrollTop = messagesContainer.scrollHeight, setTimeout(() => this._updateFindbarDimensions(), 10);
   },
+  _needsSetup() {
+    if (browseBotFindbarLLM.currentProvider.name === "ollama")
+      return !PREFS2.ollamaBaseUrl || !PREFS2.getPref(PREFS2.OLLAMA_MODEL);
+    return !browseBotFindbarLLM.currentProvider.apiKey;
+  },
   showAIInterface() {
     if (!this.findbar)
       return;
-    if (this.removeAIInterface(), this.findbar.classList.remove("ai-settings-active"), !browseBotFindbarLLM.currentProvider.apiKey && browseBotFindbarLLM.currentProvider.name !== "ollama")
+    if (this.removeAIInterface(), this.findbar.classList.remove("ai-settings-active"), this._needsSetup())
       this.apiKeyContainer = this.createAPIKeyInterface(), this.findbar.insertBefore(this.apiKeyContainer, this.findbar.firstChild);
     else {
       if (this.chatContainer = this.createChatInterface(), PREFS2.dndEnabled)

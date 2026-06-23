@@ -412,23 +412,26 @@ const ollama = Object.assign(Object.create(providerPrototype), {
   create: createOpenAICompatible,
 });
 
-const custom = Object.create(providerPrototype, Object.getOwnPropertyDescriptors({
-  name: "custom",
-  label: "Custom Provider (OpenAI Compatible)",
-  faviconUrl: "chrome://global/skin/icons/settings.svg",
-  apiKeyUrl: "",
-  modelPref: PREFS.CUSTOM_MODEL,
-  apiPref: PREFS.CUSTOM_API_KEY,
-  get model() {
-    return PREFS.getPref(this.modelPref) || "";
-  },
-  set model(v) {
-    if (typeof v === "string") PREFS.setPref(this.modelPref, v);
-  },
-  get baseURL() {
-    return PREFS.getPref(PREFS.CUSTOM_BASE_URL) || "";
-  },
-  create: createOpenAICompatible,
-}));
+const custom = Object.create(
+  providerPrototype,
+  Object.getOwnPropertyDescriptors({
+    name: "custom",
+    label: "Custom Provider (OpenAI Compatible)",
+    faviconUrl: "chrome://global/skin/icons/settings.svg",
+    apiKeyUrl: "",
+    modelPref: PREFS.CUSTOM_MODEL,
+    apiPref: PREFS.CUSTOM_API_KEY,
+    get model() {
+      return PREFS.getPref(this.modelPref) || "";
+    },
+    set model(v) {
+      if (typeof v === "string") PREFS.setPref(this.modelPref, v);
+    },
+    get baseURL() {
+      return PREFS.getPref(PREFS.CUSTOM_BASE_URL) || "";
+    },
+    create: createOpenAICompatible,
+  })
+);
 
 export { mistral, gemini, openai, claude, grok, perplexity, cerebras, ollama, custom };
