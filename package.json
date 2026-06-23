@@ -28,13 +28,9 @@
     "@ai-sdk/anthropic": "^3.0.85",
     "@ai-sdk/cerebras": "^2.0.57",
     "@ai-sdk/google": "^3.0.83",
-    "@ai-sdk/mistral": "^3.0.40",
     "@ai-sdk/openai": "^3.0.73",
     "@ai-sdk/openai-compatible": "^2.0.51",
-    "@ai-sdk/perplexity": "^3.0.36",
-    "@ai-sdk/xai": "^3.0.96",
     "ai": "^6.0.208",
-    "ollama-ai-provider-v2": "^3.6.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
