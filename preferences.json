@@ -393,6 +393,10 @@
       {
         "value": "perplexity",
         "label": "Perplexity AI"
+      },
+      {
+        "value": "custom",
+        "label": "Custom Provider"
       }
     ]
   },
@@ -1136,6 +1140,54 @@
         "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "cerebras"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.custom-api-key",
+    "label": "Custom API Key",
+    "type": "string",
+    "placeholder": "Enter your Custom API key",
+    "defaultValue": "",
+    "description": "Your personal API key for the custom provider.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "custom"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.custom-model",
+    "label": "Custom Model",
+    "type": "string",
+    "placeholder": "Enter model name (e.g. gpt-4o)",
+    "defaultValue": "",
+    "description": "The model name to use.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "custom"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.custom-base-url",
+    "label": "Custom Base URL",
+    "type": "string",
+    "placeholder": "https://api.your-provider.com/v1",
+    "defaultValue": "",
+    "description": "The base URL for your OpenAI-compatible API.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "custom"
         }
       }
     ]
