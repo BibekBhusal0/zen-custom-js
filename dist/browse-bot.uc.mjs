@@ -2204,7 +2204,7 @@ function parseMD(markdown, convertHTML = !0) {
   if (convertHTML)
     return htmlContent;
   else
-    return htmlContent.innerHTML;
+    return htmlContent.innerHTML.replace(/<(img|hr|br|input)([^>]*?)(?<!\/)>/gi, "<$1$2 />");
 }
 PREFS2.setInitialPrefs();
 var browseBotFindbar = {

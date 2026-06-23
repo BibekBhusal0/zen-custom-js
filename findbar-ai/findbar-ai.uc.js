@@ -68,7 +68,7 @@ function parseMD(markdown, convertHTML = true) {
   }
 
   if (convertHTML) return htmlContent;
-  else return htmlContent.innerHTML;
+  else return htmlContent.innerHTML.replace(/<(img|hr|br|input)([^>]*?)(?<!\/)>/gi, "<$1$2 />");
 }
 
 PREFS.setInitialPrefs();
