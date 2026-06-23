@@ -6,6 +6,7 @@ import TabManager from "./utils/tab-manager.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { addPrefListener } from "../utils/pref.js";
 import { addWidget } from "../utils/widget.js";
+import { addCommands } from "../utils/command-palete.js";
 
 const ReopenClosedTabs = {
   _boundToggleMenu: null,
@@ -431,28 +432,16 @@ const ReopenClosedTabs = {
   },
 };
 
-function setupCommandPaletteIntegration(retryCount = 0) {
-  if (window.ZenCommandPalette) {
-    PREFS.debugLog("Integrating with Zen Command Palette...");
-    window.ZenCommandPalette.addCommands([
-      {
-        key: "reopen:closed-tabs-menu",
-        label: "Open Reopen closed tab menu",
-        command: () => ReopenClosedTabs.toggleMenu(),
-        icon: "chrome://browser/skin/zen-icons/history.svg",
-        tags: ["reopen", "tabs", "closed"],
-      },
-    ]);
-
-    PREFS.debugLog("Zen Command Palette integration successful.");
-  } else {
-    PREFS.debugLog("Zen Command Palette not found, retrying in 1000ms");
-    if (retryCount < 10) {
-      setTimeout(() => setupCommandPaletteIntegration(retryCount + 1), 1000);
-    } else {
-      PREFS.debugError("Could not integrate with Zen Command Palette after 10 retries.");
-    }
-  }
+function setupCommandPaletteIntegration() {
+  addCommands([
+    {
+      key: "reopen:closed-tabs-menu",
+      label: "Open Reopen closed tab menu",
+      command: () => ReopenClosedTabs.toggleMenu(),
+      icon: "chrome://browser/skin/zen-icons/history.svg",
+      tags: ["reopen", "tabs", "closed"],
+    },
+  ]);
 }
 
 startupFinish(() => {

@@ -3,7 +3,7 @@
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
 // @version         2.5.86
-// @lastUpdated     2026-06-23
+// @lastUpdated     2026-06-21
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
 // ==/UserScript==
@@ -3938,48 +3938,51 @@ function startupFinish(callback) {
     window.addEventListener("load", callback, { once: !0 });
 }
 
-// findbar-ai/index.js
-function setupCommandPaletteIntegration(retryCount = 0) {
+// utils/command-palete.js
+function addCommands(commands, retryCount = 0) {
   if (window.ZenCommandPalette)
-    PREFS2.debugLog("Integrating with Zen Command Palette..."), window.ZenCommandPalette.addCommands([
-      {
-        key: "browsebot:summarize",
-        label: "Summarize Page",
-        command: () => {
-          browseBotFindbar.expanded = !0, browseBotFindbar.sendMessage(PREFS2.contextMenuCommandNoSelection), browseBotFindbar.focusPrompt();
-        },
-        condition: () => PREFS2.enabled,
-        icon: "chrome://global/skin/icons/highlights.svg",
-        tags: ["AI", "Summarize", "BrowseBot", "findbar"]
+    window.ZenCommandPalette.addCommands(commands);
+  else if (retryCount < 10)
+    setTimeout(() => addCommands(commands, retryCount + 1), 1000);
+}
+
+// findbar-ai/index.js
+function setupCommandPaletteIntegration() {
+  addCommands([
+    {
+      key: "browsebot:summarize",
+      label: "Summarize Page",
+      command: () => {
+        browseBotFindbar.expanded = !0, browseBotFindbar.sendMessage(PREFS2.contextMenuCommandNoSelection), browseBotFindbar.focusPrompt();
       },
-      {
-        key: "browsebot:settings",
-        label: "Open BrowseBot Settings",
-        command: () => SettingsModal.show(),
-        icon: "chrome://global/skin/icons/settings.svg",
-        tags: ["AI", "BrowseBot", "Settings"]
-      },
-      {
-        key: "browsebot:urlbarAi",
-        label: "Toggle URL bar AI mode",
-        command: () => urlbarAI.toggleAIMode(),
-        condition: () => urlbarAI.enabled,
-        icon: "chrome://global/skin/icons/highlights.svg",
-        tags: ["AI", "BrowseBot", "URL", "Command"]
-      },
-      {
-        key: "browsebot:expand-findbar",
-        label: "Expand findbar AI",
-        command: () => browseBotFindbar.expanded = !0,
-        condition: () => PREFS2.enabled,
-        icon: "chrome://global/skin/icons/highlights.svg",
-        tags: ["AI", "BrowseBot", "findbar"]
-      }
-    ]), PREFS2.debugLog("Zen Command Palette integration successful.");
-  else if (PREFS2.debugLog("Zen Command Palette not found, retrying in 1000ms"), retryCount < 10)
-    setTimeout(() => setupCommandPaletteIntegration(retryCount + 1), 1000);
-  else
-    PREFS2.debugError("Could not integrate with Zen Command Palette after 10 retries.");
+      condition: () => PREFS2.enabled,
+      icon: "chrome://global/skin/icons/highlights.svg",
+      tags: ["AI", "Summarize", "BrowseBot", "findbar"]
+    },
+    {
+      key: "browsebot:settings",
+      label: "Open BrowseBot Settings",
+      command: () => SettingsModal.show(),
+      icon: "chrome://global/skin/icons/settings.svg",
+      tags: ["AI", "BrowseBot", "Settings"]
+    },
+    {
+      key: "browsebot:urlbarAi",
+      label: "Toggle URL bar AI mode",
+      command: () => urlbarAI.toggleAIMode(),
+      condition: () => urlbarAI.enabled,
+      icon: "chrome://global/skin/icons/highlights.svg",
+      tags: ["AI", "BrowseBot", "URL", "Command"]
+    },
+    {
+      key: "browsebot:expand-findbar",
+      label: "Expand findbar AI",
+      command: () => browseBotFindbar.expanded = !0,
+      condition: () => PREFS2.enabled,
+      icon: "chrome://global/skin/icons/highlights.svg",
+      tags: ["AI", "BrowseBot", "findbar"]
+    }
+  ]);
 }
 function registerUrlBarShortcut(value = PREFS2.shortcutUrlbar) {
   if (!urlbarAI.enabled)
