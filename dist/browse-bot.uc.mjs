@@ -3063,14 +3063,11 @@ Declined by user.`;
 
 // findbar-ai/llm/providers.js
 import {
-  createMistral,
   createGoogleGenerativeAI,
   createOpenAI,
   createAnthropic,
-  createGrok,
-  createPerplexity,
-  createCerebras,
-  createOllama
+  createOpenAICompatible,
+  createCerebras
 } from "./vercel-ai-sdk.uc.mjs";
 
 // utils/favicon.js
@@ -3101,7 +3098,16 @@ var providerPrototype = {
       prefs_default.setPref(this.modelPref, v);
   },
   getModel() {
-    return this.create({ apiKey: this.apiKey })(this.model);
+    if (this.create === createOpenAICompatible) {
+      let config2 = {
+        name: this.name,
+        apiKey: this.apiKey || "not_required",
+        baseURL: this.baseURL
+      };
+      return this.create(config2).chatModel(this.model);
+    }
+    let config = { apiKey: this.apiKey };
+    return this.create(config)(this.model);
   }
 }, mistral = Object.assign(Object.create(providerPrototype), {
   name: "mistral",
@@ -3140,7 +3146,8 @@ var providerPrototype = {
   },
   modelPref: prefs_default.MISTRAL_MODEL,
   apiPref: prefs_default.MISTRAL_API_KEY,
-  create: createMistral
+  create: createOpenAICompatible,
+  baseURL: "https://api.mistral.ai/v1"
 }), gemini = Object.assign(Object.create(providerPrototype), {
   name: "gemini",
   label: "Google Gemini",
@@ -3344,7 +3351,8 @@ var providerPrototype = {
   },
   modelPref: prefs_default.GROK_MODEL,
   apiPref: prefs_default.GROK_API_KEY,
-  create: createGrok
+  create: createOpenAICompatible,
+  baseURL: "https://api.x.ai/v1"
 }), perplexity = Object.assign(Object.create(providerPrototype), {
   name: "perplexity",
   label: "Perplexity AI",
@@ -3366,7 +3374,8 @@ var providerPrototype = {
   },
   modelPref: prefs_default.PERPLEXITY_MODEL,
   apiPref: prefs_default.PERPLEXITY_API_KEY,
-  create: createPerplexity
+  create: createOpenAICompatible,
+  baseURL: "https://api.perplexity.ai"
 }), cerebras = Object.assign(Object.create(providerPrototype), {
   name: "cerebras",
   label: "Cerebras AI",
@@ -3403,6 +3412,9 @@ var providerPrototype = {
   set baseUrl(v) {
     if (typeof v === "string")
       prefs_default.ollamaBaseUrl = v;
+  },
+  get baseURL() {
+    return this.baseUrl.replace(/\/api$/, "/v1");
   },
   AVAILABLE_MODELS: [
     "deepseek-r1:8b",
@@ -3451,11 +3463,7 @@ var providerPrototype = {
   set apiKey(v) {
     return;
   },
-  getModel() {
-    return createOllama({
-      baseURL: this.baseUrl
-    })(this.model);
-  }
+  create: createOpenAICompatible
 });
 
 // findbar-ai/llm/index.js

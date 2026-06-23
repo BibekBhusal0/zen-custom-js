@@ -1,12 +1,9 @@
 import {
-  createMistral,
   createGoogleGenerativeAI,
   createOpenAI,
   createAnthropic,
-  createGrok,
-  createPerplexity,
+  createOpenAICompatible,
   createCerebras,
-  createOllama,
 } from "./vercel-ai-sdk.uc.mjs";
 import PREFS from "../utils/prefs.js";
 import { googleFaviconAPI } from "../../utils/favicon.js";
@@ -26,7 +23,17 @@ const providerPrototype = {
     if (this.AVAILABLE_MODELS.includes(v)) PREFS.setPref(this.modelPref, v);
   },
   getModel() {
-    return this.create({ apiKey: this.apiKey })(this.model);
+    if (this.create === createOpenAICompatible) {
+      const config = {
+        name: this.name,
+        apiKey: this.apiKey || "not_required",
+        baseURL: this.baseURL,
+      };
+      const provider = this.create(config);
+      return provider.chatModel(this.model);
+    }
+    const config = { apiKey: this.apiKey };
+    return this.create(config)(this.model);
   },
 };
 
@@ -67,7 +74,8 @@ const mistral = Object.assign(Object.create(providerPrototype), {
   },
   modelPref: PREFS.MISTRAL_MODEL,
   apiPref: PREFS.MISTRAL_API_KEY,
-  create: createMistral,
+  create: createOpenAICompatible,
+  baseURL: "https://api.mistral.ai/v1",
 });
 
 const gemini = Object.assign(Object.create(providerPrototype), {
@@ -279,7 +287,8 @@ const grok = Object.assign(Object.create(providerPrototype), {
   },
   modelPref: PREFS.GROK_MODEL,
   apiPref: PREFS.GROK_API_KEY,
-  create: createGrok,
+  create: createOpenAICompatible,
+  baseURL: "https://api.x.ai/v1",
 });
 
 const perplexity = Object.assign(Object.create(providerPrototype), {
@@ -303,7 +312,8 @@ const perplexity = Object.assign(Object.create(providerPrototype), {
   },
   modelPref: PREFS.PERPLEXITY_MODEL,
   apiPref: PREFS.PERPLEXITY_API_KEY,
-  create: createPerplexity,
+  create: createOpenAICompatible,
+  baseURL: "https://api.perplexity.ai",
 });
 
 const cerebras = Object.assign(Object.create(providerPrototype), {
@@ -343,6 +353,9 @@ const ollama = Object.assign(Object.create(providerPrototype), {
   },
   set baseUrl(v) {
     if (typeof v === "string") PREFS.ollamaBaseUrl = v;
+  },
+  get baseURL() {
+    return this.baseUrl.replace(/\/api$/, "/v1");
   },
   AVAILABLE_MODELS: [
     "deepseek-r1:8b",
@@ -392,12 +405,7 @@ const ollama = Object.assign(Object.create(providerPrototype), {
     return;
     // Not required at all
   },
-  getModel() {
-    const ollama = createOllama({
-      baseURL: this.baseUrl,
-    });
-    return ollama(this.model);
-  },
+  create: createOpenAICompatible,
 });
 
 export { mistral, gemini, openai, claude, grok, perplexity, cerebras, ollama };

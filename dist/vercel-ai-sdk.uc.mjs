@@ -16327,11 +16327,6 @@ function convertUint8ArrayToBase64(array2) {
 function convertToBase64(value) {
   return value instanceof Uint8Array ? convertUint8ArrayToBase64(value) : value;
 }
-function convertImageModelFileToDataUri(file2) {
-  if (file2.type === "url")
-    return file2.url;
-  return `data:${file2.mediaType};base64,${typeof file2.data === "string" ? file2.data : convertUint8ArrayToBase64(file2.data)}`;
-}
 function convertToFormData(input, options = {}) {
   let { useArrayBrackets = !0 } = options, formData = new FormData;
   for (let [key, value] of Object.entries(input)) {
@@ -16789,40 +16784,7 @@ var VERSION = "4.0.30", getOriginalFetch = () => globalThis.fetch, getFromApi = 
   } catch (error51) {
     throw handleFetchError({ error: error51, url: url2, requestBodyValues: {} });
   }
-}, DEFAULT_SCHEMA_PREFIX = "JSON schema:", DEFAULT_SCHEMA_SUFFIX = "You MUST answer with a JSON object that matches the JSON schema above.", DEFAULT_GENERIC_SUFFIX = "You MUST answer with JSON.";
-function injectJsonInstruction({
-  prompt,
-  schema,
-  schemaPrefix = schema != null ? DEFAULT_SCHEMA_PREFIX : void 0,
-  schemaSuffix = schema != null ? DEFAULT_SCHEMA_SUFFIX : DEFAULT_GENERIC_SUFFIX
-}) {
-  return [
-    prompt != null && prompt.length > 0 ? prompt : void 0,
-    prompt != null && prompt.length > 0 ? "" : void 0,
-    schemaPrefix,
-    schema != null ? JSON.stringify(schema) : void 0,
-    schemaSuffix
-  ].filter((line) => line != null).join(`
-`);
-}
-function injectJsonInstructionIntoMessages({
-  messages,
-  schema,
-  schemaPrefix,
-  schemaSuffix
-}) {
-  var _a22, _b22;
-  let systemMessage = ((_a22 = messages[0]) == null ? void 0 : _a22.role) === "system" ? { ...messages[0] } : { role: "system", content: "" };
-  return systemMessage.content = injectJsonInstruction({
-    prompt: systemMessage.content,
-    schema,
-    schemaPrefix,
-    schemaSuffix
-  }), [
-    systemMessage,
-    ...((_b22 = messages[0]) == null ? void 0 : _b22.role) === "system" ? messages.slice(1) : messages
-  ];
-}
+};
 function isNonNullable(value) {
   return value != null;
 }
@@ -18316,19 +18278,6 @@ var createJsonErrorResponseHandler = ({
       cause: error51
     });
   }
-}, createStatusCodeErrorResponseHandler = () => async ({ response, url: url2, requestBodyValues }) => {
-  let responseHeaders = extractResponseHeaders(response), responseBody = await response.text();
-  return {
-    responseHeaders,
-    value: new APICallError({
-      message: response.statusText,
-      url: url2,
-      requestBodyValues,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody
-    })
-  };
 };
 function withoutTrailingSlash(url2) {
   return url2 == null ? void 0 : url2.replace(/\/$/, "");
@@ -27001,672 +26950,8 @@ var defaultDownload = createDownload();
 var name21 = "AI_NoSuchProviderError", marker21 = `vercel.ai.error.${name21}`, symbol21 = Symbol.for(marker21), _a21;
 _a21 = symbol21;
 var defaultDownload2 = createDownload();
-// node_modules/@ai-sdk/mistral/dist/index.mjs
-function convertMistralUsage(usage) {
-  var _a24, _b16, _c, _d, _e;
-  if (usage == null)
-    return {
-      inputTokens: {
-        total: void 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: void 0,
-        text: void 0,
-        reasoning: void 0
-      },
-      raw: void 0
-    };
-  let { prompt_tokens: promptTokens, completion_tokens: completionTokens } = usage, cacheReadTokens = (_e = (_d = (_b16 = usage.num_cached_tokens) != null ? _b16 : (_a24 = usage.prompt_tokens_details) == null ? void 0 : _a24.cached_tokens) != null ? _d : (_c = usage.prompt_token_details) == null ? void 0 : _c.cached_tokens) != null ? _e : 0;
-  return {
-    inputTokens: {
-      total: promptTokens,
-      noCache: promptTokens - cacheReadTokens,
-      cacheRead: cacheReadTokens || void 0,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: completionTokens,
-      text: completionTokens,
-      reasoning: void 0
-    },
-    raw: usage
-  };
-}
-function formatFileUrl({
-  data,
-  mediaType
-}) {
-  return data instanceof URL ? data.toString() : `data:${mediaType};base64,${convertToBase64(data)}`;
-}
-function convertToMistralChatMessages(prompt) {
-  var _a24;
-  let messages = [];
-  for (let i = 0;i < prompt.length; i++) {
-    let { role, content } = prompt[i], isLastMessage = i === prompt.length - 1;
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content });
-        break;
-      }
-      case "user": {
-        messages.push({
-          role: "user",
-          content: content.map((part) => {
-            switch (part.type) {
-              case "text":
-                return { type: "text", text: part.text };
-              case "file":
-                if (part.mediaType.startsWith("image/")) {
-                  let mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-                  return {
-                    type: "image_url",
-                    image_url: formatFileUrl({ data: part.data, mediaType })
-                  };
-                } else if (part.mediaType === "application/pdf")
-                  return {
-                    type: "document_url",
-                    document_url: formatFileUrl({
-                      data: part.data,
-                      mediaType: "application/pdf"
-                    })
-                  };
-                else
-                  throw new UnsupportedFunctionalityError({
-                    functionality: "Only images and PDF file parts are supported"
-                  });
-            }
-          })
-        });
-        break;
-      }
-      case "assistant": {
-        let text2 = "", toolCalls = [];
-        for (let part of content)
-          switch (part.type) {
-            case "text": {
-              text2 += part.text;
-              break;
-            }
-            case "tool-call": {
-              toolCalls.push({
-                id: part.toolCallId,
-                type: "function",
-                function: {
-                  name: part.toolName,
-                  arguments: JSON.stringify(part.input)
-                }
-              });
-              break;
-            }
-            case "reasoning": {
-              text2 += part.text;
-              break;
-            }
-            default:
-              throw Error(`Unsupported content type in assistant message: ${part.type}`);
-          }
-        messages.push({
-          role: "assistant",
-          content: text2,
-          prefix: isLastMessage ? !0 : void 0,
-          tool_calls: toolCalls.length > 0 ? toolCalls : void 0
-        });
-        break;
-      }
-      case "tool": {
-        for (let toolResponse of content) {
-          if (toolResponse.type === "tool-approval-response")
-            continue;
-          let output = toolResponse.output, contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "execution-denied":
-              contentValue = (_a24 = output.reason) != null ? _a24 : "Tool execution denied.";
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          messages.push({
-            role: "tool",
-            name: toolResponse.toolName,
-            tool_call_id: toolResponse.toolCallId,
-            content: contentValue
-          });
-        }
-        break;
-      }
-      default:
-        throw Error(`Unsupported role: ${role}`);
-    }
-  }
-  return messages;
-}
-function getResponseMetadata({
-  id,
-  model,
-  created
-}) {
-  return {
-    id: id != null ? id : void 0,
-    modelId: model != null ? model : void 0,
-    timestamp: created != null ? new Date(created * 1000) : void 0
-  };
-}
-function mapMistralFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-      return "stop";
-    case "length":
-    case "model_length":
-      return "length";
-    case "tool_calls":
-      return "tool-calls";
-    default:
-      return "other";
-  }
-}
-var mistralLanguageModelOptions = exports_external.object({
-  safePrompt: exports_external.boolean().optional(),
-  documentImageLimit: exports_external.number().optional(),
-  documentPageLimit: exports_external.number().optional(),
-  structuredOutputs: exports_external.boolean().optional(),
-  strictJsonSchema: exports_external.boolean().optional(),
-  parallelToolCalls: exports_external.boolean().optional(),
-  reasoningEffort: exports_external.enum(["high", "none"]).optional()
-}), mistralErrorDataSchema = exports_external.object({
-  object: exports_external.literal("error"),
-  message: exports_external.string(),
-  type: exports_external.string(),
-  param: exports_external.string().nullable(),
-  code: exports_external.string().nullable()
-}), mistralFailedResponseHandler = createJsonErrorResponseHandler({
-  errorSchema: mistralErrorDataSchema,
-  errorToMessage: (data) => data.message
-});
-function prepareTools({
-  tools,
-  toolChoice
-}) {
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  let toolWarnings = [];
-  if (tools == null)
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  let mistralTools = [];
-  for (let tool2 of tools)
-    if (tool2.type === "provider")
-      toolWarnings.push({
-        type: "unsupported",
-        feature: `provider-defined tool ${tool2.id}`
-      });
-    else
-      mistralTools.push({
-        type: "function",
-        function: {
-          name: tool2.name,
-          description: tool2.description,
-          parameters: tool2.inputSchema,
-          ...tool2.strict != null ? { strict: tool2.strict } : {}
-        }
-      });
-  if (toolChoice == null)
-    return { tools: mistralTools, toolChoice: void 0, toolWarnings };
-  let type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-      return { tools: mistralTools, toolChoice: type, toolWarnings };
-    case "required":
-      return { tools: mistralTools, toolChoice: "any", toolWarnings };
-    case "tool":
-      return {
-        tools: mistralTools.filter((tool2) => tool2.function.name === toolChoice.toolName),
-        toolChoice: "any",
-        toolWarnings
-      };
-    default:
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${type}`
-      });
-  }
-}
-var MistralChatLanguageModel = class {
-  constructor(modelId, config2) {
-    this.specificationVersion = "v3", this.supportedUrls = {
-      "application/pdf": [/^https:\/\/.*$/]
-    };
-    var _a24;
-    this.modelId = modelId, this.config = config2, this.generateId = (_a24 = config2.generateId) != null ? _a24 : generateId;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    stopSequences,
-    responseFormat,
-    seed,
-    providerOptions,
-    tools,
-    toolChoice
-  }) {
-    var _a24, _b16, _c, _d;
-    let warnings = [], options = (_a24 = await parseProviderOptions({
-      provider: "mistral",
-      providerOptions,
-      schema: mistralLanguageModelOptions
-    })) != null ? _a24 : {};
-    if (topK != null)
-      warnings.push({ type: "unsupported", feature: "topK" });
-    if (frequencyPenalty != null)
-      warnings.push({ type: "unsupported", feature: "frequencyPenalty" });
-    if (presencePenalty != null)
-      warnings.push({ type: "unsupported", feature: "presencePenalty" });
-    let structuredOutputs = (_b16 = options.structuredOutputs) != null ? _b16 : !0, strictJsonSchema = (_c = options.strictJsonSchema) != null ? _c : !1;
-    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && !(responseFormat == null ? void 0 : responseFormat.schema))
-      prompt = injectJsonInstructionIntoMessages({
-        messages: prompt,
-        schema: responseFormat.schema
-      });
-    let baseArgs = {
-      model: this.modelId,
-      safe_prompt: options.safePrompt,
-      max_tokens: maxOutputTokens,
-      temperature,
-      top_p: topP,
-      stop: stopSequences,
-      random_seed: seed,
-      reasoning_effort: options.reasoningEffort,
-      response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? structuredOutputs && (responseFormat == null ? void 0 : responseFormat.schema) != null ? {
-        type: "json_schema",
-        json_schema: {
-          schema: responseFormat.schema,
-          strict: strictJsonSchema,
-          name: (_d = responseFormat.name) != null ? _d : "response",
-          description: responseFormat.description
-        }
-      } : { type: "json_object" } : void 0,
-      document_image_limit: options.documentImageLimit,
-      document_page_limit: options.documentPageLimit,
-      messages: convertToMistralChatMessages(prompt)
-    }, {
-      tools: mistralTools,
-      toolChoice: mistralToolChoice,
-      toolWarnings
-    } = prepareTools({
-      tools,
-      toolChoice
-    });
-    return {
-      args: {
-        ...baseArgs,
-        tools: mistralTools,
-        tool_choice: mistralToolChoice,
-        ...mistralTools != null && options.parallelToolCalls !== void 0 ? { parallel_tool_calls: options.parallelToolCalls } : {}
-      },
-      warnings: [...warnings, ...toolWarnings]
-    };
-  }
-  async doGenerate(options) {
-    var _a24;
-    let { args: body, warnings } = await this.getArgs(options), {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: mistralFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(mistralChatResponseSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), choice2 = response.choices[0], content = [];
-    if (choice2.message.content != null && Array.isArray(choice2.message.content)) {
-      for (let part of choice2.message.content)
-        if (part.type === "thinking") {
-          let reasoningText = extractReasoningContent2(part.thinking);
-          if (reasoningText.length > 0)
-            content.push({ type: "reasoning", text: reasoningText });
-        } else if (part.type === "text") {
-          if (part.text.length > 0)
-            content.push({ type: "text", text: part.text });
-        }
-    } else {
-      let text2 = extractTextContent2(choice2.message.content);
-      if (text2 != null && text2.length > 0)
-        content.push({ type: "text", text: text2 });
-    }
-    if (choice2.message.tool_calls != null)
-      for (let toolCall of choice2.message.tool_calls)
-        content.push({
-          type: "tool-call",
-          toolCallId: toolCall.id,
-          toolName: toolCall.function.name,
-          input: toolCall.function.arguments
-        });
-    return {
-      content,
-      finishReason: {
-        unified: mapMistralFinishReason(choice2.finish_reason),
-        raw: (_a24 = choice2.finish_reason) != null ? _a24 : void 0
-      },
-      usage: convertMistralUsage(response.usage),
-      request: { body },
-      response: {
-        ...getResponseMetadata(response),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    let { args, warnings } = await this.getArgs(options), body = { ...args, stream: !0 }, { responseHeaders, value: response } = await postJsonToApi({
-      url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: mistralFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(mistralChatChunkSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), finishReason = {
-      unified: "other",
-      raw: void 0
-    }, usage = void 0, isFirstChunk = !0, activeText = !1, activeReasoningId = null, generateId2 = this.generateId;
-    return {
-      stream: response.pipeThrough(new TransformStream({
-        start(controller) {
-          controller.enqueue({ type: "stream-start", warnings });
-        },
-        transform(chunk, controller) {
-          if (options.includeRawChunks)
-            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-          if (!chunk.success) {
-            controller.enqueue({ type: "error", error: chunk.error });
-            return;
-          }
-          let value = chunk.value;
-          if (isFirstChunk)
-            isFirstChunk = !1, controller.enqueue({
-              type: "response-metadata",
-              ...getResponseMetadata(value)
-            });
-          if (value.usage != null)
-            usage = value.usage;
-          let choice2 = value.choices[0], delta = choice2.delta, textContent = extractTextContent2(delta.content);
-          if (delta.content != null && Array.isArray(delta.content)) {
-            for (let part of delta.content)
-              if (part.type === "thinking") {
-                let reasoningDelta = extractReasoningContent2(part.thinking);
-                if (reasoningDelta.length > 0) {
-                  if (activeReasoningId == null) {
-                    if (activeText)
-                      controller.enqueue({ type: "text-end", id: "0" }), activeText = !1;
-                    activeReasoningId = generateId2(), controller.enqueue({
-                      type: "reasoning-start",
-                      id: activeReasoningId
-                    });
-                  }
-                  controller.enqueue({
-                    type: "reasoning-delta",
-                    id: activeReasoningId,
-                    delta: reasoningDelta
-                  });
-                }
-              }
-          }
-          if (textContent != null && textContent.length > 0) {
-            if (!activeText) {
-              if (activeReasoningId != null)
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: activeReasoningId
-                }), activeReasoningId = null;
-              controller.enqueue({ type: "text-start", id: "0" }), activeText = !0;
-            }
-            controller.enqueue({
-              type: "text-delta",
-              id: "0",
-              delta: textContent
-            });
-          }
-          if ((delta == null ? void 0 : delta.tool_calls) != null)
-            for (let toolCall of delta.tool_calls) {
-              let toolCallId = toolCall.id, toolName = toolCall.function.name, input = toolCall.function.arguments;
-              controller.enqueue({
-                type: "tool-input-start",
-                id: toolCallId,
-                toolName
-              }), controller.enqueue({
-                type: "tool-input-delta",
-                id: toolCallId,
-                delta: input
-              }), controller.enqueue({
-                type: "tool-input-end",
-                id: toolCallId
-              }), controller.enqueue({
-                type: "tool-call",
-                toolCallId,
-                toolName,
-                input
-              });
-            }
-          if (choice2.finish_reason != null)
-            finishReason = {
-              unified: mapMistralFinishReason(choice2.finish_reason),
-              raw: choice2.finish_reason
-            };
-        },
-        flush(controller) {
-          if (activeReasoningId != null)
-            controller.enqueue({
-              type: "reasoning-end",
-              id: activeReasoningId
-            });
-          if (activeText)
-            controller.enqueue({ type: "text-end", id: "0" });
-          controller.enqueue({
-            type: "finish",
-            finishReason,
-            usage: convertMistralUsage(usage)
-          });
-        }
-      })),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-};
-function extractReasoningContent2(thinking) {
-  return thinking.filter((chunk) => chunk.type === "text").map((chunk) => chunk.text).join("");
-}
-function extractTextContent2(content) {
-  if (typeof content === "string")
-    return content;
-  if (content == null)
-    return;
-  let textContent = [];
-  for (let chunk of content) {
-    let { type } = chunk;
-    switch (type) {
-      case "text":
-        textContent.push(chunk.text);
-        break;
-      case "thinking":
-      case "image_url":
-      case "reference":
-        break;
-      default:
-        throw Error(`Unsupported type: ${type}`);
-    }
-  }
-  return textContent.length ? textContent.join("") : void 0;
-}
-var mistralContentSchema = exports_external.union([
-  exports_external.string(),
-  exports_external.array(exports_external.discriminatedUnion("type", [
-    exports_external.object({
-      type: exports_external.literal("text"),
-      text: exports_external.string()
-    }),
-    exports_external.object({
-      type: exports_external.literal("image_url"),
-      image_url: exports_external.union([
-        exports_external.string(),
-        exports_external.object({
-          url: exports_external.string(),
-          detail: exports_external.string().nullable()
-        })
-      ])
-    }),
-    exports_external.object({
-      type: exports_external.literal("reference"),
-      reference_ids: exports_external.array(exports_external.union([exports_external.string(), exports_external.number()]))
-    }),
-    exports_external.object({
-      type: exports_external.literal("thinking"),
-      thinking: exports_external.array(exports_external.object({
-        type: exports_external.literal("text"),
-        text: exports_external.string()
-      }))
-    })
-  ]))
-]).nullish(), mistralUsageSchema = exports_external.object({
-  prompt_tokens: exports_external.number(),
-  completion_tokens: exports_external.number(),
-  total_tokens: exports_external.number(),
-  num_cached_tokens: exports_external.number().nullish(),
-  prompt_tokens_details: exports_external.object({ cached_tokens: exports_external.number().nullish() }).nullish(),
-  prompt_token_details: exports_external.object({ cached_tokens: exports_external.number().nullish() }).nullish()
-}), mistralChatResponseSchema = exports_external.object({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    message: exports_external.object({
-      role: exports_external.literal("assistant"),
-      content: mistralContentSchema,
-      tool_calls: exports_external.array(exports_external.object({
-        id: exports_external.string(),
-        function: exports_external.object({ name: exports_external.string(), arguments: exports_external.string() })
-      })).nullish()
-    }),
-    index: exports_external.number(),
-    finish_reason: exports_external.string().nullish()
-  })),
-  object: exports_external.literal("chat.completion"),
-  usage: mistralUsageSchema
-}), mistralChatChunkSchema = exports_external.object({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    delta: exports_external.object({
-      role: exports_external.enum(["assistant"]).optional(),
-      content: mistralContentSchema,
-      tool_calls: exports_external.array(exports_external.object({
-        id: exports_external.string(),
-        function: exports_external.object({ name: exports_external.string(), arguments: exports_external.string() })
-      })).nullish()
-    }),
-    finish_reason: exports_external.string().nullish(),
-    index: exports_external.number()
-  })),
-  usage: mistralUsageSchema.nullish()
-}), MistralEmbeddingModel = class {
-  constructor(modelId, config2) {
-    this.specificationVersion = "v3", this.maxEmbeddingsPerCall = 32, this.supportsParallelCalls = !1, this.modelId = modelId, this.config = config2;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async doEmbed({
-    values,
-    abortSignal,
-    headers
-  }) {
-    if (values.length > this.maxEmbeddingsPerCall)
-      throw new TooManyEmbeddingValuesForCallError({
-        provider: this.provider,
-        modelId: this.modelId,
-        maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
-        values
-      });
-    let {
-      responseHeaders,
-      value: response,
-      rawValue
-    } = await postJsonToApi({
-      url: `${this.config.baseURL}/embeddings`,
-      headers: combineHeaders(this.config.headers(), headers),
-      body: {
-        model: this.modelId,
-        input: values,
-        encoding_format: "float"
-      },
-      failedResponseHandler: mistralFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(MistralTextEmbeddingResponseSchema),
-      abortSignal,
-      fetch: this.config.fetch
-    });
-    return {
-      warnings: [],
-      embeddings: response.data.map((item) => item.embedding),
-      usage: response.usage ? { tokens: response.usage.prompt_tokens } : void 0,
-      response: { headers: responseHeaders, body: rawValue }
-    };
-  }
-}, MistralTextEmbeddingResponseSchema = exports_external.object({
-  data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
-  usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish()
-}), VERSION5 = "3.0.40";
-function createMistral(options = {}) {
-  var _a24;
-  let baseURL = (_a24 = withoutTrailingSlash(options.baseURL)) != null ? _a24 : "https://api.mistral.ai/v1", getHeaders = () => withUserAgentSuffix({
-    Authorization: `Bearer ${loadApiKey({
-      apiKey: options.apiKey,
-      environmentVariableName: "MISTRAL_API_KEY",
-      description: "Mistral"
-    })}`,
-    ...options.headers
-  }, `ai-sdk/mistral/${VERSION5}`), createChatModel = (modelId) => new MistralChatLanguageModel(modelId, {
-    provider: "mistral.chat",
-    baseURL,
-    headers: getHeaders,
-    fetch: options.fetch,
-    generateId: options.generateId
-  }), createEmbeddingModel = (modelId) => new MistralEmbeddingModel(modelId, {
-    provider: "mistral.embedding",
-    baseURL,
-    headers: getHeaders,
-    fetch: options.fetch
-  }), provider = function(modelId) {
-    if (new.target)
-      throw Error("The Mistral model function cannot be called with the new keyword.");
-    return createChatModel(modelId);
-  };
-  return provider.specificationVersion = "v3", provider.languageModel = createChatModel, provider.chat = createChatModel, provider.embedding = createEmbeddingModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbedding = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.imageModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
-  }, provider;
-}
-var mistral = createMistral();
 // node_modules/@ai-sdk/google/dist/index.mjs
-var VERSION6 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
+var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
   error: exports_external.object({
     code: exports_external.number().nullable(),
     message: exports_external.string(),
@@ -28271,7 +27556,7 @@ var googleLanguageModelOptions = lazySchema(() => zodSchema(exports_external.obj
   sharedRequestType: exports_external.enum(["priority", "flex", "standard"]).optional(),
   requestType: exports_external.enum(["shared"]).optional()
 })));
-function prepareTools2({
+function prepareTools({
   tools,
   toolChoice,
   modelId,
@@ -28741,7 +28026,7 @@ var GoogleGenerativeAILanguageModel = class {
       tools: googleTools2,
       toolConfig: googleToolConfig,
       toolWarnings
-    } = prepareTools2({
+    } = prepareTools({
       tools,
       toolChoice,
       modelId: this.modelId,
@@ -32360,7 +31645,7 @@ function createGoogleGenerativeAI(options = {}) {
       description: "Google Generative AI"
     }),
     ...options.headers
-  }, `ai-sdk/google/${VERSION6}`), createChatModel = (modelId) => {
+  }, `ai-sdk/google/${VERSION5}`), createChatModel = (modelId) => {
     var _a25;
     return new GoogleGenerativeAILanguageModel(modelId, {
       provider: providerName,
@@ -32630,7 +31915,7 @@ function convertToOpenAIChatMessages({
     }
   return { messages, warnings };
 }
-function getResponseMetadata2({
+function getResponseMetadata({
   id,
   model,
   created
@@ -33044,7 +32329,7 @@ var OpenAIChatLanguageModel = class {
       usage: convertOpenAIChatUsage(response.usage),
       request: { body },
       response: {
-        ...getResponseMetadata2(response),
+        ...getResponseMetadata(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -33093,11 +32378,11 @@ var OpenAIChatLanguageModel = class {
             return;
           }
           if (!metadataExtracted) {
-            let metadata = getResponseMetadata2(value);
+            let metadata = getResponseMetadata(value);
             if (Object.values(metadata).some(Boolean))
               metadataExtracted = !0, controller.enqueue({
                 type: "response-metadata",
-                ...getResponseMetadata2(value)
+                ...getResponseMetadata(value)
               });
           }
           if (value.usage != null) {
@@ -33319,7 +32604,7 @@ ${assistantMessage}
 ${user}:`]
   };
 }
-function getResponseMetadata22({
+function getResponseMetadata2({
   id,
   model,
   created
@@ -33490,7 +32775,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
       },
       request: { body: args },
       response: {
-        ...getResponseMetadata22(response),
+        ...getResponseMetadata2(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -33540,7 +32825,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
           if (isFirstChunk)
             isFirstChunk = !1, controller.enqueue({
               type: "response-metadata",
-              ...getResponseMetadata22(value)
+              ...getResponseMetadata2(value)
             }), controller.enqueue({ type: "text-start", id: "0" });
           if (value.usage != null)
             usage = value.usage;
@@ -37747,7 +37032,7 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
       }
     };
   }
-}, VERSION7 = "3.0.73";
+}, VERSION6 = "3.0.73";
 function createOpenAI(options = {}) {
   var _a24, _b16;
   let baseURL = (_a24 = withoutTrailingSlash(loadOptionalSetting({
@@ -37762,7 +37047,7 @@ function createOpenAI(options = {}) {
     "OpenAI-Organization": options.organization,
     "OpenAI-Project": options.project,
     ...options.headers
-  }, `ai-sdk/openai/${VERSION7}`), createChatModel = (modelId) => new OpenAIChatLanguageModel(modelId, {
+  }, `ai-sdk/openai/${VERSION6}`), createChatModel = (modelId) => new OpenAIChatLanguageModel(modelId, {
     provider: `${providerName}.chat`,
     url: ({ path }) => `${baseURL}${path}`,
     headers: getHeaders,
@@ -37811,7 +37096,7 @@ function createOpenAI(options = {}) {
 }
 var openai = createOpenAI();
 // node_modules/@ai-sdk/anthropic/dist/index.mjs
-var VERSION8 = "3.0.85", anthropicErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
+var VERSION7 = "3.0.85", anthropicErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
   type: exports_external.literal("error"),
   error: exports_external.object({
     type: exports_external.string(),
@@ -38861,7 +38146,7 @@ var CacheControlValidator = class {
 }), webFetch_20250910 = (args = {}) => {
   return factory6(args);
 };
-async function prepareTools3({
+async function prepareTools2({
   tools,
   toolChoice,
   disableParallelToolUse,
@@ -40726,7 +40011,7 @@ var AnthropicMessagesLanguageModel = class {
       toolChoice: anthropicToolChoice,
       toolWarnings,
       betas: toolsBetas
-    } = await prepareTools3(jsonResponseTool != null ? {
+    } = await prepareTools2(jsonResponseTool != null ? {
       tools: [...tools != null ? tools : [], jsonResponseTool],
       toolChoice: { type: "required" },
       disableParallelToolUse: !0,
@@ -42275,7 +41560,7 @@ function createAnthropic(options = {}) {
       "anthropic-version": "2023-06-01",
       ...authHeaders,
       ...options.headers
-    }, `ai-sdk/anthropic/${VERSION8}`);
+    }, `ai-sdk/anthropic/${VERSION7}`);
   }, createChatModel = (modelId) => {
     var _a25;
     return new AnthropicMessagesLanguageModel(modelId, {
@@ -42301,3003 +41586,6 @@ function createAnthropic(options = {}) {
   }, provider.tools = anthropicTools, provider;
 }
 var anthropic = createAnthropic();
-// node_modules/@ai-sdk/xai/dist/index.mjs
-function convertToXaiChatMessages(prompt) {
-  var _a24;
-  let messages = [], warnings = [];
-  for (let { role, content } of prompt)
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content });
-        break;
-      }
-      case "user": {
-        if (content.length === 1 && content[0].type === "text") {
-          messages.push({ role: "user", content: content[0].text });
-          break;
-        }
-        messages.push({
-          role: "user",
-          content: content.map((part) => {
-            switch (part.type) {
-              case "text":
-                return { type: "text", text: part.text };
-              case "file":
-                if (part.mediaType.startsWith("image/")) {
-                  let mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-                  return {
-                    type: "image_url",
-                    image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
-                    }
-                  };
-                } else
-                  throw new UnsupportedFunctionalityError({
-                    functionality: `file part media type ${part.mediaType}`
-                  });
-            }
-          })
-        });
-        break;
-      }
-      case "assistant": {
-        let text2 = "", toolCalls = [];
-        for (let part of content)
-          switch (part.type) {
-            case "text": {
-              text2 += part.text;
-              break;
-            }
-            case "tool-call": {
-              toolCalls.push({
-                id: part.toolCallId,
-                type: "function",
-                function: {
-                  name: part.toolName,
-                  arguments: JSON.stringify(part.input)
-                }
-              });
-              break;
-            }
-          }
-        messages.push({
-          role: "assistant",
-          content: text2,
-          tool_calls: toolCalls.length > 0 ? toolCalls : void 0
-        });
-        break;
-      }
-      case "tool": {
-        for (let toolResponse of content) {
-          if (toolResponse.type === "tool-approval-response")
-            continue;
-          let output = toolResponse.output, contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "execution-denied":
-              contentValue = (_a24 = output.reason) != null ? _a24 : "Tool execution denied.";
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          messages.push({
-            role: "tool",
-            tool_call_id: toolResponse.toolCallId,
-            content: contentValue
-          });
-        }
-        break;
-      }
-      default:
-        throw Error(`Unsupported role: ${role}`);
-    }
-  return { messages, warnings };
-}
-function convertXaiChatUsage(usage) {
-  var _a24, _b16, _c, _d;
-  let cacheReadTokens = (_b16 = (_a24 = usage.prompt_tokens_details) == null ? void 0 : _a24.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.completion_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0, promptTokensIncludesCached = cacheReadTokens <= usage.prompt_tokens;
-  return {
-    inputTokens: {
-      total: promptTokensIncludesCached ? usage.prompt_tokens : usage.prompt_tokens + cacheReadTokens,
-      noCache: promptTokensIncludesCached ? usage.prompt_tokens - cacheReadTokens : usage.prompt_tokens,
-      cacheRead: cacheReadTokens,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: usage.completion_tokens + reasoningTokens,
-      text: usage.completion_tokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-function getResponseMetadata3({
-  id,
-  model,
-  created,
-  created_at
-}) {
-  let unixTime = created != null ? created : created_at;
-  return {
-    id: id != null ? id : void 0,
-    modelId: model != null ? model : void 0,
-    timestamp: unixTime != null ? new Date(unixTime * 1000) : void 0
-  };
-}
-function mapXaiFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-      return "stop";
-    case "length":
-      return "length";
-    case "tool_calls":
-    case "function_call":
-      return "tool-calls";
-    case "content_filter":
-      return "content-filter";
-    default:
-      return "other";
-  }
-}
-var webSourceSchema = exports_external.object({
-  type: exports_external.literal("web"),
-  country: exports_external.string().length(2).optional(),
-  excludedWebsites: exports_external.array(exports_external.string()).max(5).optional(),
-  allowedWebsites: exports_external.array(exports_external.string()).max(5).optional(),
-  safeSearch: exports_external.boolean().optional()
-}), xSourceSchema = exports_external.object({
-  type: exports_external.literal("x"),
-  excludedXHandles: exports_external.array(exports_external.string()).optional(),
-  includedXHandles: exports_external.array(exports_external.string()).optional(),
-  postFavoriteCount: exports_external.number().int().optional(),
-  postViewCount: exports_external.number().int().optional(),
-  xHandles: exports_external.array(exports_external.string()).optional()
-}), newsSourceSchema = exports_external.object({
-  type: exports_external.literal("news"),
-  country: exports_external.string().length(2).optional(),
-  excludedWebsites: exports_external.array(exports_external.string()).max(5).optional(),
-  safeSearch: exports_external.boolean().optional()
-}), rssSourceSchema = exports_external.object({
-  type: exports_external.literal("rss"),
-  links: exports_external.array(exports_external.string().url()).max(1)
-}), searchSourceSchema = exports_external.discriminatedUnion("type", [
-  webSourceSchema,
-  xSourceSchema,
-  newsSourceSchema,
-  rssSourceSchema
-]), xaiLanguageModelChatOptions = exports_external.object({
-  reasoningEffort: exports_external.enum(["low", "high"]).optional(),
-  logprobs: exports_external.boolean().optional(),
-  topLogprobs: exports_external.number().int().min(0).max(8).optional(),
-  parallel_function_calling: exports_external.boolean().optional(),
-  searchParameters: exports_external.object({
-    mode: exports_external.enum(["off", "auto", "on"]),
-    returnCitations: exports_external.boolean().optional(),
-    fromDate: exports_external.string().optional(),
-    toDate: exports_external.string().optional(),
-    maxSearchResults: exports_external.number().min(1).max(50).optional(),
-    sources: exports_external.array(searchSourceSchema).optional()
-  }).optional()
-}), chatCompletionsErrorSchema = exports_external.object({
-  error: exports_external.object({
-    message: exports_external.string(),
-    type: exports_external.string().nullish(),
-    param: exports_external.any().nullish(),
-    code: exports_external.union([exports_external.string(), exports_external.number()]).nullish()
-  })
-}), responsesErrorSchema = exports_external.object({
-  code: exports_external.string(),
-  error: exports_external.string()
-}), xaiErrorDataSchema = exports_external.union([
-  chatCompletionsErrorSchema,
-  responsesErrorSchema
-]), xaiFailedResponseHandler = createJsonErrorResponseHandler({
-  errorSchema: xaiErrorDataSchema,
-  errorToMessage: (data) => ("code" in data) ? `${data.code}: ${data.error}` : data.error.message
-});
-function removeAdditionalPropertiesFalse(value) {
-  if (Array.isArray(value))
-    return value.map(removeAdditionalPropertiesFalse);
-  if (value == null || typeof value !== "object")
-    return value;
-  let result = {};
-  for (let [key, propertyValue] of Object.entries(value)) {
-    if (key === "additionalProperties" && propertyValue === !1)
-      continue;
-    result[key] = removeAdditionalPropertiesFalse(propertyValue);
-  }
-  return result;
-}
-function prepareTools4({
-  tools,
-  toolChoice
-}) {
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  let toolWarnings = [];
-  if (tools == null)
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  let xaiTools2 = [];
-  for (let tool2 of tools)
-    if (tool2.type === "provider")
-      toolWarnings.push({
-        type: "unsupported",
-        feature: `provider-defined tool ${tool2.name}`
-      });
-    else
-      xaiTools2.push({
-        type: "function",
-        function: {
-          name: tool2.name,
-          description: tool2.description,
-          parameters: removeAdditionalPropertiesFalse(tool2.inputSchema),
-          ...tool2.strict != null ? { strict: tool2.strict } : {}
-        }
-      });
-  if (toolChoice == null)
-    return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
-  let type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-      return { tools: xaiTools2, toolChoice: type, toolWarnings };
-    case "required":
-      return { tools: xaiTools2, toolChoice: "required", toolWarnings };
-    case "tool":
-      return {
-        tools: xaiTools2,
-        toolChoice: {
-          type: "function",
-          function: { name: toolChoice.toolName }
-        },
-        toolWarnings
-      };
-    default:
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${type}`
-      });
-  }
-}
-var XaiChatLanguageModel = class {
-  constructor(modelId, config2) {
-    this.specificationVersion = "v3", this.supportedUrls = {
-      "image/*": [/^https?:\/\/.*$/]
-    }, this.modelId = modelId, this.config = config2;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    stopSequences,
-    seed,
-    responseFormat,
-    providerOptions,
-    tools,
-    toolChoice
-  }) {
-    var _a24, _b16, _c;
-    let warnings = [], options = (_a24 = await parseProviderOptions({
-      provider: "xai",
-      providerOptions,
-      schema: xaiLanguageModelChatOptions
-    })) != null ? _a24 : {};
-    if (topK != null)
-      warnings.push({ type: "unsupported", feature: "topK" });
-    if (frequencyPenalty != null)
-      warnings.push({ type: "unsupported", feature: "frequencyPenalty" });
-    if (presencePenalty != null)
-      warnings.push({ type: "unsupported", feature: "presencePenalty" });
-    if (stopSequences != null)
-      warnings.push({ type: "unsupported", feature: "stopSequences" });
-    let { messages, warnings: messageWarnings } = convertToXaiChatMessages(prompt);
-    warnings.push(...messageWarnings);
-    let {
-      tools: xaiTools2,
-      toolChoice: xaiToolChoice,
-      toolWarnings
-    } = prepareTools4({
-      tools,
-      toolChoice
-    });
-    return warnings.push(...toolWarnings), {
-      args: {
-        model: this.modelId,
-        logprobs: options.logprobs === !0 || options.topLogprobs != null ? !0 : void 0,
-        top_logprobs: options.topLogprobs,
-        max_completion_tokens: maxOutputTokens,
-        temperature,
-        top_p: topP,
-        seed,
-        reasoning_effort: options.reasoningEffort,
-        parallel_function_calling: options.parallel_function_calling,
-        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? responseFormat.schema != null ? {
-          type: "json_schema",
-          json_schema: {
-            name: (_b16 = responseFormat.name) != null ? _b16 : "response",
-            schema: responseFormat.schema,
-            strict: !0
-          }
-        } : { type: "json_object" } : void 0,
-        search_parameters: options.searchParameters ? {
-          mode: options.searchParameters.mode,
-          return_citations: options.searchParameters.returnCitations,
-          from_date: options.searchParameters.fromDate,
-          to_date: options.searchParameters.toDate,
-          max_search_results: options.searchParameters.maxSearchResults,
-          sources: (_c = options.searchParameters.sources) == null ? void 0 : _c.map((source) => {
-            var _a25;
-            return {
-              type: source.type,
-              ...source.type === "web" && {
-                country: source.country,
-                excluded_websites: source.excludedWebsites,
-                allowed_websites: source.allowedWebsites,
-                safe_search: source.safeSearch
-              },
-              ...source.type === "x" && {
-                excluded_x_handles: source.excludedXHandles,
-                included_x_handles: (_a25 = source.includedXHandles) != null ? _a25 : source.xHandles,
-                post_favorite_count: source.postFavoriteCount,
-                post_view_count: source.postViewCount
-              },
-              ...source.type === "news" && {
-                country: source.country,
-                excluded_websites: source.excludedWebsites,
-                safe_search: source.safeSearch
-              },
-              ...source.type === "rss" && {
-                links: source.links
-              }
-            };
-          })
-        } : void 0,
-        messages,
-        tools: xaiTools2,
-        tool_choice: xaiToolChoice
-      },
-      warnings
-    };
-  }
-  async doGenerate(options) {
-    var _a24, _b16;
-    let { args: body, warnings } = await this.getArgs(options), url2 = `${(_a24 = this.config.baseURL) != null ? _a24 : "https://api.x.ai/v1"}/chat/completions`, {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: url2,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(xaiChatResponseSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    });
-    if (response.error != null)
-      throw new APICallError({
-        message: response.error,
-        url: url2,
-        requestBodyValues: body,
-        statusCode: 200,
-        responseHeaders,
-        responseBody: JSON.stringify(rawResponse),
-        isRetryable: response.code === "The service is currently unavailable"
-      });
-    let choice2 = response.choices[0], content = [];
-    if (choice2.message.content != null && choice2.message.content.length > 0) {
-      let text2 = choice2.message.content, lastMessage = body.messages[body.messages.length - 1];
-      if ((lastMessage == null ? void 0 : lastMessage.role) === "assistant" && text2 === lastMessage.content)
-        text2 = "";
-      if (text2.length > 0)
-        content.push({ type: "text", text: text2 });
-    }
-    if (choice2.message.reasoning_content != null && choice2.message.reasoning_content.length > 0)
-      content.push({
-        type: "reasoning",
-        text: choice2.message.reasoning_content
-      });
-    if (choice2.message.tool_calls != null)
-      for (let toolCall of choice2.message.tool_calls)
-        content.push({
-          type: "tool-call",
-          toolCallId: toolCall.id,
-          toolName: toolCall.function.name,
-          input: toolCall.function.arguments
-        });
-    if (response.citations != null)
-      for (let url22 of response.citations)
-        content.push({
-          type: "source",
-          sourceType: "url",
-          id: this.config.generateId(),
-          url: url22
-        });
-    return {
-      content,
-      finishReason: {
-        unified: mapXaiFinishReason(choice2.finish_reason),
-        raw: (_b16 = choice2.finish_reason) != null ? _b16 : void 0
-      },
-      usage: response.usage ? convertXaiChatUsage(response.usage) : {
-        inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 },
-        outputTokens: { total: 0, text: 0, reasoning: 0 }
-      },
-      request: { body },
-      response: {
-        ...getResponseMetadata3(response),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    var _a24;
-    let { args, warnings } = await this.getArgs(options), body = {
-      ...args,
-      stream: !0,
-      stream_options: {
-        include_usage: !0
-      }
-    }, url2 = `${(_a24 = this.config.baseURL) != null ? _a24 : "https://api.x.ai/v1"}/chat/completions`, { responseHeaders, value: response } = await postJsonToApi({
-      url: url2,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: async ({ response: response2 }) => {
-        let responseHeaders2 = extractResponseHeaders(response2), contentType = response2.headers.get("content-type");
-        if (contentType == null ? void 0 : contentType.includes("application/json")) {
-          let responseBody = await response2.text(), parsedError = await safeParseJSON({
-            text: responseBody,
-            schema: xaiStreamErrorSchema
-          });
-          if (parsedError.success)
-            throw new APICallError({
-              message: parsedError.value.error,
-              url: url2,
-              requestBodyValues: body,
-              statusCode: 200,
-              responseHeaders: responseHeaders2,
-              responseBody,
-              isRetryable: parsedError.value.code === "The service is currently unavailable"
-            });
-          throw new APICallError({
-            message: "Invalid JSON response",
-            url: url2,
-            requestBodyValues: body,
-            statusCode: 200,
-            responseHeaders: responseHeaders2,
-            responseBody
-          });
-        }
-        return createEventSourceResponseHandler(xaiChatChunkSchema)({
-          response: response2,
-          url: url2,
-          requestBodyValues: body
-        });
-      },
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), finishReason = {
-      unified: "other",
-      raw: void 0
-    }, usage = void 0, isFirstChunk = !0, contentBlocks = {}, lastReasoningDeltas = {}, activeReasoningBlockId = void 0, self2 = this;
-    return {
-      stream: response.pipeThrough(new TransformStream({
-        start(controller) {
-          controller.enqueue({ type: "stream-start", warnings });
-        },
-        transform(chunk, controller) {
-          if (options.includeRawChunks)
-            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-          if (!chunk.success) {
-            controller.enqueue({ type: "error", error: chunk.error });
-            return;
-          }
-          let value = chunk.value;
-          if (isFirstChunk)
-            controller.enqueue({
-              type: "response-metadata",
-              ...getResponseMetadata3(value)
-            }), isFirstChunk = !1;
-          if (value.citations != null)
-            for (let url22 of value.citations)
-              controller.enqueue({
-                type: "source",
-                sourceType: "url",
-                id: self2.config.generateId(),
-                url: url22
-              });
-          if (value.usage != null)
-            usage = convertXaiChatUsage(value.usage);
-          let choice2 = value.choices[0];
-          if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
-            finishReason = {
-              unified: mapXaiFinishReason(choice2.finish_reason),
-              raw: choice2.finish_reason
-            };
-          if ((choice2 == null ? void 0 : choice2.delta) == null)
-            return;
-          let { delta, index: choiceIndex } = choice2;
-          if (delta.content != null && delta.content.length > 0) {
-            let textContent = delta.content;
-            if (activeReasoningBlockId != null && !contentBlocks[activeReasoningBlockId].ended)
-              controller.enqueue({
-                type: "reasoning-end",
-                id: activeReasoningBlockId
-              }), contentBlocks[activeReasoningBlockId].ended = !0, activeReasoningBlockId = void 0;
-            let lastMessage = body.messages[body.messages.length - 1];
-            if ((lastMessage == null ? void 0 : lastMessage.role) === "assistant" && textContent === lastMessage.content)
-              return;
-            let blockId = `text-${value.id || choiceIndex}`;
-            if (contentBlocks[blockId] == null)
-              contentBlocks[blockId] = { type: "text", ended: !1 }, controller.enqueue({
-                type: "text-start",
-                id: blockId
-              });
-            controller.enqueue({
-              type: "text-delta",
-              id: blockId,
-              delta: textContent
-            });
-          }
-          if (delta.reasoning_content != null && delta.reasoning_content.length > 0) {
-            let blockId = `reasoning-${value.id || choiceIndex}`;
-            if (lastReasoningDeltas[blockId] === delta.reasoning_content)
-              return;
-            if (lastReasoningDeltas[blockId] = delta.reasoning_content, contentBlocks[blockId] == null)
-              contentBlocks[blockId] = { type: "reasoning", ended: !1 }, activeReasoningBlockId = blockId, controller.enqueue({
-                type: "reasoning-start",
-                id: blockId
-              });
-            controller.enqueue({
-              type: "reasoning-delta",
-              id: blockId,
-              delta: delta.reasoning_content
-            });
-          }
-          if (delta.tool_calls != null) {
-            if (activeReasoningBlockId != null && !contentBlocks[activeReasoningBlockId].ended)
-              controller.enqueue({
-                type: "reasoning-end",
-                id: activeReasoningBlockId
-              }), contentBlocks[activeReasoningBlockId].ended = !0, activeReasoningBlockId = void 0;
-            for (let toolCall of delta.tool_calls) {
-              let toolCallId = toolCall.id;
-              controller.enqueue({
-                type: "tool-input-start",
-                id: toolCallId,
-                toolName: toolCall.function.name
-              }), controller.enqueue({
-                type: "tool-input-delta",
-                id: toolCallId,
-                delta: toolCall.function.arguments
-              }), controller.enqueue({
-                type: "tool-input-end",
-                id: toolCallId
-              }), controller.enqueue({
-                type: "tool-call",
-                toolCallId,
-                toolName: toolCall.function.name,
-                input: toolCall.function.arguments
-              });
-            }
-          }
-        },
-        flush(controller) {
-          for (let [blockId, block] of Object.entries(contentBlocks))
-            if (!block.ended)
-              controller.enqueue({
-                type: block.type === "text" ? "text-end" : "reasoning-end",
-                id: blockId
-              });
-          controller.enqueue({
-            type: "finish",
-            finishReason,
-            usage: usage != null ? usage : {
-              inputTokens: {
-                total: 0,
-                noCache: 0,
-                cacheRead: 0,
-                cacheWrite: 0
-              },
-              outputTokens: { total: 0, text: 0, reasoning: 0 }
-            }
-          });
-        }
-      })),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-}, xaiUsageSchema = exports_external.object({
-  prompt_tokens: exports_external.number(),
-  completion_tokens: exports_external.number(),
-  total_tokens: exports_external.number(),
-  prompt_tokens_details: exports_external.object({
-    text_tokens: exports_external.number().nullish(),
-    audio_tokens: exports_external.number().nullish(),
-    image_tokens: exports_external.number().nullish(),
-    cached_tokens: exports_external.number().nullish()
-  }).nullish(),
-  completion_tokens_details: exports_external.object({
-    reasoning_tokens: exports_external.number().nullish(),
-    audio_tokens: exports_external.number().nullish(),
-    accepted_prediction_tokens: exports_external.number().nullish(),
-    rejected_prediction_tokens: exports_external.number().nullish()
-  }).nullish()
-}), xaiChatResponseSchema = exports_external.object({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    message: exports_external.object({
-      role: exports_external.literal("assistant"),
-      content: exports_external.string().nullish(),
-      reasoning_content: exports_external.string().nullish(),
-      tool_calls: exports_external.array(exports_external.object({
-        id: exports_external.string(),
-        type: exports_external.literal("function"),
-        function: exports_external.object({
-          name: exports_external.string(),
-          arguments: exports_external.string()
-        })
-      })).nullish()
-    }),
-    index: exports_external.number(),
-    finish_reason: exports_external.string().nullish()
-  })).nullish(),
-  object: exports_external.literal("chat.completion").nullish(),
-  usage: xaiUsageSchema.nullish(),
-  citations: exports_external.array(exports_external.string().url()).nullish(),
-  code: exports_external.string().nullish(),
-  error: exports_external.string().nullish()
-}), xaiChatChunkSchema = exports_external.object({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    delta: exports_external.object({
-      role: exports_external.enum(["assistant"]).optional(),
-      content: exports_external.string().nullish(),
-      reasoning_content: exports_external.string().nullish(),
-      tool_calls: exports_external.array(exports_external.object({
-        id: exports_external.string(),
-        type: exports_external.literal("function"),
-        function: exports_external.object({
-          name: exports_external.string(),
-          arguments: exports_external.string()
-        })
-      })).nullish()
-    }),
-    finish_reason: exports_external.string().nullish(),
-    index: exports_external.number()
-  })),
-  usage: xaiUsageSchema.nullish(),
-  citations: exports_external.array(exports_external.string().url()).nullish()
-}), xaiStreamErrorSchema = exports_external.object({
-  code: exports_external.string(),
-  error: exports_external.string()
-}), xaiImageModelOptions = exports_external.object({
-  aspect_ratio: exports_external.string().optional(),
-  output_format: exports_external.string().optional(),
-  sync_mode: exports_external.boolean().optional(),
-  resolution: exports_external.enum(["1k", "2k"]).optional(),
-  quality: exports_external.enum(["low", "medium", "high"]).optional(),
-  user: exports_external.string().optional()
-}), XaiImageModel = class {
-  constructor(modelId, config2) {
-    this.modelId = modelId, this.config = config2, this.specificationVersion = "v3", this.maxImagesPerCall = 3;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async doGenerate({
-    prompt,
-    n,
-    size,
-    aspectRatio,
-    seed,
-    providerOptions,
-    headers,
-    abortSignal,
-    files,
-    mask
-  }) {
-    var _a24, _b16, _c, _d, _e;
-    let warnings = [];
-    if (size != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "size",
-        details: "This model does not support the `size` option. Use `aspectRatio` instead."
-      });
-    if (seed != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "seed"
-      });
-    if (mask != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "mask"
-      });
-    let xaiOptions = await parseProviderOptions({
-      provider: "xai",
-      providerOptions,
-      schema: xaiImageModelOptions
-    }), hasFiles = files != null && files.length > 0, imageUrls = hasFiles ? files.map((file2) => convertImageModelFileToDataUri(file2)) : [], endpoint = hasFiles ? "/images/edits" : "/images/generations", body = {
-      model: this.modelId,
-      prompt,
-      n,
-      response_format: "b64_json"
-    };
-    if (aspectRatio != null)
-      body.aspect_ratio = aspectRatio;
-    if ((xaiOptions == null ? void 0 : xaiOptions.output_format) != null)
-      body.output_format = xaiOptions.output_format;
-    if ((xaiOptions == null ? void 0 : xaiOptions.sync_mode) != null)
-      body.sync_mode = xaiOptions.sync_mode;
-    if ((xaiOptions == null ? void 0 : xaiOptions.aspect_ratio) != null && aspectRatio == null)
-      body.aspect_ratio = xaiOptions.aspect_ratio;
-    if ((xaiOptions == null ? void 0 : xaiOptions.resolution) != null)
-      body.resolution = xaiOptions.resolution;
-    if ((xaiOptions == null ? void 0 : xaiOptions.quality) != null)
-      body.quality = xaiOptions.quality;
-    if ((xaiOptions == null ? void 0 : xaiOptions.user) != null)
-      body.user = xaiOptions.user;
-    if (imageUrls.length === 1)
-      body.image = { url: imageUrls[0], type: "image_url" };
-    else if (imageUrls.length > 1)
-      body.images = imageUrls.map((url2) => ({ url: url2, type: "image_url" }));
-    let baseURL = (_a24 = this.config.baseURL) != null ? _a24 : "https://api.x.ai/v1", currentDate = (_d = (_c = (_b16 = this.config._internal) == null ? void 0 : _b16.currentDate) == null ? void 0 : _c.call(_b16)) != null ? _d : /* @__PURE__ */ new Date, { value: response, responseHeaders } = await postJsonToApi({
-      url: `${baseURL}${endpoint}`,
-      headers: combineHeaders(this.config.headers(), headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(xaiImageResponseSchema),
-      abortSignal,
-      fetch: this.config.fetch
-    });
-    return {
-      images: response.data.every((image) => image.b64_json != null) ? response.data.map((image) => image.b64_json) : await Promise.all(response.data.map((image) => this.downloadImage(image.url, abortSignal))),
-      warnings,
-      response: {
-        timestamp: currentDate,
-        modelId: this.modelId,
-        headers: responseHeaders
-      },
-      providerMetadata: {
-        xai: {
-          images: response.data.map((item) => ({
-            ...item.revised_prompt ? { revisedPrompt: item.revised_prompt } : {}
-          })),
-          ...((_e = response.usage) == null ? void 0 : _e.cost_in_usd_ticks) != null ? { costInUsdTicks: response.usage.cost_in_usd_ticks } : {}
-        }
-      }
-    };
-  }
-  async downloadImage(url2, abortSignal) {
-    let { value } = await getFromApi({
-      url: url2,
-      abortSignal,
-      failedResponseHandler: createStatusCodeErrorResponseHandler(),
-      successfulResponseHandler: createBinaryResponseHandler(),
-      fetch: this.config.fetch
-    });
-    return value;
-  }
-}, xaiImageResponseSchema = exports_external.object({
-  data: exports_external.array(exports_external.object({
-    url: exports_external.string().nullish(),
-    b64_json: exports_external.string().nullish(),
-    revised_prompt: exports_external.string().nullish()
-  })),
-  usage: exports_external.object({
-    cost_in_usd_ticks: exports_external.number().nullish()
-  }).nullish()
-});
-async function convertToXaiResponsesInput({
-  prompt
-}) {
-  var _a24, _b16, _c, _d, _e, _f, _g, _h, _i;
-  let input = [], inputWarnings = [];
-  for (let message of prompt)
-    switch (message.role) {
-      case "system": {
-        input.push({
-          role: "system",
-          content: message.content
-        });
-        break;
-      }
-      case "user": {
-        let contentParts = [];
-        for (let block of message.content)
-          switch (block.type) {
-            case "text": {
-              contentParts.push({ type: "input_text", text: block.text });
-              break;
-            }
-            case "file": {
-              if (block.mediaType.startsWith("image/")) {
-                let mediaType = block.mediaType === "image/*" ? "image/jpeg" : block.mediaType, imageUrl = block.data instanceof URL ? block.data.toString() : `data:${mediaType};base64,${convertToBase64(block.data)}`;
-                contentParts.push({ type: "input_image", image_url: imageUrl });
-              } else if (block.data instanceof URL)
-                contentParts.push({
-                  type: "input_file",
-                  file_url: block.data.toString()
-                });
-              else
-                throw new UnsupportedFunctionalityError({
-                  functionality: `file part media type ${block.mediaType} as inline data (xAI Responses requires a URL or a Files API reference for non-image files)`
-                });
-              break;
-            }
-            default: {
-              let _exhaustiveCheck = block;
-              inputWarnings.push({
-                type: "other",
-                message: "xAI Responses API does not support this content type in user messages"
-              });
-            }
-          }
-        input.push({
-          role: "user",
-          content: contentParts
-        });
-        break;
-      }
-      case "assistant": {
-        for (let part of message.content)
-          switch (part.type) {
-            case "text": {
-              let id = typeof ((_b16 = (_a24 = part.providerOptions) == null ? void 0 : _a24.xai) == null ? void 0 : _b16.itemId) === "string" ? part.providerOptions.xai.itemId : void 0;
-              input.push({
-                role: "assistant",
-                content: part.text,
-                id
-              });
-              break;
-            }
-            case "tool-call": {
-              if (part.providerExecuted)
-                break;
-              let id = typeof ((_d = (_c = part.providerOptions) == null ? void 0 : _c.xai) == null ? void 0 : _d.itemId) === "string" ? part.providerOptions.xai.itemId : void 0;
-              input.push({
-                type: "function_call",
-                id: id != null ? id : part.toolCallId,
-                call_id: part.toolCallId,
-                name: part.toolName,
-                arguments: JSON.stringify(part.input),
-                status: "completed"
-              });
-              break;
-            }
-            case "tool-result":
-              break;
-            case "reasoning": {
-              let itemId = typeof ((_f = (_e = part.providerOptions) == null ? void 0 : _e.xai) == null ? void 0 : _f.itemId) === "string" ? part.providerOptions.xai.itemId : void 0, encryptedContent = typeof ((_h = (_g = part.providerOptions) == null ? void 0 : _g.xai) == null ? void 0 : _h.reasoningEncryptedContent) === "string" ? part.providerOptions.xai.reasoningEncryptedContent : void 0;
-              if (itemId != null || encryptedContent != null) {
-                let summaryParts = [];
-                if (part.text.length > 0)
-                  summaryParts.push({
-                    type: "summary_text",
-                    text: part.text
-                  });
-                input.push({
-                  type: "reasoning",
-                  id: itemId != null ? itemId : "",
-                  summary: summaryParts,
-                  status: "completed",
-                  ...encryptedContent != null && {
-                    encrypted_content: encryptedContent
-                  }
-                });
-              } else
-                inputWarnings.push({
-                  type: "other",
-                  message: "Reasoning parts without itemId or encrypted content cannot be sent back to xAI. Skipping."
-                });
-              break;
-            }
-            case "file": {
-              inputWarnings.push({
-                type: "other",
-                message: `xAI Responses API does not support ${part.type} in assistant messages`
-              });
-              break;
-            }
-            default: {
-              let _exhaustiveCheck = part;
-              inputWarnings.push({
-                type: "other",
-                message: "xAI Responses API does not support this content type in assistant messages"
-              });
-            }
-          }
-        break;
-      }
-      case "tool": {
-        for (let part of message.content) {
-          if (part.type === "tool-approval-response")
-            continue;
-          let output = part.output, outputValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              outputValue = output.value;
-              break;
-            case "execution-denied":
-              outputValue = (_i = output.reason) != null ? _i : "tool execution denied";
-              break;
-            case "json":
-            case "error-json":
-              outputValue = JSON.stringify(output.value);
-              break;
-            case "content":
-              outputValue = output.value.map((item) => {
-                if (item.type === "text")
-                  return item.text;
-                return "";
-              }).join("");
-              break;
-            default: {
-              let _exhaustiveCheck = output;
-              outputValue = "";
-            }
-          }
-          input.push({
-            type: "function_call_output",
-            call_id: part.toolCallId,
-            output: outputValue
-          });
-        }
-        break;
-      }
-      default: {
-        let _exhaustiveCheck = message;
-        inputWarnings.push({
-          type: "other",
-          message: "unsupported message role"
-        });
-      }
-    }
-  return { input, inputWarnings };
-}
-function convertXaiResponsesUsage(usage) {
-  var _a24, _b16, _c, _d;
-  let cacheReadTokens = (_b16 = (_a24 = usage.input_tokens_details) == null ? void 0 : _a24.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.output_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0, inputTokensIncludesCached = cacheReadTokens <= usage.input_tokens;
-  return {
-    inputTokens: {
-      total: inputTokensIncludesCached ? usage.input_tokens : usage.input_tokens + cacheReadTokens,
-      noCache: inputTokensIncludesCached ? usage.input_tokens - cacheReadTokens : usage.input_tokens,
-      cacheRead: cacheReadTokens,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: usage.output_tokens,
-      text: usage.output_tokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-function mapXaiResponsesFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-    case "completed":
-      return "stop";
-    case "length":
-    case "max_output_tokens":
-      return "length";
-    case "tool_calls":
-    case "function_call":
-      return "tool-calls";
-    case "content_filter":
-      return "content-filter";
-    default:
-      return "other";
-  }
-}
-var annotationSchema2 = exports_external.union([
-  exports_external.object({
-    type: exports_external.literal("url_citation"),
-    url: exports_external.string(),
-    title: exports_external.string().optional()
-  }),
-  exports_external.object({
-    type: exports_external.string()
-  })
-]), messageContentPartSchema = exports_external.object({
-  type: exports_external.string(),
-  text: exports_external.string().optional(),
-  logprobs: exports_external.array(exports_external.any()).optional(),
-  annotations: exports_external.array(annotationSchema2).optional()
-}), reasoningSummaryPartSchema = exports_external.object({
-  type: exports_external.string(),
-  text: exports_external.string()
-}), toolCallSchema = exports_external.object({
-  name: exports_external.string().optional(),
-  arguments: exports_external.string().optional(),
-  input: exports_external.string().optional(),
-  call_id: exports_external.string().optional(),
-  id: exports_external.string(),
-  status: exports_external.string(),
-  action: exports_external.any().optional()
-}), mcpCallSchema = exports_external.object({
-  name: exports_external.string().optional(),
-  arguments: exports_external.string().optional(),
-  output: exports_external.string().optional(),
-  error: exports_external.string().optional(),
-  id: exports_external.string(),
-  status: exports_external.string(),
-  server_label: exports_external.string().optional()
-}), outputItemSchema = exports_external.discriminatedUnion("type", [
-  exports_external.object({
-    type: exports_external.literal("web_search_call"),
-    ...toolCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("x_search_call"),
-    ...toolCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("code_interpreter_call"),
-    ...toolCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("code_execution_call"),
-    ...toolCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("view_image_call"),
-    ...toolCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("view_x_video_call"),
-    ...toolCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("file_search_call"),
-    id: exports_external.string(),
-    status: exports_external.string(),
-    queries: exports_external.array(exports_external.string()).optional(),
-    results: exports_external.array(exports_external.object({
-      file_id: exports_external.string(),
-      filename: exports_external.string(),
-      score: exports_external.number(),
-      text: exports_external.string()
-    })).nullish()
-  }),
-  exports_external.object({
-    type: exports_external.literal("custom_tool_call"),
-    ...toolCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("mcp_call"),
-    ...mcpCallSchema.shape
-  }),
-  exports_external.object({
-    type: exports_external.literal("message"),
-    role: exports_external.string(),
-    content: exports_external.array(messageContentPartSchema),
-    id: exports_external.string(),
-    status: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("function_call"),
-    name: exports_external.string(),
-    arguments: exports_external.string(),
-    call_id: exports_external.string(),
-    id: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("reasoning"),
-    id: exports_external.string(),
-    summary: exports_external.array(reasoningSummaryPartSchema),
-    status: exports_external.string(),
-    encrypted_content: exports_external.string().nullish()
-  })
-]), xaiResponsesUsageSchema = exports_external.object({
-  input_tokens: exports_external.number(),
-  output_tokens: exports_external.number(),
-  total_tokens: exports_external.number().optional(),
-  input_tokens_details: exports_external.object({
-    cached_tokens: exports_external.number().optional()
-  }).optional(),
-  output_tokens_details: exports_external.object({
-    reasoning_tokens: exports_external.number().optional()
-  }).optional(),
-  num_sources_used: exports_external.number().optional(),
-  num_server_side_tools_used: exports_external.number().optional()
-}), xaiResponsesResponseSchema = exports_external.object({
-  id: exports_external.string().nullish(),
-  created_at: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  object: exports_external.literal("response"),
-  output: exports_external.array(outputItemSchema),
-  usage: xaiResponsesUsageSchema.nullish(),
-  status: exports_external.string()
-}), xaiResponsesChunkSchema = exports_external.union([
-  exports_external.object({
-    type: exports_external.literal("response.created"),
-    response: xaiResponsesResponseSchema.partial({ usage: !0, status: !0 })
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.in_progress"),
-    response: xaiResponsesResponseSchema.partial({ usage: !0, status: !0 })
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.output_item.added"),
-    item: outputItemSchema,
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.output_item.done"),
-    item: outputItemSchema,
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.content_part.added"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    content_index: exports_external.number(),
-    part: messageContentPartSchema
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.content_part.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    content_index: exports_external.number(),
-    part: messageContentPartSchema
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.output_text.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    content_index: exports_external.number(),
-    delta: exports_external.string(),
-    logprobs: exports_external.array(exports_external.any()).optional()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.output_text.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    content_index: exports_external.number(),
-    text: exports_external.string(),
-    logprobs: exports_external.array(exports_external.any()).optional(),
-    annotations: exports_external.array(annotationSchema2).optional()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.output_text.annotation.added"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    content_index: exports_external.number(),
-    annotation_index: exports_external.number(),
-    annotation: annotationSchema2
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.reasoning_summary_part.added"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    summary_index: exports_external.number(),
-    part: reasoningSummaryPartSchema
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.reasoning_summary_part.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    summary_index: exports_external.number(),
-    part: reasoningSummaryPartSchema
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.reasoning_summary_text.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    summary_index: exports_external.number(),
-    delta: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.reasoning_summary_text.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    summary_index: exports_external.number(),
-    text: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.reasoning_text.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    content_index: exports_external.number(),
-    delta: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.reasoning_text.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    content_index: exports_external.number(),
-    text: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.web_search_call.in_progress"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.web_search_call.searching"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.web_search_call.completed"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.x_search_call.in_progress"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.x_search_call.searching"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.x_search_call.completed"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.file_search_call.in_progress"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.file_search_call.searching"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.file_search_call.completed"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_execution_call.in_progress"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_execution_call.executing"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_execution_call.completed"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_interpreter_call.in_progress"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_interpreter_call.executing"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_interpreter_call.interpreting"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_interpreter_call.completed"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_interpreter_call_code.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    delta: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.code_interpreter_call_code.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    code: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.custom_tool_call_input.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    delta: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.custom_tool_call_input.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    input: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.function_call_arguments.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    delta: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.function_call_arguments.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    arguments: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call.in_progress"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call.executing"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call.completed"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call.failed"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call_arguments.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    delta: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call_arguments.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    arguments: exports_external.string().optional()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call_output.delta"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    delta: exports_external.string()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.mcp_call_output.done"),
-    item_id: exports_external.string(),
-    output_index: exports_external.number(),
-    output: exports_external.string().optional()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.incomplete"),
-    response: exports_external.object({
-      incomplete_details: exports_external.object({ reason: exports_external.string() }).nullish(),
-      usage: xaiResponsesUsageSchema.nullish()
-    })
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.failed"),
-    response: exports_external.object({
-      error: exports_external.object({
-        code: exports_external.string().nullish(),
-        message: exports_external.string()
-      }).nullish(),
-      incomplete_details: exports_external.object({ reason: exports_external.string() }).nullish(),
-      usage: xaiResponsesUsageSchema.nullish()
-    })
-  }),
-  exports_external.object({
-    type: exports_external.literal("error"),
-    code: exports_external.string().nullish(),
-    message: exports_external.string(),
-    param: exports_external.string().nullish()
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.done"),
-    response: xaiResponsesResponseSchema
-  }),
-  exports_external.object({
-    type: exports_external.literal("response.completed"),
-    response: xaiResponsesResponseSchema
-  })
-]), xaiLanguageModelResponsesOptions = exports_external.object({
-  reasoningEffort: exports_external.enum(["low", "medium", "high"]).optional(),
-  logprobs: exports_external.boolean().optional(),
-  topLogprobs: exports_external.number().int().min(0).max(8).optional(),
-  store: exports_external.boolean().optional(),
-  previousResponseId: exports_external.string().optional(),
-  include: exports_external.array(exports_external.enum(["file_search_call.results"])).nullish()
-}), fileSearchArgsSchema3 = lazySchema(() => zodSchema(exports_external.object({
-  vectorStoreIds: exports_external.array(exports_external.string()),
-  maxNumResults: exports_external.number().optional()
-}))), fileSearchOutputSchema2 = lazySchema(() => zodSchema(exports_external.object({
-  queries: exports_external.array(exports_external.string()),
-  results: exports_external.array(exports_external.object({
-    fileId: exports_external.string(),
-    filename: exports_external.string(),
-    score: exports_external.number().min(0).max(1),
-    text: exports_external.string()
-  })).nullable()
-}))), fileSearchToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.file_search",
-  inputSchema: lazySchema(() => zodSchema(exports_external.object({}))),
-  outputSchema: fileSearchOutputSchema2
-}), fileSearch3 = (args) => fileSearchToolFactory(args), mcpServerArgsSchema = lazySchema(() => zodSchema(exports_external.object({
-  serverUrl: exports_external.string().describe("The URL of the MCP server"),
-  serverLabel: exports_external.string().optional().describe("A label for the MCP server"),
-  serverDescription: exports_external.string().optional().describe("Description of the MCP server"),
-  allowedTools: exports_external.array(exports_external.string()).optional().describe("List of allowed tool names"),
-  headers: exports_external.record(exports_external.string(), exports_external.string()).optional().describe("Custom headers to send"),
-  authorization: exports_external.string().optional().describe("Authorization header value")
-}))), mcpServerOutputSchema = lazySchema(() => zodSchema(exports_external.object({
-  name: exports_external.string(),
-  arguments: exports_external.string(),
-  result: exports_external.unknown()
-}))), mcpServerToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.mcp",
-  inputSchema: lazySchema(() => zodSchema(exports_external.object({}))),
-  outputSchema: mcpServerOutputSchema
-}), mcpServer = (args) => mcpServerToolFactory(args), webSearchArgsSchema2 = lazySchema(() => zodSchema(exports_external.object({
-  allowedDomains: exports_external.array(exports_external.string()).max(5).optional(),
-  excludedDomains: exports_external.array(exports_external.string()).max(5).optional(),
-  enableImageSearch: exports_external.boolean().optional(),
-  enableImageUnderstanding: exports_external.boolean().optional()
-}))), webSearchOutputSchema2 = lazySchema(() => zodSchema(exports_external.object({
-  query: exports_external.string(),
-  sources: exports_external.array(exports_external.object({
-    title: exports_external.string(),
-    url: exports_external.string(),
-    snippet: exports_external.string()
-  }))
-}))), webSearchToolFactory2 = createProviderToolFactoryWithOutputSchema({
-  id: "xai.web_search",
-  inputSchema: lazySchema(() => zodSchema(exports_external.object({}))),
-  outputSchema: webSearchOutputSchema2
-}), webSearch2 = (args = {}) => webSearchToolFactory2(args), xSearchArgsSchema = lazySchema(() => zodSchema(exports_external.object({
-  allowedXHandles: exports_external.array(exports_external.string()).max(10).optional(),
-  excludedXHandles: exports_external.array(exports_external.string()).max(10).optional(),
-  fromDate: exports_external.string().optional(),
-  toDate: exports_external.string().optional(),
-  enableImageUnderstanding: exports_external.boolean().optional(),
-  enableVideoUnderstanding: exports_external.boolean().optional()
-}))), xSearchOutputSchema = lazySchema(() => zodSchema(exports_external.object({
-  query: exports_external.string(),
-  posts: exports_external.array(exports_external.object({
-    author: exports_external.string(),
-    text: exports_external.string(),
-    url: exports_external.string(),
-    likes: exports_external.number()
-  }))
-}))), xSearchToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.x_search",
-  inputSchema: lazySchema(() => zodSchema(exports_external.object({}))),
-  outputSchema: xSearchOutputSchema
-}), xSearch = (args = {}) => xSearchToolFactory(args);
-async function prepareResponsesTools2({
-  tools,
-  toolChoice
-}) {
-  let normalizedTools = (tools == null ? void 0 : tools.length) ? tools : void 0, toolWarnings = [];
-  if (normalizedTools == null)
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  let xaiTools2 = [], toolByName = /* @__PURE__ */ new Map;
-  for (let tool2 of normalizedTools)
-    if (toolByName.set(tool2.name, tool2), tool2.type === "provider")
-      switch (tool2.id) {
-        case "xai.web_search": {
-          let args = await validateTypes({
-            value: tool2.args,
-            schema: webSearchArgsSchema2
-          });
-          xaiTools2.push({
-            type: "web_search",
-            allowed_domains: args.allowedDomains,
-            excluded_domains: args.excludedDomains,
-            enable_image_search: args.enableImageSearch,
-            enable_image_understanding: args.enableImageUnderstanding
-          });
-          break;
-        }
-        case "xai.x_search": {
-          let args = await validateTypes({
-            value: tool2.args,
-            schema: xSearchArgsSchema
-          });
-          xaiTools2.push({
-            type: "x_search",
-            allowed_x_handles: args.allowedXHandles,
-            excluded_x_handles: args.excludedXHandles,
-            from_date: args.fromDate,
-            to_date: args.toDate,
-            enable_image_understanding: args.enableImageUnderstanding,
-            enable_video_understanding: args.enableVideoUnderstanding
-          });
-          break;
-        }
-        case "xai.code_execution": {
-          xaiTools2.push({
-            type: "code_interpreter"
-          });
-          break;
-        }
-        case "xai.view_image": {
-          xaiTools2.push({
-            type: "view_image"
-          });
-          break;
-        }
-        case "xai.view_x_video": {
-          xaiTools2.push({
-            type: "view_x_video"
-          });
-          break;
-        }
-        case "xai.file_search": {
-          let args = await validateTypes({
-            value: tool2.args,
-            schema: fileSearchArgsSchema3
-          });
-          xaiTools2.push({
-            type: "file_search",
-            vector_store_ids: args.vectorStoreIds,
-            max_num_results: args.maxNumResults
-          });
-          break;
-        }
-        case "xai.mcp": {
-          let args = await validateTypes({
-            value: tool2.args,
-            schema: mcpServerArgsSchema
-          });
-          xaiTools2.push({
-            type: "mcp",
-            server_url: args.serverUrl,
-            server_label: args.serverLabel,
-            server_description: args.serverDescription,
-            allowed_tools: args.allowedTools,
-            headers: args.headers,
-            authorization: args.authorization
-          });
-          break;
-        }
-        default: {
-          toolWarnings.push({
-            type: "unsupported",
-            feature: `provider-defined tool ${tool2.name}`
-          });
-          break;
-        }
-      }
-    else
-      xaiTools2.push({
-        type: "function",
-        name: tool2.name,
-        description: tool2.description,
-        parameters: removeAdditionalPropertiesFalse(tool2.inputSchema),
-        ...tool2.strict != null ? { strict: tool2.strict } : {}
-      });
-  if (toolChoice == null)
-    return { tools: xaiTools2, toolChoice: void 0, toolWarnings };
-  let type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-      return { tools: xaiTools2, toolChoice: type, toolWarnings };
-    case "required":
-      return { tools: xaiTools2, toolChoice: "required", toolWarnings };
-    case "tool": {
-      let selectedTool = toolByName.get(toolChoice.toolName);
-      if (selectedTool == null)
-        return {
-          tools: xaiTools2,
-          toolChoice: void 0,
-          toolWarnings
-        };
-      if (selectedTool.type === "provider")
-        return toolWarnings.push({
-          type: "unsupported",
-          feature: `toolChoice for server-side tool "${selectedTool.name}"`
-        }), { tools: xaiTools2, toolChoice: void 0, toolWarnings };
-      return {
-        tools: xaiTools2,
-        toolChoice: { type: "function", name: selectedTool.name },
-        toolWarnings
-      };
-    }
-    default:
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${type}`
-      });
-  }
-}
-var XaiResponsesLanguageModel = class {
-  constructor(modelId, config2) {
-    this.specificationVersion = "v3", this.supportedUrls = {
-      "image/*": [/^https?:\/\/.*$/],
-      "application/pdf": [/^https?:\/\/.*$/],
-      "text/*": [/^https?:\/\/.*$/]
-    }, this.modelId = modelId, this.config = config2;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    stopSequences,
-    seed,
-    responseFormat,
-    providerOptions,
-    tools,
-    toolChoice
-  }) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h;
-    let warnings = [], options = (_a24 = await parseProviderOptions({
-      provider: "xai",
-      providerOptions,
-      schema: xaiLanguageModelResponsesOptions
-    })) != null ? _a24 : {};
-    if (stopSequences != null)
-      warnings.push({ type: "unsupported", feature: "stopSequences" });
-    let webSearchToolName = (_b16 = tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && tool2.id === "xai.web_search")) == null ? void 0 : _b16.name, xSearchToolName = (_c = tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && tool2.id === "xai.x_search")) == null ? void 0 : _c.name, codeExecutionToolName = (_d = tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && tool2.id === "xai.code_execution")) == null ? void 0 : _d.name, mcpToolName = (_e = tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && tool2.id === "xai.mcp")) == null ? void 0 : _e.name, fileSearchToolName = (_f = tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && tool2.id === "xai.file_search")) == null ? void 0 : _f.name, { input, inputWarnings } = await convertToXaiResponsesInput({
-      prompt,
-      store: (_g = options.store) != null ? _g : !0
-    });
-    warnings.push(...inputWarnings);
-    let {
-      tools: xaiTools2,
-      toolChoice: xaiToolChoice,
-      toolWarnings
-    } = await prepareResponsesTools2({
-      tools,
-      toolChoice
-    });
-    warnings.push(...toolWarnings);
-    let include = options.include ? [...options.include] : void 0;
-    if (options.store === !1)
-      if (include == null)
-        include = ["reasoning.encrypted_content"];
-      else
-        include = [...include, "reasoning.encrypted_content"];
-    let baseArgs = {
-      model: this.modelId,
-      input,
-      logprobs: options.logprobs === !0 || options.topLogprobs != null ? !0 : void 0,
-      top_logprobs: options.topLogprobs,
-      max_output_tokens: maxOutputTokens,
-      temperature,
-      top_p: topP,
-      seed,
-      ...(responseFormat == null ? void 0 : responseFormat.type) === "json" && {
-        text: {
-          format: responseFormat.schema != null ? {
-            type: "json_schema",
-            strict: !0,
-            name: (_h = responseFormat.name) != null ? _h : "response",
-            description: responseFormat.description,
-            schema: responseFormat.schema
-          } : { type: "json_object" }
-        }
-      },
-      ...options.reasoningEffort != null && {
-        reasoning: { effort: options.reasoningEffort }
-      },
-      ...options.store === !1 && {
-        store: options.store
-      },
-      ...include != null && {
-        include
-      },
-      ...options.previousResponseId != null && {
-        previous_response_id: options.previousResponseId
-      }
-    };
-    if (xaiTools2 && xaiTools2.length > 0)
-      baseArgs.tools = xaiTools2;
-    if (xaiToolChoice != null)
-      baseArgs.tool_choice = xaiToolChoice;
-    return {
-      args: baseArgs,
-      warnings,
-      webSearchToolName,
-      xSearchToolName,
-      codeExecutionToolName,
-      mcpToolName,
-      fileSearchToolName
-    };
-  }
-  async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
-    let {
-      args: body,
-      warnings,
-      webSearchToolName,
-      xSearchToolName,
-      codeExecutionToolName,
-      mcpToolName,
-      fileSearchToolName
-    } = await this.getArgs(options), {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: `${(_a24 = this.config.baseURL) != null ? _a24 : "https://api.x.ai/v1"}/responses`,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(xaiResponsesResponseSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), content = [], hasFunctionCall = !1, webSearchSubTools = [
-      "web_search",
-      "web_search_with_snippets",
-      "browse_page"
-    ], xSearchSubTools = [
-      "x_user_search",
-      "x_keyword_search",
-      "x_semantic_search",
-      "x_thread_fetch"
-    ];
-    for (let part of response.output) {
-      if (part.type === "file_search_call") {
-        let toolName = fileSearchToolName != null ? fileSearchToolName : "file_search";
-        content.push({
-          type: "tool-call",
-          toolCallId: part.id,
-          toolName,
-          input: "",
-          providerExecuted: !0
-        }), content.push({
-          type: "tool-result",
-          toolCallId: part.id,
-          toolName,
-          result: {
-            queries: (_b16 = part.queries) != null ? _b16 : [],
-            results: (_d = (_c = part.results) == null ? void 0 : _c.map((result) => ({
-              fileId: result.file_id,
-              filename: result.filename,
-              score: result.score,
-              text: result.text
-            }))) != null ? _d : null
-          }
-        });
-        continue;
-      }
-      if (part.type === "web_search_call" || part.type === "x_search_call" || part.type === "code_interpreter_call" || part.type === "code_execution_call" || part.type === "view_image_call" || part.type === "view_x_video_call" || part.type === "custom_tool_call" || part.type === "mcp_call") {
-        let toolName = (_e = part.name) != null ? _e : "";
-        if (webSearchSubTools.includes((_f = part.name) != null ? _f : "") || part.type === "web_search_call")
-          toolName = webSearchToolName != null ? webSearchToolName : "web_search";
-        else if (xSearchSubTools.includes((_g = part.name) != null ? _g : "") || part.type === "x_search_call")
-          toolName = xSearchToolName != null ? xSearchToolName : "x_search";
-        else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call")
-          toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
-        else if (part.type === "mcp_call")
-          toolName = (_h = mcpToolName != null ? mcpToolName : part.name) != null ? _h : "mcp";
-        let toolInput = part.type === "custom_tool_call" ? (_i = part.input) != null ? _i : "" : part.type === "mcp_call" ? (_j = part.arguments) != null ? _j : "" : (_k = part.arguments) != null ? _k : "";
-        content.push({
-          type: "tool-call",
-          toolCallId: part.id,
-          toolName,
-          input: toolInput,
-          providerExecuted: !0
-        });
-        continue;
-      }
-      switch (part.type) {
-        case "message": {
-          for (let contentPart of part.content) {
-            if (contentPart.text)
-              content.push({
-                type: "text",
-                text: contentPart.text
-              });
-            if (contentPart.annotations) {
-              for (let annotation of contentPart.annotations)
-                if (annotation.type === "url_citation" && "url" in annotation)
-                  content.push({
-                    type: "source",
-                    sourceType: "url",
-                    id: this.config.generateId(),
-                    url: annotation.url,
-                    title: (_l = annotation.title) != null ? _l : annotation.url
-                  });
-            }
-          }
-          break;
-        }
-        case "function_call": {
-          hasFunctionCall = !0, content.push({
-            type: "tool-call",
-            toolCallId: part.call_id,
-            toolName: part.name,
-            input: part.arguments
-          });
-          break;
-        }
-        case "reasoning": {
-          let reasoningText = part.summary.map((s) => s.text).filter((text2) => text2 && text2.length > 0).join("");
-          if (reasoningText || part.encrypted_content) {
-            let hasMetadata = part.encrypted_content || part.id;
-            content.push({
-              type: "reasoning",
-              text: reasoningText,
-              ...hasMetadata && {
-                providerMetadata: {
-                  xai: {
-                    ...part.encrypted_content && {
-                      reasoningEncryptedContent: part.encrypted_content
-                    },
-                    ...part.id && { itemId: part.id }
-                  }
-                }
-              }
-            });
-          }
-          break;
-        }
-        default:
-          break;
-      }
-    }
-    return {
-      content,
-      finishReason: {
-        unified: hasFunctionCall ? "tool-calls" : mapXaiResponsesFinishReason(response.status),
-        raw: (_m = response.status) != null ? _m : void 0
-      },
-      usage: response.usage ? convertXaiResponsesUsage(response.usage) : {
-        inputTokens: { total: 0, noCache: 0, cacheRead: 0, cacheWrite: 0 },
-        outputTokens: { total: 0, text: 0, reasoning: 0 }
-      },
-      request: { body },
-      response: {
-        ...getResponseMetadata3(response),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
-    };
-  }
-  async doStream(options) {
-    var _a24;
-    let {
-      args,
-      warnings,
-      webSearchToolName,
-      xSearchToolName,
-      codeExecutionToolName,
-      mcpToolName,
-      fileSearchToolName
-    } = await this.getArgs(options), body = {
-      ...args,
-      stream: !0
-    }, { responseHeaders, value: response } = await postJsonToApi({
-      url: `${(_a24 = this.config.baseURL) != null ? _a24 : "https://api.x.ai/v1"}/responses`,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(xaiResponsesChunkSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), finishReason = {
-      unified: "other",
-      raw: void 0
-    }, hasFunctionCall = !1, usage = void 0, isFirstChunk = !0, contentBlocks = {}, seenToolCalls = /* @__PURE__ */ new Set, ongoingToolCalls = {}, activeReasoning = {}, self2 = this;
-    return {
-      stream: response.pipeThrough(new TransformStream({
-        start(controller) {
-          controller.enqueue({ type: "stream-start", warnings });
-        },
-        transform(chunk, controller) {
-          var _a25, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o;
-          if (options.includeRawChunks)
-            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-          if (!chunk.success) {
-            controller.enqueue({ type: "error", error: chunk.error });
-            return;
-          }
-          let event = chunk.value;
-          if (event.type === "response.created" || event.type === "response.in_progress") {
-            if (isFirstChunk)
-              controller.enqueue({
-                type: "response-metadata",
-                ...getResponseMetadata3(event.response)
-              }), isFirstChunk = !1;
-            return;
-          }
-          if (event.type === "response.reasoning_summary_part.added") {
-            let blockId = `reasoning-${event.item_id}`;
-            if (activeReasoning[event.item_id] == null)
-              activeReasoning[event.item_id] = {}, controller.enqueue({
-                type: "reasoning-start",
-                id: blockId,
-                providerMetadata: {
-                  xai: {
-                    itemId: event.item_id
-                  }
-                }
-              });
-          }
-          if (event.type === "response.reasoning_summary_text.delta") {
-            let blockId = `reasoning-${event.item_id}`;
-            controller.enqueue({
-              type: "reasoning-delta",
-              id: blockId,
-              delta: event.delta,
-              providerMetadata: {
-                xai: {
-                  itemId: event.item_id
-                }
-              }
-            });
-            return;
-          }
-          if (event.type === "response.reasoning_summary_text.done")
-            return;
-          if (event.type === "response.reasoning_text.delta") {
-            let blockId = `reasoning-${event.item_id}`;
-            if (activeReasoning[event.item_id] == null)
-              activeReasoning[event.item_id] = {}, controller.enqueue({
-                type: "reasoning-start",
-                id: blockId,
-                providerMetadata: {
-                  xai: {
-                    itemId: event.item_id
-                  }
-                }
-              });
-            controller.enqueue({
-              type: "reasoning-delta",
-              id: blockId,
-              delta: event.delta,
-              providerMetadata: {
-                xai: {
-                  itemId: event.item_id
-                }
-              }
-            });
-            return;
-          }
-          if (event.type === "response.reasoning_text.done")
-            return;
-          if (event.type === "response.output_text.delta") {
-            let blockId = `text-${event.item_id}`;
-            if (contentBlocks[blockId] == null)
-              contentBlocks[blockId] = { type: "text" }, controller.enqueue({
-                type: "text-start",
-                id: blockId
-              });
-            controller.enqueue({
-              type: "text-delta",
-              id: blockId,
-              delta: event.delta
-            });
-            return;
-          }
-          if (event.type === "response.output_text.done") {
-            if (event.annotations) {
-              for (let annotation of event.annotations)
-                if (annotation.type === "url_citation" && "url" in annotation)
-                  controller.enqueue({
-                    type: "source",
-                    sourceType: "url",
-                    id: self2.config.generateId(),
-                    url: annotation.url,
-                    title: (_a25 = annotation.title) != null ? _a25 : annotation.url
-                  });
-            }
-            return;
-          }
-          if (event.type === "response.output_text.annotation.added") {
-            let annotation = event.annotation;
-            if (annotation.type === "url_citation" && "url" in annotation)
-              controller.enqueue({
-                type: "source",
-                sourceType: "url",
-                id: self2.config.generateId(),
-                url: annotation.url,
-                title: (_b16 = annotation.title) != null ? _b16 : annotation.url
-              });
-            return;
-          }
-          if (event.type === "response.done" || event.type === "response.completed" || event.type === "response.incomplete") {
-            let response2 = event.response;
-            if (response2.usage)
-              usage = convertXaiResponsesUsage(response2.usage);
-            if (event.type === "response.incomplete") {
-              let reason = "incomplete_details" in response2 ? (_c = response2.incomplete_details) == null ? void 0 : _c.reason : void 0;
-              finishReason = {
-                unified: reason ? mapXaiResponsesFinishReason(reason) : "other",
-                raw: reason != null ? reason : "incomplete"
-              };
-            } else if ("status" in response2 && response2.status)
-              finishReason = {
-                unified: hasFunctionCall ? "tool-calls" : mapXaiResponsesFinishReason(response2.status),
-                raw: response2.status
-              };
-            return;
-          }
-          if (event.type === "response.failed") {
-            let reason = (_d = event.response.incomplete_details) == null ? void 0 : _d.reason;
-            if (finishReason = {
-              unified: reason ? mapXaiResponsesFinishReason(reason) : "error",
-              raw: reason != null ? reason : "error"
-            }, event.response.usage)
-              usage = convertXaiResponsesUsage(event.response.usage);
-            return;
-          }
-          if (event.type === "error") {
-            controller.enqueue({ type: "error", error: event });
-            return;
-          }
-          if (event.type === "response.custom_tool_call_input.delta" || event.type === "response.custom_tool_call_input.done")
-            return;
-          if (event.type === "response.function_call_arguments.delta") {
-            let toolCall = ongoingToolCalls[event.output_index];
-            if (toolCall != null)
-              controller.enqueue({
-                type: "tool-input-delta",
-                id: toolCall.toolCallId,
-                delta: event.delta
-              });
-            return;
-          }
-          if (event.type === "response.function_call_arguments.done")
-            return;
-          if (event.type === "response.output_item.added" || event.type === "response.output_item.done") {
-            let part = event.item;
-            if (part.type === "reasoning") {
-              if (event.type === "response.output_item.done") {
-                let blockId = `reasoning-${part.id}`;
-                if (!(part.id in activeReasoning))
-                  activeReasoning[part.id] = {}, controller.enqueue({
-                    type: "reasoning-start",
-                    id: blockId,
-                    providerMetadata: {
-                      xai: {
-                        ...part.id && { itemId: part.id }
-                      }
-                    }
-                  });
-                controller.enqueue({
-                  type: "reasoning-end",
-                  id: blockId,
-                  providerMetadata: {
-                    xai: {
-                      ...part.encrypted_content && {
-                        reasoningEncryptedContent: part.encrypted_content
-                      },
-                      ...part.id && { itemId: part.id }
-                    }
-                  }
-                }), delete activeReasoning[part.id];
-              }
-              return;
-            }
-            if (part.type === "file_search_call") {
-              let toolName = fileSearchToolName != null ? fileSearchToolName : "file_search";
-              if (!seenToolCalls.has(part.id))
-                seenToolCalls.add(part.id), controller.enqueue({
-                  type: "tool-input-start",
-                  id: part.id,
-                  toolName
-                }), controller.enqueue({
-                  type: "tool-input-delta",
-                  id: part.id,
-                  delta: ""
-                }), controller.enqueue({
-                  type: "tool-input-end",
-                  id: part.id
-                }), controller.enqueue({
-                  type: "tool-call",
-                  toolCallId: part.id,
-                  toolName,
-                  input: "",
-                  providerExecuted: !0
-                });
-              if (event.type === "response.output_item.done")
-                controller.enqueue({
-                  type: "tool-result",
-                  toolCallId: part.id,
-                  toolName,
-                  result: {
-                    queries: (_e = part.queries) != null ? _e : [],
-                    results: (_g = (_f = part.results) == null ? void 0 : _f.map((result) => ({
-                      fileId: result.file_id,
-                      filename: result.filename,
-                      score: result.score,
-                      text: result.text
-                    }))) != null ? _g : null
-                  }
-                });
-              return;
-            }
-            if (part.type === "web_search_call" || part.type === "x_search_call" || part.type === "code_interpreter_call" || part.type === "code_execution_call" || part.type === "view_image_call" || part.type === "view_x_video_call" || part.type === "custom_tool_call" || part.type === "mcp_call") {
-              let webSearchSubTools = [
-                "web_search",
-                "web_search_with_snippets",
-                "browse_page"
-              ], xSearchSubTools = [
-                "x_user_search",
-                "x_keyword_search",
-                "x_semantic_search",
-                "x_thread_fetch"
-              ], toolName = (_h = part.name) != null ? _h : "";
-              if (webSearchSubTools.includes((_i = part.name) != null ? _i : "") || part.type === "web_search_call")
-                toolName = webSearchToolName != null ? webSearchToolName : "web_search";
-              else if (xSearchSubTools.includes((_j = part.name) != null ? _j : "") || part.type === "x_search_call")
-                toolName = xSearchToolName != null ? xSearchToolName : "x_search";
-              else if (part.name === "code_execution" || part.type === "code_interpreter_call" || part.type === "code_execution_call")
-                toolName = codeExecutionToolName != null ? codeExecutionToolName : "code_execution";
-              else if (part.type === "mcp_call")
-                toolName = (_k = mcpToolName != null ? mcpToolName : part.name) != null ? _k : "mcp";
-              let toolInput = part.type === "custom_tool_call" ? (_l = part.input) != null ? _l : "" : part.type === "mcp_call" ? (_m = part.arguments) != null ? _m : "" : (_n = part.arguments) != null ? _n : "";
-              if ((part.type === "custom_tool_call" ? event.type === "response.output_item.done" : !seenToolCalls.has(part.id)) && !seenToolCalls.has(part.id))
-                seenToolCalls.add(part.id), controller.enqueue({
-                  type: "tool-input-start",
-                  id: part.id,
-                  toolName
-                }), controller.enqueue({
-                  type: "tool-input-delta",
-                  id: part.id,
-                  delta: toolInput
-                }), controller.enqueue({
-                  type: "tool-input-end",
-                  id: part.id
-                }), controller.enqueue({
-                  type: "tool-call",
-                  toolCallId: part.id,
-                  toolName,
-                  input: toolInput,
-                  providerExecuted: !0
-                });
-              return;
-            }
-            if (part.type === "message")
-              for (let contentPart of part.content) {
-                if (contentPart.text && contentPart.text.length > 0) {
-                  let blockId = `text-${part.id}`;
-                  if (contentBlocks[blockId] == null)
-                    contentBlocks[blockId] = { type: "text" }, controller.enqueue({
-                      type: "text-start",
-                      id: blockId
-                    }), controller.enqueue({
-                      type: "text-delta",
-                      id: blockId,
-                      delta: contentPart.text
-                    });
-                }
-                if (contentPart.annotations) {
-                  for (let annotation of contentPart.annotations)
-                    if (annotation.type === "url_citation" && "url" in annotation)
-                      controller.enqueue({
-                        type: "source",
-                        sourceType: "url",
-                        id: self2.config.generateId(),
-                        url: annotation.url,
-                        title: (_o = annotation.title) != null ? _o : annotation.url
-                      });
-                }
-              }
-            else if (part.type === "function_call") {
-              if (event.type === "response.output_item.added")
-                ongoingToolCalls[event.output_index] = {
-                  toolName: part.name,
-                  toolCallId: part.call_id
-                }, controller.enqueue({
-                  type: "tool-input-start",
-                  id: part.call_id,
-                  toolName: part.name
-                });
-              else if (event.type === "response.output_item.done")
-                hasFunctionCall = !0, ongoingToolCalls[event.output_index] = void 0, controller.enqueue({
-                  type: "tool-input-end",
-                  id: part.call_id
-                }), controller.enqueue({
-                  type: "tool-call",
-                  toolCallId: part.call_id,
-                  toolName: part.name,
-                  input: part.arguments
-                });
-            }
-          }
-        },
-        flush(controller) {
-          for (let [blockId, block] of Object.entries(contentBlocks))
-            if (block.type === "text")
-              controller.enqueue({
-                type: "text-end",
-                id: blockId
-              });
-          controller.enqueue({
-            type: "finish",
-            finishReason,
-            usage: usage != null ? usage : {
-              inputTokens: {
-                total: 0,
-                noCache: 0,
-                cacheRead: 0,
-                cacheWrite: 0
-              },
-              outputTokens: { total: 0, text: 0, reasoning: 0 }
-            }
-          });
-        }
-      })),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-}, codeExecutionOutputSchema = exports_external.object({
-  output: exports_external.string().describe("the output of the code execution"),
-  error: exports_external.string().optional().describe("any error that occurred")
-}), codeExecutionToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.code_execution",
-  inputSchema: exports_external.object({}).describe("no input parameters"),
-  outputSchema: codeExecutionOutputSchema
-}), codeExecution2 = (args = {}) => codeExecutionToolFactory(args), viewImageOutputSchema = exports_external.object({
-  description: exports_external.string().describe("description of the image"),
-  objects: exports_external.array(exports_external.string()).optional().describe("objects detected in the image")
-}), viewImageToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.view_image",
-  inputSchema: exports_external.object({}).describe("no input parameters"),
-  outputSchema: viewImageOutputSchema
-}), viewImage = (args = {}) => viewImageToolFactory(args), viewXVideoOutputSchema = exports_external.object({
-  transcript: exports_external.string().optional().describe("transcript of the video"),
-  description: exports_external.string().describe("description of the video content"),
-  duration: exports_external.number().optional().describe("duration in seconds")
-}), viewXVideoToolFactory = createProviderToolFactoryWithOutputSchema({
-  id: "xai.view_x_video",
-  inputSchema: exports_external.object({}).describe("no input parameters"),
-  outputSchema: viewXVideoOutputSchema
-}), viewXVideo = (args = {}) => viewXVideoToolFactory(args), xaiTools = {
-  codeExecution: codeExecution2,
-  fileSearch: fileSearch3,
-  mcpServer,
-  viewImage,
-  viewXVideo,
-  webSearch: webSearch2,
-  xSearch
-}, VERSION9 = "3.0.96", nonEmptyStringSchema = exports_external.string().min(1), resolutionSchema = exports_external.enum(["480p", "720p"]), modeSchema = exports_external.enum(["edit-video", "extend-video", "reference-to-video"]), baseFields = {
-  pollIntervalMs: exports_external.number().positive().nullish(),
-  pollTimeoutMs: exports_external.number().positive().nullish(),
-  resolution: resolutionSchema.nullish()
-}, editVideoSchema = exports_external.object({
-  ...baseFields,
-  mode: exports_external.literal("edit-video"),
-  videoUrl: nonEmptyStringSchema,
-  referenceImageUrls: exports_external.undefined().optional()
-}), extendVideoSchema = exports_external.object({
-  ...baseFields,
-  mode: exports_external.literal("extend-video"),
-  videoUrl: nonEmptyStringSchema,
-  referenceImageUrls: exports_external.undefined().optional()
-}), referenceToVideoSchema = exports_external.object({
-  ...baseFields,
-  mode: exports_external.literal("reference-to-video"),
-  referenceImageUrls: exports_external.array(nonEmptyStringSchema).min(1).max(7),
-  videoUrl: exports_external.undefined().optional()
-}), autoDetectSchema = exports_external.object({
-  ...baseFields,
-  mode: exports_external.undefined().optional(),
-  videoUrl: nonEmptyStringSchema.optional(),
-  referenceImageUrls: exports_external.array(nonEmptyStringSchema).min(1).max(7).optional()
-}), xaiVideoModelOptions = exports_external.union([
-  editVideoSchema,
-  extendVideoSchema,
-  referenceToVideoSchema,
-  autoDetectSchema
-]), runtimeSchema = exports_external.object({
-  mode: modeSchema.optional(),
-  videoUrl: nonEmptyStringSchema.optional(),
-  referenceImageUrls: exports_external.array(nonEmptyStringSchema).min(1).max(7).optional(),
-  ...baseFields
-}).passthrough(), xaiVideoModelOptionsSchema = lazySchema(() => zodSchema(runtimeSchema)), RESOLUTION_MAP = {
-  "1280x720": "720p",
-  "854x480": "480p",
-  "640x480": "480p"
-};
-function resolveVideoMode(options) {
-  if ((options == null ? void 0 : options.mode) != null)
-    return options.mode;
-  if ((options == null ? void 0 : options.videoUrl) != null)
-    return "edit-video";
-  if ((options == null ? void 0 : options.referenceImageUrls) != null && options.referenceImageUrls.length > 0)
-    return "reference-to-video";
-  return;
-}
-var XaiVideoModel = class {
-  constructor(modelId, config2) {
-    this.modelId = modelId, this.config = config2, this.specificationVersion = "v3", this.maxVideosPerCall = 1;
-  }
-  get provider() {
-    return this.config.provider;
-  }
-  async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j;
-    let currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date, warnings = [], xaiOptions = await parseProviderOptions({
-      provider: "xai",
-      providerOptions: options.providerOptions,
-      schema: xaiVideoModelOptionsSchema
-    }), effectiveMode = resolveVideoMode(xaiOptions), isEdit = effectiveMode === "edit-video", isExtension = effectiveMode === "extend-video", hasReferenceImages = effectiveMode === "reference-to-video";
-    if (options.fps != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "fps",
-        details: "xAI video models do not support custom FPS."
-      });
-    if (options.seed != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "seed",
-        details: "xAI video models do not support seed."
-      });
-    if (options.n != null && options.n > 1)
-      warnings.push({
-        type: "unsupported",
-        feature: "n",
-        details: "xAI video models do not support generating multiple videos per call. Only 1 video will be generated."
-      });
-    if (isEdit && options.duration != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "duration",
-        details: "xAI video editing does not support custom duration."
-      });
-    if (isEdit && options.aspectRatio != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "aspectRatio",
-        details: "xAI video editing does not support custom aspect ratio."
-      });
-    if (isEdit && ((xaiOptions == null ? void 0 : xaiOptions.resolution) != null || options.resolution != null))
-      warnings.push({
-        type: "unsupported",
-        feature: "resolution",
-        details: "xAI video editing does not support custom resolution."
-      });
-    if (isExtension && options.aspectRatio != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "aspectRatio",
-        details: "xAI video extension does not support custom aspect ratio."
-      });
-    if (isExtension && ((xaiOptions == null ? void 0 : xaiOptions.resolution) != null || options.resolution != null))
-      warnings.push({
-        type: "unsupported",
-        feature: "resolution",
-        details: "xAI video extension does not support custom resolution."
-      });
-    let body = {
-      model: this.modelId,
-      prompt: options.prompt
-    }, allowDuration = !isEdit, allowAspectRatio = !isEdit && !isExtension, allowResolution = !isEdit && !isExtension;
-    if (allowDuration && options.duration != null)
-      body.duration = options.duration;
-    if (allowAspectRatio && options.aspectRatio != null)
-      body.aspect_ratio = options.aspectRatio;
-    if (allowResolution && (xaiOptions == null ? void 0 : xaiOptions.resolution) != null)
-      body.resolution = xaiOptions.resolution;
-    else if (allowResolution && options.resolution != null) {
-      let mapped = RESOLUTION_MAP[options.resolution];
-      if (mapped != null)
-        body.resolution = mapped;
-      else
-        warnings.push({
-          type: "unsupported",
-          feature: "resolution",
-          details: `Unrecognized resolution "${options.resolution}". Use providerOptions.xai.resolution with "480p" or "720p" instead.`
-        });
-    }
-    if (isEdit)
-      body.video = { url: xaiOptions.videoUrl };
-    if (isExtension)
-      body.video = { url: xaiOptions.videoUrl };
-    if (options.image != null)
-      if (options.image.type === "url")
-        body.image = { url: options.image.url };
-      else {
-        let base64Data = typeof options.image.data === "string" ? options.image.data : convertUint8ArrayToBase64(options.image.data);
-        body.image = {
-          url: `data:${options.image.mediaType};base64,${base64Data}`
-        };
-      }
-    if (hasReferenceImages)
-      body.reference_images = xaiOptions.referenceImageUrls.map((url2) => ({
-        url: url2
-      }));
-    if (xaiOptions != null) {
-      for (let [key, value] of Object.entries(xaiOptions))
-        if (![
-          "mode",
-          "pollIntervalMs",
-          "pollTimeoutMs",
-          "resolution",
-          "videoUrl",
-          "referenceImageUrls"
-        ].includes(key))
-          body[key] = value;
-    }
-    let baseURL = (_d = this.config.baseURL) != null ? _d : "https://api.x.ai/v1", endpoint;
-    if (isEdit)
-      endpoint = `${baseURL}/videos/edits`;
-    else if (isExtension)
-      endpoint = `${baseURL}/videos/extensions`;
-    else
-      endpoint = `${baseURL}/videos/generations`;
-    let { value: createResponse } = await postJsonToApi({
-      url: endpoint,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: xaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(xaiCreateVideoResponseSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), requestId = createResponse.request_id;
-    if (!requestId)
-      throw new AISDKError({
-        name: "XAI_VIDEO_GENERATION_ERROR",
-        message: `No request_id returned from xAI API. Response: ${JSON.stringify(createResponse)}`
-      });
-    let pollIntervalMs = (_e = xaiOptions == null ? void 0 : xaiOptions.pollIntervalMs) != null ? _e : 5000, pollTimeoutMs = (_f = xaiOptions == null ? void 0 : xaiOptions.pollTimeoutMs) != null ? _f : 600000, startTime = Date.now(), responseHeaders;
-    while (!0) {
-      if (await delay(pollIntervalMs, { abortSignal: options.abortSignal }), Date.now() - startTime > pollTimeoutMs)
-        throw new AISDKError({
-          name: "XAI_VIDEO_GENERATION_TIMEOUT",
-          message: `Video generation timed out after ${pollTimeoutMs}ms`
-        });
-      let { value: statusResponse, responseHeaders: pollHeaders } = await getFromApi({
-        url: `${baseURL}/videos/${requestId}`,
-        headers: combineHeaders(this.config.headers(), options.headers),
-        successfulResponseHandler: createJsonResponseHandler(xaiVideoStatusResponseSchema),
-        failedResponseHandler: xaiFailedResponseHandler,
-        abortSignal: options.abortSignal,
-        fetch: this.config.fetch
-      });
-      if (responseHeaders = pollHeaders, statusResponse.status === "done" || statusResponse.status == null && ((_g = statusResponse.video) == null ? void 0 : _g.url)) {
-        if (((_h = statusResponse.video) == null ? void 0 : _h.respect_moderation) === !1)
-          throw new AISDKError({
-            name: "XAI_VIDEO_MODERATION_ERROR",
-            message: "Video generation was blocked due to a content policy violation."
-          });
-        if (!((_i = statusResponse.video) == null ? void 0 : _i.url))
-          throw new AISDKError({
-            name: "XAI_VIDEO_GENERATION_ERROR",
-            message: "Video generation completed but no video URL was returned."
-          });
-        return {
-          videos: [
-            {
-              type: "url",
-              url: statusResponse.video.url,
-              mediaType: "video/mp4"
-            }
-          ],
-          warnings,
-          response: {
-            timestamp: currentDate,
-            modelId: this.modelId,
-            headers: responseHeaders
-          },
-          providerMetadata: {
-            xai: {
-              requestId,
-              videoUrl: statusResponse.video.url,
-              ...statusResponse.video.duration != null ? { duration: statusResponse.video.duration } : {},
-              ...((_j = statusResponse.usage) == null ? void 0 : _j.cost_in_usd_ticks) != null ? { costInUsdTicks: statusResponse.usage.cost_in_usd_ticks } : {},
-              ...statusResponse.progress != null ? { progress: statusResponse.progress } : {}
-            }
-          }
-        };
-      }
-      if (statusResponse.status === "expired")
-        throw new AISDKError({
-          name: "XAI_VIDEO_GENERATION_EXPIRED",
-          message: "Video generation request expired."
-        });
-      if (statusResponse.status === "failed")
-        throw new AISDKError({
-          name: "XAI_VIDEO_GENERATION_FAILED",
-          message: "Video generation failed."
-        });
-    }
-  }
-}, xaiCreateVideoResponseSchema = exports_external.object({
-  request_id: exports_external.string().nullish()
-}), xaiVideoStatusResponseSchema = exports_external.object({
-  status: exports_external.string().nullish(),
-  video: exports_external.object({
-    url: exports_external.string(),
-    duration: exports_external.number().nullish(),
-    respect_moderation: exports_external.boolean().nullish()
-  }).nullish(),
-  model: exports_external.string().nullish(),
-  usage: exports_external.object({
-    cost_in_usd_ticks: exports_external.number().nullish()
-  }).nullish(),
-  progress: exports_external.number().nullish(),
-  error: exports_external.object({
-    code: exports_external.string().nullish(),
-    message: exports_external.string().nullish()
-  }).nullish()
-});
-function createXai(options = {}) {
-  var _a24;
-  let baseURL = withoutTrailingSlash((_a24 = options.baseURL) != null ? _a24 : "https://api.x.ai/v1"), getHeaders = () => withUserAgentSuffix({
-    Authorization: `Bearer ${loadApiKey({
-      apiKey: options.apiKey,
-      environmentVariableName: "XAI_API_KEY",
-      description: "xAI API key"
-    })}`,
-    ...options.headers
-  }, `ai-sdk/xai/${VERSION9}`), createChatLanguageModel = (modelId) => {
-    return new XaiChatLanguageModel(modelId, {
-      provider: "xai.chat",
-      baseURL,
-      headers: getHeaders,
-      generateId,
-      fetch: options.fetch
-    });
-  }, createResponsesLanguageModel = (modelId) => {
-    return new XaiResponsesLanguageModel(modelId, {
-      provider: "xai.responses",
-      baseURL,
-      headers: getHeaders,
-      generateId,
-      fetch: options.fetch
-    });
-  }, createImageModel = (modelId) => {
-    return new XaiImageModel(modelId, {
-      provider: "xai.image",
-      baseURL,
-      headers: getHeaders,
-      fetch: options.fetch
-    });
-  }, createVideoModel = (modelId) => {
-    return new XaiVideoModel(modelId, {
-      provider: "xai.video",
-      baseURL,
-      headers: getHeaders,
-      fetch: options.fetch
-    });
-  }, provider = (modelId) => createChatLanguageModel(modelId);
-  return provider.specificationVersion = "v3", provider.languageModel = createChatLanguageModel, provider.chat = createChatLanguageModel, provider.responses = createResponsesLanguageModel, provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
-  }, provider.textEmbeddingModel = provider.embeddingModel, provider.imageModel = createImageModel, provider.image = createImageModel, provider.videoModel = createVideoModel, provider.video = createVideoModel, provider.tools = xaiTools, provider;
-}
-var xai = createXai();
-// node_modules/@ai-sdk/perplexity/dist/index.mjs
-function convertPerplexityUsage(usage) {
-  var _a24, _b16, _c;
-  if (usage == null)
-    return {
-      inputTokens: {
-        total: void 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: void 0,
-        text: void 0,
-        reasoning: void 0
-      },
-      raw: void 0
-    };
-  let promptTokens = (_a24 = usage.prompt_tokens) != null ? _a24 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, reasoningTokens = (_c = usage.reasoning_tokens) != null ? _c : 0;
-  return {
-    inputTokens: {
-      total: promptTokens,
-      noCache: promptTokens,
-      cacheRead: void 0,
-      cacheWrite: void 0
-    },
-    outputTokens: {
-      total: completionTokens,
-      text: completionTokens - reasoningTokens,
-      reasoning: reasoningTokens
-    },
-    raw: usage
-  };
-}
-function convertToPerplexityMessages(prompt) {
-  let messages = [];
-  for (let { role, content } of prompt)
-    switch (role) {
-      case "system": {
-        messages.push({ role: "system", content });
-        break;
-      }
-      case "user":
-      case "assistant": {
-        let hasMultipartContent = content.some((part) => part.type === "file" && part.mediaType.startsWith("image/") || part.type === "file" && part.mediaType === "application/pdf"), messageContent = content.map((part, index) => {
-          var _a24;
-          switch (part.type) {
-            case "text":
-              return {
-                type: "text",
-                text: part.text
-              };
-            case "file":
-              if (part.mediaType === "application/pdf")
-                return part.data instanceof URL ? {
-                  type: "file_url",
-                  file_url: {
-                    url: part.data.toString()
-                  },
-                  file_name: part.filename
-                } : {
-                  type: "file_url",
-                  file_url: {
-                    url: typeof part.data === "string" ? part.data : convertUint8ArrayToBase64(part.data)
-                  },
-                  file_name: part.filename || `document-${index}.pdf`
-                };
-              else if (part.mediaType.startsWith("image/"))
-                return part.data instanceof URL ? {
-                  type: "image_url",
-                  image_url: {
-                    url: part.data.toString()
-                  }
-                } : {
-                  type: "image_url",
-                  image_url: {
-                    url: `data:${(_a24 = part.mediaType) != null ? _a24 : "image/jpeg"};base64,${typeof part.data === "string" ? part.data : convertUint8ArrayToBase64(part.data)}`
-                  }
-                };
-          }
-        }).filter(Boolean);
-        messages.push({
-          role,
-          content: hasMultipartContent ? messageContent : messageContent.filter((part) => part.type === "text").map((part) => part.text).join("")
-        });
-        break;
-      }
-      case "tool":
-        throw new UnsupportedFunctionalityError({
-          functionality: "Tool messages"
-        });
-      default:
-        throw Error(`Unsupported role: ${role}`);
-    }
-  return messages;
-}
-function mapPerplexityFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-    case "length":
-      return finishReason;
-    default:
-      return "other";
-  }
-}
-var PerplexityLanguageModel = class {
-  constructor(modelId, config2) {
-    this.specificationVersion = "v3", this.provider = "perplexity", this.supportedUrls = {}, this.modelId = modelId, this.config = config2;
-  }
-  getArgs({
-    prompt,
-    maxOutputTokens,
-    temperature,
-    topP,
-    topK,
-    frequencyPenalty,
-    presencePenalty,
-    stopSequences,
-    responseFormat,
-    seed,
-    providerOptions
-  }) {
-    var _a24;
-    let warnings = [];
-    if (topK != null)
-      warnings.push({ type: "unsupported", feature: "topK" });
-    if (stopSequences != null)
-      warnings.push({ type: "unsupported", feature: "stopSequences" });
-    if (seed != null)
-      warnings.push({ type: "unsupported", feature: "seed" });
-    return {
-      args: {
-        model: this.modelId,
-        frequency_penalty: frequencyPenalty,
-        max_tokens: maxOutputTokens,
-        presence_penalty: presencePenalty,
-        temperature,
-        top_k: topK,
-        top_p: topP,
-        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? {
-          type: "json_schema",
-          json_schema: { schema: responseFormat.schema }
-        } : void 0,
-        ...(_a24 = providerOptions == null ? void 0 : providerOptions.perplexity) != null ? _a24 : {},
-        messages: convertToPerplexityMessages(prompt)
-      },
-      warnings
-    };
-  }
-  async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
-    let { args: body, warnings } = this.getArgs(options), {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi({
-      url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: createJsonErrorResponseHandler({
-        errorSchema: perplexityErrorSchema,
-        errorToMessage
-      }),
-      successfulResponseHandler: createJsonResponseHandler(perplexityResponseSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), choice2 = response.choices[0], content = [], text2 = choice2.message.content;
-    if (text2.length > 0)
-      content.push({ type: "text", text: text2 });
-    if (response.citations != null)
-      for (let url2 of response.citations)
-        content.push({
-          type: "source",
-          sourceType: "url",
-          id: this.config.generateId(),
-          url: url2
-        });
-    return {
-      content,
-      finishReason: {
-        unified: mapPerplexityFinishReason(choice2.finish_reason),
-        raw: (_a24 = choice2.finish_reason) != null ? _a24 : void 0
-      },
-      usage: convertPerplexityUsage(response.usage),
-      request: { body },
-      response: {
-        ...getResponseMetadata4(response),
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings,
-      providerMetadata: {
-        perplexity: {
-          images: (_c = (_b16 = response.images) == null ? void 0 : _b16.map((image) => ({
-            imageUrl: image.image_url,
-            originUrl: image.origin_url,
-            height: image.height,
-            width: image.width
-          }))) != null ? _c : null,
-          usage: {
-            citationTokens: (_e = (_d = response.usage) == null ? void 0 : _d.citation_tokens) != null ? _e : null,
-            numSearchQueries: (_g = (_f = response.usage) == null ? void 0 : _f.num_search_queries) != null ? _g : null
-          },
-          cost: ((_h = response.usage) == null ? void 0 : _h.cost) ? {
-            inputTokensCost: (_i = response.usage.cost.input_tokens_cost) != null ? _i : null,
-            outputTokensCost: (_j = response.usage.cost.output_tokens_cost) != null ? _j : null,
-            requestCost: (_k = response.usage.cost.request_cost) != null ? _k : null,
-            totalCost: (_l = response.usage.cost.total_cost) != null ? _l : null
-          } : null
-        }
-      }
-    };
-  }
-  async doStream(options) {
-    let { args, warnings } = this.getArgs(options), body = { ...args, stream: !0 }, { responseHeaders, value: response } = await postJsonToApi({
-      url: `${this.config.baseURL}/chat/completions`,
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body,
-      failedResponseHandler: createJsonErrorResponseHandler({
-        errorSchema: perplexityErrorSchema,
-        errorToMessage
-      }),
-      successfulResponseHandler: createEventSourceResponseHandler(perplexityChunkSchema),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), finishReason = {
-      unified: "other",
-      raw: void 0
-    }, usage = void 0, providerMetadata = {
-      perplexity: {
-        usage: {
-          citationTokens: null,
-          numSearchQueries: null
-        },
-        cost: null,
-        images: null
-      }
-    }, isFirstChunk = !0, isActive = !1, self2 = this;
-    return {
-      stream: response.pipeThrough(new TransformStream({
-        start(controller) {
-          controller.enqueue({ type: "stream-start", warnings });
-        },
-        transform(chunk, controller) {
-          var _a24, _b16, _c, _d, _e, _f, _g;
-          if (options.includeRawChunks)
-            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-          if (!chunk.success) {
-            controller.enqueue({ type: "error", error: chunk.error });
-            return;
-          }
-          let value = chunk.value;
-          if (isFirstChunk)
-            controller.enqueue({
-              type: "response-metadata",
-              ...getResponseMetadata4(value)
-            }), (_a24 = value.citations) == null || _a24.forEach((url2) => {
-              controller.enqueue({
-                type: "source",
-                sourceType: "url",
-                id: self2.config.generateId(),
-                url: url2
-              });
-            }), isFirstChunk = !1;
-          if (value.usage != null)
-            usage = value.usage, providerMetadata.perplexity.usage = {
-              citationTokens: (_b16 = value.usage.citation_tokens) != null ? _b16 : null,
-              numSearchQueries: (_c = value.usage.num_search_queries) != null ? _c : null
-            }, providerMetadata.perplexity.cost = value.usage.cost ? {
-              inputTokensCost: (_d = value.usage.cost.input_tokens_cost) != null ? _d : null,
-              outputTokensCost: (_e = value.usage.cost.output_tokens_cost) != null ? _e : null,
-              requestCost: (_f = value.usage.cost.request_cost) != null ? _f : null,
-              totalCost: (_g = value.usage.cost.total_cost) != null ? _g : null
-            } : null;
-          if (value.images != null)
-            providerMetadata.perplexity.images = value.images.map((image) => ({
-              imageUrl: image.image_url,
-              originUrl: image.origin_url,
-              height: image.height,
-              width: image.width
-            }));
-          let choice2 = value.choices[0];
-          if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
-            finishReason = {
-              unified: mapPerplexityFinishReason(choice2.finish_reason),
-              raw: choice2.finish_reason
-            };
-          if ((choice2 == null ? void 0 : choice2.delta) == null)
-            return;
-          let textContent = choice2.delta.content;
-          if (textContent != null) {
-            if (!isActive)
-              controller.enqueue({ type: "text-start", id: "0" }), isActive = !0;
-            controller.enqueue({
-              type: "text-delta",
-              id: "0",
-              delta: textContent
-            });
-          }
-        },
-        flush(controller) {
-          if (isActive)
-            controller.enqueue({ type: "text-end", id: "0" });
-          controller.enqueue({
-            type: "finish",
-            finishReason,
-            usage: convertPerplexityUsage(usage),
-            providerMetadata
-          });
-        }
-      })),
-      request: { body },
-      response: { headers: responseHeaders }
-    };
-  }
-};
-function getResponseMetadata4({
-  id,
-  model,
-  created
-}) {
-  return {
-    id,
-    modelId: model,
-    timestamp: new Date(created * 1000)
-  };
-}
-var perplexityCostSchema = exports_external.object({
-  input_tokens_cost: exports_external.number().nullish(),
-  output_tokens_cost: exports_external.number().nullish(),
-  request_cost: exports_external.number().nullish(),
-  total_cost: exports_external.number().nullish()
-}), perplexityUsageSchema = exports_external.object({
-  prompt_tokens: exports_external.number(),
-  completion_tokens: exports_external.number(),
-  total_tokens: exports_external.number().nullish(),
-  citation_tokens: exports_external.number().nullish(),
-  num_search_queries: exports_external.number().nullish(),
-  reasoning_tokens: exports_external.number().nullish(),
-  cost: perplexityCostSchema.nullish()
-}), perplexityImageSchema = exports_external.object({
-  image_url: exports_external.string(),
-  origin_url: exports_external.string(),
-  height: exports_external.number(),
-  width: exports_external.number()
-}), perplexityResponseSchema = exports_external.object({
-  id: exports_external.string(),
-  created: exports_external.number(),
-  model: exports_external.string(),
-  choices: exports_external.array(exports_external.object({
-    message: exports_external.object({
-      role: exports_external.literal("assistant"),
-      content: exports_external.string()
-    }),
-    finish_reason: exports_external.string().nullish()
-  })),
-  citations: exports_external.array(exports_external.string()).nullish(),
-  images: exports_external.array(perplexityImageSchema).nullish(),
-  usage: perplexityUsageSchema.nullish()
-}), perplexityChunkSchema = exports_external.object({
-  id: exports_external.string(),
-  created: exports_external.number(),
-  model: exports_external.string(),
-  choices: exports_external.array(exports_external.object({
-    delta: exports_external.object({
-      role: exports_external.literal("assistant"),
-      content: exports_external.string()
-    }),
-    finish_reason: exports_external.string().nullish()
-  })),
-  citations: exports_external.array(exports_external.string()).nullish(),
-  images: exports_external.array(perplexityImageSchema).nullish(),
-  usage: perplexityUsageSchema.nullish()
-}), perplexityErrorSchema = exports_external.object({
-  error: exports_external.object({
-    code: exports_external.number(),
-    message: exports_external.string().nullish(),
-    type: exports_external.string().nullish()
-  })
-}), errorToMessage = (data) => {
-  var _a24, _b16;
-  return (_b16 = (_a24 = data.error.message) != null ? _a24 : data.error.type) != null ? _b16 : "unknown error";
-}, VERSION10 = "3.0.36";
-function createPerplexity(options = {}) {
-  let getHeaders = () => withUserAgentSuffix({
-    Authorization: `Bearer ${loadApiKey({
-      apiKey: options.apiKey,
-      environmentVariableName: "PERPLEXITY_API_KEY",
-      description: "Perplexity"
-    })}`,
-    ...options.headers
-  }, `ai-sdk/perplexity/${VERSION10}`), createLanguageModel = (modelId) => {
-    var _a24;
-    return new PerplexityLanguageModel(modelId, {
-      baseURL: withoutTrailingSlash((_a24 = options.baseURL) != null ? _a24 : "https://api.perplexity.ai"),
-      headers: getHeaders,
-      generateId,
-      fetch: options.fetch
-    });
-  }, provider = (modelId) => createLanguageModel(modelId);
-  return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
-  }, provider.textEmbeddingModel = provider.embeddingModel, provider.imageModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
-  }, provider;
-}
-var perplexity = createPerplexity();
 // node_modules/@ai-sdk/openai-compatible/dist/index.mjs
 function toCamelCase(str) {
   return str.replace(/[_-]([a-z])/g, (g) => g[1].toUpperCase());
@@ -45533,7 +41821,7 @@ function convertToOpenAICompatibleChatMessages(prompt) {
   }
   return messages;
 }
-function getResponseMetadata5({
+function getResponseMetadata3({
   id,
   model,
   created
@@ -45565,7 +41853,7 @@ var openaiCompatibleLanguageModelChatOptions = exports_external.object({
   textVerbosity: exports_external.string().optional(),
   strictJsonSchema: exports_external.boolean().optional()
 });
-function prepareTools5({
+function prepareTools3({
   tools,
   toolChoice
 }) {
@@ -45690,7 +41978,7 @@ var OpenAICompatibleChatLanguageModel = class {
       tools: openaiTools2,
       toolChoice: openaiToolChoice,
       toolWarnings
-    } = prepareTools5({
+    } = prepareTools3({
       tools,
       toolChoice
     });
@@ -45789,7 +42077,7 @@ var OpenAICompatibleChatLanguageModel = class {
       providerMetadata,
       request: { body },
       response: {
-        ...getResponseMetadata5(responseBody),
+        ...getResponseMetadata3(responseBody),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -45841,7 +42129,7 @@ var OpenAICompatibleChatLanguageModel = class {
           if (isFirstChunk)
             isFirstChunk = !1, controller.enqueue({
               type: "response-metadata",
-              ...getResponseMetadata5(value)
+              ...getResponseMetadata3(value)
             });
           if (value.usage != null)
             usage = value.usage;
@@ -46079,148 +42367,40 @@ var OpenAICompatibleChatLanguageModel = class {
   })),
   usage: openaiCompatibleTokenUsageSchema
 }), createOpenAICompatibleChatChunkSchema = (errorSchema) => exports_external.union([chunkBaseSchema, errorSchema]);
-var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
-  echo: exports_external.boolean().optional(),
-  logitBias: exports_external.record(exports_external.string(), exports_external.number()).optional(),
-  suffix: exports_external.string().optional(),
-  user: exports_external.string().optional()
-});
-var usageSchema3 = exports_external.object({
-  prompt_tokens: exports_external.number(),
-  completion_tokens: exports_external.number(),
-  total_tokens: exports_external.number()
-}), openaiCompatibleCompletionResponseSchema = exports_external.object({
-  id: exports_external.string().nullish(),
-  created: exports_external.number().nullish(),
-  model: exports_external.string().nullish(),
-  choices: exports_external.array(exports_external.object({
-    text: exports_external.string(),
-    finish_reason: exports_external.string()
-  })),
-  usage: usageSchema3.nullish()
-});
-var openaiCompatibleEmbeddingModelOptions = exports_external.object({
-  dimensions: exports_external.number().optional(),
-  user: exports_external.string().optional()
-});
-var openaiTextEmbeddingResponseSchema2 = exports_external.object({
-  data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
-  usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish(),
-  providerMetadata: exports_external.record(exports_external.string(), exports_external.record(exports_external.string(), exports_external.any())).optional()
-});
-var openaiCompatibleImageResponseSchema = exports_external.object({
-  data: exports_external.array(exports_external.object({ b64_json: exports_external.string() }))
-});
-
-// node_modules/@ai-sdk/cerebras/dist/index.mjs
-function isStructuredOutputWithToolCallsFinishReason({
-  rawFinishReason,
-  hasText,
-  responseFormatType
-}) {
-  return responseFormatType === "json" && rawFinishReason === "tool_calls" && hasText;
-}
-var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel {
-  async doGenerate(options) {
-    var _a24;
-    let result = await super.doGenerate(options);
-    if (!isStructuredOutputWithToolCallsFinishReason({
-      rawFinishReason: result.finishReason.raw,
-      hasText: result.content.some((part) => part.type === "text" && part.text.length > 0),
-      responseFormatType: (_a24 = options.responseFormat) == null ? void 0 : _a24.type
-    }))
-      return result;
+function convertOpenAICompatibleCompletionUsage(usage) {
+  var _a24, _b16;
+  if (usage == null)
     return {
-      ...result,
-      content: result.content.filter((part) => part.type !== "tool-call"),
-      finishReason: {
-        ...result.finishReason,
-        unified: "stop"
-      }
+      inputTokens: {
+        total: void 0,
+        noCache: void 0,
+        cacheRead: void 0,
+        cacheWrite: void 0
+      },
+      outputTokens: {
+        total: void 0,
+        text: void 0,
+        reasoning: void 0
+      },
+      raw: void 0
     };
-  }
-  async doStream(options) {
-    let result = await super.doStream(options), hasText = !1;
-    return {
-      ...result,
-      stream: result.stream.pipeThrough(new TransformStream({
-        transform(part, controller) {
-          var _a24, _b16;
-          if (part.type === "text-delta" && part.delta.length > 0)
-            hasText = !0;
-          if (part.type === "finish" && isStructuredOutputWithToolCallsFinishReason({
-            rawFinishReason: part.finishReason.raw,
-            hasText,
-            responseFormatType: (_a24 = options.responseFormat) == null ? void 0 : _a24.type
-          })) {
-            controller.enqueue({
-              ...part,
-              finishReason: {
-                ...part.finishReason,
-                unified: "stop"
-              }
-            });
-            return;
-          }
-          if (((_b16 = options.responseFormat) == null ? void 0 : _b16.type) === "json" && hasText && (part.type === "tool-input-start" || part.type === "tool-input-delta" || part.type === "tool-input-end" || part.type === "tool-call"))
-            return;
-          controller.enqueue(part);
-        }
-      }))
-    };
-  }
-}, VERSION11 = "2.0.57", cerebrasErrorSchema = exports_external.object({
-  message: exports_external.string(),
-  type: exports_external.string(),
-  param: exports_external.string(),
-  code: exports_external.string()
-}), cerebrasErrorStructure = {
-  errorSchema: cerebrasErrorSchema,
-  errorToMessage: (data) => data.message
-};
-function transformCerebrasRequestBody(args) {
+  let promptTokens = (_a24 = usage.prompt_tokens) != null ? _a24 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0;
   return {
-    ...args,
-    messages: Array.isArray(args.messages) ? args.messages.map((message) => {
-      if (message == null || typeof message !== "object" || message.role !== "assistant" || !("reasoning_content" in message))
-        return message;
-      let { reasoning_content, ...rest } = message;
-      return {
-        ...rest,
-        ...!("reasoning" in rest) && reasoning_content !== void 0 ? { reasoning: reasoning_content } : {}
-      };
-    }) : args.messages
+    inputTokens: {
+      total: promptTokens,
+      noCache: promptTokens,
+      cacheRead: void 0,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: completionTokens,
+      text: completionTokens,
+      reasoning: void 0
+    },
+    raw: usage
   };
 }
-function createCerebras(options = {}) {
-  var _a24;
-  let baseURL = withoutTrailingSlash((_a24 = options.baseURL) != null ? _a24 : "https://api.cerebras.ai/v1"), getHeaders = () => withUserAgentSuffix({
-    Authorization: `Bearer ${loadApiKey({
-      apiKey: options.apiKey,
-      environmentVariableName: "CEREBRAS_API_KEY",
-      description: "Cerebras API key"
-    })}`,
-    ...options.headers
-  }, `ai-sdk/cerebras/${VERSION11}`), createLanguageModel = (modelId) => {
-    return new CerebrasChatLanguageModel(modelId, {
-      provider: "cerebras.chat",
-      url: ({ path }) => `${baseURL}${path}`,
-      headers: getHeaders,
-      fetch: options.fetch,
-      errorStructure: cerebrasErrorStructure,
-      supportsStructuredOutputs: !0,
-      transformRequestBody: transformCerebrasRequestBody
-    });
-  }, provider = (modelId) => createLanguageModel(modelId);
-  return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chat = createLanguageModel, provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
-  }, provider.textEmbeddingModel = provider.embeddingModel, provider.imageModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
-  }, provider;
-}
-var cerebras = createCerebras();
-// node_modules/ollama-ai-provider-v2/dist/index.mjs
-function convertToOllamaCompletionPrompt({
+function convertToOpenAICompatibleCompletionPrompt({
   prompt,
   user = "user",
   assistant = "assistant"
@@ -46281,118 +42461,56 @@ ${assistantMessage}
 ${user}:`]
   };
 }
-function mapOllamaFinishReason(finishReason) {
-  switch (finishReason) {
-    case "stop":
-      return {
-        raw: finishReason,
-        unified: "stop"
-      };
-    case "length":
-      return {
-        raw: finishReason,
-        unified: "length"
-      };
-    case "content_filter":
-      return {
-        raw: finishReason,
-        unified: "content-filter"
-      };
-    case "function_call":
-    case "tool_calls":
-      return {
-        raw: finishReason,
-        unified: "tool-calls"
-      };
-    default:
-      return {
-        raw: finishReason,
-        unified: "other"
-      };
-  }
-}
-function getResponseMetadata6({
+function getResponseMetadata22({
+  id,
   model,
-  created_at
+  created
 }) {
   return {
-    id: void 0,
+    id: id != null ? id : void 0,
     modelId: model != null ? model : void 0,
-    timestamp: created_at != null ? new Date(created_at) : void 0
+    timestamp: created != null ? new Date(created * 1000) : void 0
   };
 }
-function createNdjsonStreamResponseHandler(schema) {
-  return async ({ response }) => {
-    let responseHeaders = extractResponseHeaders(response);
-    if (response.body == null)
-      throw Error("Response body is null");
-    let reader = response.body.getReader(), decoder = /* @__PURE__ */ new TextDecoder, buffer = "", stream = new ReadableStream({
-      async pull(controller) {
-        while (!0) {
-          let { done, value } = await reader.read();
-          if (done) {
-            if (buffer.trim())
-              try {
-                let parsed = JSON.parse(buffer.trim()), validated = schema.parse(parsed);
-                controller.enqueue({
-                  success: !0,
-                  value: validated,
-                  rawValue: validated
-                });
-              } catch (e) {}
-            controller.close();
-            return;
-          }
-          buffer += decoder.decode(value, { stream: !0 });
-          let lines = buffer.split(`
-`);
-          buffer = lines.pop() || "";
-          for (let line of lines) {
-            let trimmedLine = line.trim();
-            if (trimmedLine)
-              try {
-                let parsed = JSON.parse(trimmedLine), validated = schema.parse(parsed);
-                controller.enqueue({
-                  success: !0,
-                  value: validated,
-                  rawValue: validated
-                });
-              } catch (error51) {
-                console.warn("Failed to parse NDJSON line:", error51);
-              }
-          }
-        }
-      },
-      cancel() {
-        reader.cancel();
-      }
-    });
-    return {
-      responseHeaders,
-      value: stream
-    };
-  };
-}
-var ollamaErrorDataSchema = exports_external.object({
-  error: exports_external.object({
-    message: exports_external.string(),
-    type: exports_external.string().nullish(),
-    param: exports_external.any().nullish(),
-    code: exports_external.union([exports_external.string(), exports_external.number()]).nullish()
-  })
-}), ollamaFailedResponseHandler = createJsonErrorResponseHandler({
-  errorSchema: ollamaErrorDataSchema,
-  errorToMessage: (data) => data.error.message
-}), ollamaCompletionProviderOptions = exports_external.object({
-  think: exports_external.boolean().optional(),
-  user: exports_external.string().optional(),
-  suffix: exports_external.string().optional(),
-  echo: exports_external.boolean().optional()
-}), OllamaCompletionLanguageModel = class {
-  constructor(modelId, settings, config2) {
-    this.specificationVersion = "v3", this.defaultObjectGenerationMode = void 0, this.supportsImageUrls = !1, this.supportedUrls = {}, this.modelId = modelId, this.settings = settings, this.config = config2, this.provider = config2.provider;
+function mapOpenAICompatibleFinishReason2(finishReason) {
+  switch (finishReason) {
+    case "stop":
+      return "stop";
+    case "length":
+      return "length";
+    case "content_filter":
+      return "content-filter";
+    case "function_call":
+    case "tool_calls":
+      return "tool-calls";
+    default:
+      return "other";
   }
-  getArgs({
+}
+var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
+  echo: exports_external.boolean().optional(),
+  logitBias: exports_external.record(exports_external.string(), exports_external.number()).optional(),
+  suffix: exports_external.string().optional(),
+  user: exports_external.string().optional()
+}), OpenAICompatibleCompletionLanguageModel = class {
+  constructor(modelId, config2) {
+    this.specificationVersion = "v3";
+    var _a24;
+    this.modelId = modelId, this.config = config2;
+    let errorStructure = (_a24 = config2.errorStructure) != null ? _a24 : defaultOpenAICompatibleErrorStructure;
+    this.chunkSchema = createOpenAICompatibleCompletionChunkSchema(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure);
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  get providerOptionsName() {
+    return this.config.provider.split(".")[0].trim();
+  }
+  get supportedUrls() {
+    var _a24, _b16, _c;
+    return (_c = (_b16 = (_a24 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a24)) != null ? _c : {};
+  }
+  async getArgs({
     prompt,
     maxOutputTokens,
     temperature,
@@ -46402,16 +42520,23 @@ var ollamaErrorDataSchema = exports_external.object({
     presencePenalty,
     stopSequences: userStopSequences,
     responseFormat,
+    seed,
+    providerOptions,
     tools,
-    toolChoice,
-    seed
+    toolChoice
   }) {
-    let warnings = [];
+    var _a24, _b16;
+    let warnings = [], completionOptions = Object.assign((_a24 = await parseProviderOptions({
+      provider: this.providerOptionsName,
+      providerOptions,
+      schema: openaiCompatibleLanguageModelCompletionOptions
+    })) != null ? _a24 : {}, (_b16 = await parseProviderOptions({
+      provider: toCamelCase(this.providerOptionsName),
+      providerOptions,
+      schema: openaiCompatibleLanguageModelCompletionOptions
+    })) != null ? _b16 : {});
     if (topK != null)
-      warnings.push({
-        type: "unsupported",
-        feature: "topK"
-      });
+      warnings.push({ type: "unsupported", feature: "topK" });
     if (tools == null ? void 0 : tools.length)
       warnings.push({ type: "unsupported", feature: "tools" });
     if (toolChoice != null)
@@ -46419,70 +42544,60 @@ var ollamaErrorDataSchema = exports_external.object({
     if (responseFormat != null && responseFormat.type !== "text")
       warnings.push({
         type: "unsupported",
-        feature: "responseFormat (JSON)"
+        feature: "responseFormat",
+        details: "JSON response format is not supported."
       });
-    let { prompt: completionPrompt, stopSequences } = convertToOllamaCompletionPrompt({ prompt }), stop = [...stopSequences != null ? stopSequences : [], ...userStopSequences != null ? userStopSequences : []];
+    let { prompt: completionPrompt, stopSequences } = convertToOpenAICompatibleCompletionPrompt({ prompt }), stop = [...stopSequences != null ? stopSequences : [], ...userStopSequences != null ? userStopSequences : []];
     return {
       args: {
         model: this.modelId,
-        user: this.settings.user,
-        think: this.settings.think,
+        echo: completionOptions.echo,
+        logit_bias: completionOptions.logitBias,
+        suffix: completionOptions.suffix,
+        user: completionOptions.user,
         max_tokens: maxOutputTokens,
         temperature,
         top_p: topP,
         frequency_penalty: frequencyPenalty,
         presence_penalty: presencePenalty,
-        stop,
+        seed,
+        ...providerOptions == null ? void 0 : providerOptions[this.providerOptionsName],
+        ...providerOptions == null ? void 0 : providerOptions[toCamelCase(this.providerOptionsName)],
         prompt: completionPrompt,
-        suffix: this.settings.suffix,
-        echo: this.settings.echo,
-        stream: !1
+        stop: stop.length > 0 ? stop : void 0
       },
       warnings
     };
   }
   async doGenerate(options) {
-    var _a24, _b16;
-    let { args: body, warnings } = this.getArgs(options), {
+    let { args, warnings } = await this.getArgs(options), {
       responseHeaders,
       value: response,
       rawValue: rawResponse
     } = await postJsonToApi({
       url: this.config.url({
-        path: "/generate",
+        path: "/completions",
         modelId: this.modelId
       }),
       headers: combineHeaders(this.config.headers(), options.headers),
-      body: { ...body, stream: !1 },
-      failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(baseOllamaResponseSchema),
+      body: args,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler(openaiCompatibleCompletionResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
-    }), { prompt: rawPrompt, ...rawSettings } = body, typedResponse = response;
+    }), choice2 = response.choices[0], content = [];
+    if (choice2.text != null && choice2.text.length > 0)
+      content.push({ type: "text", text: choice2.text });
     return {
-      content: [
-        {
-          type: "text",
-          text: typedResponse.response
-        }
-      ],
-      usage: {
-        inputTokens: {
-          total: (_a24 = typedResponse.prompt_eval_count) != null ? _a24 : 0,
-          noCache: void 0,
-          cacheRead: void 0,
-          cacheWrite: void 0
-        },
-        outputTokens: {
-          total: (_b16 = typedResponse.eval_count) != null ? _b16 : 0,
-          text: void 0,
-          reasoning: void 0
-        }
+      content,
+      usage: convertOpenAICompatibleCompletionUsage(response.usage),
+      finishReason: {
+        unified: mapOpenAICompatibleFinishReason2(choice2.finish_reason),
+        raw: choice2.finish_reason
       },
-      finishReason: mapOllamaFinishReason("stop"),
-      request: { body: JSON.stringify(body) },
+      request: { body: args },
       response: {
-        ...getResponseMetadata6(typedResponse),
+        ...getResponseMetadata22(response),
         headers: responseHeaders,
         body: rawResponse
       },
@@ -46490,114 +42605,126 @@ var ollamaErrorDataSchema = exports_external.object({
     };
   }
   async doStream(options) {
-    let { args, warnings } = this.getArgs(options), body = {
+    let { args, warnings } = await this.getArgs(options), body = {
       ...args,
-      stream: !0
+      stream: !0,
+      stream_options: this.config.includeUsage ? { include_usage: !0 } : void 0
     }, { responseHeaders, value: response } = await postJsonToApi({
       url: this.config.url({
-        path: "/generate",
+        path: "/completions",
         modelId: this.modelId
       }),
       headers: combineHeaders(this.config.headers(), options.headers),
       body,
-      failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createNdjsonStreamResponseHandler(baseOllamaResponseSchema),
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler(this.chunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
-    }), { prompt: rawPrompt, ...rawSettings } = args, finishReason = "other", usage = {
-      inputTokens: {
-        total: void 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: void 0,
-        text: void 0,
-        reasoning: void 0
-      }
-    }, isFirstChunk = !0, textStarted = !1, textId = generateId();
+    }), finishReason = {
+      unified: "other",
+      raw: void 0
+    }, usage = void 0, isFirstChunk = !0;
     return {
       stream: response.pipeThrough(new TransformStream({
+        start(controller) {
+          controller.enqueue({ type: "stream-start", warnings });
+        },
         transform(chunk, controller) {
+          var _a24;
+          if (options.includeRawChunks)
+            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
-            controller.enqueue({ type: "error", error: chunk.rawValue });
+            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({ type: "error", error: chunk.error });
             return;
           }
           let value = chunk.value;
           if ("error" in value) {
-            finishReason = "error", controller.enqueue({ type: "error", error: value.error });
+            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({ type: "error", error: value.error });
             return;
           }
           if (isFirstChunk)
             isFirstChunk = !1, controller.enqueue({
               type: "response-metadata",
-              ...getResponseMetadata6(value)
+              ...getResponseMetadata22(value)
+            }), controller.enqueue({
+              type: "text-start",
+              id: "0"
             });
-          if (value.done)
-            finishReason = "stop";
-          if (value.response != null) {
-            if (!textStarted)
-              controller.enqueue({
-                type: "text-start",
-                id: textId
-              }), textStarted = !0;
+          if (value.usage != null)
+            usage = value.usage;
+          let choice2 = value.choices[0];
+          if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
+            finishReason = {
+              unified: mapOpenAICompatibleFinishReason2(choice2.finish_reason),
+              raw: (_a24 = choice2.finish_reason) != null ? _a24 : void 0
+            };
+          if ((choice2 == null ? void 0 : choice2.text) != null)
             controller.enqueue({
               type: "text-delta",
-              id: textId,
-              delta: value.response
+              id: "0",
+              delta: choice2.text
             });
-          }
         },
         flush(controller) {
-          if (textStarted)
-            controller.enqueue({
-              type: "text-end",
-              id: textId
-            });
+          if (!isFirstChunk)
+            controller.enqueue({ type: "text-end", id: "0" });
           controller.enqueue({
             type: "finish",
-            finishReason: mapOllamaFinishReason(finishReason),
-            usage
+            finishReason,
+            usage: convertOpenAICompatibleCompletionUsage(usage)
           });
         }
       })),
-      request: { body: JSON.stringify(body) },
-      response: { headers: responseHeaders },
-      warnings
+      request: { body },
+      response: { headers: responseHeaders }
     };
   }
-}, baseOllamaResponseSchema = exports_external.object({
-  model: exports_external.string(),
-  created_at: exports_external.string(),
-  response: exports_external.string(),
-  done: exports_external.boolean(),
-  context: exports_external.array(exports_external.number()),
-  error: exports_external.unknown().optional(),
-  eval_count: exports_external.number().optional(),
-  eval_duration: exports_external.number().optional(),
-  load_duration: exports_external.number().optional(),
-  total_duration: exports_external.number().optional(),
-  prompt_eval_count: exports_external.number().optional(),
-  prompt_eval_duration: exports_external.number().optional()
-}), ollamaEmbeddingProviderOptions = exports_external.object({
+}, usageSchema3 = exports_external.object({
+  prompt_tokens: exports_external.number(),
+  completion_tokens: exports_external.number(),
+  total_tokens: exports_external.number()
+}), openaiCompatibleCompletionResponseSchema = exports_external.object({
+  id: exports_external.string().nullish(),
+  created: exports_external.number().nullish(),
+  model: exports_external.string().nullish(),
+  choices: exports_external.array(exports_external.object({
+    text: exports_external.string(),
+    finish_reason: exports_external.string()
+  })),
+  usage: usageSchema3.nullish()
+}), createOpenAICompatibleCompletionChunkSchema = (errorSchema) => exports_external.union([
+  exports_external.object({
+    id: exports_external.string().nullish(),
+    created: exports_external.number().nullish(),
+    model: exports_external.string().nullish(),
+    choices: exports_external.array(exports_external.object({
+      text: exports_external.string(),
+      finish_reason: exports_external.string().nullish(),
+      index: exports_external.number()
+    })),
+    usage: usageSchema3.nullish()
+  }),
+  errorSchema
+]), openaiCompatibleEmbeddingModelOptions = exports_external.object({
   dimensions: exports_external.number().optional(),
-  truncate: exports_external.boolean().optional(),
-  keepAlive: exports_external.string().optional()
-}), OllamaEmbeddingModel = class {
-  constructor(modelId, settings, config2) {
-    this.specificationVersion = "v3";
-    var _a24, _b16;
-    this.modelId = modelId, this.settings = settings, this.config = config2, this.provider = config2.provider, this.maxEmbeddingsPerCall = (_a24 = settings.maxEmbeddingsPerCall) != null ? _a24 : 2048, this.supportsParallelCalls = (_b16 = settings.supportsParallelCalls) != null ? _b16 : !0;
+  user: exports_external.string().optional()
+}), OpenAICompatibleEmbeddingModel = class {
+  constructor(modelId, config2) {
+    this.specificationVersion = "v3", this.modelId = modelId, this.config = config2;
   }
-  getArgs({ values }) {
-    return {
-      model: this.modelId,
-      input: values,
-      dimensions: this.settings.dimensions,
-      truncate: this.settings.truncate,
-      keep_alive: this.settings.keepAlive
-    };
+  get provider() {
+    return this.config.provider;
+  }
+  get maxEmbeddingsPerCall() {
+    var _a24;
+    return (_a24 = this.config.maxEmbeddingsPerCall) != null ? _a24 : 2048;
+  }
+  get supportsParallelCalls() {
+    var _a24;
+    return (_a24 = this.config.supportsParallelCalls) != null ? _a24 : !0;
+  }
+  get providerOptionsName() {
+    return this.config.provider.split(".")[0].trim();
   }
   async doEmbed({
     values,
@@ -46606,845 +42733,320 @@ var ollamaErrorDataSchema = exports_external.object({
     providerOptions
   }) {
     var _a24, _b16, _c;
-    if (this.maxEmbeddingsPerCall && values.length > this.maxEmbeddingsPerCall)
+    let warnings = [], deprecatedOptions = await parseProviderOptions({
+      provider: "openai-compatible",
+      providerOptions,
+      schema: openaiCompatibleEmbeddingModelOptions
+    });
+    if (deprecatedOptions != null)
+      warnings.push({
+        type: "other",
+        message: "The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead."
+      });
+    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a24 = await parseProviderOptions({
+      provider: "openaiCompatible",
+      providerOptions,
+      schema: openaiCompatibleEmbeddingModelOptions
+    })) != null ? _a24 : {}, (_b16 = await parseProviderOptions({
+      provider: this.providerOptionsName,
+      providerOptions,
+      schema: openaiCompatibleEmbeddingModelOptions
+    })) != null ? _b16 : {});
+    if (values.length > this.maxEmbeddingsPerCall)
       throw new TooManyEmbeddingValuesForCallError({
         provider: this.provider,
         modelId: this.modelId,
         maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
         values
       });
-    let ollamaOptions = await parseProviderOptions({
-      provider: "ollama",
-      providerOptions,
-      schema: ollamaEmbeddingProviderOptions
-    }), dimensions = (_a24 = ollamaOptions == null ? void 0 : ollamaOptions.dimensions) != null ? _a24 : this.settings.dimensions, truncate = (_b16 = ollamaOptions == null ? void 0 : ollamaOptions.truncate) != null ? _b16 : this.settings.truncate, keepAlive = (_c = ollamaOptions == null ? void 0 : ollamaOptions.keepAlive) != null ? _c : this.settings.keepAlive, body = {
-      model: this.modelId,
-      input: values
-    };
-    if (dimensions !== void 0)
-      body.dimensions = dimensions;
-    if (truncate !== void 0)
-      body.truncate = truncate;
-    if (keepAlive !== void 0)
-      body.keep_alive = keepAlive;
     let {
       responseHeaders,
       value: response,
       rawValue
     } = await postJsonToApi({
       url: this.config.url({
-        path: "/embed",
+        path: "/embeddings",
         modelId: this.modelId
       }),
       headers: combineHeaders(this.config.headers(), headers),
-      body: { ...body },
-      failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(ollamaTextEmbeddingResponseSchema),
+      body: {
+        model: this.modelId,
+        input: values,
+        encoding_format: "float",
+        dimensions: compatibleOptions.dimensions,
+        user: compatibleOptions.user
+      },
+      failedResponseHandler: createJsonErrorResponseHandler((_c = this.config.errorStructure) != null ? _c : defaultOpenAICompatibleErrorStructure),
+      successfulResponseHandler: createJsonResponseHandler(openaiTextEmbeddingResponseSchema2),
       abortSignal,
       fetch: this.config.fetch
-    }), typedResponse = response;
-    return {
-      embeddings: typedResponse.embeddings.map((item) => item),
-      usage: { tokens: typedResponse.prompt_eval_count },
-      response: { headers: responseHeaders, body: rawValue },
-      warnings: []
-    };
-  }
-}, ollamaTextEmbeddingResponseSchema = exports_external.object({
-  model: exports_external.string(),
-  embeddings: exports_external.array(exports_external.array(exports_external.number())),
-  total_duration: exports_external.number(),
-  load_duration: exports_external.number(),
-  prompt_eval_count: exports_external.number()
-}), baseOllamaResponseSchema2 = exports_external.object({
-  model: exports_external.string(),
-  created_at: exports_external.string(),
-  done: exports_external.boolean(),
-  message: exports_external.object({
-    content: exports_external.string(),
-    role: exports_external.string(),
-    thinking: exports_external.string().optional(),
-    tool_calls: exports_external.array(exports_external.object({
-      function: exports_external.object({
-        name: exports_external.string(),
-        arguments: exports_external.record(exports_external.string(), exports_external.any())
-      }),
-      id: exports_external.string().optional()
-    })).optional().nullable()
-  }),
-  done_reason: exports_external.string().optional(),
-  eval_count: exports_external.number().optional(),
-  eval_duration: exports_external.number().optional(),
-  load_duration: exports_external.number().optional(),
-  prompt_eval_count: exports_external.number().optional(),
-  prompt_eval_duration: exports_external.number().optional(),
-  total_duration: exports_external.number().optional()
-}), OllamaResponseProcessor = class {
-  constructor(config2) {
-    this.config = config2;
-  }
-  processGenerateResponse(response) {
-    let content = this.extractContent(response), hasToolCalls = content.some((item) => item.type === "tool-call"), rawFinishReason = mapOllamaFinishReason(response.done_reason), finishReason = hasToolCalls && rawFinishReason.unified !== "tool-calls" ? { unified: "tool-calls", raw: "tool_calls" } : rawFinishReason, usage = this.extractUsage(response);
-    return {
-      content,
-      finishReason,
-      usage,
-      providerMetadata: { ollama: {} }
-    };
-  }
-  extractContent(response) {
-    var _a24, _b16, _c, _d, _e;
-    let content = [], text2 = response.message.content;
-    if (text2 != null && text2.length > 0)
-      content.push({
-        type: "text",
-        text: text2
-      });
-    let thinking = response.message.thinking;
-    if (thinking != null && thinking.length > 0)
-      content.push({
-        type: "reasoning",
-        text: thinking
-      });
-    for (let toolCall of (_a24 = response.message.tool_calls) != null ? _a24 : [])
-      content.push({
-        type: "tool-call",
-        toolCallId: (_e = (_d = toolCall.id) != null ? _d : (_c = (_b16 = this.config).generateId) == null ? void 0 : _c.call(_b16)) != null ? _e : generateId(),
-        toolName: toolCall.function.name,
-        input: JSON.stringify(toolCall.function.arguments)
-      });
-    return content;
-  }
-  extractUsage(response) {
-    var _a24, _b16;
-    return {
-      inputTokens: {
-        total: (_a24 = response.prompt_eval_count) != null ? _a24 : 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: (_b16 = response.eval_count) != null ? _b16 : 0,
-        text: void 0,
-        reasoning: void 0
-      }
-    };
-  }
-};
-function extractOllamaResponseObjectsFromChunk(chunk) {
-  var _a24;
-  if (chunk.success)
-    return [chunk.value];
-  let results = [], raw = (_a24 = chunk.error) == null ? void 0 : _a24.text;
-  if (typeof raw !== "string" || raw.length === 0)
-    return results;
-  let lines = raw.split(/\r?\n/);
-  for (let line of lines) {
-    let trimmed = line.trim();
-    if (trimmed === "")
-      continue;
-    try {
-      let parsed = JSON.parse(trimmed), validated = baseOllamaResponseSchema2.safeParse(parsed);
-      if (validated.success)
-        results.push(validated.data);
-    } catch (e) {}
-  }
-  return results;
-}
-function convertToOllamaChatMessages({
-  prompt,
-  systemMessageMode = "system"
-}) {
-  let messages = [];
-  for (let { role, content } of prompt)
-    switch (role) {
-      case "system": {
-        switch (systemMessageMode) {
-          case "system": {
-            messages.push({ role: "system", content });
-            break;
-          }
-          case "developer": {
-            messages.push({ role: "developer", content });
-            break;
-          }
-          case "remove":
-            break;
-          default:
-            throw Error(`Unsupported system message mode: ${systemMessageMode}`);
-        }
-        break;
-      }
-      case "user": {
-        if (content.length === 1 && content[0].type === "text") {
-          messages.push({ role: "user", content: content[0].text });
-          break;
-        }
-        let userText = content.filter((part) => part.type === "text").map((part) => part.text).join(""), images = content.filter((part) => part.type === "file" && part.mediaType.startsWith("image/")).map((part) => part.data);
-        messages.push({
-          role: "user",
-          content: userText.length > 0 ? userText : [],
-          images: images.length > 0 ? images : void 0
-        });
-        break;
-      }
-      case "assistant": {
-        let text2 = "", thinking = "", toolCalls = [];
-        for (let part of content)
-          switch (part.type) {
-            case "text": {
-              text2 += part.text;
-              break;
-            }
-            case "tool-call": {
-              toolCalls.push({
-                id: part.toolCallId,
-                type: "function",
-                function: {
-                  name: part.toolName,
-                  arguments: part.input
-                }
-              });
-              break;
-            }
-            case "reasoning": {
-              thinking += part.text;
-              break;
-            }
-            default:
-              throw Error(`Unsupported part: ${part}`);
-          }
-        messages.push({
-          role: "assistant",
-          content: text2,
-          ...thinking && { thinking },
-          tool_calls: toolCalls.length > 0 ? toolCalls : void 0
-        });
-        break;
-      }
-      case "tool": {
-        for (let toolResponse of content) {
-          let output = toolResponse.output, contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          messages.push({
-            role: "tool",
-            tool_call_id: toolResponse.toolCallId,
-            content: contentValue
-          });
-        }
-        break;
-      }
-      default:
-        throw Error(`Unsupported role: ${role}`);
-    }
-  return messages;
-}
-var ollamaProviderOptions = exports_external.object({
-  think: exports_external.boolean().optional(),
-  options: exports_external.object({
-    num_ctx: exports_external.number().optional(),
-    repeat_last_n: exports_external.number().optional(),
-    repeat_penalty: exports_external.number().optional(),
-    temperature: exports_external.number().optional(),
-    seed: exports_external.number().optional(),
-    stop: exports_external.array(exports_external.string()).optional(),
-    num_predict: exports_external.number().optional(),
-    top_k: exports_external.number().optional(),
-    top_p: exports_external.number().optional(),
-    min_p: exports_external.number().optional()
-  }).optional()
-});
-function convertToOllamaResponsesMessages({
-  prompt,
-  systemMessageMode
-}) {
-  let messages = [], warnings = [];
-  for (let { role, content } of prompt)
-    switch (role) {
-      case "system": {
-        switch (systemMessageMode) {
-          case "system": {
-            messages.push({ role: "system", content });
-            break;
-          }
-          case "developer": {
-            messages.push({ role: "developer", content });
-            break;
-          }
-          case "remove": {
-            warnings.push({
-              type: "other",
-              message: "system messages are removed for this model"
-            });
-            break;
-          }
-          default:
-            throw Error(`Unsupported system message mode: ${systemMessageMode}`);
-        }
-        break;
-      }
-      case "user": {
-        messages.push({
-          role: "user",
-          content: content.map((part, index) => {
-            var _a24, _b16, _c;
-            switch (part.type) {
-              case "text":
-                return { type: "input_text", text: part.text };
-              case "file":
-                if (part.mediaType.startsWith("image/")) {
-                  let mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-                  return {
-                    type: "input_image",
-                    image_url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${part.data}`,
-                    detail: (_b16 = (_a24 = part.providerOptions) == null ? void 0 : _a24.ollama) == null ? void 0 : _b16.imageDetail
-                  };
-                } else if (part.mediaType === "application/pdf") {
-                  if (part.data instanceof URL)
-                    throw new UnsupportedFunctionalityError({
-                      functionality: "PDF file parts with URLs"
-                    });
-                  return {
-                    type: "input_file",
-                    filename: (_c = part.filename) != null ? _c : `part-${index}.pdf`,
-                    file_data: `data:application/pdf;base64,${part.data}`
-                  };
-                } else
-                  throw new UnsupportedFunctionalityError({
-                    functionality: `file part media type ${part.mediaType}`
-                  });
-            }
-          })
-        });
-        break;
-      }
-      case "assistant": {
-        for (let part of content)
-          switch (part.type) {
-            case "text": {
-              messages.push({
-                role: "assistant",
-                content: [{ type: "output_text", text: part.text }]
-              });
-              break;
-            }
-            case "tool-call": {
-              if (part.providerExecuted)
-                break;
-              messages.push({
-                type: "function_call",
-                call_id: part.toolCallId,
-                name: part.toolName,
-                arguments: JSON.stringify(part.input)
-              });
-              break;
-            }
-            case "tool-result": {
-              warnings.push({
-                type: "other",
-                message: "tool result parts in assistant messages are not supported for Ollama responses"
-              });
-              break;
-            }
-          }
-        break;
-      }
-      case "tool": {
-        for (let part of content) {
-          let output = part.output, contentValue;
-          switch (output.type) {
-            case "text":
-            case "error-text":
-              contentValue = output.value;
-              break;
-            case "content":
-            case "json":
-            case "error-json":
-              contentValue = JSON.stringify(output.value);
-              break;
-          }
-          messages.push({
-            type: "function_call_output",
-            call_id: part.toolCallId,
-            output: contentValue
-          });
-        }
-        break;
-      }
-      default:
-        throw Error(`Unsupported role: ${role}`);
-    }
-  return { messages, warnings };
-}
-function prepareResponsesTools3({
-  tools,
-  toolChoice
-}) {
-  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
-  let toolWarnings = [];
-  if (tools == null)
-    return { tools: void 0, toolChoice: void 0, toolWarnings };
-  let ollamaTools = [];
-  for (let tool2 of tools)
-    switch (tool2.type) {
-      case "function": {
-        let parameters = tool2.inputSchema;
-        if (!parameters)
-          parameters = {
-            type: "object",
-            properties: {},
-            required: []
-          };
-        else if (parameters && typeof parameters === "object" && parameters.type === "object" && parameters.properties && Object.keys(parameters.properties).length === 0)
-          parameters = {
-            ...parameters,
-            properties: {},
-            required: []
-          };
-        ollamaTools.push({
-          type: "function",
-          function: {
-            name: tool2.name,
-            description: tool2.description,
-            parameters
-          }
-        });
-        break;
-      }
-      default:
-        toolWarnings.push({
-          type: "unsupported",
-          feature: "tool",
-          details: tool2.name
-        });
-        break;
-    }
-  if (toolChoice == null)
-    return { tools: ollamaTools, toolChoice: void 0, toolWarnings };
-  let type = toolChoice.type;
-  switch (type) {
-    case "auto":
-    case "none":
-    case "required":
-      return { tools: ollamaTools, toolChoice: type, toolWarnings };
-    case "tool":
-      return {
-        tools: ollamaTools,
-        toolChoice: toolChoice.toolName == "web_search_preview" ? { type: "web_search_preview" } : { type: "function", name: toolChoice.toolName },
-        toolWarnings
-      };
-    default:
-      throw new UnsupportedFunctionalityError({
-        functionality: `tool choice type: ${type}`
-      });
-  }
-}
-var OllamaRequestBuilder = class {
-  async buildRequest({
-    modelId,
-    maxOutputTokens,
-    temperature,
-    stopSequences,
-    topP,
-    topK,
-    presencePenalty,
-    frequencyPenalty,
-    seed,
-    prompt,
-    providerOptions,
-    tools,
-    toolChoice,
-    responseFormat
-  }) {
-    let warnings = this.collectUnsupportedSettingsWarnings({
-      topK,
-      seed,
-      presencePenalty,
-      frequencyPenalty,
-      stopSequences
-    }), { messages, warnings: messageWarnings } = convertToOllamaResponsesMessages({
-      prompt,
-      systemMessageMode: "system"
-    });
-    warnings.push(...messageWarnings);
-    let ollamaOptions = await this.parseProviderOptions(providerOptions), baseArgs = this.buildBaseArgs({
-      modelId,
-      prompt,
-      temperature,
-      topP,
-      maxOutputTokens,
-      responseFormat,
-      ollamaOptions
-    }), {
-      tools: ollamaTools,
-      toolChoice: ollamaToolChoice,
-      toolWarnings
-    } = prepareResponsesTools3({
-      tools,
-      toolChoice
     });
     return {
-      args: {
-        ...baseArgs,
-        tools: ollamaTools,
-        tool_choice: ollamaToolChoice
-      },
-      warnings: [...warnings, ...toolWarnings]
+      warnings,
+      embeddings: response.data.map((item) => item.embedding),
+      usage: response.usage ? { tokens: response.usage.prompt_tokens } : void 0,
+      providerMetadata: response.providerMetadata,
+      response: { headers: responseHeaders, body: rawValue }
     };
   }
-  collectUnsupportedSettingsWarnings({
-    topK,
-    seed,
-    presencePenalty,
-    frequencyPenalty,
-    stopSequences
-  }) {
-    let warnings = [], unsupportedSettings = [
-      { value: topK, name: "topK" },
-      { value: seed, name: "seed" },
-      { value: presencePenalty, name: "presencePenalty" },
-      { value: frequencyPenalty, name: "frequencyPenalty" },
-      { value: stopSequences, name: "stopSequences" }
-    ];
-    for (let { value, name: name24 } of unsupportedSettings)
-      if (value != null)
-        warnings.push({
-          type: "unsupported",
-          feature: "setting",
-          details: name24
-        });
-    return warnings;
-  }
-  async parseProviderOptions(providerOptions) {
-    let result = await parseProviderOptions({
-      provider: "ollama",
-      providerOptions,
-      schema: ollamaProviderOptions
-    });
-    return result != null ? result : null;
-  }
-  buildBaseArgs({
-    modelId,
-    prompt,
-    temperature,
-    topP,
-    maxOutputTokens,
-    responseFormat,
-    ollamaOptions
-  }) {
-    var _a24, _b16;
-    return {
-      model: modelId,
-      messages: convertToOllamaChatMessages({
-        prompt,
-        systemMessageMode: "system"
-      }),
-      temperature,
-      top_p: topP,
-      max_output_tokens: maxOutputTokens,
-      ...(responseFormat == null ? void 0 : responseFormat.type) === "json" && {
-        format: responseFormat.schema != null ? responseFormat.schema : "json"
-      },
-      think: (_a24 = ollamaOptions == null ? void 0 : ollamaOptions.think) != null ? _a24 : !1,
-      options: (_b16 = ollamaOptions == null ? void 0 : ollamaOptions.options) != null ? _b16 : void 0
-    };
-  }
-}, OllamaStreamProcessor = class {
-  constructor(config2) {
-    this.config = config2, this.state = this.initializeState();
-  }
-  createTransformStream(warnings, options) {
-    return new TransformStream({
-      transform: (chunk, controller) => {
-        this.processChunk(chunk, controller, options);
-      },
-      flush: (controller) => {
-        this.finalizeStream(controller);
-      }
-    });
-  }
-  initializeState() {
-    return {
-      finishReason: {
-        unified: "other",
-        raw: void 0
-      },
-      usage: {
-        inputTokens: {
-          total: void 0,
-          noCache: void 0,
-          cacheRead: void 0,
-          cacheWrite: void 0
-        },
-        outputTokens: {
-          total: void 0,
-          text: void 0,
-          reasoning: void 0
-        }
-      },
-      responseId: null,
-      ongoingToolCalls: {},
-      hasToolCalls: !1,
-      isFirstChunk: !0,
-      hasTextStarted: !1,
-      hasReasoningStarted: !1,
-      textEnded: !1,
-      reasoningEnded: !1,
-      textId: generateId(),
-      reasoningId: generateId()
-    };
-  }
-  processChunk(chunk, controller, options) {
-    if (options == null ? void 0 : options.includeRawChunks)
-      controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
-    let values = extractOllamaResponseObjectsFromChunk(chunk);
-    if (values.length === 0) {
-      if (!chunk.success)
-        this.state.finishReason = { unified: "error", raw: void 0 }, controller.enqueue({ type: "error", error: chunk.error });
-      return;
-    }
-    for (let value of values)
-      this.processResponseValue(value, controller);
-  }
-  processResponseValue(value, controller) {
-    if (value && typeof value === "object" && "error" in value) {
-      this.state.finishReason = { unified: "error", raw: void 0 }, controller.enqueue({ type: "error", error: value.error });
-      return;
-    }
-    if (this.state.isFirstChunk)
-      this.state.isFirstChunk = !1, controller.enqueue({
-        type: "response-metadata",
-        ...getResponseMetadata6(value)
-      });
-    if (value.done)
-      this.handleDoneChunk(value, controller);
-    let delta = value == null ? void 0 : value.message;
-    if (delta)
-      this.processDelta(delta, controller);
-  }
-  handleDoneChunk(value, controller) {
-    if (this.state.finishReason = mapOllamaFinishReason(value.done_reason), this.state.usage = {
-      inputTokens: {
-        total: value.prompt_eval_count || 0,
-        noCache: void 0,
-        cacheRead: void 0,
-        cacheWrite: void 0
-      },
-      outputTokens: {
-        total: value.eval_count || 0,
-        text: void 0,
-        reasoning: void 0
-      }
-    }, this.state.hasTextStarted && !this.state.textEnded)
-      controller.enqueue({ type: "text-end", id: this.state.textId }), this.state.textEnded = !0;
-    if (this.state.hasReasoningStarted && !this.state.reasoningEnded)
-      controller.enqueue({ type: "reasoning-end", id: this.state.reasoningId }), this.state.reasoningEnded = !0;
-  }
-  processDelta(delta, controller) {
-    this.processTextContent(delta, controller), this.processThinking(delta, controller), this.processToolCalls(delta, controller);
-  }
-  processTextContent(delta, controller) {
-    if ((delta == null ? void 0 : delta.content) != null) {
-      if (!this.state.hasTextStarted)
-        controller.enqueue({ type: "text-start", id: this.state.textId }), this.state.hasTextStarted = !0;
-      controller.enqueue({
-        type: "text-delta",
-        id: this.state.textId,
-        delta: delta.content
-      });
-    }
-  }
-  processThinking(delta, controller) {
-    if (delta == null ? void 0 : delta.thinking) {
-      if (!this.state.hasReasoningStarted)
-        controller.enqueue({
-          type: "reasoning-start",
-          id: this.state.reasoningId
-        }), this.state.hasReasoningStarted = !0;
-      controller.enqueue({
-        type: "reasoning-delta",
-        id: this.state.reasoningId,
-        delta: delta.thinking
-      });
-    }
-  }
-  processToolCalls(delta, controller) {
-    var _a24, _b16, _c, _d;
-    for (let toolCall of (_a24 = delta.tool_calls) != null ? _a24 : []) {
-      if (((_b16 = toolCall.function) == null ? void 0 : _b16.name) == null)
-        throw new InvalidResponseDataError({
-          data: toolCall,
-          message: "Expected 'function.name' to be a string."
-        });
-      if (((_c = toolCall.function) == null ? void 0 : _c.name) != null && ((_d = toolCall.function) == null ? void 0 : _d.arguments) != null)
-        this.emitToolCall(toolCall, controller);
-    }
-  }
-  emitToolCall(toolCall, controller) {
-    var _a24, _b16, _c, _d;
-    let id = (_d = (_c = toolCall.id) != null ? _c : (_b16 = (_a24 = this.config).generateId) == null ? void 0 : _b16.call(_a24)) != null ? _d : generateId();
-    controller.enqueue({
-      type: "tool-input-start",
-      id,
-      toolName: toolCall.function.name
-    }), controller.enqueue({
-      type: "tool-input-delta",
-      id,
-      delta: JSON.stringify(toolCall.function.arguments)
-    }), controller.enqueue({
-      type: "tool-input-end",
-      id
-    }), controller.enqueue({
-      type: "tool-call",
-      toolCallId: id,
-      toolName: toolCall.function.name,
-      input: JSON.stringify(toolCall.function.arguments)
-    }), this.state.hasToolCalls = !0;
-  }
-  finalizeStream(controller) {
-    if (this.state.hasTextStarted && !this.state.textEnded)
-      controller.enqueue({ type: "text-end", id: this.state.textId });
-    if (this.state.hasReasoningStarted && !this.state.reasoningEnded)
-      controller.enqueue({ type: "reasoning-end", id: this.state.reasoningId });
-    let correctedFinishReason = this.state.hasToolCalls && this.state.finishReason.unified !== "tool-calls" ? { unified: "tool-calls", raw: "tool_calls" } : this.state.finishReason;
-    controller.enqueue({
-      type: "finish",
-      finishReason: correctedFinishReason,
-      usage: this.state.usage,
-      providerMetadata: {
-        ollama: {
-          responseId: this.state.responseId
-        }
-      }
-    });
-  }
-}, OllamaResponsesLanguageModel = class {
+}, openaiTextEmbeddingResponseSchema2 = exports_external.object({
+  data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
+  usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish(),
+  providerMetadata: exports_external.record(exports_external.string(), exports_external.record(exports_external.string(), exports_external.any())).optional()
+}), OpenAICompatibleImageModel = class {
   constructor(modelId, config2) {
-    this.specificationVersion = "v3", this.defaultObjectGenerationMode = void 0, this.supportsImageUrls = !0, this.supportedUrls = {
-      "image/*": [/^https?:\/\/.*$/]
-    }, this.modelId = modelId, this.config = config2, this.provider = config2.provider, this.requestBuilder = new OllamaRequestBuilder, this.responseProcessor = new OllamaResponseProcessor(config2);
+    this.modelId = modelId, this.config = config2, this.specificationVersion = "v3", this.maxImagesPerCall = 10;
   }
-  async doGenerate(options) {
-    let { args: body, warnings } = await this.prepareRequest(options), {
-      responseHeaders,
-      value: response,
-      rawValue: rawResponse
-    } = await postJsonToApi({
+  get provider() {
+    return this.config.provider;
+  }
+  get providerOptionsKey() {
+    return this.config.provider.split(".")[0].trim();
+  }
+  getArgs(providerOptions) {
+    return {
+      ...providerOptions[this.providerOptionsKey],
+      ...providerOptions[toCamelCase(this.providerOptionsKey)]
+    };
+  }
+  async doGenerate({
+    prompt,
+    n,
+    size,
+    aspectRatio,
+    seed,
+    providerOptions,
+    headers,
+    abortSignal,
+    files,
+    mask
+  }) {
+    var _a24, _b16, _c, _d, _e;
+    let warnings = [];
+    if (aspectRatio != null)
+      warnings.push({
+        type: "unsupported",
+        feature: "aspectRatio",
+        details: "This model does not support aspect ratio. Use `size` instead."
+      });
+    if (seed != null)
+      warnings.push({ type: "unsupported", feature: "seed" });
+    let currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date, args = this.getArgs(providerOptions);
+    if (files != null && files.length > 0) {
+      let { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi({
+        url: this.config.url({
+          path: "/images/edits",
+          modelId: this.modelId
+        }),
+        headers: combineHeaders(this.config.headers(), headers),
+        formData: convertToFormData({
+          model: this.modelId,
+          prompt,
+          image: await Promise.all(files.map((file2) => fileToBlob2(file2))),
+          mask: mask != null ? await fileToBlob2(mask) : void 0,
+          n,
+          size,
+          ...args
+        }),
+        failedResponseHandler: createJsonErrorResponseHandler((_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure),
+        successfulResponseHandler: createJsonResponseHandler(openaiCompatibleImageResponseSchema),
+        abortSignal,
+        fetch: this.config.fetch
+      });
+      return {
+        images: response2.data.map((item) => item.b64_json),
+        warnings,
+        response: {
+          timestamp: currentDate,
+          modelId: this.modelId,
+          headers: responseHeaders2
+        }
+      };
+    }
+    let { value: response, responseHeaders } = await postJsonToApi({
       url: this.config.url({
-        path: "/chat",
+        path: "/images/generations",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body: { ...body, stream: !1 },
-      failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(baseOllamaResponseSchema2),
-      abortSignal: options.abortSignal,
+      headers: combineHeaders(this.config.headers(), headers),
+      body: {
+        model: this.modelId,
+        prompt,
+        n,
+        size,
+        ...args,
+        response_format: "b64_json"
+      },
+      failedResponseHandler: createJsonErrorResponseHandler((_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure),
+      successfulResponseHandler: createJsonResponseHandler(openaiCompatibleImageResponseSchema),
+      abortSignal,
       fetch: this.config.fetch
     });
     return {
-      ...this.responseProcessor.processGenerateResponse(response),
-      request: { body: JSON.stringify(body) },
+      images: response.data.map((item) => item.b64_json),
+      warnings,
       response: {
+        timestamp: currentDate,
         modelId: this.modelId,
-        timestamp: /* @__PURE__ */ new Date,
-        headers: responseHeaders,
-        body: rawResponse
-      },
-      warnings
+        headers: responseHeaders
+      }
+    };
+  }
+}, openaiCompatibleImageResponseSchema = exports_external.object({
+  data: exports_external.array(exports_external.object({ b64_json: exports_external.string() }))
+});
+async function fileToBlob2(file2) {
+  if (file2.type === "url")
+    return downloadBlob(file2.url);
+  let data = file2.data instanceof Uint8Array ? file2.data : convertBase64ToUint8Array(file2.data);
+  return new Blob([data], { type: file2.mediaType });
+}
+var VERSION8 = "2.0.51";
+function createOpenAICompatible(options) {
+  let baseURL = withoutTrailingSlash(options.baseURL), providerName = options.name, headers = {
+    ...options.apiKey && { Authorization: `Bearer ${options.apiKey}` },
+    ...options.headers
+  }, getHeaders = () => withUserAgentSuffix(headers, `ai-sdk/openai-compatible/${VERSION8}`), getCommonModelConfig = (modelType) => ({
+    provider: `${providerName}.${modelType}`,
+    url: ({ path }) => {
+      let url2 = new URL(`${baseURL}${path}`);
+      if (options.queryParams)
+        url2.search = new URLSearchParams(options.queryParams).toString();
+      return url2.toString();
+    },
+    headers: getHeaders,
+    fetch: options.fetch
+  }), createLanguageModel = (modelId) => createChatModel(modelId), createChatModel = (modelId) => new OpenAICompatibleChatLanguageModel(modelId, {
+    ...getCommonModelConfig("chat"),
+    includeUsage: options.includeUsage,
+    supportsStructuredOutputs: options.supportsStructuredOutputs,
+    supportedUrls: options.supportedUrls,
+    transformRequestBody: options.transformRequestBody,
+    metadataExtractor: options.metadataExtractor,
+    convertUsage: options.convertUsage
+  }), createCompletionModel = (modelId) => new OpenAICompatibleCompletionLanguageModel(modelId, {
+    ...getCommonModelConfig("completion"),
+    includeUsage: options.includeUsage
+  }), createEmbeddingModel = (modelId) => new OpenAICompatibleEmbeddingModel(modelId, {
+    ...getCommonModelConfig("embedding")
+  }), createImageModel = (modelId) => new OpenAICompatibleImageModel(modelId, getCommonModelConfig("image")), provider = (modelId) => createLanguageModel(modelId);
+  return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chatModel = createChatModel, provider.completionModel = createCompletionModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.imageModel = createImageModel, provider;
+}
+// node_modules/@ai-sdk/cerebras/dist/index.mjs
+function isStructuredOutputWithToolCallsFinishReason({
+  rawFinishReason,
+  hasText,
+  responseFormatType
+}) {
+  return responseFormatType === "json" && rawFinishReason === "tool_calls" && hasText;
+}
+var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel {
+  async doGenerate(options) {
+    var _a24;
+    let result = await super.doGenerate(options);
+    if (!isStructuredOutputWithToolCallsFinishReason({
+      rawFinishReason: result.finishReason.raw,
+      hasText: result.content.some((part) => part.type === "text" && part.text.length > 0),
+      responseFormatType: (_a24 = options.responseFormat) == null ? void 0 : _a24.type
+    }))
+      return result;
+    return {
+      ...result,
+      content: result.content.filter((part) => part.type !== "tool-call"),
+      finishReason: {
+        ...result.finishReason,
+        unified: "stop"
+      }
     };
   }
   async doStream(options) {
-    let { args: body, warnings } = await this.prepareRequest(options), { responseHeaders, value: response } = await postJsonToApi({
-      url: this.config.url({
-        path: "/chat",
-        modelId: this.modelId
-      }),
-      headers: combineHeaders(this.config.headers(), options.headers),
-      body: { ...body, stream: !0 },
-      failedResponseHandler: ollamaFailedResponseHandler,
-      successfulResponseHandler: createNdjsonStreamResponseHandler(baseOllamaResponseSchema2),
-      abortSignal: options.abortSignal,
-      fetch: this.config.fetch
-    }), streamProcessor = new OllamaStreamProcessor(this.config);
+    let result = await super.doStream(options), hasText = !1;
     return {
-      stream: response.pipeThrough(streamProcessor.createTransformStream(warnings, options)),
-      request: { body },
-      response: { headers: responseHeaders },
-      warnings
+      ...result,
+      stream: result.stream.pipeThrough(new TransformStream({
+        transform(part, controller) {
+          var _a24, _b16;
+          if (part.type === "text-delta" && part.delta.length > 0)
+            hasText = !0;
+          if (part.type === "finish" && isStructuredOutputWithToolCallsFinishReason({
+            rawFinishReason: part.finishReason.raw,
+            hasText,
+            responseFormatType: (_a24 = options.responseFormat) == null ? void 0 : _a24.type
+          })) {
+            controller.enqueue({
+              ...part,
+              finishReason: {
+                ...part.finishReason,
+                unified: "stop"
+              }
+            });
+            return;
+          }
+          if (((_b16 = options.responseFormat) == null ? void 0 : _b16.type) === "json" && hasText && (part.type === "tool-input-start" || part.type === "tool-input-delta" || part.type === "tool-input-end" || part.type === "tool-call"))
+            return;
+          controller.enqueue(part);
+        }
+      }))
     };
   }
-  async prepareRequest(options) {
-    return await this.requestBuilder.buildRequest({
-      modelId: this.modelId,
-      ...options
-    });
-  }
+}, VERSION9 = "2.0.57", cerebrasErrorSchema = exports_external.object({
+  message: exports_external.string(),
+  type: exports_external.string(),
+  param: exports_external.string(),
+  code: exports_external.string()
+}), cerebrasErrorStructure = {
+  errorSchema: cerebrasErrorSchema,
+  errorToMessage: (data) => data.message
 };
-function createOllama(options = {}) {
-  var _a24, _b16;
-  let baseURL = (_a24 = withoutTrailingSlash(options.baseURL)) != null ? _a24 : "http://127.0.0.1:11434/api", providerName = (_b16 = options.name) != null ? _b16 : "ollama", getHeaders = () => ({
-    "Ollama-Organization": options.organization,
-    "Ollama-Project": options.project,
+function transformCerebrasRequestBody(args) {
+  return {
+    ...args,
+    messages: Array.isArray(args.messages) ? args.messages.map((message) => {
+      if (message == null || typeof message !== "object" || message.role !== "assistant" || !("reasoning_content" in message))
+        return message;
+      let { reasoning_content, ...rest } = message;
+      return {
+        ...rest,
+        ...!("reasoning" in rest) && reasoning_content !== void 0 ? { reasoning: reasoning_content } : {}
+      };
+    }) : args.messages
+  };
+}
+function createCerebras(options = {}) {
+  var _a24;
+  let baseURL = withoutTrailingSlash((_a24 = options.baseURL) != null ? _a24 : "https://api.cerebras.ai/v1"), getHeaders = () => withUserAgentSuffix({
+    Authorization: `Bearer ${loadApiKey({
+      apiKey: options.apiKey,
+      environmentVariableName: "CEREBRAS_API_KEY",
+      description: "Cerebras API key"
+    })}`,
     ...options.headers
-  }), createCompletionModel = (modelId, settings = {}) => new OllamaCompletionLanguageModel(modelId, settings, {
-    provider: `${providerName}.completion`,
-    url: ({ path }) => `${baseURL}${path}`,
-    headers: getHeaders,
-    fetch: options.fetch
-  }), createEmbeddingModel = (modelId, settings = {}) => new OllamaEmbeddingModel(modelId, settings, {
-    provider: `${providerName}.embedding`,
-    url: ({ path }) => `${baseURL}${path}`,
-    headers: getHeaders,
-    fetch: options.fetch
-  });
-  function createLanguageModel(modelId) {
-    if (new.target)
-      throw Error("The Ollama model function cannot be called with the new keyword.");
-    return createResponsesModel(modelId);
-  }
-  let createResponsesModel = (modelId) => {
-    return new OllamaResponsesLanguageModel(modelId, {
-      provider: `${providerName}.responses`,
+  }, `ai-sdk/cerebras/${VERSION9}`), createLanguageModel = (modelId) => {
+    return new CerebrasChatLanguageModel(modelId, {
+      provider: "cerebras.chat",
       url: ({ path }) => `${baseURL}${path}`,
       headers: getHeaders,
-      fetch: options.fetch
+      fetch: options.fetch,
+      errorStructure: cerebrasErrorStructure,
+      supportsStructuredOutputs: !0,
+      transformRequestBody: transformCerebrasRequestBody
     });
-  }, provider = function(modelId) {
-    if (new.target)
-      throw Error("The Ollama model function cannot be called with the new keyword.");
-    return createLanguageModel(modelId);
-  };
-  return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chat = createLanguageModel, provider.completion = createCompletionModel, provider.embedding = createEmbeddingModel, provider.textEmbedding = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.embeddingModel = createEmbeddingModel, provider.imageModel = (modelId) => {
-    throw new NoSuchModelError({
-      modelId,
-      modelType: "imageModel",
-      message: "Image generation is unsupported with Ollama"
-    });
+  }, provider = (modelId) => createLanguageModel(modelId);
+  return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chat = createLanguageModel, provider.embeddingModel = (modelId) => {
+    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
+  }, provider.textEmbeddingModel = provider.embeddingModel, provider.imageModel = (modelId) => {
+    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
   }, provider;
 }
-var ollama = createOllama();
+var cerebras = createCerebras();
 export {
   exports_external as z,
   tool,
   streamText,
   stepCountIs,
   generateText,
-  createPerplexity,
+  createOpenAICompatible,
   createOpenAI,
-  createOllama,
-  createMistral,
-  xai as createGrok,
   createGoogleGenerativeAI,
   createCerebras,
   createAnthropic,
