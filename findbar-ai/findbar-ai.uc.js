@@ -518,12 +518,13 @@ export const browseBotFindbar = {
 <div class="tool-call-status" data-tool-name="${toolName}" data-status="${status}">
   <span class="tool-call-icon">${icons[status] || ""}</span>
   <span class="tool-call-name">${friendlyName}</span>
+  ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(errorMsg)}</span>` : ""}
+  ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}
 </div>
 `);
 
     container.appendChild(toolDiv);
 
-    // toolDiv.dataset.status = status;
     let title = friendlyName;
     if (status === "error" && errorMsg) {
       title += `\nError: ${errorMsg}`;
@@ -543,6 +544,7 @@ export const browseBotFindbar = {
     this.expanded = true;
 
     this.addChatMessage({ role: "user", content: prompt });
+
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
 
     this._abortController = new AbortController();
@@ -610,6 +612,7 @@ export const browseBotFindbar = {
             contentDiv.innerHTML = parseMD(fullText, false);
           } catch (e) {
             PREFS.debugError("innerHTML assignment failed:", e.message);
+            contentDiv.textContent = fullText + "\n\n[Error rendering markdown]";
           }
           setTimeout(() => this._updateFindbarDimensions(), 0);
           if (messagesContainer) {
@@ -629,7 +632,11 @@ export const browseBotFindbar = {
         this.addChatMessage({ role: "error", content: `**Error**: ${e.message}` });
       } else {
         PREFS.debugLog("Streaming aborted by user.");
-        if (aiMessageDiv) aiMessageDiv.remove();
+        if (contentDiv && contentDiv.textContent.trim()) {
+          contentDiv.appendChild(parseMD("_Stopped_"));
+        } else if (aiMessageDiv) {
+          aiMessageDiv.remove();
+        }
       }
     } finally {
       this._toggleStreamingControls(false);

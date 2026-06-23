@@ -695,6 +695,15 @@ browser {
           color: var(--browse-bot-error);
         }
 
+        .tool-call-error {
+          display: block;
+          font-size: 12px;
+          font-weight: 400;
+          opacity: 0.85;
+          margin-top: 2px;
+          word-break: break-word;
+        }
+
         &[data-status="declined"] {
           background-color: var(--browse-bot-warning-bg);
           color: var(--browse-bot-warning);

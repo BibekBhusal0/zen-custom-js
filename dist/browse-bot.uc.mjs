@@ -2515,6 +2515,8 @@ var browseBotFindbar = {
 <div class="tool-call-status" data-tool-name="${toolName}" data-status="${status}">
   <span class="tool-call-icon">${icons[status] || ""}</span>
   <span class="tool-call-name">${friendlyName}</span>
+  ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(errorMsg)}</span>` : ""}
+  ${status === "declined" ? '<span class="tool-call-error">Declined by user</span>' : ""}
 </div>
 `);
     container.appendChild(toolDiv);
@@ -2574,7 +2576,9 @@ Declined by user.`;
           try {
             contentDiv.innerHTML = parseMD(fullText, !1);
           } catch (e) {
-            PREFS2.debugError("innerHTML assignment failed:", e.message);
+            PREFS2.debugError("innerHTML assignment failed:", e.message), contentDiv.textContent = fullText + `
+
+[Error rendering markdown]`;
           }
           if (setTimeout(() => this._updateFindbarDimensions(), 0), messagesContainer)
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -2589,7 +2593,9 @@ Declined by user.`;
         if (PREFS2.debugError("Error sending message:", e), aiMessageDiv)
           aiMessageDiv.remove();
         this.addChatMessage({ role: "error", content: `**Error**: ${e.message}` });
-      } else if (PREFS2.debugLog("Streaming aborted by user."), aiMessageDiv)
+      } else if (PREFS2.debugLog("Streaming aborted by user."), contentDiv && contentDiv.textContent.trim())
+        contentDiv.appendChild(parseMD("_Stopped_"));
+      else if (aiMessageDiv)
         aiMessageDiv.remove();
     } finally {
       this._toggleStreamingControls(!1), this._abortController = null, this._removeToolCallUI(), this._currentAIMessageDiv = null;
