@@ -51,6 +51,9 @@ class BrowseBotPREFS extends BasePREFS {
   static CEREBRAS_MODEL = "extension.browse-bot.cerebras-model";
   static OLLAMA_MODEL = "extension.browse-bot.ollama-model";
   static OLLAMA_BASE_URL = "extension.browse-bot.ollama-base-url";
+  static CUSTOM_API_KEY = "extension.browse-bot.custom-api-key";
+  static CUSTOM_MODEL = "extension.browse-bot.custom-model";
+  static CUSTOM_BASE_URL = "extension.browse-bot.custom-base-url";
 
   static LLM_TEMPERATURE = "extension.browse-bot.llm.temperature";
   static LLM_TOP_P = "extension.browse-bot.llm.top-p";
@@ -96,6 +99,9 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.CEREBRAS_MODEL]: "llama3.1-8b",
     [BrowseBotPREFS.OLLAMA_MODEL]: "llama2",
     [BrowseBotPREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
+    [BrowseBotPREFS.CUSTOM_API_KEY]: "",
+    [BrowseBotPREFS.CUSTOM_MODEL]: "",
+    [BrowseBotPREFS.CUSTOM_BASE_URL]: "",
     [BrowseBotPREFS.DND_ENABLED]: true,
     [BrowseBotPREFS.POSITION]: "top-right",
     [BrowseBotPREFS.REMEMBER_DIMENSIONS]: true,

@@ -140,6 +140,9 @@ class BrowseBotPREFS extends PREFS {
   static CEREBRAS_MODEL = "extension.browse-bot.cerebras-model";
   static OLLAMA_MODEL = "extension.browse-bot.ollama-model";
   static OLLAMA_BASE_URL = "extension.browse-bot.ollama-base-url";
+  static CUSTOM_API_KEY = "extension.browse-bot.custom-api-key";
+  static CUSTOM_MODEL = "extension.browse-bot.custom-model";
+  static CUSTOM_BASE_URL = "extension.browse-bot.custom-base-url";
   static LLM_TEMPERATURE = "extension.browse-bot.llm.temperature";
   static LLM_TOP_P = "extension.browse-bot.llm.top-p";
   static LLM_TOP_K = "extension.browse-bot.llm.top-k";
@@ -180,6 +183,9 @@ class BrowseBotPREFS extends PREFS {
     [BrowseBotPREFS.CEREBRAS_MODEL]: "llama3.1-8b",
     [BrowseBotPREFS.OLLAMA_MODEL]: "llama2",
     [BrowseBotPREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
+    [BrowseBotPREFS.CUSTOM_API_KEY]: "",
+    [BrowseBotPREFS.CUSTOM_MODEL]: "",
+    [BrowseBotPREFS.CUSTOM_BASE_URL]: "",
     [BrowseBotPREFS.DND_ENABLED]: !0,
     [BrowseBotPREFS.POSITION]: "top-right",
     [BrowseBotPREFS.REMEMBER_DIMENSIONS]: !0,
@@ -746,19 +752,28 @@ var SettingsModal = {
     if (placeholder)
       placeholder.replaceWith(providerSelectorXulElement);
     for (let [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
-      let { modelPref: modelPrefKey, model: currentModel } = provider, modelOptionsXUL = provider.AVAILABLE_MODELS.map((model) => `<menuitem
-              value="${model}"
-              label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
-              ${model === currentModel ? 'selected="true"' : ""}
-            />`).join(""), modelMenulistXul = `
-          <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${currentModel}">
-            <menupopup>
-              ${modelOptionsXUL}
-            </menupopup>
-          </menulist>`, modelPlaceholder = this._modalElement.querySelector(`#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`);
+      let { modelPref: modelPrefKey, model: currentModel } = provider, modelPlaceholder = this._modalElement.querySelector(`#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`);
       if (modelPlaceholder) {
-        let modelSelectorXulElement = parseElement(modelMenulistXul, "xul");
-        modelPlaceholder.replaceWith(modelSelectorXulElement);
+        let modelSelectorElement;
+        if (name === "custom") {
+          let modelInputHtml = `
+            <input type="text" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
+          `;
+          modelSelectorElement = parseElement(modelInputHtml, "html");
+        } else {
+          let modelOptionsXUL = provider.AVAILABLE_MODELS.map((model) => `<menuitem
+                  value="${model}"
+                  label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
+                  ${model === currentModel ? 'selected="true"' : ""}
+                />`).join(""), modelMenulistXul = `
+              <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${currentModel}">
+                <menupopup>
+                  ${modelOptionsXUL}
+                </menupopup>
+              </menulist>`;
+          modelSelectorElement = parseElement(modelMenulistXul, "xul");
+        }
+        modelPlaceholder.replaceWith(modelSelectorElement);
       }
     }
     return this._attachEventListeners(), container;
@@ -1052,7 +1067,19 @@ var SettingsModal = {
           <input type="text" id="pref-ollama-base-url" data-pref="${PREFS2.OLLAMA_BASE_URL}" placeholder="http://localhost:11434/api" />
         </div>
       `;
-      else {
+      else if (name === "custom") {
+        let baseUrlPrefKey = PREFS2.CUSTOM_BASE_URL, apiPrefKey = PREFS2.CUSTOM_API_KEY;
+        apiInputHtml = `
+        <div class="setting-item">
+          <label for="pref-custom-base-url">Base URL</label>
+          <input type="text" id="pref-custom-base-url" data-pref="${baseUrlPrefKey}" placeholder="https://api.your-provider.com/v1" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-custom-api-key">API Key</label>
+          <input type="password" id="pref-custom-api-key" data-pref="${apiPrefKey}" placeholder="Enter Custom API Key" />
+        </div>
+      `;
+      } else {
         let apiPrefKey = PREFS2[`${name.toUpperCase()}_API_KEY`];
         apiInputHtml = apiPrefKey ? `
         <div class="setting-item">
@@ -1085,6 +1112,7 @@ var SettingsModal = {
             <div class="reset-section-btn" data-reset-prefs="${[
       PREFS2.LLM_PROVIDER,
       PREFS2.OLLAMA_BASE_URL,
+      PREFS2.CUSTOM_BASE_URL,
       ...Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS).flatMap((p) => [p.modelPref, PREFS2[`${p.name.toUpperCase()}_API_KEY`]]).filter(Boolean)
     ].join(",")}" title="Reset Section" role="button">
                 <img src="chrome://global/skin/icons/reload.svg" />
@@ -3094,7 +3122,10 @@ var providerPrototype = {
     return prefs_default.getPref(this.modelPref);
   },
   set model(v) {
-    if (this.AVAILABLE_MODELS.includes(v))
+    if (!this.AVAILABLE_MODELS) {
+      if (typeof v === "string" && this.modelPref)
+        prefs_default.setPref(this.modelPref, v);
+    } else if (this.AVAILABLE_MODELS.includes(v))
       prefs_default.setPref(this.modelPref, v);
   },
   getModel() {
@@ -3464,7 +3495,25 @@ var providerPrototype = {
     return;
   },
   create: createOpenAICompatible
-});
+}), custom = Object.create(providerPrototype, Object.getOwnPropertyDescriptors({
+  name: "custom",
+  label: "Custom Provider (OpenAI Compatible)",
+  faviconUrl: "chrome://global/skin/icons/settings.svg",
+  apiKeyUrl: "",
+  modelPref: prefs_default.CUSTOM_MODEL,
+  apiPref: prefs_default.CUSTOM_API_KEY,
+  get model() {
+    return prefs_default.getPref(this.modelPref) || "";
+  },
+  set model(v) {
+    if (typeof v === "string")
+      prefs_default.setPref(this.modelPref, v);
+  },
+  get baseURL() {
+    return prefs_default.getPref(prefs_default.CUSTOM_BASE_URL) || "";
+  },
+  create: createOpenAICompatible
+}));
 
 // findbar-ai/llm/index.js
 var citationSchema = z2.object({
@@ -3485,7 +3534,8 @@ class LLM {
       ollama,
       openai,
       perplexity,
-      cerebras
+      cerebras,
+      custom
     };
   }
   get llmProvider() {

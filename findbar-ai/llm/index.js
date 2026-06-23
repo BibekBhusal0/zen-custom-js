@@ -9,6 +9,7 @@ import {
   openai,
   perplexity,
   cerebras,
+  custom,
 } from "./providers.js";
 import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
@@ -51,6 +52,7 @@ class LLM {
       openai: openai,
       perplexity: perplexity,
       cerebras: cerebras,
+      custom: custom,
     };
   }
 

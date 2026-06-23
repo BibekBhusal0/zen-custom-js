@@ -109,28 +109,35 @@ export const SettingsModal = {
       const modelPrefKey = provider.modelPref;
       const currentModel = provider.model;
 
-      const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
-        (model) =>
-          `<menuitem
-              value="${model}"
-              label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
-              ${model === currentModel ? 'selected="true"' : ""}
-            />`
-      ).join("");
-
-      const modelMenulistXul = `
-          <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${currentModel}">
-            <menupopup>
-              ${modelOptionsXUL}
-            </menupopup>
-          </menulist>`;
-
       const modelPlaceholder = this._modalElement.querySelector(
         `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`
       );
       if (modelPlaceholder) {
-        const modelSelectorXulElement = parseElement(modelMenulistXul, "xul");
-        modelPlaceholder.replaceWith(modelSelectorXulElement);
+        let modelSelectorElement;
+        if (name === "custom") {
+          const modelInputHtml = `
+            <input type="text" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
+          `;
+          modelSelectorElement = parseElement(modelInputHtml, "html");
+        } else {
+          const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
+            (model) =>
+              `<menuitem
+                  value="${model}"
+                  label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
+                  ${model === currentModel ? 'selected="true"' : ""}
+                />`
+          ).join("");
+
+          const modelMenulistXul = `
+              <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${currentModel}">
+                <menupopup>
+                  ${modelOptionsXUL}
+                </menupopup>
+              </menulist>`;
+          modelSelectorElement = parseElement(modelMenulistXul, "xul");
+        }
+        modelPlaceholder.replaceWith(modelSelectorElement);
       }
     }
 
@@ -627,6 +634,19 @@ export const SettingsModal = {
           <input type="text" id="pref-ollama-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
         </div>
       `;
+      } else if (name === "custom") {
+        const baseUrlPrefKey = PREFS.CUSTOM_BASE_URL;
+        const apiPrefKey = PREFS.CUSTOM_API_KEY;
+        apiInputHtml = `
+        <div class="setting-item">
+          <label for="pref-custom-base-url">Base URL</label>
+          <input type="text" id="pref-custom-base-url" data-pref="${baseUrlPrefKey}" placeholder="https://api.your-provider.com/v1" />
+        </div>
+        <div class="setting-item">
+          <label for="pref-custom-api-key">API Key</label>
+          <input type="password" id="pref-custom-api-key" data-pref="${apiPrefKey}" placeholder="Enter Custom API Key" />
+        </div>
+      `;
       } else {
         const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
         apiInputHtml = apiPrefKey
@@ -664,6 +684,7 @@ export const SettingsModal = {
     const llmProvidersResetPrefs = [
       PREFS.LLM_PROVIDER,
       PREFS.OLLAMA_BASE_URL,
+      PREFS.CUSTOM_BASE_URL,
       ...Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
         .flatMap((p) => [p.modelPref, PREFS[`${p.name.toUpperCase()}_API_KEY`]])
         .filter(Boolean),
