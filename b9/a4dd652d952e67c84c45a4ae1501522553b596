@@ -1,0 +1,19 @@
+findbar-ai/release-notes.md
+  s_9ff373f8359d3f::t_f7472532daf8aa 2,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.11",
+  "base_commit_sha": "b9a4dd652d952e67c84c45a4ae1501522553b596",
+  "prompts": {},
+  "sessions": {
+    "s_9ff373f8359d3f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10a5e90a0ffeGLhwFqikydm25k",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
