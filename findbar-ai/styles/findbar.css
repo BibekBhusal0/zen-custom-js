@@ -540,6 +540,7 @@ browser {
         position: relative;
         display: flex;
         flex-direction: column;
+        user-select: text;
       }
 
       .chat-message-user {
@@ -554,6 +555,10 @@ browser {
       .chat-message-ai {
         max-width: calc(100% - 15px) !important;
         align-self: flex-start;
+
+        .message-content {
+          user-select: text;
+        }
       }
 
       .chat-message-error {
