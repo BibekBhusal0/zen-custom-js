@@ -49,7 +49,8 @@
     "toggle-sidebar": "Ctrl+Alt+A",
     "toggle-toolbar": "Ctrl+Alt+T",
     "unload-other-tabs": "Ctrl+Alt+U",
-    "unload-tab": "Alt+U"
+    "unload-tab": "Alt+U",
+    "cmd_zenTogglePinTab": "Ctrl+P"
   },
   "toolbarButtons": [],
   "customCommands": [
