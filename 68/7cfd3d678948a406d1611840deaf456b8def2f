@@ -1,0 +1,20 @@
+findbar-ai/styles/findbar.css
+  s_9ff373f8359d3f::t_ad5a3126adfd33 543
+  s_9ff373f8359d3f::t_f9bf092585d413 558-561
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.11",
+  "base_commit_sha": "687cfd3d678948a406d1611840deaf456b8def2f",
+  "prompts": {},
+  "sessions": {
+    "s_9ff373f8359d3f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_10a5e90a0ffeGLhwFqikydm25k",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
