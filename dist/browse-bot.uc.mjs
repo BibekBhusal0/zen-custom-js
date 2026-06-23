@@ -2470,8 +2470,12 @@ var browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="password" id="api-key" placeholder="Enter your API key" />
-              <button id="save-api-key">Save</button>
+              <input type="text" id="custom-base-url" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" style="display: none;" />
+              <input type="text" id="custom-model-name" placeholder="Enter Model Name (e.g. deepseek-chat)" style="display: none" />
+              <div style="display: flex; gap: 8px; width: 100%;">
+                <input type="password" id="api-key" placeholder="Enter your API key" />
+                <button id="save-api-key">Save</button>
+              </div>
             </div>
             <div class="api-key-links">
               <button id="get-api-key-link">Get API Key</button>
@@ -2486,8 +2490,12 @@ var browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="password" id="api-key" placeholder="Enter your API key" />
-              <button id="save-api-key">Save</button>
+              <input type="text" id="custom-base-url" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" style="display: none;" />
+              <input type="text" id="custom-model-name" placeholder="Enter Model Name (e.g. deepseek-chat)" style="display: none" />
+              <div style="display: flex; gap: 8px; width: 100%;">
+                <input type="password" id="api-key" placeholder="Enter your API key" />
+                <button id="save-api-key">Save</button>
+              </div>
             </div>
             <div class="api-key-links">
               <button id="get-api-key-link">Get API Key</button>
@@ -2496,11 +2504,23 @@ var browseBotFindbar = {
         </div>`);
     container.querySelector(".provider-selection-group").appendChild(providerSelectorXulElement);
     let providerSelector = container.querySelector("#provider-selector"), input = container.querySelector("#api-key"), saveBtn = container.querySelector("#save-api-key"), getApiKeyLink = container.querySelector("#get-api-key-link"), description = container.querySelector(".ai-setup-content").querySelector("p"), updateUIForProvider = (providerName) => {
-      let provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[providerName];
-      if (providerName === "ollama")
-        description.textContent = "Ollama is selected. You can customize the Base URL below or use the default.", input.type = "text", input.placeholder = "Enter Ollama Base URL", input.value = PREFS2.ollamaBaseUrl || "", getApiKeyLink.style.display = "none";
-      else
-        description.textContent = "To use AI features, you need to set up your API key and select a provider.", input.type = "password", input.placeholder = "Enter your API key", input.value = provider.apiKey || "", getApiKeyLink.style.display = provider.apiKeyUrl ? "inline-block" : "none", getApiKeyLink.disabled = !provider.apiKeyUrl, getApiKeyLink.title = provider.apiKeyUrl ? "Get API Key" : "No API key link available for this provider.";
+      let provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[providerName], customBaseUrlInput = container.querySelector("#custom-base-url"), customModelNameInput = container.querySelector("#custom-model-name");
+      if (providerName === "ollama") {
+        if (description.textContent = "Ollama is selected. You can customize the Base URL below or use the default.", input.type = "text", input.placeholder = "Enter Ollama Base URL", input.value = PREFS2.ollamaBaseUrl || "", getApiKeyLink.style.display = "none", customBaseUrlInput)
+          customBaseUrlInput.style.display = "none";
+        if (customModelNameInput)
+          customModelNameInput.style.display = "none";
+      } else if (providerName === "custom") {
+        if (description.textContent = "Custom Provider is selected. Please enter the API Endpoint, Model name, and your API Key.", input.type = "password", input.placeholder = "Enter your API key", input.value = PREFS2.getPref(PREFS2.CUSTOM_API_KEY) || "", getApiKeyLink.style.display = "none", customBaseUrlInput)
+          customBaseUrlInput.style.display = "block", customBaseUrlInput.value = PREFS2.getPref(PREFS2.CUSTOM_BASE_URL) || "";
+        if (customModelNameInput)
+          customModelNameInput.style.display = "block", customModelNameInput.value = PREFS2.getPref(PREFS2.CUSTOM_MODEL) || "";
+      } else {
+        if (description.textContent = "To use AI features, you need to set up your API key and select a provider.", input.type = "password", input.placeholder = "Enter your API key", input.value = provider.apiKey || "", getApiKeyLink.style.display = provider.apiKeyUrl ? "inline-block" : "none", getApiKeyLink.disabled = !provider.apiKeyUrl, getApiKeyLink.title = provider.apiKeyUrl ? "Get API Key" : "No API key link available for this provider.", customBaseUrlInput)
+          customBaseUrlInput.style.display = "none";
+        if (customModelNameInput)
+          customModelNameInput.style.display = "none";
+      }
     };
     return updateUIForProvider(currentProviderName), providerSelector.addEventListener("command", (e) => {
       let selectedProviderName = e.target.value;
@@ -2508,10 +2528,19 @@ var browseBotFindbar = {
     }), getApiKeyLink.addEventListener("click", () => {
       openTrustedLinkIn(browseBotFindbarLLM.currentProvider.apiKeyUrl, "tab");
     }), saveBtn.addEventListener("click", () => {
-      let value = input.value.trim();
-      if (browseBotFindbarLLM.currentProvider.name === "ollama") {
+      let value = input.value.trim(), providerName = browseBotFindbarLLM.currentProvider.name;
+      if (providerName === "ollama") {
         if (value)
           PREFS2.ollamaBaseUrl = value;
+        this.showAIInterface();
+      } else if (providerName === "custom") {
+        let customBaseUrlInput = container.querySelector("#custom-base-url"), customModelNameInput = container.querySelector("#custom-model-name"), endpoint = customBaseUrlInput ? customBaseUrlInput.value.trim() : "", model = customModelNameInput ? customModelNameInput.value.trim() : "";
+        if (endpoint)
+          PREFS2.setPref(PREFS2.CUSTOM_BASE_URL, endpoint);
+        if (model)
+          PREFS2.setPref(PREFS2.CUSTOM_MODEL, model);
+        if (value)
+          PREFS2.setPref(PREFS2.CUSTOM_API_KEY, value);
         this.showAIInterface();
       } else if (value)
         browseBotFindbarLLM.currentProvider.apiKey = value, this.showAIInterface();
