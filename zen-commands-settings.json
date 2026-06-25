@@ -41,7 +41,7 @@
     "custom:transparency": "Ctrl+Alt+Shift+T",
     "duplicate-tab": "Alt+D",
     "key_browserConsole": "Ctrl+Shift+K",
-    "key_webConsole": "Ctrl+Shift+J",
+    "key_webconsole": "Ctrl+Shift+J",
     "move-tab-down": "Ctrl+Alt+J",
     "move-tab-up": "Ctrl+Alt+K",
     "rename-tab": "Ctrl+Alt+R",
