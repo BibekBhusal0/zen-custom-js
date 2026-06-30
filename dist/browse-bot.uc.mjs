@@ -839,6 +839,53 @@ var SettingsModal = {
       }), input.addEventListener("keydown", (e) => {
         e.preventDefault(), e.stopPropagation();
       });
+    });
+    let modelInput = this._modalElement.querySelector("#pref-custom-model");
+    if (modelInput)
+      modelInput.addEventListener("input", () => {
+        modelInput.classList.remove("verify-success", "verify-error");
+        let statusEl = this._modalElement.querySelector('[data-verify-status="custom"]');
+        if (statusEl)
+          statusEl.className = "verify-model-status", statusEl.textContent = "";
+      });
+    this._modalElement.querySelectorAll(".verify-model-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        let provider = btn.dataset.verifyModel, statusEl = this._modalElement.querySelector(`[data-verify-status="${provider}"]`), modelInput2 = this._modalElement.querySelector("#pref-custom-model");
+        if (!statusEl)
+          return;
+        let baseUrl = this._currentPrefValues[PREFS2.CUSTOM_BASE_URL] || "", model = this._currentPrefValues[PREFS2.CUSTOM_MODEL] || "", apiKey = this._currentPrefValues[PREFS2.CUSTOM_API_KEY] || "", setError = (msg) => {
+          if (statusEl.textContent = msg, statusEl.className = "verify-model-status error", modelInput2)
+            modelInput2.classList.remove("verify-success"), modelInput2.classList.add("verify-error");
+        };
+        if (!baseUrl) {
+          setError("Enter a base URL first");
+          return;
+        }
+        if (!model) {
+          setError("Enter a model name");
+          return;
+        }
+        if (statusEl.textContent = "Verifying...", statusEl.className = "verify-model-status", modelInput2)
+          modelInput2.classList.remove("verify-success", "verify-error");
+        btn.disabled = !0;
+        try {
+          let url = `${baseUrl.replace(/\/+$/, "")}/models/${encodeURIComponent(model)}`, headers = { "Content-Type": "application/json" };
+          if (apiKey)
+            headers.Authorization = `Bearer ${apiKey}`;
+          let response = await fetch(url, { headers });
+          if (response.ok) {
+            if (statusEl.textContent = `Model "${model}" exists`, statusEl.className = "verify-model-status success", modelInput2)
+              modelInput2.classList.add("verify-success"), modelInput2.classList.remove("verify-error");
+          } else if (response.status === 404)
+            setError(`Model "${model}" not found`);
+          else
+            setError(`Error: ${response.status}`);
+        } catch {
+          setError("Connection failed");
+        } finally {
+          btn.disabled = !1;
+        }
+      });
     }), this._updateProviderSpecificSettings(this._modalElement, PREFS2.llmProvider), this._modalElement.querySelectorAll(".reset-section-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation(), btn.dataset.resetPrefs.split(",").forEach((prefKey) => {
@@ -1089,9 +1136,13 @@ var SettingsModal = {
       ` : "";
       }
       let modelSelectPlaceholderHtml = modelPrefKey ? `
-        <div class="setting-item">
+        <div class="setting-item" data-provider-model="${name}">
           <label for="pref-${this._getSafeIdForProvider(name)}-model">Model</label>
-          <div id="llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}"></div>
+          <div class="model-input-row">
+            <div id="llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}"></div>
+            ${name === "custom" ? '<button class="verify-model-btn" data-verify-model="custom">Verify</button>' : ""}
+          </div>
+          ${name === "custom" ? '<span class="verify-model-status" data-verify-status="custom"></span>' : ""}
         </div>
       ` : "";
       llmProviderSettingsHtml += `
