@@ -97,6 +97,7 @@
 
       .setting-item {
         display: flex;
+        position: relative;
         justify-content: space-between;
         align-items: center;
         padding: 8px 0;
@@ -447,6 +448,51 @@ findbar,
     &::placeholder {
       font-style: italic !important;
       opacity: 0.7 !important;
+    }
+  }
+
+  .model-input-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex-grow: 1 !important;
+
+    input {
+      flex: 1 !important;
+      min-width: 0 !important;
+
+      &.verify-success {
+        border-color: #4caf50 !important;
+      }
+
+      &.verify-error {
+        border-color: #f44336 !important;
+      }
+    }
+  }
+
+  .verify-model-btn {
+    font-size: 12px !important;
+    min-width: auto !important;
+    padding: 10px 12px !important;
+    white-space: nowrap !important;
+  }
+
+  [data-verify-status] {
+    position: absolute !important;
+    top:44px !important;
+    left:115px !important;
+    display: block !important;
+    font-size: 11px !important;
+    margin-top: 4px !important;
+    text-align: right !important;
+
+    &.verify-model-status.success {
+      color: #4caf50 !important;
+    }
+
+    &.verify-model-status.error {
+      color: #f44336 !important;
     }
   }
 }
