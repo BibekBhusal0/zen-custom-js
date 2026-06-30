@@ -52,9 +52,7 @@
     "unload-tab": "Alt+U",
     "cmd_zenTogglePinTab": "Ctrl+P"
   },
-  "toolbarButtons": [
-    "toggle-zen-library"
-  ],
+  "toolbarButtons": ["toggle-zen-library"],
   "customCommands": [
     {
       "type": "chain",
