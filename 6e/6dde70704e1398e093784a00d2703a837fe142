@@ -1,0 +1,27 @@
+findbar-ai/settings.js
+  s_ea43410ff048df::t_fe45086a6af3b3 744-745,747
+  s_ea43410ff048df::t_0587aca4896b62 281,288-289,291-298,302,308-310,321,323-326,328,330,333
+  s_ea43410ff048df::t_21843d756bc0d8 263-274
+  s_ea43410ff048df::t_f4b8154f4921b9 275-280,282-287,290,299-301,303-307,311-320,322,327,329,331-332,334-339
+  s_ea43410ff048df::t_ebca467dd578b0 742,746,748
+findbar-ai/styles/settings.css
+  s_ea43410ff048df::t_78ccc26ea5f7b3 463-470,481-485,487-488,490,494
+  s_ea43410ff048df::t_c70486308e9136 477
+  s_ea43410ff048df::t_c78e6bb5b081c0 453-462,471-476,478-480,486,489,491-493,495-497
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "6e6dde70704e1398e093784a00d2703a837fe142",
+  "prompts": {},
+  "sessions": {
+    "s_ea43410ff048df": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0e6f8f88fffeFySN8pOdWAKKg3",
+        "model": "big-pickle"
+      },
+      "human_author": null
+    }
+  }
+}
