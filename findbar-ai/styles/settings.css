@@ -480,8 +480,8 @@ findbar,
 
   [data-verify-status] {
     position: absolute !important;
-    top:44px !important;
-    left:115px !important;
+    top: 44px !important;
+    left: 115px !important;
     display: block !important;
     font-size: 11px !important;
     margin-top: 4px !important;

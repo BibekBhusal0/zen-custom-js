@@ -275,9 +275,7 @@ export const SettingsModal = {
     this._modalElement.querySelectorAll(".verify-model-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const provider = btn.dataset.verifyModel;
-        const statusEl = this._modalElement.querySelector(
-          `[data-verify-status="${provider}"]`
-        );
+        const statusEl = this._modalElement.querySelector(`[data-verify-status="${provider}"]`);
         const modelInput = this._modalElement.querySelector("#pref-custom-model");
         if (!statusEl) return;
 
