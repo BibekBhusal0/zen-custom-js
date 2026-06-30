@@ -1,0 +1,25 @@
+findbar-ai/styles/settings.css
+  s_ea43410ff048df::t_c78e6bb5b081c0 453-462,471-481,487,490,492-494,496-498
+  s_ea43410ff048df::t_78ccc26ea5f7b3 463-470,482-486,488-489,491,495
+findbar-ai/settings.js
+  s_ea43410ff048df::t_fe45086a6af3b3 733-734,736
+  s_ea43410ff048df::t_f4b8154f4921b9 263-269,271-276,279,288-290,292-296,300-309,311,316,318,320-321,323-328
+  s_ea43410ff048df::t_0587aca4896b62 270,277-278,280-287,291,297-299,310,312-315,317,319,322
+  s_ea43410ff048df::t_ebca467dd578b0 731,735,737
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.4",
+  "base_commit_sha": "312e70a391afa21b0c8eff2954b08c7c4ccef510",
+  "prompts": {},
+  "sessions": {
+    "s_ea43410ff048df": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0e6f8f88fffeFySN8pOdWAKKg3",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
