@@ -209,11 +209,6 @@ export const commands = [
       cp.collapsed = !cp.collapsed;
     },
   },
-  {
-    key: "context_zenSpaceRoutingSettings",
-    label: "Open Space Routing",
-    tags: ["air", "traffic", "control", "route", "workspace"],
-  },
 
   // ----------- Folder Management -----------
   {
