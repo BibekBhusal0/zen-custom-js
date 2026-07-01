@@ -1,0 +1,19 @@
+command-palette/all-commands.js
+  s_4ccb4d535932f8::t_57df8ef0cffbea 30-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.5",
+  "base_commit_sha": "64e624294941611daa8df60d410f1b09d5f76633",
+  "prompts": {},
+  "sessions": {
+    "s_4ccb4d535932f8": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_0e2461af1ffeTb7P0dNPA9NItu",
+        "model": "big-pickle"
+      },
+      "human_author": "Bibek Bhusal <bibekbhusal04@gmail.com>"
+    }
+  }
+}
