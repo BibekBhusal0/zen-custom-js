@@ -27,15 +27,11 @@ const togglePref = (prefName) => {
 };
 
 function isPinnedTabDifferent() {
-  if (!window.gZenPinnedTabManager) return false;
-  const currentTab = gBrowser.selectedTab;
-  if (!currentTab) return false;
-  if (!currentTab.pinned) return false;
-  const pin = gZenPinnedTabManager._pinsCache.find(
-    (pin) => pin.uuid === currentTab.getAttribute("zen-pin-id")
-  );
-  if (!pin) return false;
-  return pin.url !== currentTab.linkedBrowser.currentURI.spec;
+  const tab = gBrowser.selectedTab;
+  if (!tab?.pinned) return false;
+  const originalUrl = tab._zenPinnedInitialState?.entry?.url;
+  if (!originalUrl) return false;
+  return originalUrl !== tab.linkedBrowser.currentURI.spec;
 }
 
 export const commands = [
