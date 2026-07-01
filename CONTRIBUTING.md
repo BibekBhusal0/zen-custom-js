@@ -2,7 +2,7 @@
 
 If you'd like to contribute, you can get started by reading this guide, where I will explain file structure and standards for the contribution. Thank you for considering a contribution!
 
-## About this Project
+## About This Project
 
 This GitHub repo contains multiple mods made specifically for Zen Browser, which I made to solve specific problems I had or to enhance my browsing experience.
 
@@ -15,19 +15,57 @@ Before opening issue make sure to check all issues if similar issues has been cr
 > [!Note]
 > If mod is in beta/unreleased version, issues, and bugs are expected, and docs might not be up-to-date. You don't need to open issues for it.
 
+If you are just here to open issue, not to contribute in code, you can stop right here this document is long no need to read any further.
+
 ## Getting Started
 
 ### Prerequisites
 
-- **Bun**: Install [Bun](https://bun.sh/).
-- **Setup `fx-autoconfig`**: Follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig) (if you are using sine it is already installed).
-- **Node.js & npm**: Only required if contributing to BrowseBot (for AI dependencies)
+> [!NOTE]
+> If you are willing to contribute to BrowseBot it will require more setup.
 
-### Installation & Setup
+- **Bun**: Install [Bun](https://bun.sh/) (only for BrowseBot).
+- **Setup `Sine`**: Follow the setup instructions at [Cosmocreeper/Sine](https://github.com/cosmocreeper/sine) if you haven't already.
 
-1. Fork the repository on GitHub
+> [!NOTE]
+> If you are not using Sine you can also use `Fx-autoconfig`, I personally use sine.
+> So I can't guarantee that everything will work smoothly with `Fx-autoconfig` and installation will take more steps as well.
+> [#instillation-with-fx-autoconfig](Installation steps with `Fx-autoconfig`)
 
-2. Clone your fork locally inside the `js` folder of your profile:
+### Installation with Sine (Recommended)
+
+1. Fork the repository on Github.
+
+2. Open settings in browser and go to Sine.
+
+3. In settings it will contain input saying `add your own locally from a GitHub repo.` paste link to your forked repository.
+
+4. Find the file where it is installed.
+   - Go to `about:profiles` find current profile click on button saying `Open root directory`
+   - From root go to `chrome/sine-mods`
+   - There you will see folder named `zen-custom-js` if you have not changed name of fork
+
+5. Delete that directory and clone your forked repo.
+
+```bash
+git clone https://github.com/your-username/zen-custom-js
+cd zen-custom-js
+```
+
+This step is required because while installation sine will not include `.git` directory. You will not be able to commit your changes. If you are okay copy pasting the code you can skip this step.
+
+6. Create a new branch for your changes:
+   ```bash
+   git checkout -b feat/your-feature-name
+   ```
+
+### Installation with Fx-Autoconfig
+
+1. Install Fx-autoconfig : Follow the setup instructions at [MrOtherGuy/fx-autoconfig](https://github.com/MrOtherGuy/fx-autoconfig).
+
+2. Fork the repository on GitHub
+
+3. Clone your fork locally inside the `js` folder of your profile:
 
    ```bash
    cd /path/to/your/profile/chrome/JS
@@ -35,19 +73,19 @@ Before opening issue make sure to check all issues if similar issues has been cr
    cd zen-custom-js
    ```
 
-3. Install dependencies (only required if you are contributing to BrowseBot):
+4. Install dependencies (only required if you are contributing to BrowseBot):
 
    ```bash
    bun install
    ```
 
-4. **Import the Script**: In your JS directory, create a new file `import.uc.mjs` and import the scripts you need. See [import.uc.mjs](./import.uc.mjs) for an example importing each script.
+5. **Import the Script**: In your JS directory, create a new file `import.uc.mjs` and import the scripts you need. See [import.uc.mjs](./import.uc.mjs) for an example importing each script.
 
-5. **Import the Styles**: In your `userChrome.css` file, import the styles of the related script. See [userChrome.css](./userChrome.css) for an example importing all styles.
+6. **Import the Styles**: In your `userChrome.css` file, import the styles of the related script. See [userChrome.css](./userChrome.css) for an example importing all styles.
 
-6. **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
+7. **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
 
-7. Create a new branch for your changes:
+8. Create a new branch for your changes:
    ```bash
    git checkout -b feat/your-feature-name
    ```
@@ -95,7 +133,7 @@ Before opening issue make sure to check all issues if similar issues has been cr
 Each mod is in its own directory. Some important files each mod contains are:
 
 - **`README.md`**: Documentation for the mod
-- **`style.css`**: Styles for the mod
+- **`style.css`**: Styles for the mod. It might not contain all the styles this serves as entry point.
 - **`index.js`**: JavaScript for the mod (it is important to name this file `index.js` for bundling)
 - **`theme.json`**: Metadata for Sine installation. Fx-autoconfig header is also dynamically generated from this file (see [fx-autoconfig documentation](https://github.com/MrOtherGuy/fx-autoconfig/tree/master?tab=readme-ov-file#script-scope))
 - **`preferences.json`** (optional): Settings to adjust prefs for the mod (see [Sine preferences documentation](https://github.com/CosmoCreeper/Sine/wiki/Preferences))
@@ -118,17 +156,11 @@ These are code practices I like to follow. I hope you can follow similar practic
 
 #### DRY (Don't Repeat Yourself)
 
-I hate having to write the same code multiple times (unless it's done to get LSP autocomplete). If code is being repeated, the task can be done better with loops or by defining a utility function. This makes code much easier to maintain and fix.
+I hate having to write the same code multiple times (unless it's done to get LSP autocomplete because it saves more time). If code is being repeated, the task can be done better with loops or by defining a utility function. This makes code much easier to read, maintain and fix.
 
 #### Modular Code
 
-I like code to be modular and split into multiple files. Each file should be no more than 1,500 lines. Since Sine doesn't allow installing JS with multiple folders and imports, Rollup is used to bundle the files together.
-
-#### Code Organization
-
-- **Keep files focused**: Each file should have a single, clear responsibility
-- **File size limit**: Avoid files longer than 1.5k lines. If a file grows too large, consider splitting it into smaller, logical modules
-- **No rewrites**: Unless absolutely necessary, avoid rewriting existing working code. Focus on incremental improvements and fixes
+I like code to be modular and split into multiple files. Each file should be no more than 1,500 lines. For ease in installation bun is used for bundling files into single JS file.
 
 ### Formatting
 
@@ -145,7 +177,7 @@ This project uses ESLint to maintain code quality and catch common errors. A Git
 It's a good practice to run the linter locally before submitting your changes:
 
 ```bash
-npm run lint
+bun run lint
 ```
 
 This will help you find and fix issues before they are caught by the CI.
@@ -170,7 +202,7 @@ bun run build:select
 bun run build:search
 
 # Development mode with watch (auto-rebuild on changes)
-bun run dev                    # Only watches browse-bot
+bun run dev                    # Only watches browse-bot(as it is the only one using npm packages)
 bun run dev:browsebot            # Watch specific mod
 bun run dev:palette
 bun run dev:reopen
@@ -293,7 +325,7 @@ In `theme.json`, you can use these flags:
 ### Other Automation
 
 - **Code Formatting**: Automatically formats code on push using Prettier
-- **Timestamp Updates**: Updates `updatedAt` in `theme.json` files
+- **Timestamp Updates**: Updates `updatedAt` in `theme.json` files (this is required for sine to handle auto update)
 - **Header Generation**: Fx-autoconfig headers are generated from `theme.json` metadata
 
 ## Opening a Pull Request
@@ -311,7 +343,7 @@ docs: add installation instructions
 ### Commit Types
 
 - **`feat`**: A new feature
-- **`fix`**: A bug fix
+- **`fix`**: A bugfix
 - **`docs`**: Documentation changes
 - **`refactor`**: Code refactoring without changing functionality
 - **`chore`**: Maintenance tasks, dependency updates, etc.
