@@ -10,7 +10,7 @@ body:
       description: Please ensure you've completed all of the following.
       options:
         - label: I have read the documentation for the mod properly.
-        - label: I have read the [Contributing Guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md) for this project.
+        - label: I have read the [Contributing Guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md#opening-an-issue) for this project.
         - label: I have searched the [issue tracker](https://github.com/BibekBhusal0/zen-custom-js/issues) for a bug report that matches the one I want to file, without success.
         - label: I have checked all the boxes without reading.
         - label: I have made sure that I'm on latest version of mod and also tested beta version for fix.
@@ -28,7 +28,7 @@ body:
         - Search Engine Icon
         - Search Engine Select
         - Settings Shortcuts Search
-        - Other (not in this list)
+        - Other (please specify below)
   - type: input
     attributes:
       label: Mod Version
@@ -82,7 +82,7 @@ body:
   - type: textarea
     attributes:
       label: Additional Information
-      description: If your problem needs further explanation, please add more information here.
+      description: If your problem needs further explanation, please add more information here. If mod has logs you can provide it here as well (by default logs are disabled) if mod has debug mode in settings under sine, Enable it to enable the logs and press `Ctrl + Shift + J` to see logs.
   - type: checkboxes
     attributes:
       label: Contribution
