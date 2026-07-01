@@ -41,11 +41,13 @@ bun run lint               # eslint .
 ## Active mods
 
 Loaded via `import.uc.mjs`:
+
 - `command-palette/`, `floating-sidebar/`, `reopen-closed-tabs/`, `search-engine-select/`, `search-engine-icon/index.js`
 - `dist/browse-bot.uc.mjs` (built from `findbar-ai/`)
 - `others/tab-explode.js`, `others/invert-pdf.js`
 
 Styles loaded via `userChrome.css`:
+
 - `floating-sidebar/style.css`, `search-engine-select/style.css`, `findbar-ai/style.css`, `command-palette/style.css`, `reopen-closed-tabs/style.css`
 - `css/userChrome.css` (shared utilities)
 
