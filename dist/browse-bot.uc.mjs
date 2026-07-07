@@ -2994,8 +2994,12 @@ Declined by user.`;
         PREFS2.debugError("Failed to add context menu item after 5 attempts: Context menu not found.");
       return;
     }
-    let menuItem = document.createXULElement("menuitem");
-    menuItem.id = "browse-bot-context-menu-item", menuItem.setAttribute("label", "Ask AI"), menuItem.setAttribute("accesskey", "A"), menuItem.addEventListener("command", this.handleContextMenuClick.bind(this)), this.contextMenuItem = menuItem;
+    let menuItem = parseElement(`<menuitem 
+      label="Ask AI"
+      accesskey="A" 
+      id = "browse-bot-context-menu-item">
+      </menuitem>`, "xul");
+    menuItem.addEventListener("command", this.handleContextMenuClick.bind(this)), this.contextMenuItem = menuItem;
     let searchSelectItem = contextMenu.querySelector("#context-searchselect");
     if (searchSelectItem)
       if (searchSelectItem.nextSibling)
