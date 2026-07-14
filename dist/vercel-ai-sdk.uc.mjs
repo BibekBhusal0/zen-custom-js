@@ -130,7 +130,7 @@ var require_index_browser = __commonJS((exports, module) => {
   }
 });
 
-// node_modules/@ai-sdk/provider/dist/index.mjs
+// node_modules/@ai-sdk/gateway/node_modules/@ai-sdk/provider/dist/index.mjs
 var marker = "vercel.ai.error", symbol = Symbol.for(marker), _a, _b, AISDKError = class _AISDKError extends (_b = Error, _a = symbol, _b) {
   constructor({
     name: name14,
@@ -16221,136 +16221,22 @@ class EventSourceParserStream extends TransformStream {
   }
 }
 
-// node_modules/@ai-sdk/provider-utils/dist/index.mjs
+// node_modules/@ai-sdk/gateway/node_modules/@ai-sdk/provider-utils/dist/index.mjs
 function combineHeaders(...headers) {
   return headers.reduce((combinedHeaders, currentHeaders) => ({
     ...combinedHeaders,
     ...currentHeaders != null ? currentHeaders : {}
   }), {});
 }
-function createToolNameMapping({
-  tools = [],
-  providerToolNames,
-  resolveProviderToolName
-}) {
-  var _a22;
-  let customToolNameToProviderToolName = {}, providerToolNameToCustomToolName = {};
-  for (let tool2 of tools)
-    if (tool2.type === "provider") {
-      let providerToolName = (_a22 = resolveProviderToolName == null ? void 0 : resolveProviderToolName(tool2)) != null ? _a22 : (tool2.id in providerToolNames) ? providerToolNames[tool2.id] : void 0;
-      if (providerToolName == null)
-        continue;
-      customToolNameToProviderToolName[tool2.name] = providerToolName, providerToolNameToCustomToolName[providerToolName] = tool2.name;
-    }
-  return {
-    toProviderToolName: (customToolName) => {
-      var _a32;
-      return (_a32 = customToolNameToProviderToolName[customToolName]) != null ? _a32 : customToolName;
-    },
-    toCustomToolName: (providerToolName) => {
-      var _a32;
-      return (_a32 = providerToolNameToCustomToolName[providerToolName]) != null ? _a32 : providerToolName;
-    }
-  };
-}
-async function delay(delayInMs, options) {
-  if (delayInMs == null)
-    return Promise.resolve();
-  let signal = options == null ? void 0 : options.abortSignal;
-  return new Promise((resolve2, reject) => {
-    if (signal == null ? void 0 : signal.aborted) {
-      reject(createAbortError());
-      return;
-    }
-    let timeoutId = setTimeout(() => {
-      cleanup(), resolve2();
-    }, delayInMs), cleanup = () => {
-      clearTimeout(timeoutId), signal == null || signal.removeEventListener("abort", onAbort);
-    }, onAbort = () => {
-      cleanup(), reject(createAbortError());
-    };
-    signal == null || signal.addEventListener("abort", onAbort);
-  });
-}
-function createAbortError() {
-  return new DOMException("Delay was aborted", "AbortError");
-}
-var DelayedPromise = class {
-  constructor() {
-    this.status = { type: "pending" }, this._resolve = void 0, this._reject = void 0;
-  }
-  get promise() {
-    if (this._promise)
-      return this._promise;
-    return this._promise = new Promise((resolve2, reject) => {
-      if (this.status.type === "resolved")
-        resolve2(this.status.value);
-      else if (this.status.type === "rejected")
-        reject(this.status.error);
-      this._resolve = resolve2, this._reject = reject;
-    }), this._promise;
-  }
-  resolve(value) {
-    var _a22;
-    if (this.status = { type: "resolved", value }, this._promise)
-      (_a22 = this._resolve) == null || _a22.call(this, value);
-  }
-  reject(error51) {
-    var _a22;
-    if (this.status = { type: "rejected", error: error51 }, this._promise)
-      (_a22 = this._reject) == null || _a22.call(this, error51);
-  }
-  isResolved() {
-    return this.status.type === "resolved";
-  }
-  isRejected() {
-    return this.status.type === "rejected";
-  }
-  isPending() {
-    return this.status.type === "pending";
-  }
-};
 function extractResponseHeaders(response) {
   return Object.fromEntries([...response.headers]);
 }
 var { btoa: btoa2, atob: atob2 } = globalThis;
-function convertBase64ToUint8Array(base64String) {
-  let base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/"), latin1string = atob2(base64Url);
-  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
-}
 function convertUint8ArrayToBase64(array2) {
   let latin1string = "";
   for (let i = 0;i < array2.length; i++)
     latin1string += String.fromCodePoint(array2[i]);
   return btoa2(latin1string);
-}
-function convertToBase64(value) {
-  return value instanceof Uint8Array ? convertUint8ArrayToBase64(value) : value;
-}
-function convertToFormData(input, options = {}) {
-  let { useArrayBrackets = !0 } = options, formData = new FormData;
-  for (let [key, value] of Object.entries(input)) {
-    if (value == null)
-      continue;
-    if (Array.isArray(value)) {
-      if (value.length === 1) {
-        formData.append(key, value[0]);
-        continue;
-      }
-      let arrayKey = useArrayBrackets ? `${key}[]` : key;
-      for (let item of value)
-        formData.append(arrayKey, item);
-      continue;
-    }
-    formData.append(key, value);
-  }
-  return formData;
-}
-async function cancelResponseBody(response) {
-  var _a22;
-  try {
-    await ((_a22 = response.body) == null ? void 0 : _a22.cancel());
-  } catch (e) {}
 }
 var name14 = "AI_DownloadError", marker15 = `vercel.ai.error.${name14}`, symbol17 = Symbol.for(marker15), _a18, _b15, DownloadError = class extends (_b15 = AISDKError, _a18 = symbol17, _b15) {
   constructor({
@@ -16367,253 +16253,6 @@ var name14 = "AI_DownloadError", marker15 = `vercel.ai.error.${name14}`, symbol1
     return AISDKError.hasMarker(error51, marker15);
   }
 };
-function isBrowserRuntime(globalThisAny = globalThis) {
-  return globalThisAny.window != null;
-}
-function validateDownloadUrl(url2) {
-  let parsed;
-  try {
-    parsed = new URL(url2);
-  } catch (e) {
-    throw new DownloadError({
-      url: url2,
-      message: `Invalid URL: ${url2}`
-    });
-  }
-  if (parsed.protocol === "data:")
-    return;
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
-    throw new DownloadError({
-      url: url2,
-      message: `URL scheme must be http, https, or data, got ${parsed.protocol}`
-    });
-  let hostname3 = parsed.hostname.toLowerCase().replace(/\.+$/, "");
-  if (!hostname3)
-    throw new DownloadError({
-      url: url2,
-      message: "URL must have a hostname"
-    });
-  if (hostname3 === "localhost" || hostname3.endsWith(".local") || hostname3.endsWith(".localhost"))
-    throw new DownloadError({
-      url: url2,
-      message: `URL with hostname ${hostname3} is not allowed`
-    });
-  if (hostname3.startsWith("[") && hostname3.endsWith("]")) {
-    let ipv63 = hostname3.slice(1, -1);
-    if (isPrivateIPv6(ipv63))
-      throw new DownloadError({
-        url: url2,
-        message: `URL with IPv6 address ${hostname3} is not allowed`
-      });
-    return;
-  }
-  if (isIPv4(hostname3)) {
-    if (isPrivateIPv4(hostname3))
-      throw new DownloadError({
-        url: url2,
-        message: `URL with IP address ${hostname3} is not allowed`
-      });
-    return;
-  }
-}
-function isIPv4(hostname3) {
-  let parts = hostname3.split(".");
-  if (parts.length !== 4)
-    return !1;
-  return parts.every((part) => {
-    let num = Number(part);
-    return Number.isInteger(num) && num >= 0 && num <= 255 && String(num) === part;
-  });
-}
-function isPrivateIPv4(ip) {
-  let parts = ip.split(".").map(Number), [a, b, c] = parts;
-  if (a === 0)
-    return !0;
-  if (a === 10)
-    return !0;
-  if (a === 100 && b >= 64 && b <= 127)
-    return !0;
-  if (a === 127)
-    return !0;
-  if (a === 169 && b === 254)
-    return !0;
-  if (a === 172 && b >= 16 && b <= 31)
-    return !0;
-  if (a === 192 && b === 0 && c === 0)
-    return !0;
-  if (a === 192 && b === 168)
-    return !0;
-  if (a === 198 && (b === 18 || b === 19))
-    return !0;
-  if (a >= 240)
-    return !0;
-  return !1;
-}
-function parseIPv6(ip) {
-  let address = ip.toLowerCase(), zoneIndex = address.indexOf("%");
-  if (zoneIndex !== -1)
-    address = address.slice(0, zoneIndex);
-  let halves = address.split("::");
-  if (halves.length > 2)
-    return null;
-  let toGroups = (segment) => {
-    if (segment === "")
-      return [];
-    let groups = [], parts = segment.split(":");
-    for (let i = 0;i < parts.length; i++) {
-      let part = parts[i];
-      if (part.includes(".")) {
-        if (i !== parts.length - 1 || !isIPv4(part))
-          return null;
-        let [a, b, c, d] = part.split(".").map(Number);
-        groups.push(a << 8 | b, c << 8 | d);
-        continue;
-      }
-      if (!/^[0-9a-f]{1,4}$/.test(part))
-        return null;
-      groups.push(parseInt(part, 16));
-    }
-    return groups;
-  }, head = toGroups(halves[0]);
-  if (head === null)
-    return null;
-  if (halves.length === 2) {
-    let tail = toGroups(halves[1]);
-    if (tail === null)
-      return null;
-    let fill = 8 - head.length - tail.length;
-    if (fill < 0)
-      return null;
-    return [...head, ...Array(fill).fill(0), ...tail];
-  }
-  return head.length === 8 ? head : null;
-}
-function isPrivateIPv6(ip) {
-  let groups = parseIPv6(ip);
-  if (groups === null)
-    return !0;
-  let topZero = (count) => groups.slice(0, count).every((group) => group === 0);
-  if (topZero(7) && (groups[7] === 0 || groups[7] === 1))
-    return !0;
-  if ((groups[0] & 65024) === 64512)
-    return !0;
-  if ((groups[0] & 65472) === 65152)
-    return !0;
-  if ((groups[0] & 65472) === 65216)
-    return !0;
-  if ((groups[0] & 65280) === 65280)
-    return !0;
-  if (topZero(6) || topZero(5) && groups[5] === 65535 || topZero(4) && groups[4] === 65535 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 0 && groups[3] === 0 && groups[4] === 0 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 1) {
-    let a = groups[6] >> 8 & 255, b = groups[6] & 255, c = groups[7] >> 8 & 255, d = groups[7] & 255;
-    return isPrivateIPv4(`${a}.${b}.${c}.${d}`);
-  }
-  return !1;
-}
-var MAX_DOWNLOAD_REDIRECTS = 10;
-async function fetchWithValidatedRedirects({
-  url: url2,
-  headers,
-  abortSignal,
-  maxRedirects = MAX_DOWNLOAD_REDIRECTS
-}) {
-  let baseInit = { signal: abortSignal };
-  if (headers !== void 0)
-    baseInit.headers = headers;
-  let currentUrl = url2;
-  for (let redirectCount = 0;redirectCount <= maxRedirects; redirectCount++) {
-    validateDownloadUrl(currentUrl);
-    let response = await fetch(currentUrl, {
-      ...baseInit,
-      redirect: "manual"
-    });
-    if (response.type === "opaqueredirect") {
-      if (!isBrowserRuntime())
-        throw new DownloadError({
-          url: url2,
-          message: `Redirect from ${currentUrl} could not be validated and was blocked`
-        });
-      return await fetch(currentUrl, { ...baseInit, redirect: "follow" });
-    }
-    let location = response.headers.get("location");
-    if (response.status >= 300 && response.status < 400 && location) {
-      await cancelResponseBody(response), currentUrl = new URL(location, currentUrl).toString();
-      continue;
-    }
-    return response;
-  }
-  throw new DownloadError({
-    url: url2,
-    message: `Too many redirects (max ${maxRedirects})`
-  });
-}
-var DEFAULT_MAX_DOWNLOAD_SIZE = 2147483648;
-async function readResponseWithSizeLimit({
-  response,
-  url: url2,
-  maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE
-}) {
-  let contentLength = response.headers.get("content-length");
-  if (contentLength != null) {
-    let length = parseInt(contentLength, 10);
-    if (!isNaN(length) && length > maxBytes)
-      throw await cancelResponseBody(response), new DownloadError({
-        url: url2,
-        message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes (Content-Length: ${length}).`
-      });
-  }
-  let body = response.body;
-  if (body == null)
-    return new Uint8Array(0);
-  let reader = body.getReader(), chunks = [], totalBytes = 0;
-  try {
-    while (!0) {
-      let { done, value } = await reader.read();
-      if (done)
-        break;
-      if (totalBytes += value.length, totalBytes > maxBytes)
-        throw new DownloadError({
-          url: url2,
-          message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes.`
-        });
-      chunks.push(value);
-    }
-  } finally {
-    try {
-      await reader.cancel();
-    } finally {
-      reader.releaseLock();
-    }
-  }
-  let result = new Uint8Array(totalBytes), offset = 0;
-  for (let chunk of chunks)
-    result.set(chunk, offset), offset += chunk.length;
-  return result;
-}
-async function downloadBlob(url2, options) {
-  var _a22, _b22;
-  try {
-    let response = await fetchWithValidatedRedirects({
-      url: url2,
-      abortSignal: options == null ? void 0 : options.abortSignal
-    });
-    if (!response.ok)
-      throw await cancelResponseBody(response), new DownloadError({
-        url: url2,
-        statusCode: response.status,
-        statusText: response.statusText
-      });
-    let data = await readResponseWithSizeLimit({
-      response,
-      url: url2,
-      maxBytes: (_a22 = options == null ? void 0 : options.maxBytes) != null ? _a22 : DEFAULT_MAX_DOWNLOAD_SIZE
-    }), contentType = (_b22 = response.headers.get("content-type")) != null ? _b22 : void 0;
-    return new Blob([data], contentType ? { type: contentType } : void 0);
-  } catch (error51) {
-    if (DownloadError.isInstance(error51))
-      throw error51;
-    throw new DownloadError({ url: url2, cause: error51 });
-  }
-}
 var createIdGenerator = ({
   prefix,
   size = 16,
@@ -16635,15 +16274,6 @@ var createIdGenerator = ({
     });
   return () => `${prefix}${separator}${generator()}`;
 }, generateId = createIdGenerator();
-function getErrorMessage2(error51) {
-  if (error51 == null)
-    return "unknown error";
-  if (typeof error51 === "string")
-    return error51;
-  if (error51 instanceof Error)
-    return error51.message;
-  return JSON.stringify(error51);
-}
 function isAbortError(error51) {
   return (error51 instanceof Error || error51 instanceof DOMException) && (error51.name === "AbortError" || error51.name === "ResponseAborted" || error51.name === "TimeoutError");
 }
@@ -16785,52 +16415,6 @@ var VERSION = "4.0.30", getOriginalFetch = () => globalThis.fetch, getFromApi = 
     throw handleFetchError({ error: error51, url: url2, requestBodyValues: {} });
   }
 };
-function isNonNullable(value) {
-  return value != null;
-}
-function isSameOrigin(url2, baseUrl) {
-  try {
-    return new URL(url2).origin === new URL(baseUrl).origin;
-  } catch (e) {
-    return !1;
-  }
-}
-function isUrlSupported({
-  mediaType,
-  url: url2,
-  supportedUrls
-}) {
-  return url2 = url2.toLowerCase(), mediaType = mediaType.toLowerCase(), Object.entries(supportedUrls).map(([key, value]) => {
-    let mediaType2 = key.toLowerCase();
-    return mediaType2 === "*" || mediaType2 === "*/*" ? { mediaTypePrefix: "", regexes: value } : { mediaTypePrefix: mediaType2.replace(/\*/, ""), regexes: value };
-  }).filter(({ mediaTypePrefix }) => mediaType.startsWith(mediaTypePrefix)).flatMap(({ regexes }) => regexes).some((pattern) => pattern.test(url2));
-}
-function loadApiKey({
-  apiKey,
-  environmentVariableName,
-  apiKeyParameterName = "apiKey",
-  description
-}) {
-  if (typeof apiKey === "string")
-    return apiKey;
-  if (apiKey != null)
-    throw new LoadAPIKeyError({
-      message: `${description} API key must be a string.`
-    });
-  if (typeof process > "u")
-    throw new LoadAPIKeyError({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables are not supported in this environment.`
-    });
-  if (apiKey = process.env[environmentVariableName], apiKey == null)
-    throw new LoadAPIKeyError({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
-    });
-  if (typeof apiKey !== "string")
-    throw new LoadAPIKeyError({
-      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
-    });
-  return apiKey;
-}
 function loadOptionalSetting({
   settingValue,
   environmentVariableName
@@ -16842,17 +16426,6 @@ function loadOptionalSetting({
   if (settingValue = process.env[environmentVariableName], settingValue == null || typeof settingValue !== "string")
     return;
   return settingValue;
-}
-function mediaTypeToExtension(mediaType) {
-  var _a22;
-  let [_type, subtype = ""] = mediaType.toLowerCase().split("/");
-  return (_a22 = {
-    mpeg: "mp3",
-    "x-wav": "wav",
-    opus: "ogg",
-    mp4: "m4a",
-    "x-m4a": "m4a"
-  }[subtype]) != null ? _a22 : subtype;
 }
 var suspectProtoRx = /"(?:_|\\u005[Ff])(?:_|\\u005[Ff])(?:p|\\u0070)(?:r|\\u0072)(?:o|\\u006[Ff])(?:t|\\u0074)(?:o|\\u006[Ff])(?:_|\\u005[Ff])(?:_|\\u005[Ff])"\s*:/, suspectConstructorRx = /"(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)"\s*:/;
 function _parse2(text) {
@@ -17963,13 +17536,6 @@ async function safeParseJSON({
     };
   }
 }
-function isParsableJson(input) {
-  try {
-    return secureJsonParse(input), !0;
-  } catch (e) {
-    return !1;
-  }
-}
 function parseJsonEventStream({
   stream,
   schema
@@ -17981,25 +17547,6 @@ function parseJsonEventStream({
       controller.enqueue(await safeParseJSON({ text: data, schema }));
     }
   }));
-}
-async function parseProviderOptions({
-  provider,
-  providerOptions,
-  schema
-}) {
-  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null)
-    return;
-  let parsedProviderOptions = await safeValidateTypes({
-    value: providerOptions[provider],
-    schema
-  });
-  if (!parsedProviderOptions.success)
-    throw new InvalidArgumentError({
-      argument: "providerOptions",
-      message: `invalid ${provider} provider options`,
-      cause: parsedProviderOptions.error
-    });
-  return parsedProviderOptions.value;
 }
 var getOriginalFetch2 = () => globalThis.fetch, postJsonToApi = async ({
   url: url2,
@@ -18023,26 +17570,8 @@ var getOriginalFetch2 = () => globalThis.fetch, postJsonToApi = async ({
   successfulResponseHandler,
   abortSignal,
   fetch: fetch2
-}), postFormDataToApi = async ({
-  url: url2,
-  headers,
-  formData,
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}) => postToApi({
-  url: url2,
-  headers,
-  body: {
-    content: formData,
-    values: Object.fromEntries(formData.entries())
-  },
-  failedResponseHandler,
-  successfulResponseHandler,
-  abortSignal,
-  fetch: fetch2
-}), postToApi = async ({
+});
+var postToApi = async ({
   url: url2,
   headers = {},
   body,
@@ -18106,33 +17635,6 @@ var getOriginalFetch2 = () => globalThis.fetch, postJsonToApi = async ({
 };
 function tool(tool2) {
   return tool2;
-}
-function createProviderToolFactory({
-  id,
-  inputSchema
-}) {
-  return ({
-    execute,
-    outputSchema,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable,
-    ...args
-  }) => tool({
-    type: "provider",
-    id,
-    args,
-    inputSchema,
-    outputSchema,
-    execute,
-    needsApproval,
-    toModelOutput,
-    onInputStart,
-    onInputDelta,
-    onInputAvailable
-  });
 }
 function createProviderToolFactoryWithOutputSchema({
   id,
@@ -18250,54 +17752,9 @@ var createJsonErrorResponseHandler = ({
     value: parsedResult.value,
     rawValue: parsedResult.rawValue
   };
-}, createBinaryResponseHandler = () => async ({ response, url: url2, requestBodyValues }) => {
-  let responseHeaders = extractResponseHeaders(response);
-  if (!response.body)
-    throw new APICallError({
-      message: "Response body is empty",
-      url: url2,
-      requestBodyValues,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody: void 0
-    });
-  try {
-    let buffer = await response.arrayBuffer();
-    return {
-      responseHeaders,
-      value: new Uint8Array(buffer)
-    };
-  } catch (error51) {
-    throw new APICallError({
-      message: "Failed to read response as array buffer",
-      url: url2,
-      requestBodyValues,
-      statusCode: response.status,
-      responseHeaders,
-      responseBody: void 0,
-      cause: error51
-    });
-  }
 };
 function withoutTrailingSlash(url2) {
   return url2 == null ? void 0 : url2.replace(/\/$/, "");
-}
-function isAsyncIterable(obj) {
-  return obj != null && typeof obj[Symbol.asyncIterator] === "function";
-}
-async function* executeTool({
-  execute,
-  input,
-  options
-}) {
-  let result = execute(input, options);
-  if (isAsyncIterable(result)) {
-    let lastOutput;
-    for await (let output of result)
-      lastOutput = output, yield { type: "preliminary", output };
-    yield { type: "final", output: lastOutput };
-  } else
-    yield { type: "final", output: await result };
 }
 // node_modules/@ai-sdk/gateway/dist/index.mjs
 var import_oidc = __toESM(require_index_browser(), 1), import_oidc2 = __toESM(require_index_browser(), 1), marker17 = "vercel.ai.gateway.error", symbol18 = Symbol.for(marker17), _a19, _b17, GatewayError = class _GatewayError extends (_b17 = Error, _a19 = symbol18, _b17) {
@@ -19669,6 +19126,1717 @@ async function getGatewayAuthToken(options) {
   };
 }
 
+// node_modules/ai/node_modules/@ai-sdk/provider/dist/index.mjs
+var marker18 = "vercel.ai.error", symbol19 = Symbol.for(marker18), _a20, _b18, AISDKError2 = class _AISDKError2 extends (_b18 = Error, _a20 = symbol19, _b18) {
+  constructor({
+    name: name142,
+    message,
+    cause
+  }) {
+    super(message);
+    this[_a20] = !0, this.name = name142, this.cause = cause;
+  }
+  static isInstance(error51) {
+    return _AISDKError2.hasMarker(error51, marker18);
+  }
+  static hasMarker(error51, marker152) {
+    let markerSymbol = Symbol.for(marker152);
+    return error51 != null && typeof error51 === "object" && markerSymbol in error51 && typeof error51[markerSymbol] === "boolean" && error51[markerSymbol] === !0;
+  }
+}, name17 = "AI_APICallError", marker23 = `vercel.ai.error.${name17}`, symbol23 = Symbol.for(marker23), _a23, _b23, APICallError2 = class extends (_b23 = AISDKError2, _a23 = symbol23, _b23) {
+  constructor({
+    message,
+    url: url2,
+    requestBodyValues,
+    statusCode,
+    responseHeaders,
+    responseBody,
+    cause,
+    isRetryable = statusCode != null && (statusCode === 408 || statusCode === 409 || statusCode === 429 || statusCode >= 500),
+    data
+  }) {
+    super({ name: name17, message, cause });
+    this[_a23] = !0, this.url = url2, this.requestBodyValues = requestBodyValues, this.statusCode = statusCode, this.responseHeaders = responseHeaders, this.responseBody = responseBody, this.isRetryable = isRetryable, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker23);
+  }
+}, name23 = "AI_EmptyResponseBodyError", marker33 = `vercel.ai.error.${name23}`, symbol33 = Symbol.for(marker33), _a33, _b33, EmptyResponseBodyError2 = class extends (_b33 = AISDKError2, _a33 = symbol33, _b33) {
+  constructor({ message = "Empty response body" } = {}) {
+    super({ name: name23, message });
+    this[_a33] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker33);
+  }
+};
+function getErrorMessage2(error51) {
+  if (error51 == null)
+    return "unknown error";
+  if (typeof error51 === "string")
+    return error51;
+  if (error51 instanceof Error)
+    return error51.message;
+  return JSON.stringify(error51);
+}
+var name33 = "AI_InvalidArgumentError", marker43 = `vercel.ai.error.${name33}`, symbol43 = Symbol.for(marker43), _a43, _b43, InvalidArgumentError2 = class extends (_b43 = AISDKError2, _a43 = symbol43, _b43) {
+  constructor({
+    message,
+    cause,
+    argument
+  }) {
+    super({ name: name33, message, cause });
+    this[_a43] = !0, this.argument = argument;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker43);
+  }
+}, name43 = "AI_InvalidPromptError", marker53 = `vercel.ai.error.${name43}`, symbol53 = Symbol.for(marker53), _a53, _b53, InvalidPromptError2 = class extends (_b53 = AISDKError2, _a53 = symbol53, _b53) {
+  constructor({
+    prompt,
+    message,
+    cause
+  }) {
+    super({ name: name43, message: `Invalid prompt: ${message}`, cause });
+    this[_a53] = !0, this.prompt = prompt;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker53);
+  }
+}, name53 = "AI_InvalidResponseDataError", marker63 = `vercel.ai.error.${name53}`, symbol63 = Symbol.for(marker63), _a63, _b63, InvalidResponseDataError2 = class extends (_b63 = AISDKError2, _a63 = symbol63, _b63) {
+  constructor({
+    data,
+    message = `Invalid response data: ${JSON.stringify(data)}.`
+  }) {
+    super({ name: name53, message });
+    this[_a63] = !0, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker63);
+  }
+}, name63 = "AI_JSONParseError", marker73 = `vercel.ai.error.${name63}`, symbol73 = Symbol.for(marker73), _a73, _b73, JSONParseError2 = class extends (_b73 = AISDKError2, _a73 = symbol73, _b73) {
+  constructor({ text, cause }) {
+    super({
+      name: name63,
+      message: `JSON parsing failed: Text: ${text}.
+Error message: ${getErrorMessage2(cause)}`,
+      cause
+    });
+    this[_a73] = !0, this.text = text;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker73);
+  }
+}, name73 = "AI_LoadAPIKeyError", marker83 = `vercel.ai.error.${name73}`, symbol83 = Symbol.for(marker83), _a83, _b83, LoadAPIKeyError2 = class extends (_b83 = AISDKError2, _a83 = symbol83, _b83) {
+  constructor({ message }) {
+    super({ name: name73, message });
+    this[_a83] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker83);
+  }
+}, name83 = "AI_LoadSettingError", marker93 = `vercel.ai.error.${name83}`, symbol93 = Symbol.for(marker93), _a93, _b93, LoadSettingError2 = class extends (_b93 = AISDKError2, _a93 = symbol93, _b93) {
+  constructor({ message }) {
+    super({ name: name83, message });
+    this[_a93] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker93);
+  }
+}, name93 = "AI_NoContentGeneratedError", marker103 = `vercel.ai.error.${name93}`, symbol103 = Symbol.for(marker103), _a103, _b103, NoContentGeneratedError2 = class extends (_b103 = AISDKError2, _a103 = symbol103, _b103) {
+  constructor({
+    message = "No content generated."
+  } = {}) {
+    super({ name: name93, message });
+    this[_a103] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker103);
+  }
+}, name102 = "AI_NoSuchModelError", marker112 = `vercel.ai.error.${name102}`, symbol112 = Symbol.for(marker112), _a112, _b112, NoSuchModelError2 = class extends (_b112 = AISDKError2, _a112 = symbol112, _b112) {
+  constructor({
+    errorName = name102,
+    modelId,
+    modelType,
+    message = `No such ${modelType}: ${modelId}`
+  }) {
+    super({ name: errorName, message });
+    this[_a112] = !0, this.modelId = modelId, this.modelType = modelType;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker112);
+  }
+}, name112 = "AI_TooManyEmbeddingValuesForCallError", marker122 = `vercel.ai.error.${name112}`, symbol122 = Symbol.for(marker122), _a122, _b122, TooManyEmbeddingValuesForCallError2 = class extends (_b122 = AISDKError2, _a122 = symbol122, _b122) {
+  constructor(options) {
+    super({
+      name: name112,
+      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+    });
+    this[_a122] = !0, this.provider = options.provider, this.modelId = options.modelId, this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall, this.values = options.values;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker122);
+  }
+}, name122 = "AI_TypeValidationError", marker132 = `vercel.ai.error.${name122}`, symbol132 = Symbol.for(marker132), _a132, _b132, TypeValidationError2 = class _TypeValidationError2 extends (_b132 = AISDKError2, _a132 = symbol132, _b132) {
+  constructor({
+    value,
+    cause,
+    context
+  }) {
+    let contextPrefix = "Type validation failed";
+    if (context == null ? void 0 : context.field)
+      contextPrefix += ` for ${context.field}`;
+    if ((context == null ? void 0 : context.entityName) || (context == null ? void 0 : context.entityId)) {
+      contextPrefix += " (";
+      let parts = [];
+      if (context.entityName)
+        parts.push(context.entityName);
+      if (context.entityId)
+        parts.push(`id: "${context.entityId}"`);
+      contextPrefix += parts.join(", "), contextPrefix += ")";
+    }
+    super({
+      name: name122,
+      message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
+Error message: ${getErrorMessage2(cause)}`,
+      cause
+    });
+    this[_a132] = !0, this.value = value, this.context = context;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker132);
+  }
+  static wrap({
+    value,
+    cause,
+    context
+  }) {
+    var _a152, _b152, _c;
+    if (_TypeValidationError2.isInstance(cause) && cause.value === value && ((_a152 = cause.context) == null ? void 0 : _a152.field) === (context == null ? void 0 : context.field) && ((_b152 = cause.context) == null ? void 0 : _b152.entityName) === (context == null ? void 0 : context.entityName) && ((_c = cause.context) == null ? void 0 : _c.entityId) === (context == null ? void 0 : context.entityId))
+      return cause;
+    return new _TypeValidationError2({ value, cause, context });
+  }
+}, name132 = "AI_UnsupportedFunctionalityError", marker142 = `vercel.ai.error.${name132}`, symbol142 = Symbol.for(marker142), _a142, _b142, UnsupportedFunctionalityError2 = class extends (_b142 = AISDKError2, _a142 = symbol142, _b142) {
+  constructor({
+    functionality,
+    message = `'${functionality}' functionality not supported.`
+  }) {
+    super({ name: name132, message });
+    this[_a142] = !0, this.functionality = functionality;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker142);
+  }
+};
+
+// node_modules/ai/node_modules/@ai-sdk/provider-utils/dist/index.mjs
+async function delay(delayInMs, options) {
+  if (delayInMs == null)
+    return Promise.resolve();
+  let signal = options == null ? void 0 : options.abortSignal;
+  return new Promise((resolve2, reject) => {
+    if (signal == null ? void 0 : signal.aborted) {
+      reject(createAbortError());
+      return;
+    }
+    let timeoutId = setTimeout(() => {
+      cleanup(), resolve2();
+    }, delayInMs), cleanup = () => {
+      clearTimeout(timeoutId), signal == null || signal.removeEventListener("abort", onAbort);
+    }, onAbort = () => {
+      cleanup(), reject(createAbortError());
+    };
+    signal == null || signal.addEventListener("abort", onAbort);
+  });
+}
+function createAbortError() {
+  return new DOMException("Delay was aborted", "AbortError");
+}
+var DelayedPromise = class {
+  constructor() {
+    this.status = { type: "pending" }, this._resolve = void 0, this._reject = void 0;
+  }
+  get promise() {
+    if (this._promise)
+      return this._promise;
+    return this._promise = new Promise((resolve2, reject) => {
+      if (this.status.type === "resolved")
+        resolve2(this.status.value);
+      else if (this.status.type === "rejected")
+        reject(this.status.error);
+      this._resolve = resolve2, this._reject = reject;
+    }), this._promise;
+  }
+  resolve(value) {
+    var _a24;
+    if (this.status = { type: "resolved", value }, this._promise)
+      (_a24 = this._resolve) == null || _a24.call(this, value);
+  }
+  reject(error51) {
+    var _a24;
+    if (this.status = { type: "rejected", error: error51 }, this._promise)
+      (_a24 = this._reject) == null || _a24.call(this, error51);
+  }
+  isResolved() {
+    return this.status.type === "resolved";
+  }
+  isRejected() {
+    return this.status.type === "rejected";
+  }
+  isPending() {
+    return this.status.type === "pending";
+  }
+};
+var { btoa: btoa3, atob: atob3 } = globalThis;
+function convertBase64ToUint8Array(base64String) {
+  let base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/"), latin1string = atob3(base64Url);
+  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
+}
+function convertUint8ArrayToBase642(array2) {
+  let latin1string = "";
+  for (let i = 0;i < array2.length; i++)
+    latin1string += String.fromCodePoint(array2[i]);
+  return btoa3(latin1string);
+}
+async function cancelResponseBody(response) {
+  var _a24;
+  try {
+    await ((_a24 = response.body) == null ? void 0 : _a24.cancel());
+  } catch (e) {}
+}
+var name18 = "AI_DownloadError", marker19 = `vercel.ai.error.${name18}`, symbol20 = Symbol.for(marker19), _a21, _b19, DownloadError2 = class extends (_b19 = AISDKError2, _a21 = symbol20, _b19) {
+  constructor({
+    url: url2,
+    statusCode,
+    statusText,
+    cause,
+    message = cause == null ? `Failed to download ${url2}: ${statusCode} ${statusText}` : `Failed to download ${url2}: ${cause}`
+  }) {
+    super({ name: name18, message, cause });
+    this[_a21] = !0, this.url = url2, this.statusCode = statusCode, this.statusText = statusText;
+  }
+  static isInstance(error51) {
+    return AISDKError2.hasMarker(error51, marker19);
+  }
+};
+function isBrowserRuntime(globalThisAny = globalThis) {
+  return globalThisAny.window != null;
+}
+function validateDownloadUrl(url2) {
+  let parsed;
+  try {
+    parsed = new URL(url2);
+  } catch (e) {
+    throw new DownloadError2({
+      url: url2,
+      message: `Invalid URL: ${url2}`
+    });
+  }
+  if (parsed.protocol === "data:")
+    return;
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
+    throw new DownloadError2({
+      url: url2,
+      message: `URL scheme must be http, https, or data, got ${parsed.protocol}`
+    });
+  let hostname3 = parsed.hostname.toLowerCase().replace(/\.+$/, "");
+  if (!hostname3)
+    throw new DownloadError2({
+      url: url2,
+      message: "URL must have a hostname"
+    });
+  if (hostname3 === "localhost" || hostname3.endsWith(".local") || hostname3.endsWith(".localhost"))
+    throw new DownloadError2({
+      url: url2,
+      message: `URL with hostname ${hostname3} is not allowed`
+    });
+  if (hostname3.startsWith("[") && hostname3.endsWith("]")) {
+    let ipv63 = hostname3.slice(1, -1);
+    if (isPrivateIPv6(ipv63))
+      throw new DownloadError2({
+        url: url2,
+        message: `URL with IPv6 address ${hostname3} is not allowed`
+      });
+    return;
+  }
+  if (isIPv4(hostname3)) {
+    if (isPrivateIPv4(hostname3))
+      throw new DownloadError2({
+        url: url2,
+        message: `URL with IP address ${hostname3} is not allowed`
+      });
+    return;
+  }
+}
+function isIPv4(hostname3) {
+  let parts = hostname3.split(".");
+  if (parts.length !== 4)
+    return !1;
+  return parts.every((part) => {
+    let num = Number(part);
+    return Number.isInteger(num) && num >= 0 && num <= 255 && String(num) === part;
+  });
+}
+function isPrivateIPv4(ip) {
+  let parts = ip.split(".").map(Number), [a, b, c] = parts;
+  if (a === 0)
+    return !0;
+  if (a === 10)
+    return !0;
+  if (a === 100 && b >= 64 && b <= 127)
+    return !0;
+  if (a === 127)
+    return !0;
+  if (a === 169 && b === 254)
+    return !0;
+  if (a === 172 && b >= 16 && b <= 31)
+    return !0;
+  if (a === 192 && b === 0 && c === 0)
+    return !0;
+  if (a === 192 && b === 168)
+    return !0;
+  if (a === 198 && (b === 18 || b === 19))
+    return !0;
+  if (a >= 240)
+    return !0;
+  return !1;
+}
+function parseIPv6(ip) {
+  let address = ip.toLowerCase(), zoneIndex = address.indexOf("%");
+  if (zoneIndex !== -1)
+    address = address.slice(0, zoneIndex);
+  let halves = address.split("::");
+  if (halves.length > 2)
+    return null;
+  let toGroups = (segment) => {
+    if (segment === "")
+      return [];
+    let groups = [], parts = segment.split(":");
+    for (let i = 0;i < parts.length; i++) {
+      let part = parts[i];
+      if (part.includes(".")) {
+        if (i !== parts.length - 1 || !isIPv4(part))
+          return null;
+        let [a, b, c, d] = part.split(".").map(Number);
+        groups.push(a << 8 | b, c << 8 | d);
+        continue;
+      }
+      if (!/^[0-9a-f]{1,4}$/.test(part))
+        return null;
+      groups.push(parseInt(part, 16));
+    }
+    return groups;
+  }, head = toGroups(halves[0]);
+  if (head === null)
+    return null;
+  if (halves.length === 2) {
+    let tail = toGroups(halves[1]);
+    if (tail === null)
+      return null;
+    let fill = 8 - head.length - tail.length;
+    if (fill < 0)
+      return null;
+    return [...head, ...Array(fill).fill(0), ...tail];
+  }
+  return head.length === 8 ? head : null;
+}
+function isPrivateIPv6(ip) {
+  let groups = parseIPv6(ip);
+  if (groups === null)
+    return !0;
+  let topZero = (count) => groups.slice(0, count).every((group) => group === 0);
+  if (topZero(7) && (groups[7] === 0 || groups[7] === 1))
+    return !0;
+  if ((groups[0] & 65024) === 64512)
+    return !0;
+  if ((groups[0] & 65472) === 65152)
+    return !0;
+  if ((groups[0] & 65472) === 65216)
+    return !0;
+  if ((groups[0] & 65280) === 65280)
+    return !0;
+  if (topZero(6) || topZero(5) && groups[5] === 65535 || topZero(4) && groups[4] === 65535 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 0 && groups[3] === 0 && groups[4] === 0 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 1) {
+    let a = groups[6] >> 8 & 255, b = groups[6] & 255, c = groups[7] >> 8 & 255, d = groups[7] & 255;
+    return isPrivateIPv4(`${a}.${b}.${c}.${d}`);
+  }
+  return !1;
+}
+var MAX_DOWNLOAD_REDIRECTS = 10;
+async function fetchWithValidatedRedirects({
+  url: url2,
+  headers,
+  abortSignal,
+  maxRedirects = MAX_DOWNLOAD_REDIRECTS
+}) {
+  let baseInit = { signal: abortSignal };
+  if (headers !== void 0)
+    baseInit.headers = headers;
+  let currentUrl = url2;
+  for (let redirectCount = 0;redirectCount <= maxRedirects; redirectCount++) {
+    validateDownloadUrl(currentUrl);
+    let response = await fetch(currentUrl, {
+      ...baseInit,
+      redirect: "manual"
+    });
+    if (response.type === "opaqueredirect") {
+      if (!isBrowserRuntime())
+        throw new DownloadError2({
+          url: url2,
+          message: `Redirect from ${currentUrl} could not be validated and was blocked`
+        });
+      return await fetch(currentUrl, { ...baseInit, redirect: "follow" });
+    }
+    let location = response.headers.get("location");
+    if (response.status >= 300 && response.status < 400 && location) {
+      await cancelResponseBody(response), currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+    return response;
+  }
+  throw new DownloadError2({
+    url: url2,
+    message: `Too many redirects (max ${maxRedirects})`
+  });
+}
+var DEFAULT_MAX_DOWNLOAD_SIZE = 2147483648;
+async function readResponseWithSizeLimit({
+  response,
+  url: url2,
+  maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE
+}) {
+  let contentLength = response.headers.get("content-length");
+  if (contentLength != null) {
+    let length = parseInt(contentLength, 10);
+    if (!isNaN(length) && length > maxBytes)
+      throw await cancelResponseBody(response), new DownloadError2({
+        url: url2,
+        message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes (Content-Length: ${length}).`
+      });
+  }
+  let body = response.body;
+  if (body == null)
+    return new Uint8Array(0);
+  let reader = body.getReader(), chunks = [], totalBytes = 0;
+  try {
+    while (!0) {
+      let { done, value } = await reader.read();
+      if (done)
+        break;
+      if (totalBytes += value.length, totalBytes > maxBytes)
+        throw new DownloadError2({
+          url: url2,
+          message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes.`
+        });
+      chunks.push(value);
+    }
+  } finally {
+    try {
+      await reader.cancel();
+    } finally {
+      reader.releaseLock();
+    }
+  }
+  let result = new Uint8Array(totalBytes), offset = 0;
+  for (let chunk of chunks)
+    result.set(chunk, offset), offset += chunk.length;
+  return result;
+}
+var createIdGenerator2 = ({
+  prefix,
+  size = 16,
+  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  separator = "-"
+} = {}) => {
+  let generator = () => {
+    let alphabetLength = alphabet.length, chars = Array(size);
+    for (let i = 0;i < size; i++)
+      chars[i] = alphabet[Math.random() * alphabetLength | 0];
+    return chars.join("");
+  };
+  if (prefix == null)
+    return generator;
+  if (alphabet.includes(separator))
+    throw new InvalidArgumentError2({
+      argument: "separator",
+      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
+    });
+  return () => `${prefix}${separator}${generator()}`;
+}, generateId2 = createIdGenerator2();
+function getErrorMessage3(error51) {
+  if (error51 == null)
+    return "unknown error";
+  if (typeof error51 === "string")
+    return error51;
+  if (error51 instanceof Error)
+    return error51.message;
+  return JSON.stringify(error51);
+}
+function isAbortError2(error51) {
+  return (error51 instanceof Error || error51 instanceof DOMException) && (error51.name === "AbortError" || error51.name === "ResponseAborted" || error51.name === "TimeoutError");
+}
+function getRuntimeEnvironmentUserAgent2(globalThisAny = globalThis) {
+  var _a24, _b24, _c;
+  if (globalThisAny.window)
+    return "runtime/browser";
+  if ((_a24 = globalThisAny.navigator) == null ? void 0 : _a24.userAgent)
+    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
+  if ((_c = (_b24 = globalThisAny.process) == null ? void 0 : _b24.versions) == null ? void 0 : _c.node)
+    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
+  if (globalThisAny.EdgeRuntime)
+    return "runtime/vercel-edge";
+  return "runtime/unknown";
+}
+function normalizeHeaders2(headers) {
+  if (headers == null)
+    return {};
+  let normalized = {};
+  if (headers instanceof Headers)
+    headers.forEach((value, key) => {
+      normalized[key.toLowerCase()] = value;
+    });
+  else {
+    if (!Array.isArray(headers))
+      headers = Object.entries(headers);
+    for (let [key, value] of headers)
+      if (value != null)
+        normalized[key.toLowerCase()] = value;
+  }
+  return normalized;
+}
+function withUserAgentSuffix2(headers, ...userAgentSuffixParts) {
+  let normalizedHeaders = new Headers(normalizeHeaders2(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
+  return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
+}
+function isUrlSupported({
+  mediaType,
+  url: url2,
+  supportedUrls
+}) {
+  return url2 = url2.toLowerCase(), mediaType = mediaType.toLowerCase(), Object.entries(supportedUrls).map(([key, value]) => {
+    let mediaType2 = key.toLowerCase();
+    return mediaType2 === "*" || mediaType2 === "*/*" ? { mediaTypePrefix: "", regexes: value } : { mediaTypePrefix: mediaType2.replace(/\*/, ""), regexes: value };
+  }).filter(({ mediaTypePrefix }) => mediaType.startsWith(mediaTypePrefix)).flatMap(({ regexes }) => regexes).some((pattern) => pattern.test(url2));
+}
+var suspectProtoRx2 = /"(?:_|\\u005[Ff])(?:_|\\u005[Ff])(?:p|\\u0070)(?:r|\\u0072)(?:o|\\u006[Ff])(?:t|\\u0074)(?:o|\\u006[Ff])(?:_|\\u005[Ff])(?:_|\\u005[Ff])"\s*:/, suspectConstructorRx2 = /"(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)"\s*:/;
+function _parse3(text) {
+  let obj = JSON.parse(text);
+  if (obj === null || typeof obj !== "object")
+    return obj;
+  if (suspectProtoRx2.test(text) === !1 && suspectConstructorRx2.test(text) === !1)
+    return obj;
+  return filter2(obj);
+}
+function filter2(obj) {
+  let next = [obj];
+  while (next.length) {
+    let nodes = next;
+    next = [];
+    for (let node of nodes) {
+      if (Object.prototype.hasOwnProperty.call(node, "__proto__"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      if (Object.prototype.hasOwnProperty.call(node, "constructor") && node.constructor !== null && typeof node.constructor === "object" && Object.prototype.hasOwnProperty.call(node.constructor, "prototype"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      for (let key in node) {
+        let value = node[key];
+        if (value && typeof value === "object")
+          next.push(value);
+      }
+    }
+  }
+  return obj;
+}
+function secureJsonParse2(text) {
+  let { stackTraceLimit } = Error;
+  try {
+    Error.stackTraceLimit = 0;
+  } catch (e) {
+    return _parse3(text);
+  }
+  try {
+    return _parse3(text);
+  } finally {
+    Error.stackTraceLimit = stackTraceLimit;
+  }
+}
+function addAdditionalPropertiesToJsonSchema2(jsonSchema2) {
+  if (jsonSchema2.type === "object" || Array.isArray(jsonSchema2.type) && jsonSchema2.type.includes("object")) {
+    jsonSchema2.additionalProperties = !1;
+    let { properties } = jsonSchema2;
+    if (properties != null)
+      for (let key of Object.keys(properties))
+        properties[key] = visit2(properties[key]);
+  }
+  if (jsonSchema2.items != null)
+    jsonSchema2.items = Array.isArray(jsonSchema2.items) ? jsonSchema2.items.map(visit2) : visit2(jsonSchema2.items);
+  if (jsonSchema2.anyOf != null)
+    jsonSchema2.anyOf = jsonSchema2.anyOf.map(visit2);
+  if (jsonSchema2.allOf != null)
+    jsonSchema2.allOf = jsonSchema2.allOf.map(visit2);
+  if (jsonSchema2.oneOf != null)
+    jsonSchema2.oneOf = jsonSchema2.oneOf.map(visit2);
+  let { definitions } = jsonSchema2;
+  if (definitions != null)
+    for (let key of Object.keys(definitions))
+      definitions[key] = visit2(definitions[key]);
+  return jsonSchema2;
+}
+function visit2(def) {
+  if (typeof def === "boolean")
+    return def;
+  return addAdditionalPropertiesToJsonSchema2(def);
+}
+var ignoreOverride2 = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use"), defaultOptions2 = {
+  name: void 0,
+  $refStrategy: "root",
+  basePath: ["#"],
+  effectStrategy: "input",
+  pipeStrategy: "all",
+  dateStrategy: "format:date-time",
+  mapStrategy: "entries",
+  removeAdditionalStrategy: "passthrough",
+  allowedAdditionalProperties: !0,
+  rejectedAdditionalProperties: !1,
+  definitionPath: "definitions",
+  strictUnions: !1,
+  definitions: {},
+  errorMessages: !1,
+  patternStrategy: "escape",
+  applyRegexFlags: !1,
+  emailStrategy: "format:email",
+  base64Strategy: "contentEncoding:base64",
+  nameStrategy: "ref"
+}, getDefaultOptions2 = (options) => typeof options === "string" ? {
+  ...defaultOptions2,
+  name: options
+} : {
+  ...defaultOptions2,
+  ...options
+};
+function parseAnyDef2() {
+  return {};
+}
+function parseArrayDef2(def, refs) {
+  var _a24, _b24, _c;
+  let res = {
+    type: "array"
+  };
+  if (((_a24 = def.type) == null ? void 0 : _a24._def) && ((_c = (_b24 = def.type) == null ? void 0 : _b24._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind2.ZodAny)
+    res.items = parseDef2(def.type._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    });
+  if (def.minLength)
+    res.minItems = def.minLength.value;
+  if (def.maxLength)
+    res.maxItems = def.maxLength.value;
+  if (def.exactLength)
+    res.minItems = def.exactLength.value, res.maxItems = def.exactLength.value;
+  return res;
+}
+function parseBigintDef2(def) {
+  let res = {
+    type: "integer",
+    format: "int64"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseBooleanDef2() {
+  return { type: "boolean" };
+}
+function parseBrandedDef2(_def, refs) {
+  return parseDef2(_def.type._def, refs);
+}
+var parseCatchDef2 = (def, refs) => {
+  return parseDef2(def.innerType._def, refs);
+};
+function parseDateDef2(def, refs, overrideDateStrategy) {
+  let strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
+  if (Array.isArray(strategy))
+    return {
+      anyOf: strategy.map((item, i) => parseDateDef2(def, refs, item))
+    };
+  switch (strategy) {
+    case "string":
+    case "format:date-time":
+      return {
+        type: "string",
+        format: "date-time"
+      };
+    case "format:date":
+      return {
+        type: "string",
+        format: "date"
+      };
+    case "integer":
+      return integerDateParser2(def);
+  }
+}
+var integerDateParser2 = (def) => {
+  let res = {
+    type: "integer",
+    format: "unix-time"
+  };
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        res.minimum = check2.value;
+        break;
+      case "max":
+        res.maximum = check2.value;
+        break;
+    }
+  return res;
+};
+function parseDefaultDef2(_def, refs) {
+  return {
+    ...parseDef2(_def.innerType._def, refs),
+    default: _def.defaultValue()
+  };
+}
+function parseEffectsDef2(_def, refs) {
+  return refs.effectStrategy === "input" ? parseDef2(_def.schema._def, refs) : parseAnyDef2();
+}
+function parseEnumDef2(def) {
+  return {
+    type: "string",
+    enum: Array.from(def.values)
+  };
+}
+var isJsonSchema7AllOfType2 = (type) => {
+  if ("type" in type && type.type === "string")
+    return !1;
+  return "allOf" in type;
+};
+function parseIntersectionDef2(def, refs) {
+  let allOf = [
+    parseDef2(def.left._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "0"]
+    }),
+    parseDef2(def.right._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "1"]
+    })
+  ].filter((x) => !!x), mergedAllOf = [];
+  return allOf.forEach((schema) => {
+    if (isJsonSchema7AllOfType2(schema))
+      mergedAllOf.push(...schema.allOf);
+    else {
+      let nestedSchema = schema;
+      if ("additionalProperties" in schema && schema.additionalProperties === !1) {
+        let { additionalProperties, ...rest } = schema;
+        nestedSchema = rest;
+      }
+      mergedAllOf.push(nestedSchema);
+    }
+  }), mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
+}
+function parseLiteralDef2(def) {
+  let parsedType2 = typeof def.value;
+  if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string")
+    return {
+      type: Array.isArray(def.value) ? "array" : "object"
+    };
+  return {
+    type: parsedType2 === "bigint" ? "integer" : parsedType2,
+    const: def.value
+  };
+}
+var emojiRegex3 = void 0, zodPatterns2 = {
+  cuid: /^[cC][^\s-]{8,}$/,
+  cuid2: /^[0-9a-z]+$/,
+  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
+  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
+  emoji: () => {
+    if (emojiRegex3 === void 0)
+      emojiRegex3 = RegExp("^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$", "u");
+    return emojiRegex3;
+  },
+  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
+  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
+  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
+  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
+  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
+  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
+  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
+  nanoid: /^[a-zA-Z0-9_-]{21}$/,
+  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
+};
+function parseStringDef2(def, refs) {
+  let res = {
+    type: "string"
+  };
+  if (def.checks)
+    for (let check2 of def.checks)
+      switch (check2.kind) {
+        case "min":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value;
+          break;
+        case "max":
+          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "email":
+          switch (refs.emailStrategy) {
+            case "format:email":
+              addFormat2(res, "email", check2.message, refs);
+              break;
+            case "format:idn-email":
+              addFormat2(res, "idn-email", check2.message, refs);
+              break;
+            case "pattern:zod":
+              addPattern2(res, zodPatterns2.email, check2.message, refs);
+              break;
+          }
+          break;
+        case "url":
+          addFormat2(res, "uri", check2.message, refs);
+          break;
+        case "uuid":
+          addFormat2(res, "uuid", check2.message, refs);
+          break;
+        case "regex":
+          addPattern2(res, check2.regex, check2.message, refs);
+          break;
+        case "cuid":
+          addPattern2(res, zodPatterns2.cuid, check2.message, refs);
+          break;
+        case "cuid2":
+          addPattern2(res, zodPatterns2.cuid2, check2.message, refs);
+          break;
+        case "startsWith":
+          addPattern2(res, RegExp(`^${escapeLiteralCheckValue2(check2.value, refs)}`), check2.message, refs);
+          break;
+        case "endsWith":
+          addPattern2(res, RegExp(`${escapeLiteralCheckValue2(check2.value, refs)}$`), check2.message, refs);
+          break;
+        case "datetime":
+          addFormat2(res, "date-time", check2.message, refs);
+          break;
+        case "date":
+          addFormat2(res, "date", check2.message, refs);
+          break;
+        case "time":
+          addFormat2(res, "time", check2.message, refs);
+          break;
+        case "duration":
+          addFormat2(res, "duration", check2.message, refs);
+          break;
+        case "length":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value, res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "includes": {
+          addPattern2(res, RegExp(escapeLiteralCheckValue2(check2.value, refs)), check2.message, refs);
+          break;
+        }
+        case "ip": {
+          if (check2.version !== "v6")
+            addFormat2(res, "ipv4", check2.message, refs);
+          if (check2.version !== "v4")
+            addFormat2(res, "ipv6", check2.message, refs);
+          break;
+        }
+        case "base64url":
+          addPattern2(res, zodPatterns2.base64url, check2.message, refs);
+          break;
+        case "jwt":
+          addPattern2(res, zodPatterns2.jwt, check2.message, refs);
+          break;
+        case "cidr": {
+          if (check2.version !== "v6")
+            addPattern2(res, zodPatterns2.ipv4Cidr, check2.message, refs);
+          if (check2.version !== "v4")
+            addPattern2(res, zodPatterns2.ipv6Cidr, check2.message, refs);
+          break;
+        }
+        case "emoji":
+          addPattern2(res, zodPatterns2.emoji(), check2.message, refs);
+          break;
+        case "ulid": {
+          addPattern2(res, zodPatterns2.ulid, check2.message, refs);
+          break;
+        }
+        case "base64": {
+          switch (refs.base64Strategy) {
+            case "format:binary": {
+              addFormat2(res, "binary", check2.message, refs);
+              break;
+            }
+            case "contentEncoding:base64": {
+              res.contentEncoding = "base64";
+              break;
+            }
+            case "pattern:zod": {
+              addPattern2(res, zodPatterns2.base64, check2.message, refs);
+              break;
+            }
+          }
+          break;
+        }
+        case "nanoid":
+          addPattern2(res, zodPatterns2.nanoid, check2.message, refs);
+        case "toLowerCase":
+        case "toUpperCase":
+        case "trim":
+          break;
+        default:
+      }
+  return res;
+}
+function escapeLiteralCheckValue2(literal2, refs) {
+  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric2(literal2) : literal2;
+}
+var ALPHA_NUMERIC2 = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+function escapeNonAlphaNumeric2(source) {
+  let result = "";
+  for (let i = 0;i < source.length; i++) {
+    if (!ALPHA_NUMERIC2.has(source[i]))
+      result += "\\";
+    result += source[i];
+  }
+  return result;
+}
+function addFormat2(schema, value, message, refs) {
+  var _a24;
+  if (schema.format || ((_a24 = schema.anyOf) == null ? void 0 : _a24.some((x) => x.format))) {
+    if (!schema.anyOf)
+      schema.anyOf = [];
+    if (schema.format)
+      schema.anyOf.push({
+        format: schema.format
+      }), delete schema.format;
+    schema.anyOf.push({
+      format: value,
+      ...message && refs.errorMessages && { errorMessage: { format: message } }
+    });
+  } else
+    schema.format = value;
+}
+function addPattern2(schema, regex, message, refs) {
+  var _a24;
+  if (schema.pattern || ((_a24 = schema.allOf) == null ? void 0 : _a24.some((x) => x.pattern))) {
+    if (!schema.allOf)
+      schema.allOf = [];
+    if (schema.pattern)
+      schema.allOf.push({
+        pattern: schema.pattern
+      }), delete schema.pattern;
+    schema.allOf.push({
+      pattern: stringifyRegExpWithFlags2(regex, refs),
+      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
+    });
+  } else
+    schema.pattern = stringifyRegExpWithFlags2(regex, refs);
+}
+function stringifyRegExpWithFlags2(regex, refs) {
+  var _a24;
+  if (!refs.applyRegexFlags || !regex.flags)
+    return regex.source;
+  let flags = {
+    i: regex.flags.includes("i"),
+    m: regex.flags.includes("m"),
+    s: regex.flags.includes("s")
+  }, source = flags.i ? regex.source.toLowerCase() : regex.source, pattern = "", isEscaped = !1, inCharGroup = !1, inCharRange = !1;
+  for (let i = 0;i < source.length; i++) {
+    if (isEscaped) {
+      pattern += source[i], isEscaped = !1;
+      continue;
+    }
+    if (flags.i) {
+      if (inCharGroup) {
+        if (source[i].match(/[a-z]/)) {
+          if (inCharRange)
+            pattern += source[i], pattern += `${source[i - 2]}-${source[i]}`.toUpperCase(), inCharRange = !1;
+          else if (source[i + 1] === "-" && ((_a24 = source[i + 2]) == null ? void 0 : _a24.match(/[a-z]/)))
+            pattern += source[i], inCharRange = !0;
+          else
+            pattern += `${source[i]}${source[i].toUpperCase()}`;
+          continue;
+        }
+      } else if (source[i].match(/[a-z]/)) {
+        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
+        continue;
+      }
+    }
+    if (flags.m) {
+      if (source[i] === "^") {
+        pattern += `(^|(?<=[\r
+]))`;
+        continue;
+      } else if (source[i] === "$") {
+        pattern += `($|(?=[\r
+]))`;
+        continue;
+      }
+    }
+    if (flags.s && source[i] === ".") {
+      pattern += inCharGroup ? `${source[i]}\r
+` : `[${source[i]}\r
+]`;
+      continue;
+    }
+    if (pattern += source[i], source[i] === "\\")
+      isEscaped = !0;
+    else if (inCharGroup && source[i] === "]")
+      inCharGroup = !1;
+    else if (!inCharGroup && source[i] === "[")
+      inCharGroup = !0;
+  }
+  try {
+    new RegExp(pattern);
+  } catch (e) {
+    return console.warn(`Could not convert regex pattern at ${refs.currentPath.join("/")} to a flag-independent form! Falling back to the flag-ignorant source`), regex.source;
+  }
+  return pattern;
+}
+function parseRecordDef2(def, refs) {
+  var _a24, _b24, _c, _d, _e, _f;
+  let schema = {
+    type: "object",
+    additionalProperties: (_a24 = parseDef2(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    })) != null ? _a24 : refs.allowedAdditionalProperties
+  };
+  if (((_b24 = def.keyType) == null ? void 0 : _b24._def.typeName) === ZodFirstPartyTypeKind2.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
+    let { type, ...keyType } = parseStringDef2(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind2.ZodEnum)
+    return {
+      ...schema,
+      propertyNames: {
+        enum: def.keyType._def.values
+      }
+    };
+  else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind2.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind2.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
+    let { type, ...keyType } = parseBrandedDef2(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  }
+  return schema;
+}
+function parseMapDef2(def, refs) {
+  if (refs.mapStrategy === "record")
+    return parseRecordDef2(def, refs);
+  let keys = parseDef2(def.keyType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "0"]
+  }) || parseAnyDef2(), values = parseDef2(def.valueType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "1"]
+  }) || parseAnyDef2();
+  return {
+    type: "array",
+    maxItems: 125,
+    items: {
+      type: "array",
+      items: [keys, values],
+      minItems: 2,
+      maxItems: 2
+    }
+  };
+}
+function parseNativeEnumDef2(def) {
+  let object2 = def.values, actualValues = Object.keys(def.values).filter((key) => {
+    return typeof object2[object2[key]] !== "number";
+  }).map((key) => object2[key]), parsedTypes = Array.from(new Set(actualValues.map((values) => typeof values)));
+  return {
+    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
+    enum: actualValues
+  };
+}
+function parseNeverDef2() {
+  return { not: parseAnyDef2() };
+}
+function parseNullDef2() {
+  return {
+    type: "null"
+  };
+}
+var primitiveMappings2 = {
+  ZodString: "string",
+  ZodNumber: "number",
+  ZodBigInt: "integer",
+  ZodBoolean: "boolean",
+  ZodNull: "null"
+};
+function parseUnionDef2(def, refs) {
+  let options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
+  if (options.every((x) => (x._def.typeName in primitiveMappings2) && (!x._def.checks || !x._def.checks.length))) {
+    let types = options.reduce((types2, x) => {
+      let type = primitiveMappings2[x._def.typeName];
+      return type && !types2.includes(type) ? [...types2, type] : types2;
+    }, []);
+    return {
+      type: types.length > 1 ? types : types[0]
+    };
+  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
+    let types = options.reduce((acc, x) => {
+      let type = typeof x._def.value;
+      switch (type) {
+        case "string":
+        case "number":
+        case "boolean":
+          return [...acc, type];
+        case "bigint":
+          return [...acc, "integer"];
+        case "object":
+          if (x._def.value === null)
+            return [...acc, "null"];
+        case "symbol":
+        case "undefined":
+        case "function":
+        default:
+          return acc;
+      }
+    }, []);
+    if (types.length === options.length) {
+      let uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
+      return {
+        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
+        enum: options.reduce((acc, x) => {
+          return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
+        }, [])
+      };
+    }
+  } else if (options.every((x) => x._def.typeName === "ZodEnum"))
+    return {
+      type: "string",
+      enum: options.reduce((acc, x) => [
+        ...acc,
+        ...x._def.values.filter((x2) => !acc.includes(x2))
+      ], [])
+    };
+  return asAnyOf2(def, refs);
+}
+var asAnyOf2 = (def, refs) => {
+  let anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef2(x._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", `${i}`]
+  })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
+  return anyOf.length ? { anyOf } : void 0;
+};
+function parseNullableDef2(def, refs) {
+  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length))
+    return {
+      type: [
+        primitiveMappings2[def.innerType._def.typeName],
+        "null"
+      ]
+    };
+  let base = parseDef2(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "0"]
+  });
+  return base && { anyOf: [base, { type: "null" }] };
+}
+function parseNumberDef2(def) {
+  let res = {
+    type: "number"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "int":
+        res.type = "integer";
+        break;
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseObjectDef2(def, refs) {
+  let result = {
+    type: "object",
+    properties: {}
+  }, required2 = [], shape = def.shape();
+  for (let propName in shape) {
+    let propDef = shape[propName];
+    if (propDef === void 0 || propDef._def === void 0)
+      continue;
+    let propOptional = safeIsOptional2(propDef), parsedDef = parseDef2(propDef._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "properties", propName],
+      propertyPath: [...refs.currentPath, "properties", propName]
+    });
+    if (parsedDef === void 0)
+      continue;
+    if (result.properties[propName] = parsedDef, !propOptional)
+      required2.push(propName);
+  }
+  if (required2.length)
+    result.required = required2;
+  let additionalProperties = decideAdditionalProperties2(def, refs);
+  if (additionalProperties !== void 0)
+    result.additionalProperties = additionalProperties;
+  return result;
+}
+function decideAdditionalProperties2(def, refs) {
+  if (def.catchall._def.typeName !== "ZodNever")
+    return parseDef2(def.catchall._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    });
+  switch (def.unknownKeys) {
+    case "passthrough":
+      return refs.allowedAdditionalProperties;
+    case "strict":
+      return refs.rejectedAdditionalProperties;
+    case "strip":
+      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
+  }
+}
+function safeIsOptional2(schema) {
+  try {
+    return schema.isOptional();
+  } catch (e) {
+    return !0;
+  }
+}
+var parseOptionalDef2 = (def, refs) => {
+  var _a24;
+  if (refs.currentPath.toString() === ((_a24 = refs.propertyPath) == null ? void 0 : _a24.toString()))
+    return parseDef2(def.innerType._def, refs);
+  let innerSchema = parseDef2(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "1"]
+  });
+  return innerSchema ? { anyOf: [{ not: parseAnyDef2() }, innerSchema] } : parseAnyDef2();
+}, parsePipelineDef2 = (def, refs) => {
+  if (refs.pipeStrategy === "input")
+    return parseDef2(def.in._def, refs);
+  else if (refs.pipeStrategy === "output")
+    return parseDef2(def.out._def, refs);
+  let a = parseDef2(def.in._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", "0"]
+  }), b = parseDef2(def.out._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
+  });
+  return {
+    allOf: [a, b].filter((x) => x !== void 0)
+  };
+};
+function parsePromiseDef2(def, refs) {
+  return parseDef2(def.type._def, refs);
+}
+function parseSetDef2(def, refs) {
+  let schema = {
+    type: "array",
+    uniqueItems: !0,
+    items: parseDef2(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    })
+  };
+  if (def.minSize)
+    schema.minItems = def.minSize.value;
+  if (def.maxSize)
+    schema.maxItems = def.maxSize.value;
+  return schema;
+}
+function parseTupleDef2(def, refs) {
+  if (def.rest)
+    return {
+      type: "array",
+      minItems: def.items.length,
+      items: def.items.map((x, i) => parseDef2(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
+      additionalItems: parseDef2(def.rest._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "additionalItems"]
+      })
+    };
+  else
+    return {
+      type: "array",
+      minItems: def.items.length,
+      maxItems: def.items.length,
+      items: def.items.map((x, i) => parseDef2(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
+    };
+}
+function parseUndefinedDef2() {
+  return {
+    not: parseAnyDef2()
+  };
+}
+function parseUnknownDef2() {
+  return parseAnyDef2();
+}
+var parseReadonlyDef2 = (def, refs) => {
+  return parseDef2(def.innerType._def, refs);
+}, selectParser2 = (def, typeName, refs) => {
+  switch (typeName) {
+    case ZodFirstPartyTypeKind2.ZodString:
+      return parseStringDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNumber:
+      return parseNumberDef2(def);
+    case ZodFirstPartyTypeKind2.ZodObject:
+      return parseObjectDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBigInt:
+      return parseBigintDef2(def);
+    case ZodFirstPartyTypeKind2.ZodBoolean:
+      return parseBooleanDef2();
+    case ZodFirstPartyTypeKind2.ZodDate:
+      return parseDateDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUndefined:
+      return parseUndefinedDef2();
+    case ZodFirstPartyTypeKind2.ZodNull:
+      return parseNullDef2();
+    case ZodFirstPartyTypeKind2.ZodArray:
+      return parseArrayDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUnion:
+    case ZodFirstPartyTypeKind2.ZodDiscriminatedUnion:
+      return parseUnionDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodIntersection:
+      return parseIntersectionDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodTuple:
+      return parseTupleDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodRecord:
+      return parseRecordDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLiteral:
+      return parseLiteralDef2(def);
+    case ZodFirstPartyTypeKind2.ZodEnum:
+      return parseEnumDef2(def);
+    case ZodFirstPartyTypeKind2.ZodNativeEnum:
+      return parseNativeEnumDef2(def);
+    case ZodFirstPartyTypeKind2.ZodNullable:
+      return parseNullableDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodOptional:
+      return parseOptionalDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodMap:
+      return parseMapDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodSet:
+      return parseSetDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLazy:
+      return () => def.getter()._def;
+    case ZodFirstPartyTypeKind2.ZodPromise:
+      return parsePromiseDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNaN:
+    case ZodFirstPartyTypeKind2.ZodNever:
+      return parseNeverDef2();
+    case ZodFirstPartyTypeKind2.ZodEffects:
+      return parseEffectsDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodAny:
+      return parseAnyDef2();
+    case ZodFirstPartyTypeKind2.ZodUnknown:
+      return parseUnknownDef2();
+    case ZodFirstPartyTypeKind2.ZodDefault:
+      return parseDefaultDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBranded:
+      return parseBrandedDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodReadonly:
+      return parseReadonlyDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodCatch:
+      return parseCatchDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodPipeline:
+      return parsePipelineDef2(def, refs);
+    case ZodFirstPartyTypeKind2.ZodFunction:
+    case ZodFirstPartyTypeKind2.ZodVoid:
+    case ZodFirstPartyTypeKind2.ZodSymbol:
+      return;
+    default:
+      return /* @__PURE__ */ ((_) => {
+        return;
+      })(typeName);
+  }
+}, getRelativePath2 = (pathA, pathB) => {
+  let i = 0;
+  for (;i < pathA.length && i < pathB.length; i++)
+    if (pathA[i] !== pathB[i])
+      break;
+  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
+};
+function parseDef2(def, refs, forceResolution = !1) {
+  var _a24;
+  let seenItem = refs.seen.get(def);
+  if (refs.override) {
+    let overrideResult = (_a24 = refs.override) == null ? void 0 : _a24.call(refs, def, refs, seenItem, forceResolution);
+    if (overrideResult !== ignoreOverride2)
+      return overrideResult;
+  }
+  if (seenItem && !forceResolution) {
+    let seenSchema = get$ref2(seenItem, refs);
+    if (seenSchema !== void 0)
+      return seenSchema;
+  }
+  let newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
+  refs.seen.set(def, newItem);
+  let jsonSchemaOrGetter = selectParser2(def, def.typeName, refs), jsonSchema2 = typeof jsonSchemaOrGetter === "function" ? parseDef2(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
+  if (jsonSchema2)
+    addMeta2(def, refs, jsonSchema2);
+  if (refs.postProcess) {
+    let postProcessResult = refs.postProcess(jsonSchema2, def, refs);
+    return newItem.jsonSchema = jsonSchema2, postProcessResult;
+  }
+  return newItem.jsonSchema = jsonSchema2, jsonSchema2;
+}
+var get$ref2 = (item, refs) => {
+  switch (refs.$refStrategy) {
+    case "root":
+      return { $ref: item.path.join("/") };
+    case "relative":
+      return { $ref: getRelativePath2(refs.currentPath, item.path) };
+    case "none":
+    case "seen": {
+      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value))
+        return console.warn(`Recursive reference detected at ${refs.currentPath.join("/")}! Defaulting to any`), parseAnyDef2();
+      return refs.$refStrategy === "seen" ? parseAnyDef2() : void 0;
+    }
+  }
+}, addMeta2 = (def, refs, jsonSchema2) => {
+  if (def.description)
+    jsonSchema2.description = def.description;
+  return jsonSchema2;
+}, getRefs2 = (options) => {
+  let _options = getDefaultOptions2(options), currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
+  return {
+    ..._options,
+    currentPath,
+    propertyPath: void 0,
+    seen: new Map(Object.entries(_options.definitions).map(([name24, def]) => [
+      def._def,
+      {
+        def: def._def,
+        path: [..._options.basePath, _options.definitionPath, name24],
+        jsonSchema: void 0
+      }
+    ]))
+  };
+}, zod3ToJsonSchema2 = (schema, options) => {
+  var _a24;
+  let refs = getRefs2(options), definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name34, schema2]) => {
+    var _a34;
+    return {
+      ...acc,
+      [name34]: (_a34 = parseDef2(schema2._def, {
+        ...refs,
+        currentPath: [...refs.basePath, refs.definitionPath, name34]
+      }, !0)) != null ? _a34 : parseAnyDef2()
+    };
+  }, {}) : void 0, name24 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name, main = (_a24 = parseDef2(schema._def, name24 === void 0 ? refs : {
+    ...refs,
+    currentPath: [...refs.basePath, refs.definitionPath, name24]
+  }, !1)) != null ? _a24 : parseAnyDef2(), title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
+  if (title !== void 0)
+    main.title = title;
+  let combined = name24 === void 0 ? definitions ? {
+    ...main,
+    [refs.definitionPath]: definitions
+  } : main : {
+    $ref: [
+      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
+      refs.definitionPath,
+      name24
+    ].join("/"),
+    [refs.definitionPath]: {
+      ...definitions,
+      [name24]: main
+    }
+  };
+  return combined.$schema = "http://json-schema.org/draft-07/schema#", combined;
+}, schemaSymbol2 = /* @__PURE__ */ Symbol.for("vercel.ai.schema");
+function lazySchema2(createSchema) {
+  let schema;
+  return () => {
+    if (schema == null)
+      schema = createSchema();
+    return schema;
+  };
+}
+function jsonSchema2(jsonSchema22, {
+  validate
+} = {}) {
+  return {
+    [schemaSymbol2]: !0,
+    _type: void 0,
+    get jsonSchema() {
+      if (typeof jsonSchema22 === "function")
+        jsonSchema22 = jsonSchema22();
+      return jsonSchema22;
+    },
+    validate
+  };
+}
+function isSchema2(value) {
+  return typeof value === "object" && value !== null && schemaSymbol2 in value && value[schemaSymbol2] === !0 && "jsonSchema" in value && "validate" in value;
+}
+function asSchema2(schema) {
+  return schema == null ? jsonSchema2({ properties: {}, additionalProperties: !1 }) : isSchema2(schema) ? schema : ("~standard" in schema) ? schema["~standard"].vendor === "zod" ? zodSchema2(schema) : standardSchema2(schema) : schema();
+}
+function standardSchema2(standardSchema22) {
+  return jsonSchema2(() => addAdditionalPropertiesToJsonSchema2(standardSchema22["~standard"].jsonSchema.input({
+    target: "draft-07"
+  })), {
+    validate: async (value) => {
+      let result = await standardSchema22["~standard"].validate(value);
+      return "value" in result ? { success: !0, value: result.value } : {
+        success: !1,
+        error: new TypeValidationError2({
+          value,
+          cause: result.issues
+        })
+      };
+    }
+  });
+}
+function zod3Schema2(zodSchema2, options) {
+  var _a24;
+  let useReferences = (_a24 = options == null ? void 0 : options.useReferences) != null ? _a24 : !1;
+  return jsonSchema2(() => zod3ToJsonSchema2(zodSchema2, {
+    $refStrategy: useReferences ? "root" : "none"
+  }), {
+    validate: async (value) => {
+      let result = await zodSchema2.safeParseAsync(value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function zod4Schema2(zodSchema2, options) {
+  var _a24;
+  let useReferences = (_a24 = options == null ? void 0 : options.useReferences) != null ? _a24 : !1;
+  return jsonSchema2(() => addAdditionalPropertiesToJsonSchema2(toJSONSchema(zodSchema2, {
+    target: "draft-7",
+    io: "input",
+    reused: useReferences ? "ref" : "inline"
+  })), {
+    validate: async (value) => {
+      let result = await safeParseAsync2(zodSchema2, value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function isZod4Schema2(zodSchema2) {
+  return "_zod" in zodSchema2;
+}
+function zodSchema2(zodSchema22, options) {
+  if (isZod4Schema2(zodSchema22))
+    return zod4Schema2(zodSchema22, options);
+  else
+    return zod3Schema2(zodSchema22, options);
+}
+async function validateTypes2({
+  value,
+  schema,
+  context
+}) {
+  let result = await safeValidateTypes2({ value, schema, context });
+  if (!result.success)
+    throw TypeValidationError2.wrap({ value, cause: result.error, context });
+  return result.value;
+}
+async function safeValidateTypes2({
+  value,
+  schema,
+  context
+}) {
+  let actualSchema = asSchema2(schema);
+  try {
+    if (actualSchema.validate == null)
+      return { success: !0, value, rawValue: value };
+    let result = await actualSchema.validate(value);
+    if (result.success)
+      return { success: !0, value: result.value, rawValue: value };
+    return {
+      success: !1,
+      error: TypeValidationError2.wrap({ value, cause: result.error, context }),
+      rawValue: value
+    };
+  } catch (error51) {
+    return {
+      success: !1,
+      error: TypeValidationError2.wrap({ value, cause: error51, context }),
+      rawValue: value
+    };
+  }
+}
+async function safeParseJSON2({
+  text,
+  schema
+}) {
+  try {
+    let value = secureJsonParse2(text);
+    if (schema == null)
+      return { success: !0, value, rawValue: value };
+    return await safeValidateTypes2({ value, schema });
+  } catch (error51) {
+    return {
+      success: !1,
+      error: JSONParseError2.isInstance(error51) ? error51 : new JSONParseError2({ text, cause: error51 }),
+      rawValue: void 0
+    };
+  }
+}
+function tool2(tool22) {
+  return tool22;
+}
+async function resolve2(value) {
+  if (typeof value === "function")
+    value = value();
+  return Promise.resolve(value);
+}
+function isAsyncIterable(obj) {
+  return obj != null && typeof obj[Symbol.asyncIterator] === "function";
+}
+async function* executeTool({
+  execute,
+  input,
+  options
+}) {
+  let result = execute(input, options);
+  if (isAsyncIterable(result)) {
+    let lastOutput;
+    for await (let output of result)
+      lastOutput = output, yield { type: "preliminary", output };
+    yield { type: "final", output: lastOutput };
+  } else
+    yield { type: "final", output: await result };
+}
+
 // node_modules/@opentelemetry/api/build/esm/platform/browser/globalThis.js
 var _globalThis = typeof globalThis === "object" ? globalThis : typeof self === "object" ? self : typeof window === "object" ? window : typeof global === "object" ? global : {};
 
@@ -20251,102 +21419,102 @@ var trace = TraceAPI.getInstance();
 var __defProp2 = Object.defineProperty, __export2 = (target, all) => {
   for (var name222 in all)
     __defProp2(target, name222, { get: all[name222], enumerable: !0 });
-}, name17 = "AI_InvalidArgumentError", marker18 = `vercel.ai.error.${name17}`, symbol19 = Symbol.for(marker18), _a20, InvalidArgumentError2 = class extends AISDKError {
+}, name19 = "AI_InvalidArgumentError", marker20 = `vercel.ai.error.${name19}`, symbol21 = Symbol.for(marker20), _a24, InvalidArgumentError3 = class extends AISDKError2 {
   constructor({
     parameter,
     value,
     message
   }) {
     super({
-      name: name17,
+      name: name19,
       message: `Invalid argument for parameter ${parameter}: ${message}`
     });
-    this[_a20] = !0, this.parameter = parameter, this.value = value;
+    this[_a24] = !0, this.parameter = parameter, this.value = value;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker18);
+    return AISDKError2.hasMarker(error51, marker20);
   }
 };
-_a20 = symbol19;
-var name23 = "AI_InvalidStreamPartError", marker23 = `vercel.ai.error.${name23}`, symbol23 = Symbol.for(marker23), _a23;
-_a23 = symbol23;
-var name33 = "AI_InvalidToolApprovalError", marker33 = `vercel.ai.error.${name33}`, symbol33 = Symbol.for(marker33), _a33, InvalidToolApprovalError = class extends AISDKError {
+_a24 = symbol21;
+var name24 = "AI_InvalidStreamPartError", marker24 = `vercel.ai.error.${name24}`, symbol24 = Symbol.for(marker24), _a25;
+_a25 = symbol24;
+var name34 = "AI_InvalidToolApprovalError", marker34 = `vercel.ai.error.${name34}`, symbol34 = Symbol.for(marker34), _a34, InvalidToolApprovalError = class extends AISDKError2 {
   constructor({ approvalId }) {
     super({
-      name: name33,
+      name: name34,
       message: `Tool approval response references unknown approvalId: "${approvalId}". No matching tool-approval-request found in message history.`
     });
-    this[_a33] = !0, this.approvalId = approvalId;
+    this[_a34] = !0, this.approvalId = approvalId;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker33);
+    return AISDKError2.hasMarker(error51, marker34);
   }
 };
-_a33 = symbol33;
-var name43 = "AI_InvalidToolApprovalSignatureError", marker43 = `vercel.ai.error.${name43}`, symbol43 = Symbol.for(marker43), _a43, InvalidToolApprovalSignatureError = class extends AISDKError {
+_a34 = symbol34;
+var name44 = "AI_InvalidToolApprovalSignatureError", marker44 = `vercel.ai.error.${name44}`, symbol44 = Symbol.for(marker44), _a44, InvalidToolApprovalSignatureError = class extends AISDKError2 {
   constructor({
     approvalId,
     toolCallId,
     reason
   }) {
     super({
-      name: name43,
+      name: name44,
       message: `Tool approval signature verification failed for approval "${approvalId}" (tool call "${toolCallId}"): ${reason}`
     });
-    this[_a43] = !0, this.approvalId = approvalId, this.toolCallId = toolCallId;
+    this[_a44] = !0, this.approvalId = approvalId, this.toolCallId = toolCallId;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker43);
+    return AISDKError2.hasMarker(error51, marker44);
   }
 };
-_a43 = symbol43;
-var name53 = "AI_InvalidToolInputError", marker53 = `vercel.ai.error.${name53}`, symbol53 = Symbol.for(marker53), _a53, InvalidToolInputError = class extends AISDKError {
+_a44 = symbol44;
+var name54 = "AI_InvalidToolInputError", marker54 = `vercel.ai.error.${name54}`, symbol54 = Symbol.for(marker54), _a54, InvalidToolInputError = class extends AISDKError2 {
   constructor({
     toolInput,
     toolName,
     cause,
-    message = `Invalid input for tool ${toolName}: ${getErrorMessage(cause)}`
+    message = `Invalid input for tool ${toolName}: ${getErrorMessage2(cause)}`
   }) {
-    super({ name: name53, message, cause });
-    this[_a53] = !0, this.toolInput = toolInput, this.toolName = toolName;
+    super({ name: name54, message, cause });
+    this[_a54] = !0, this.toolInput = toolInput, this.toolName = toolName;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker53);
+    return AISDKError2.hasMarker(error51, marker54);
   }
 };
-_a53 = symbol53;
-var name63 = "AI_ToolCallNotFoundForApprovalError", marker63 = `vercel.ai.error.${name63}`, symbol63 = Symbol.for(marker63), _a63, ToolCallNotFoundForApprovalError = class extends AISDKError {
+_a54 = symbol54;
+var name64 = "AI_ToolCallNotFoundForApprovalError", marker64 = `vercel.ai.error.${name64}`, symbol64 = Symbol.for(marker64), _a64, ToolCallNotFoundForApprovalError = class extends AISDKError2 {
   constructor({
     toolCallId,
     approvalId
   }) {
     super({
-      name: name63,
+      name: name64,
       message: `Tool call "${toolCallId}" not found for approval request "${approvalId}".`
     });
-    this[_a63] = !0, this.toolCallId = toolCallId, this.approvalId = approvalId;
+    this[_a64] = !0, this.toolCallId = toolCallId, this.approvalId = approvalId;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker63);
+    return AISDKError2.hasMarker(error51, marker64);
   }
 };
-_a63 = symbol63;
-var name73 = "AI_MissingToolResultsError", marker73 = `vercel.ai.error.${name73}`, symbol73 = Symbol.for(marker73), _a73, MissingToolResultsError = class extends AISDKError {
+_a64 = symbol64;
+var name74 = "AI_MissingToolResultsError", marker74 = `vercel.ai.error.${name74}`, symbol74 = Symbol.for(marker74), _a74, MissingToolResultsError = class extends AISDKError2 {
   constructor({ toolCallIds }) {
     super({
-      name: name73,
+      name: name74,
       message: `Tool result${toolCallIds.length > 1 ? "s are" : " is"} missing for tool call${toolCallIds.length > 1 ? "s" : ""} ${toolCallIds.join(", ")}.`
     });
-    this[_a73] = !0, this.toolCallIds = toolCallIds;
+    this[_a74] = !0, this.toolCallIds = toolCallIds;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker73);
+    return AISDKError2.hasMarker(error51, marker74);
   }
 };
-_a73 = symbol73;
-var name83 = "AI_NoImageGeneratedError", marker83 = `vercel.ai.error.${name83}`, symbol83 = Symbol.for(marker83), _a83;
-_a83 = symbol83;
-var name93 = "AI_NoObjectGeneratedError", marker93 = `vercel.ai.error.${name93}`, symbol93 = Symbol.for(marker93), _a93, NoObjectGeneratedError = class extends AISDKError {
+_a74 = symbol74;
+var name84 = "AI_NoImageGeneratedError", marker84 = `vercel.ai.error.${name84}`, symbol84 = Symbol.for(marker84), _a84;
+_a84 = symbol84;
+var name94 = "AI_NoObjectGeneratedError", marker94 = `vercel.ai.error.${name94}`, symbol94 = Symbol.for(marker94), _a94, NoObjectGeneratedError = class extends AISDKError2 {
   constructor({
     message = "No object generated.",
     cause,
@@ -20355,62 +21523,62 @@ var name93 = "AI_NoObjectGeneratedError", marker93 = `vercel.ai.error.${name93}`
     usage,
     finishReason
   }) {
-    super({ name: name93, message, cause });
-    this[_a93] = !0, this.text = text2, this.response = response, this.usage = usage, this.finishReason = finishReason;
+    super({ name: name94, message, cause });
+    this[_a94] = !0, this.text = text2, this.response = response, this.usage = usage, this.finishReason = finishReason;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker93);
+    return AISDKError2.hasMarker(error51, marker94);
   }
 };
-_a93 = symbol93;
-var name102 = "AI_NoOutputGeneratedError", marker103 = `vercel.ai.error.${name102}`, symbol103 = Symbol.for(marker103), _a103, NoOutputGeneratedError = class extends AISDKError {
+_a94 = symbol94;
+var name103 = "AI_NoOutputGeneratedError", marker104 = `vercel.ai.error.${name103}`, symbol104 = Symbol.for(marker104), _a104, NoOutputGeneratedError = class extends AISDKError2 {
   constructor({
     message = "No output generated.",
     cause
   } = {}) {
-    super({ name: name102, message, cause });
-    this[_a103] = !0;
+    super({ name: name103, message, cause });
+    this[_a104] = !0;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker103);
+    return AISDKError2.hasMarker(error51, marker104);
   }
 };
-_a103 = symbol103;
-var name112 = "AI_NoSpeechGeneratedError", marker112 = `vercel.ai.error.${name112}`, symbol112 = Symbol.for(marker112), _a112;
-_a112 = symbol112;
-var name122 = "AI_NoTranscriptGeneratedError", marker122 = `vercel.ai.error.${name122}`, symbol122 = Symbol.for(marker122), _a122;
-_a122 = symbol122;
-var name132 = "AI_NoVideoGeneratedError", marker132 = `vercel.ai.error.${name132}`, symbol132 = Symbol.for(marker132), _a132;
-_a132 = symbol132;
-var name142 = "AI_NoSuchToolError", marker142 = `vercel.ai.error.${name142}`, symbol142 = Symbol.for(marker142), _a142, NoSuchToolError = class extends AISDKError {
+_a104 = symbol104;
+var name113 = "AI_NoSpeechGeneratedError", marker113 = `vercel.ai.error.${name113}`, symbol113 = Symbol.for(marker113), _a113;
+_a113 = symbol113;
+var name123 = "AI_NoTranscriptGeneratedError", marker123 = `vercel.ai.error.${name123}`, symbol123 = Symbol.for(marker123), _a123;
+_a123 = symbol123;
+var name133 = "AI_NoVideoGeneratedError", marker133 = `vercel.ai.error.${name133}`, symbol133 = Symbol.for(marker133), _a133;
+_a133 = symbol133;
+var name142 = "AI_NoSuchToolError", marker143 = `vercel.ai.error.${name142}`, symbol143 = Symbol.for(marker143), _a143, NoSuchToolError = class extends AISDKError2 {
   constructor({
     toolName,
     availableTools = void 0,
     message = `Model tried to call unavailable tool '${toolName}'. ${availableTools === void 0 ? "No tools are available." : `Available tools: ${availableTools.join(", ")}.`}`
   }) {
     super({ name: name142, message });
-    this[_a142] = !0, this.toolName = toolName, this.availableTools = availableTools;
+    this[_a143] = !0, this.toolName = toolName, this.availableTools = availableTools;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker142);
+    return AISDKError2.hasMarker(error51, marker143);
   }
 };
-_a142 = symbol142;
-var name15 = "AI_ToolCallRepairError", marker152 = `vercel.ai.error.${name15}`, symbol152 = Symbol.for(marker152), _a152, ToolCallRepairError = class extends AISDKError {
+_a143 = symbol143;
+var name15 = "AI_ToolCallRepairError", marker152 = `vercel.ai.error.${name15}`, symbol152 = Symbol.for(marker152), _a152, ToolCallRepairError = class extends AISDKError2 {
   constructor({
     cause,
     originalError,
-    message = `Error repairing tool call: ${getErrorMessage(cause)}`
+    message = `Error repairing tool call: ${getErrorMessage2(cause)}`
   }) {
     super({ name: name15, message, cause });
     this[_a152] = !0, this.originalError = originalError;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker152);
+    return AISDKError2.hasMarker(error51, marker152);
   }
 };
 _a152 = symbol152;
-var UnsupportedModelVersionError = class extends AISDKError {
+var UnsupportedModelVersionError = class extends AISDKError2 {
   constructor(options) {
     super({
       name: "AI_UnsupportedModelVersionError",
@@ -20418,7 +21586,7 @@ var UnsupportedModelVersionError = class extends AISDKError {
     });
     this.version = options.version, this.provider = options.provider, this.modelId = options.modelId;
   }
-}, name162 = "AI_UIMessageStreamError", marker16 = `vercel.ai.error.${name162}`, symbol16 = Symbol.for(marker16), _a16, UIMessageStreamError = class extends AISDKError {
+}, name162 = "AI_UIMessageStreamError", marker16 = `vercel.ai.error.${name162}`, symbol16 = Symbol.for(marker16), _a16, UIMessageStreamError = class extends AISDKError2 {
   constructor({
     chunkType,
     chunkId,
@@ -20428,28 +21596,28 @@ var UnsupportedModelVersionError = class extends AISDKError {
     this[_a16] = !0, this.chunkType = chunkType, this.chunkId = chunkId;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker16);
+    return AISDKError2.hasMarker(error51, marker16);
   }
 };
 _a16 = symbol16;
 var name172 = "AI_InvalidDataContentError", marker172 = `vercel.ai.error.${name172}`, symbol172 = Symbol.for(marker172), _a172;
 _a172 = symbol172;
-var name18 = "AI_InvalidMessageRoleError", marker182 = `vercel.ai.error.${name18}`, symbol182 = Symbol.for(marker182), _a182, InvalidMessageRoleError = class extends AISDKError {
+var name182 = "AI_InvalidMessageRoleError", marker182 = `vercel.ai.error.${name182}`, symbol182 = Symbol.for(marker182), _a182, InvalidMessageRoleError = class extends AISDKError2 {
   constructor({
     role,
     message = `Invalid message role: '${role}'. Must be one of: "system", "user", "assistant", "tool".`
   }) {
-    super({ name: name18, message });
+    super({ name: name182, message });
     this[_a182] = !0, this.role = role;
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker182);
+    return AISDKError2.hasMarker(error51, marker182);
   }
 };
 _a182 = symbol182;
-var name19 = "AI_MessageConversionError", marker19 = `vercel.ai.error.${name19}`, symbol192 = Symbol.for(marker19), _a192;
+var name192 = "AI_MessageConversionError", marker192 = `vercel.ai.error.${name192}`, symbol192 = Symbol.for(marker192), _a192;
 _a192 = symbol192;
-var name20 = "AI_RetryError", marker20 = `vercel.ai.error.${name20}`, symbol20 = Symbol.for(marker20), _a202, RetryError = class extends AISDKError {
+var name20 = "AI_RetryError", marker202 = `vercel.ai.error.${name20}`, symbol202 = Symbol.for(marker202), _a202, RetryError = class extends AISDKError2 {
   constructor({
     message,
     reason,
@@ -20459,10 +21627,10 @@ var name20 = "AI_RetryError", marker20 = `vercel.ai.error.${name20}`, symbol20 =
     this[_a202] = !0, this.reason = reason, this.errors = errors3, this.lastError = errors3[errors3.length - 1];
   }
   static isInstance(error51) {
-    return AISDKError.hasMarker(error51, marker20);
+    return AISDKError2.hasMarker(error51, marker202);
   }
 };
-_a202 = symbol20;
+_a202 = symbol202;
 function asArray(value) {
   return value === void 0 ? [] : Array.isArray(value) ? value : [value];
 }
@@ -20745,13 +21913,13 @@ var VERSION4 = "6.0.208", download = async ({
   var _a222;
   let urlText = url2.toString();
   try {
-    let headers = withUserAgentSuffix({}, `ai-sdk/${VERSION4}`, getRuntimeEnvironmentUserAgent()), response = await fetchWithValidatedRedirects({
+    let headers = withUserAgentSuffix2({}, `ai-sdk/${VERSION4}`, getRuntimeEnvironmentUserAgent2()), response = await fetchWithValidatedRedirects({
       url: urlText,
       headers,
       abortSignal
     });
     if (!response.ok)
-      throw await cancelResponseBody(response), new DownloadError({
+      throw await cancelResponseBody(response), new DownloadError2({
         url: urlText,
         statusCode: response.status,
         statusText: response.statusText
@@ -20765,9 +21933,9 @@ var VERSION4 = "6.0.208", download = async ({
       mediaType: (_a222 = response.headers.get("content-type")) != null ? _a222 : void 0
     };
   } catch (error51) {
-    if (DownloadError.isInstance(error51))
+    if (DownloadError2.isInstance(error51))
       throw error51;
-    throw new DownloadError({ url: urlText, cause: error51 });
+    throw new DownloadError2({ url: urlText, cause: error51 });
   }
 }, createDefaultDownloadFunction = (download2 = download) => (requestedDownloads) => Promise.all(requestedDownloads.map(async (requestedDownload) => requestedDownload.isUrlSupportedByModel ? null : download2(requestedDownload)));
 function splitDataUrl(dataUrl) {
@@ -20805,7 +21973,7 @@ function convertToLanguageModelV3DataContent(content) {
   if (content instanceof URL && content.protocol === "data:") {
     let { mediaType: dataUrlMediaType, base64Content } = splitDataUrl(content.toString());
     if (dataUrlMediaType == null || base64Content == null)
-      throw new AISDKError({
+      throw new AISDKError2({
         name: "InvalidDataContentError",
         message: `Invalid data URL format in content ${content.toString()}`
       });
@@ -20817,8 +21985,8 @@ function convertDataContentToBase64String(content) {
   if (typeof content === "string")
     return content;
   if (content instanceof ArrayBuffer)
-    return convertUint8ArrayToBase64(new Uint8Array(content));
-  return convertUint8ArrayToBase64(content);
+    return convertUint8ArrayToBase642(new Uint8Array(content));
+  return convertUint8ArrayToBase642(content);
 }
 async function convertToLanguageModelPrompt({
   prompt,
@@ -21154,15 +22322,15 @@ async function createToolModelOutput({
   toolCallId,
   input,
   output,
-  tool: tool2,
+  tool: tool22,
   errorMode
 }) {
   if (errorMode === "text")
-    return { type: "error-text", value: getErrorMessage(output) };
+    return { type: "error-text", value: getErrorMessage2(output) };
   else if (errorMode === "json")
     return { type: "error-json", value: toJSONValue(output) };
-  if (tool2 == null ? void 0 : tool2.toModelOutput)
-    return await tool2.toModelOutput({ toolCallId, input, output });
+  if (tool22 == null ? void 0 : tool22.toModelOutput)
+    return await tool22.toModelOutput({ toolCallId, input, output });
   return typeof output === "string" ? { type: "text", value: output } : { type: "json", value: toJSONValue(output) };
 }
 function toJSONValue(value) {
@@ -21180,13 +22348,13 @@ function prepareCallSettings({
 }) {
   if (maxOutputTokens != null) {
     if (!Number.isInteger(maxOutputTokens))
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "maxOutputTokens",
         value: maxOutputTokens,
         message: "maxOutputTokens must be an integer"
       });
     if (maxOutputTokens < 1)
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "maxOutputTokens",
         value: maxOutputTokens,
         message: "maxOutputTokens must be >= 1"
@@ -21194,7 +22362,7 @@ function prepareCallSettings({
   }
   if (temperature != null) {
     if (typeof temperature !== "number")
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "temperature",
         value: temperature,
         message: "temperature must be a number"
@@ -21202,7 +22370,7 @@ function prepareCallSettings({
   }
   if (topP != null) {
     if (typeof topP !== "number")
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "topP",
         value: topP,
         message: "topP must be a number"
@@ -21210,7 +22378,7 @@ function prepareCallSettings({
   }
   if (topK != null) {
     if (typeof topK !== "number")
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "topK",
         value: topK,
         message: "topK must be a number"
@@ -21218,7 +22386,7 @@ function prepareCallSettings({
   }
   if (presencePenalty != null) {
     if (typeof presencePenalty !== "number")
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "presencePenalty",
         value: presencePenalty,
         message: "presencePenalty must be a number"
@@ -21226,7 +22394,7 @@ function prepareCallSettings({
   }
   if (frequencyPenalty != null) {
     if (typeof frequencyPenalty !== "number")
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "frequencyPenalty",
         value: frequencyPenalty,
         message: "frequencyPenalty must be a number"
@@ -21234,7 +22402,7 @@ function prepareCallSettings({
   }
   if (seed != null) {
     if (!Number.isInteger(seed))
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "seed",
         value: seed,
         message: "seed must be an integer"
@@ -21265,8 +22433,8 @@ async function prepareToolsAndToolChoice({
       toolChoice: void 0
     };
   let filteredTools = activeTools != null ? Object.entries(tools).filter(([name222]) => activeTools.includes(name222)) : Object.entries(tools), languageModelTools = [];
-  for (let [name222, tool2] of filteredTools) {
-    let toolType = tool2.type;
+  for (let [name222, tool22] of filteredTools) {
+    let toolType = tool22.type;
     switch (toolType) {
       case void 0:
       case "dynamic":
@@ -21274,19 +22442,19 @@ async function prepareToolsAndToolChoice({
         languageModelTools.push({
           type: "function",
           name: name222,
-          description: tool2.description,
-          inputSchema: await asSchema(tool2.inputSchema).jsonSchema,
-          ...tool2.inputExamples != null ? { inputExamples: tool2.inputExamples } : {},
-          providerOptions: tool2.providerOptions,
-          ...tool2.strict != null ? { strict: tool2.strict } : {}
+          description: tool22.description,
+          inputSchema: await asSchema2(tool22.inputSchema).jsonSchema,
+          ...tool22.inputExamples != null ? { inputExamples: tool22.inputExamples } : {},
+          providerOptions: tool22.providerOptions,
+          ...tool22.strict != null ? { strict: tool22.strict } : {}
         });
         break;
       case "provider":
         languageModelTools.push({
           type: "provider",
           name: name222,
-          id: tool2.id,
-          args: tool2.args
+          id: tool22.id,
+          args: tool22.args
         });
         break;
       default:
@@ -21466,17 +22634,17 @@ async function standardizePrompt({
   messages
 }) {
   if (prompt == null && messages == null)
-    throw new InvalidPromptError({
+    throw new InvalidPromptError2({
       prompt,
       message: "prompt or messages must be defined"
     });
   if (prompt != null && messages != null)
-    throw new InvalidPromptError({
+    throw new InvalidPromptError2({
       prompt,
       message: "prompt and messages cannot be defined at the same time"
     });
   if (typeof system !== "string" && !asArray(system).every((message) => message.role === "system"))
-    throw new InvalidPromptError({
+    throw new InvalidPromptError2({
       prompt,
       message: "system must be a string, SystemModelMessage, or array of SystemModelMessage"
     });
@@ -21485,30 +22653,30 @@ async function standardizePrompt({
   else if (prompt != null && Array.isArray(prompt))
     messages = prompt;
   else if (messages == null)
-    throw new InvalidPromptError({
+    throw new InvalidPromptError2({
       prompt,
       message: "prompt or messages must be defined"
     });
   if (messages.length === 0)
-    throw new InvalidPromptError({
+    throw new InvalidPromptError2({
       prompt,
       message: "messages must not be empty"
     });
   if (messages.some((message) => message.role === "system")) {
     if (allowSystemInMessages === !1)
-      throw new InvalidPromptError({
+      throw new InvalidPromptError2({
         prompt,
         message: "System messages are not allowed in the prompt or messages fields. Use the system option instead."
       });
     if (allowSystemInMessages === void 0)
       console.warn("AI SDK Warning: System messages in the prompt or messages fields can be a security risk because they may enable prompt injection attacks. Use the system option instead when possible. Set allowSystemInMessages to true to suppress this warning, or false to throw an error.");
   }
-  let validationResult = await safeValidateTypes({
+  let validationResult = await safeValidateTypes2({
     value: messages,
     schema: exports_external.array(modelMessageSchema)
   });
   if (!validationResult.success)
-    throw new InvalidPromptError({
+    throw new InvalidPromptError2({
       prompt,
       message: "The messages do not match the ModelMessage[] schema.",
       cause: validationResult.error
@@ -21520,7 +22688,7 @@ function wrapGatewayError(error51) {
     return error51;
   let isProductionEnv = (process == null ? void 0 : "development") === "production", moreInfoURL = "https://ai-sdk.dev/unauthenticated-ai-gateway";
   if (isProductionEnv)
-    return new AISDKError({
+    return new AISDKError2({
       name: "GatewayError",
       message: `Unauthenticated. Configure AI_GATEWAY_API_KEY or use a provider module. Learn more: ${moreInfoURL}`
     });
@@ -21824,7 +22992,7 @@ function getRetryDelayInMs({
   error: error51,
   exponentialBackoffDelay
 }) {
-  let headers = APICallError.isInstance(error51) ? error51.responseHeaders : APICallError.isInstance(error51.cause) ? error51.cause.responseHeaders : void 0;
+  let headers = APICallError2.isInstance(error51) ? error51.responseHeaders : APICallError2.isInstance(error51.cause) ? error51.cause.responseHeaders : void 0;
   if (!headers)
     return exponentialBackoffDelay;
   let ms, retryAfterMs = headers["retry-after-ms"];
@@ -21865,18 +23033,18 @@ async function _retryWithExponentialBackoff(f, {
   try {
     return await f();
   } catch (error51) {
-    if (isAbortError(error51))
+    if (isAbortError2(error51))
       throw error51;
     if (maxRetries === 0)
       throw error51;
-    let errorMessage = getErrorMessage2(error51), newErrors = [...errors3, error51], tryNumber = newErrors.length;
+    let errorMessage = getErrorMessage3(error51), newErrors = [...errors3, error51], tryNumber = newErrors.length;
     if (tryNumber > maxRetries)
       throw new RetryError({
         message: `Failed after ${tryNumber} attempts. Last error: ${errorMessage}`,
         reason: "maxRetriesExceeded",
         errors: newErrors
       });
-    if (error51 instanceof Error && (APICallError.isInstance(error51) && error51.isRetryable === !0 || GatewayError.isInstance(error51) && error51.isRetryable === !0) && tryNumber <= maxRetries)
+    if (error51 instanceof Error && (APICallError2.isInstance(error51) && error51.isRetryable === !0 || GatewayError.isInstance(error51) && error51.isRetryable === !0) && tryNumber <= maxRetries)
       return await delay(getRetryDelayInMs({
         error: error51,
         exponentialBackoffDelay: delayInMs
@@ -21901,13 +23069,13 @@ function prepareRetries({
 }) {
   if (maxRetries != null) {
     if (!Number.isInteger(maxRetries))
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "maxRetries",
         value: maxRetries,
         message: "maxRetries must be an integer"
       });
     if (maxRetries < 0)
-      throw new InvalidArgumentError2({
+      throw new InvalidArgumentError3({
         parameter: "maxRetries",
         value: maxRetries,
         message: "maxRetries must be >= 0"
@@ -21996,8 +23164,8 @@ async function executeToolCall({
   onToolCallStart,
   onToolCallFinish
 }) {
-  let { toolName, toolCallId, input } = toolCall, tool2 = tools == null ? void 0 : tools[toolName];
-  if ((tool2 == null ? void 0 : tool2.execute) == null)
+  let { toolName, toolCallId, input } = toolCall, tool22 = tools == null ? void 0 : tools[toolName];
+  if ((tool22 == null ? void 0 : tool22.execute) == null)
     return;
   let baseCallbackEvent = {
     stepNumber,
@@ -22032,7 +23200,7 @@ async function executeToolCall({
       let startTime = now();
       try {
         let stream = executeTool({
-          execute: tool2.execute.bind(tool2),
+          execute: tool22.execute.bind(tool22),
           input,
           options: {
             toolCallId,
@@ -22067,7 +23235,7 @@ async function executeToolCall({
           toolName,
           input,
           error: error51,
-          dynamic: tool2.type === "dynamic",
+          dynamic: tool22.type === "dynamic",
           ...toolCall.providerMetadata != null ? { providerMetadata: toolCall.providerMetadata } : {},
           ...toolCall.toolMetadata != null ? { toolMetadata: toolCall.toolMetadata } : {}
         };
@@ -22098,7 +23266,7 @@ async function executeToolCall({
         toolName,
         input,
         output,
-        dynamic: tool2.type === "dynamic",
+        dynamic: tool22.type === "dynamic",
         ...toolCall.providerMetadata != null ? { providerMetadata: toolCall.providerMetadata } : {},
         ...toolCall.toolMetadata != null ? { toolMetadata: toolCall.toolMetadata } : {}
       };
@@ -22126,7 +23294,7 @@ var DefaultGeneratedFile = class {
   }
   get base64() {
     if (this.base64Data == null)
-      this.base64Data = convertUint8ArrayToBase64(this.uint8ArrayData);
+      this.base64Data = convertUint8ArrayToBase642(this.uint8ArrayData);
     return this.base64Data;
   }
   get uint8Array() {
@@ -22141,16 +23309,16 @@ var DefaultGeneratedFile = class {
   }
 };
 async function isApprovalNeeded({
-  tool: tool2,
+  tool: tool22,
   toolCall,
   messages,
   experimental_context
 }) {
-  if (tool2.needsApproval == null)
+  if (tool22.needsApproval == null)
     return !1;
-  if (typeof tool2.needsApproval === "boolean")
-    return tool2.needsApproval;
-  return await tool2.needsApproval(toolCall.input, {
+  if (typeof tool22.needsApproval === "boolean")
+    return tool22.needsApproval;
+  return await tool22.needsApproval(toolCall.input, {
     toolCallId: toolCall.toolCallId,
     messages,
     experimental_context
@@ -22167,7 +23335,7 @@ function canonicalJSON(value) {
   return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${canonicalJSON(value[k])}`).join(",")}}`;
 }
 function toBase64url(bytes) {
-  return convertUint8ArrayToBase64(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return convertUint8ArrayToBase642(bytes).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
 function fromBase64url(str) {
   return convertBase64ToUint8Array(str);
@@ -22228,7 +23396,7 @@ async function validateApprovedToolApprovals({
   var _a222;
   let approved = [], denied = [];
   for (let approval of approvedToolApprovals) {
-    let { toolCall, approvalRequest } = approval, tool2 = tools == null ? void 0 : tools[toolCall.toolName];
+    let { toolCall, approvalRequest } = approval, tool22 = tools == null ? void 0 : tools[toolCall.toolName];
     if (toolApprovalSecret != null) {
       if (approvalRequest.signature == null)
         throw new InvalidToolApprovalSignatureError({
@@ -22250,10 +23418,10 @@ async function validateApprovedToolApprovals({
           reason: "invalid signature"
         });
     }
-    if (tool2 != null && typeof tool2.execute === "function" && tool2.inputSchema != null) {
-      let validation = await safeValidateTypes({
+    if (tool22 != null && typeof tool22.execute === "function" && tool22.inputSchema != null) {
+      let validation = await safeValidateTypes2({
         value: toolCall.input,
-        schema: asSchema(tool2.inputSchema)
+        schema: asSchema2(tool22.inputSchema)
       });
       if (!validation.success)
         throw new InvalidToolInputError({
@@ -22262,8 +23430,8 @@ async function validateApprovedToolApprovals({
           cause: validation.error
         });
     }
-    if (tool2 != null && await isApprovalNeeded({
-      tool: tool2,
+    if (tool22 != null && await isApprovalNeeded({
+      tool: tool22,
       toolCall,
       messages,
       experimental_context
@@ -22568,10 +23736,10 @@ function fixJson(input) {
 async function parsePartialJson(jsonText) {
   if (jsonText === void 0)
     return { value: void 0, state: "undefined-input" };
-  let result = await safeParseJSON({ text: jsonText });
+  let result = await safeParseJSON2({ text: jsonText });
   if (result.success)
     return { value: result.value, state: "successful-parse" };
-  if (result = await safeParseJSON({ text: fixJson(jsonText) }), result.success)
+  if (result = await safeParseJSON2({ text: fixJson(jsonText) }), result.success)
     return { value: result.value, state: "repaired-parse" };
   return { value: void 0, state: "failed-parse" };
 }
@@ -22592,17 +23760,17 @@ var text = () => ({
   name: name222,
   description
 }) => {
-  let schema = asSchema(inputSchema);
+  let schema = asSchema2(inputSchema);
   return {
     name: "object",
-    responseFormat: resolve(schema.jsonSchema).then((jsonSchema2) => ({
+    responseFormat: resolve2(schema.jsonSchema).then((jsonSchema22) => ({
       type: "json",
-      schema: jsonSchema2,
+      schema: jsonSchema22,
       ...name222 != null && { name: name222 },
       ...description != null && { description }
     })),
     async parseCompleteOutput({ text: text2 }, context2) {
-      let parseResult = await safeParseJSON({ text: text2 });
+      let parseResult = await safeParseJSON2({ text: text2 });
       if (!parseResult.success)
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -22612,7 +23780,7 @@ var text = () => ({
           usage: context2.usage,
           finishReason: context2.finishReason
         });
-      let validationResult = await safeValidateTypes({
+      let validationResult = await safeValidateTypes2({
         value: parseResult.value,
         schema
       });
@@ -22649,11 +23817,11 @@ var text = () => ({
   name: name222,
   description
 }) => {
-  let elementSchema = asSchema(inputElementSchema);
+  let elementSchema = asSchema2(inputElementSchema);
   return {
     name: "array",
-    responseFormat: resolve(elementSchema.jsonSchema).then((jsonSchema2) => {
-      let { $schema, ...itemSchema } = jsonSchema2;
+    responseFormat: resolve2(elementSchema.jsonSchema).then((jsonSchema22) => {
+      let { $schema, ...itemSchema } = jsonSchema22;
       return {
         type: "json",
         schema: {
@@ -22670,7 +23838,7 @@ var text = () => ({
       };
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
-      let parseResult = await safeParseJSON({ text: text2 });
+      let parseResult = await safeParseJSON2({ text: text2 });
       if (!parseResult.success)
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -22684,7 +23852,7 @@ var text = () => ({
       if (outerValue == null || typeof outerValue !== "object" || !("elements" in outerValue) || !Array.isArray(outerValue.elements))
         throw new NoObjectGeneratedError({
           message: "No object generated: response did not match schema.",
-          cause: new TypeValidationError({
+          cause: new TypeValidationError2({
             value: outerValue,
             cause: "response must be an object with an elements array"
           }),
@@ -22694,7 +23862,7 @@ var text = () => ({
           finishReason: context2.finishReason
         });
       for (let element of outerValue.elements) {
-        let validationResult = await safeValidateTypes({
+        let validationResult = await safeValidateTypes2({
           value: element,
           schema: elementSchema
         });
@@ -22723,7 +23891,7 @@ var text = () => ({
             return;
           let rawElements = result.state === "repaired-parse" && outerValue.elements.length > 0 ? outerValue.elements.slice(0, -1) : outerValue.elements, parsedElements = [];
           for (let rawElement of rawElements) {
-            let validationResult = await safeValidateTypes({
+            let validationResult = await safeValidateTypes2({
               value: rawElement,
               schema: elementSchema
             });
@@ -22767,7 +23935,7 @@ var text = () => ({
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
-      let parseResult = await safeParseJSON({ text: text2 });
+      let parseResult = await safeParseJSON2({ text: text2 });
       if (!parseResult.success)
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -22781,7 +23949,7 @@ var text = () => ({
       if (outerValue == null || typeof outerValue !== "object" || !("result" in outerValue) || typeof outerValue.result !== "string" || !choiceOptions.includes(outerValue.result))
         throw new NoObjectGeneratedError({
           message: "No object generated: response did not match schema.",
-          cause: new TypeValidationError({
+          cause: new TypeValidationError2({
             value: outerValue,
             cause: "response must be an object that contains a choice value."
           }),
@@ -22827,7 +23995,7 @@ var text = () => ({
       ...description != null && { description }
     }),
     async parseCompleteOutput({ text: text2 }, context2) {
-      let parseResult = await safeParseJSON({ text: text2 });
+      let parseResult = await safeParseJSON2({ text: text2 });
       if (!parseResult.success)
         throw new NoObjectGeneratedError({
           message: "No object generated: could not parse the response.",
@@ -22880,7 +24048,7 @@ async function parseToolCall({
           tools,
           inputSchema: async ({ toolName }) => {
             let { inputSchema } = tools[toolName];
-            return await asSchema(inputSchema).jsonSchema;
+            return await asSchema2(inputSchema).jsonSchema;
           },
           system,
           messages,
@@ -22897,7 +24065,7 @@ async function parseToolCall({
       return await doParseToolCall({ toolCall: repairedToolCall, tools });
     }
   } catch (error51) {
-    let parsedInput = await safeParseJSON({ text: toolCall.input }), input = parsedInput.success ? parsedInput.value : toolCall.input, tool2 = tools == null ? void 0 : tools[toolCall.toolName];
+    let parsedInput = await safeParseJSON2({ text: toolCall.input }), input = parsedInput.success ? parsedInput.value : toolCall.input, tool22 = tools == null ? void 0 : tools[toolCall.toolName];
     return {
       type: "tool-call",
       toolCallId: toolCall.toolCallId,
@@ -22906,15 +24074,15 @@ async function parseToolCall({
       dynamic: !0,
       invalid: !0,
       error: error51,
-      title: tool2 == null ? void 0 : tool2.title,
+      title: tool22 == null ? void 0 : tool22.title,
       providerExecuted: toolCall.providerExecuted,
       providerMetadata: toolCall.providerMetadata,
-      ...(tool2 == null ? void 0 : tool2.metadata) != null ? { toolMetadata: tool2.metadata } : {}
+      ...(tool22 == null ? void 0 : tool22.metadata) != null ? { toolMetadata: tool22.metadata } : {}
     };
   }
 }
 async function parseProviderExecutedDynamicToolCall(toolCall) {
-  let parseResult = toolCall.input.trim() === "" ? { success: !0, value: {} } : await safeParseJSON({ text: toolCall.input });
+  let parseResult = toolCall.input.trim() === "" ? { success: !0, value: {} } : await safeParseJSON2({ text: toolCall.input });
   if (parseResult.success === !1)
     throw new InvalidToolInputError({
       toolName: toolCall.toolName,
@@ -22935,8 +24103,8 @@ async function doParseToolCall({
   toolCall,
   tools
 }) {
-  let toolName = toolCall.toolName, tool2 = tools[toolName];
-  if (tool2 == null) {
+  let toolName = toolCall.toolName, tool22 = tools[toolName];
+  if (tool22 == null) {
     if (toolCall.providerExecuted && toolCall.dynamic)
       return await parseProviderExecutedDynamicToolCall(toolCall);
     throw new NoSuchToolError({
@@ -22944,23 +24112,23 @@ async function doParseToolCall({
       availableTools: Object.keys(tools)
     });
   }
-  let schema = asSchema(tool2.inputSchema), parseResult = toolCall.input.trim() === "" ? await safeValidateTypes({ value: {}, schema }) : await safeParseJSON({ text: toolCall.input, schema });
+  let schema = asSchema2(tool22.inputSchema), parseResult = toolCall.input.trim() === "" ? await safeValidateTypes2({ value: {}, schema }) : await safeParseJSON2({ text: toolCall.input, schema });
   if (parseResult.success === !1)
     throw new InvalidToolInputError({
       toolName,
       toolInput: toolCall.input,
       cause: parseResult.error
     });
-  return tool2.type === "dynamic" ? {
+  return tool22.type === "dynamic" ? {
     type: "tool-call",
     toolCallId: toolCall.toolCallId,
     toolName: toolCall.toolName,
     input: parseResult.value,
     providerExecuted: toolCall.providerExecuted,
     providerMetadata: toolCall.providerMetadata,
-    ...tool2.metadata != null ? { toolMetadata: tool2.metadata } : {},
+    ...tool22.metadata != null ? { toolMetadata: tool22.metadata } : {},
     dynamic: !0,
-    title: tool2.title
+    title: tool22.title
   } : {
     type: "tool-call",
     toolCallId: toolCall.toolCallId,
@@ -22968,8 +24136,8 @@ async function doParseToolCall({
     input: parseResult.value,
     providerExecuted: toolCall.providerExecuted,
     providerMetadata: toolCall.providerMetadata,
-    ...tool2.metadata != null ? { toolMetadata: tool2.metadata } : {},
-    title: tool2.title
+    ...tool22.metadata != null ? { toolMetadata: tool22.metadata } : {},
+    title: tool22.title
   };
 }
 var DefaultStepResult = class {
@@ -23169,7 +24337,7 @@ function mergeAbortSignals(...signals) {
   }
   return controller.signal;
 }
-var originalGenerateId = createIdGenerator({
+var originalGenerateId = createIdGenerator2({
   prefix: "aitxt",
   size: 24
 });
@@ -23199,7 +24367,7 @@ async function generateText({
   experimental_context,
   experimental_toolApprovalSecret,
   experimental_include: include,
-  _internal: { generateId: generateId2 = originalGenerateId } = {},
+  _internal: { generateId: generateId22 = originalGenerateId } = {},
   experimental_onStart: onStart,
   experimental_onStepStart: onStepStart,
   experimental_onToolCallStart: onToolCallStart,
@@ -23211,7 +24379,7 @@ async function generateText({
   let model = resolveLanguageModel(modelArg), createGlobalTelemetry = getGlobalTelemetryIntegration(), stopConditions = asArray(stopWhen), totalTimeoutMs = getTotalTimeoutMs(timeout), stepTimeoutMs = getStepTimeoutMs(timeout), stepAbortController = stepTimeoutMs != null ? new AbortController : void 0, mergedAbortSignal = mergeAbortSignals(abortSignal, totalTimeoutMs != null ? AbortSignal.timeout(totalTimeoutMs) : void 0, stepAbortController == null ? void 0 : stepAbortController.signal), { maxRetries, retry } = prepareRetries({
     maxRetries: maxRetriesArg,
     abortSignal: mergedAbortSignal
-  }), callSettings = prepareCallSettings(settings), headersWithUserAgent = withUserAgentSuffix(headers != null ? headers : {}, `ai/${VERSION4}`), baseTelemetryAttributes = getBaseTelemetryAttributes({
+  }), callSettings = prepareCallSettings(settings), headersWithUserAgent = withUserAgentSuffix2(headers != null ? headers : {}, `ai/${VERSION4}`), baseTelemetryAttributes = getBaseTelemetryAttributes({
     model,
     telemetry,
     headers: headersWithUserAgent,
@@ -23421,7 +24589,7 @@ async function generateText({
                       input: () => stringifyForTelemetry(promptMessages)
                     },
                     "ai.prompt.tools": {
-                      input: () => stepTools == null ? void 0 : stepTools.map((tool2) => JSON.stringify(tool2))
+                      input: () => stepTools == null ? void 0 : stepTools.map((tool22) => JSON.stringify(tool22))
                     },
                     "ai.prompt.toolChoice": {
                       input: () => stepToolChoice != null ? JSON.stringify(stepToolChoice) : void 0
@@ -23439,7 +24607,7 @@ async function generateText({
                 }),
                 tracer,
                 fn: async (span2) => {
-                  var _a24, _b23, _c2, _d2, _e2, _f2, _g2, _h2;
+                  var _a242, _b24, _c2, _d2, _e2, _f2, _g2, _h2;
                   let result = await stepModel.doGenerate({
                     ...callSettings2,
                     tools: stepTools,
@@ -23450,7 +24618,7 @@ async function generateText({
                     abortSignal: mergedAbortSignal,
                     headers: headersWithUserAgent
                   }), responseData = {
-                    id: (_b23 = (_a24 = result.response) == null ? void 0 : _a24.id) != null ? _b23 : generateId2(),
+                    id: (_b24 = (_a242 = result.response) == null ? void 0 : _a242.id) != null ? _b24 : generateId22(),
                     timestamp: (_d2 = (_c2 = result.response) == null ? void 0 : _c2.timestamp) != null ? _d2 : /* @__PURE__ */ new Date,
                     modelId: (_f2 = (_e2 = result.response) == null ? void 0 : _e2.modelId) != null ? _f2 : stepModel.modelId,
                     headers: (_g2 = result.response) == null ? void 0 : _g2.headers,
@@ -23508,11 +24676,11 @@ async function generateText({
             for (let toolCall of stepToolCalls) {
               if (toolCall.invalid)
                 continue;
-              let tool2 = tools == null ? void 0 : tools[toolCall.toolName];
-              if (tool2 == null)
+              let tool22 = tools == null ? void 0 : tools[toolCall.toolName];
+              if (tool22 == null)
                 continue;
-              if ((tool2 == null ? void 0 : tool2.onInputAvailable) != null)
-                await tool2.onInputAvailable({
+              if ((tool22 == null ? void 0 : tool22.onInputAvailable) != null)
+                await tool22.onInputAvailable({
                   input: toolCall.input,
                   toolCallId: toolCall.toolCallId,
                   messages: stepInputMessages,
@@ -23520,12 +24688,12 @@ async function generateText({
                   experimental_context
                 });
               if (await isApprovalNeeded({
-                tool: tool2,
+                tool: tool22,
                 toolCall,
                 messages: stepInputMessages,
                 experimental_context
               })) {
-                let approvalId = generateId2(), signature = await maybeSignApproval({
+                let approvalId = generateId22(), signature = await maybeSignApproval({
                   secret: experimental_toolApprovalSecret,
                   approvalId,
                   toolCallId: toolCall.toolCallId,
@@ -23548,7 +24716,7 @@ async function generateText({
                 toolCallId: toolCall.toolCallId,
                 toolName: toolCall.toolName,
                 input: toolCall.input,
-                error: getErrorMessage2(toolCall.error),
+                error: getErrorMessage3(toolCall.error),
                 dynamic: !0
               });
             if (clientToolCalls = stepToolCalls.filter((toolCall) => !toolCall.providerExecuted), tools != null)
@@ -23574,8 +24742,8 @@ async function generateText({
             for (let toolCall of stepToolCalls) {
               if (!toolCall.providerExecuted)
                 continue;
-              let tool2 = tools == null ? void 0 : tools[toolCall.toolName];
-              if ((tool2 == null ? void 0 : tool2.type) === "provider" && tool2.supportsDeferredResults) {
+              let tool22 = tools == null ? void 0 : tools[toolCall.toolName];
+              if ((tool22 == null ? void 0 : tool22.type) === "provider" && tool22.supportsDeferredResults) {
                 if (!currentModelResponse.content.some((part) => part.type === "tool-result" && part.toolCallId === toolCall.toolCallId))
                   pendingDeferredToolCalls.set(toolCall.toolCallId, {
                     toolName: toolCall.toolName
@@ -23862,8 +25030,8 @@ function asContent({
       case "tool-result": {
         let toolCall = toolCalls.find((toolCall2) => toolCall2.toolCallId === part.toolCallId);
         if (toolCall == null) {
-          let tool2 = tools == null ? void 0 : tools[part.toolName];
-          if (!((tool2 == null ? void 0 : tool2.type) === "provider" && tool2.supportsDeferredResults))
+          let tool22 = tools == null ? void 0 : tools[part.toolName];
+          if (!((tool22 == null ? void 0 : tool22.type) === "provider" && tool22.supportsDeferredResults))
             throw Error(`Tool call ${part.toolCallId} not found.`);
           if (part.isError)
             contentParts.push({
@@ -23875,7 +25043,7 @@ function asContent({
               providerExecuted: !0,
               dynamic: part.dynamic,
               ...part.providerMetadata != null ? { providerMetadata: part.providerMetadata } : {},
-              ...(tool2 == null ? void 0 : tool2.metadata) != null ? { toolMetadata: tool2.metadata } : {}
+              ...(tool22 == null ? void 0 : tool22.metadata) != null ? { toolMetadata: tool22.metadata } : {}
             });
           else
             contentParts.push({
@@ -23887,7 +25055,7 @@ function asContent({
               providerExecuted: !0,
               dynamic: part.dynamic,
               ...part.providerMetadata != null ? { providerMetadata: part.providerMetadata } : {},
-              ...(tool2 == null ? void 0 : tool2.metadata) != null ? { toolMetadata: tool2.metadata } : {}
+              ...(tool22 == null ? void 0 : tool22.metadata) != null ? { toolMetadata: tool22.metadata } : {}
             });
           break;
         }
@@ -24052,7 +25220,7 @@ function getResponseUIMessageId({
   let lastMessage = originalMessages[originalMessages.length - 1];
   return (lastMessage == null ? void 0 : lastMessage.role) === "assistant" ? lastMessage.id : typeof responseMessageId === "function" ? responseMessageId() : responseMessageId;
 }
-var toolMetadataSchema = exports_external.record(exports_external.string(), jsonValueSchema.optional()), uiMessageChunkSchema = lazySchema(() => zodSchema(exports_external.union([
+var toolMetadataSchema = exports_external.record(exports_external.string(), jsonValueSchema.optional()), uiMessageChunkSchema = lazySchema2(() => zodSchema2(exports_external.union([
   exports_external.strictObject({
     type: exports_external.literal("text-start"),
     id: exports_external.string(),
@@ -24306,14 +25474,14 @@ function processUIMessageStream({
             });
         }
         function updateDynamicToolPart(options) {
-          var _a232, _b23;
+          var _a232, _b24;
           let part = state.message.parts.find((part2) => part2.type === "dynamic-tool" && part2.toolCallId === options.toolCallId), anyOptions = options, anyPart = part;
           if (part != null) {
             if (part.state = options.state, anyPart.toolName = options.toolName, anyPart.input = anyOptions.input, anyPart.output = anyOptions.output, anyPart.errorText = anyOptions.errorText, anyPart.rawInput = (_a232 = anyOptions.rawInput) != null ? _a232 : anyPart.rawInput, anyPart.preliminary = anyOptions.preliminary, options.title !== void 0)
               anyPart.title = options.title;
             if (options.toolMetadata !== void 0)
               anyPart.toolMetadata = options.toolMetadata;
-            anyPart.providerExecuted = (_b23 = anyOptions.providerExecuted) != null ? _b23 : part.providerExecuted;
+            anyPart.providerExecuted = (_b24 = anyOptions.providerExecuted) != null ? _b24 : part.providerExecuted;
             let providerMetadata = anyOptions.providerMetadata;
             if (providerMetadata != null)
               if (options.state === "output-available" || options.state === "output-error") {
@@ -24342,7 +25510,7 @@ function processUIMessageStream({
           if (metadata != null) {
             let mergedMetadata = state.message.metadata != null ? mergeObjects(state.message.metadata, metadata) : metadata;
             if (messageMetadataSchema != null)
-              await validateTypes({
+              await validateTypes2({
                 value: mergedMetadata,
                 schema: messageMetadataSchema,
                 context: {
@@ -24679,7 +25847,7 @@ function processUIMessageStream({
             if (isDataUIMessageChunk(chunk)) {
               if ((dataPartSchemas == null ? void 0 : dataPartSchemas[chunk.type]) != null) {
                 let partIdx = state.message.parts.findIndex((p) => ("id" in p) && ("data" in p) && p.id === chunk.id && p.type === chunk.type), actualPartIdx = partIdx >= 0 ? partIdx : state.message.parts.length;
-                await validateTypes({
+                await validateTypes2({
                   value: chunk.data,
                   schema: dataPartSchemas[chunk.type],
                   context: {
@@ -24931,7 +26099,7 @@ function runToolsTransformation({
   repairToolCall,
   experimental_context,
   toolApprovalSecret,
-  generateId: generateId2,
+  generateId: generateId22,
   stepNumber,
   model,
   onToolCallStart,
@@ -25025,18 +26193,18 @@ function runToolsTransformation({
                 toolCallId: toolCall.toolCallId,
                 toolName: toolCall.toolName,
                 input: toolCall.input,
-                error: getErrorMessage2(toolCall.error),
+                error: getErrorMessage3(toolCall.error),
                 dynamic: !0,
                 title: toolCall.title,
                 ...toolCall.toolMetadata != null ? { toolMetadata: toolCall.toolMetadata } : {}
               });
               break;
             }
-            let tool2 = tools == null ? void 0 : tools[toolCall.toolName];
-            if (tool2 == null)
+            let tool22 = tools == null ? void 0 : tools[toolCall.toolName];
+            if (tool22 == null)
               break;
-            if (tool2.onInputAvailable != null)
-              await tool2.onInputAvailable({
+            if (tool22.onInputAvailable != null)
+              await tool22.onInputAvailable({
                 input: toolCall.input,
                 toolCallId: toolCall.toolCallId,
                 messages,
@@ -25044,12 +26212,12 @@ function runToolsTransformation({
                 experimental_context
               });
             if (await isApprovalNeeded({
-              tool: tool2,
+              tool: tool22,
               toolCall,
               messages,
               experimental_context
             })) {
-              let approvalId = generateId2(), signature = await maybeSignApproval({
+              let approvalId = generateId22(), signature = await maybeSignApproval({
                 secret: toolApprovalSecret,
                 approvalId,
                 toolCallId: toolCall.toolCallId,
@@ -25064,8 +26232,8 @@ function runToolsTransformation({
               });
               break;
             }
-            if (toolInputs.set(toolCall.toolCallId, toolCall.input), tool2.execute != null && toolCall.providerExecuted !== !0) {
-              let toolExecutionId = generateId2();
+            if (toolInputs.set(toolCall.toolCallId, toolCall.input), tool22.execute != null && toolCall.providerExecuted !== !0) {
+              let toolExecutionId = generateId22();
               outstandingToolResults.add(toolExecutionId), executeToolCall({
                 toolCall,
                 tools,
@@ -25154,7 +26322,7 @@ function runToolsTransformation({
     }
   });
 }
-var originalGenerateId2 = createIdGenerator({
+var originalGenerateId2 = createIdGenerator2({
   prefix: "aitxt",
   size: 24
 }), isOutputChunkType = {
@@ -25217,7 +26385,7 @@ function streamText({
   experimental_context,
   experimental_toolApprovalSecret,
   experimental_include: include,
-  _internal: { now: now2 = now, generateId: generateId2 = originalGenerateId2 } = {},
+  _internal: { now: now2 = now, generateId: generateId22 = originalGenerateId2 } = {},
   ...settings
 }) {
   let totalTimeoutMs = getTotalTimeoutMs(timeout), stepTimeoutMs = getStepTimeoutMs(timeout), chunkTimeoutMs = getChunkTimeoutMs(timeout), stepAbortController = stepTimeoutMs != null ? new AbortController : void 0, chunkAbortController = chunkTimeoutMs != null ? new AbortController : void 0;
@@ -25259,7 +26427,7 @@ function streamText({
     onToolCallStart,
     onToolCallFinish,
     now: now2,
-    generateId: generateId2,
+    generateId: generateId22,
     experimental_context,
     experimental_toolApprovalSecret,
     download: download2,
@@ -25344,7 +26512,7 @@ var DefaultStreamTextResult = class {
     prepareStep,
     includeRawChunks,
     now: now2,
-    generateId: generateId2,
+    generateId: generateId22,
     timeout,
     stopWhen,
     originalAbortSignal,
@@ -25584,7 +26752,7 @@ var DefaultStreamTextResult = class {
         function abort() {
           onAbort == null || onAbort({ steps: recordedSteps }), controller.enqueue({
             type: "abort",
-            ...(abortSignal == null ? void 0 : abortSignal.reason) !== void 0 ? { reason: getErrorMessage(abortSignal.reason) } : {}
+            ...(abortSignal == null ? void 0 : abortSignal.reason) !== void 0 ? { reason: getErrorMessage2(abortSignal.reason) } : {}
           }), controller.close();
         }
         try {
@@ -25599,7 +26767,7 @@ var DefaultStreamTextResult = class {
           }
           controller.enqueue(value);
         } catch (error51) {
-          if (isAbortError(error51) && (abortSignal == null ? void 0 : abortSignal.aborted))
+          if (isAbortError2(error51) && (abortSignal == null ? void 0 : abortSignal.aborted))
             abort();
           else
             controller.error(error51);
@@ -25867,7 +27035,7 @@ var DefaultStreamTextResult = class {
                     input: () => stringifyForTelemetry(promptMessages)
                   },
                   "ai.prompt.tools": {
-                    input: () => stepTools == null ? void 0 : stepTools.map((tool2) => JSON.stringify(tool2))
+                    input: () => stepTools == null ? void 0 : stepTools.map((tool22) => JSON.stringify(tool22))
                   },
                   "ai.prompt.toolChoice": {
                     input: () => stepToolChoice != null ? JSON.stringify(stepToolChoice) : void 0
@@ -25911,7 +27079,7 @@ var DefaultStreamTextResult = class {
               abortSignal,
               experimental_context,
               toolApprovalSecret: experimental_toolApprovalSecret,
-              generateId: generateId2,
+              generateId: generateId22,
               stepNumber: recordedSteps.length,
               model: stepModelInfo,
               onToolCallStart: [
@@ -25923,13 +27091,13 @@ var DefaultStreamTextResult = class {
                 globalTelemetry.onToolCallFinish
               ]
             }), stepRequest = ((_i = include == null ? void 0 : include.requestBody) != null ? _i : !0) ? request != null ? request : {} : { ...request, body: void 0 }, stepToolCalls = [], stepToolOutputs = [], warnings, activeToolCallToolNames = {}, stepFinishReason = "other", stepRawFinishReason = void 0, hasReceivedTerminalChunk = !1, hasReceivedOutputChunk = !1, stepUsage = createNullLanguageModelUsage(), stepProviderMetadata, stepFirstChunk = !0, stepResponse = {
-              id: generateId2(),
+              id: generateId22(),
               timestamp: /* @__PURE__ */ new Date,
               modelId: modelInfo.modelId
             }, activeText = "";
             self2.addStream(streamWithToolResults.pipeThrough(new TransformStream({
               async transform(chunk, controller) {
-                var _a232, _b23, _c2, _d2, _e2;
+                var _a232, _b24, _c2, _d2, _e2;
                 if (resetChunkTimeout(), chunk.type === "stream-start") {
                   warnings = chunk.warnings;
                   return;
@@ -25996,7 +27164,7 @@ var DefaultStreamTextResult = class {
                   case "response-metadata": {
                     stepResponse = {
                       id: (_a232 = chunk.id) != null ? _a232 : stepResponse.id,
-                      timestamp: (_b23 = chunk.timestamp) != null ? _b23 : stepResponse.timestamp,
+                      timestamp: (_b24 = chunk.timestamp) != null ? _b24 : stepResponse.timestamp,
                       modelId: (_c2 = chunk.modelId) != null ? _c2 : stepResponse.modelId
                     };
                     break;
@@ -26020,9 +27188,9 @@ var DefaultStreamTextResult = class {
                   }
                   case "tool-input-start": {
                     activeToolCallToolNames[chunk.id] = chunk.toolName;
-                    let tool2 = tools == null ? void 0 : tools[chunk.toolName];
-                    if ((tool2 == null ? void 0 : tool2.onInputStart) != null)
-                      await tool2.onInputStart({
+                    let tool22 = tools == null ? void 0 : tools[chunk.toolName];
+                    if ((tool22 == null ? void 0 : tool22.onInputStart) != null)
+                      await tool22.onInputStart({
                         toolCallId: chunk.id,
                         messages: stepInputMessages,
                         abortSignal,
@@ -26030,8 +27198,8 @@ var DefaultStreamTextResult = class {
                       });
                     controller.enqueue({
                       ...chunk,
-                      dynamic: (_e2 = chunk.dynamic) != null ? _e2 : (tool2 == null ? void 0 : tool2.type) === "dynamic",
-                      title: tool2 == null ? void 0 : tool2.title
+                      dynamic: (_e2 = chunk.dynamic) != null ? _e2 : (tool22 == null ? void 0 : tool22.type) === "dynamic",
+                      title: tool22 == null ? void 0 : tool22.title
                     });
                     break;
                   }
@@ -26040,9 +27208,9 @@ var DefaultStreamTextResult = class {
                     break;
                   }
                   case "tool-input-delta": {
-                    let toolName = activeToolCallToolNames[chunk.id], tool2 = tools == null ? void 0 : tools[toolName];
-                    if ((tool2 == null ? void 0 : tool2.onInputDelta) != null)
-                      await tool2.onInputDelta({
+                    let toolName = activeToolCallToolNames[chunk.id], tool22 = tools == null ? void 0 : tools[toolName];
+                    if ((tool22 == null ? void 0 : tool22.onInputDelta) != null)
+                      await tool22.onInputDelta({
                         inputTextDelta: chunk.delta,
                         toolCallId: chunk.id,
                         messages: stepInputMessages,
@@ -26066,7 +27234,7 @@ var DefaultStreamTextResult = class {
                 }
               },
               async flush(controller) {
-                var _a232, _b23, _c2, _d2, _e2, _f2, _g2;
+                var _a232, _b24, _c2, _d2, _e2, _f2, _g2;
                 if (!hasReceivedTerminalChunk && !hasReceivedOutputChunk) {
                   controller.enqueue({
                     type: "error",
@@ -26090,7 +27258,7 @@ var DefaultStreamTextResult = class {
                       "ai.response.timestamp": stepResponse.timestamp.toISOString(),
                       "ai.usage.inputTokens": stepUsage.inputTokens,
                       "ai.usage.inputTokenDetails.noCacheTokens": (_a232 = stepUsage.inputTokenDetails) == null ? void 0 : _a232.noCacheTokens,
-                      "ai.usage.inputTokenDetails.cacheReadTokens": (_b23 = stepUsage.inputTokenDetails) == null ? void 0 : _b23.cacheReadTokens,
+                      "ai.usage.inputTokenDetails.cacheReadTokens": (_b24 = stepUsage.inputTokenDetails) == null ? void 0 : _b24.cacheReadTokens,
                       "ai.usage.inputTokenDetails.cacheWriteTokens": (_c2 = stepUsage.inputTokenDetails) == null ? void 0 : _c2.cacheWriteTokens,
                       "ai.usage.outputTokens": stepUsage.outputTokens,
                       "ai.usage.outputTokenDetails.textTokens": (_d2 = stepUsage.outputTokenDetails) == null ? void 0 : _d2.textTokens,
@@ -26142,8 +27310,8 @@ var DefaultStreamTextResult = class {
                 for (let toolCall of stepToolCalls) {
                   if (toolCall.providerExecuted !== !0)
                     continue;
-                  let tool2 = tools == null ? void 0 : tools[toolCall.toolName];
-                  if ((tool2 == null ? void 0 : tool2.type) === "provider" && tool2.supportsDeferredResults) {
+                  let tool22 = tools == null ? void 0 : tools[toolCall.toolName];
+                  if ((tool22 == null ? void 0 : tool22.type) === "provider" && tool22.supportsDeferredResults) {
                     if (!stepToolOutputs.some((output2) => (output2.type === "tool-result" || output2.type === "tool-error") && output2.toolCallId === toolCall.toolCallId))
                       pendingDeferredToolCalls.set(toolCall.toolCallId, {
                         toolName: toolCall.toolName
@@ -26324,7 +27492,7 @@ var DefaultStreamTextResult = class {
     var _a222, _b16, _c;
     let transform2 = (_a222 = this.outputSpecification) == null ? void 0 : _a222.createElementStreamTransform();
     if (transform2 == null)
-      throw new UnsupportedFunctionalityError({
+      throw new UnsupportedFunctionalityError2({
         functionality: `element streams in ${(_c = (_b16 = this.outputSpecification) == null ? void 0 : _b16.name) != null ? _c : "text"} mode`
       });
     return createAsyncIterableStream(this.teeStream().pipeThrough(transform2));
@@ -26355,10 +27523,10 @@ var DefaultStreamTextResult = class {
       responseMessageId: generateMessageId
     }) : void 0, isDynamic = (part) => {
       var _a222;
-      let tool2 = (_a222 = this.tools) == null ? void 0 : _a222[part.toolName];
-      if (tool2 == null)
+      let tool22 = (_a222 = this.tools) == null ? void 0 : _a222[part.toolName];
+      if (tool22 == null)
         return part.dynamic;
-      return (tool2 == null ? void 0 : tool2.type) === "dynamic" ? !0 : void 0;
+      return (tool22 == null ? void 0 : tool22.type) === "dynamic" ? !0 : void 0;
     }, baseStream = this.fullStream.pipeThrough(new TransformStream({
       transform: async (part, controller) => {
         let messageMetadataValue = messageMetadata == null ? void 0 : messageMetadata({ part }), partType = part.type;
@@ -26659,7 +27827,7 @@ var DefaultStreamTextResult = class {
     });
   }
 };
-var toolMetadataSchema2 = exports_external.record(exports_external.string(), jsonValueSchema.optional()), uiMessagesSchema = lazySchema(() => zodSchema(exports_external.array(exports_external.object({
+var toolMetadataSchema2 = exports_external.record(exports_external.string(), jsonValueSchema.optional()), uiMessagesSchema = lazySchema2(() => zodSchema2(exports_external.array(exports_external.object({
   id: exports_external.string(),
   role: exports_external.enum(["system", "user", "assistant"]),
   metadata: exports_external.unknown().optional(),
@@ -26941,23 +28109,2586 @@ var toolMetadataSchema2 = exports_external.record(exports_external.string(), jso
     })
   ])).nonempty("Message must contain at least one part")
 })).nonempty("Messages array must not be empty")));
-var originalGenerateId3 = createIdGenerator({ prefix: "aiobj", size: 24 });
+var originalGenerateId3 = createIdGenerator2({ prefix: "aiobj", size: 24 });
 function createDownload(options) {
   return ({ url: url2, abortSignal }) => download({ url: url2, maxBytes: options == null ? void 0 : options.maxBytes, abortSignal });
 }
-var originalGenerateId4 = createIdGenerator({ prefix: "aiobj", size: 24 });
+var originalGenerateId4 = createIdGenerator2({ prefix: "aiobj", size: 24 });
 var defaultDownload = createDownload();
-var name21 = "AI_NoSuchProviderError", marker21 = `vercel.ai.error.${name21}`, symbol21 = Symbol.for(marker21), _a21;
-_a21 = symbol21;
+var name21 = "AI_NoSuchProviderError", marker21 = `vercel.ai.error.${name21}`, symbol212 = Symbol.for(marker21), _a212;
+_a212 = symbol212;
 var defaultDownload2 = createDownload();
-// node_modules/@ai-sdk/google/dist/index.mjs
-var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
+// node_modules/@ai-sdk/provider/dist/index.js
+var marker25 = "vercel.ai.error", symbol25 = Symbol.for(marker25), _a26, _b20, AISDKError3 = class _AISDKError3 extends (_b20 = Error, _a26 = symbol25, _b20) {
+  constructor({
+    name: name152,
+    message,
+    cause
+  }) {
+    super(message);
+    this[_a26] = !0, this.name = name152, this.cause = cause;
+  }
+  static isInstance(error51) {
+    return _AISDKError3.hasMarker(error51, marker25);
+  }
+  static hasMarker(error51, marker162) {
+    let markerSymbol = Symbol.for(marker162);
+    return error51 != null && typeof error51 === "object" && markerSymbol in error51 && typeof error51[markerSymbol] === "boolean" && error51[markerSymbol] === !0;
+  }
+}, name25 = "AI_APICallError", marker26 = `vercel.ai.error.${name25}`, symbol26 = Symbol.for(marker26), _a27, _b24, APICallError3 = class extends (_b24 = AISDKError3, _a27 = symbol26, _b24) {
+  constructor({
+    message,
+    url: url2,
+    requestBodyValues,
+    statusCode,
+    responseHeaders,
+    responseBody,
+    cause,
+    isRetryable = statusCode != null && (statusCode === 408 || statusCode === 409 || statusCode === 429 || statusCode >= 500),
+    data
+  }) {
+    super({ name: name25, message, cause });
+    this[_a27] = !0, this.url = url2, this.requestBodyValues = requestBodyValues, this.statusCode = statusCode, this.responseHeaders = responseHeaders, this.responseBody = responseBody, this.isRetryable = isRetryable, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker26);
+  }
+}, name26 = "AI_EmptyResponseBodyError", marker35 = `vercel.ai.error.${name26}`, symbol35 = Symbol.for(marker35), _a35, _b34, EmptyResponseBodyError3 = class extends (_b34 = AISDKError3, _a35 = symbol35, _b34) {
+  constructor({ message = "Empty response body" } = {}) {
+    super({ name: name26, message });
+    this[_a35] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker35);
+  }
+};
+function getErrorMessage4(error51) {
+  if (error51 == null)
+    return "unknown error";
+  if (typeof error51 === "string")
+    return error51;
+  if (error51 instanceof Error)
+    return error51.toString();
+  return JSON.stringify(error51);
+}
+var name35 = "AI_InvalidArgumentError", marker45 = `vercel.ai.error.${name35}`, symbol45 = Symbol.for(marker45), _a45, _b44, InvalidArgumentError4 = class extends (_b44 = AISDKError3, _a45 = symbol45, _b44) {
+  constructor({
+    message,
+    cause,
+    argument
+  }) {
+    super({ name: name35, message, cause });
+    this[_a45] = !0, this.argument = argument;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker45);
+  }
+}, name45 = "AI_InvalidPromptError", marker55 = `vercel.ai.error.${name45}`, symbol55 = Symbol.for(marker55), _a55, _b54, InvalidPromptError3 = class extends (_b54 = AISDKError3, _a55 = symbol55, _b54) {
+  constructor({
+    prompt,
+    message,
+    cause
+  }) {
+    super({ name: name45, message: `Invalid prompt: ${message}`, cause });
+    this[_a55] = !0, this.prompt = prompt;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker55);
+  }
+}, name55 = "AI_InvalidResponseDataError", marker65 = `vercel.ai.error.${name55}`, symbol65 = Symbol.for(marker65), _a65, _b64, InvalidResponseDataError3 = class extends (_b64 = AISDKError3, _a65 = symbol65, _b64) {
+  constructor({
+    data,
+    message = `Invalid response data: ${JSON.stringify(data)}.`
+  }) {
+    super({ name: name55, message });
+    this[_a65] = !0, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker65);
+  }
+}, name65 = "AI_JSONParseError", marker75 = `vercel.ai.error.${name65}`, symbol75 = Symbol.for(marker75), _a75, _b74, JSONParseError3 = class extends (_b74 = AISDKError3, _a75 = symbol75, _b74) {
+  constructor({ text: text2, cause }) {
+    super({
+      name: name65,
+      message: `JSON parsing failed: Text: ${text2}.
+Error message: ${getErrorMessage4(cause)}`,
+      cause
+    });
+    this[_a75] = !0, this.text = text2;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker75);
+  }
+}, name75 = "AI_LoadAPIKeyError", marker85 = `vercel.ai.error.${name75}`, symbol85 = Symbol.for(marker85), _a85, _b84, LoadAPIKeyError3 = class extends (_b84 = AISDKError3, _a85 = symbol85, _b84) {
+  constructor({ message }) {
+    super({ name: name75, message });
+    this[_a85] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker85);
+  }
+}, name85 = "AI_LoadSettingError", marker95 = `vercel.ai.error.${name85}`, symbol95 = Symbol.for(marker95), _a95, _b94, LoadSettingError3 = class extends (_b94 = AISDKError3, _a95 = symbol95, _b94) {
+  constructor({ message }) {
+    super({ name: name85, message });
+    this[_a95] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker95);
+  }
+}, name95 = "AI_NoContentGeneratedError", marker105 = `vercel.ai.error.${name95}`, symbol105 = Symbol.for(marker105), _a105, _b104, NoContentGeneratedError3 = class extends (_b104 = AISDKError3, _a105 = symbol105, _b104) {
+  constructor({
+    message = "No content generated."
+  } = {}) {
+    super({ name: name95, message });
+    this[_a105] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker105);
+  }
+}, name104 = "AI_NoSuchModelError", marker114 = `vercel.ai.error.${name104}`, symbol114 = Symbol.for(marker114), _a114, _b113, NoSuchModelError3 = class extends (_b113 = AISDKError3, _a114 = symbol114, _b113) {
+  constructor({
+    errorName = name104,
+    modelId,
+    modelType,
+    message = `No such ${modelType}: ${modelId}`
+  }) {
+    super({ name: errorName, message });
+    this[_a114] = !0, this.modelId = modelId, this.modelType = modelType;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker114);
+  }
+}, name114 = "AI_NoSuchProviderReferenceError", marker124 = `vercel.ai.error.${name114}`, symbol124 = Symbol.for(marker124), _a124, _b123, NoSuchProviderReferenceError = class extends (_b123 = AISDKError3, _a124 = symbol124, _b123) {
+  constructor({
+    provider,
+    reference,
+    message = `No provider reference found for provider '${provider}'. Available providers: ${Object.keys(reference).join(", ")}`
+  }) {
+    super({ name: name114, message });
+    this[_a124] = !0, this.provider = provider, this.reference = reference;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker124);
+  }
+}, name124 = "AI_TooManyEmbeddingValuesForCallError", marker134 = `vercel.ai.error.${name124}`, symbol134 = Symbol.for(marker134), _a134, _b133, TooManyEmbeddingValuesForCallError3 = class extends (_b133 = AISDKError3, _a134 = symbol134, _b133) {
+  constructor(options) {
+    super({
+      name: name124,
+      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+    });
+    this[_a134] = !0, this.provider = options.provider, this.modelId = options.modelId, this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall, this.values = options.values;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker134);
+  }
+}, name134 = "AI_TypeValidationError", marker144 = `vercel.ai.error.${name134}`, symbol144 = Symbol.for(marker144), _a144, _b143, TypeValidationError3 = class _TypeValidationError3 extends (_b143 = AISDKError3, _a144 = symbol144, _b143) {
+  constructor({
+    value,
+    cause,
+    context: context2
+  }) {
+    let contextPrefix = "Type validation failed";
+    if (context2 == null ? void 0 : context2.field)
+      contextPrefix += ` for ${context2.field}`;
+    if ((context2 == null ? void 0 : context2.entityName) || (context2 == null ? void 0 : context2.entityId)) {
+      contextPrefix += " (";
+      let parts = [];
+      if (context2.entityName)
+        parts.push(context2.entityName);
+      if (context2.entityId)
+        parts.push(`id: "${context2.entityId}"`);
+      contextPrefix += parts.join(", "), contextPrefix += ")";
+    }
+    super({
+      name: name134,
+      message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
+Error message: ${getErrorMessage4(cause)}`,
+      cause
+    });
+    this[_a144] = !0, this.value = value, this.context = context2;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker144);
+  }
+  static wrap({
+    value,
+    cause,
+    context: context2
+  }) {
+    var _a162, _b16, _c;
+    if (_TypeValidationError3.isInstance(cause) && cause.value === value && ((_a162 = cause.context) == null ? void 0 : _a162.field) === (context2 == null ? void 0 : context2.field) && ((_b16 = cause.context) == null ? void 0 : _b16.entityName) === (context2 == null ? void 0 : context2.entityName) && ((_c = cause.context) == null ? void 0 : _c.entityId) === (context2 == null ? void 0 : context2.entityId))
+      return cause;
+    return new _TypeValidationError3({ value, cause, context: context2 });
+  }
+}, name143 = "AI_UnsupportedFunctionalityError", marker153 = `vercel.ai.error.${name143}`, symbol153 = Symbol.for(marker153), _a153, _b152, UnsupportedFunctionalityError3 = class extends (_b152 = AISDKError3, _a153 = symbol153, _b152) {
+  constructor({
+    functionality,
+    message = `'${functionality}' functionality not supported.`
+  }) {
+    super({ name: name143, message });
+    this[_a153] = !0, this.functionality = functionality;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker153);
+  }
+};
+
+// node_modules/@workflow/serde/dist/index.js
+var WORKFLOW_SERIALIZE = Symbol.for("workflow-serialize"), WORKFLOW_DESERIALIZE = Symbol.for("workflow-deserialize");
+
+// node_modules/@ai-sdk/provider-utils/dist/index.js
+function combineHeaders2(...headers) {
+  return headers.reduce((combinedHeaders, currentHeaders) => ({
+    ...combinedHeaders,
+    ...currentHeaders != null ? currentHeaders : {}
+  }), {});
+}
+async function delay2(delayInMs, options) {
+  if (delayInMs == null)
+    return Promise.resolve();
+  let signal = options == null ? void 0 : options.abortSignal;
+  return new Promise((resolve22, reject) => {
+    if (signal == null ? void 0 : signal.aborted) {
+      reject(createAbortError2());
+      return;
+    }
+    let timeoutId = setTimeout(() => {
+      cleanup(), resolve22();
+    }, delayInMs), cleanup = () => {
+      clearTimeout(timeoutId), signal == null || signal.removeEventListener("abort", onAbort);
+    }, onAbort = () => {
+      cleanup(), reject(createAbortError2());
+    };
+    signal == null || signal.addEventListener("abort", onAbort);
+  });
+}
+function createAbortError2() {
+  return new DOMException("Delay was aborted", "AbortError");
+}
+var { btoa: btoa4, atob: atob4 } = globalThis;
+function convertBase64ToUint8Array2(base64String) {
+  let base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/"), latin1string = atob4(base64Url);
+  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
+}
+function convertUint8ArrayToBase643(array3) {
+  let latin1string = "";
+  for (let i = 0;i < array3.length; i++)
+    latin1string += String.fromCodePoint(array3[i]);
+  return btoa4(latin1string);
+}
+function convertToBase64(value) {
+  return value instanceof Uint8Array ? convertUint8ArrayToBase643(value) : value;
+}
+function convertInlineFileDataToUint8Array(data) {
+  if (data.type === "text")
+    return (/* @__PURE__ */ new TextEncoder()).encode(data.text);
+  if (data.data instanceof Uint8Array)
+    return data.data;
+  if (data.data instanceof ArrayBuffer)
+    return new Uint8Array(data.data);
+  return convertBase64ToUint8Array2(data.data);
+}
+function createToolNameMapping({
+  tools = [],
+  providerToolNames
+}) {
+  let customToolNameToProviderToolName = {}, providerToolNameToCustomToolName = {};
+  for (let tool22 of tools)
+    if (tool22.type === "provider" && tool22.id in providerToolNames) {
+      let providerToolName = providerToolNames[tool22.id];
+      customToolNameToProviderToolName[tool22.name] = providerToolName, providerToolNameToCustomToolName[providerToolName] = tool22.name;
+    }
+  return {
+    toProviderToolName: (customToolName) => {
+      var _a28;
+      return (_a28 = customToolNameToProviderToolName[customToolName]) != null ? _a28 : customToolName;
+    },
+    toCustomToolName: (providerToolName) => {
+      var _a28;
+      return (_a28 = providerToolNameToCustomToolName[providerToolName]) != null ? _a28 : providerToolName;
+    }
+  };
+}
+var imageMediaTypeSignatures2 = [
+  {
+    mediaType: "image/gif",
+    bytesPrefix: [71, 73, 70]
+  },
+  {
+    mediaType: "image/png",
+    bytesPrefix: [137, 80, 78, 71]
+  },
+  {
+    mediaType: "image/jpeg",
+    bytesPrefix: [255, 216]
+  },
+  {
+    mediaType: "image/webp",
+    bytesPrefix: [
+      82,
+      73,
+      70,
+      70,
+      null,
+      null,
+      null,
+      null,
+      87,
+      69,
+      66,
+      80
+    ]
+  },
+  {
+    mediaType: "image/bmp",
+    bytesPrefix: [66, 77]
+  },
+  {
+    mediaType: "image/tiff",
+    bytesPrefix: [73, 73, 42, 0]
+  },
+  {
+    mediaType: "image/tiff",
+    bytesPrefix: [77, 77, 0, 42]
+  },
+  {
+    mediaType: "image/avif",
+    bytesPrefix: [
+      0,
+      0,
+      0,
+      32,
+      102,
+      116,
+      121,
+      112,
+      97,
+      118,
+      105,
+      102
+    ]
+  },
+  {
+    mediaType: "image/heic",
+    bytesPrefix: [
+      0,
+      0,
+      0,
+      32,
+      102,
+      116,
+      121,
+      112,
+      104,
+      101,
+      105,
+      99
+    ]
+  }
+], documentMediaTypeSignatures = [
+  {
+    mediaType: "application/pdf",
+    bytesPrefix: [37, 80, 68, 70]
+  }
+], audioMediaTypeSignatures = [
+  {
+    mediaType: "audio/mpeg",
+    bytesPrefix: [255, 251]
+  },
+  {
+    mediaType: "audio/mpeg",
+    bytesPrefix: [255, 250]
+  },
+  {
+    mediaType: "audio/mpeg",
+    bytesPrefix: [255, 243]
+  },
+  {
+    mediaType: "audio/mpeg",
+    bytesPrefix: [255, 242]
+  },
+  {
+    mediaType: "audio/mpeg",
+    bytesPrefix: [255, 227]
+  },
+  {
+    mediaType: "audio/mpeg",
+    bytesPrefix: [255, 226]
+  },
+  {
+    mediaType: "audio/wav",
+    bytesPrefix: [
+      82,
+      73,
+      70,
+      70,
+      null,
+      null,
+      null,
+      null,
+      87,
+      65,
+      86,
+      69
+    ]
+  },
+  {
+    mediaType: "audio/ogg",
+    bytesPrefix: [79, 103, 103, 83]
+  },
+  {
+    mediaType: "audio/flac",
+    bytesPrefix: [102, 76, 97, 67]
+  },
+  {
+    mediaType: "audio/aac",
+    bytesPrefix: [64, 21, 0, 0]
+  },
+  {
+    mediaType: "audio/mp4",
+    bytesPrefix: [102, 116, 121, 112]
+  },
+  {
+    mediaType: "audio/webm",
+    bytesPrefix: [26, 69, 223, 163]
+  }
+], videoMediaTypeSignatures = [
+  {
+    mediaType: "video/mp4",
+    bytesPrefix: [
+      0,
+      0,
+      0,
+      null,
+      102,
+      116,
+      121,
+      112
+    ]
+  },
+  {
+    mediaType: "video/webm",
+    bytesPrefix: [26, 69, 223, 163]
+  },
+  {
+    mediaType: "video/quicktime",
+    bytesPrefix: [
+      0,
+      0,
+      0,
+      20,
+      102,
+      116,
+      121,
+      112,
+      113,
+      116
+    ]
+  },
+  {
+    mediaType: "video/x-msvideo",
+    bytesPrefix: [82, 73, 70, 70]
+  }
+], stripID32 = (data) => {
+  let bytes = typeof data === "string" ? convertBase64ToUint8Array2(data) : data, id3Size = (bytes[6] & 127) << 21 | (bytes[7] & 127) << 14 | (bytes[8] & 127) << 7 | bytes[9] & 127;
+  return bytes.slice(id3Size + 10);
+};
+function stripID3TagsIfPresent2(data) {
+  return typeof data === "string" && data.startsWith("SUQz") || typeof data !== "string" && data.length > 10 && data[0] === 73 && data[1] === 68 && data[2] === 51 ? stripID32(data) : data;
+}
+function detectMediaTypeBySignatures({
+  data,
+  signatures
+}) {
+  let processedData = stripID3TagsIfPresent2(data), bytes = typeof processedData === "string" ? convertBase64ToUint8Array2(processedData.substring(0, Math.min(processedData.length, 24))) : processedData;
+  for (let signature of signatures)
+    if (bytes.length >= signature.bytesPrefix.length && signature.bytesPrefix.every((byte, index) => byte === null || bytes[index] === byte))
+      return signature.mediaType;
+  return;
+}
+var topLevelSignatureTables = {
+  image: imageMediaTypeSignatures2,
+  audio: audioMediaTypeSignatures,
+  video: videoMediaTypeSignatures,
+  application: documentMediaTypeSignatures
+};
+function detectMediaType2({
+  data,
+  topLevelType
+}) {
+  if (topLevelType === void 0)
+    return detectMediaTypeBySignatures({
+      data,
+      signatures: [
+        ...imageMediaTypeSignatures2,
+        ...documentMediaTypeSignatures,
+        ...audioMediaTypeSignatures,
+        ...videoMediaTypeSignatures
+      ]
+    });
+  let signatures = topLevelSignatureTables[topLevelType];
+  if (signatures === void 0)
+    return;
+  return detectMediaTypeBySignatures({ data, signatures });
+}
+function getTopLevelMediaType(mediaType) {
+  let slashIndex = mediaType.indexOf("/");
+  return slashIndex === -1 ? mediaType : mediaType.substring(0, slashIndex);
+}
+function isFullMediaType(mediaType) {
+  let slashIndex = mediaType.indexOf("/");
+  if (slashIndex === -1)
+    return !1;
+  let subtype = mediaType.substring(slashIndex + 1);
+  return subtype.length > 0 && subtype !== "*";
+}
+async function cancelResponseBody2(response) {
+  var _a28;
+  try {
+    await ((_a28 = response.body) == null ? void 0 : _a28.cancel());
+  } catch (e) {}
+}
+var name27 = "AI_DownloadError", marker27 = `vercel.ai.error.${name27}`, symbol27 = Symbol.for(marker27), _a28, _b21, DownloadError3 = class extends (_b21 = AISDKError3, _a28 = symbol27, _b21) {
+  constructor({
+    url: url2,
+    statusCode,
+    statusText,
+    cause,
+    message = cause == null ? `Failed to download ${url2}: ${statusCode} ${statusText}` : `Failed to download ${url2}: ${cause}`
+  }) {
+    super({ name: name27, message, cause });
+    this[_a28] = !0, this.url = url2, this.statusCode = statusCode, this.statusText = statusText;
+  }
+  static isInstance(error51) {
+    return AISDKError3.hasMarker(error51, marker27);
+  }
+};
+function isBrowserRuntime2(globalThisAny = globalThis) {
+  return globalThisAny.window != null;
+}
+function isSameOrigin(url2, baseUrl) {
+  try {
+    return new URL(url2).origin === new URL(baseUrl).origin;
+  } catch (e) {
+    return !1;
+  }
+}
+var BLOCKED_REQUEST_HEADERS = [
+  "connection",
+  "keep-alive",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+  "host",
+  "forwarded",
+  "proxy-authorization",
+  "via",
+  "x-forwarded-for",
+  "x-forwarded-host",
+  "x-forwarded-proto",
+  "x-real-ip",
+  "metadata",
+  "metadata-flavor",
+  "x-aws-ec2-metadata-token",
+  "x-metadata-token",
+  "cookie",
+  "set-cookie"
+];
+function sanitizeRequestHeaders(input) {
+  let headers = new Headers(input);
+  for (let name28 of BLOCKED_REQUEST_HEADERS)
+    headers.delete(name28);
+  return headers;
+}
+function validateDownloadUrl2(url2) {
+  let parsed;
+  try {
+    parsed = new URL(url2);
+  } catch (e) {
+    throw new DownloadError3({
+      url: url2,
+      message: `Invalid URL: ${url2}`
+    });
+  }
+  if (parsed.protocol === "data:")
+    return;
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
+    throw new DownloadError3({
+      url: url2,
+      message: `URL scheme must be http, https, or data, got ${parsed.protocol}`
+    });
+  let hostname3 = parsed.hostname.toLowerCase().replace(/\.+$/, "");
+  if (!hostname3)
+    throw new DownloadError3({
+      url: url2,
+      message: "URL must have a hostname"
+    });
+  if (hostname3 === "localhost" || hostname3.endsWith(".local") || hostname3.endsWith(".localhost"))
+    throw new DownloadError3({
+      url: url2,
+      message: `URL with hostname ${hostname3} is not allowed`
+    });
+  if (hostname3.startsWith("[") && hostname3.endsWith("]")) {
+    let ipv63 = hostname3.slice(1, -1);
+    if (isPrivateIPv62(ipv63))
+      throw new DownloadError3({
+        url: url2,
+        message: `URL with IPv6 address ${hostname3} is not allowed`
+      });
+    return;
+  }
+  if (isIPv42(hostname3)) {
+    if (isPrivateIPv42(hostname3))
+      throw new DownloadError3({
+        url: url2,
+        message: `URL with IP address ${hostname3} is not allowed`
+      });
+    return;
+  }
+}
+function isIPv42(hostname3) {
+  let parts = hostname3.split(".");
+  if (parts.length !== 4)
+    return !1;
+  return parts.every((part) => {
+    let num = Number(part);
+    return Number.isInteger(num) && num >= 0 && num <= 255 && String(num) === part;
+  });
+}
+function isPrivateIPv42(ip) {
+  let parts = ip.split(".").map(Number), [a, b, c] = parts;
+  if (a === 0)
+    return !0;
+  if (a === 10)
+    return !0;
+  if (a === 100 && b >= 64 && b <= 127)
+    return !0;
+  if (a === 127)
+    return !0;
+  if (a === 169 && b === 254)
+    return !0;
+  if (a === 172 && b >= 16 && b <= 31)
+    return !0;
+  if (a === 192 && b === 0 && c === 0)
+    return !0;
+  if (a === 192 && b === 0 && c === 2)
+    return !0;
+  if (a === 192 && b === 168)
+    return !0;
+  if (a === 198 && (b === 18 || b === 19))
+    return !0;
+  if (a === 198 && b === 51 && c === 100)
+    return !0;
+  if (a === 203 && b === 0 && c === 113)
+    return !0;
+  if (a >= 224)
+    return !0;
+  return !1;
+}
+function parseIPv62(ip) {
+  let address = ip.toLowerCase(), zoneIndex = address.indexOf("%");
+  if (zoneIndex !== -1)
+    address = address.slice(0, zoneIndex);
+  let halves = address.split("::");
+  if (halves.length > 2)
+    return null;
+  let toGroups = (segment) => {
+    if (segment === "")
+      return [];
+    let groups = [], parts = segment.split(":");
+    for (let i = 0;i < parts.length; i++) {
+      let part = parts[i];
+      if (part.includes(".")) {
+        if (i !== parts.length - 1 || !isIPv42(part))
+          return null;
+        let [a, b, c, d] = part.split(".").map(Number);
+        groups.push(a << 8 | b, c << 8 | d);
+        continue;
+      }
+      if (!/^[0-9a-f]{1,4}$/.test(part))
+        return null;
+      groups.push(parseInt(part, 16));
+    }
+    return groups;
+  }, head = toGroups(halves[0]);
+  if (head === null)
+    return null;
+  if (halves.length === 2) {
+    let tail = toGroups(halves[1]);
+    if (tail === null)
+      return null;
+    let fill = 8 - head.length - tail.length;
+    if (fill < 0)
+      return null;
+    return [...head, ...Array(fill).fill(0), ...tail];
+  }
+  return head.length === 8 ? head : null;
+}
+function isPrivateIPv62(ip) {
+  let groups = parseIPv62(ip);
+  if (groups === null)
+    return !0;
+  let topZero = (count) => groups.slice(0, count).every((group) => group === 0);
+  if (topZero(7) && (groups[7] === 0 || groups[7] === 1))
+    return !0;
+  if ((groups[0] & 65024) === 64512)
+    return !0;
+  if ((groups[0] & 65472) === 65152)
+    return !0;
+  if ((groups[0] & 65472) === 65216)
+    return !0;
+  if ((groups[0] & 65280) === 65280)
+    return !0;
+  if (groups[0] === 8193 && groups[1] === 3512)
+    return !0;
+  if (groups[0] === 16383 && (groups[1] & 61440) === 0)
+    return !0;
+  if (topZero(6) || topZero(5) && groups[5] === 65535 || topZero(4) && groups[4] === 65535 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 0 && groups[3] === 0 && groups[4] === 0 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 1) {
+    let a = groups[6] >> 8 & 255, b = groups[6] & 255, c = groups[7] >> 8 & 255, d = groups[7] & 255;
+    return isPrivateIPv42(`${a}.${b}.${c}.${d}`);
+  }
+  return !1;
+}
+var MAX_DOWNLOAD_REDIRECTS2 = 10, REDIRECT_STATUS_CODES = /* @__PURE__ */ new Set([301, 302, 303, 307, 308]);
+async function fetchWithValidatedRedirects2({
+  url: url2,
+  headers,
+  abortSignal,
+  maxRedirects = MAX_DOWNLOAD_REDIRECTS2,
+  fetch: fetch2 = globalThis.fetch,
+  trustedOrigin
+}) {
+  let currentHeaders = headers === void 0 ? void 0 : sanitizeRequestHeaders(headers), perHopInit = (redirect) => {
+    let init = { signal: abortSignal, redirect };
+    if (currentHeaders !== void 0)
+      init.headers = new Headers(currentHeaders);
+    return init;
+  }, currentUrl = url2;
+  for (let redirectCount = 0;redirectCount <= maxRedirects; redirectCount++) {
+    if (trustedOrigin === void 0 || !isSameOrigin(currentUrl, trustedOrigin))
+      validateDownloadUrl2(currentUrl);
+    let response = await fetch2(currentUrl, perHopInit("manual"));
+    if (response.type === "opaqueredirect") {
+      if (!isBrowserRuntime2())
+        throw new DownloadError3({
+          url: url2,
+          message: `Redirect from ${currentUrl} could not be validated and was blocked`
+        });
+      return await fetch2(currentUrl, perHopInit("follow"));
+    }
+    let location = response.headers.get("location");
+    if (REDIRECT_STATUS_CODES.has(response.status) && location) {
+      await cancelResponseBody2(response);
+      let nextUrl = new URL(location, currentUrl).toString();
+      if (currentHeaders !== void 0 && !isSameOrigin(nextUrl, currentUrl)) {
+        let userAgent = currentHeaders.get("user-agent");
+        currentHeaders = new Headers(userAgent == null ? void 0 : { "user-agent": userAgent });
+      }
+      currentUrl = nextUrl;
+      continue;
+    }
+    return response;
+  }
+  throw new DownloadError3({
+    url: url2,
+    message: `Too many redirects (max ${maxRedirects})`
+  });
+}
+var DEFAULT_MAX_DOWNLOAD_SIZE2 = 2147483648;
+async function readResponseWithSizeLimit2({
+  response,
+  url: url2,
+  maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE2
+}) {
+  let contentLength = response.headers.get("content-length");
+  if (contentLength != null) {
+    let length = parseInt(contentLength, 10);
+    if (!isNaN(length) && length > maxBytes)
+      throw await cancelResponseBody2(response), new DownloadError3({
+        url: url2,
+        message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes (Content-Length: ${length}).`
+      });
+  }
+  let body = response.body;
+  if (body == null)
+    return new Uint8Array(0);
+  let reader = body.getReader(), chunks = [], totalBytes = 0;
+  try {
+    while (!0) {
+      let { done, value } = await reader.read();
+      if (done)
+        break;
+      if (totalBytes += value.length, totalBytes > maxBytes)
+        throw new DownloadError3({
+          url: url2,
+          message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes.`
+        });
+      chunks.push(value);
+    }
+  } finally {
+    try {
+      await reader.cancel();
+    } finally {
+      reader.releaseLock();
+    }
+  }
+  let result = new Uint8Array(totalBytes), offset = 0;
+  for (let chunk of chunks)
+    result.set(chunk, offset), offset += chunk.length;
+  return result;
+}
+function extractResponseHeaders2(response) {
+  return Object.fromEntries([...response.headers]);
+}
+var createIdGenerator3 = ({
+  prefix,
+  size = 16,
+  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  separator = "-"
+} = {}) => {
+  let generator = () => {
+    let alphabetLength = alphabet.length, chars = Array(size);
+    for (let i = 0;i < size; i++)
+      chars[i] = alphabet[Math.random() * alphabetLength | 0];
+    return chars.join("");
+  };
+  if (prefix == null)
+    return generator;
+  if (alphabet.includes(separator))
+    throw new InvalidArgumentError4({
+      argument: "separator",
+      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
+    });
+  return () => `${prefix}${separator}${generator()}`;
+}, generateId3 = createIdGenerator3();
+function isAbortError3(error51) {
+  return (error51 instanceof Error || error51 instanceof DOMException) && (error51.name === "AbortError" || error51.name === "ResponseAborted" || error51.name === "TimeoutError");
+}
+var FETCH_FAILED_ERROR_MESSAGES2 = ["fetch failed", "failed to fetch"], BUN_ERROR_CODES2 = [
+  "ConnectionRefused",
+  "ConnectionClosed",
+  "FailedToOpenSocket",
+  "ECONNRESET",
+  "ECONNREFUSED",
+  "ETIMEDOUT",
+  "EPIPE"
+];
+function isBunNetworkError2(error51) {
+  if (!(error51 instanceof Error))
+    return !1;
+  let code = error51.code;
+  if (typeof code === "string" && BUN_ERROR_CODES2.includes(code))
+    return !0;
+  return !1;
+}
+function handleFetchError2({
+  error: error51,
+  url: url2,
+  requestBodyValues
+}) {
+  if (isAbortError3(error51))
+    return error51;
+  if (error51 instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES2.includes(error51.message.toLowerCase())) {
+    let cause = error51.cause;
+    if (cause != null)
+      return new APICallError3({
+        message: `Cannot connect to API: ${cause.message}`,
+        cause,
+        url: url2,
+        requestBodyValues,
+        isRetryable: !0
+      });
+  }
+  if (isBunNetworkError2(error51))
+    return new APICallError3({
+      message: `Cannot connect to API: ${error51.message}`,
+      cause: error51,
+      url: url2,
+      requestBodyValues,
+      isRetryable: !0
+    });
+  return error51;
+}
+function getRuntimeEnvironmentUserAgent3(globalThisAny = globalThis) {
+  var _a29, _b25, _c;
+  if (globalThisAny.window)
+    return "runtime/browser";
+  if ((_a29 = globalThisAny.navigator) == null ? void 0 : _a29.userAgent)
+    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
+  if ((_c = (_b25 = globalThisAny.process) == null ? void 0 : _b25.versions) == null ? void 0 : _c.node)
+    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
+  if (globalThisAny.EdgeRuntime)
+    return "runtime/vercel-edge";
+  return "runtime/unknown";
+}
+function normalizeHeaders3(headers) {
+  if (headers == null)
+    return {};
+  let normalized = {};
+  if (headers instanceof Headers)
+    headers.forEach((value, key) => {
+      normalized[key.toLowerCase()] = value;
+    });
+  else {
+    if (!Array.isArray(headers))
+      headers = Object.entries(headers);
+    for (let [key, value] of headers)
+      if (value != null)
+        normalized[key.toLowerCase()] = value;
+  }
+  return normalized;
+}
+function withUserAgentSuffix3(headers, ...userAgentSuffixParts) {
+  let normalizedHeaders = new Headers(normalizeHeaders3(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
+  return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
+}
+var VERSION5 = "5.0.9", getOriginalFetch3 = () => globalThis.fetch, getFromApi2 = async ({
+  url: url2,
+  headers = {},
+  successfulResponseHandler,
+  failedResponseHandler,
+  abortSignal,
+  fetch: fetch2 = getOriginalFetch3(),
+  validateUrl,
+  credentialedOrigin,
+  trustedOrigin
+}) => {
+  try {
+    let outgoingHeaders = credentialedOrigin !== void 0 && !isSameOrigin(url2, credentialedOrigin) ? {} : headers, requestHeaders = withUserAgentSuffix3(outgoingHeaders, `ai-sdk/provider-utils/${VERSION5}`, getRuntimeEnvironmentUserAgent3()), response = validateUrl ? await fetchWithValidatedRedirects2({
+      url: url2,
+      headers: requestHeaders,
+      abortSignal,
+      fetch: fetch2,
+      trustedOrigin
+    }) : await fetch2(url2, {
+      method: "GET",
+      headers: requestHeaders,
+      signal: abortSignal
+    }), responseHeaders = extractResponseHeaders2(response);
+    if (!response.ok) {
+      let errorInformation;
+      try {
+        errorInformation = await failedResponseHandler({
+          response,
+          url: url2,
+          requestBodyValues: {}
+        });
+      } catch (error51) {
+        if (isAbortError3(error51) || APICallError3.isInstance(error51))
+          throw error51;
+        throw new APICallError3({
+          message: "Failed to process error response",
+          cause: error51,
+          statusCode: response.status,
+          url: url2,
+          responseHeaders,
+          requestBodyValues: {}
+        });
+      }
+      throw errorInformation.value;
+    }
+    try {
+      return await successfulResponseHandler({
+        response,
+        url: url2,
+        requestBodyValues: {}
+      });
+    } catch (error51) {
+      if (error51 instanceof Error) {
+        if (isAbortError3(error51) || APICallError3.isInstance(error51))
+          throw error51;
+      }
+      throw new APICallError3({
+        message: "Failed to process successful response",
+        cause: error51,
+        statusCode: response.status,
+        url: url2,
+        responseHeaders,
+        requestBodyValues: {}
+      });
+    }
+  } catch (error51) {
+    throw handleFetchError2({ error: error51, url: url2, requestBodyValues: {} });
+  }
+};
+function isNonNullable(value) {
+  return value != null;
+}
+function loadApiKey({
+  apiKey,
+  environmentVariableName,
+  apiKeyParameterName = "apiKey",
+  description
+}) {
+  if (typeof apiKey === "string")
+    return apiKey;
+  if (apiKey != null)
+    throw new LoadAPIKeyError3({
+      message: `${description} API key must be a string.`
+    });
+  if (typeof process > "u")
+    throw new LoadAPIKeyError3({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables are not supported in this environment.`
+    });
+  if (apiKey = process.env[environmentVariableName], apiKey == null)
+    throw new LoadAPIKeyError3({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
+    });
+  if (typeof apiKey !== "string")
+    throw new LoadAPIKeyError3({
+      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
+    });
+  return apiKey;
+}
+function loadOptionalSetting2({
+  settingValue,
+  environmentVariableName
+}) {
+  if (typeof settingValue === "string")
+    return settingValue;
+  if (settingValue != null || typeof process > "u")
+    return;
+  if (settingValue = process.env[environmentVariableName], settingValue == null || typeof settingValue !== "string")
+    return;
+  return settingValue;
+}
+function isCustomReasoning(reasoning) {
+  return reasoning !== void 0 && reasoning !== "provider-default";
+}
+function mapReasoningToProviderEffort({
+  reasoning,
+  effortMap,
+  warnings
+}) {
+  let mapped = effortMap[reasoning];
+  if (mapped == null) {
+    warnings.push({
+      type: "unsupported",
+      feature: "reasoning",
+      details: `reasoning "${reasoning}" is not supported by this model.`
+    });
+    return;
+  }
+  if (mapped !== reasoning)
+    warnings.push({
+      type: "compatibility",
+      feature: "reasoning",
+      details: `reasoning "${reasoning}" is not directly supported by this model. mapped to effort "${mapped}".`
+    });
+  return mapped;
+}
+var DEFAULT_REASONING_BUDGET_PERCENTAGES = {
+  minimal: 0.02,
+  low: 0.1,
+  medium: 0.3,
+  high: 0.6,
+  xhigh: 0.9
+};
+function mapReasoningToProviderBudget({
+  reasoning,
+  maxOutputTokens,
+  maxReasoningBudget,
+  minReasoningBudget = 1024,
+  budgetPercentages = DEFAULT_REASONING_BUDGET_PERCENTAGES,
+  warnings
+}) {
+  let pct = budgetPercentages[reasoning];
+  if (pct == null) {
+    warnings.push({
+      type: "unsupported",
+      feature: "reasoning",
+      details: `reasoning "${reasoning}" is not supported by this model.`
+    });
+    return;
+  }
+  return Math.min(maxReasoningBudget, Math.max(minReasoningBudget, Math.round(maxOutputTokens * pct)));
+}
+var suspectProtoRx3 = /"(?:_|\\u005[Ff])(?:_|\\u005[Ff])(?:p|\\u0070)(?:r|\\u0072)(?:o|\\u006[Ff])(?:t|\\u0074)(?:o|\\u006[Ff])(?:_|\\u005[Ff])(?:_|\\u005[Ff])"\s*:/, suspectConstructorRx3 = /"(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)"\s*:/;
+function _parse4(text2) {
+  let obj = JSON.parse(text2);
+  if (obj === null || typeof obj !== "object")
+    return obj;
+  if (suspectProtoRx3.test(text2) === !1 && suspectConstructorRx3.test(text2) === !1)
+    return obj;
+  return filter3(obj);
+}
+function filter3(obj) {
+  let next = [obj];
+  while (next.length) {
+    let nodes = next;
+    next = [];
+    for (let node of nodes) {
+      if (Object.prototype.hasOwnProperty.call(node, "__proto__"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      if (Object.prototype.hasOwnProperty.call(node, "constructor") && node.constructor !== null && typeof node.constructor === "object" && Object.prototype.hasOwnProperty.call(node.constructor, "prototype"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      for (let key in node) {
+        let value = node[key];
+        if (value && typeof value === "object")
+          next.push(value);
+      }
+    }
+  }
+  return obj;
+}
+function secureJsonParse3(text2) {
+  let { stackTraceLimit } = Error;
+  try {
+    Error.stackTraceLimit = 0;
+  } catch (e) {
+    return _parse4(text2);
+  }
+  try {
+    return _parse4(text2);
+  } finally {
+    Error.stackTraceLimit = stackTraceLimit;
+  }
+}
+function addAdditionalPropertiesToJsonSchema3(jsonSchema22) {
+  if (jsonSchema22.type === "object" || Array.isArray(jsonSchema22.type) && jsonSchema22.type.includes("object")) {
+    jsonSchema22.additionalProperties = !1;
+    let { properties } = jsonSchema22;
+    if (properties != null)
+      for (let key of Object.keys(properties))
+        properties[key] = visit3(properties[key]);
+  }
+  if (jsonSchema22.items != null)
+    jsonSchema22.items = Array.isArray(jsonSchema22.items) ? jsonSchema22.items.map(visit3) : visit3(jsonSchema22.items);
+  if (jsonSchema22.anyOf != null)
+    jsonSchema22.anyOf = jsonSchema22.anyOf.map(visit3);
+  if (jsonSchema22.allOf != null)
+    jsonSchema22.allOf = jsonSchema22.allOf.map(visit3);
+  if (jsonSchema22.oneOf != null)
+    jsonSchema22.oneOf = jsonSchema22.oneOf.map(visit3);
+  let { definitions } = jsonSchema22;
+  if (definitions != null)
+    for (let key of Object.keys(definitions))
+      definitions[key] = visit3(definitions[key]);
+  return jsonSchema22;
+}
+function visit3(def) {
+  if (typeof def === "boolean")
+    return def;
+  return addAdditionalPropertiesToJsonSchema3(def);
+}
+var ignoreOverride3 = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use"), defaultOptions3 = {
+  name: void 0,
+  $refStrategy: "root",
+  basePath: ["#"],
+  effectStrategy: "input",
+  pipeStrategy: "all",
+  dateStrategy: "format:date-time",
+  mapStrategy: "entries",
+  removeAdditionalStrategy: "passthrough",
+  allowedAdditionalProperties: !0,
+  rejectedAdditionalProperties: !1,
+  definitionPath: "definitions",
+  strictUnions: !1,
+  definitions: {},
+  errorMessages: !1,
+  patternStrategy: "escape",
+  applyRegexFlags: !1,
+  emailStrategy: "format:email",
+  base64Strategy: "contentEncoding:base64",
+  nameStrategy: "ref"
+}, getDefaultOptions3 = (options) => typeof options === "string" ? {
+  ...defaultOptions3,
+  name: options
+} : {
+  ...defaultOptions3,
+  ...options
+};
+function parseAnyDef3() {
+  return {};
+}
+function parseArrayDef3(def, refs) {
+  var _a29, _b25, _c;
+  let res = {
+    type: "array"
+  };
+  if (((_a29 = def.type) == null ? void 0 : _a29._def) && ((_c = (_b25 = def.type) == null ? void 0 : _b25._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind2.ZodAny)
+    res.items = parseDef3(def.type._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    });
+  if (def.minLength)
+    res.minItems = def.minLength.value;
+  if (def.maxLength)
+    res.maxItems = def.maxLength.value;
+  if (def.exactLength)
+    res.minItems = def.exactLength.value, res.maxItems = def.exactLength.value;
+  return res;
+}
+function parseBigintDef3(def) {
+  let res = {
+    type: "integer",
+    format: "int64"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseBooleanDef3() {
+  return { type: "boolean" };
+}
+function parseBrandedDef3(_def, refs) {
+  return parseDef3(_def.type._def, refs);
+}
+var parseCatchDef3 = (def, refs) => {
+  return parseDef3(def.innerType._def, refs);
+};
+function parseDateDef3(def, refs, overrideDateStrategy) {
+  let strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
+  if (Array.isArray(strategy))
+    return {
+      anyOf: strategy.map((item) => parseDateDef3(def, refs, item))
+    };
+  switch (strategy) {
+    case "string":
+    case "format:date-time":
+      return {
+        type: "string",
+        format: "date-time"
+      };
+    case "format:date":
+      return {
+        type: "string",
+        format: "date"
+      };
+    case "integer":
+      return integerDateParser3(def);
+  }
+}
+var integerDateParser3 = (def) => {
+  let res = {
+    type: "integer",
+    format: "unix-time"
+  };
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        res.minimum = check2.value;
+        break;
+      case "max":
+        res.maximum = check2.value;
+        break;
+    }
+  return res;
+};
+function parseDefaultDef3(_def, refs) {
+  return {
+    ...parseDef3(_def.innerType._def, refs),
+    default: _def.defaultValue()
+  };
+}
+function parseEffectsDef3(_def, refs) {
+  return refs.effectStrategy === "input" ? parseDef3(_def.schema._def, refs) : parseAnyDef3();
+}
+function parseEnumDef3(def) {
+  return {
+    type: "string",
+    enum: Array.from(def.values)
+  };
+}
+var isJsonSchema7AllOfType3 = (type) => {
+  if ("type" in type && type.type === "string")
+    return !1;
+  return "allOf" in type;
+};
+function parseIntersectionDef3(def, refs) {
+  let allOf = [
+    parseDef3(def.left._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "0"]
+    }),
+    parseDef3(def.right._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "1"]
+    })
+  ].filter((x) => !!x), mergedAllOf = [];
+  return allOf.forEach((schema) => {
+    if (isJsonSchema7AllOfType3(schema))
+      mergedAllOf.push(...schema.allOf);
+    else {
+      let nestedSchema = schema;
+      if ("additionalProperties" in schema && schema.additionalProperties === !1) {
+        let { additionalProperties: _additionalProperties, ...rest } = schema;
+        nestedSchema = rest;
+      }
+      mergedAllOf.push(nestedSchema);
+    }
+  }), mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
+}
+function parseLiteralDef3(def) {
+  let parsedType2 = typeof def.value;
+  if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string")
+    return {
+      type: Array.isArray(def.value) ? "array" : "object"
+    };
+  return {
+    type: parsedType2 === "bigint" ? "integer" : parsedType2,
+    const: def.value
+  };
+}
+var emojiRegex4 = void 0, zodPatterns3 = {
+  cuid: /^[cC][^\s-]{8,}$/,
+  cuid2: /^[0-9a-z]+$/,
+  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
+  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
+  emoji: () => {
+    if (emojiRegex4 === void 0)
+      emojiRegex4 = RegExp("^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$", "u");
+    return emojiRegex4;
+  },
+  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
+  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
+  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
+  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
+  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
+  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
+  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
+  nanoid: /^[a-zA-Z0-9_-]{21}$/,
+  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
+};
+function parseStringDef3(def, refs) {
+  let res = {
+    type: "string"
+  };
+  if (def.checks)
+    for (let check2 of def.checks)
+      switch (check2.kind) {
+        case "min":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value;
+          break;
+        case "max":
+          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "email":
+          switch (refs.emailStrategy) {
+            case "format:email":
+              addFormat3(res, "email", check2.message, refs);
+              break;
+            case "format:idn-email":
+              addFormat3(res, "idn-email", check2.message, refs);
+              break;
+            case "pattern:zod":
+              addPattern3(res, zodPatterns3.email, check2.message, refs);
+              break;
+          }
+          break;
+        case "url":
+          addFormat3(res, "uri", check2.message, refs);
+          break;
+        case "uuid":
+          addFormat3(res, "uuid", check2.message, refs);
+          break;
+        case "regex":
+          addPattern3(res, check2.regex, check2.message, refs);
+          break;
+        case "cuid":
+          addPattern3(res, zodPatterns3.cuid, check2.message, refs);
+          break;
+        case "cuid2":
+          addPattern3(res, zodPatterns3.cuid2, check2.message, refs);
+          break;
+        case "startsWith":
+          addPattern3(res, RegExp(`^${escapeLiteralCheckValue3(check2.value, refs)}`), check2.message, refs);
+          break;
+        case "endsWith":
+          addPattern3(res, RegExp(`${escapeLiteralCheckValue3(check2.value, refs)}$`), check2.message, refs);
+          break;
+        case "datetime":
+          addFormat3(res, "date-time", check2.message, refs);
+          break;
+        case "date":
+          addFormat3(res, "date", check2.message, refs);
+          break;
+        case "time":
+          addFormat3(res, "time", check2.message, refs);
+          break;
+        case "duration":
+          addFormat3(res, "duration", check2.message, refs);
+          break;
+        case "length":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value, res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "includes": {
+          addPattern3(res, RegExp(escapeLiteralCheckValue3(check2.value, refs)), check2.message, refs);
+          break;
+        }
+        case "ip": {
+          if (check2.version !== "v6")
+            addFormat3(res, "ipv4", check2.message, refs);
+          if (check2.version !== "v4")
+            addFormat3(res, "ipv6", check2.message, refs);
+          break;
+        }
+        case "base64url":
+          addPattern3(res, zodPatterns3.base64url, check2.message, refs);
+          break;
+        case "jwt":
+          addPattern3(res, zodPatterns3.jwt, check2.message, refs);
+          break;
+        case "cidr": {
+          if (check2.version !== "v6")
+            addPattern3(res, zodPatterns3.ipv4Cidr, check2.message, refs);
+          if (check2.version !== "v4")
+            addPattern3(res, zodPatterns3.ipv6Cidr, check2.message, refs);
+          break;
+        }
+        case "emoji":
+          addPattern3(res, zodPatterns3.emoji(), check2.message, refs);
+          break;
+        case "ulid": {
+          addPattern3(res, zodPatterns3.ulid, check2.message, refs);
+          break;
+        }
+        case "base64": {
+          switch (refs.base64Strategy) {
+            case "format:binary": {
+              addFormat3(res, "binary", check2.message, refs);
+              break;
+            }
+            case "contentEncoding:base64": {
+              res.contentEncoding = "base64";
+              break;
+            }
+            case "pattern:zod": {
+              addPattern3(res, zodPatterns3.base64, check2.message, refs);
+              break;
+            }
+          }
+          break;
+        }
+        case "nanoid":
+          addPattern3(res, zodPatterns3.nanoid, check2.message, refs);
+        case "toLowerCase":
+        case "toUpperCase":
+        case "trim":
+          break;
+        default:
+      }
+  return res;
+}
+function escapeLiteralCheckValue3(literal2, refs) {
+  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric3(literal2) : literal2;
+}
+var ALPHA_NUMERIC3 = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+function escapeNonAlphaNumeric3(source) {
+  let result = "";
+  for (let i = 0;i < source.length; i++) {
+    if (!ALPHA_NUMERIC3.has(source[i]))
+      result += "\\";
+    result += source[i];
+  }
+  return result;
+}
+function addFormat3(schema, value, message, refs) {
+  var _a29;
+  if (schema.format || ((_a29 = schema.anyOf) == null ? void 0 : _a29.some((x) => x.format))) {
+    if (!schema.anyOf)
+      schema.anyOf = [];
+    if (schema.format)
+      schema.anyOf.push({
+        format: schema.format
+      }), delete schema.format;
+    schema.anyOf.push({
+      format: value,
+      ...message && refs.errorMessages && { errorMessage: { format: message } }
+    });
+  } else
+    schema.format = value;
+}
+function addPattern3(schema, regex, message, refs) {
+  var _a29;
+  if (schema.pattern || ((_a29 = schema.allOf) == null ? void 0 : _a29.some((x) => x.pattern))) {
+    if (!schema.allOf)
+      schema.allOf = [];
+    if (schema.pattern)
+      schema.allOf.push({
+        pattern: schema.pattern
+      }), delete schema.pattern;
+    schema.allOf.push({
+      pattern: stringifyRegExpWithFlags3(regex, refs),
+      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
+    });
+  } else
+    schema.pattern = stringifyRegExpWithFlags3(regex, refs);
+}
+function stringifyRegExpWithFlags3(regex, refs) {
+  var _a29;
+  if (!refs.applyRegexFlags || !regex.flags)
+    return regex.source;
+  let flags = {
+    i: regex.flags.includes("i"),
+    m: regex.flags.includes("m"),
+    s: regex.flags.includes("s")
+  }, source = flags.i ? regex.source.toLowerCase() : regex.source, pattern = "", isEscaped = !1, inCharGroup = !1, inCharRange = !1;
+  for (let i = 0;i < source.length; i++) {
+    if (isEscaped) {
+      pattern += source[i], isEscaped = !1;
+      continue;
+    }
+    if (flags.i) {
+      if (inCharGroup) {
+        if (source[i].match(/[a-z]/)) {
+          if (inCharRange)
+            pattern += source[i], pattern += `${source[i - 2]}-${source[i]}`.toUpperCase(), inCharRange = !1;
+          else if (source[i + 1] === "-" && ((_a29 = source[i + 2]) == null ? void 0 : _a29.match(/[a-z]/)))
+            pattern += source[i], inCharRange = !0;
+          else
+            pattern += `${source[i]}${source[i].toUpperCase()}`;
+          continue;
+        }
+      } else if (source[i].match(/[a-z]/)) {
+        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
+        continue;
+      }
+    }
+    if (flags.m) {
+      if (source[i] === "^") {
+        pattern += `(^|(?<=[\r
+]))`;
+        continue;
+      } else if (source[i] === "$") {
+        pattern += `($|(?=[\r
+]))`;
+        continue;
+      }
+    }
+    if (flags.s && source[i] === ".") {
+      pattern += inCharGroup ? `${source[i]}\r
+` : `[${source[i]}\r
+]`;
+      continue;
+    }
+    if (pattern += source[i], source[i] === "\\")
+      isEscaped = !0;
+    else if (inCharGroup && source[i] === "]")
+      inCharGroup = !1;
+    else if (!inCharGroup && source[i] === "[")
+      inCharGroup = !0;
+  }
+  try {
+    new RegExp(pattern);
+  } catch (e) {
+    return console.warn(`Could not convert regex pattern at ${refs.currentPath.join("/")} to a flag-independent form! Falling back to the flag-ignorant source`), regex.source;
+  }
+  return pattern;
+}
+function parseRecordDef3(def, refs) {
+  var _a29, _b25, _c, _d, _e, _f;
+  let schema = {
+    type: "object",
+    additionalProperties: (_a29 = parseDef3(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    })) != null ? _a29 : refs.allowedAdditionalProperties
+  };
+  if (((_b25 = def.keyType) == null ? void 0 : _b25._def.typeName) === ZodFirstPartyTypeKind2.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
+    let { type: _type, ...keyType } = parseStringDef3(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind2.ZodEnum)
+    return {
+      ...schema,
+      propertyNames: {
+        enum: def.keyType._def.values
+      }
+    };
+  else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind2.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind2.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
+    let { type: _type, ...keyType } = parseBrandedDef3(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  }
+  return schema;
+}
+function parseMapDef3(def, refs) {
+  if (refs.mapStrategy === "record")
+    return parseRecordDef3(def, refs);
+  let keys = parseDef3(def.keyType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "0"]
+  }) || parseAnyDef3(), values = parseDef3(def.valueType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "1"]
+  }) || parseAnyDef3();
+  return {
+    type: "array",
+    maxItems: 125,
+    items: {
+      type: "array",
+      items: [keys, values],
+      minItems: 2,
+      maxItems: 2
+    }
+  };
+}
+function parseNativeEnumDef3(def) {
+  let object3 = def.values, actualValues = Object.keys(def.values).filter((key) => {
+    return typeof object3[object3[key]] !== "number";
+  }).map((key) => object3[key]), parsedTypes = Array.from(new Set(actualValues.map((values) => typeof values)));
+  return {
+    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
+    enum: actualValues
+  };
+}
+function parseNeverDef3() {
+  return { not: parseAnyDef3() };
+}
+function parseNullDef3() {
+  return {
+    type: "null"
+  };
+}
+var primitiveMappings3 = {
+  ZodString: "string",
+  ZodNumber: "number",
+  ZodBigInt: "integer",
+  ZodBoolean: "boolean",
+  ZodNull: "null"
+};
+function parseUnionDef3(def, refs) {
+  let options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
+  if (options.every((x) => (x._def.typeName in primitiveMappings3) && (!x._def.checks || !x._def.checks.length))) {
+    let types = options.reduce((types2, x) => {
+      let type = primitiveMappings3[x._def.typeName];
+      return type && !types2.includes(type) ? [...types2, type] : types2;
+    }, []);
+    return {
+      type: types.length > 1 ? types : types[0]
+    };
+  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
+    let types = options.reduce((acc, x) => {
+      let type = typeof x._def.value;
+      switch (type) {
+        case "string":
+        case "number":
+        case "boolean":
+          return [...acc, type];
+        case "bigint":
+          return [...acc, "integer"];
+        case "object":
+          if (x._def.value === null)
+            return [...acc, "null"];
+        case "symbol":
+        case "undefined":
+        case "function":
+        default:
+          return acc;
+      }
+    }, []);
+    if (types.length === options.length) {
+      let uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
+      return {
+        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
+        enum: options.reduce((acc, x) => {
+          return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
+        }, [])
+      };
+    }
+  } else if (options.every((x) => x._def.typeName === "ZodEnum"))
+    return {
+      type: "string",
+      enum: options.reduce((acc, x) => [
+        ...acc,
+        ...x._def.values.filter((x2) => !acc.includes(x2))
+      ], [])
+    };
+  return asAnyOf3(def, refs);
+}
+var asAnyOf3 = (def, refs) => {
+  let anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef3(x._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", `${i}`]
+  })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
+  return anyOf.length ? { anyOf } : void 0;
+};
+function parseNullableDef3(def, refs) {
+  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length))
+    return {
+      type: [
+        primitiveMappings3[def.innerType._def.typeName],
+        "null"
+      ]
+    };
+  let base = parseDef3(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "0"]
+  });
+  return base && { anyOf: [base, { type: "null" }] };
+}
+function parseNumberDef3(def) {
+  let res = {
+    type: "number"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "int":
+        res.type = "integer";
+        break;
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseObjectDef3(def, refs) {
+  let result = {
+    type: "object",
+    properties: {}
+  }, required2 = [], shape = def.shape();
+  for (let propName in shape) {
+    let propDef = shape[propName];
+    if (propDef === void 0 || propDef._def === void 0)
+      continue;
+    let propOptional = safeIsOptional3(propDef), parsedDef = parseDef3(propDef._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "properties", propName],
+      propertyPath: [...refs.currentPath, "properties", propName]
+    });
+    if (parsedDef === void 0)
+      continue;
+    if (result.properties[propName] = parsedDef, !propOptional)
+      required2.push(propName);
+  }
+  if (required2.length)
+    result.required = required2;
+  let additionalProperties = decideAdditionalProperties3(def, refs);
+  if (additionalProperties !== void 0)
+    result.additionalProperties = additionalProperties;
+  return result;
+}
+function decideAdditionalProperties3(def, refs) {
+  if (def.catchall._def.typeName !== "ZodNever")
+    return parseDef3(def.catchall._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    });
+  switch (def.unknownKeys) {
+    case "passthrough":
+      return refs.allowedAdditionalProperties;
+    case "strict":
+      return refs.rejectedAdditionalProperties;
+    case "strip":
+      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
+  }
+}
+function safeIsOptional3(schema) {
+  try {
+    return schema.isOptional();
+  } catch (e) {
+    return !0;
+  }
+}
+var parseOptionalDef3 = (def, refs) => {
+  var _a29;
+  if (refs.currentPath.toString() === ((_a29 = refs.propertyPath) == null ? void 0 : _a29.toString()))
+    return parseDef3(def.innerType._def, refs);
+  let innerSchema = parseDef3(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "1"]
+  });
+  return innerSchema ? { anyOf: [{ not: parseAnyDef3() }, innerSchema] } : parseAnyDef3();
+}, parsePipelineDef3 = (def, refs) => {
+  if (refs.pipeStrategy === "input")
+    return parseDef3(def.in._def, refs);
+  else if (refs.pipeStrategy === "output")
+    return parseDef3(def.out._def, refs);
+  let inputSchema = parseDef3(def.in._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", "0"]
+  }), outputSchema2 = parseDef3(def.out._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", inputSchema ? "1" : "0"]
+  });
+  return {
+    allOf: [inputSchema, outputSchema2].filter((schema) => schema !== void 0)
+  };
+};
+function parsePromiseDef3(def, refs) {
+  return parseDef3(def.type._def, refs);
+}
+function parseSetDef3(def, refs) {
+  let schema = {
+    type: "array",
+    uniqueItems: !0,
+    items: parseDef3(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    })
+  };
+  if (def.minSize)
+    schema.minItems = def.minSize.value;
+  if (def.maxSize)
+    schema.maxItems = def.maxSize.value;
+  return schema;
+}
+function parseTupleDef3(def, refs) {
+  if (def.rest)
+    return {
+      type: "array",
+      minItems: def.items.length,
+      items: def.items.map((x, i) => parseDef3(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
+      additionalItems: parseDef3(def.rest._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "additionalItems"]
+      })
+    };
+  else
+    return {
+      type: "array",
+      minItems: def.items.length,
+      maxItems: def.items.length,
+      items: def.items.map((x, i) => parseDef3(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
+    };
+}
+function parseUndefinedDef3() {
+  return {
+    not: parseAnyDef3()
+  };
+}
+function parseUnknownDef3() {
+  return parseAnyDef3();
+}
+var parseReadonlyDef3 = (def, refs) => {
+  return parseDef3(def.innerType._def, refs);
+}, selectParser3 = (def, typeName, refs) => {
+  switch (typeName) {
+    case ZodFirstPartyTypeKind2.ZodString:
+      return parseStringDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNumber:
+      return parseNumberDef3(def);
+    case ZodFirstPartyTypeKind2.ZodObject:
+      return parseObjectDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBigInt:
+      return parseBigintDef3(def);
+    case ZodFirstPartyTypeKind2.ZodBoolean:
+      return parseBooleanDef3();
+    case ZodFirstPartyTypeKind2.ZodDate:
+      return parseDateDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUndefined:
+      return parseUndefinedDef3();
+    case ZodFirstPartyTypeKind2.ZodNull:
+      return parseNullDef3();
+    case ZodFirstPartyTypeKind2.ZodArray:
+      return parseArrayDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUnion:
+    case ZodFirstPartyTypeKind2.ZodDiscriminatedUnion:
+      return parseUnionDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodIntersection:
+      return parseIntersectionDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodTuple:
+      return parseTupleDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodRecord:
+      return parseRecordDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLiteral:
+      return parseLiteralDef3(def);
+    case ZodFirstPartyTypeKind2.ZodEnum:
+      return parseEnumDef3(def);
+    case ZodFirstPartyTypeKind2.ZodNativeEnum:
+      return parseNativeEnumDef3(def);
+    case ZodFirstPartyTypeKind2.ZodNullable:
+      return parseNullableDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodOptional:
+      return parseOptionalDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodMap:
+      return parseMapDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodSet:
+      return parseSetDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLazy:
+      return () => def.getter()._def;
+    case ZodFirstPartyTypeKind2.ZodPromise:
+      return parsePromiseDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNaN:
+    case ZodFirstPartyTypeKind2.ZodNever:
+      return parseNeverDef3();
+    case ZodFirstPartyTypeKind2.ZodEffects:
+      return parseEffectsDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodAny:
+      return parseAnyDef3();
+    case ZodFirstPartyTypeKind2.ZodUnknown:
+      return parseUnknownDef3();
+    case ZodFirstPartyTypeKind2.ZodDefault:
+      return parseDefaultDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBranded:
+      return parseBrandedDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodReadonly:
+      return parseReadonlyDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodCatch:
+      return parseCatchDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodPipeline:
+      return parsePipelineDef3(def, refs);
+    case ZodFirstPartyTypeKind2.ZodFunction:
+    case ZodFirstPartyTypeKind2.ZodVoid:
+    case ZodFirstPartyTypeKind2.ZodSymbol:
+      return;
+    default:
+      return /* @__PURE__ */ ((_) => {
+        return;
+      })(typeName);
+  }
+}, getRelativePath3 = (pathA, pathB) => {
+  let i = 0;
+  for (;i < pathA.length && i < pathB.length; i++)
+    if (pathA[i] !== pathB[i])
+      break;
+  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
+};
+function parseDef3(def, refs, forceResolution = !1) {
+  var _a29;
+  let seenItem = refs.seen.get(def);
+  if (refs.override) {
+    let overrideResult = (_a29 = refs.override) == null ? void 0 : _a29.call(refs, def, refs, seenItem, forceResolution);
+    if (overrideResult !== ignoreOverride3)
+      return overrideResult;
+  }
+  if (seenItem && !forceResolution) {
+    let seenSchema = get$ref3(seenItem, refs);
+    if (seenSchema !== void 0)
+      return seenSchema;
+  }
+  let newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
+  refs.seen.set(def, newItem);
+  let jsonSchemaOrGetter = selectParser3(def, def.typeName, refs), jsonSchema22 = typeof jsonSchemaOrGetter === "function" ? parseDef3(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
+  if (jsonSchema22)
+    addMeta3(def, refs, jsonSchema22);
+  if (refs.postProcess) {
+    let postProcessResult = refs.postProcess(jsonSchema22, def, refs);
+    return newItem.jsonSchema = jsonSchema22, postProcessResult;
+  }
+  return newItem.jsonSchema = jsonSchema22, jsonSchema22;
+}
+var get$ref3 = (item, refs) => {
+  switch (refs.$refStrategy) {
+    case "root":
+      return { $ref: item.path.join("/") };
+    case "relative":
+      return { $ref: getRelativePath3(refs.currentPath, item.path) };
+    case "none":
+    case "seen": {
+      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value))
+        return console.warn(`Recursive reference detected at ${refs.currentPath.join("/")}! Defaulting to any`), parseAnyDef3();
+      return refs.$refStrategy === "seen" ? parseAnyDef3() : void 0;
+    }
+  }
+}, addMeta3 = (def, refs, jsonSchema22) => {
+  if (def.description)
+    jsonSchema22.description = def.description;
+  return jsonSchema22;
+}, getRefs3 = (options) => {
+  let _options = getDefaultOptions3(options), currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
+  return {
+    ..._options,
+    currentPath,
+    propertyPath: void 0,
+    seen: new Map(Object.entries(_options.definitions).map(([name28, def]) => [
+      def._def,
+      {
+        def: def._def,
+        path: [..._options.basePath, _options.definitionPath, name28],
+        jsonSchema: void 0
+      }
+    ]))
+  };
+}, zod3ToJsonSchema3 = (schema, options) => {
+  var _a29;
+  let refs = getRefs3(options), definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name36, schema2]) => {
+    var _a36;
+    return {
+      ...acc,
+      [name36]: (_a36 = parseDef3(schema2._def, {
+        ...refs,
+        currentPath: [...refs.basePath, refs.definitionPath, name36]
+      }, !0)) != null ? _a36 : parseAnyDef3()
+    };
+  }, {}) : void 0, name28 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name, main = (_a29 = parseDef3(schema._def, name28 === void 0 ? refs : {
+    ...refs,
+    currentPath: [...refs.basePath, refs.definitionPath, name28]
+  }, !1)) != null ? _a29 : parseAnyDef3(), title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
+  if (title !== void 0)
+    main.title = title;
+  let combined = name28 === void 0 ? definitions ? {
+    ...main,
+    [refs.definitionPath]: definitions
+  } : main : {
+    $ref: [
+      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
+      refs.definitionPath,
+      name28
+    ].join("/"),
+    [refs.definitionPath]: {
+      ...definitions,
+      [name28]: main
+    }
+  };
+  return combined.$schema = "http://json-schema.org/draft-07/schema#", combined;
+}, schemaSymbol3 = /* @__PURE__ */ Symbol.for("vercel.ai.schema");
+function lazySchema3(createSchema) {
+  let schema;
+  return () => {
+    if (schema == null)
+      schema = createSchema();
+    return schema;
+  };
+}
+function jsonSchema3(jsonSchema22, {
+  validate
+} = {}) {
+  return {
+    [schemaSymbol3]: !0,
+    _type: void 0,
+    get jsonSchema() {
+      if (typeof jsonSchema22 === "function")
+        jsonSchema22 = jsonSchema22();
+      return jsonSchema22;
+    },
+    validate
+  };
+}
+function isSchema3(value) {
+  return typeof value === "object" && value !== null && schemaSymbol3 in value && value[schemaSymbol3] === !0 && "jsonSchema" in value && "validate" in value;
+}
+function asSchema3(schema) {
+  return schema == null ? jsonSchema3({
+    type: "object",
+    properties: {},
+    additionalProperties: !1
+  }) : isSchema3(schema) ? schema : ("~standard" in schema) ? schema["~standard"].vendor === "zod" ? zodSchema3(schema) : standardSchema3(schema) : schema();
+}
+function standardSchema3(standardSchema22) {
+  return jsonSchema3(() => addAdditionalPropertiesToJsonSchema3(standardSchema22["~standard"].jsonSchema.input({
+    target: "draft-07"
+  })), {
+    validate: async (value) => {
+      let result = await standardSchema22["~standard"].validate(value);
+      return "value" in result ? { success: !0, value: result.value } : {
+        success: !1,
+        error: new TypeValidationError3({
+          value,
+          cause: result.issues
+        })
+      };
+    }
+  });
+}
+function zod3Schema3(zodSchema22, options) {
+  var _a29;
+  let useReferences = (_a29 = options == null ? void 0 : options.useReferences) != null ? _a29 : !1;
+  return jsonSchema3(() => zod3ToJsonSchema3(zodSchema22, {
+    $refStrategy: useReferences ? "root" : "none"
+  }), {
+    validate: async (value) => {
+      let result = await zodSchema22.safeParseAsync(value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function zod4Schema3(zodSchema22, options) {
+  var _a29;
+  let useReferences = (_a29 = options == null ? void 0 : options.useReferences) != null ? _a29 : !1;
+  return jsonSchema3(() => addAdditionalPropertiesToJsonSchema3(toJSONSchema(zodSchema22, {
+    target: "draft-7",
+    io: "input",
+    reused: useReferences ? "ref" : "inline"
+  })), {
+    validate: async (value) => {
+      let result = await safeParseAsync2(zodSchema22, value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function isZod4Schema3(zodSchema22) {
+  return "_zod" in zodSchema22;
+}
+function zodSchema3(zodSchema22, options) {
+  if (isZod4Schema3(zodSchema22))
+    return zod4Schema3(zodSchema22, options);
+  else
+    return zod3Schema3(zodSchema22, options);
+}
+async function validateTypes3({
+  value,
+  schema,
+  context: context2
+}) {
+  let result = await safeValidateTypes3({ value, schema, context: context2 });
+  if (!result.success)
+    throw TypeValidationError3.wrap({ value, cause: result.error, context: context2 });
+  return result.value;
+}
+async function safeValidateTypes3({
+  value,
+  schema,
+  context: context2
+}) {
+  let actualSchema = asSchema3(schema);
+  try {
+    if (actualSchema.validate == null)
+      return { success: !0, value, rawValue: value };
+    let result = await actualSchema.validate(value);
+    if (result.success)
+      return { success: !0, value: result.value, rawValue: value };
+    return {
+      success: !1,
+      error: TypeValidationError3.wrap({ value, cause: result.error, context: context2 }),
+      rawValue: value
+    };
+  } catch (error51) {
+    return {
+      success: !1,
+      error: TypeValidationError3.wrap({ value, cause: error51, context: context2 }),
+      rawValue: value
+    };
+  }
+}
+async function parseJSON2({
+  text: text2,
+  schema
+}) {
+  try {
+    let value = secureJsonParse3(text2);
+    if (schema == null)
+      return value;
+    return await validateTypes3({ value, schema });
+  } catch (error51) {
+    if (JSONParseError3.isInstance(error51) || TypeValidationError3.isInstance(error51))
+      throw error51;
+    throw new JSONParseError3({ text: text2, cause: error51 });
+  }
+}
+async function safeParseJSON3({
+  text: text2,
+  schema
+}) {
+  try {
+    let value = secureJsonParse3(text2);
+    if (schema == null)
+      return { success: !0, value, rawValue: value };
+    return await safeValidateTypes3({ value, schema });
+  } catch (error51) {
+    return {
+      success: !1,
+      error: JSONParseError3.isInstance(error51) ? error51 : new JSONParseError3({ text: text2, cause: error51 }),
+      rawValue: void 0
+    };
+  }
+}
+function parseJsonEventStream3({
+  stream,
+  schema
+}) {
+  return stream.pipeThrough(new TextDecoderStream).pipeThrough(new EventSourceParserStream).pipeThrough(new TransformStream({
+    async transform({ data }, controller) {
+      if (data === "[DONE]")
+        return;
+      controller.enqueue(await safeParseJSON3({ text: data, schema }));
+    }
+  }));
+}
+async function parseProviderOptions({
+  provider,
+  providerOptions,
+  schema
+}) {
+  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null)
+    return;
+  let parsedProviderOptions = await safeValidateTypes3({
+    value: providerOptions[provider],
+    schema
+  });
+  if (!parsedProviderOptions.success)
+    throw new InvalidArgumentError4({
+      argument: "providerOptions",
+      message: `invalid ${provider} provider options`,
+      cause: parsedProviderOptions.error
+    });
+  return parsedProviderOptions.value;
+}
+var getOriginalFetch22 = () => globalThis.fetch, postJsonToApi2 = async ({
+  url: url2,
+  headers,
+  body,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => await postToApi2({
+  url: url2,
+  headers: {
+    "Content-Type": "application/json",
+    ...headers
+  },
+  body: {
+    content: JSON.stringify(body),
+    values: body
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}), postFormDataToApi = async ({
+  url: url2,
+  headers,
+  formData,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => await postToApi2({
+  url: url2,
+  headers,
+  body: {
+    content: formData,
+    values: Object.fromEntries(formData.entries())
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}), postToApi2 = async ({
+  url: url2,
+  headers = {},
+  body,
+  successfulResponseHandler,
+  failedResponseHandler,
+  abortSignal,
+  fetch: fetch2 = getOriginalFetch22()
+}) => {
+  try {
+    let response = await fetch2(url2, {
+      method: "POST",
+      headers: withUserAgentSuffix3(headers, `ai-sdk/provider-utils/${VERSION5}`, getRuntimeEnvironmentUserAgent3()),
+      body: body.content,
+      signal: abortSignal
+    }), responseHeaders = extractResponseHeaders2(response);
+    if (!response.ok) {
+      let errorInformation;
+      try {
+        errorInformation = await failedResponseHandler({
+          response,
+          url: url2,
+          requestBodyValues: body.values
+        });
+      } catch (error51) {
+        if (isAbortError3(error51) || APICallError3.isInstance(error51))
+          throw error51;
+        throw new APICallError3({
+          message: "Failed to process error response",
+          cause: error51,
+          statusCode: response.status,
+          url: url2,
+          responseHeaders,
+          requestBodyValues: body.values
+        });
+      }
+      throw errorInformation.value;
+    }
+    try {
+      return await successfulResponseHandler({
+        response,
+        url: url2,
+        requestBodyValues: body.values
+      });
+    } catch (error51) {
+      if (error51 instanceof Error) {
+        if (isAbortError3(error51) || APICallError3.isInstance(error51))
+          throw error51;
+      }
+      throw new APICallError3({
+        message: "Failed to process successful response",
+        cause: error51,
+        statusCode: response.status,
+        url: url2,
+        responseHeaders,
+        requestBodyValues: body.values
+      });
+    }
+  } catch (error51) {
+    throw handleFetchError2({ error: error51, url: url2, requestBodyValues: body.values });
+  }
+};
+function tool3(tool22) {
+  return tool22;
+}
+function createProviderDefinedToolFactory({
+  id,
+  inputSchema
+}) {
+  return ({
+    execute,
+    outputSchema: outputSchema2,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+    ...args
+  }) => tool3({
+    type: "provider",
+    isProviderExecuted: !1,
+    id,
+    args,
+    inputSchema,
+    outputSchema: outputSchema2,
+    execute,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable
+  });
+}
+function createProviderExecutedToolFactory({
+  id,
+  inputSchema,
+  outputSchema: outputSchema2,
+  supportsDeferredResults
+}) {
+  return ({
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+    ...args
+  }) => tool3({
+    type: "provider",
+    isProviderExecuted: !0,
+    id,
+    args,
+    inputSchema,
+    outputSchema: outputSchema2,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+    supportsDeferredResults
+  });
+}
+async function resolve3(value) {
+  if (typeof value === "function")
+    value = value();
+  return Promise.resolve(value);
+}
+function resolveFullMediaType({
+  part
+}) {
+  if (isFullMediaType(part.mediaType))
+    return part.mediaType;
+  if (part.data.type === "data") {
+    let detected = detectMediaType2({
+      data: part.data.data,
+      topLevelType: getTopLevelMediaType(part.mediaType)
+    });
+    if (detected)
+      return detected;
+    throw new UnsupportedFunctionalityError3({
+      functionality: `file of media type "${part.mediaType}" must specify subtype since it could not be auto-detected`
+    });
+  }
+  throw new UnsupportedFunctionalityError3({
+    functionality: `file of media type "${part.mediaType}" must specify subtype since it is not passed as inline bytes`
+  });
+}
+function resolveProviderReference({
+  reference,
+  provider
+}) {
+  let id = reference[provider];
+  if (id != null)
+    return id;
+  throw new NoSuchProviderReferenceError({
+    provider,
+    reference
+  });
+}
+var textDecoder2 = /* @__PURE__ */ new TextDecoder;
+async function readResponseBodyAsText({
+  response,
+  url: url2
+}) {
+  return textDecoder2.decode(await readResponseWithSizeLimit2({
+    response,
+    url: url2
+  }));
+}
+var createJsonErrorResponseHandler2 = ({
+  errorSchema,
+  errorToMessage,
+  isRetryable
+}) => async ({ response, url: url2, requestBodyValues }) => {
+  let responseBody = await readResponseBodyAsText({ response, url: url2 }), responseHeaders = extractResponseHeaders2(response);
+  if (responseBody.trim() === "")
+    return {
+      responseHeaders,
+      value: new APICallError3({
+        message: response.statusText,
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
+    };
+  try {
+    let parsedError = await parseJSON2({
+      text: responseBody,
+      schema: errorSchema
+    });
+    return {
+      responseHeaders,
+      value: new APICallError3({
+        message: errorToMessage(parsedError),
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        data: parsedError,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
+      })
+    };
+  } catch (e) {
+    return {
+      responseHeaders,
+      value: new APICallError3({
+        message: response.statusText,
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
+    };
+  }
+}, createEventSourceResponseHandler2 = (chunkSchema) => async ({ response }) => {
+  let responseHeaders = extractResponseHeaders2(response);
+  if (response.body == null)
+    throw new EmptyResponseBodyError3({});
+  return {
+    responseHeaders,
+    value: parseJsonEventStream3({
+      stream: response.body,
+      schema: chunkSchema
+    })
+  };
+}, createJsonResponseHandler2 = (responseSchema) => async ({ response, url: url2, requestBodyValues }) => {
+  let responseBody = await readResponseBodyAsText({ response, url: url2 }), parsedResult = await safeParseJSON3({
+    text: responseBody,
+    schema: responseSchema
+  }), responseHeaders = extractResponseHeaders2(response);
+  if (!parsedResult.success)
+    throw new APICallError3({
+      message: "Invalid JSON response",
+      cause: parsedResult.error,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody,
+      url: url2,
+      requestBodyValues
+    });
+  return {
+    responseHeaders,
+    value: parsedResult.value,
+    rawValue: parsedResult.rawValue
+  };
+};
+function isJSONSerializable(value) {
+  if (value === null || value === void 0)
+    return !0;
+  let type = typeof value;
+  if (type === "string" || type === "number" || type === "boolean")
+    return !0;
+  if (type === "function" || type === "symbol" || type === "bigint")
+    return !1;
+  if (Array.isArray(value))
+    return value.every(isJSONSerializable);
+  if (Object.getPrototypeOf(value) === Object.prototype)
+    return Object.values(value).every(isJSONSerializable);
+  return !1;
+}
+function serializeModelOptions(options) {
+  let serializableConfig = {};
+  for (let [key, value] of Object.entries(options.config))
+    if (key === "headers") {
+      let resolvedHeaders = resolveSync(value);
+      if (isJSONSerializable(resolvedHeaders))
+        serializableConfig[key] = resolvedHeaders;
+    } else if (isJSONSerializable(value))
+      serializableConfig[key] = value;
+  return { modelId: options.modelId, config: serializableConfig };
+}
+function resolveSync(value) {
+  let next = value;
+  if (typeof value === "function")
+    next = value();
+  if (next instanceof Promise)
+    throw Error("Promise returned from resolveSync");
+  return next;
+}
+function validateBaseURL(baseURL) {
+  if ((baseURL == null ? void 0 : baseURL.trim()) === "")
+    throw new InvalidArgumentError4({
+      argument: "baseURL",
+      message: "baseURL must be a non-empty string."
+    });
+  return baseURL;
+}
+function withoutTrailingSlash2(url2) {
+  return url2 == null ? void 0 : url2.replace(/\/$/, "");
+}
+
+// node_modules/@ai-sdk/google/dist/index.js
+var VERSION6 = "4.0.14", googleErrorDataSchema = lazySchema3(() => zodSchema3(exports_external.object({
   error: exports_external.object({
     code: exports_external.number().nullable(),
     message: exports_external.string(),
     status: exports_external.string()
   })
-}))), googleFailedResponseHandler = createJsonErrorResponseHandler({
+}))), googleFailedResponseHandler = createJsonErrorResponseHandler2({
   errorSchema: googleErrorDataSchema,
   errorToMessage: (data) => data.error.message
 }), googleEmbeddingContentPartSchema = exports_external.union([
@@ -26974,7 +30705,7 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
       mimeType: exports_external.string()
     })
   })
-]), googleEmbeddingModelOptions = lazySchema(() => zodSchema(exports_external.object({
+]), googleEmbeddingModelOptions = lazySchema3(() => zodSchema3(exports_external.object({
   outputDimensionality: exports_external.number().optional(),
   taskType: exports_external.enum([
     "SEMANTIC_SIMILARITY",
@@ -26987,9 +30718,18 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
     "CODE_RETRIEVAL_QUERY"
   ]).optional(),
   content: exports_external.array(exports_external.array(googleEmbeddingContentPartSchema).min(1).nullable()).optional()
-}))), GoogleGenerativeAIEmbeddingModel = class {
+}))), GoogleEmbeddingModel = class _GoogleEmbeddingModel {
   constructor(modelId, config2) {
-    this.specificationVersion = "v3", this.maxEmbeddingsPerCall = 2048, this.supportsParallelCalls = !0, this.modelId = modelId, this.config = config2;
+    this.specificationVersion = "v4", this.maxEmbeddingsPerCall = 100, this.supportsParallelCalls = !0, this.modelId = modelId, this.config = config2;
+  }
+  static [WORKFLOW_SERIALIZE](model) {
+    return serializeModelOptions({
+      modelId: model.modelId,
+      config: model.config
+    });
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _GoogleEmbeddingModel(options.modelId, options.config);
   }
   get provider() {
     return this.config.provider;
@@ -27006,13 +30746,13 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
       schema: googleEmbeddingModelOptions
     });
     if (values.length > this.maxEmbeddingsPerCall)
-      throw new TooManyEmbeddingValuesForCallError({
+      throw new TooManyEmbeddingValuesForCallError3({
         provider: this.provider,
         modelId: this.modelId,
         maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
         values
       });
-    let mergedHeaders = combineHeaders(await resolve(this.config.headers), headers), multimodalContent = googleOptions == null ? void 0 : googleOptions.content;
+    let mergedHeaders = combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, headers), multimodalContent = googleOptions == null ? void 0 : googleOptions.content;
     if (multimodalContent != null && multimodalContent.length !== values.length)
       throw Error(`The number of multimodal content entries (${multimodalContent.length}) must match the number of values (${values.length}).`);
     if (values.length === 1) {
@@ -27020,7 +30760,7 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
         responseHeaders: responseHeaders2,
         value: response2,
         rawValue: rawValue2
-      } = await postJsonToApi({
+      } = await postJsonToApi2({
         url: `${this.config.baseURL}/models/${this.modelId}:embedContent`,
         headers: mergedHeaders,
         body: {
@@ -27032,7 +30772,7 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
           taskType: googleOptions == null ? void 0 : googleOptions.taskType
         },
         failedResponseHandler: googleFailedResponseHandler,
-        successfulResponseHandler: createJsonResponseHandler(googleGenerativeAISingleEmbeddingResponseSchema),
+        successfulResponseHandler: createJsonResponseHandler2(googleGenerativeAISingleEmbeddingResponseSchema),
         abortSignal,
         fetch: this.config.fetch
       });
@@ -27047,7 +30787,7 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
       responseHeaders,
       value: response,
       rawValue
-    } = await postJsonToApi({
+    } = await postJsonToApi2({
       url: `${this.config.baseURL}/models/${this.modelId}:batchEmbedContents`,
       headers: mergedHeaders,
       body: {
@@ -27065,7 +30805,7 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
         })
       },
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(googleGenerativeAITextEmbeddingResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler2(googleGenerativeAITextEmbeddingResponseSchema),
       abortSignal,
       fetch: this.config.fetch
     });
@@ -27076,13 +30816,13 @@ var VERSION5 = "3.0.83", googleErrorDataSchema = lazySchema(() => zodSchema(expo
       response: { headers: responseHeaders, body: rawValue }
     };
   }
-}, googleGenerativeAITextEmbeddingResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+}, googleGenerativeAITextEmbeddingResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
   embeddings: exports_external.array(exports_external.object({ values: exports_external.array(exports_external.number()) }))
-}))), googleGenerativeAISingleEmbeddingResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), googleGenerativeAISingleEmbeddingResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
   embedding: exports_external.object({ values: exports_external.array(exports_external.number()) })
 })));
-function convertGoogleGenerativeAIUsage(usage) {
-  var _a24, _b16, _c, _d;
+function convertGoogleUsage(usage) {
+  var _a29, _b16, _c, _d;
   if (usage == null)
     return {
       inputTokens: {
@@ -27098,7 +30838,7 @@ function convertGoogleGenerativeAIUsage(usage) {
       },
       raw: void 0
     };
-  let promptTokens = (_a24 = usage.promptTokenCount) != null ? _a24 : 0, candidatesTokens = (_b16 = usage.candidatesTokenCount) != null ? _b16 : 0, cachedContentTokens = (_c = usage.cachedContentTokenCount) != null ? _c : 0, thoughtsTokens = (_d = usage.thoughtsTokenCount) != null ? _d : 0;
+  let promptTokens = (_a29 = usage.promptTokenCount) != null ? _a29 : 0, candidatesTokens = (_b16 = usage.candidatesTokenCount) != null ? _b16 : 0, cachedContentTokens = (_c = usage.cachedContentTokenCount) != null ? _c : 0, thoughtsTokens = (_d = usage.thoughtsTokenCount) != null ? _d : 0;
   return {
     inputTokens: {
       total: promptTokens,
@@ -27114,17 +30854,17 @@ function convertGoogleGenerativeAIUsage(usage) {
     raw: usage
   };
 }
-function convertJSONSchemaToOpenAPISchema(jsonSchema2, isRoot = !0) {
-  if (jsonSchema2 == null)
+function convertJSONSchemaToOpenAPISchema(jsonSchema4, isRoot = !0) {
+  if (jsonSchema4 == null)
     return;
-  if (isEmptyObjectSchema(jsonSchema2)) {
+  if (isEmptyObjectSchema(jsonSchema4)) {
     if (isRoot)
       return;
-    if (typeof jsonSchema2 === "object" && jsonSchema2.description)
-      return { type: "object", description: jsonSchema2.description };
+    if (typeof jsonSchema4 === "object" && jsonSchema4.description)
+      return { type: "object", description: jsonSchema4.description };
     return { type: "object" };
   }
-  if (typeof jsonSchema2 === "boolean")
+  if (typeof jsonSchema4 === "boolean")
     return { type: "boolean", properties: {} };
   let {
     type,
@@ -27139,7 +30879,7 @@ function convertJSONSchemaToOpenAPISchema(jsonSchema2, isRoot = !0) {
     const: constValue,
     minLength,
     enum: enumValues
-  } = jsonSchema2, result = {};
+  } = jsonSchema4, result = {};
   if (description)
     result.description = description;
   if (required2)
@@ -27184,26 +30924,10 @@ function convertJSONSchemaToOpenAPISchema(jsonSchema2, isRoot = !0) {
     result.minLength = minLength;
   return result;
 }
-function isEmptyObjectSchema(jsonSchema2) {
-  return jsonSchema2 != null && typeof jsonSchema2 === "object" && jsonSchema2.type === "object" && (jsonSchema2.properties == null || Object.keys(jsonSchema2.properties).length === 0) && !jsonSchema2.additionalProperties;
+function isEmptyObjectSchema(jsonSchema4) {
+  return jsonSchema4 != null && typeof jsonSchema4 === "object" && jsonSchema4.type === "object" && (jsonSchema4.properties == null || Object.keys(jsonSchema4.properties).length === 0) && !jsonSchema4.additionalProperties;
 }
-var SKIP_THOUGHT_SIGNATURE_VALIDATOR = "skip_thought_signature_validator";
-function getGoogleProviderOptions(providerOptions, providerOptionsName) {
-  let namespaces = [
-    providerOptionsName,
-    "google",
-    "googleVertex",
-    "vertex"
-  ].filter((namespace, index, allNamespaces) => {
-    return allNamespaces.indexOf(namespace) === index;
-  });
-  for (let namespace of namespaces) {
-    let options = providerOptions == null ? void 0 : providerOptions[namespace];
-    if (options != null)
-      return options;
-  }
-}
-var dataUrlRegex = /^data:([^;,]+);base64,(.+)$/s;
+var SKIP_THOUGHT_SIGNATURE_VALIDATOR = "skip_thought_signature_validator", dataUrlRegex = /^data:([^;,]+);base64,(.+)$/s;
 function parseBase64DataUrl(value) {
   let match = dataUrlRegex.exec(value);
   if (match == null)
@@ -27232,22 +30956,21 @@ function appendToolResultParts(parts, toolName, outputValue, toolCallId) {
         responseTextParts.push(contentPart.text);
         break;
       }
-      case "image-data":
-      case "file-data": {
-        functionResponseParts.push({
-          inlineData: {
-            mimeType: contentPart.mediaType,
-            data: contentPart.data
-          }
-        });
-        break;
-      }
-      case "image-url":
-      case "file-url": {
-        let functionResponsePart = convertUrlToolResultPart(contentPart.url);
-        if (functionResponsePart != null)
-          functionResponseParts.push(functionResponsePart);
-        else
+      case "file": {
+        if (contentPart.data.type === "data")
+          functionResponseParts.push({
+            inlineData: {
+              mimeType: resolveFullMediaType({ part: contentPart }),
+              data: convertToBase64(contentPart.data.data)
+            }
+          });
+        else if (contentPart.data.type === "url") {
+          let functionResponsePart = convertUrlToolResultPart(contentPart.data.url.toString());
+          if (functionResponsePart != null)
+            functionResponseParts.push(functionResponsePart);
+          else
+            responseTextParts.push(JSON.stringify(contentPart));
+        } else
           responseTextParts.push(JSON.stringify(contentPart));
         break;
       }
@@ -27284,31 +31007,46 @@ function appendLegacyToolResultParts(parts, toolName, outputValue, toolCallId) {
           }
         });
         break;
-      case "image-data":
-        parts.push({
-          inlineData: {
-            mimeType: String(contentPart.mediaType),
-            data: String(contentPart.data)
-          }
-        }, {
-          text: "Tool executed successfully and returned this image as a response"
-        });
+      case "file": {
+        if (contentPart.data.type === "data") {
+          let topLevelMediaType = getTopLevelMediaType(contentPart.mediaType);
+          parts.push({
+            inlineData: {
+              mimeType: resolveFullMediaType({ part: contentPart }),
+              data: convertToBase64(contentPart.data.data)
+            }
+          }, {
+            text: `Tool executed successfully and returned this ${topLevelMediaType === "image" ? "image" : "file"} as a response`
+          });
+        } else
+          parts.push({ text: JSON.stringify(contentPart) });
         break;
+      }
       default:
         parts.push({ text: JSON.stringify(contentPart) });
         break;
     }
 }
-function convertToGoogleGenerativeAIMessages(prompt, options) {
-  var _a24, _b16, _c, _d, _e;
-  let systemInstructionParts = [], contents = [], systemMessagesAllowed = !0, isGemmaModel = (_a24 = options == null ? void 0 : options.isGemmaModel) != null ? _a24 : !1, isGemini3Model = (_b16 = options == null ? void 0 : options.isGemini3Model) != null ? _b16 : !1, providerOptionsName = (_c = options == null ? void 0 : options.providerOptionsName) != null ? _c : "google", supportsFunctionResponseParts = (_d = options == null ? void 0 : options.supportsFunctionResponseParts) != null ? _d : !0, onWarning = options == null ? void 0 : options.onWarning, sentinelInjected = !1, missingSignatureToolNames = [], injectSkipSignature = (toolName) => {
+function convertToGoogleMessages(prompt, options) {
+  var _a29, _b16, _c, _d, _e;
+  let systemInstructionParts = [], contents = [], systemMessagesAllowed = !0, isGemmaModel = (_a29 = options == null ? void 0 : options.isGemmaModel) != null ? _a29 : !1, isGemini3Model2 = (_b16 = options == null ? void 0 : options.isGemini3Model) != null ? _b16 : !1, onWarning = options == null ? void 0 : options.onWarning, providerOptionsNames = (_c = options == null ? void 0 : options.providerOptionsNames) != null ? _c : ["google"], isVertexLike = !providerOptionsNames.includes("google"), supportsFunctionResponseParts = (_d = options == null ? void 0 : options.supportsFunctionResponseParts) != null ? _d : !0, sentinelInjected = !1, missingSignatureToolNames = [], injectSkipSignature = (toolName) => {
     return missingSignatureToolNames.push(toolName), sentinelInjected = !0, SKIP_THOUGHT_SIGNATURE_VALIDATOR;
+  }, readProviderOpts = (part) => {
+    var _a210, _b25, _c2, _d2, _e2;
+    for (let name28 of providerOptionsNames) {
+      let v = (_a210 = part.providerOptions) == null ? void 0 : _a210[name28];
+      if (v != null)
+        return v;
+    }
+    if (isVertexLike)
+      return (_b25 = part.providerOptions) == null ? void 0 : _b25.google;
+    return (_e2 = (_c2 = part.providerOptions) == null ? void 0 : _c2.googleVertex) != null ? _e2 : (_d2 = part.providerOptions) == null ? void 0 : _d2.vertex;
   };
   for (let { role, content } of prompt)
     switch (role) {
       case "system": {
         if (!systemMessagesAllowed)
-          throw new UnsupportedFunctionalityError({
+          throw new UnsupportedFunctionalityError3({
             functionality: "system messages are only supported at the beginning of the conversation"
           });
         systemInstructionParts.push({ text: content });
@@ -27324,18 +31062,51 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
               break;
             }
             case "file": {
-              let mediaType = part.mediaType === "image/*" ? "image/jpeg" : part.mediaType;
-              parts.push(part.data instanceof URL ? {
-                fileData: {
-                  mimeType: mediaType,
-                  fileUri: part.data.toString()
+              switch (part.data.type) {
+                case "url": {
+                  parts.push({
+                    fileData: {
+                      mimeType: resolveFullMediaType({ part }),
+                      fileUri: part.data.url.toString()
+                    }
+                  });
+                  break;
                 }
-              } : {
-                inlineData: {
-                  mimeType: mediaType,
-                  data: convertToBase64(part.data)
+                case "reference": {
+                  if (isVertexLike)
+                    throw new UnsupportedFunctionalityError3({
+                      functionality: "file parts with provider references"
+                    });
+                  parts.push({
+                    fileData: {
+                      mimeType: resolveFullMediaType({ part }),
+                      fileUri: resolveProviderReference({
+                        reference: part.data.reference,
+                        provider: "google"
+                      })
+                    }
+                  });
+                  break;
                 }
-              });
+                case "text": {
+                  parts.push({
+                    inlineData: {
+                      mimeType: isFullMediaType(part.mediaType) ? part.mediaType : "text/plain",
+                      data: convertToBase64((/* @__PURE__ */ new TextEncoder()).encode(part.data.text))
+                    }
+                  });
+                  break;
+                }
+                case "data": {
+                  parts.push({
+                    inlineData: {
+                      mimeType: resolveFullMediaType({ part }),
+                      data: convertToBase64(part.data.data)
+                    }
+                  });
+                  break;
+                }
+              }
               break;
             }
           }
@@ -27346,7 +31117,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
         systemMessagesAllowed = !1, contents.push({
           role: "model",
           parts: content.map((part) => {
-            let providerOpts = getGoogleProviderOptions(part.providerOptions, providerOptionsName), thoughtSignature = (providerOpts == null ? void 0 : providerOpts.thoughtSignature) != null ? String(providerOpts.thoughtSignature) : void 0;
+            let providerOpts = readProviderOpts(part), thoughtSignature = (providerOpts == null ? void 0 : providerOpts.thoughtSignature) != null ? String(providerOpts.thoughtSignature) : void 0;
             switch (part.type) {
               case "text":
                 return part.text.length === 0 ? void 0 : {
@@ -27359,27 +31130,75 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
                   thought: !0,
                   thoughtSignature
                 };
+              case "reasoning-file": {
+                switch (part.data.type) {
+                  case "url":
+                    throw new UnsupportedFunctionalityError3({
+                      functionality: "File data URLs in assistant messages are not supported"
+                    });
+                  case "data":
+                    return {
+                      inlineData: {
+                        mimeType: part.mediaType,
+                        data: convertToBase64(part.data.data)
+                      },
+                      thought: !0,
+                      thoughtSignature
+                    };
+                }
+                break;
+              }
               case "file": {
-                if (part.data instanceof URL)
-                  throw new UnsupportedFunctionalityError({
-                    functionality: "File data URLs in assistant messages are not supported"
-                  });
-                return {
-                  inlineData: {
-                    mimeType: part.mediaType,
-                    data: convertToBase64(part.data)
-                  },
-                  ...(providerOpts == null ? void 0 : providerOpts.thought) === !0 ? { thought: !0 } : {},
-                  thoughtSignature
-                };
+                switch (part.data.type) {
+                  case "url":
+                    throw new UnsupportedFunctionalityError3({
+                      functionality: "File data URLs in assistant messages are not supported"
+                    });
+                  case "reference": {
+                    if (isVertexLike)
+                      throw new UnsupportedFunctionalityError3({
+                        functionality: "file parts with provider references"
+                      });
+                    return {
+                      fileData: {
+                        mimeType: part.mediaType,
+                        fileUri: resolveProviderReference({
+                          reference: part.data.reference,
+                          provider: "google"
+                        })
+                      },
+                      ...(providerOpts == null ? void 0 : providerOpts.thought) === !0 ? { thought: !0 } : {},
+                      thoughtSignature
+                    };
+                  }
+                  case "text":
+                    return {
+                      inlineData: {
+                        mimeType: isFullMediaType(part.mediaType) ? part.mediaType : "text/plain",
+                        data: convertToBase64((/* @__PURE__ */ new TextEncoder()).encode(part.data.text))
+                      },
+                      ...(providerOpts == null ? void 0 : providerOpts.thought) === !0 ? { thought: !0 } : {},
+                      thoughtSignature
+                    };
+                  case "data":
+                    return {
+                      inlineData: {
+                        mimeType: part.mediaType,
+                        data: convertToBase64(part.data.data)
+                      },
+                      ...(providerOpts == null ? void 0 : providerOpts.thought) === !0 ? { thought: !0 } : {},
+                      thoughtSignature
+                    };
+                }
+                break;
               }
               case "tool-call": {
-                let serverToolCallId = (providerOpts == null ? void 0 : providerOpts.serverToolCallId) != null ? String(providerOpts.serverToolCallId) : void 0, serverToolType = (providerOpts == null ? void 0 : providerOpts.serverToolType) != null ? String(providerOpts.serverToolType) : void 0, effectiveThoughtSignature = thoughtSignature != null ? thoughtSignature : isGemini3Model ? injectSkipSignature(part.toolName) : void 0;
+                let serverToolCallId = (providerOpts == null ? void 0 : providerOpts.serverToolCallId) != null ? String(providerOpts.serverToolCallId) : void 0, serverToolType = (providerOpts == null ? void 0 : providerOpts.serverToolType) != null ? String(providerOpts.serverToolType) : void 0, effectiveThoughtSignature = thoughtSignature != null ? thoughtSignature : isGemini3Model2 ? injectSkipSignature(part.toolName) : void 0;
                 if (serverToolCallId && serverToolType)
                   return {
                     toolCall: {
                       toolType: serverToolType,
-                      args: typeof part.input === "string" ? JSON.parse(part.input) : part.input,
+                      args: typeof part.input === "string" ? secureJsonParse3(part.input) : part.input,
                       id: serverToolCallId
                     },
                     thoughtSignature: effectiveThoughtSignature
@@ -27417,7 +31236,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
         for (let part of content) {
           if (part.type === "tool-approval-response")
             continue;
-          let partProviderOpts = getGoogleProviderOptions(part.providerOptions, providerOptionsName), serverToolCallId = (partProviderOpts == null ? void 0 : partProviderOpts.serverToolCallId) != null ? String(partProviderOpts.serverToolCallId) : void 0, serverToolType = (partProviderOpts == null ? void 0 : partProviderOpts.serverToolType) != null ? String(partProviderOpts.serverToolType) : void 0;
+          let partProviderOpts = readProviderOpts(part), serverToolCallId = (partProviderOpts == null ? void 0 : partProviderOpts.serverToolCallId) != null ? String(partProviderOpts.serverToolCallId) : void 0, serverToolType = (partProviderOpts == null ? void 0 : partProviderOpts.serverToolType) != null ? String(partProviderOpts.serverToolType) : void 0;
           if (serverToolCallId && serverToolType) {
             let serverThoughtSignature = (partProviderOpts == null ? void 0 : partProviderOpts.thoughtSignature) != null ? String(partProviderOpts.thoughtSignature) : void 0;
             if (contents.length > 0) {
@@ -27448,7 +31267,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
                 name: part.toolName,
                 response: {
                   name: part.toolName,
-                  content: output.type === "execution-denied" ? (_e = output.reason) != null ? _e : "Tool execution denied." : output.value
+                  content: output.type === "execution-denied" ? (_e = output.reason) != null ? _e : "Tool call execution denied." : output.value
                 }
               }
             });
@@ -27472,7 +31291,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
     let uniqueToolNames = Array.from(new Set(missingSignatureToolNames));
     onWarning({
       type: "other",
-      message: `Replayed ${missingSignatureToolNames.length} \`functionCall\` part(s) for a Gemini 3 model without a \`thoughtSignature\` (tools: ${uniqueToolNames.map((name24) => `\`${name24}\``).join(", ")}). Injected the documented \`skip_thought_signature_validator\` sentinel to keep the request from failing with HTTP 400. The likely cause is application code that drops \`providerOptions.google.thoughtSignature\` when persisting or serializing assistant tool-call messages. See https://ai.google.dev/gemini-api/docs/thought-signatures.`
+      message: `Replayed ${missingSignatureToolNames.length} \`functionCall\` part(s) for a Gemini 3 model without a \`thoughtSignature\` (tools: ${uniqueToolNames.map((name28) => `\`${name28}\``).join(", ")}). Injected the documented \`skip_thought_signature_validator\` sentinel to keep the request from failing with HTTP 400. The likely cause is application code that drops \`providerOptions.google.thoughtSignature\` when persisting or serializing assistant tool-call messages. See https://ai.google.dev/gemini-api/docs/thought-signatures.`
     });
   }
   return {
@@ -27483,7 +31302,7 @@ function convertToGoogleGenerativeAIMessages(prompt, options) {
 function getModelPath(modelId) {
   return modelId.includes("/") ? modelId : `models/${modelId}`;
 }
-var googleLanguageModelOptions = lazySchema(() => zodSchema(exports_external.object({
+var googleLanguageModelOptions = lazySchema3(() => zodSchema3(exports_external.object({
   responseModalities: exports_external.array(exports_external.enum(["TEXT", "IMAGE"])).optional(),
   thinkingConfig: exports_external.object({
     thinkingBudget: exports_external.number().optional(),
@@ -27562,7 +31381,7 @@ function prepareTools({
   modelId,
   isVertexProvider = !1
 }) {
-  var _a24, _b16;
+  var _a29, _b16;
   tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
   let toolWarnings = [], isLatest = [
     "gemini-flash-latest",
@@ -27571,7 +31390,7 @@ function prepareTools({
   ].some((id) => id === modelId), isGemini2orNewer = modelId.includes("gemini-2") || modelId.includes("gemini-3") || modelId.includes("nano-banana") || isLatest, isGemini3orNewer = modelId.includes("gemini-3"), supportsFileSearch = modelId.includes("gemini-2.5") || modelId.includes("gemini-3");
   if (tools == null)
     return { tools: void 0, toolConfig: void 0, toolWarnings };
-  let hasFunctionTools = tools.some((tool2) => tool2.type === "function"), hasProviderTools = tools.some((tool2) => tool2.type === "provider");
+  let hasFunctionTools = tools.some((tool4) => tool4.type === "function"), hasProviderTools = tools.some((tool4) => tool4.type === "provider");
   if (hasFunctionTools && hasProviderTools && !isGemini3orNewer)
     toolWarnings.push({
       type: "unsupported",
@@ -27579,15 +31398,15 @@ function prepareTools({
     });
   if (hasProviderTools) {
     let googleTools2 = [];
-    if (tools.filter((tool2) => tool2.type === "provider").forEach((tool2) => {
-      switch (tool2.id) {
+    if (tools.filter((tool4) => tool4.type === "provider").forEach((tool4) => {
+      switch (tool4.id) {
         case "google.google_search":
           if (isGemini2orNewer)
-            googleTools2.push({ googleSearch: { ...tool2.args } });
+            googleTools2.push({ googleSearch: { ...tool4.args } });
           else
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`,
+              feature: `provider-defined tool ${tool4.id}`,
               details: "Google Search requires Gemini 2.0 or newer."
             });
           break;
@@ -27597,7 +31416,7 @@ function prepareTools({
           else
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`,
+              feature: `provider-defined tool ${tool4.id}`,
               details: "Enterprise Web Search requires Gemini 2.0 or newer."
             });
           break;
@@ -27607,7 +31426,7 @@ function prepareTools({
           else
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`,
+              feature: `provider-defined tool ${tool4.id}`,
               details: "The URL context tool is not supported with other Gemini models than Gemini 2."
             });
           break;
@@ -27617,17 +31436,17 @@ function prepareTools({
           else
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`,
+              feature: `provider-defined tool ${tool4.id}`,
               details: "The code execution tool is not supported with other Gemini models than Gemini 2."
             });
           break;
         case "google.file_search":
           if (supportsFileSearch)
-            googleTools2.push({ fileSearch: { ...tool2.args } });
+            googleTools2.push({ fileSearch: { ...tool4.args } });
           else
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`,
+              feature: `provider-defined tool ${tool4.id}`,
               details: "The file search tool is only supported with Gemini 2.5 models and Gemini 3 models."
             });
           break;
@@ -27637,16 +31456,16 @@ function prepareTools({
               retrieval: {
                 vertex_rag_store: {
                   rag_resources: {
-                    rag_corpus: tool2.args.ragCorpus
+                    rag_corpus: tool4.args.ragCorpus
                   },
-                  similarity_top_k: tool2.args.topK
+                  similarity_top_k: tool4.args.topK
                 }
               }
             });
           else
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`,
+              feature: `provider-defined tool ${tool4.id}`,
               details: "The RAG store tool is not supported with other Gemini models than Gemini 2."
             });
           break;
@@ -27656,25 +31475,25 @@ function prepareTools({
           else
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`,
+              feature: `provider-defined tool ${tool4.id}`,
               details: "The Google Maps grounding tool is not supported with Gemini models other than Gemini 2 or newer."
             });
           break;
         default:
           toolWarnings.push({
             type: "unsupported",
-            feature: `provider-defined tool ${tool2.id}`
+            feature: `provider-defined tool ${tool4.id}`
           });
           break;
       }
     }), hasFunctionTools && isGemini3orNewer && googleTools2.length > 0) {
       let functionDeclarations2 = [];
-      for (let tool2 of tools)
-        if (tool2.type === "function")
+      for (let tool4 of tools)
+        if (tool4.type === "function")
           functionDeclarations2.push({
-            name: tool2.name,
-            description: (_a24 = tool2.description) != null ? _a24 : "",
-            parameters: convertJSONSchemaToOpenAPISchema(tool2.inputSchema)
+            name: tool4.name,
+            description: (_a29 = tool4.description) != null ? _a29 : "",
+            parameters: convertJSONSchemaToOpenAPISchema(tool4.inputSchema)
           });
       let combinedToolConfig = {
         functionCallingConfig: { mode: "VALIDATED" },
@@ -27712,20 +31531,20 @@ function prepareTools({
     };
   }
   let functionDeclarations = [], hasStrictTools = !1;
-  for (let tool2 of tools)
-    switch (tool2.type) {
+  for (let tool4 of tools)
+    switch (tool4.type) {
       case "function":
         if (functionDeclarations.push({
-          name: tool2.name,
-          description: (_b16 = tool2.description) != null ? _b16 : "",
-          parameters: convertJSONSchemaToOpenAPISchema(tool2.inputSchema)
-        }), tool2.strict === !0)
+          name: tool4.name,
+          description: (_b16 = tool4.description) != null ? _b16 : "",
+          parameters: convertJSONSchemaToOpenAPISchema(tool4.inputSchema)
+        }), tool4.strict === !0)
           hasStrictTools = !0;
         break;
       default:
         toolWarnings.push({
           type: "unsupported",
-          feature: `function tool ${tool2.name}`
+          feature: `function tool ${tool4.name}`
         });
         break;
     }
@@ -27775,7 +31594,7 @@ function prepareTools({
         toolWarnings
       };
     default:
-      throw new UnsupportedFunctionalityError({
+      throw new UnsupportedFunctionalityError3({
         functionality: `tool choice type: ${type}`
       });
   }
@@ -27843,13 +31662,13 @@ var GoogleJSONAccumulator = class {
   openDownTo(targetContainer, leafSegment) {
     let fragment = "", startIdx = this.pathStack.length - 1;
     for (let i = startIdx;i < targetContainer.length; i++) {
-      let seg = targetContainer[i], parentEntry = this.pathStack[this.pathStack.length - 1];
+      let pathSegment = targetContainer[i], parentEntry = this.pathStack[this.pathStack.length - 1];
       if (parentEntry.childCount > 0)
         fragment += ",";
-      if (parentEntry.childCount++, typeof seg === "string")
-        fragment += `${JSON.stringify(seg)}:`;
+      if (parentEntry.childCount++, typeof pathSegment === "string")
+        fragment += `${JSON.stringify(pathSegment)}:`;
       let isArray = typeof (i + 1 < targetContainer.length ? targetContainer[i + 1] : leafSegment) === "number";
-      fragment += isArray ? "[" : "{", this.pathStack.push({ segment: seg, isArray, childCount: 0 });
+      fragment += isArray ? "[" : "{", this.pathStack.push({ segment: pathSegment, isArray, childCount: 0 });
     }
     return fragment;
   }
@@ -27895,36 +31714,36 @@ function defineOwnProperty(obj, key, value) {
 }
 function getNestedValue(obj, segments) {
   let current = obj;
-  for (let seg of segments) {
+  for (let pathSegment of segments) {
     if (current == null || typeof current !== "object")
       return;
     let currentRecord = current;
-    if (!hasOwnProperty(currentRecord, seg))
+    if (!hasOwnProperty(currentRecord, pathSegment))
       return;
-    current = currentRecord[seg];
+    current = currentRecord[pathSegment];
   }
   return current;
 }
 function setNestedValue(obj, segments, value) {
   let current = obj;
   for (let i = 0;i < segments.length - 1; i++) {
-    let seg = segments[i], nextSeg = segments[i + 1];
-    if (!hasOwnProperty(current, seg) || current[seg] == null)
-      defineOwnProperty(current, seg, typeof nextSeg === "number" ? [] : {});
-    current = current[seg];
+    let pathSegment = segments[i], nextSeg = segments[i + 1];
+    if (!hasOwnProperty(current, pathSegment) || current[pathSegment] == null)
+      defineOwnProperty(current, pathSegment, typeof nextSeg === "number" ? [] : {});
+    current = current[pathSegment];
   }
   defineOwnProperty(current, segments[segments.length - 1], value);
 }
 function resolvePartialArgValue(arg) {
-  var _a24, _b16;
-  let value = (_b16 = (_a24 = arg.stringValue) != null ? _a24 : arg.numberValue) != null ? _b16 : arg.boolValue;
+  var _a29, _b16;
+  let value = (_b16 = (_a29 = arg.stringValue) != null ? _a29 : arg.numberValue) != null ? _b16 : arg.boolValue;
   if (value != null)
     return { value, json: JSON.stringify(value) };
   if ("nullValue" in arg)
     return { value: null, json: "null" };
   return;
 }
-function mapGoogleGenerativeAIFinishReason({
+function mapGoogleFinishReason({
   finishReason,
   hasToolCalls
 }) {
@@ -27948,18 +31767,32 @@ function mapGoogleGenerativeAIFinishReason({
       return "other";
   }
 }
-var GoogleGenerativeAILanguageModel = class {
+var configurableSafetySettingCategories = [
+  "HARM_CATEGORY_HATE_SPEECH",
+  "HARM_CATEGORY_DANGEROUS_CONTENT",
+  "HARM_CATEGORY_HARASSMENT",
+  "HARM_CATEGORY_SEXUALLY_EXPLICIT"
+], GoogleLanguageModel = class _GoogleLanguageModel {
   constructor(modelId, config2) {
-    this.specificationVersion = "v3";
-    var _a24;
-    this.modelId = modelId, this.config = config2, this.generateId = (_a24 = config2.generateId) != null ? _a24 : generateId;
+    this.specificationVersion = "v4";
+    var _a29;
+    this.modelId = modelId, this.config = config2, this.generateId = (_a29 = config2.generateId) != null ? _a29 : generateId3;
+  }
+  static [WORKFLOW_SERIALIZE](model) {
+    return serializeModelOptions({
+      modelId: model.modelId,
+      config: model.config
+    });
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _GoogleLanguageModel(options.modelId, options.config);
   }
   get provider() {
     return this.config.provider;
   }
   get supportedUrls() {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a24)) != null ? _c : {};
+    var _a29, _b16, _c;
+    return (_c = (_b16 = (_a29 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a29)) != null ? _c : {};
   }
   async getArgs({
     prompt,
@@ -27974,22 +31807,26 @@ var GoogleGenerativeAILanguageModel = class {
     seed,
     tools,
     toolChoice,
+    reasoning,
     providerOptions
   }, { isStreaming = !1 } = {}) {
-    var _a24, _b16;
-    let warnings = [], providerOptionsName = this.config.provider.includes("vertex") ? "vertex" : "google", googleOptions = await parseProviderOptions({
-      provider: providerOptionsName,
-      providerOptions,
-      schema: googleLanguageModelOptions
-    });
-    if (googleOptions == null && providerOptionsName !== "google")
+    var _a29, _b16, _c;
+    let warnings = [], providerOptionsNames = this.config.provider.includes("vertex") ? ["googleVertex", "vertex"] : ["google"], googleOptions;
+    for (let name28 of providerOptionsNames)
+      if (googleOptions = await parseProviderOptions({
+        provider: name28,
+        providerOptions,
+        schema: googleLanguageModelOptions
+      }), googleOptions != null)
+        break;
+    if (googleOptions == null && !providerOptionsNames.includes("google"))
       googleOptions = await parseProviderOptions({
         provider: "google",
         providerOptions,
         schema: googleLanguageModelOptions
       });
     let isVertexProvider = this.config.provider.startsWith("google.vertex.");
-    if ((tools == null ? void 0 : tools.some((tool2) => tool2.type === "provider" && tool2.id === "google.vertex_rag_store")) && !isVertexProvider)
+    if ((tools == null ? void 0 : tools.some((tool4) => tool4.type === "provider" && tool4.id === "google.vertex_rag_store")) && !isVertexProvider)
       warnings.push({
         type: "other",
         message: `The 'vertex_rag_store' tool is only supported with the Google Vertex provider and might not be supported or could behave unexpectedly with the current Google provider (${this.config.provider}).`
@@ -28016,12 +31853,12 @@ var GoogleGenerativeAILanguageModel = class {
       ...googleOptions.requestType && {
         "X-Vertex-AI-LLM-Request-Type": googleOptions.requestType
       }
-    } : void 0, bodyServiceTier = isVertexProvider ? void 0 : googleOptions == null ? void 0 : googleOptions.serviceTier, isGemmaModel = this.modelId.toLowerCase().startsWith("gemma-"), isGemini3Model = /^gemini-3[.-]/.test(this.modelId), supportsFunctionResponseParts = isGemini3Model, { contents, systemInstruction } = convertToGoogleGenerativeAIMessages(prompt, {
+    } : void 0, bodyServiceTier = isVertexProvider ? void 0 : googleOptions == null ? void 0 : googleOptions.serviceTier, isGemmaModel = this.modelId.toLowerCase().startsWith("gemma-"), isGemini3Model2 = /^gemini-3[.-]/.test(this.modelId), supportsFunctionResponseParts = isGemini3Model2, { contents, systemInstruction } = convertToGoogleMessages(prompt, {
       isGemmaModel,
-      isGemini3Model,
-      providerOptionsName,
-      supportsFunctionResponseParts,
-      onWarning: (warning) => warnings.push(warning)
+      isGemini3Model: isGemini3Model2,
+      onWarning: (warning) => warnings.push(warning),
+      providerOptionsNames,
+      supportsFunctionResponseParts
     }), {
       tools: googleTools2,
       toolConfig: googleToolConfig,
@@ -28031,7 +31868,14 @@ var GoogleGenerativeAILanguageModel = class {
       toolChoice,
       modelId: this.modelId,
       isVertexProvider
-    }), streamFunctionCallArguments = isStreaming && isVertexProvider ? (_a24 = googleOptions == null ? void 0 : googleOptions.streamFunctionCallArguments) != null ? _a24 : !1 : void 0, toolConfig = googleToolConfig || streamFunctionCallArguments || (googleOptions == null ? void 0 : googleOptions.retrievalConfig) ? {
+    }), resolvedThinking = resolveThinkingConfig({
+      reasoning,
+      modelId: this.modelId,
+      warnings
+    }), thinkingConfig = (googleOptions == null ? void 0 : googleOptions.thinkingConfig) || resolvedThinking ? { ...resolvedThinking, ...googleOptions == null ? void 0 : googleOptions.thinkingConfig } : void 0, streamFunctionCallArguments = isStreaming && isVertexProvider ? (_a29 = googleOptions == null ? void 0 : googleOptions.streamFunctionCallArguments) != null ? _a29 : !1 : void 0, safetyThreshold = googleOptions == null ? void 0 : googleOptions.threshold, safetySettings = (_b16 = googleOptions == null ? void 0 : googleOptions.safetySettings) != null ? _b16 : safetyThreshold != null ? configurableSafetySettingCategories.map((category) => ({
+      category,
+      threshold: safetyThreshold
+    })) : void 0, toolConfig = googleToolConfig || streamFunctionCallArguments || (googleOptions == null ? void 0 : googleOptions.retrievalConfig) ? {
       ...googleToolConfig,
       ...streamFunctionCallArguments && {
         functionCallingConfig: {
@@ -28055,12 +31899,12 @@ var GoogleGenerativeAILanguageModel = class {
           stopSequences,
           seed,
           responseMimeType: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? "application/json" : void 0,
-          responseSchema: (responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && ((_b16 = googleOptions == null ? void 0 : googleOptions.structuredOutputs) != null ? _b16 : !0) ? convertJSONSchemaToOpenAPISchema(responseFormat.schema) : void 0,
+          responseSchema: (responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && ((_c = googleOptions == null ? void 0 : googleOptions.structuredOutputs) != null ? _c : !0) ? convertJSONSchemaToOpenAPISchema(responseFormat.schema) : void 0,
           ...(googleOptions == null ? void 0 : googleOptions.audioTimestamp) && {
             audioTimestamp: googleOptions.audioTimestamp
           },
           responseModalities: googleOptions == null ? void 0 : googleOptions.responseModalities,
-          thinkingConfig: googleOptions == null ? void 0 : googleOptions.thinkingConfig,
+          thinkingConfig,
           ...(googleOptions == null ? void 0 : googleOptions.mediaResolution) && {
             mediaResolution: googleOptions.mediaResolution
           },
@@ -28070,7 +31914,7 @@ var GoogleGenerativeAILanguageModel = class {
         },
         contents,
         systemInstruction: isGemmaModel ? void 0 : systemInstruction,
-        safetySettings: googleOptions == null ? void 0 : googleOptions.safetySettings,
+        safetySettings,
         tools: googleTools2,
         toolConfig,
         cachedContent: googleOptions == null ? void 0 : googleOptions.cachedContent,
@@ -28078,25 +31922,25 @@ var GoogleGenerativeAILanguageModel = class {
         serviceTier: bodyServiceTier
       },
       warnings: [...warnings, ...toolWarnings],
-      providerOptionsName,
+      providerOptionsNames,
       extraHeaders: vertexPaygoHeaders
     };
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
-    let { args, warnings, providerOptionsName, extraHeaders } = await this.getArgs(options), mergedHeaders = combineHeaders(await resolve(this.config.headers), options.headers, extraHeaders), {
+    var _a29, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+    let { args, warnings, providerOptionsNames, extraHeaders } = await this.getArgs(options), wrapProviderMetadata = (payload) => Object.fromEntries(providerOptionsNames.map((name28) => [name28, payload])), mergedHeaders = combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, options.headers, extraHeaders), {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi2({
       url: `${this.config.baseURL}/${getModelPath(this.modelId)}:generateContent`,
       headers: mergedHeaders,
       body: args,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(responseSchema),
+      successfulResponseHandler: createJsonResponseHandler2(responseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
-    }), candidate = response.candidates[0], content = [], parts = (_b16 = (_a24 = candidate.content) == null ? void 0 : _a24.parts) != null ? _b16 : [], usageMetadata = response.usageMetadata, lastCodeExecutionToolCallId, lastServerToolCallId;
+    }), candidate = response.candidates[0], content = [], parts = (_b16 = (_a29 = candidate.content) == null ? void 0 : _a29.parts) != null ? _b16 : [], usageMetadata = response.usageMetadata, lastCodeExecutionToolCallId, lastServerToolCallId;
     for (let part of parts)
       if ("executableCode" in part && ((_c = part.executableCode) == null ? void 0 : _c.code)) {
         let toolCallId = this.config.generateId();
@@ -28118,11 +31962,9 @@ var GoogleGenerativeAILanguageModel = class {
           }
         }), lastCodeExecutionToolCallId = void 0;
       else if ("text" in part && part.text != null) {
-        let thoughtSignatureMetadata = part.thoughtSignature ? {
-          [providerOptionsName]: {
-            thoughtSignature: part.thoughtSignature
-          }
-        } : void 0;
+        let thoughtSignatureMetadata = part.thoughtSignature ? wrapProviderMetadata({
+          thoughtSignature: part.thoughtSignature
+        }) : void 0;
         if (part.text.length === 0) {
           if (thoughtSignatureMetadata != null && content.length > 0) {
             let lastContent = content[content.length - 1];
@@ -28140,24 +31982,19 @@ var GoogleGenerativeAILanguageModel = class {
           toolCallId: (_e = part.functionCall.id) != null ? _e : this.config.generateId(),
           toolName: part.functionCall.name,
           input: JSON.stringify((_f = part.functionCall.args) != null ? _f : {}),
-          providerMetadata: part.thoughtSignature ? {
-            [providerOptionsName]: {
-              thoughtSignature: part.thoughtSignature
-            }
-          } : void 0
+          providerMetadata: part.thoughtSignature ? wrapProviderMetadata({
+            thoughtSignature: part.thoughtSignature
+          }) : void 0
         });
       else if ("inlineData" in part) {
         let hasThought = part.thought === !0, hasThoughtSignature = !!part.thoughtSignature;
         content.push({
-          type: "file",
-          data: part.inlineData.data,
+          type: hasThought ? "reasoning-file" : "file",
+          data: { type: "data", data: part.inlineData.data },
           mediaType: part.inlineData.mimeType,
-          providerMetadata: hasThought || hasThoughtSignature ? {
-            [providerOptionsName]: {
-              ...hasThought ? { thought: !0 } : {},
-              ...hasThoughtSignature ? { thoughtSignature: part.thoughtSignature } : {}
-            }
-          } : void 0
+          providerMetadata: hasThoughtSignature ? wrapProviderMetadata({
+            thoughtSignature: part.thoughtSignature
+          }) : void 0
         });
       } else if ("toolCall" in part && part.toolCall) {
         let toolCallId = (_g = part.toolCall.id) != null ? _g : this.config.generateId();
@@ -28168,18 +32005,14 @@ var GoogleGenerativeAILanguageModel = class {
           input: JSON.stringify((_h = part.toolCall.args) != null ? _h : {}),
           providerExecuted: !0,
           dynamic: !0,
-          providerMetadata: part.thoughtSignature ? {
-            [providerOptionsName]: {
-              thoughtSignature: part.thoughtSignature,
-              serverToolCallId: toolCallId,
-              serverToolType: part.toolCall.toolType
-            }
-          } : {
-            [providerOptionsName]: {
-              serverToolCallId: toolCallId,
-              serverToolType: part.toolCall.toolType
-            }
-          }
+          providerMetadata: part.thoughtSignature ? wrapProviderMetadata({
+            thoughtSignature: part.thoughtSignature,
+            serverToolCallId: toolCallId,
+            serverToolType: part.toolCall.toolType
+          }) : wrapProviderMetadata({
+            serverToolCallId: toolCallId,
+            serverToolType: part.toolCall.toolType
+          })
         });
       } else if ("toolResponse" in part && part.toolResponse) {
         let responseToolCallId = (_i = lastServerToolCallId != null ? lastServerToolCallId : part.toolResponse.id) != null ? _i : this.config.generateId();
@@ -28188,18 +32021,14 @@ var GoogleGenerativeAILanguageModel = class {
           toolCallId: responseToolCallId,
           toolName: `server:${part.toolResponse.toolType}`,
           result: (_j = part.toolResponse.response) != null ? _j : {},
-          providerMetadata: part.thoughtSignature ? {
-            [providerOptionsName]: {
-              thoughtSignature: part.thoughtSignature,
-              serverToolCallId: responseToolCallId,
-              serverToolType: part.toolResponse.toolType
-            }
-          } : {
-            [providerOptionsName]: {
-              serverToolCallId: responseToolCallId,
-              serverToolType: part.toolResponse.toolType
-            }
-          }
+          providerMetadata: part.thoughtSignature ? wrapProviderMetadata({
+            thoughtSignature: part.thoughtSignature,
+            serverToolCallId: responseToolCallId,
+            serverToolType: part.toolResponse.toolType
+          }) : wrapProviderMetadata({
+            serverToolCallId: responseToolCallId,
+            serverToolType: part.toolResponse.toolType
+          })
         }), lastServerToolCallId = void 0;
       }
     let sources = (_k = extractSources({
@@ -28211,25 +32040,23 @@ var GoogleGenerativeAILanguageModel = class {
     return {
       content,
       finishReason: {
-        unified: mapGoogleGenerativeAIFinishReason({
+        unified: mapGoogleFinishReason({
           finishReason: candidate.finishReason,
           hasToolCalls: content.some((part) => part.type === "tool-call" && !part.providerExecuted)
         }),
         raw: (_l = candidate.finishReason) != null ? _l : void 0
       },
-      usage: convertGoogleGenerativeAIUsage(usageMetadata),
+      usage: convertGoogleUsage(usageMetadata),
       warnings,
-      providerMetadata: {
-        [providerOptionsName]: {
-          promptFeedback: (_m = response.promptFeedback) != null ? _m : null,
-          groundingMetadata: (_n = candidate.groundingMetadata) != null ? _n : null,
-          urlContextMetadata: (_o = candidate.urlContextMetadata) != null ? _o : null,
-          safetyRatings: (_p = candidate.safetyRatings) != null ? _p : null,
-          usageMetadata: usageMetadata != null ? usageMetadata : null,
-          finishMessage: (_q = candidate.finishMessage) != null ? _q : null,
-          serviceTier: (_r = usageMetadata == null ? void 0 : usageMetadata.serviceTier) != null ? _r : null
-        }
-      },
+      providerMetadata: wrapProviderMetadata({
+        promptFeedback: (_m = response.promptFeedback) != null ? _m : null,
+        groundingMetadata: (_n = candidate.groundingMetadata) != null ? _n : null,
+        urlContextMetadata: (_o = candidate.urlContextMetadata) != null ? _o : null,
+        safetyRatings: (_p = candidate.safetyRatings) != null ? _p : null,
+        usageMetadata: usageMetadata != null ? usageMetadata : null,
+        finishMessage: (_q = candidate.finishMessage) != null ? _q : null,
+        serviceTier: (_r = usageMetadata == null ? void 0 : usageMetadata.serviceTier) != null ? _r : null
+      }),
       request: { body: args },
       response: {
         headers: responseHeaders,
@@ -28238,18 +32065,18 @@ var GoogleGenerativeAILanguageModel = class {
     };
   }
   async doStream(options) {
-    let { args, warnings, providerOptionsName, extraHeaders } = await this.getArgs(options, { isStreaming: !0 }), headers = combineHeaders(await resolve(this.config.headers), options.headers, extraHeaders), { responseHeaders, value: response } = await postJsonToApi({
+    let { args, warnings, providerOptionsNames, extraHeaders } = await this.getArgs(options, { isStreaming: !0 }), wrapProviderMetadata = (payload) => Object.fromEntries(providerOptionsNames.map((name28) => [name28, payload])), headers = combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, options.headers, extraHeaders), { responseHeaders, value: response } = await postJsonToApi2({
       url: `${this.config.baseURL}/${getModelPath(this.modelId)}:streamGenerateContent?alt=sse`,
       headers,
       body: args,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(chunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler2(chunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), finishReason = {
       unified: "other",
       raw: void 0
-    }, usage = void 0, providerMetadata = void 0, lastGroundingMetadata = null, lastUrlContextMetadata = null, generateId3 = this.config.generateId, hasToolCalls = !1, currentTextBlockId = null, currentReasoningBlockId = null, blockCounter = 0, emittedSourceUrls = /* @__PURE__ */ new Set, lastCodeExecutionToolCallId, lastServerToolCallId, activeStreamingToolCalls = [], finishActiveStreamingToolCall = (controller) => {
+    }, usage = void 0, providerMetadata = void 0, lastGroundingMetadata = null, lastUrlContextMetadata = null, generateId32 = this.config.generateId, hasToolCalls = !1, currentTextBlockId = null, currentReasoningBlockId = null, blockCounter = 0, emittedSourceUrls = /* @__PURE__ */ new Set, lastCodeExecutionToolCallId, lastServerToolCallId, activeStreamingToolCalls = [], finishActiveStreamingToolCall = (controller) => {
       let active = activeStreamingToolCalls.pop();
       if (active == null)
         return;
@@ -28279,7 +32106,7 @@ var GoogleGenerativeAILanguageModel = class {
           controller.enqueue({ type: "stream-start", warnings });
         },
         transform(chunk, controller) {
-          var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
+          var _a29, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p;
           if (options.includeRawChunks)
             controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
@@ -28289,7 +32116,7 @@ var GoogleGenerativeAILanguageModel = class {
           let value = chunk.value, usageMetadata = value.usageMetadata;
           if (usageMetadata != null)
             usage = usageMetadata;
-          let candidate = (_a24 = value.candidates) == null ? void 0 : _a24[0];
+          let candidate = (_a29 = value.candidates) == null ? void 0 : _a29[0];
           if (candidate == null)
             return;
           let content = candidate.content;
@@ -28299,7 +32126,7 @@ var GoogleGenerativeAILanguageModel = class {
             lastUrlContextMetadata = candidate.urlContextMetadata;
           let sources = extractSources({
             groundingMetadata: candidate.groundingMetadata,
-            generateId: generateId3
+            generateId: generateId32
           });
           if (sources != null) {
             for (let source of sources)
@@ -28310,7 +32137,7 @@ var GoogleGenerativeAILanguageModel = class {
             let parts = (_b16 = content.parts) != null ? _b16 : [];
             for (let part of parts)
               if ("executableCode" in part && ((_c = part.executableCode) == null ? void 0 : _c.code)) {
-                let toolCallId = generateId3();
+                let toolCallId = generateId32();
                 lastCodeExecutionToolCallId = toolCallId, controller.enqueue({
                   type: "tool-call",
                   toolCallId,
@@ -28331,11 +32158,9 @@ var GoogleGenerativeAILanguageModel = class {
                     }
                   }), lastCodeExecutionToolCallId = void 0;
               } else if ("text" in part && part.text != null) {
-                let thoughtSignatureMetadata = part.thoughtSignature ? {
-                  [providerOptionsName]: {
-                    thoughtSignature: part.thoughtSignature
-                  }
-                } : void 0;
+                let thoughtSignatureMetadata = part.thoughtSignature ? wrapProviderMetadata({
+                  thoughtSignature: part.thoughtSignature
+                }) : void 0;
                 if (part.text.length === 0) {
                   if (thoughtSignatureMetadata != null && currentTextBlockId !== null)
                     controller.enqueue({
@@ -28392,28 +32217,23 @@ var GoogleGenerativeAILanguageModel = class {
                     type: "reasoning-end",
                     id: currentReasoningBlockId
                   }), currentReasoningBlockId = null;
-                let hasThought = part.thought === !0, hasThoughtSignature = !!part.thoughtSignature, fileMeta = hasThought || hasThoughtSignature ? {
-                  [providerOptionsName]: {
-                    ...hasThought ? { thought: !0 } : {},
-                    ...hasThoughtSignature ? { thoughtSignature: part.thoughtSignature } : {}
-                  }
-                } : void 0;
+                let hasThought = part.thought === !0, fileMeta = part.thoughtSignature ? wrapProviderMetadata({
+                  thoughtSignature: part.thoughtSignature
+                }) : void 0;
                 controller.enqueue({
-                  type: "file",
+                  type: hasThought ? "reasoning-file" : "file",
                   mediaType: part.inlineData.mimeType,
-                  data: part.inlineData.data,
+                  data: { type: "data", data: part.inlineData.data },
                   providerMetadata: fileMeta
                 });
               } else if ("toolCall" in part && part.toolCall) {
-                let toolCallId = (_e = part.toolCall.id) != null ? _e : generateId3();
+                let toolCallId = (_e = part.toolCall.id) != null ? _e : generateId32();
                 lastServerToolCallId = toolCallId;
-                let serverMeta = {
-                  [providerOptionsName]: {
-                    ...part.thoughtSignature ? { thoughtSignature: part.thoughtSignature } : {},
-                    serverToolCallId: toolCallId,
-                    serverToolType: part.toolCall.toolType
-                  }
-                };
+                let serverMeta = wrapProviderMetadata({
+                  ...part.thoughtSignature ? { thoughtSignature: part.thoughtSignature } : {},
+                  serverToolCallId: toolCallId,
+                  serverToolType: part.toolCall.toolType
+                });
                 controller.enqueue({
                   type: "tool-call",
                   toolCallId,
@@ -28424,13 +32244,11 @@ var GoogleGenerativeAILanguageModel = class {
                   providerMetadata: serverMeta
                 });
               } else if ("toolResponse" in part && part.toolResponse) {
-                let responseToolCallId = (_g = lastServerToolCallId != null ? lastServerToolCallId : part.toolResponse.id) != null ? _g : generateId3(), serverMeta = {
-                  [providerOptionsName]: {
-                    ...part.thoughtSignature ? { thoughtSignature: part.thoughtSignature } : {},
-                    serverToolCallId: responseToolCallId,
-                    serverToolType: part.toolResponse.toolType
-                  }
-                };
+                let responseToolCallId = (_g = lastServerToolCallId != null ? lastServerToolCallId : part.toolResponse.id) != null ? _g : generateId32(), serverMeta = wrapProviderMetadata({
+                  ...part.thoughtSignature ? { thoughtSignature: part.thoughtSignature } : {},
+                  serverToolCallId: responseToolCallId,
+                  serverToolType: part.toolResponse.toolType
+                });
                 controller.enqueue({
                   type: "tool-result",
                   toolCallId: responseToolCallId,
@@ -28442,14 +32260,12 @@ var GoogleGenerativeAILanguageModel = class {
             for (let part of parts) {
               if (!("functionCall" in part))
                 continue;
-              let providerMeta = part.thoughtSignature ? {
-                [providerOptionsName]: {
-                  thoughtSignature: part.thoughtSignature
-                }
-              } : void 0, isStreamingChunk = part.functionCall.partialArgs != null || part.functionCall.name != null && part.functionCall.willContinue === !0, isTerminalChunk = part.functionCall.name == null && part.functionCall.args == null && part.functionCall.partialArgs == null && part.functionCall.willContinue == null, isCompleteCall = part.functionCall.name != null && part.functionCall.args != null && part.functionCall.partialArgs == null, isNoArgsCompleteCall = part.functionCall.name != null && part.functionCall.args == null && part.functionCall.partialArgs == null && part.functionCall.willContinue !== !0;
+              let providerMeta = part.thoughtSignature ? wrapProviderMetadata({
+                thoughtSignature: part.thoughtSignature
+              }) : void 0, isStreamingChunk = part.functionCall.partialArgs != null || part.functionCall.name != null && part.functionCall.willContinue === !0, isTerminalChunk = part.functionCall.name == null && part.functionCall.args == null && part.functionCall.partialArgs == null && part.functionCall.willContinue == null, isCompleteCall = part.functionCall.name != null && part.functionCall.args != null && part.functionCall.partialArgs == null, isNoArgsCompleteCall = part.functionCall.name != null && part.functionCall.args == null && part.functionCall.partialArgs == null && part.functionCall.willContinue !== !0;
               if (isStreamingChunk) {
                 if (part.functionCall.name != null) {
-                  let toolCallId = (_i = part.functionCall.id) != null ? _i : generateId3(), accumulator = new GoogleJSONAccumulator;
+                  let toolCallId = (_i = part.functionCall.id) != null ? _i : generateId32(), accumulator = new GoogleJSONAccumulator;
                   if (activeStreamingToolCalls.push({
                     toolCallId,
                     toolName: part.functionCall.name,
@@ -28487,7 +32303,7 @@ var GoogleGenerativeAILanguageModel = class {
               } else if (isTerminalChunk && activeStreamingToolCalls.length > 0)
                 finishActiveStreamingToolCall(controller);
               else if (isCompleteCall) {
-                let toolCallId = (_j = part.functionCall.id) != null ? _j : generateId3(), toolName = part.functionCall.name, args2 = typeof part.functionCall.args === "string" ? part.functionCall.args : JSON.stringify((_k = part.functionCall.args) != null ? _k : {});
+                let toolCallId = (_j = part.functionCall.id) != null ? _j : generateId32(), toolName = part.functionCall.name, args2 = typeof part.functionCall.args === "string" ? part.functionCall.args : JSON.stringify((_k = part.functionCall.args) != null ? _k : {});
                 controller.enqueue({
                   type: "tool-input-start",
                   id: toolCallId,
@@ -28510,7 +32326,7 @@ var GoogleGenerativeAILanguageModel = class {
                   providerMetadata: providerMeta
                 }), hasToolCalls = !0;
               } else if (isNoArgsCompleteCall) {
-                let toolCallId = (_l = part.functionCall.id) != null ? _l : generateId3(), toolName = part.functionCall.name;
+                let toolCallId = (_l = part.functionCall.id) != null ? _l : generateId32(), toolName = part.functionCall.name;
                 controller.enqueue({
                   type: "tool-input-start",
                   id: toolCallId,
@@ -28532,22 +32348,20 @@ var GoogleGenerativeAILanguageModel = class {
           }
           if (candidate.finishReason != null)
             finishReason = {
-              unified: mapGoogleGenerativeAIFinishReason({
+              unified: mapGoogleFinishReason({
                 finishReason: candidate.finishReason,
                 hasToolCalls
               }),
               raw: candidate.finishReason
-            }, providerMetadata = {
-              [providerOptionsName]: {
-                promptFeedback: (_m = value.promptFeedback) != null ? _m : null,
-                groundingMetadata: lastGroundingMetadata,
-                urlContextMetadata: lastUrlContextMetadata,
-                safetyRatings: (_n = candidate.safetyRatings) != null ? _n : null,
-                usageMetadata: usageMetadata != null ? usageMetadata : null,
-                finishMessage: (_o = candidate.finishMessage) != null ? _o : null,
-                serviceTier: (_p = usage == null ? void 0 : usage.serviceTier) != null ? _p : null
-              }
-            };
+            }, providerMetadata = wrapProviderMetadata({
+              promptFeedback: (_m = value.promptFeedback) != null ? _m : null,
+              groundingMetadata: lastGroundingMetadata,
+              urlContextMetadata: lastUrlContextMetadata,
+              safetyRatings: (_n = candidate.safetyRatings) != null ? _n : null,
+              usageMetadata: usageMetadata != null ? usageMetadata : null,
+              finishMessage: (_o = candidate.finishMessage) != null ? _o : null,
+              serviceTier: (_p = usage == null ? void 0 : usage.serviceTier) != null ? _p : null
+            });
         },
         flush(controller) {
           if (currentTextBlockId !== null)
@@ -28563,7 +32377,7 @@ var GoogleGenerativeAILanguageModel = class {
           controller.enqueue({
             type: "finish",
             finishReason,
-            usage: convertGoogleGenerativeAIUsage(usage),
+            usage: convertGoogleUsage(usage),
             providerMetadata
           });
         }
@@ -28573,11 +32387,73 @@ var GoogleGenerativeAILanguageModel = class {
     };
   }
 };
+function isGemini3Model(modelId) {
+  return /gemini-3[\.\-]/i.test(modelId) || /gemini-3$/i.test(modelId);
+}
+function getMaxOutputTokensForGemini25Model() {
+  return 65536;
+}
+function getMaxThinkingTokensForGemini25Model(modelId) {
+  let id = modelId.toLowerCase();
+  if (id.includes("2.5-pro") || id.includes("gemini-3-pro-image"))
+    return 32768;
+  return 24576;
+}
+function resolveThinkingConfig({
+  reasoning,
+  modelId,
+  warnings
+}) {
+  if (!isCustomReasoning(reasoning))
+    return;
+  if (isGemini3Model(modelId) && !modelId.includes("gemini-3-pro-image"))
+    return resolveGemini3ThinkingConfig({ reasoning, warnings });
+  return resolveGemini25ThinkingConfig({ reasoning, modelId, warnings });
+}
+function resolveGemini3ThinkingConfig({
+  reasoning,
+  warnings
+}) {
+  if (reasoning === "none")
+    return { thinkingLevel: "minimal" };
+  let thinkingLevel = mapReasoningToProviderEffort({
+    reasoning,
+    effortMap: {
+      minimal: "minimal",
+      low: "low",
+      medium: "medium",
+      high: "high",
+      xhigh: "high"
+    },
+    warnings
+  });
+  if (thinkingLevel == null)
+    return;
+  return { thinkingLevel };
+}
+function resolveGemini25ThinkingConfig({
+  reasoning,
+  modelId,
+  warnings
+}) {
+  if (reasoning === "none")
+    return { thinkingBudget: 0 };
+  let thinkingBudget = mapReasoningToProviderBudget({
+    reasoning,
+    maxOutputTokens: getMaxOutputTokensForGemini25Model(),
+    maxReasoningBudget: getMaxThinkingTokensForGemini25Model(modelId),
+    minReasoningBudget: 0,
+    warnings
+  });
+  if (thinkingBudget == null)
+    return;
+  return { thinkingBudget };
+}
 function extractSources({
   groundingMetadata,
-  generateId: generateId3
+  generateId: generateId32
 }) {
-  var _a24, _b16, _c, _d, _e, _f;
+  var _a29, _b16, _c, _d, _e, _f;
   if (!(groundingMetadata == null ? void 0 : groundingMetadata.groundingChunks))
     return;
   let sources = [];
@@ -28586,15 +32462,15 @@ function extractSources({
       sources.push({
         type: "source",
         sourceType: "url",
-        id: generateId3(),
+        id: generateId32(),
         url: chunk.web.uri,
-        title: (_a24 = chunk.web.title) != null ? _a24 : void 0
+        title: (_a29 = chunk.web.title) != null ? _a29 : void 0
       });
     else if (chunk.image != null)
       sources.push({
         type: "source",
         sourceType: "url",
-        id: generateId3(),
+        id: generateId32(),
         url: chunk.image.sourceUri,
         title: (_b16 = chunk.image.title) != null ? _b16 : void 0
       });
@@ -28604,7 +32480,7 @@ function extractSources({
         sources.push({
           type: "source",
           sourceType: "url",
-          id: generateId3(),
+          id: generateId32(),
           url: uri,
           title: (_c = chunk.retrievedContext.title) != null ? _c : void 0
         });
@@ -28625,7 +32501,7 @@ function extractSources({
         sources.push({
           type: "source",
           sourceType: "document",
-          id: generateId3(),
+          id: generateId32(),
           mediaType,
           title,
           filename
@@ -28635,7 +32511,7 @@ function extractSources({
         sources.push({
           type: "source",
           sourceType: "document",
-          id: generateId3(),
+          id: generateId32(),
           mediaType: "application/octet-stream",
           title,
           filename: fileSearchStore.split("/").pop()
@@ -28646,7 +32522,7 @@ function extractSources({
         sources.push({
           type: "source",
           sourceType: "url",
-          id: generateId3(),
+          id: generateId32(),
           url: chunk.maps.uri,
           title: (_f = chunk.maps.title) != null ? _f : void 0
         });
@@ -28779,7 +32655,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
     retrievedUrl: exports_external.string(),
     urlRetrievalStatus: exports_external.string()
   })).nullish()
-}), responseSchema = lazySchema(() => zodSchema(exports_external.object({
+}), responseSchema = lazySchema3(() => zodSchema3(exports_external.object({
   candidates: exports_external.array(exports_external.object({
     content: getContentSchema().nullish().or(exports_external.object({}).strict()),
     finishReason: exports_external.string().nullish(),
@@ -28793,7 +32669,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
     blockReason: exports_external.string().nullish(),
     safetyRatings: exports_external.array(getSafetyRatingSchema()).nullish()
   }).nullish()
-}))), chunkSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), chunkSchema = lazySchema3(() => zodSchema3(exports_external.object({
   candidates: exports_external.array(exports_external.object({
     content: getContentSchema().nullish(),
     finishReason: exports_external.string().nullish(),
@@ -28807,7 +32683,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
     blockReason: exports_external.string().nullish(),
     safetyRatings: exports_external.array(getSafetyRatingSchema()).nullish()
   }).nullish()
-}))), codeExecution = createProviderToolFactoryWithOutputSchema({
+}))), codeExecution = createProviderExecutedToolFactory({
   id: "google.code_execution",
   inputSchema: exports_external.object({
     language: exports_external.string().describe("The programming language of the code."),
@@ -28817,20 +32693,23 @@ var getGroundingMetadataSchema = () => exports_external.object({
     outcome: exports_external.string().describe('The outcome of the execution (e.g., "OUTCOME_OK").'),
     output: exports_external.string().describe("The output from the code execution.")
   })
-}), enterpriseWebSearch = createProviderToolFactory({
+}), enterpriseWebSearch = createProviderExecutedToolFactory({
   id: "google.enterprise_web_search",
-  inputSchema: lazySchema(() => zodSchema(exports_external.object({})))
-}), fileSearchArgsBaseSchema = exports_external.object({
+  inputSchema: lazySchema3(() => zodSchema3(exports_external.object({}))),
+  outputSchema: lazySchema3(() => zodSchema3(exports_external.object({})))
+}), fileSearchArgsBaseSchema = exports_external.looseObject({
   fileSearchStoreNames: exports_external.array(exports_external.string()).describe("The names of the file_search_stores to retrieve from. Example: `fileSearchStores/my-file-search-store-123`"),
   topK: exports_external.number().int().positive().describe("The number of file search retrieval chunks to retrieve.").optional(),
   metadataFilter: exports_external.string().describe("Metadata filter to apply to the file search retrieval documents. See https://google.aip.dev/160 for the syntax of the filter expression.").optional()
-}).passthrough(), fileSearchArgsSchema = lazySchema(() => zodSchema(fileSearchArgsBaseSchema)), fileSearch = createProviderToolFactory({
+}), fileSearch = createProviderExecutedToolFactory({
   id: "google.file_search",
-  inputSchema: fileSearchArgsSchema
-}), googleMaps = createProviderToolFactory({
+  inputSchema: lazySchema3(() => zodSchema3(exports_external.object({}))),
+  outputSchema: lazySchema3(() => zodSchema3(exports_external.object({})))
+}), googleMaps = createProviderExecutedToolFactory({
   id: "google.google_maps",
-  inputSchema: lazySchema(() => zodSchema(exports_external.object({})))
-}), googleSearchToolArgsBaseSchema = exports_external.object({
+  inputSchema: lazySchema3(() => zodSchema3(exports_external.object({}))),
+  outputSchema: lazySchema3(() => zodSchema3(exports_external.object({})))
+}), googleSearchToolArgsBaseSchema = exports_external.looseObject({
   searchTypes: exports_external.object({
     webSearch: exports_external.object({}).optional(),
     imageSearch: exports_external.object({}).optional()
@@ -28839,18 +32718,18 @@ var getGroundingMetadataSchema = () => exports_external.object({
     startTime: exports_external.string(),
     endTime: exports_external.string()
   }).optional()
-}).passthrough(), googleSearchToolArgsSchema = lazySchema(() => zodSchema(googleSearchToolArgsBaseSchema)), googleSearch = createProviderToolFactory({
+}), googleSearch = createProviderExecutedToolFactory({
   id: "google.google_search",
-  inputSchema: googleSearchToolArgsSchema
-}), urlContext = createProviderToolFactory({
+  inputSchema: lazySchema3(() => zodSchema3(exports_external.object({}))),
+  outputSchema: lazySchema3(() => zodSchema3(exports_external.object({})))
+}), urlContext = createProviderExecutedToolFactory({
   id: "google.url_context",
-  inputSchema: lazySchema(() => zodSchema(exports_external.object({})))
-}), vertexRagStore = createProviderToolFactory({
+  inputSchema: lazySchema3(() => zodSchema3(exports_external.object({}))),
+  outputSchema: lazySchema3(() => zodSchema3(exports_external.object({})))
+}), vertexRagStore = createProviderExecutedToolFactory({
   id: "google.vertex_rag_store",
-  inputSchema: exports_external.object({
-    ragCorpus: exports_external.string(),
-    topK: exports_external.number().optional()
-  })
+  inputSchema: lazySchema3(() => zodSchema3(exports_external.object({}))),
+  outputSchema: lazySchema3(() => zodSchema3(exports_external.object({})))
 }), googleTools = {
   googleSearch,
   enterpriseWebSearch,
@@ -28859,9 +32738,22 @@ var getGroundingMetadataSchema = () => exports_external.object({
   fileSearch,
   codeExecution,
   vertexRagStore
-}, GoogleGenerativeAIImageModel = class {
+}, googleImageModelOptionsSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  personGeneration: exports_external.enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
+  aspectRatio: exports_external.enum(["1:1", "3:4", "4:3", "9:16", "16:9"]).nullish(),
+  googleSearch: googleSearchToolArgsBaseSchema.optional()
+}))), GoogleImageModel = class _GoogleImageModel {
   constructor(modelId, settings, config2) {
-    this.modelId = modelId, this.settings = settings, this.config = config2, this.specificationVersion = "v3";
+    this.modelId = modelId, this.settings = settings, this.config = config2, this.specificationVersion = "v4";
+  }
+  static [WORKFLOW_SERIALIZE](model) {
+    return serializeModelOptions({
+      modelId: model.modelId,
+      config: model.config
+    });
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _GoogleImageModel(options.modelId, {}, options.config);
   }
   get maxImagesPerCall() {
     if (this.settings.maxImagesPerCall != null)
@@ -28879,7 +32771,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
     return this.doGenerateImagen(options);
   }
   async doGenerateImagen(options) {
-    var _a24, _b16, _c;
+    var _a29, _b16, _c;
     let {
       prompt,
       n = 1,
@@ -28893,9 +32785,9 @@ var getGroundingMetadataSchema = () => exports_external.object({
       mask
     } = options, warnings = [];
     if (files != null && files.length > 0)
-      throw Error("Google Generative AI does not support image editing with Imagen models. Use Google Vertex AI (@ai-sdk/google-vertex) for image editing capabilities.");
+      throw Error("Google Gemini API does not support image editing with Imagen models. Use Google Vertex AI (@ai-sdk/google-vertex) for image editing capabilities.");
     if (mask != null)
-      throw Error("Google Generative AI does not support image editing with masks. Use Google Vertex AI (@ai-sdk/google-vertex) for image editing capabilities.");
+      throw Error("Google Gemini API does not support image editing with masks. Use Google Vertex AI (@ai-sdk/google-vertex) for image editing capabilities.");
     if (size != null)
       warnings.push({
         type: "unsupported",
@@ -28912,7 +32804,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
       provider: "google",
       providerOptions,
       schema: googleImageModelOptionsSchema
-    }), currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date, parameters = {
+    }), currentDate = (_c = (_b16 = (_a29 = this.config._internal) == null ? void 0 : _a29.currentDate) == null ? void 0 : _b16.call(_a29)) != null ? _c : /* @__PURE__ */ new Date, parameters = {
       sampleCount: n
     };
     if (aspectRatio != null)
@@ -28930,12 +32822,12 @@ var getGroundingMetadataSchema = () => exports_external.object({
     let body = {
       instances: [{ prompt }],
       parameters
-    }, { responseHeaders, value: response } = await postJsonToApi({
+    }, { responseHeaders, value: response } = await postJsonToApi2({
       url: `${this.config.baseURL}/models/${this.modelId}:predict`,
-      headers: combineHeaders(await resolve(this.config.headers), headers),
+      headers: combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, headers),
       body,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(googleImageResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler2(googleImageResponseSchema),
       abortSignal,
       fetch: this.config.fetch
     });
@@ -28955,7 +32847,7 @@ var getGroundingMetadataSchema = () => exports_external.object({
     };
   }
   async doGenerateGemini(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+    var _a29, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     let {
       prompt,
       n,
@@ -28986,13 +32878,16 @@ var getGroundingMetadataSchema = () => exports_external.object({
         if (file2.type === "url")
           userContent.push({
             type: "file",
-            data: new URL(file2.url),
+            data: { type: "url", url: new URL(file2.url) },
             mediaType: "image/*"
           });
         else
           userContent.push({
             type: "file",
-            data: typeof file2.data === "string" ? file2.data : new Uint8Array(file2.data),
+            data: {
+              type: "data",
+              data: typeof file2.data === "string" ? file2.data : new Uint8Array(file2.data)
+            },
             mediaType: file2.mediaType
           });
     let languageModelPrompt = [
@@ -29001,12 +32896,12 @@ var getGroundingMetadataSchema = () => exports_external.object({
       provider: "google",
       providerOptions,
       schema: googleImageModelOptionsSchema
-    }), { googleSearch: _strippedGoogleSearch, ...passthroughGoogleOptions } = (_a24 = providerOptions == null ? void 0 : providerOptions.google) != null ? _a24 : {}, result = await new GoogleGenerativeAILanguageModel(this.modelId, {
+    }), { googleSearch: _strippedGoogleSearch, ...passthroughGoogleOptions } = (_a29 = providerOptions == null ? void 0 : providerOptions.google) != null ? _a29 : {}, result = await new GoogleLanguageModel(this.modelId, {
       provider: this.config.provider,
       baseURL: this.config.baseURL,
       headers: (_b16 = this.config.headers) != null ? _b16 : {},
       fetch: this.config.fetch,
-      generateId: (_c = this.config.generateId) != null ? _c : generateId
+      generateId: (_c = this.config.generateId) != null ? _c : generateId3
     }).doGenerate({
       prompt: languageModelPrompt,
       seed,
@@ -29031,8 +32926,8 @@ var getGroundingMetadataSchema = () => exports_external.object({
       abortSignal
     }), currentDate = (_f = (_e = (_d = this.config._internal) == null ? void 0 : _d.currentDate) == null ? void 0 : _e.call(_d)) != null ? _f : /* @__PURE__ */ new Date, images = [];
     for (let part of result.content)
-      if (part.type === "file" && part.mediaType.startsWith("image/"))
-        images.push(convertToBase64(part.data));
+      if (part.type === "file" && part.mediaType.startsWith("image/") && part.data.type === "data")
+        images.push(convertToBase64(part.data.data));
     let languageModelGoogleMetadata = (_h = (_g = result.providerMetadata) == null ? void 0 : _g.google) != null ? _h : {};
     return {
       images,
@@ -29059,15 +32954,199 @@ var getGroundingMetadataSchema = () => exports_external.object({
 function isGeminiModel(modelId) {
   return modelId.startsWith("gemini-");
 }
-var googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+var googleImageResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
   predictions: exports_external.array(exports_external.object({ bytesBase64Encoded: exports_external.string() })).default([])
-}))), googleImageModelOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), GoogleFiles = class {
+  constructor(config2) {
+    this.config = config2, this.specificationVersion = "v4";
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async uploadFile(options) {
+    var _a29, _b16, _c, _d;
+    let googleOptions = await parseProviderOptions({
+      provider: "google",
+      providerOptions: options.providerOptions,
+      schema: googleFilesUploadOptionsSchema
+    }), resolvedHeaders = this.config.headers(), fetchFn = (_a29 = this.config.fetch) != null ? _a29 : globalThis.fetch, warnings = [];
+    if (options.filename != null)
+      warnings.push({ type: "unsupported", feature: "filename" });
+    let fileBytes = convertInlineFileDataToUint8Array(options.data), mediaType = options.mediaType, displayName = googleOptions == null ? void 0 : googleOptions.displayName, baseOrigin = this.config.baseURL.replace(/\/v1beta$/, ""), initResponse = await fetchFn(`${baseOrigin}/upload/v1beta/files`, {
+      method: "POST",
+      headers: {
+        ...resolvedHeaders,
+        "X-Goog-Upload-Protocol": "resumable",
+        "X-Goog-Upload-Command": "start",
+        "X-Goog-Upload-Header-Content-Length": String(fileBytes.length),
+        "X-Goog-Upload-Header-Content-Type": mediaType,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        file: {
+          ...displayName != null ? { display_name: displayName } : {}
+        }
+      })
+    });
+    if (!initResponse.ok) {
+      let errorBody = await initResponse.text();
+      throw new AISDKError3({
+        name: "GOOGLE_FILES_UPLOAD_ERROR",
+        message: `Failed to initiate resumable upload: ${initResponse.status} ${errorBody}`
+      });
+    }
+    let uploadUrl = initResponse.headers.get("x-goog-upload-url");
+    if (!uploadUrl)
+      throw new AISDKError3({
+        name: "GOOGLE_FILES_UPLOAD_ERROR",
+        message: "No upload URL returned from initiation request"
+      });
+    let uploadResponse = await fetchFn(uploadUrl, {
+      method: "POST",
+      headers: {
+        "Content-Length": String(fileBytes.length),
+        "X-Goog-Upload-Offset": "0",
+        "X-Goog-Upload-Command": "upload, finalize"
+      },
+      body: fileBytes
+    });
+    if (!uploadResponse.ok) {
+      let errorBody = await uploadResponse.text();
+      throw new AISDKError3({
+        name: "GOOGLE_FILES_UPLOAD_ERROR",
+        message: `Failed to upload file data: ${uploadResponse.status} ${errorBody}`
+      });
+    }
+    let file2 = (await uploadResponse.json()).file, pollIntervalMs = (_b16 = googleOptions == null ? void 0 : googleOptions.pollIntervalMs) != null ? _b16 : 2000, pollTimeoutMs = (_c = googleOptions == null ? void 0 : googleOptions.pollTimeoutMs) != null ? _c : 300000, startTime = Date.now();
+    while (file2.state === "PROCESSING") {
+      if (Date.now() - startTime > pollTimeoutMs)
+        throw new AISDKError3({
+          name: "GOOGLE_FILES_UPLOAD_TIMEOUT",
+          message: `File processing timed out after ${pollTimeoutMs}ms`
+        });
+      await delay2(pollIntervalMs);
+      let { value: fileStatus } = await getFromApi2({
+        url: `${this.config.baseURL}/${file2.name}`,
+        validateUrl: !1,
+        headers: combineHeaders2(resolvedHeaders),
+        successfulResponseHandler: createJsonResponseHandler2(googleFileResponseSchema),
+        failedResponseHandler: googleFailedResponseHandler,
+        fetch: this.config.fetch
+      });
+      file2 = fileStatus;
+    }
+    if (file2.state === "FAILED")
+      throw new AISDKError3({
+        name: "GOOGLE_FILES_UPLOAD_FAILED",
+        message: `File processing failed for ${file2.name}`
+      });
+    return {
+      warnings,
+      providerReference: { google: file2.uri },
+      mediaType: (_d = file2.mimeType) != null ? _d : options.mediaType,
+      providerMetadata: {
+        google: {
+          name: file2.name,
+          displayName: file2.displayName,
+          mimeType: file2.mimeType,
+          sizeBytes: file2.sizeBytes,
+          state: file2.state,
+          uri: file2.uri,
+          ...file2.createTime != null ? { createTime: file2.createTime } : {},
+          ...file2.updateTime != null ? { updateTime: file2.updateTime } : {},
+          ...file2.expirationTime != null ? { expirationTime: file2.expirationTime } : {},
+          ...file2.sha256Hash != null ? { sha256Hash: file2.sha256Hash } : {}
+        }
+      }
+    };
+  }
+}, googleFileResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  name: exports_external.string(),
+  displayName: exports_external.string().nullish(),
+  mimeType: exports_external.string(),
+  sizeBytes: exports_external.string().nullish(),
+  createTime: exports_external.string().nullish(),
+  updateTime: exports_external.string().nullish(),
+  expirationTime: exports_external.string().nullish(),
+  sha256Hash: exports_external.string().nullish(),
+  uri: exports_external.string(),
+  state: exports_external.string()
+}))), googleFilesUploadOptionsSchema = lazySchema3(() => zodSchema3(exports_external.looseObject({
+  displayName: exports_external.string().nullish(),
+  pollIntervalMs: exports_external.number().positive().nullish(),
+  pollTimeoutMs: exports_external.number().positive().nullish()
+}))), googleVideoModelOptionsSchema = lazySchema3(() => zodSchema3(exports_external.looseObject({
+  pollIntervalMs: exports_external.number().positive().nullish(),
+  pollTimeoutMs: exports_external.number().positive().nullish(),
   personGeneration: exports_external.enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
-  aspectRatio: exports_external.enum(["1:1", "3:4", "4:3", "9:16", "16:9"]).nullish(),
-  googleSearch: googleSearchToolArgsBaseSchema.optional()
-}))), GoogleGenerativeAIVideoModel = class {
+  negativePrompt: exports_external.string().nullish(),
+  referenceImages: exports_external.array(exports_external.object({
+    bytesBase64Encoded: exports_external.string().nullish(),
+    gcsUri: exports_external.string().nullish()
+  })).nullish()
+})));
+function getFirstFrameImage(options) {
+  var _a29, _b16;
+  return (_b16 = (_a29 = options.frameImages) == null ? void 0 : _a29.find((frame) => frame.frameType === "first_frame")) == null ? void 0 : _b16.image;
+}
+function resolveStartImage(options) {
+  var _a29;
+  return (_a29 = getFirstFrameImage(options)) != null ? _a29 : options.image;
+}
+function getLastFrameImage(options) {
+  var _a29, _b16;
+  return (_b16 = (_a29 = options.frameImages) == null ? void 0 : _a29.find((frame) => frame.frameType === "last_frame")) == null ? void 0 : _b16.image;
+}
+function getInputReferences(options) {
+  if (options.frameImages != null && options.frameImages.length > 0)
+    return;
+  return options.inputReferences != null && options.inputReferences.length > 0 ? options.inputReferences : void 0;
+}
+function convertFileToGoogleImage(file2, warnings) {
+  if (file2.type === "url") {
+    if (file2.url.startsWith("gs://"))
+      return {
+        gcsUri: file2.url,
+        mimeType: "image/png"
+      };
+    warnings.push({
+      type: "unsupported",
+      feature: "URL-based image input",
+      details: "Google Generative AI video models require base64-encoded images or GCS URIs. URL will be ignored."
+    });
+    return;
+  }
+  return {
+    bytesBase64Encoded: typeof file2.data === "string" ? file2.data : convertUint8ArrayToBase643(file2.data),
+    mimeType: file2.mediaType || "image/png"
+  };
+}
+function convertProviderReferenceImage(refImg) {
+  if (refImg.bytesBase64Encoded)
+    return {
+      image: {
+        bytesBase64Encoded: refImg.bytesBase64Encoded,
+        mimeType: "image/png"
+      },
+      referenceType: "asset"
+    };
+  if (refImg.gcsUri)
+    return {
+      image: {
+        gcsUri: refImg.gcsUri,
+        mimeType: "image/png"
+      },
+      referenceType: "asset"
+    };
+  return refImg;
+}
+function convertInputReferenceImage(file2, warnings) {
+  let image = convertFileToGoogleImage(file2, warnings);
+  return image != null ? { image, referenceType: "asset" } : void 0;
+}
+var GoogleVideoModel = class {
   constructor(modelId, config2) {
-    this.modelId = modelId, this.config = config2, this.specificationVersion = "v3";
+    this.modelId = modelId, this.config = config2, this.specificationVersion = "v4";
   }
   get provider() {
     return this.config.provider;
@@ -29076,45 +33155,34 @@ var googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.obje
     return 4;
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h;
-    let currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date, warnings = [], googleOptions = await parseProviderOptions({
+    var _a29, _b16, _c, _d, _e, _f, _g, _h;
+    let currentDate = (_c = (_b16 = (_a29 = this.config._internal) == null ? void 0 : _a29.currentDate) == null ? void 0 : _b16.call(_a29)) != null ? _c : /* @__PURE__ */ new Date, warnings = [], googleOptions = await parseProviderOptions({
       provider: "google",
       providerOptions: options.providerOptions,
       schema: googleVideoModelOptionsSchema
     }), instances = [{}], instance = instances[0];
     if (options.prompt != null)
       instance.prompt = options.prompt;
-    if (options.image != null)
-      if (options.image.type === "url")
-        warnings.push({
-          type: "unsupported",
-          feature: "URL-based image input",
-          details: "Google Generative AI video models require base64-encoded images. URL will be ignored."
-        });
-      else {
-        let base64Data = typeof options.image.data === "string" ? options.image.data : convertUint8ArrayToBase64(options.image.data);
-        instance.image = {
-          inlineData: {
-            mimeType: options.image.mediaType || "image/png",
-            data: base64Data
-          }
-        };
-      }
-    if ((googleOptions == null ? void 0 : googleOptions.referenceImages) != null)
-      instance.referenceImages = googleOptions.referenceImages.map((refImg) => {
-        if (refImg.bytesBase64Encoded)
-          return {
-            inlineData: {
-              mimeType: "image/png",
-              data: refImg.bytesBase64Encoded
-            }
-          };
-        else if (refImg.gcsUri)
-          return {
-            gcsUri: refImg.gcsUri
-          };
-        return refImg;
+    let startImage = resolveStartImage(options);
+    if (startImage != null) {
+      let image = convertFileToGoogleImage(startImage, warnings);
+      if (image != null)
+        instance.image = image;
+    }
+    let lastFrameImage = getLastFrameImage(options);
+    if (lastFrameImage != null) {
+      let lastFrame = convertFileToGoogleImage(lastFrameImage, warnings);
+      if (lastFrame != null)
+        instance.lastFrame = lastFrame;
+    }
+    let inputReferences = getInputReferences(options);
+    if (inputReferences != null)
+      instance.referenceImages = inputReferences.flatMap((reference) => {
+        let converted = convertInputReferenceImage(reference, warnings);
+        return converted != null ? [converted] : [];
       });
+    else if ((googleOptions == null ? void 0 : googleOptions.referenceImages) != null)
+      instance.referenceImages = googleOptions.referenceImages.map((refImg) => convertProviderReferenceImage(refImg));
     let parameters = {
       sampleCount: options.n
     };
@@ -29148,39 +33216,40 @@ var googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.obje
         ].includes(key))
           parameters[key] = value;
     }
-    let { value: operation } = await postJsonToApi({
+    let { value: operation } = await postJsonToApi2({
       url: `${this.config.baseURL}/models/${this.modelId}:predictLongRunning`,
-      headers: combineHeaders(await resolve(this.config.headers), options.headers),
+      headers: combineHeaders2(await resolve3(this.config.headers), options.headers),
       body: {
         instances,
         parameters
       },
-      successfulResponseHandler: createJsonResponseHandler(googleOperationSchema),
+      successfulResponseHandler: createJsonResponseHandler2(googleOperationSchema),
       failedResponseHandler: googleFailedResponseHandler,
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), operationName = operation.name;
     if (!operationName)
-      throw new AISDKError({
+      throw new AISDKError3({
         name: "GOOGLE_VIDEO_GENERATION_ERROR",
         message: "No operation name returned from API"
       });
     let pollIntervalMs = (_d = googleOptions == null ? void 0 : googleOptions.pollIntervalMs) != null ? _d : 1e4, pollTimeoutMs = (_e = googleOptions == null ? void 0 : googleOptions.pollTimeoutMs) != null ? _e : 600000, startTime = Date.now(), finalOperation = operation, responseHeaders;
     while (!finalOperation.done) {
       if (Date.now() - startTime > pollTimeoutMs)
-        throw new AISDKError({
+        throw new AISDKError3({
           name: "GOOGLE_VIDEO_GENERATION_TIMEOUT",
           message: `Video generation timed out after ${pollTimeoutMs}ms`
         });
-      if (await delay(pollIntervalMs), (_f = options.abortSignal) == null ? void 0 : _f.aborted)
-        throw new AISDKError({
+      if (await delay2(pollIntervalMs), (_f = options.abortSignal) == null ? void 0 : _f.aborted)
+        throw new AISDKError3({
           name: "GOOGLE_VIDEO_GENERATION_ABORTED",
           message: "Video generation request was aborted"
         });
-      let { value: statusOperation, responseHeaders: pollHeaders } = await getFromApi({
+      let { value: statusOperation, responseHeaders: pollHeaders } = await getFromApi2({
         url: `${this.config.baseURL}/${operationName}`,
-        headers: combineHeaders(await resolve(this.config.headers), options.headers),
-        successfulResponseHandler: createJsonResponseHandler(googleOperationSchema),
+        validateUrl: !1,
+        headers: combineHeaders2(await resolve3(this.config.headers), options.headers),
+        successfulResponseHandler: createJsonResponseHandler2(googleOperationSchema),
         failedResponseHandler: googleFailedResponseHandler,
         abortSignal: options.abortSignal,
         fetch: this.config.fetch
@@ -29188,17 +33257,17 @@ var googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.obje
       finalOperation = statusOperation, responseHeaders = pollHeaders;
     }
     if (finalOperation.error)
-      throw new AISDKError({
+      throw new AISDKError3({
         name: "GOOGLE_VIDEO_GENERATION_FAILED",
         message: `Video generation failed: ${finalOperation.error.message}`
       });
     let response = finalOperation.response;
     if (!((_g = response == null ? void 0 : response.generateVideoResponse) == null ? void 0 : _g.generatedSamples) || response.generateVideoResponse.generatedSamples.length === 0)
-      throw new AISDKError({
+      throw new AISDKError3({
         name: "GOOGLE_VIDEO_GENERATION_ERROR",
         message: `No videos in response. Response: ${JSON.stringify(finalOperation)}`
       });
-    let videos = [], videoMetadata = [], resolvedHeaders = await resolve(this.config.headers), apiKey = resolvedHeaders == null ? void 0 : resolvedHeaders["x-goog-api-key"];
+    let videos = [], videoMetadata = [], resolvedHeaders = await resolve3(this.config.headers), apiKey = resolvedHeaders == null ? void 0 : resolvedHeaders["x-goog-api-key"];
     for (let generatedSample of response.generateVideoResponse.generatedSamples)
       if ((_h = generatedSample.video) == null ? void 0 : _h.uri) {
         let urlWithAuth = apiKey && isSameOrigin(generatedSample.video.uri, this.config.baseURL) ? `${generatedSample.video.uri}${generatedSample.video.uri.includes("?") ? "&" : "?"}key=${apiKey}` : generatedSample.video.uri;
@@ -29211,7 +33280,7 @@ var googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.obje
         });
       }
     if (videos.length === 0)
-      throw new AISDKError({
+      throw new AISDKError3({
         name: "GOOGLE_VIDEO_GENERATION_ERROR",
         message: "No valid videos in response"
       });
@@ -29247,18 +33316,176 @@ var googleImageResponseSchema = lazySchema(() => zodSchema(exports_external.obje
       })).nullish()
     }).nullish()
   }).nullish()
-}), googleVideoModelOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
-  pollIntervalMs: exports_external.number().positive().nullish(),
-  pollTimeoutMs: exports_external.number().positive().nullish(),
-  personGeneration: exports_external.enum(["dont_allow", "allow_adult", "allow_all"]).nullish(),
-  negativePrompt: exports_external.string().nullish(),
-  referenceImages: exports_external.array(exports_external.object({
-    bytesBase64Encoded: exports_external.string().nullish(),
-    gcsUri: exports_external.string().nullish()
+}), googleSpeechResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  candidates: exports_external.array(exports_external.object({
+    content: exports_external.object({
+      parts: exports_external.array(exports_external.object({
+        inlineData: exports_external.object({
+          mimeType: exports_external.string().nullish(),
+          data: exports_external.string().nullish()
+        }).nullish()
+      })).nullish()
+    }).nullish()
   })).nullish()
-}).passthrough()));
+}))), prebuiltVoiceConfigSchema = exports_external.object({
+  voiceName: exports_external.string()
+}), voiceConfigSchema = exports_external.object({
+  prebuiltVoiceConfig: prebuiltVoiceConfigSchema
+}), googleSpeechProviderOptionsSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  multiSpeakerVoiceConfig: exports_external.object({
+    speakerVoiceConfigs: exports_external.array(exports_external.object({
+      speaker: exports_external.string(),
+      voiceConfig: voiceConfigSchema
+    }))
+  }).optional()
+}))), DEFAULT_VOICE = "Kore", DEFAULT_SAMPLE_RATE = 24000, GoogleSpeechModel = class _GoogleSpeechModel {
+  constructor(modelId, config2) {
+    this.modelId = modelId, this.config = config2, this.specificationVersion = "v4";
+  }
+  static [WORKFLOW_SERIALIZE](model) {
+    return serializeModelOptions({
+      modelId: model.modelId,
+      config: model.config
+    });
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _GoogleSpeechModel(options.modelId, options.config);
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async getArgs({
+    text: text2,
+    voice = DEFAULT_VOICE,
+    outputFormat,
+    instructions,
+    speed,
+    language,
+    providerOptions
+  }) {
+    let warnings = [], providerOptionsNames = this.config.provider.includes("vertex") ? ["googleVertex", "vertex"] : ["google"], googleOptions;
+    for (let name28 of providerOptionsNames)
+      if (googleOptions = await parseProviderOptions({
+        provider: name28,
+        providerOptions,
+        schema: googleSpeechProviderOptionsSchema
+      }), googleOptions != null)
+        break;
+    if (googleOptions == null && !providerOptionsNames.includes("google"))
+      googleOptions = await parseProviderOptions({
+        provider: "google",
+        providerOptions,
+        schema: googleSpeechProviderOptionsSchema
+      });
+    let multiSpeakerVoiceConfig = googleOptions == null ? void 0 : googleOptions.multiSpeakerVoiceConfig, speechConfig = multiSpeakerVoiceConfig ? { multiSpeakerVoiceConfig } : { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }, promptText = text2;
+    if (instructions != null)
+      if (multiSpeakerVoiceConfig)
+        warnings.push({
+          type: "unsupported",
+          feature: "instructions",
+          details: "Google Gemini TTS ignores `instructions` when `multiSpeakerVoiceConfig` is set, because prepending them would break multi-speaker transcript parsing."
+        });
+      else
+        promptText = `${instructions}: ${text2}`;
+    if (speed != null)
+      warnings.push({
+        type: "unsupported",
+        feature: "speed",
+        details: "Google Gemini TTS models do not support the `speed` option. It was ignored."
+      });
+    if (language != null)
+      warnings.push({
+        type: "unsupported",
+        feature: "language",
+        details: "Google Gemini TTS models do not support the `language` option. Language is detected automatically from the input text."
+      });
+    let resolvedOutputFormat = "wav";
+    if (outputFormat === "pcm")
+      resolvedOutputFormat = "pcm";
+    else if (outputFormat != null && outputFormat !== "wav")
+      warnings.push({
+        type: "unsupported",
+        feature: "outputFormat",
+        details: `Unsupported output format: ${outputFormat}. Using wav instead.`
+      });
+    return { requestBody: {
+      contents: [{ role: "user", parts: [{ text: promptText }] }],
+      generationConfig: {
+        responseModalities: ["AUDIO"],
+        speechConfig
+      }
+    }, warnings, outputFormat: resolvedOutputFormat };
+  }
+  async doGenerate(options) {
+    var _a29, _b16, _c, _d, _e, _f, _g, _h, _i;
+    let currentDate = (_c = (_b16 = (_a29 = this.config._internal) == null ? void 0 : _a29.currentDate) == null ? void 0 : _b16.call(_a29)) != null ? _c : /* @__PURE__ */ new Date, { requestBody, warnings, outputFormat } = await this.getArgs(options), {
+      value: response,
+      responseHeaders,
+      rawValue: rawResponse
+    } = await postJsonToApi2({
+      url: `${this.config.baseURL}/models/${this.modelId}:generateContent`,
+      headers: combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, options.headers),
+      body: requestBody,
+      failedResponseHandler: googleFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler2(googleSpeechResponseSchema),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    }), base64Audio, mimeType;
+    for (let candidate of (_d = response.candidates) != null ? _d : []) {
+      for (let part of (_f = (_e = candidate.content) == null ? void 0 : _e.parts) != null ? _f : [])
+        if ((_g = part.inlineData) == null ? void 0 : _g.data) {
+          base64Audio = part.inlineData.data, mimeType = (_h = part.inlineData.mimeType) != null ? _h : void 0;
+          break;
+        }
+      if (base64Audio != null)
+        break;
+    }
+    let sampleRate = (_i = parseSampleRate(mimeType)) != null ? _i : DEFAULT_SAMPLE_RATE, pcm = base64Audio != null ? convertBase64ToUint8Array2(base64Audio) : new Uint8Array(0), audio = outputFormat === "pcm" || pcm.length === 0 ? pcm : addWavHeader(pcm, sampleRate);
+    if (outputFormat === "pcm" && pcm.length > 0)
+      warnings.push({
+        type: "unsupported",
+        feature: "outputFormat",
+        details: `Returning raw PCM audio (signed 16-bit little-endian, mono, ${sampleRate} Hz). These bytes have no container header and are not directly playable; see providerMetadata.google for the sample rate and mime type.`
+      });
+    return {
+      audio,
+      warnings,
+      request: {
+        body: JSON.stringify(requestBody)
+      },
+      response: {
+        timestamp: currentDate,
+        modelId: this.modelId,
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      providerMetadata: {
+        google: {
+          sampleRate,
+          mimeType: mimeType != null ? mimeType : null
+        }
+      }
+    };
+  }
+};
+function parseSampleRate(mimeType) {
+  if (mimeType == null)
+    return;
+  let match = /rate=(\d+)/.exec(mimeType);
+  return match ? Number.parseInt(match[1], 10) : void 0;
+}
+function addWavHeader(pcm, sampleRate) {
+  let byteRate = sampleRate * 2, dataSize = pcm.length, buffer = new ArrayBuffer(44 + dataSize), view = new DataView(buffer);
+  writeAscii(view, 0, "RIFF"), view.setUint32(4, 36 + dataSize, !0), writeAscii(view, 8, "WAVE"), writeAscii(view, 12, "fmt "), view.setUint32(16, 16, !0), view.setUint16(20, 1, !0), view.setUint16(22, 1, !0), view.setUint32(24, sampleRate, !0), view.setUint32(28, byteRate, !0), view.setUint16(32, 2, !0), view.setUint16(34, 16, !0), writeAscii(view, 36, "data"), view.setUint32(40, dataSize, !0);
+  let out = new Uint8Array(buffer);
+  return out.set(pcm, 44), out;
+}
+function writeAscii(view, offset, text2) {
+  for (let i = 0;i < text2.length; i++)
+    view.setUint8(offset + i, text2.charCodeAt(i));
+}
 function convertGoogleInteractionsUsage(usage) {
-  var _a24, _b16, _c, _d, _e, _f, _g, _h;
+  var _a29, _b16, _c, _d, _e, _f, _g, _h;
   if (usage == null)
     return {
       inputTokens: {
@@ -29274,7 +33501,7 @@ function convertGoogleInteractionsUsage(usage) {
       },
       raw: void 0
     };
-  let totalInput = (_a24 = usage.total_input_tokens) != null ? _a24 : 0, totalOutput = (_b16 = usage.total_output_tokens) != null ? _b16 : 0, totalThought = (_c = usage.total_thought_tokens) != null ? _c : 0, totalCached = (_d = usage.total_cached_tokens) != null ? _d : 0;
+  let totalInput = (_a29 = usage.total_input_tokens) != null ? _a29 : 0, totalOutput = (_b16 = usage.total_output_tokens) != null ? _b16 : 0, totalThought = (_c = usage.total_thought_tokens) != null ? _c : 0, totalCached = (_d = usage.total_cached_tokens) != null ? _d : 0;
   return {
     inputTokens: {
       total: (_e = usage.total_input_tokens) != null ? _e : void 0,
@@ -29289,6 +33516,16 @@ function convertGoogleInteractionsUsage(usage) {
     },
     raw: usage
   };
+}
+function getGoogleInteractionsOutputTokensByModality(usage) {
+  let byModality = usage == null ? void 0 : usage.output_tokens_by_modality;
+  if (byModality == null)
+    return;
+  let result = {};
+  for (let entry of byModality)
+    if ((entry == null ? void 0 : entry.modality) != null && entry.tokens != null)
+      result[entry.modality] = entry.tokens;
+  return Object.keys(result).length > 0 ? result : void 0;
 }
 var KNOWN_DOC_EXTENSIONS = {
   pdf: "application/pdf",
@@ -29311,54 +33548,54 @@ function basename(uriOrName) {
 }
 function annotationToSource({
   annotation,
-  generateId: generateId3
+  generateId: generateId32
 }) {
-  var _a24, _b16, _c, _d, _e;
+  var _a29, _b16, _c, _d, _e;
   switch (annotation.type) {
     case "url_citation": {
-      let a = annotation;
-      if (a.url == null || a.url.length === 0)
+      let urlCitation = annotation;
+      if (urlCitation.url == null || urlCitation.url.length === 0)
         return;
       return {
         type: "source",
         sourceType: "url",
-        id: generateId3(),
-        url: a.url,
-        ...a.title != null ? { title: a.title } : {}
+        id: generateId32(),
+        url: urlCitation.url,
+        ...urlCitation.title != null ? { title: urlCitation.title } : {}
       };
     }
     case "file_citation": {
-      let a = annotation, uri = (_b16 = (_a24 = a.url) != null ? _a24 : a.document_uri) != null ? _b16 : a.file_name;
+      let fileCitation = annotation, uri = (_b16 = (_a29 = fileCitation.url) != null ? _a29 : fileCitation.document_uri) != null ? _b16 : fileCitation.file_name;
       if (uri == null || uri.length === 0)
         return;
       if (uri.startsWith("http://") || uri.startsWith("https://"))
         return {
           type: "source",
           sourceType: "url",
-          id: generateId3(),
+          id: generateId32(),
           url: uri,
-          ...a.file_name != null ? { title: a.file_name } : {}
+          ...fileCitation.file_name != null ? { title: fileCitation.file_name } : {}
         };
-      let filename = (_c = a.file_name) != null ? _c : basename(uri), mediaType = inferDocMediaType(uri);
+      let filename = (_c = fileCitation.file_name) != null ? _c : basename(uri), mediaType = inferDocMediaType(uri);
       return {
         type: "source",
         sourceType: "document",
-        id: generateId3(),
+        id: generateId32(),
         mediaType,
-        title: (_e = (_d = a.file_name) != null ? _d : filename) != null ? _e : uri,
+        title: (_e = (_d = fileCitation.file_name) != null ? _d : filename) != null ? _e : uri,
         ...filename != null ? { filename } : {}
       };
     }
     case "place_citation": {
-      let a = annotation;
-      if (a.url == null || a.url.length === 0)
+      let placeCitation = annotation;
+      if (placeCitation.url == null || placeCitation.url.length === 0)
         return;
       return {
         type: "source",
         sourceType: "url",
-        id: generateId3(),
-        url: a.url,
-        ...a.name != null ? { title: a.name } : {}
+        id: generateId32(),
+        url: placeCitation.url,
+        ...placeCitation.name != null ? { title: placeCitation.name } : {}
       };
     }
     default:
@@ -29367,13 +33604,13 @@ function annotationToSource({
 }
 function builtinToolResultToSources({
   block,
-  generateId: generateId3
+  generateId: generateId32
 }) {
-  var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+  var _a29, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
   let sources = [];
   switch (block.type) {
     case "url_context_result": {
-      let result = (_a24 = block.result) != null ? _a24 : [];
+      let result = (_a29 = block.result) != null ? _a29 : [];
       for (let entry of result) {
         if ((entry == null ? void 0 : entry.url) == null || entry.url.length === 0)
           continue;
@@ -29382,7 +33619,7 @@ function builtinToolResultToSources({
         sources.push({
           type: "source",
           sourceType: "url",
-          id: generateId3(),
+          id: generateId32(),
           url: entry.url
         });
       }
@@ -29397,7 +33634,7 @@ function builtinToolResultToSources({
         sources.push({
           type: "source",
           sourceType: "url",
-          id: generateId3(),
+          id: generateId32(),
           url: url2,
           ...entry.title != null ? { title: entry.title } : {}
         });
@@ -29413,7 +33650,7 @@ function builtinToolResultToSources({
           sources.push({
             type: "source",
             sourceType: "url",
-            id: generateId3(),
+            id: generateId32(),
             url: place.url,
             ...place.name != null ? { title: place.name } : {}
           });
@@ -29432,7 +33669,7 @@ function builtinToolResultToSources({
           sources.push({
             type: "source",
             sourceType: "url",
-            id: generateId3(),
+            id: generateId32(),
             url: uri,
             ...entry.title != null ? { title: entry.title } : {}
           });
@@ -29442,7 +33679,7 @@ function builtinToolResultToSources({
         sources.push({
           type: "source",
           sourceType: "document",
-          id: generateId3(),
+          id: generateId32(),
           mediaType,
           title: (_k = (_j = (_i = entry.title) != null ? _i : entry.file_name) != null ? _j : filename) != null ? _k : uri,
           ...filename != null ? { filename } : {}
@@ -29457,17 +33694,17 @@ function builtinToolResultToSources({
 }
 function annotationsToSources({
   annotations,
-  generateId: generateId3
+  generateId: generateId32
 }) {
-  var _a24;
+  var _a29;
   if (annotations == null)
     return [];
   let seen = /* @__PURE__ */ new Set, sources = [];
   for (let annotation of annotations) {
-    let source = annotationToSource({ annotation, generateId: generateId3 });
+    let source = annotationToSource({ annotation, generateId: generateId32 });
     if (source == null)
       continue;
-    let key = source.sourceType === "url" ? `url:${source.url}` : `doc:${(_a24 = source.filename) != null ? _a24 : source.title}`;
+    let key = source.sourceType === "url" ? `url:${source.url}` : `doc:${(_a29 = source.filename) != null ? _a29 : source.title}`;
     if (seen.has(key))
       continue;
     seen.add(key), sources.push(source);
@@ -29517,21 +33754,21 @@ function builtinToolNameFromResultType(type) {
 }
 function buildGoogleInteractionsStreamTransform({
   warnings,
-  generateId: generateId3,
+  generateId: generateId32,
   includeRawChunks,
   serviceTier: headerServiceTier
 }) {
   let interactionId, usage, serviceTier = headerServiceTier, finishStatus, hasFunctionCall = !1, openBlocks = /* @__PURE__ */ new Map, emittedSourceKeys = /* @__PURE__ */ new Set;
   function sourceKey(source) {
-    var _a24;
-    return source.sourceType === "url" ? `url:${source.url}` : `doc:${(_a24 = source.filename) != null ? _a24 : source.title}`;
+    var _a29;
+    return source.sourceType === "url" ? `url:${source.url}` : `doc:${(_a29 = source.filename) != null ? _a29 : source.title}`;
   }
   return new TransformStream({
     start(controller) {
       controller.enqueue({ type: "stream-start", warnings });
     },
     transform(chunk, controller) {
-      var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+      var _a29, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t;
       if (includeRawChunks)
         controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
       if (!chunk.success) {
@@ -29560,7 +33797,7 @@ function buildGoogleInteractionsStreamTransform({
         case "step.start": {
           let event = value, step = event.step, index = event.index, blockId = `${interactionId != null ? interactionId : "interaction"}:${index}`, stepType = step == null ? void 0 : step.type;
           if (stepType === "model_output") {
-            let initial = (_a24 = step == null ? void 0 : step.content) == null ? void 0 : _a24[0];
+            let initial = (_a29 = step == null ? void 0 : step.content) == null ? void 0 : _a29[0];
             if ((initial == null ? void 0 : initial.type) === "text") {
               openBlocks.set(index, {
                 kind: "text",
@@ -29569,7 +33806,7 @@ function buildGoogleInteractionsStreamTransform({
               }), controller.enqueue({ type: "text-start", id: blockId });
               let initialSources = annotationsToSources({
                 annotations: initial.annotations,
-                generateId: generateId3
+                generateId: generateId32
               });
               for (let source of initialSources) {
                 let key = sourceKey(source);
@@ -29664,38 +33901,52 @@ function buildGoogleInteractionsStreamTransform({
             }
           }
           if (dtype === "image" && (open.kind === "pending_model_output" || open.kind === "text" || open.kind === "image")) {
-            let img = event.delta, google2 = {};
+            let imageDelta = event.delta, google2 = {};
             if (interactionId != null)
               google2.interactionId = interactionId;
             let providerMetadata = Object.keys(google2).length > 0 ? { google: google2 } : void 0;
-            if ((img == null ? void 0 : img.data) != null && img.data.length > 0)
+            if ((imageDelta == null ? void 0 : imageDelta.data) != null && imageDelta.data.length > 0)
               controller.enqueue({
                 type: "file",
-                mediaType: (_k = img.mime_type) != null ? _k : "image/png",
-                data: img.data,
+                mediaType: (_k = imageDelta.mime_type) != null ? _k : "image/png",
+                data: { type: "data", data: imageDelta.data },
                 ...providerMetadata ? { providerMetadata } : {}
               });
-            else if ((img == null ? void 0 : img.uri) != null && img.uri.length > 0) {
-              let uriProviderMetadata = {
-                google: {
-                  ...interactionId != null ? { interactionId } : {},
-                  imageUri: img.uri
-                }
-              };
+            else if ((imageDelta == null ? void 0 : imageDelta.uri) != null && imageDelta.uri.length > 0)
               controller.enqueue({
                 type: "file",
-                mediaType: (_l = img.mime_type) != null ? _l : "image/png",
-                data: "",
-                providerMetadata: uriProviderMetadata
+                mediaType: (_l = imageDelta.mime_type) != null ? _l : "image/png",
+                data: { type: "url", url: new URL(imageDelta.uri) },
+                ...providerMetadata ? { providerMetadata } : {}
               });
-            }
             if (open.kind === "image")
               open.data = void 0, open.uri = void 0;
             break;
           }
+          if (dtype === "video" && (open.kind === "pending_model_output" || open.kind === "text")) {
+            let videoDelta = event.delta, google2 = {};
+            if (interactionId != null)
+              google2.interactionId = interactionId;
+            let providerMetadata = Object.keys(google2).length > 0 ? { google: google2 } : void 0;
+            if ((videoDelta == null ? void 0 : videoDelta.data) != null && videoDelta.data.length > 0)
+              controller.enqueue({
+                type: "file",
+                mediaType: (_m = videoDelta.mime_type) != null ? _m : "video/mp4",
+                data: { type: "data", data: videoDelta.data },
+                ...providerMetadata ? { providerMetadata } : {}
+              });
+            else if ((videoDelta == null ? void 0 : videoDelta.uri) != null && videoDelta.uri.length > 0)
+              controller.enqueue({
+                type: "file",
+                mediaType: (_n = videoDelta.mime_type) != null ? _n : "video/mp4",
+                data: { type: "url", url: new URL(videoDelta.uri) },
+                ...providerMetadata ? { providerMetadata } : {}
+              });
+            break;
+          }
           let delta = event.delta;
           if (open.kind === "text" && (delta == null ? void 0 : delta.type) === "text") {
-            let text2 = (_m = delta.text) != null ? _m : "";
+            let text2 = (_o = delta.text) != null ? _o : "";
             if (text2.length > 0)
               controller.enqueue({
                 type: "text-delta",
@@ -29705,7 +33956,7 @@ function buildGoogleInteractionsStreamTransform({
           } else if (open.kind === "text" && ((delta == null ? void 0 : delta.type) === "text_annotation" || (delta == null ? void 0 : delta.type) === "text_annotation_delta")) {
             let sources = annotationsToSources({
               annotations: delta.annotations,
-              generateId: generateId3
+              generateId: generateId32
             });
             for (let source of sources) {
               let key = sourceKey(source);
@@ -29797,24 +34048,17 @@ function buildGoogleInteractionsStreamTransform({
             if (open.data != null && open.data.length > 0)
               controller.enqueue({
                 type: "file",
-                mediaType: (_n = open.mimeType) != null ? _n : "image/png",
-                data: open.data,
+                mediaType: (_p = open.mimeType) != null ? _p : "image/png",
+                data: { type: "data", data: open.data },
                 ...providerMetadata ? { providerMetadata } : {}
               });
-            else if (open.uri != null && open.uri.length > 0) {
-              let uriProviderMetadata = {
-                google: {
-                  ...interactionId != null ? { interactionId } : {},
-                  imageUri: open.uri
-                }
-              };
+            else if (open.uri != null && open.uri.length > 0)
               controller.enqueue({
                 type: "file",
-                mediaType: (_o = open.mimeType) != null ? _o : "image/png",
-                data: "",
-                providerMetadata: uriProviderMetadata
+                mediaType: (_q = open.mimeType) != null ? _q : "image/png",
+                data: { type: "url", url: new URL(open.uri) },
+                ...providerMetadata ? { providerMetadata } : {}
               });
-            }
           } else if (open.kind === "function_call") {
             let accumulated = open.argumentsAccum.length > 0 ? open.argumentsAccum : "{}";
             controller.enqueue({
@@ -29839,7 +34083,7 @@ function buildGoogleInteractionsStreamTransform({
               type: "tool-call",
               toolCallId: open.toolCallId,
               toolName: open.toolName,
-              input: JSON.stringify((_p = open.arguments) != null ? _p : {}),
+              input: JSON.stringify((_r = open.arguments) != null ? _r : {}),
               providerExecuted: !0
             }), open.callEmitted = !0;
           else if (open.kind === "builtin_tool_result" && !open.resultEmitted) {
@@ -29847,7 +34091,7 @@ function buildGoogleInteractionsStreamTransform({
               type: "tool-result",
               toolCallId: open.callId,
               toolName: open.toolName,
-              result: (_q = open.result) != null ? _q : null
+              result: (_s = open.result) != null ? _s : null
             }), open.resultEmitted = !0;
             let sources = builtinToolResultToSources({
               block: {
@@ -29855,7 +34099,7 @@ function buildGoogleInteractionsStreamTransform({
                 call_id: open.callId,
                 result: open.result
               },
-              generateId: generateId3
+              generateId: generateId32
             });
             for (let source of sources) {
               let key = sourceKey(source);
@@ -29894,7 +34138,7 @@ function buildGoogleInteractionsStreamTransform({
         case "error": {
           let event = value;
           finishStatus = "failed";
-          let errorPayload = (_r = event.error) != null ? _r : {
+          let errorPayload = (_t = event.error) != null ? _t : {
             message: "Unknown interaction error"
           };
           controller.enqueue({ type: "error", error: errorPayload });
@@ -29911,10 +34155,11 @@ function buildGoogleInteractionsStreamTransform({
           hasFunctionCall
         }),
         raw: finishStatus
-      }, providerMetadata = {
+      }, outputTokensByModality = getGoogleInteractionsOutputTokensByModality(usage), providerMetadata = {
         google: {
           ...interactionId != null ? { interactionId } : {},
-          ...serviceTier != null ? { serviceTier } : {}
+          ...serviceTier != null ? { serviceTier } : {},
+          ...outputTokensByModality != null ? { outputTokensByModality } : {}
         }
       };
       controller.enqueue({
@@ -29926,24 +34171,13 @@ function buildGoogleInteractionsStreamTransform({
     }
   });
 }
-function getTopLevelMediaType(mediaType) {
-  let slashIndex = mediaType.indexOf("/");
-  return slashIndex === -1 ? mediaType : mediaType.substring(0, slashIndex);
-}
-function isFullMediaType(mediaType) {
-  let slashIndex = mediaType.indexOf("/");
-  if (slashIndex === -1)
-    return !1;
-  let subtype = mediaType.substring(slashIndex + 1);
-  return subtype.length > 0 && subtype !== "*";
-}
 function convertToGoogleInteractionsInput({
   prompt,
   previousInteractionId,
   store,
   mediaResolution
 }) {
-  var _a24, _b16, _c, _d, _e, _f, _g;
+  var _a29, _b16, _c, _d, _e, _f, _g;
   let warnings = [], incoherentCombo = previousInteractionId != null && store === !1, shouldCompact = previousInteractionId != null && store !== !1;
   if (incoherentCombo)
     warnings.push({
@@ -29989,7 +34223,7 @@ function convertToGoogleInteractionsInput({
             pendingModelOutput.push({ type: "text", text: part.text });
           else if (part.type === "reasoning") {
             flushModelOutput();
-            let signature = (_b16 = (_a24 = part.providerOptions) == null ? void 0 : _a24.google) == null ? void 0 : _b16.signature;
+            let signature = (_b16 = (_a29 = part.providerOptions) == null ? void 0 : _a29.google) == null ? void 0 : _b16.signature;
             steps.push({
               type: "thought",
               ...signature != null ? { signature } : {},
@@ -30055,6 +34289,11 @@ function convertFilePartToContent({
   warnings,
   mediaResolution
 }) {
+  if (part.data.type === "text")
+    return {
+      type: "text",
+      text: part.data.text
+    };
   let topLevel = getTopLevelMediaType(part.mediaType), kind;
   switch (topLevel) {
     case "image":
@@ -30067,6 +34306,7 @@ function convertFilePartToContent({
       kind = "video";
       break;
     case "application":
+    case "text":
       kind = "document";
       break;
     default:
@@ -30080,26 +34320,36 @@ function convertFilePartToContent({
     return;
   }
   let resolutionField = mediaResolution != null && (kind === "image" || kind === "video") ? { resolution: mediaResolution } : {};
-  if (part.data instanceof URL)
-    return {
-      type: kind,
-      uri: part.data.toString(),
-      ...isFullMediaType(part.mediaType) ? { mime_type: part.mediaType } : {},
-      ...resolutionField
-    };
-  if (!isFullMediaType(part.mediaType)) {
-    warnings.push({
-      type: "other",
-      message: `google.interactions: inline file data requires a full IANA media type (e.g. "image/png"), got "${part.mediaType}"; part dropped.`
-    });
-    return;
+  switch (part.data.type) {
+    case "data": {
+      let mimeType = resolveFullMediaType({ part });
+      return {
+        type: kind,
+        data: convertToBase64(part.data.data),
+        mime_type: mimeType,
+        ...resolutionField
+      };
+    }
+    case "url":
+      return {
+        type: kind,
+        uri: part.data.url.toString(),
+        ...isFullMediaType(part.mediaType) ? { mime_type: part.mediaType } : {},
+        ...resolutionField
+      };
+    case "reference": {
+      let uri = resolveProviderReference({
+        reference: part.data.reference,
+        provider: "google"
+      });
+      return {
+        type: kind,
+        uri,
+        ...isFullMediaType(part.mediaType) ? { mime_type: part.mediaType } : {},
+        ...resolutionField
+      };
+    }
   }
-  return {
-    type: kind,
-    data: convertToBase64(part.data),
-    mime_type: part.mediaType,
-    ...resolutionField
-  };
 }
 function compactPromptForPreviousInteraction({
   prompt,
@@ -30109,8 +34359,8 @@ function compactPromptForPreviousInteraction({
   for (let message of prompt) {
     if (message.role === "assistant") {
       if (message.content.some((part) => {
-        var _a24, _b16;
-        return ((_b16 = (_a24 = part.providerOptions) == null ? void 0 : _a24.google) == null ? void 0 : _b16.interactionId) === previousInteractionId;
+        var _a29, _b16;
+        return ((_b16 = (_a29 = part.providerOptions) == null ? void 0 : _a29.google) == null ? void 0 : _b16.interactionId) === previousInteractionId;
       })) {
         for (let part of message.content)
           if (part.type === "tool-call")
@@ -30140,7 +34390,7 @@ function compactPromptForPreviousInteraction({
 }
 function safeParseToolArgs(input) {
   try {
-    let parsed = JSON.parse(input);
+    let parsed = secureJsonParse3(input);
     if (parsed != null && typeof parsed === "object" && !Array.isArray(parsed))
       return parsed;
     return { value: parsed };
@@ -30155,7 +34405,7 @@ function convertToolResultPart({
   signature,
   warnings
 }) {
-  var _a24;
+  var _a29;
   let base = {
     type: "function_result",
     call_id: toolCallId,
@@ -30175,56 +34425,22 @@ function convertToolResultPart({
       return {
         ...base,
         is_error: !0,
-        result: (_a24 = output.reason) != null ? _a24 : "Tool execution denied by user."
+        result: (_a29 = output.reason) != null ? _a29 : "Tool execution denied by user."
       };
     case "content": {
       let blocks = [];
       for (let item of output.value)
         if (item.type === "text")
           blocks.push({ type: "text", text: item.text });
-        else if (item.type === "image-data") {
-          let imageBlock = filePartToImageBlock({
-            part: {
-              type: "file",
-              mediaType: item.mediaType,
-              data: item.data
-            },
-            warnings
-          });
-          if (imageBlock != null)
-            blocks.push(imageBlock);
-        } else if (item.type === "image-url") {
-          let imageBlock = filePartToImageBlock({
-            part: {
-              type: "file",
-              mediaType: "image/*",
-              data: new URL(item.url)
-            },
-            warnings
-          });
-          if (imageBlock != null)
-            blocks.push(imageBlock);
-        } else if (item.type === "file-data" || item.type === "file-url") {
-          let mediaType = item.type === "file-data" ? item.mediaType : "application/*";
-          if (getTopLevelMediaType(mediaType) !== "image") {
+        else if (item.type === "file") {
+          if (getTopLevelMediaType(item.mediaType) !== "image") {
             warnings.push({
               type: "other",
-              message: `google.interactions: tool-result file with mediaType "${mediaType}" is not supported (Interactions \`function_result.result\` accepts only text and image content); part dropped.`
+              message: `google.interactions: tool-result file with mediaType "${item.mediaType}" is not supported (Interactions \`function_result.result\` accepts only text and image content); part dropped.`
             });
             continue;
           }
-          let imageBlock = filePartToImageBlock({
-            part: item.type === "file-data" ? {
-              type: "file",
-              mediaType: item.mediaType,
-              data: item.data
-            } : {
-              type: "file",
-              mediaType,
-              data: new URL(item.url)
-            },
-            warnings
-          });
+          let imageBlock = filePartToImageBlock({ part: item, warnings });
           if (imageBlock != null)
             blocks.push(imageBlock);
         } else
@@ -30240,24 +34456,44 @@ function filePartToImageBlock({
   part,
   warnings
 }) {
-  if (part.data instanceof URL)
-    return {
-      type: "image",
-      uri: part.data.toString(),
-      ...isFullMediaType(part.mediaType) ? { mime_type: part.mediaType } : {}
-    };
-  if (!isFullMediaType(part.mediaType)) {
-    warnings.push({
-      type: "other",
-      message: `google.interactions: tool-result image part requires a full IANA media type (e.g. "image/png"), got "${part.mediaType}"; part dropped.`
-    });
-    return;
+  switch (part.data.type) {
+    case "data": {
+      let mimeType = isFullMediaType(part.mediaType) ? part.mediaType : resolveFullMediaType({
+        part: {
+          type: "file",
+          mediaType: part.mediaType,
+          data: part.data
+        }
+      });
+      return {
+        type: "image",
+        data: convertToBase64(part.data.data),
+        mime_type: mimeType
+      };
+    }
+    case "url":
+      return {
+        type: "image",
+        uri: part.data.url.toString(),
+        ...isFullMediaType(part.mediaType) ? { mime_type: part.mediaType } : {}
+      };
+    case "reference":
+      return {
+        type: "image",
+        uri: resolveProviderReference({
+          reference: part.data.reference,
+          provider: "google"
+        }),
+        ...isFullMediaType(part.mediaType) ? { mime_type: part.mediaType } : {}
+      };
+    case "text": {
+      warnings.push({
+        type: "other",
+        message: 'google.interactions: tool-result image part with `data.type === "text"` is not representable as an image; part dropped.'
+      });
+      return;
+    }
   }
-  return {
-    type: "image",
-    data: convertToBase64(part.data),
-    mime_type: part.mediaType
-  };
 }
 function mergeAdjacentTextContent(content) {
   if (content.length < 2)
@@ -30351,10 +34587,16 @@ var tokenByModalitySchema = () => exports_external.object({
     mime_type: exports_external.string().nullish(),
     resolution: exports_external.enum(["low", "medium", "high", "ultra_high"]).nullish(),
     uri: exports_external.string().nullish()
+  }).loose(), videoContent = exports_external.object({
+    type: exports_external.literal("video"),
+    data: exports_external.string().nullish(),
+    mime_type: exports_external.string().nullish(),
+    uri: exports_external.string().nullish()
   }).loose();
   return exports_external.union([
     textContent,
     imageContent,
+    videoContent,
     exports_external.object({ type: exports_external.string() }).loose()
   ]);
 }, BUILTIN_TOOL_CALL_STEP_TYPES = [
@@ -30414,7 +34656,7 @@ var tokenByModalitySchema = () => exports_external.object({
     builtinToolResultStep,
     exports_external.object({ type: exports_external.string() }).loose()
   ]);
-}, googleInteractionsResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+}, googleInteractionsResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
   id: exports_external.string().nullish(),
   created: exports_external.string().nullish(),
   updated: exports_external.string().nullish(),
@@ -30426,7 +34668,7 @@ var tokenByModalitySchema = () => exports_external.object({
   service_tier: exports_external.string().nullish(),
   previous_interaction_id: exports_external.string().nullish(),
   response_modalities: exports_external.array(exports_external.string()).nullish()
-}).loose())), googleInteractionsEventSchema = lazySchema(() => zodSchema((() => {
+}).loose())), googleInteractionsEventSchema = lazySchema3(() => zodSchema3((() => {
   let status = interactionStatusSchema(), annotation = annotationSchema(), thoughtSummaryItem = thoughtSummaryItemSchema(), interactionCreatedEvent = exports_external.object({
     event_type: exports_external.literal("interaction.created"),
     event_id: exports_external.string().nullish(),
@@ -30465,6 +34707,11 @@ var tokenByModalitySchema = () => exports_external.object({
     mime_type: exports_external.string().nullish(),
     resolution: exports_external.enum(["low", "medium", "high", "ultra_high"]).nullish(),
     uri: exports_external.string().nullish()
+  }).loose(), stepDeltaVideo = exports_external.object({
+    type: exports_external.literal("video"),
+    data: exports_external.string().nullish(),
+    mime_type: exports_external.string().nullish(),
+    uri: exports_external.string().nullish()
   }).loose(), stepDeltaBuiltinToolCall = exports_external.object({
     type: exports_external.enum(BUILTIN_TOOL_CALL_STEP_TYPES),
     id: exports_external.string().nullish(),
@@ -30484,6 +34731,7 @@ var tokenByModalitySchema = () => exports_external.object({
   }).loose(), stepDeltaUnknown = exports_external.object({ type: exports_external.string() }).loose(), stepDeltaUnion = exports_external.union([
     stepDeltaText,
     stepDeltaImage,
+    stepDeltaVideo,
     stepDeltaThoughtSummary,
     stepDeltaThoughtSignature,
     stepDeltaArgumentsDelta,
@@ -30544,7 +34792,7 @@ var tokenByModalitySchema = () => exports_external.object({
     errorEvent,
     unknownEvent
   ]);
-})())), googleInteractionsLanguageModelOptions = lazySchema(() => zodSchema(exports_external.object({
+})())), googleInteractionsLanguageModelOptions = lazySchema3(() => zodSchema3(exports_external.object({
   previousInteractionId: exports_external.string().nullish(),
   store: exports_external.boolean().nullish(),
   agent: exports_external.string().nullish(),
@@ -30687,10 +34935,10 @@ function builtinToolNameFromResultType2(type) {
 }
 function parseGoogleInteractionsOutputs({
   steps,
-  generateId: generateId3,
+  generateId: generateId32,
   interactionId
 }) {
-  var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+  var _a29, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
   let content = [], hasFunctionCall = !1;
   if (steps == null)
     return { content, hasFunctionCall };
@@ -30704,7 +34952,7 @@ function parseGoogleInteractionsOutputs({
       case "user_input":
         break;
       case "model_output": {
-        let blocks = (_a24 = step.content) != null ? _a24 : [];
+        let blocks = (_a29 = step.content) != null ? _a29 : [];
         for (let block of blocks) {
           if (block == null || typeof block !== "object")
             continue;
@@ -30716,7 +34964,7 @@ function parseGoogleInteractionsOutputs({
               text: text2,
               ...googleProviderMetadata({ interactionId })
             });
-            let sources = annotationsToSources({ annotations, generateId: generateId3 });
+            let sources = annotationsToSources({ annotations, generateId: generateId32 });
             for (let source of sources)
               content.push(source);
           } else if (blockType === "image") {
@@ -30725,20 +34973,31 @@ function parseGoogleInteractionsOutputs({
               content.push({
                 type: "file",
                 mediaType: (_c = image.mime_type) != null ? _c : "image/png",
-                data: image.data,
+                data: { type: "data", data: image.data },
                 ...googleProviderMetadata({ interactionId })
               });
             else if (image.uri != null && image.uri.length > 0)
               content.push({
                 type: "file",
                 mediaType: (_d = image.mime_type) != null ? _d : "image/png",
-                data: "",
-                providerMetadata: {
-                  google: {
-                    ...interactionId != null ? { interactionId } : {},
-                    imageUri: image.uri
-                  }
-                }
+                data: { type: "url", url: new URL(image.uri) },
+                ...googleProviderMetadata({ interactionId })
+              });
+          } else if (blockType === "video") {
+            let video = block;
+            if (video.data != null && video.data.length > 0)
+              content.push({
+                type: "file",
+                mediaType: (_e = video.mime_type) != null ? _e : "video/mp4",
+                data: { type: "data", data: video.data },
+                ...googleProviderMetadata({ interactionId })
+              });
+            else if (video.uri != null && video.uri.length > 0)
+              content.push({
+                type: "file",
+                mediaType: (_f = video.mime_type) != null ? _f : "video/mp4",
+                data: { type: "url", url: new URL(video.uri) },
+                ...googleProviderMetadata({ interactionId })
               });
           }
         }
@@ -30764,7 +35023,7 @@ function parseGoogleInteractionsOutputs({
           type: "tool-call",
           toolCallId: call.id,
           toolName: call.name,
-          input: JSON.stringify((_e = call.arguments) != null ? _e : {}),
+          input: JSON.stringify((_g = call.arguments) != null ? _g : {}),
           ...googleProviderMetadata({
             signature: call.signature,
             interactionId
@@ -30774,25 +35033,25 @@ function parseGoogleInteractionsOutputs({
       }
       default: {
         if (BUILTIN_TOOL_CALL_TYPES2.has(type)) {
-          let call = step, toolName = type === "mcp_server_tool_call" ? (_f = call.name) != null ? _f : "mcp_server_tool" : builtinToolNameFromCallType2(type), input = JSON.stringify((_g = call.arguments) != null ? _g : {});
+          let call = step, toolName = type === "mcp_server_tool_call" ? (_h = call.name) != null ? _h : "mcp_server_tool" : builtinToolNameFromCallType2(type), input = JSON.stringify((_i = call.arguments) != null ? _i : {});
           content.push({
             type: "tool-call",
-            toolCallId: (_h = call.id) != null ? _h : generateId3(),
+            toolCallId: (_j = call.id) != null ? _j : generateId32(),
             toolName,
             input,
             providerExecuted: !0
           });
         } else if (BUILTIN_TOOL_RESULT_TYPES2.has(type)) {
-          let result = step, toolName = type === "mcp_server_tool_result" ? (_i = result.name) != null ? _i : "mcp_server_tool" : builtinToolNameFromResultType2(type);
+          let result = step, toolName = type === "mcp_server_tool_result" ? (_k = result.name) != null ? _k : "mcp_server_tool" : builtinToolNameFromResultType2(type);
           content.push({
             type: "tool-result",
-            toolCallId: (_j = result.call_id) != null ? _j : generateId3(),
+            toolCallId: (_l = result.call_id) != null ? _l : generateId32(),
             toolName,
-            result: (_k = result.result) != null ? _k : null
+            result: (_m = result.result) != null ? _m : null
           });
           let sources = builtinToolResultToSources({
             block: step,
-            generateId: generateId3
+            generateId: generateId32
           });
           for (let source of sources)
             content.push(source);
@@ -30803,12 +35062,12 @@ function parseGoogleInteractionsOutputs({
   }
   return { content, hasFunctionCall };
 }
-var getOriginalFetch3 = () => globalThis.fetch;
+var getOriginalFetch5 = () => globalThis.fetch;
 async function cancelGoogleInteraction({
   baseURL,
   interactionId,
   headers,
-  fetch: fetch2 = getOriginalFetch3()
+  fetch: fetch2 = getOriginalFetch5()
 }) {
   if (interactionId == null || interactionId.length === 0)
     return;
@@ -30816,7 +35075,7 @@ async function cancelGoogleInteraction({
   try {
     let response = await fetch2(url2, {
       method: "POST",
-      headers: withUserAgentSuffix(combineHeaders({ "Content-Type": "application/json" }, headers), getRuntimeEnvironmentUserAgent()),
+      headers: withUserAgentSuffix3(combineHeaders2({ "Content-Type": "application/json" }, headers), getRuntimeEnvironmentUserAgent3()),
       body: "{}"
     });
     try {
@@ -30848,16 +35107,17 @@ async function pollGoogleInteractionUntilTerminal({
         throw await cancelOnServer(), new DOMException("Polling was aborted", "AbortError");
       if (Date.now() - startedAt > timeoutMs)
         throw Error(`google.interactions: timed out polling interaction ${interactionId} after ${timeoutMs}ms.`);
-      await delay(nextDelayMs, { abortSignal });
+      await delay2(nextDelayMs, { abortSignal });
       let {
         value: response,
         rawValue: rawResponse,
         responseHeaders
-      } = await getFromApi({
+      } = await getFromApi2({
         url: url2,
+        validateUrl: !1,
         headers,
         failedResponseHandler: googleFailedResponseHandler,
-        successfulResponseHandler: createJsonResponseHandler(googleInteractionsResponseSchema),
+        successfulResponseHandler: createJsonResponseHandler2(googleInteractionsResponseSchema),
         abortSignal,
         fetch: fetch2
       });
@@ -30866,7 +35126,7 @@ async function pollGoogleInteractionUntilTerminal({
       nextDelayMs = Math.min(nextDelayMs * 2, maxDelayMs);
     }
   } catch (error51) {
-    if (isAbortError(error51))
+    if (isAbortError3(error51))
       await cancelOnServer();
     throw error51;
   }
@@ -30875,24 +35135,24 @@ function prepareGoogleInteractionsTools({
   tools,
   toolChoice
 }) {
-  var _a24, _b16, _c, _d;
+  var _a29, _b16, _c, _d;
   let toolWarnings = [], normalized = (tools == null ? void 0 : tools.length) ? tools : void 0;
   if (normalized == null)
     return { tools: void 0, toolChoice: void 0, toolWarnings };
   let interactionsTools = [];
-  for (let tool2 of normalized) {
-    if (tool2.type === "function") {
+  for (let tool4 of normalized) {
+    if (tool4.type === "function") {
       interactionsTools.push({
         type: "function",
-        name: tool2.name,
-        description: (_a24 = tool2.description) != null ? _a24 : "",
-        parameters: tool2.inputSchema
+        name: tool4.name,
+        description: (_a29 = tool4.description) != null ? _a29 : "",
+        parameters: tool4.inputSchema
       });
       continue;
     }
-    if (tool2.type === "provider") {
-      let args = (_b16 = tool2.args) != null ? _b16 : {};
-      switch (tool2.id) {
+    if (tool4.type === "provider") {
+      let args = (_b16 = tool4.args) != null ? _b16 : {};
+      switch (tool4.id) {
         case "google.google_search": {
           let searchTypesArg = args.searchTypes, search_types;
           if (searchTypesArg != null && typeof searchTypesArg === "object") {
@@ -30972,8 +35232,8 @@ function prepareGoogleInteractionsTools({
         default: {
           toolWarnings.push({
             type: "unsupported",
-            feature: `provider-defined tool ${tool2.id}`,
-            details: `provider-defined tool ${tool2.id} is not supported by google.interactions; tool dropped.`
+            feature: `provider-defined tool ${tool4.id}`,
+            details: `provider-defined tool ${tool4.id} is not supported by google.interactions; tool dropped.`
           });
           break;
         }
@@ -30982,7 +35242,7 @@ function prepareGoogleInteractionsTools({
     }
     toolWarnings.push({
       type: "unsupported",
-      feature: `tool of type ${tool2.type}`,
+      feature: `tool of type ${tool4.type}`,
       details: "Only function tools and google.* provider-defined tools are supported by google.interactions; tool dropped."
     });
   }
@@ -31044,11 +35304,12 @@ function streamGoogleInteractionEvents({
     return `${base}?${params.toString()}`;
   }
   async function openReader() {
-    let { value: stream } = await getFromApi({
+    let { value: stream } = await getFromApi2({
       url: buildUrl(),
+      validateUrl: !1,
       headers: eventSourceHeaders,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(googleInteractionsEventSchema),
+      successfulResponseHandler: createEventSourceResponseHandler2(googleInteractionsEventSchema),
       abortSignal: effectiveSignal,
       fetch: fetch2
     });
@@ -31062,7 +35323,7 @@ function streamGoogleInteractionEvents({
             try {
               currentReader = await openReader(), receivedAnyEventThisAttempt = !1;
             } catch (error51) {
-              if (isAbortError(error51) || effectiveSignal.aborted) {
+              if (isAbortError3(error51) || effectiveSignal.aborted) {
                 controller.error(error51);
                 return;
               }
@@ -31070,7 +35331,7 @@ function streamGoogleInteractionEvents({
                 controller.error(error51);
                 return;
               }
-              await delay(retryDelayMs * attempt, {
+              await delay2(retryDelayMs * attempt, {
                 abortSignal: effectiveSignal
               });
               continue;
@@ -31085,7 +35346,7 @@ function streamGoogleInteractionEvents({
                   controller.error(Error("google.interactions: SSE stream closed without producing any events."));
                   return;
                 }
-                await delay(retryDelayMs * attempt, {
+                await delay2(retryDelayMs * attempt, {
                   abortSignal: effectiveSignal
                 });
               } else
@@ -31093,15 +35354,15 @@ function streamGoogleInteractionEvents({
               continue;
             }
             if (receivedAnyEventThisAttempt = !0, value.success) {
-              let ev = value.value;
-              if (typeof ev.event_id === "string" && ev.event_id.length > 0)
-                lastEventId = ev.event_id;
-              if (ev.event_type === "interaction.completed" || ev.event_type === "error")
+              let streamEvent = value.value;
+              if (typeof streamEvent.event_id === "string" && streamEvent.event_id.length > 0)
+                lastEventId = streamEvent.event_id;
+              if (streamEvent.event_type === "interaction.completed" || streamEvent.event_type === "error")
                 complete = !0;
             }
             controller.enqueue(value);
           } catch (error51) {
-            if (isAbortError(error51) || effectiveSignal.aborted) {
+            if (isAbortError3(error51) || effectiveSignal.aborted) {
               controller.error(error51);
               return;
             }
@@ -31109,7 +35370,7 @@ function streamGoogleInteractionEvents({
               controller.error(error51);
               return;
             }
-            await delay(retryDelayMs * attempt, {
+            await delay2(retryDelayMs * attempt, {
               abortSignal: effectiveSignal
             });
           }
@@ -31137,13 +35398,13 @@ function streamGoogleInteractionEvents({
 function synthesizeGoogleInteractionsAgentStream({
   response,
   warnings,
-  generateId: generateId3,
+  generateId: generateId32,
   includeRawChunks,
   headerServiceTier
 }) {
   return new ReadableStream({
     start(controller) {
-      var _a24, _b16, _c;
+      var _a29, _b16, _c;
       controller.enqueue({ type: "stream-start", warnings });
       let interactionId = typeof response.id === "string" && response.id.length > 0 ? response.id : void 0, timestamp, created = response.created;
       if (typeof created === "string") {
@@ -31154,13 +35415,13 @@ function synthesizeGoogleInteractionsAgentStream({
       if (controller.enqueue({
         type: "response-metadata",
         ...interactionId != null ? { id: interactionId } : {},
-        modelId: (_a24 = response.model) != null ? _a24 : void 0,
+        modelId: (_a29 = response.model) != null ? _a29 : void 0,
         ...timestamp ? { timestamp } : {}
       }), includeRawChunks)
         controller.enqueue({ type: "raw", rawValue: response });
       let { content, hasFunctionCall } = parseGoogleInteractionsOutputs({
         steps: (_b16 = response.steps) != null ? _b16 : null,
-        generateId: generateId3,
+        generateId: generateId32,
         interactionId
       }), blockCounter = 0, nextBlockId = () => `${interactionId != null ? interactionId : "agent"}:${blockCounter++}`;
       for (let part of content)
@@ -31253,15 +35514,27 @@ function synthesizeGoogleInteractionsAgentStream({
     }
   });
 }
-var GoogleInteractionsLanguageModel = class {
+var GoogleInteractionsLanguageModel = class _GoogleInteractionsLanguageModel {
   constructor(modelOrAgent, config2) {
-    if (this.specificationVersion = "v3", typeof modelOrAgent === "string")
+    if (this.specificationVersion = "v4", typeof modelOrAgent === "string")
       this.modelId = modelOrAgent, this.agent = void 0;
     else if ("managedAgent" in modelOrAgent)
       this.modelId = modelOrAgent.managedAgent, this.agent = modelOrAgent.managedAgent;
     else
       this.modelId = modelOrAgent.agent, this.agent = modelOrAgent.agent;
     this.config = config2;
+  }
+  static [WORKFLOW_SERIALIZE](model) {
+    return {
+      ...serializeModelOptions({
+        modelId: model.modelId,
+        config: model.config
+      }),
+      agent: model.agent
+    };
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _GoogleInteractionsLanguageModel(options.agent != null ? { agent: options.agent } : options.modelId, options.config);
   }
   get provider() {
     return this.config.provider;
@@ -31281,8 +35554,8 @@ var GoogleInteractionsLanguageModel = class {
     };
   }
   async getArgs(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
-    let warnings = [], opts = await parseProviderOptions({
+    var _a29, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z;
+    let warnings = [], googleOptions = await parseProviderOptions({
       provider: "google",
       providerOptions: options.providerOptions,
       schema: googleInteractionsLanguageModelOptions
@@ -31300,7 +35573,7 @@ var GoogleInteractionsLanguageModel = class {
       toolsForBody = prepared.tools, toolChoiceForBody = prepared.toolChoice, warnings.push(...prepared.toolWarnings);
     }
     let responseFormatEntries = [];
-    if (((_a24 = options.responseFormat) == null ? void 0 : _a24.type) === "json")
+    if (((_a29 = options.responseFormat) == null ? void 0 : _a29.type) === "json")
       if (isAgent)
         warnings.push({
           type: "other",
@@ -31314,8 +35587,8 @@ var GoogleInteractionsLanguageModel = class {
         };
         responseFormatEntries.push(entry);
       }
-    if ((opts == null ? void 0 : opts.responseFormat) != null) {
-      for (let entry of opts.responseFormat)
+    if ((googleOptions == null ? void 0 : googleOptions.responseFormat) != null) {
+      for (let entry of googleOptions.responseFormat)
         if (entry.type === "text")
           responseFormatEntries.push(pruneUndefined({
             type: "text",
@@ -31341,12 +35614,12 @@ var GoogleInteractionsLanguageModel = class {
       warnings: convWarnings
     } = convertToGoogleInteractionsInput({
       prompt: options.prompt,
-      previousInteractionId: (_h = opts == null ? void 0 : opts.previousInteractionId) != null ? _h : void 0,
-      store: (_i = opts == null ? void 0 : opts.store) != null ? _i : void 0,
-      mediaResolution: (_j = opts == null ? void 0 : opts.mediaResolution) != null ? _j : void 0
+      previousInteractionId: (_h = googleOptions == null ? void 0 : googleOptions.previousInteractionId) != null ? _h : void 0,
+      store: (_i = googleOptions == null ? void 0 : googleOptions.store) != null ? _i : void 0,
+      mediaResolution: (_j = googleOptions == null ? void 0 : googleOptions.mediaResolution) != null ? _j : void 0
     });
     warnings.push(...convWarnings);
-    let systemInstruction = convertedSystemInstruction, optionSystemInstruction = (_k = opts == null ? void 0 : opts.systemInstruction) != null ? _k : void 0;
+    let systemInstruction = convertedSystemInstruction, optionSystemInstruction = (_k = googleOptions == null ? void 0 : googleOptions.systemInstruction) != null ? _k : void 0;
     if (systemInstruction != null && optionSystemInstruction != null)
       warnings.push({
         type: "other",
@@ -31367,11 +35640,11 @@ var GoogleInteractionsLanguageModel = class {
         droppedFields.push("stopSequences");
       if (options.maxOutputTokens != null)
         droppedFields.push("maxOutputTokens");
-      if ((opts == null ? void 0 : opts.thinkingLevel) != null)
+      if ((googleOptions == null ? void 0 : googleOptions.thinkingLevel) != null)
         droppedFields.push("thinkingLevel");
-      if ((opts == null ? void 0 : opts.thinkingSummaries) != null)
+      if ((googleOptions == null ? void 0 : googleOptions.thinkingSummaries) != null)
         droppedFields.push("thinkingSummaries");
-      if ((opts == null ? void 0 : opts.imageConfig) != null)
+      if ((googleOptions == null ? void 0 : googleOptions.imageConfig) != null)
         droppedFields.push("imageConfig");
       if (droppedFields.length > 0)
         warnings.push({
@@ -31385,10 +35658,10 @@ var GoogleInteractionsLanguageModel = class {
       seed: (_n = options.seed) != null ? _n : void 0,
       stop_sequences: options.stopSequences != null && options.stopSequences.length > 0 ? options.stopSequences : void 0,
       max_output_tokens: (_o = options.maxOutputTokens) != null ? _o : void 0,
-      thinking_level: (_p = opts == null ? void 0 : opts.thinkingLevel) != null ? _p : void 0,
-      thinking_summaries: (_q = opts == null ? void 0 : opts.thinkingSummaries) != null ? _q : void 0,
+      thinking_level: (_p = googleOptions == null ? void 0 : googleOptions.thinkingLevel) != null ? _p : void 0,
+      thinking_summaries: (_q = googleOptions == null ? void 0 : googleOptions.thinkingSummaries) != null ? _q : void 0,
       tool_choice: toolChoiceForBody
-    }), (opts == null ? void 0 : opts.imageConfig) != null) {
+    }), (googleOptions == null ? void 0 : googleOptions.imageConfig) != null) {
       let alreadyHasImageEntry = responseFormatEntries.some((entry) => entry.type === "image");
       if (warnings.push({
         type: "other",
@@ -31397,56 +35670,56 @@ var GoogleInteractionsLanguageModel = class {
         responseFormatEntries.push({
           type: "image",
           mime_type: "image/png",
-          ...opts.imageConfig.aspectRatio != null ? { aspect_ratio: opts.imageConfig.aspectRatio } : {},
-          ...opts.imageConfig.imageSize != null ? { image_size: opts.imageConfig.imageSize } : {}
+          ...googleOptions.imageConfig.aspectRatio != null ? { aspect_ratio: googleOptions.imageConfig.aspectRatio } : {},
+          ...googleOptions.imageConfig.imageSize != null ? { image_size: googleOptions.imageConfig.imageSize } : {}
         });
     }
     let agentConfig;
-    if (isAgent && (opts == null ? void 0 : opts.agentConfig) != null) {
-      let ac = opts.agentConfig;
-      if (ac.type === "deep-research")
+    if (isAgent && (googleOptions == null ? void 0 : googleOptions.agentConfig) != null) {
+      let agentConfigOptions = googleOptions.agentConfig;
+      if (agentConfigOptions.type === "deep-research")
         agentConfig = pruneUndefined({
           type: "deep-research",
-          thinking_summaries: (_r = ac.thinkingSummaries) != null ? _r : void 0,
-          visualization: (_s = ac.visualization) != null ? _s : void 0,
-          collaborative_planning: (_t = ac.collaborativePlanning) != null ? _t : void 0
+          thinking_summaries: (_r = agentConfigOptions.thinkingSummaries) != null ? _r : void 0,
+          visualization: (_s = agentConfigOptions.visualization) != null ? _s : void 0,
+          collaborative_planning: (_t = agentConfigOptions.collaborativePlanning) != null ? _t : void 0
         });
-      else if (ac.type === "dynamic")
+      else if (agentConfigOptions.type === "dynamic")
         agentConfig = { type: "dynamic" };
     }
     let environment;
-    if ((opts == null ? void 0 : opts.environment) != null)
+    if ((googleOptions == null ? void 0 : googleOptions.environment) != null)
       if (!isAgent)
         warnings.push({
           type: "other",
           message: "google.interactions: environment is only supported when an agent is set; environment will be omitted from the request body."
         });
-      else if (typeof opts.environment === "string")
-        environment = opts.environment;
+      else if (typeof googleOptions.environment === "string")
+        environment = googleOptions.environment;
       else {
-        let env = opts.environment, sources = (_u = env.sources) == null ? void 0 : _u.map((s) => {
-          var _a25;
-          if (s.type === "inline")
+        let environmentOptions = googleOptions.environment, sources = (_u = environmentOptions.sources) == null ? void 0 : _u.map((source) => {
+          var _a210;
+          if (source.type === "inline")
             return {
               type: "inline",
-              content: s.content,
-              target: s.target
+              content: source.content,
+              target: source.target
             };
           return pruneUndefined({
-            type: s.type,
-            source: s.source,
-            target: (_a25 = s.target) != null ? _a25 : void 0
+            type: source.type,
+            source: source.source,
+            target: (_a210 = source.target) != null ? _a210 : void 0
           });
         }), network;
-        if (env.network === "disabled")
+        if (environmentOptions.network === "disabled")
           network = "disabled";
-        else if (env.network != null)
+        else if (environmentOptions.network != null)
           network = {
-            allowlist: env.network.allowlist.map((entry) => {
-              var _a25;
+            allowlist: environmentOptions.network.allowlist.map((entry) => {
+              var _a210;
               return pruneUndefined({
                 domain: entry.domain,
-                transform: (_a25 = entry.transform) != null ? _a25 : void 0
+                transform: (_a210 = entry.transform) != null ? _a210 : void 0
               });
             })
           };
@@ -31463,29 +35736,29 @@ var GoogleInteractionsLanguageModel = class {
         system_instruction: systemInstruction,
         tools: toolsForBody,
         response_format: responseFormatEntries.length > 0 ? responseFormatEntries : void 0,
-        response_modalities: (opts == null ? void 0 : opts.responseModalities) != null ? opts.responseModalities : void 0,
-        previous_interaction_id: (_v = opts == null ? void 0 : opts.previousInteractionId) != null ? _v : void 0,
-        service_tier: (_w = opts == null ? void 0 : opts.serviceTier) != null ? _w : void 0,
-        store: (_x = opts == null ? void 0 : opts.store) != null ? _x : void 0,
+        response_modalities: (googleOptions == null ? void 0 : googleOptions.responseModalities) != null ? googleOptions.responseModalities : void 0,
+        previous_interaction_id: (_v = googleOptions == null ? void 0 : googleOptions.previousInteractionId) != null ? _v : void 0,
+        service_tier: (_w = googleOptions == null ? void 0 : googleOptions.serviceTier) != null ? _w : void 0,
+        store: (_x = googleOptions == null ? void 0 : googleOptions.store) != null ? _x : void 0,
         generation_config: generationConfig != null && Object.keys(generationConfig).length > 0 ? generationConfig : void 0,
         agent_config: agentConfig,
         environment,
-        background: (_y = opts == null ? void 0 : opts.background) != null ? _y : void 0
+        background: (_y = googleOptions == null ? void 0 : googleOptions.background) != null ? _y : void 0
       }),
       warnings,
       isAgent,
-      isBackground: (opts == null ? void 0 : opts.background) === !0,
-      pollingTimeoutMs: (_z = opts == null ? void 0 : opts.pollingTimeoutMs) != null ? _z : void 0
+      isBackground: (googleOptions == null ? void 0 : googleOptions.background) === !0,
+      pollingTimeoutMs: (_z = googleOptions == null ? void 0 : googleOptions.pollingTimeoutMs) != null ? _z : void 0
     };
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f;
-    let { args, warnings, isAgent, pollingTimeoutMs } = await this.getArgs(options), url2 = `${this.config.baseURL}/interactions`, mergedHeaders = combineHeaders(INTERACTIONS_API_REVISION_HEADER, this.config.headers ? await resolve(this.config.headers) : void 0, options.headers), postResult = await postJsonToApi({
+    var _a29, _b16, _c, _d, _e, _f;
+    let { args, warnings, isAgent, pollingTimeoutMs } = await this.getArgs(options), url2 = `${this.config.baseURL}/interactions`, mergedHeaders = combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, options.headers), postResult = await postJsonToApi2({
       url: url2,
       headers: mergedHeaders,
       body: args,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(googleInteractionsResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler2(googleInteractionsResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), {
@@ -31502,11 +35775,11 @@ var GoogleInteractionsLanguageModel = class {
         abortSignal: options.abortSignal,
         timeoutMs: pollingTimeoutMs
       });
-      response = polled.response, rawResponse = polled.rawResponse, responseHeaders = (_a24 = polled.responseHeaders) != null ? _a24 : responseHeaders;
+      response = polled.response, rawResponse = polled.rawResponse, responseHeaders = (_a29 = polled.responseHeaders) != null ? _a29 : responseHeaders;
     }
     let interactionId = typeof response.id === "string" && response.id.length > 0 ? response.id : void 0, { content, hasFunctionCall } = parseGoogleInteractionsOutputs({
       steps: (_b16 = response.steps) != null ? _b16 : null,
-      generateId: (_c = this.config.generateId) != null ? _c : generateId,
+      generateId: (_c = this.config.generateId) != null ? _c : generateId3,
       interactionId
     }), finishReason = {
       unified: mapGoogleInteractionsFinishReason({
@@ -31514,10 +35787,11 @@ var GoogleInteractionsLanguageModel = class {
         hasFunctionCall
       }),
       raw: response.status
-    }, serviceTier = (_e = (_d = response.service_tier) != null ? _d : responseHeaders == null ? void 0 : responseHeaders["x-gemini-service-tier"]) != null ? _e : void 0, providerMetadata = {
+    }, serviceTier = (_e = (_d = response.service_tier) != null ? _d : responseHeaders == null ? void 0 : responseHeaders["x-gemini-service-tier"]) != null ? _e : void 0, outputTokensByModality = getGoogleInteractionsOutputTokensByModality(response.usage), providerMetadata = {
       google: {
         ...interactionId != null ? { interactionId } : {},
-        ...serviceTier != null ? { serviceTier } : {}
+        ...serviceTier != null ? { serviceTier } : {},
+        ...outputTokensByModality != null ? { outputTokensByModality } : {}
       }
     }, timestamp;
     if (typeof response.created === "string") {
@@ -31542,8 +35816,8 @@ var GoogleInteractionsLanguageModel = class {
     };
   }
   async doStream(options) {
-    var _a24;
-    let { args, warnings, isBackground, pollingTimeoutMs } = await this.getArgs(options), url2 = `${this.config.baseURL}/interactions`, mergedHeaders = combineHeaders(INTERACTIONS_API_REVISION_HEADER, this.config.headers ? await resolve(this.config.headers) : void 0, options.headers);
+    var _a29;
+    let { args, warnings, isBackground, pollingTimeoutMs } = await this.getArgs(options), url2 = `${this.config.baseURL}/interactions`, mergedHeaders = combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, options.headers);
     if (isBackground)
       return this.doStreamBackground({
         args,
@@ -31553,17 +35827,17 @@ var GoogleInteractionsLanguageModel = class {
         options,
         pollingTimeoutMs
       });
-    let body = { ...args, stream: !0 }, { responseHeaders, value: response } = await postJsonToApi({
+    let body = { ...args, stream: !0 }, { responseHeaders, value: response } = await postJsonToApi2({
       url: url2,
       headers: mergedHeaders,
       body,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(googleInteractionsEventSchema),
+      successfulResponseHandler: createEventSourceResponseHandler2(googleInteractionsEventSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), headerServiceTier = responseHeaders == null ? void 0 : responseHeaders["x-gemini-service-tier"], transform2 = buildGoogleInteractionsStreamTransform({
       warnings,
-      generateId: (_a24 = this.config.generateId) != null ? _a24 : generateId,
+      generateId: (_a29 = this.config.generateId) != null ? _a29 : generateId3,
       includeRawChunks: options.includeRawChunks,
       serviceTier: headerServiceTier
     });
@@ -31581,13 +35855,13 @@ var GoogleInteractionsLanguageModel = class {
     options,
     pollingTimeoutMs
   }) {
-    var _a24, _b16;
-    let postResult = await postJsonToApi({
+    var _a29, _b16;
+    let postResult = await postJsonToApi2({
       url: url2,
       headers: mergedHeaders,
       body: args,
       failedResponseHandler: googleFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(googleInteractionsResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler2(googleInteractionsResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), { responseHeaders: postHeaders, value: postResponse } = postResult, interactionId = postResponse.id;
@@ -31599,7 +35873,7 @@ var GoogleInteractionsLanguageModel = class {
         stream: synthesizeGoogleInteractionsAgentStream({
           response: postResponse,
           warnings,
-          generateId: (_a24 = this.config.generateId) != null ? _a24 : generateId,
+          generateId: (_a29 = this.config.generateId) != null ? _a29 : generateId3,
           includeRawChunks: options.includeRawChunks,
           headerServiceTier
         }),
@@ -31614,7 +35888,7 @@ var GoogleInteractionsLanguageModel = class {
       abortSignal: options.abortSignal
     }), transform2 = buildGoogleInteractionsStreamTransform({
       warnings,
-      generateId: (_b16 = this.config.generateId) != null ? _b16 : generateId,
+      generateId: (_b16 = this.config.generateId) != null ? _b16 : generateId3,
       includeRawChunks: options.includeRawChunks,
       serviceTier: headerServiceTier
     });
@@ -31624,8 +35898,6 @@ var GoogleInteractionsLanguageModel = class {
       response: { headers: postHeaders }
     };
   }
-}, INTERACTIONS_API_REVISION_HEADER = {
-  "Api-Revision": "2026-05-20"
 };
 function pruneUndefined(obj) {
   let result = {};
@@ -31636,57 +35908,426 @@ function pruneUndefined(obj) {
   }
   return result;
 }
-function createGoogleGenerativeAI(options = {}) {
-  var _a24, _b16;
-  let baseURL = (_a24 = withoutTrailingSlash(options.baseURL)) != null ? _a24 : "https://generativelanguage.googleapis.com/v1beta", providerName = (_b16 = options.name) != null ? _b16 : "google.generative-ai", getHeaders = () => withUserAgentSuffix({
+function isRecord(value) {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+var GoogleRealtimeEventMapper = class {
+  constructor() {
+    this.turnCounter = 0, this.hasAudio = !1, this.hasText = !1, this.hasTranscript = !1, this.turnClosed = !1, this.inputAudioRate = 16000;
+  }
+  get responseId() {
+    return `google-resp-${this.turnCounter}`;
+  }
+  get itemId() {
+    return `google-item-${this.turnCounter}`;
+  }
+  beginTurnIfClosed() {
+    if (!this.turnClosed)
+      return;
+    this.turnCounter++, this.hasAudio = !1, this.hasText = !1, this.hasTranscript = !1, this.turnClosed = !1;
+  }
+  parseServerEvent(raw) {
+    var _a29, _b16;
+    let data = raw;
+    if (data.setupComplete != null)
+      return { type: "session-created", raw };
+    if (data.toolCall != null)
+      return this.beginTurnIfClosed(), ((_a29 = data.toolCall.functionCalls) != null ? _a29 : []).flatMap((functionCall) => {
+        var _a210;
+        let args = JSON.stringify((_a210 = functionCall.args) != null ? _a210 : {});
+        return [
+          {
+            type: "function-call-arguments-delta",
+            responseId: this.responseId,
+            itemId: this.itemId,
+            callId: functionCall.id,
+            delta: args,
+            raw
+          },
+          {
+            type: "function-call-arguments-done",
+            responseId: this.responseId,
+            itemId: this.itemId,
+            callId: functionCall.id,
+            name: functionCall.name,
+            arguments: args,
+            raw
+          }
+        ];
+      });
+    if (data.toolCallCancellation != null)
+      return {
+        type: "custom",
+        rawType: "toolCallCancellation",
+        raw
+      };
+    if (data.serverContent != null)
+      return this.parseServerContent(data.serverContent, raw);
+    if (((_b16 = data.inputTranscription) == null ? void 0 : _b16.text) != null)
+      return {
+        type: "input-transcription-completed",
+        itemId: `google-input-${this.turnCounter}`,
+        transcript: data.inputTranscription.text,
+        raw
+      };
+    return { type: "custom", rawType: String(Object.keys(data)[0]), raw };
+  }
+  parseServerContent(serverContent, raw) {
+    var _a29, _b16, _c, _d;
+    let events = [];
+    if (serverContent.interrupted)
+      events.push({
+        type: "speech-started",
+        raw
+      });
+    if ((_a29 = serverContent.modelTurn) == null ? void 0 : _a29.parts) {
+      this.beginTurnIfClosed();
+      for (let part of serverContent.modelTurn.parts) {
+        if ((_b16 = part.inlineData) == null ? void 0 : _b16.data)
+          this.hasAudio = !0, events.push({
+            type: "audio-delta",
+            responseId: this.responseId,
+            itemId: this.itemId,
+            delta: part.inlineData.data,
+            raw
+          });
+        if (part.text)
+          this.hasText = !0, events.push({
+            type: "text-delta",
+            responseId: this.responseId,
+            itemId: this.itemId,
+            delta: part.text,
+            raw
+          });
+      }
+    }
+    if ((_c = serverContent.outputTranscription) == null ? void 0 : _c.text)
+      this.hasTranscript = !0, events.push({
+        type: "audio-transcript-delta",
+        responseId: this.responseId,
+        itemId: this.itemId,
+        delta: serverContent.outputTranscription.text,
+        raw
+      });
+    if ((_d = serverContent.inputTranscription) == null ? void 0 : _d.text)
+      events.push({
+        type: "input-transcription-completed",
+        itemId: `google-input-${this.turnCounter}`,
+        transcript: serverContent.inputTranscription.text,
+        raw
+      });
+    if (serverContent.turnComplete) {
+      if (this.hasAudio)
+        events.push({
+          type: "audio-done",
+          responseId: this.responseId,
+          itemId: this.itemId,
+          raw
+        });
+      if (this.hasText)
+        events.push({
+          type: "text-done",
+          responseId: this.responseId,
+          itemId: this.itemId,
+          raw
+        });
+      if (this.hasTranscript)
+        events.push({
+          type: "audio-transcript-done",
+          responseId: this.responseId,
+          itemId: this.itemId,
+          raw
+        });
+      events.push({
+        type: "response-done",
+        responseId: this.responseId,
+        status: "completed",
+        raw
+      }), this.turnClosed = !0;
+    }
+    if (events.length === 0)
+      return { type: "custom", rawType: "serverContent", raw };
+    return events.length === 1 ? events[0] : events;
+  }
+  serializeClientEvent(event, modelId) {
+    var _a29;
+    switch (event.type) {
+      case "session-update":
+        if (((_a29 = event.config.inputAudioFormat) == null ? void 0 : _a29.rate) != null)
+          this.inputAudioRate = event.config.inputAudioFormat.rate;
+        return {
+          setup: buildGoogleSessionConfig(event.config, modelId)
+        };
+      case "input-audio-append":
+        return {
+          realtimeInput: {
+            audio: {
+              data: event.audio,
+              mimeType: `audio/pcm;rate=${this.inputAudioRate}`
+            }
+          }
+        };
+      case "input-audio-commit":
+        return {
+          realtimeInput: {
+            audioStreamEnd: !0
+          }
+        };
+      case "input-audio-clear":
+      case "response-create":
+      case "response-cancel":
+      case "conversation-item-truncate":
+        return null;
+      case "conversation-item-create": {
+        let item = event.item;
+        switch (item.type) {
+          case "text-message":
+            return {
+              realtimeInput: {
+                text: item.text
+              }
+            };
+          case "function-call-output":
+            return serializeFunctionCallOutput(item);
+          case "audio-message":
+            return null;
+        }
+        break;
+      }
+    }
+    return null;
+  }
+};
+async function serializeFunctionCallOutput(item) {
+  let parseResult = await safeParseJSON3({ text: item.output }), response = parseResult.success ? parseResult.value : {};
+  return {
+    toolResponse: {
+      functionResponses: [
+        {
+          id: item.callId,
+          name: item.name,
+          response
+        }
+      ]
+    }
+  };
+}
+function buildGoogleSessionConfig(config2, modelId) {
+  let setup = {
+    model: getModelPath(modelId)
+  }, generationConfig = {};
+  if ((config2 == null ? void 0 : config2.outputModalities) != null)
+    generationConfig.responseModalities = config2.outputModalities.map((m) => m.toUpperCase());
+  else
+    generationConfig.responseModalities = ["AUDIO"];
+  if ((config2 == null ? void 0 : config2.voice) != null)
+    generationConfig.speechConfig = {
+      voiceConfig: {
+        prebuiltVoiceConfig: {
+          voiceName: config2.voice
+        }
+      }
+    };
+  if (setup.generationConfig = generationConfig, (config2 == null ? void 0 : config2.instructions) != null)
+    setup.systemInstruction = {
+      parts: [{ text: config2.instructions }]
+    };
+  if ((config2 == null ? void 0 : config2.tools) != null && config2.tools.length > 0)
+    setup.tools = [
+      {
+        functionDeclarations: config2.tools.map((tool4) => ({
+          name: tool4.name,
+          description: tool4.description,
+          parameters: convertJSONSchemaToOpenAPISchema(tool4.parameters)
+        }))
+      }
+    ];
+  if ((config2 == null ? void 0 : config2.inputAudioTranscription) != null)
+    setup.inputAudioTranscription = {};
+  if ((config2 == null ? void 0 : config2.outputAudioTranscription) != null)
+    setup.outputAudioTranscription = {};
+  if ((config2 == null ? void 0 : config2.providerOptions) == null)
+    return setup;
+  let { google: google2, ...providerOptions } = config2.providerOptions;
+  Object.assign(setup, providerOptions);
+  let googleOptions = isRecord(google2) ? google2 : void 0;
+  if ((googleOptions == null ? void 0 : googleOptions.translationConfig) != null) {
+    let target = isRecord(setup.generationConfig) ? setup.generationConfig : generationConfig;
+    setup.generationConfig = {
+      ...target,
+      translationConfig: googleOptions.translationConfig
+    };
+  }
+  return setup;
+}
+var realtimeWebSocketPath = "google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContentConstrained";
+function getRealtimeBaseURL(baseURL) {
+  let url2 = new URL(baseURL), pathSegments = url2.pathname.split("/"), version2 = pathSegments.at(-1);
+  if (version2 === "v1beta" || version2 === "v1alpha")
+    pathSegments.pop(), url2.pathname = pathSegments.join("/") || "/";
+  return url2;
+}
+function getAuthTokensURL(baseURL) {
+  let url2 = getRealtimeBaseURL(baseURL);
+  return url2.pathname = `${url2.pathname.replace(/\/$/, "")}/v1alpha/auth_tokens`, url2.toString();
+}
+function getWebSocketURL(baseURL) {
+  let url2 = getRealtimeBaseURL(baseURL);
+  return url2.protocol = url2.protocol === "https:" ? "wss:" : "ws:", url2.pathname = `${url2.pathname.replace(/\/$/, "")}/ws/${realtimeWebSocketPath}`, url2.toString();
+}
+var GoogleRealtimeModel = class {
+  constructor(modelId, config2) {
+    this.specificationVersion = "v4", this.mapper = new GoogleRealtimeEventMapper, this.modelId = modelId, this.provider = config2.provider, this.config = config2;
+  }
+  async doCreateClientSecret(options) {
+    var _a29, _b16;
+    let fetchFn = (_a29 = this.config.fetch) != null ? _a29 : fetch, apiKey = this.config.headers()["x-goog-api-key"];
+    if (!apiKey)
+      throw Error("Google Generative AI API key is required for realtime token creation.");
+    let now2 = Date.now(), openWindowMs = ((_b16 = options.expiresAfterSeconds) != null ? _b16 : 60) * 1000, newSessionExpireTime = new Date(now2 + openWindowMs).toISOString(), expireTime = new Date(now2 + openWindowMs + 1800000).toISOString(), setupPayload = buildGoogleSessionConfig(options.sessionConfig, this.modelId), response = await fetchFn(`${getAuthTokensURL(this.config.baseURL)}?key=${encodeURIComponent(apiKey)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uses: 0,
+        expireTime,
+        newSessionExpireTime,
+        bidiGenerateContentSetup: setupPayload
+      })
+    });
+    if (!response.ok) {
+      let text2 = await response.text();
+      throw Error(`Google realtime auth token request failed: ${response.status} ${text2}`);
+    }
+    let data = await response.json();
+    return {
+      token: data.name,
+      url: getWebSocketURL(this.config.baseURL),
+      expiresAt: data.expireTime ? Math.floor(new Date(data.expireTime).getTime() / 1000) : void 0
+    };
+  }
+  getWebSocketConfig(options) {
+    return {
+      url: `${options.url}?access_token=${encodeURIComponent(options.token)}`
+    };
+  }
+  parseServerEvent(raw) {
+    return this.mapper.parseServerEvent(raw);
+  }
+  serializeClientEvent(event) {
+    return this.mapper.serializeClientEvent(event, this.modelId);
+  }
+  buildSessionConfig(config2) {
+    return buildGoogleSessionConfig(config2, this.modelId);
+  }
+}, supportedExternalUrlMediaTypes = [
+  "text/html",
+  "text/css",
+  "text/plain",
+  "text/xml",
+  "text/csv",
+  "text/rtf",
+  "text/javascript",
+  "application/json",
+  "application/pdf",
+  "image/bmp",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "video/mp4",
+  "video/mpeg",
+  "video/quicktime",
+  "video/avi",
+  "video/x-flv",
+  "video/mpg",
+  "video/webm",
+  "video/wmv",
+  "video/3gpp"
+], externalHttpsUrlPattern = /^https:\/\/.*$/;
+function supportsExternalFileUrls(modelId) {
+  return /(^|\/)gemini-/.test(modelId) && !/(^|\/)gemini-2\.0/.test(modelId);
+}
+function createGoogle(options = {}) {
+  var _a29, _b16;
+  let baseURL = (_a29 = withoutTrailingSlash2(options.baseURL)) != null ? _a29 : "https://generativelanguage.googleapis.com/v1beta", providerName = (_b16 = options.name) != null ? _b16 : "google.generative-ai", getHeaders = () => withUserAgentSuffix3({
     "x-goog-api-key": loadApiKey({
       apiKey: options.apiKey,
       environmentVariableName: "GOOGLE_GENERATIVE_AI_API_KEY",
       description: "Google Generative AI"
     }),
     ...options.headers
-  }, `ai-sdk/google/${VERSION5}`), createChatModel = (modelId) => {
-    var _a25;
-    return new GoogleGenerativeAILanguageModel(modelId, {
+  }, `ai-sdk/google/${VERSION6}`), createChatModel = (modelId) => {
+    var _a210;
+    return new GoogleLanguageModel(modelId, {
       provider: providerName,
       baseURL,
       headers: getHeaders,
-      generateId: (_a25 = options.generateId) != null ? _a25 : generateId,
+      generateId: (_a210 = options.generateId) != null ? _a210 : generateId3,
       supportedUrls: () => ({
         "*": [
           new RegExp(`^${baseURL}/files/.*$`),
           new RegExp("^https://(?:www\\.)?youtube\\.com/watch\\?v=[\\w-]+(?:&[\\w=&.-]*)?$"),
           new RegExp("^https://youtu\\.be/[\\w-]+(?:\\?[\\w=&.-]*)?$")
-        ]
+        ],
+        ...supportsExternalFileUrls(modelId) ? Object.fromEntries(supportedExternalUrlMediaTypes.map((mediaType) => [
+          mediaType,
+          [externalHttpsUrlPattern]
+        ])) : {}
       }),
       fetch: options.fetch
     });
-  }, createEmbeddingModel = (modelId) => new GoogleGenerativeAIEmbeddingModel(modelId, {
+  }, createEmbeddingModel = (modelId) => new GoogleEmbeddingModel(modelId, {
     provider: providerName,
     baseURL,
     headers: getHeaders,
     fetch: options.fetch
-  }), createImageModel = (modelId, settings = {}) => new GoogleGenerativeAIImageModel(modelId, settings, {
+  }), createImageModel = (modelId, settings = {}) => new GoogleImageModel(modelId, settings, {
+    provider: providerName,
+    baseURL,
+    headers: getHeaders,
+    fetch: options.fetch
+  }), createFiles = () => new GoogleFiles({
     provider: providerName,
     baseURL,
     headers: getHeaders,
     fetch: options.fetch
   }), createVideoModel = (modelId) => {
-    var _a25;
-    return new GoogleGenerativeAIVideoModel(modelId, {
+    var _a210;
+    return new GoogleVideoModel(modelId, {
       provider: providerName,
       baseURL,
       headers: getHeaders,
       fetch: options.fetch,
-      generateId: (_a25 = options.generateId) != null ? _a25 : generateId
+      generateId: (_a210 = options.generateId) != null ? _a210 : generateId3
     });
-  }, createInteractionsModel = (modelIdOrAgent) => {
-    var _a25;
+  }, createRealtimeModel = (modelId) => new GoogleRealtimeModel(modelId, {
+    provider: `${providerName}.realtime`,
+    baseURL,
+    headers: getHeaders,
+    fetch: options.fetch
+  }), createSpeechModel = (modelId) => new GoogleSpeechModel(modelId, {
+    provider: `${providerName}.speech`,
+    baseURL,
+    headers: getHeaders,
+    fetch: options.fetch
+  }), experimentalRealtimeFactory = Object.assign((modelId) => createRealtimeModel(modelId), {
+    getToken: async (tokenOptions) => {
+      let secret = await createRealtimeModel(tokenOptions.model).doCreateClientSecret({
+        sessionConfig: tokenOptions.sessionConfig,
+        expiresAfterSeconds: tokenOptions.expiresAfterSeconds
+      });
+      return {
+        token: secret.token,
+        url: secret.url,
+        expiresAt: secret.expiresAt
+      };
+    }
+  }), createInteractionsModel = (modelIdOrAgent) => {
+    var _a210;
     return new GoogleInteractionsLanguageModel(modelIdOrAgent, {
       provider: `${providerName}.interactions`,
       baseURL,
       headers: getHeaders,
-      generateId: (_a25 = options.generateId) != null ? _a25 : generateId,
+      generateId: (_a210 = options.generateId) != null ? _a210 : generateId3,
       fetch: options.fetch
     });
   }, provider = function(modelId) {
@@ -31694,9 +36335,2127 @@ function createGoogleGenerativeAI(options = {}) {
       throw Error("The Google Generative AI model function cannot be called with the new keyword.");
     return createChatModel(modelId);
   };
-  return provider.specificationVersion = "v3", provider.languageModel = createChatModel, provider.chat = createChatModel, provider.generativeAI = createChatModel, provider.embedding = createEmbeddingModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbedding = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.image = createImageModel, provider.imageModel = createImageModel, provider.video = createVideoModel, provider.videoModel = createVideoModel, provider.interactions = createInteractionsModel, provider.tools = googleTools, provider;
+  return provider.specificationVersion = "v4", provider.languageModel = createChatModel, provider.chat = createChatModel, provider.generativeAI = createChatModel, provider.embedding = createEmbeddingModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbedding = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.image = createImageModel, provider.imageModel = createImageModel, provider.video = createVideoModel, provider.videoModel = createVideoModel, provider.experimental_realtime = experimentalRealtimeFactory, provider.files = createFiles, provider.speech = createSpeechModel, provider.speechModel = createSpeechModel, provider.interactions = createInteractionsModel, provider.tools = googleTools, provider;
 }
-var google = createGoogleGenerativeAI();
+var google = createGoogle();
+// node_modules/@ai-sdk/openai/node_modules/@ai-sdk/provider/dist/index.mjs
+var marker28 = "vercel.ai.error", symbol28 = Symbol.for(marker28), _a30, _b25, AISDKError4 = class _AISDKError4 extends (_b25 = Error, _a30 = symbol28, _b25) {
+  constructor({
+    name: name144,
+    message,
+    cause
+  }) {
+    super(message);
+    this[_a30] = !0, this.name = name144, this.cause = cause;
+  }
+  static isInstance(error51) {
+    return _AISDKError4.hasMarker(error51, marker28);
+  }
+  static hasMarker(error51, marker154) {
+    let markerSymbol = Symbol.for(marker154);
+    return error51 != null && typeof error51 === "object" && markerSymbol in error51 && typeof error51[markerSymbol] === "boolean" && error51[markerSymbol] === !0;
+  }
+}, name28 = "AI_APICallError", marker29 = `vercel.ai.error.${name28}`, symbol29 = Symbol.for(marker29), _a29, _b26, APICallError4 = class extends (_b26 = AISDKError4, _a29 = symbol29, _b26) {
+  constructor({
+    message,
+    url: url2,
+    requestBodyValues,
+    statusCode,
+    responseHeaders,
+    responseBody,
+    cause,
+    isRetryable = statusCode != null && (statusCode === 408 || statusCode === 409 || statusCode === 429 || statusCode >= 500),
+    data
+  }) {
+    super({ name: name28, message, cause });
+    this[_a29] = !0, this.url = url2, this.requestBodyValues = requestBodyValues, this.statusCode = statusCode, this.responseHeaders = responseHeaders, this.responseBody = responseBody, this.isRetryable = isRetryable, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker29);
+  }
+}, name29 = "AI_EmptyResponseBodyError", marker36 = `vercel.ai.error.${name29}`, symbol36 = Symbol.for(marker36), _a36, _b35, EmptyResponseBodyError4 = class extends (_b35 = AISDKError4, _a36 = symbol36, _b35) {
+  constructor({ message = "Empty response body" } = {}) {
+    super({ name: name29, message });
+    this[_a36] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker36);
+  }
+};
+function getErrorMessage5(error51) {
+  if (error51 == null)
+    return "unknown error";
+  if (typeof error51 === "string")
+    return error51;
+  if (error51 instanceof Error)
+    return error51.message;
+  return JSON.stringify(error51);
+}
+var name36 = "AI_InvalidArgumentError", marker46 = `vercel.ai.error.${name36}`, symbol46 = Symbol.for(marker46), _a46, _b45, InvalidArgumentError5 = class extends (_b45 = AISDKError4, _a46 = symbol46, _b45) {
+  constructor({
+    message,
+    cause,
+    argument
+  }) {
+    super({ name: name36, message, cause });
+    this[_a46] = !0, this.argument = argument;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker46);
+  }
+}, name46 = "AI_InvalidPromptError", marker56 = `vercel.ai.error.${name46}`, symbol56 = Symbol.for(marker56), _a56, _b55, InvalidPromptError4 = class extends (_b55 = AISDKError4, _a56 = symbol56, _b55) {
+  constructor({
+    prompt,
+    message,
+    cause
+  }) {
+    super({ name: name46, message: `Invalid prompt: ${message}`, cause });
+    this[_a56] = !0, this.prompt = prompt;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker56);
+  }
+}, name56 = "AI_InvalidResponseDataError", marker66 = `vercel.ai.error.${name56}`, symbol66 = Symbol.for(marker66), _a66, _b65, InvalidResponseDataError4 = class extends (_b65 = AISDKError4, _a66 = symbol66, _b65) {
+  constructor({
+    data,
+    message = `Invalid response data: ${JSON.stringify(data)}.`
+  }) {
+    super({ name: name56, message });
+    this[_a66] = !0, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker66);
+  }
+}, name66 = "AI_JSONParseError", marker76 = `vercel.ai.error.${name66}`, symbol76 = Symbol.for(marker76), _a76, _b75, JSONParseError4 = class extends (_b75 = AISDKError4, _a76 = symbol76, _b75) {
+  constructor({ text: text2, cause }) {
+    super({
+      name: name66,
+      message: `JSON parsing failed: Text: ${text2}.
+Error message: ${getErrorMessage5(cause)}`,
+      cause
+    });
+    this[_a76] = !0, this.text = text2;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker76);
+  }
+}, name76 = "AI_LoadAPIKeyError", marker86 = `vercel.ai.error.${name76}`, symbol86 = Symbol.for(marker86), _a86, _b85, LoadAPIKeyError4 = class extends (_b85 = AISDKError4, _a86 = symbol86, _b85) {
+  constructor({ message }) {
+    super({ name: name76, message });
+    this[_a86] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker86);
+  }
+}, name86 = "AI_LoadSettingError", marker96 = `vercel.ai.error.${name86}`, symbol96 = Symbol.for(marker96), _a96, _b95, LoadSettingError4 = class extends (_b95 = AISDKError4, _a96 = symbol96, _b95) {
+  constructor({ message }) {
+    super({ name: name86, message });
+    this[_a96] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker96);
+  }
+}, name96 = "AI_NoContentGeneratedError", marker106 = `vercel.ai.error.${name96}`, symbol106 = Symbol.for(marker106), _a106, _b105, NoContentGeneratedError4 = class extends (_b105 = AISDKError4, _a106 = symbol106, _b105) {
+  constructor({
+    message = "No content generated."
+  } = {}) {
+    super({ name: name96, message });
+    this[_a106] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker106);
+  }
+}, name105 = "AI_NoSuchModelError", marker115 = `vercel.ai.error.${name105}`, symbol115 = Symbol.for(marker115), _a115, _b114, NoSuchModelError4 = class extends (_b114 = AISDKError4, _a115 = symbol115, _b114) {
+  constructor({
+    errorName = name105,
+    modelId,
+    modelType,
+    message = `No such ${modelType}: ${modelId}`
+  }) {
+    super({ name: errorName, message });
+    this[_a115] = !0, this.modelId = modelId, this.modelType = modelType;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker115);
+  }
+}, name115 = "AI_TooManyEmbeddingValuesForCallError", marker125 = `vercel.ai.error.${name115}`, symbol125 = Symbol.for(marker125), _a125, _b124, TooManyEmbeddingValuesForCallError4 = class extends (_b124 = AISDKError4, _a125 = symbol125, _b124) {
+  constructor(options) {
+    super({
+      name: name115,
+      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+    });
+    this[_a125] = !0, this.provider = options.provider, this.modelId = options.modelId, this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall, this.values = options.values;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker125);
+  }
+}, name125 = "AI_TypeValidationError", marker135 = `vercel.ai.error.${name125}`, symbol135 = Symbol.for(marker135), _a135, _b134, TypeValidationError4 = class _TypeValidationError4 extends (_b134 = AISDKError4, _a135 = symbol135, _b134) {
+  constructor({
+    value,
+    cause,
+    context: context2
+  }) {
+    let contextPrefix = "Type validation failed";
+    if (context2 == null ? void 0 : context2.field)
+      contextPrefix += ` for ${context2.field}`;
+    if ((context2 == null ? void 0 : context2.entityName) || (context2 == null ? void 0 : context2.entityId)) {
+      contextPrefix += " (";
+      let parts = [];
+      if (context2.entityName)
+        parts.push(context2.entityName);
+      if (context2.entityId)
+        parts.push(`id: "${context2.entityId}"`);
+      contextPrefix += parts.join(", "), contextPrefix += ")";
+    }
+    super({
+      name: name125,
+      message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
+Error message: ${getErrorMessage5(cause)}`,
+      cause
+    });
+    this[_a135] = !0, this.value = value, this.context = context2;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker135);
+  }
+  static wrap({
+    value,
+    cause,
+    context: context2
+  }) {
+    var _a154, _b153, _c;
+    if (_TypeValidationError4.isInstance(cause) && cause.value === value && ((_a154 = cause.context) == null ? void 0 : _a154.field) === (context2 == null ? void 0 : context2.field) && ((_b153 = cause.context) == null ? void 0 : _b153.entityName) === (context2 == null ? void 0 : context2.entityName) && ((_c = cause.context) == null ? void 0 : _c.entityId) === (context2 == null ? void 0 : context2.entityId))
+      return cause;
+    return new _TypeValidationError4({ value, cause, context: context2 });
+  }
+}, name135 = "AI_UnsupportedFunctionalityError", marker145 = `vercel.ai.error.${name135}`, symbol145 = Symbol.for(marker145), _a145, _b144, UnsupportedFunctionalityError4 = class extends (_b144 = AISDKError4, _a145 = symbol145, _b144) {
+  constructor({
+    functionality,
+    message = `'${functionality}' functionality not supported.`
+  }) {
+    super({ name: name135, message });
+    this[_a145] = !0, this.functionality = functionality;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker145);
+  }
+};
+
+// node_modules/@ai-sdk/openai/node_modules/@ai-sdk/provider-utils/dist/index.mjs
+function combineHeaders3(...headers) {
+  return headers.reduce((combinedHeaders, currentHeaders) => ({
+    ...combinedHeaders,
+    ...currentHeaders != null ? currentHeaders : {}
+  }), {});
+}
+function createToolNameMapping2({
+  tools = [],
+  providerToolNames,
+  resolveProviderToolName
+}) {
+  var _a210;
+  let customToolNameToProviderToolName = {}, providerToolNameToCustomToolName = {};
+  for (let tool22 of tools)
+    if (tool22.type === "provider") {
+      let providerToolName = (_a210 = resolveProviderToolName == null ? void 0 : resolveProviderToolName(tool22)) != null ? _a210 : (tool22.id in providerToolNames) ? providerToolNames[tool22.id] : void 0;
+      if (providerToolName == null)
+        continue;
+      customToolNameToProviderToolName[tool22.name] = providerToolName, providerToolNameToCustomToolName[providerToolName] = tool22.name;
+    }
+  return {
+    toProviderToolName: (customToolName) => {
+      var _a37;
+      return (_a37 = customToolNameToProviderToolName[customToolName]) != null ? _a37 : customToolName;
+    },
+    toCustomToolName: (providerToolName) => {
+      var _a37;
+      return (_a37 = providerToolNameToCustomToolName[providerToolName]) != null ? _a37 : providerToolName;
+    }
+  };
+}
+function extractResponseHeaders3(response) {
+  return Object.fromEntries([...response.headers]);
+}
+var { btoa: btoa5, atob: atob5 } = globalThis;
+function convertBase64ToUint8Array3(base64String) {
+  let base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/"), latin1string = atob5(base64Url);
+  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
+}
+function convertUint8ArrayToBase644(array3) {
+  let latin1string = "";
+  for (let i = 0;i < array3.length; i++)
+    latin1string += String.fromCodePoint(array3[i]);
+  return btoa5(latin1string);
+}
+function convertToBase642(value) {
+  return value instanceof Uint8Array ? convertUint8ArrayToBase644(value) : value;
+}
+function convertToFormData(input, options = {}) {
+  let { useArrayBrackets = !0 } = options, formData = new FormData;
+  for (let [key, value] of Object.entries(input)) {
+    if (value == null)
+      continue;
+    if (Array.isArray(value)) {
+      if (value.length === 1) {
+        formData.append(key, value[0]);
+        continue;
+      }
+      let arrayKey = useArrayBrackets ? `${key}[]` : key;
+      for (let item of value)
+        formData.append(arrayKey, item);
+      continue;
+    }
+    formData.append(key, value);
+  }
+  return formData;
+}
+async function cancelResponseBody3(response) {
+  var _a210;
+  try {
+    await ((_a210 = response.body) == null ? void 0 : _a210.cancel());
+  } catch (e) {}
+}
+var name30 = "AI_DownloadError", marker30 = `vercel.ai.error.${name30}`, symbol30 = Symbol.for(marker30), _a31, _b27, DownloadError4 = class extends (_b27 = AISDKError4, _a31 = symbol30, _b27) {
+  constructor({
+    url: url2,
+    statusCode,
+    statusText,
+    cause,
+    message = cause == null ? `Failed to download ${url2}: ${statusCode} ${statusText}` : `Failed to download ${url2}: ${cause}`
+  }) {
+    super({ name: name30, message, cause });
+    this[_a31] = !0, this.url = url2, this.statusCode = statusCode, this.statusText = statusText;
+  }
+  static isInstance(error51) {
+    return AISDKError4.hasMarker(error51, marker30);
+  }
+};
+function isBrowserRuntime3(globalThisAny = globalThis) {
+  return globalThisAny.window != null;
+}
+function validateDownloadUrl3(url2) {
+  let parsed;
+  try {
+    parsed = new URL(url2);
+  } catch (e) {
+    throw new DownloadError4({
+      url: url2,
+      message: `Invalid URL: ${url2}`
+    });
+  }
+  if (parsed.protocol === "data:")
+    return;
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
+    throw new DownloadError4({
+      url: url2,
+      message: `URL scheme must be http, https, or data, got ${parsed.protocol}`
+    });
+  let hostname3 = parsed.hostname.toLowerCase().replace(/\.+$/, "");
+  if (!hostname3)
+    throw new DownloadError4({
+      url: url2,
+      message: "URL must have a hostname"
+    });
+  if (hostname3 === "localhost" || hostname3.endsWith(".local") || hostname3.endsWith(".localhost"))
+    throw new DownloadError4({
+      url: url2,
+      message: `URL with hostname ${hostname3} is not allowed`
+    });
+  if (hostname3.startsWith("[") && hostname3.endsWith("]")) {
+    let ipv63 = hostname3.slice(1, -1);
+    if (isPrivateIPv63(ipv63))
+      throw new DownloadError4({
+        url: url2,
+        message: `URL with IPv6 address ${hostname3} is not allowed`
+      });
+    return;
+  }
+  if (isIPv43(hostname3)) {
+    if (isPrivateIPv43(hostname3))
+      throw new DownloadError4({
+        url: url2,
+        message: `URL with IP address ${hostname3} is not allowed`
+      });
+    return;
+  }
+}
+function isIPv43(hostname3) {
+  let parts = hostname3.split(".");
+  if (parts.length !== 4)
+    return !1;
+  return parts.every((part) => {
+    let num = Number(part);
+    return Number.isInteger(num) && num >= 0 && num <= 255 && String(num) === part;
+  });
+}
+function isPrivateIPv43(ip) {
+  let parts = ip.split(".").map(Number), [a, b, c] = parts;
+  if (a === 0)
+    return !0;
+  if (a === 10)
+    return !0;
+  if (a === 100 && b >= 64 && b <= 127)
+    return !0;
+  if (a === 127)
+    return !0;
+  if (a === 169 && b === 254)
+    return !0;
+  if (a === 172 && b >= 16 && b <= 31)
+    return !0;
+  if (a === 192 && b === 0 && c === 0)
+    return !0;
+  if (a === 192 && b === 168)
+    return !0;
+  if (a === 198 && (b === 18 || b === 19))
+    return !0;
+  if (a >= 240)
+    return !0;
+  return !1;
+}
+function parseIPv63(ip) {
+  let address = ip.toLowerCase(), zoneIndex = address.indexOf("%");
+  if (zoneIndex !== -1)
+    address = address.slice(0, zoneIndex);
+  let halves = address.split("::");
+  if (halves.length > 2)
+    return null;
+  let toGroups = (segment) => {
+    if (segment === "")
+      return [];
+    let groups = [], parts = segment.split(":");
+    for (let i = 0;i < parts.length; i++) {
+      let part = parts[i];
+      if (part.includes(".")) {
+        if (i !== parts.length - 1 || !isIPv43(part))
+          return null;
+        let [a, b, c, d] = part.split(".").map(Number);
+        groups.push(a << 8 | b, c << 8 | d);
+        continue;
+      }
+      if (!/^[0-9a-f]{1,4}$/.test(part))
+        return null;
+      groups.push(parseInt(part, 16));
+    }
+    return groups;
+  }, head = toGroups(halves[0]);
+  if (head === null)
+    return null;
+  if (halves.length === 2) {
+    let tail = toGroups(halves[1]);
+    if (tail === null)
+      return null;
+    let fill = 8 - head.length - tail.length;
+    if (fill < 0)
+      return null;
+    return [...head, ...Array(fill).fill(0), ...tail];
+  }
+  return head.length === 8 ? head : null;
+}
+function isPrivateIPv63(ip) {
+  let groups = parseIPv63(ip);
+  if (groups === null)
+    return !0;
+  let topZero = (count) => groups.slice(0, count).every((group) => group === 0);
+  if (topZero(7) && (groups[7] === 0 || groups[7] === 1))
+    return !0;
+  if ((groups[0] & 65024) === 64512)
+    return !0;
+  if ((groups[0] & 65472) === 65152)
+    return !0;
+  if ((groups[0] & 65472) === 65216)
+    return !0;
+  if ((groups[0] & 65280) === 65280)
+    return !0;
+  if (topZero(6) || topZero(5) && groups[5] === 65535 || topZero(4) && groups[4] === 65535 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 0 && groups[3] === 0 && groups[4] === 0 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 1) {
+    let a = groups[6] >> 8 & 255, b = groups[6] & 255, c = groups[7] >> 8 & 255, d = groups[7] & 255;
+    return isPrivateIPv43(`${a}.${b}.${c}.${d}`);
+  }
+  return !1;
+}
+var MAX_DOWNLOAD_REDIRECTS3 = 10;
+async function fetchWithValidatedRedirects3({
+  url: url2,
+  headers,
+  abortSignal,
+  maxRedirects = MAX_DOWNLOAD_REDIRECTS3
+}) {
+  let baseInit = { signal: abortSignal };
+  if (headers !== void 0)
+    baseInit.headers = headers;
+  let currentUrl = url2;
+  for (let redirectCount = 0;redirectCount <= maxRedirects; redirectCount++) {
+    validateDownloadUrl3(currentUrl);
+    let response = await fetch(currentUrl, {
+      ...baseInit,
+      redirect: "manual"
+    });
+    if (response.type === "opaqueredirect") {
+      if (!isBrowserRuntime3())
+        throw new DownloadError4({
+          url: url2,
+          message: `Redirect from ${currentUrl} could not be validated and was blocked`
+        });
+      return await fetch(currentUrl, { ...baseInit, redirect: "follow" });
+    }
+    let location = response.headers.get("location");
+    if (response.status >= 300 && response.status < 400 && location) {
+      await cancelResponseBody3(response), currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+    return response;
+  }
+  throw new DownloadError4({
+    url: url2,
+    message: `Too many redirects (max ${maxRedirects})`
+  });
+}
+var DEFAULT_MAX_DOWNLOAD_SIZE3 = 2147483648;
+async function readResponseWithSizeLimit3({
+  response,
+  url: url2,
+  maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE3
+}) {
+  let contentLength = response.headers.get("content-length");
+  if (contentLength != null) {
+    let length = parseInt(contentLength, 10);
+    if (!isNaN(length) && length > maxBytes)
+      throw await cancelResponseBody3(response), new DownloadError4({
+        url: url2,
+        message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes (Content-Length: ${length}).`
+      });
+  }
+  let body = response.body;
+  if (body == null)
+    return new Uint8Array(0);
+  let reader = body.getReader(), chunks = [], totalBytes = 0;
+  try {
+    while (!0) {
+      let { done, value } = await reader.read();
+      if (done)
+        break;
+      if (totalBytes += value.length, totalBytes > maxBytes)
+        throw new DownloadError4({
+          url: url2,
+          message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes.`
+        });
+      chunks.push(value);
+    }
+  } finally {
+    try {
+      await reader.cancel();
+    } finally {
+      reader.releaseLock();
+    }
+  }
+  let result = new Uint8Array(totalBytes), offset = 0;
+  for (let chunk of chunks)
+    result.set(chunk, offset), offset += chunk.length;
+  return result;
+}
+async function downloadBlob(url2, options) {
+  var _a210, _b28;
+  try {
+    let response = await fetchWithValidatedRedirects3({
+      url: url2,
+      abortSignal: options == null ? void 0 : options.abortSignal
+    });
+    if (!response.ok)
+      throw await cancelResponseBody3(response), new DownloadError4({
+        url: url2,
+        statusCode: response.status,
+        statusText: response.statusText
+      });
+    let data = await readResponseWithSizeLimit3({
+      response,
+      url: url2,
+      maxBytes: (_a210 = options == null ? void 0 : options.maxBytes) != null ? _a210 : DEFAULT_MAX_DOWNLOAD_SIZE3
+    }), contentType = (_b28 = response.headers.get("content-type")) != null ? _b28 : void 0;
+    return new Blob([data], contentType ? { type: contentType } : void 0);
+  } catch (error51) {
+    if (DownloadError4.isInstance(error51))
+      throw error51;
+    throw new DownloadError4({ url: url2, cause: error51 });
+  }
+}
+var createIdGenerator4 = ({
+  prefix,
+  size = 16,
+  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  separator = "-"
+} = {}) => {
+  let generator = () => {
+    let alphabetLength = alphabet.length, chars = Array(size);
+    for (let i = 0;i < size; i++)
+      chars[i] = alphabet[Math.random() * alphabetLength | 0];
+    return chars.join("");
+  };
+  if (prefix == null)
+    return generator;
+  if (alphabet.includes(separator))
+    throw new InvalidArgumentError5({
+      argument: "separator",
+      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
+    });
+  return () => `${prefix}${separator}${generator()}`;
+}, generateId4 = createIdGenerator4();
+function isAbortError4(error51) {
+  return (error51 instanceof Error || error51 instanceof DOMException) && (error51.name === "AbortError" || error51.name === "ResponseAborted" || error51.name === "TimeoutError");
+}
+var FETCH_FAILED_ERROR_MESSAGES3 = ["fetch failed", "failed to fetch"], BUN_ERROR_CODES3 = [
+  "ConnectionRefused",
+  "ConnectionClosed",
+  "FailedToOpenSocket",
+  "ECONNRESET",
+  "ECONNREFUSED",
+  "ETIMEDOUT",
+  "EPIPE"
+];
+function isBunNetworkError3(error51) {
+  if (!(error51 instanceof Error))
+    return !1;
+  let code = error51.code;
+  if (typeof code === "string" && BUN_ERROR_CODES3.includes(code))
+    return !0;
+  return !1;
+}
+function handleFetchError3({
+  error: error51,
+  url: url2,
+  requestBodyValues
+}) {
+  if (isAbortError4(error51))
+    return error51;
+  if (error51 instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES3.includes(error51.message.toLowerCase())) {
+    let cause = error51.cause;
+    if (cause != null)
+      return new APICallError4({
+        message: `Cannot connect to API: ${cause.message}`,
+        cause,
+        url: url2,
+        requestBodyValues,
+        isRetryable: !0
+      });
+  }
+  if (isBunNetworkError3(error51))
+    return new APICallError4({
+      message: `Cannot connect to API: ${error51.message}`,
+      cause: error51,
+      url: url2,
+      requestBodyValues,
+      isRetryable: !0
+    });
+  return error51;
+}
+function getRuntimeEnvironmentUserAgent4(globalThisAny = globalThis) {
+  var _a210, _b28, _c;
+  if (globalThisAny.window)
+    return "runtime/browser";
+  if ((_a210 = globalThisAny.navigator) == null ? void 0 : _a210.userAgent)
+    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
+  if ((_c = (_b28 = globalThisAny.process) == null ? void 0 : _b28.versions) == null ? void 0 : _c.node)
+    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
+  if (globalThisAny.EdgeRuntime)
+    return "runtime/vercel-edge";
+  return "runtime/unknown";
+}
+function normalizeHeaders4(headers) {
+  if (headers == null)
+    return {};
+  let normalized = {};
+  if (headers instanceof Headers)
+    headers.forEach((value, key) => {
+      normalized[key.toLowerCase()] = value;
+    });
+  else {
+    if (!Array.isArray(headers))
+      headers = Object.entries(headers);
+    for (let [key, value] of headers)
+      if (value != null)
+        normalized[key.toLowerCase()] = value;
+  }
+  return normalized;
+}
+function withUserAgentSuffix4(headers, ...userAgentSuffixParts) {
+  let normalizedHeaders = new Headers(normalizeHeaders4(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
+  return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
+}
+var VERSION7 = "4.0.30";
+function isNonNullable2(value) {
+  return value != null;
+}
+function loadApiKey2({
+  apiKey,
+  environmentVariableName,
+  apiKeyParameterName = "apiKey",
+  description
+}) {
+  if (typeof apiKey === "string")
+    return apiKey;
+  if (apiKey != null)
+    throw new LoadAPIKeyError4({
+      message: `${description} API key must be a string.`
+    });
+  if (typeof process > "u")
+    throw new LoadAPIKeyError4({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables are not supported in this environment.`
+    });
+  if (apiKey = process.env[environmentVariableName], apiKey == null)
+    throw new LoadAPIKeyError4({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
+    });
+  if (typeof apiKey !== "string")
+    throw new LoadAPIKeyError4({
+      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
+    });
+  return apiKey;
+}
+function loadOptionalSetting3({
+  settingValue,
+  environmentVariableName
+}) {
+  if (typeof settingValue === "string")
+    return settingValue;
+  if (settingValue != null || typeof process > "u")
+    return;
+  if (settingValue = process.env[environmentVariableName], settingValue == null || typeof settingValue !== "string")
+    return;
+  return settingValue;
+}
+function mediaTypeToExtension(mediaType) {
+  var _a210;
+  let [_type, subtype = ""] = mediaType.toLowerCase().split("/");
+  return (_a210 = {
+    mpeg: "mp3",
+    "x-wav": "wav",
+    opus: "ogg",
+    mp4: "m4a",
+    "x-m4a": "m4a"
+  }[subtype]) != null ? _a210 : subtype;
+}
+var suspectProtoRx4 = /"(?:_|\\u005[Ff])(?:_|\\u005[Ff])(?:p|\\u0070)(?:r|\\u0072)(?:o|\\u006[Ff])(?:t|\\u0074)(?:o|\\u006[Ff])(?:_|\\u005[Ff])(?:_|\\u005[Ff])"\s*:/, suspectConstructorRx4 = /"(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)"\s*:/;
+function _parse5(text2) {
+  let obj = JSON.parse(text2);
+  if (obj === null || typeof obj !== "object")
+    return obj;
+  if (suspectProtoRx4.test(text2) === !1 && suspectConstructorRx4.test(text2) === !1)
+    return obj;
+  return filter4(obj);
+}
+function filter4(obj) {
+  let next = [obj];
+  while (next.length) {
+    let nodes = next;
+    next = [];
+    for (let node of nodes) {
+      if (Object.prototype.hasOwnProperty.call(node, "__proto__"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      if (Object.prototype.hasOwnProperty.call(node, "constructor") && node.constructor !== null && typeof node.constructor === "object" && Object.prototype.hasOwnProperty.call(node.constructor, "prototype"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      for (let key in node) {
+        let value = node[key];
+        if (value && typeof value === "object")
+          next.push(value);
+      }
+    }
+  }
+  return obj;
+}
+function secureJsonParse4(text2) {
+  let { stackTraceLimit } = Error;
+  try {
+    Error.stackTraceLimit = 0;
+  } catch (e) {
+    return _parse5(text2);
+  }
+  try {
+    return _parse5(text2);
+  } finally {
+    Error.stackTraceLimit = stackTraceLimit;
+  }
+}
+function addAdditionalPropertiesToJsonSchema4(jsonSchema22) {
+  if (jsonSchema22.type === "object" || Array.isArray(jsonSchema22.type) && jsonSchema22.type.includes("object")) {
+    jsonSchema22.additionalProperties = !1;
+    let { properties } = jsonSchema22;
+    if (properties != null)
+      for (let key of Object.keys(properties))
+        properties[key] = visit4(properties[key]);
+  }
+  if (jsonSchema22.items != null)
+    jsonSchema22.items = Array.isArray(jsonSchema22.items) ? jsonSchema22.items.map(visit4) : visit4(jsonSchema22.items);
+  if (jsonSchema22.anyOf != null)
+    jsonSchema22.anyOf = jsonSchema22.anyOf.map(visit4);
+  if (jsonSchema22.allOf != null)
+    jsonSchema22.allOf = jsonSchema22.allOf.map(visit4);
+  if (jsonSchema22.oneOf != null)
+    jsonSchema22.oneOf = jsonSchema22.oneOf.map(visit4);
+  let { definitions } = jsonSchema22;
+  if (definitions != null)
+    for (let key of Object.keys(definitions))
+      definitions[key] = visit4(definitions[key]);
+  return jsonSchema22;
+}
+function visit4(def) {
+  if (typeof def === "boolean")
+    return def;
+  return addAdditionalPropertiesToJsonSchema4(def);
+}
+var ignoreOverride4 = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use"), defaultOptions4 = {
+  name: void 0,
+  $refStrategy: "root",
+  basePath: ["#"],
+  effectStrategy: "input",
+  pipeStrategy: "all",
+  dateStrategy: "format:date-time",
+  mapStrategy: "entries",
+  removeAdditionalStrategy: "passthrough",
+  allowedAdditionalProperties: !0,
+  rejectedAdditionalProperties: !1,
+  definitionPath: "definitions",
+  strictUnions: !1,
+  definitions: {},
+  errorMessages: !1,
+  patternStrategy: "escape",
+  applyRegexFlags: !1,
+  emailStrategy: "format:email",
+  base64Strategy: "contentEncoding:base64",
+  nameStrategy: "ref"
+}, getDefaultOptions4 = (options) => typeof options === "string" ? {
+  ...defaultOptions4,
+  name: options
+} : {
+  ...defaultOptions4,
+  ...options
+};
+function parseAnyDef4() {
+  return {};
+}
+function parseArrayDef4(def, refs) {
+  var _a210, _b28, _c;
+  let res = {
+    type: "array"
+  };
+  if (((_a210 = def.type) == null ? void 0 : _a210._def) && ((_c = (_b28 = def.type) == null ? void 0 : _b28._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind2.ZodAny)
+    res.items = parseDef4(def.type._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    });
+  if (def.minLength)
+    res.minItems = def.minLength.value;
+  if (def.maxLength)
+    res.maxItems = def.maxLength.value;
+  if (def.exactLength)
+    res.minItems = def.exactLength.value, res.maxItems = def.exactLength.value;
+  return res;
+}
+function parseBigintDef4(def) {
+  let res = {
+    type: "integer",
+    format: "int64"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseBooleanDef4() {
+  return { type: "boolean" };
+}
+function parseBrandedDef4(_def, refs) {
+  return parseDef4(_def.type._def, refs);
+}
+var parseCatchDef4 = (def, refs) => {
+  return parseDef4(def.innerType._def, refs);
+};
+function parseDateDef4(def, refs, overrideDateStrategy) {
+  let strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
+  if (Array.isArray(strategy))
+    return {
+      anyOf: strategy.map((item, i) => parseDateDef4(def, refs, item))
+    };
+  switch (strategy) {
+    case "string":
+    case "format:date-time":
+      return {
+        type: "string",
+        format: "date-time"
+      };
+    case "format:date":
+      return {
+        type: "string",
+        format: "date"
+      };
+    case "integer":
+      return integerDateParser4(def);
+  }
+}
+var integerDateParser4 = (def) => {
+  let res = {
+    type: "integer",
+    format: "unix-time"
+  };
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        res.minimum = check2.value;
+        break;
+      case "max":
+        res.maximum = check2.value;
+        break;
+    }
+  return res;
+};
+function parseDefaultDef4(_def, refs) {
+  return {
+    ...parseDef4(_def.innerType._def, refs),
+    default: _def.defaultValue()
+  };
+}
+function parseEffectsDef4(_def, refs) {
+  return refs.effectStrategy === "input" ? parseDef4(_def.schema._def, refs) : parseAnyDef4();
+}
+function parseEnumDef4(def) {
+  return {
+    type: "string",
+    enum: Array.from(def.values)
+  };
+}
+var isJsonSchema7AllOfType4 = (type) => {
+  if ("type" in type && type.type === "string")
+    return !1;
+  return "allOf" in type;
+};
+function parseIntersectionDef4(def, refs) {
+  let allOf = [
+    parseDef4(def.left._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "0"]
+    }),
+    parseDef4(def.right._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "1"]
+    })
+  ].filter((x) => !!x), mergedAllOf = [];
+  return allOf.forEach((schema) => {
+    if (isJsonSchema7AllOfType4(schema))
+      mergedAllOf.push(...schema.allOf);
+    else {
+      let nestedSchema = schema;
+      if ("additionalProperties" in schema && schema.additionalProperties === !1) {
+        let { additionalProperties, ...rest } = schema;
+        nestedSchema = rest;
+      }
+      mergedAllOf.push(nestedSchema);
+    }
+  }), mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
+}
+function parseLiteralDef4(def) {
+  let parsedType2 = typeof def.value;
+  if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string")
+    return {
+      type: Array.isArray(def.value) ? "array" : "object"
+    };
+  return {
+    type: parsedType2 === "bigint" ? "integer" : parsedType2,
+    const: def.value
+  };
+}
+var emojiRegex5 = void 0, zodPatterns4 = {
+  cuid: /^[cC][^\s-]{8,}$/,
+  cuid2: /^[0-9a-z]+$/,
+  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
+  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
+  emoji: () => {
+    if (emojiRegex5 === void 0)
+      emojiRegex5 = RegExp("^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$", "u");
+    return emojiRegex5;
+  },
+  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
+  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
+  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
+  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
+  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
+  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
+  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
+  nanoid: /^[a-zA-Z0-9_-]{21}$/,
+  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
+};
+function parseStringDef4(def, refs) {
+  let res = {
+    type: "string"
+  };
+  if (def.checks)
+    for (let check2 of def.checks)
+      switch (check2.kind) {
+        case "min":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value;
+          break;
+        case "max":
+          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "email":
+          switch (refs.emailStrategy) {
+            case "format:email":
+              addFormat4(res, "email", check2.message, refs);
+              break;
+            case "format:idn-email":
+              addFormat4(res, "idn-email", check2.message, refs);
+              break;
+            case "pattern:zod":
+              addPattern4(res, zodPatterns4.email, check2.message, refs);
+              break;
+          }
+          break;
+        case "url":
+          addFormat4(res, "uri", check2.message, refs);
+          break;
+        case "uuid":
+          addFormat4(res, "uuid", check2.message, refs);
+          break;
+        case "regex":
+          addPattern4(res, check2.regex, check2.message, refs);
+          break;
+        case "cuid":
+          addPattern4(res, zodPatterns4.cuid, check2.message, refs);
+          break;
+        case "cuid2":
+          addPattern4(res, zodPatterns4.cuid2, check2.message, refs);
+          break;
+        case "startsWith":
+          addPattern4(res, RegExp(`^${escapeLiteralCheckValue4(check2.value, refs)}`), check2.message, refs);
+          break;
+        case "endsWith":
+          addPattern4(res, RegExp(`${escapeLiteralCheckValue4(check2.value, refs)}$`), check2.message, refs);
+          break;
+        case "datetime":
+          addFormat4(res, "date-time", check2.message, refs);
+          break;
+        case "date":
+          addFormat4(res, "date", check2.message, refs);
+          break;
+        case "time":
+          addFormat4(res, "time", check2.message, refs);
+          break;
+        case "duration":
+          addFormat4(res, "duration", check2.message, refs);
+          break;
+        case "length":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value, res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "includes": {
+          addPattern4(res, RegExp(escapeLiteralCheckValue4(check2.value, refs)), check2.message, refs);
+          break;
+        }
+        case "ip": {
+          if (check2.version !== "v6")
+            addFormat4(res, "ipv4", check2.message, refs);
+          if (check2.version !== "v4")
+            addFormat4(res, "ipv6", check2.message, refs);
+          break;
+        }
+        case "base64url":
+          addPattern4(res, zodPatterns4.base64url, check2.message, refs);
+          break;
+        case "jwt":
+          addPattern4(res, zodPatterns4.jwt, check2.message, refs);
+          break;
+        case "cidr": {
+          if (check2.version !== "v6")
+            addPattern4(res, zodPatterns4.ipv4Cidr, check2.message, refs);
+          if (check2.version !== "v4")
+            addPattern4(res, zodPatterns4.ipv6Cidr, check2.message, refs);
+          break;
+        }
+        case "emoji":
+          addPattern4(res, zodPatterns4.emoji(), check2.message, refs);
+          break;
+        case "ulid": {
+          addPattern4(res, zodPatterns4.ulid, check2.message, refs);
+          break;
+        }
+        case "base64": {
+          switch (refs.base64Strategy) {
+            case "format:binary": {
+              addFormat4(res, "binary", check2.message, refs);
+              break;
+            }
+            case "contentEncoding:base64": {
+              res.contentEncoding = "base64";
+              break;
+            }
+            case "pattern:zod": {
+              addPattern4(res, zodPatterns4.base64, check2.message, refs);
+              break;
+            }
+          }
+          break;
+        }
+        case "nanoid":
+          addPattern4(res, zodPatterns4.nanoid, check2.message, refs);
+        case "toLowerCase":
+        case "toUpperCase":
+        case "trim":
+          break;
+        default:
+      }
+  return res;
+}
+function escapeLiteralCheckValue4(literal2, refs) {
+  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric4(literal2) : literal2;
+}
+var ALPHA_NUMERIC4 = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+function escapeNonAlphaNumeric4(source) {
+  let result = "";
+  for (let i = 0;i < source.length; i++) {
+    if (!ALPHA_NUMERIC4.has(source[i]))
+      result += "\\";
+    result += source[i];
+  }
+  return result;
+}
+function addFormat4(schema, value, message, refs) {
+  var _a210;
+  if (schema.format || ((_a210 = schema.anyOf) == null ? void 0 : _a210.some((x) => x.format))) {
+    if (!schema.anyOf)
+      schema.anyOf = [];
+    if (schema.format)
+      schema.anyOf.push({
+        format: schema.format
+      }), delete schema.format;
+    schema.anyOf.push({
+      format: value,
+      ...message && refs.errorMessages && { errorMessage: { format: message } }
+    });
+  } else
+    schema.format = value;
+}
+function addPattern4(schema, regex, message, refs) {
+  var _a210;
+  if (schema.pattern || ((_a210 = schema.allOf) == null ? void 0 : _a210.some((x) => x.pattern))) {
+    if (!schema.allOf)
+      schema.allOf = [];
+    if (schema.pattern)
+      schema.allOf.push({
+        pattern: schema.pattern
+      }), delete schema.pattern;
+    schema.allOf.push({
+      pattern: stringifyRegExpWithFlags4(regex, refs),
+      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
+    });
+  } else
+    schema.pattern = stringifyRegExpWithFlags4(regex, refs);
+}
+function stringifyRegExpWithFlags4(regex, refs) {
+  var _a210;
+  if (!refs.applyRegexFlags || !regex.flags)
+    return regex.source;
+  let flags = {
+    i: regex.flags.includes("i"),
+    m: regex.flags.includes("m"),
+    s: regex.flags.includes("s")
+  }, source = flags.i ? regex.source.toLowerCase() : regex.source, pattern = "", isEscaped = !1, inCharGroup = !1, inCharRange = !1;
+  for (let i = 0;i < source.length; i++) {
+    if (isEscaped) {
+      pattern += source[i], isEscaped = !1;
+      continue;
+    }
+    if (flags.i) {
+      if (inCharGroup) {
+        if (source[i].match(/[a-z]/)) {
+          if (inCharRange)
+            pattern += source[i], pattern += `${source[i - 2]}-${source[i]}`.toUpperCase(), inCharRange = !1;
+          else if (source[i + 1] === "-" && ((_a210 = source[i + 2]) == null ? void 0 : _a210.match(/[a-z]/)))
+            pattern += source[i], inCharRange = !0;
+          else
+            pattern += `${source[i]}${source[i].toUpperCase()}`;
+          continue;
+        }
+      } else if (source[i].match(/[a-z]/)) {
+        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
+        continue;
+      }
+    }
+    if (flags.m) {
+      if (source[i] === "^") {
+        pattern += `(^|(?<=[\r
+]))`;
+        continue;
+      } else if (source[i] === "$") {
+        pattern += `($|(?=[\r
+]))`;
+        continue;
+      }
+    }
+    if (flags.s && source[i] === ".") {
+      pattern += inCharGroup ? `${source[i]}\r
+` : `[${source[i]}\r
+]`;
+      continue;
+    }
+    if (pattern += source[i], source[i] === "\\")
+      isEscaped = !0;
+    else if (inCharGroup && source[i] === "]")
+      inCharGroup = !1;
+    else if (!inCharGroup && source[i] === "[")
+      inCharGroup = !0;
+  }
+  try {
+    new RegExp(pattern);
+  } catch (e) {
+    return console.warn(`Could not convert regex pattern at ${refs.currentPath.join("/")} to a flag-independent form! Falling back to the flag-ignorant source`), regex.source;
+  }
+  return pattern;
+}
+function parseRecordDef4(def, refs) {
+  var _a210, _b28, _c, _d, _e, _f;
+  let schema = {
+    type: "object",
+    additionalProperties: (_a210 = parseDef4(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    })) != null ? _a210 : refs.allowedAdditionalProperties
+  };
+  if (((_b28 = def.keyType) == null ? void 0 : _b28._def.typeName) === ZodFirstPartyTypeKind2.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
+    let { type, ...keyType } = parseStringDef4(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind2.ZodEnum)
+    return {
+      ...schema,
+      propertyNames: {
+        enum: def.keyType._def.values
+      }
+    };
+  else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind2.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind2.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
+    let { type, ...keyType } = parseBrandedDef4(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  }
+  return schema;
+}
+function parseMapDef4(def, refs) {
+  if (refs.mapStrategy === "record")
+    return parseRecordDef4(def, refs);
+  let keys = parseDef4(def.keyType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "0"]
+  }) || parseAnyDef4(), values = parseDef4(def.valueType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "1"]
+  }) || parseAnyDef4();
+  return {
+    type: "array",
+    maxItems: 125,
+    items: {
+      type: "array",
+      items: [keys, values],
+      minItems: 2,
+      maxItems: 2
+    }
+  };
+}
+function parseNativeEnumDef4(def) {
+  let object3 = def.values, actualValues = Object.keys(def.values).filter((key) => {
+    return typeof object3[object3[key]] !== "number";
+  }).map((key) => object3[key]), parsedTypes = Array.from(new Set(actualValues.map((values) => typeof values)));
+  return {
+    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
+    enum: actualValues
+  };
+}
+function parseNeverDef4() {
+  return { not: parseAnyDef4() };
+}
+function parseNullDef4() {
+  return {
+    type: "null"
+  };
+}
+var primitiveMappings4 = {
+  ZodString: "string",
+  ZodNumber: "number",
+  ZodBigInt: "integer",
+  ZodBoolean: "boolean",
+  ZodNull: "null"
+};
+function parseUnionDef4(def, refs) {
+  let options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
+  if (options.every((x) => (x._def.typeName in primitiveMappings4) && (!x._def.checks || !x._def.checks.length))) {
+    let types = options.reduce((types2, x) => {
+      let type = primitiveMappings4[x._def.typeName];
+      return type && !types2.includes(type) ? [...types2, type] : types2;
+    }, []);
+    return {
+      type: types.length > 1 ? types : types[0]
+    };
+  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
+    let types = options.reduce((acc, x) => {
+      let type = typeof x._def.value;
+      switch (type) {
+        case "string":
+        case "number":
+        case "boolean":
+          return [...acc, type];
+        case "bigint":
+          return [...acc, "integer"];
+        case "object":
+          if (x._def.value === null)
+            return [...acc, "null"];
+        case "symbol":
+        case "undefined":
+        case "function":
+        default:
+          return acc;
+      }
+    }, []);
+    if (types.length === options.length) {
+      let uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
+      return {
+        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
+        enum: options.reduce((acc, x) => {
+          return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
+        }, [])
+      };
+    }
+  } else if (options.every((x) => x._def.typeName === "ZodEnum"))
+    return {
+      type: "string",
+      enum: options.reduce((acc, x) => [
+        ...acc,
+        ...x._def.values.filter((x2) => !acc.includes(x2))
+      ], [])
+    };
+  return asAnyOf4(def, refs);
+}
+var asAnyOf4 = (def, refs) => {
+  let anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef4(x._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", `${i}`]
+  })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
+  return anyOf.length ? { anyOf } : void 0;
+};
+function parseNullableDef4(def, refs) {
+  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length))
+    return {
+      type: [
+        primitiveMappings4[def.innerType._def.typeName],
+        "null"
+      ]
+    };
+  let base = parseDef4(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "0"]
+  });
+  return base && { anyOf: [base, { type: "null" }] };
+}
+function parseNumberDef4(def) {
+  let res = {
+    type: "number"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "int":
+        res.type = "integer";
+        break;
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseObjectDef4(def, refs) {
+  let result = {
+    type: "object",
+    properties: {}
+  }, required2 = [], shape = def.shape();
+  for (let propName in shape) {
+    let propDef = shape[propName];
+    if (propDef === void 0 || propDef._def === void 0)
+      continue;
+    let propOptional = safeIsOptional4(propDef), parsedDef = parseDef4(propDef._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "properties", propName],
+      propertyPath: [...refs.currentPath, "properties", propName]
+    });
+    if (parsedDef === void 0)
+      continue;
+    if (result.properties[propName] = parsedDef, !propOptional)
+      required2.push(propName);
+  }
+  if (required2.length)
+    result.required = required2;
+  let additionalProperties = decideAdditionalProperties4(def, refs);
+  if (additionalProperties !== void 0)
+    result.additionalProperties = additionalProperties;
+  return result;
+}
+function decideAdditionalProperties4(def, refs) {
+  if (def.catchall._def.typeName !== "ZodNever")
+    return parseDef4(def.catchall._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    });
+  switch (def.unknownKeys) {
+    case "passthrough":
+      return refs.allowedAdditionalProperties;
+    case "strict":
+      return refs.rejectedAdditionalProperties;
+    case "strip":
+      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
+  }
+}
+function safeIsOptional4(schema) {
+  try {
+    return schema.isOptional();
+  } catch (e) {
+    return !0;
+  }
+}
+var parseOptionalDef4 = (def, refs) => {
+  var _a210;
+  if (refs.currentPath.toString() === ((_a210 = refs.propertyPath) == null ? void 0 : _a210.toString()))
+    return parseDef4(def.innerType._def, refs);
+  let innerSchema = parseDef4(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "1"]
+  });
+  return innerSchema ? { anyOf: [{ not: parseAnyDef4() }, innerSchema] } : parseAnyDef4();
+}, parsePipelineDef4 = (def, refs) => {
+  if (refs.pipeStrategy === "input")
+    return parseDef4(def.in._def, refs);
+  else if (refs.pipeStrategy === "output")
+    return parseDef4(def.out._def, refs);
+  let a = parseDef4(def.in._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", "0"]
+  }), b = parseDef4(def.out._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
+  });
+  return {
+    allOf: [a, b].filter((x) => x !== void 0)
+  };
+};
+function parsePromiseDef4(def, refs) {
+  return parseDef4(def.type._def, refs);
+}
+function parseSetDef4(def, refs) {
+  let schema = {
+    type: "array",
+    uniqueItems: !0,
+    items: parseDef4(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    })
+  };
+  if (def.minSize)
+    schema.minItems = def.minSize.value;
+  if (def.maxSize)
+    schema.maxItems = def.maxSize.value;
+  return schema;
+}
+function parseTupleDef4(def, refs) {
+  if (def.rest)
+    return {
+      type: "array",
+      minItems: def.items.length,
+      items: def.items.map((x, i) => parseDef4(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
+      additionalItems: parseDef4(def.rest._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "additionalItems"]
+      })
+    };
+  else
+    return {
+      type: "array",
+      minItems: def.items.length,
+      maxItems: def.items.length,
+      items: def.items.map((x, i) => parseDef4(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
+    };
+}
+function parseUndefinedDef4() {
+  return {
+    not: parseAnyDef4()
+  };
+}
+function parseUnknownDef4() {
+  return parseAnyDef4();
+}
+var parseReadonlyDef4 = (def, refs) => {
+  return parseDef4(def.innerType._def, refs);
+}, selectParser4 = (def, typeName, refs) => {
+  switch (typeName) {
+    case ZodFirstPartyTypeKind2.ZodString:
+      return parseStringDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNumber:
+      return parseNumberDef4(def);
+    case ZodFirstPartyTypeKind2.ZodObject:
+      return parseObjectDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBigInt:
+      return parseBigintDef4(def);
+    case ZodFirstPartyTypeKind2.ZodBoolean:
+      return parseBooleanDef4();
+    case ZodFirstPartyTypeKind2.ZodDate:
+      return parseDateDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUndefined:
+      return parseUndefinedDef4();
+    case ZodFirstPartyTypeKind2.ZodNull:
+      return parseNullDef4();
+    case ZodFirstPartyTypeKind2.ZodArray:
+      return parseArrayDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUnion:
+    case ZodFirstPartyTypeKind2.ZodDiscriminatedUnion:
+      return parseUnionDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodIntersection:
+      return parseIntersectionDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodTuple:
+      return parseTupleDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodRecord:
+      return parseRecordDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLiteral:
+      return parseLiteralDef4(def);
+    case ZodFirstPartyTypeKind2.ZodEnum:
+      return parseEnumDef4(def);
+    case ZodFirstPartyTypeKind2.ZodNativeEnum:
+      return parseNativeEnumDef4(def);
+    case ZodFirstPartyTypeKind2.ZodNullable:
+      return parseNullableDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodOptional:
+      return parseOptionalDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodMap:
+      return parseMapDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodSet:
+      return parseSetDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLazy:
+      return () => def.getter()._def;
+    case ZodFirstPartyTypeKind2.ZodPromise:
+      return parsePromiseDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNaN:
+    case ZodFirstPartyTypeKind2.ZodNever:
+      return parseNeverDef4();
+    case ZodFirstPartyTypeKind2.ZodEffects:
+      return parseEffectsDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodAny:
+      return parseAnyDef4();
+    case ZodFirstPartyTypeKind2.ZodUnknown:
+      return parseUnknownDef4();
+    case ZodFirstPartyTypeKind2.ZodDefault:
+      return parseDefaultDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBranded:
+      return parseBrandedDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodReadonly:
+      return parseReadonlyDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodCatch:
+      return parseCatchDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodPipeline:
+      return parsePipelineDef4(def, refs);
+    case ZodFirstPartyTypeKind2.ZodFunction:
+    case ZodFirstPartyTypeKind2.ZodVoid:
+    case ZodFirstPartyTypeKind2.ZodSymbol:
+      return;
+    default:
+      return /* @__PURE__ */ ((_) => {
+        return;
+      })(typeName);
+  }
+}, getRelativePath4 = (pathA, pathB) => {
+  let i = 0;
+  for (;i < pathA.length && i < pathB.length; i++)
+    if (pathA[i] !== pathB[i])
+      break;
+  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
+};
+function parseDef4(def, refs, forceResolution = !1) {
+  var _a210;
+  let seenItem = refs.seen.get(def);
+  if (refs.override) {
+    let overrideResult = (_a210 = refs.override) == null ? void 0 : _a210.call(refs, def, refs, seenItem, forceResolution);
+    if (overrideResult !== ignoreOverride4)
+      return overrideResult;
+  }
+  if (seenItem && !forceResolution) {
+    let seenSchema = get$ref4(seenItem, refs);
+    if (seenSchema !== void 0)
+      return seenSchema;
+  }
+  let newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
+  refs.seen.set(def, newItem);
+  let jsonSchemaOrGetter = selectParser4(def, def.typeName, refs), jsonSchema22 = typeof jsonSchemaOrGetter === "function" ? parseDef4(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
+  if (jsonSchema22)
+    addMeta4(def, refs, jsonSchema22);
+  if (refs.postProcess) {
+    let postProcessResult = refs.postProcess(jsonSchema22, def, refs);
+    return newItem.jsonSchema = jsonSchema22, postProcessResult;
+  }
+  return newItem.jsonSchema = jsonSchema22, jsonSchema22;
+}
+var get$ref4 = (item, refs) => {
+  switch (refs.$refStrategy) {
+    case "root":
+      return { $ref: item.path.join("/") };
+    case "relative":
+      return { $ref: getRelativePath4(refs.currentPath, item.path) };
+    case "none":
+    case "seen": {
+      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value))
+        return console.warn(`Recursive reference detected at ${refs.currentPath.join("/")}! Defaulting to any`), parseAnyDef4();
+      return refs.$refStrategy === "seen" ? parseAnyDef4() : void 0;
+    }
+  }
+}, addMeta4 = (def, refs, jsonSchema22) => {
+  if (def.description)
+    jsonSchema22.description = def.description;
+  return jsonSchema22;
+}, getRefs4 = (options) => {
+  let _options = getDefaultOptions4(options), currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
+  return {
+    ..._options,
+    currentPath,
+    propertyPath: void 0,
+    seen: new Map(Object.entries(_options.definitions).map(([name210, def]) => [
+      def._def,
+      {
+        def: def._def,
+        path: [..._options.basePath, _options.definitionPath, name210],
+        jsonSchema: void 0
+      }
+    ]))
+  };
+}, zod3ToJsonSchema4 = (schema, options) => {
+  var _a210;
+  let refs = getRefs4(options), definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name37, schema2]) => {
+    var _a37;
+    return {
+      ...acc,
+      [name37]: (_a37 = parseDef4(schema2._def, {
+        ...refs,
+        currentPath: [...refs.basePath, refs.definitionPath, name37]
+      }, !0)) != null ? _a37 : parseAnyDef4()
+    };
+  }, {}) : void 0, name210 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name, main = (_a210 = parseDef4(schema._def, name210 === void 0 ? refs : {
+    ...refs,
+    currentPath: [...refs.basePath, refs.definitionPath, name210]
+  }, !1)) != null ? _a210 : parseAnyDef4(), title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
+  if (title !== void 0)
+    main.title = title;
+  let combined = name210 === void 0 ? definitions ? {
+    ...main,
+    [refs.definitionPath]: definitions
+  } : main : {
+    $ref: [
+      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
+      refs.definitionPath,
+      name210
+    ].join("/"),
+    [refs.definitionPath]: {
+      ...definitions,
+      [name210]: main
+    }
+  };
+  return combined.$schema = "http://json-schema.org/draft-07/schema#", combined;
+}, schemaSymbol4 = /* @__PURE__ */ Symbol.for("vercel.ai.schema");
+function lazySchema4(createSchema) {
+  let schema;
+  return () => {
+    if (schema == null)
+      schema = createSchema();
+    return schema;
+  };
+}
+function jsonSchema4(jsonSchema22, {
+  validate
+} = {}) {
+  return {
+    [schemaSymbol4]: !0,
+    _type: void 0,
+    get jsonSchema() {
+      if (typeof jsonSchema22 === "function")
+        jsonSchema22 = jsonSchema22();
+      return jsonSchema22;
+    },
+    validate
+  };
+}
+function isSchema4(value) {
+  return typeof value === "object" && value !== null && schemaSymbol4 in value && value[schemaSymbol4] === !0 && "jsonSchema" in value && "validate" in value;
+}
+function asSchema4(schema) {
+  return schema == null ? jsonSchema4({ properties: {}, additionalProperties: !1 }) : isSchema4(schema) ? schema : ("~standard" in schema) ? schema["~standard"].vendor === "zod" ? zodSchema4(schema) : standardSchema4(schema) : schema();
+}
+function standardSchema4(standardSchema22) {
+  return jsonSchema4(() => addAdditionalPropertiesToJsonSchema4(standardSchema22["~standard"].jsonSchema.input({
+    target: "draft-07"
+  })), {
+    validate: async (value) => {
+      let result = await standardSchema22["~standard"].validate(value);
+      return "value" in result ? { success: !0, value: result.value } : {
+        success: !1,
+        error: new TypeValidationError4({
+          value,
+          cause: result.issues
+        })
+      };
+    }
+  });
+}
+function zod3Schema4(zodSchema22, options) {
+  var _a210;
+  let useReferences = (_a210 = options == null ? void 0 : options.useReferences) != null ? _a210 : !1;
+  return jsonSchema4(() => zod3ToJsonSchema4(zodSchema22, {
+    $refStrategy: useReferences ? "root" : "none"
+  }), {
+    validate: async (value) => {
+      let result = await zodSchema22.safeParseAsync(value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function zod4Schema4(zodSchema22, options) {
+  var _a210;
+  let useReferences = (_a210 = options == null ? void 0 : options.useReferences) != null ? _a210 : !1;
+  return jsonSchema4(() => addAdditionalPropertiesToJsonSchema4(toJSONSchema(zodSchema22, {
+    target: "draft-7",
+    io: "input",
+    reused: useReferences ? "ref" : "inline"
+  })), {
+    validate: async (value) => {
+      let result = await safeParseAsync2(zodSchema22, value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function isZod4Schema4(zodSchema22) {
+  return "_zod" in zodSchema22;
+}
+function zodSchema4(zodSchema22, options) {
+  if (isZod4Schema4(zodSchema22))
+    return zod4Schema4(zodSchema22, options);
+  else
+    return zod3Schema4(zodSchema22, options);
+}
+async function validateTypes4({
+  value,
+  schema,
+  context: context2
+}) {
+  let result = await safeValidateTypes4({ value, schema, context: context2 });
+  if (!result.success)
+    throw TypeValidationError4.wrap({ value, cause: result.error, context: context2 });
+  return result.value;
+}
+async function safeValidateTypes4({
+  value,
+  schema,
+  context: context2
+}) {
+  let actualSchema = asSchema4(schema);
+  try {
+    if (actualSchema.validate == null)
+      return { success: !0, value, rawValue: value };
+    let result = await actualSchema.validate(value);
+    if (result.success)
+      return { success: !0, value: result.value, rawValue: value };
+    return {
+      success: !1,
+      error: TypeValidationError4.wrap({ value, cause: result.error, context: context2 }),
+      rawValue: value
+    };
+  } catch (error51) {
+    return {
+      success: !1,
+      error: TypeValidationError4.wrap({ value, cause: error51, context: context2 }),
+      rawValue: value
+    };
+  }
+}
+async function parseJSON3({
+  text: text2,
+  schema
+}) {
+  try {
+    let value = secureJsonParse4(text2);
+    if (schema == null)
+      return value;
+    return validateTypes4({ value, schema });
+  } catch (error51) {
+    if (JSONParseError4.isInstance(error51) || TypeValidationError4.isInstance(error51))
+      throw error51;
+    throw new JSONParseError4({ text: text2, cause: error51 });
+  }
+}
+async function safeParseJSON4({
+  text: text2,
+  schema
+}) {
+  try {
+    let value = secureJsonParse4(text2);
+    if (schema == null)
+      return { success: !0, value, rawValue: value };
+    return await safeValidateTypes4({ value, schema });
+  } catch (error51) {
+    return {
+      success: !1,
+      error: JSONParseError4.isInstance(error51) ? error51 : new JSONParseError4({ text: text2, cause: error51 }),
+      rawValue: void 0
+    };
+  }
+}
+function isParsableJson(input) {
+  try {
+    return secureJsonParse4(input), !0;
+  } catch (e) {
+    return !1;
+  }
+}
+function parseJsonEventStream4({
+  stream,
+  schema
+}) {
+  return stream.pipeThrough(new TextDecoderStream).pipeThrough(new EventSourceParserStream).pipeThrough(new TransformStream({
+    async transform({ data }, controller) {
+      if (data === "[DONE]")
+        return;
+      controller.enqueue(await safeParseJSON4({ text: data, schema }));
+    }
+  }));
+}
+async function parseProviderOptions2({
+  provider,
+  providerOptions,
+  schema
+}) {
+  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null)
+    return;
+  let parsedProviderOptions = await safeValidateTypes4({
+    value: providerOptions[provider],
+    schema
+  });
+  if (!parsedProviderOptions.success)
+    throw new InvalidArgumentError5({
+      argument: "providerOptions",
+      message: `invalid ${provider} provider options`,
+      cause: parsedProviderOptions.error
+    });
+  return parsedProviderOptions.value;
+}
+var getOriginalFetch23 = () => globalThis.fetch, postJsonToApi3 = async ({
+  url: url2,
+  headers,
+  body,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => postToApi3({
+  url: url2,
+  headers: {
+    "Content-Type": "application/json",
+    ...headers
+  },
+  body: {
+    content: JSON.stringify(body),
+    values: body
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}), postFormDataToApi2 = async ({
+  url: url2,
+  headers,
+  formData,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => postToApi3({
+  url: url2,
+  headers,
+  body: {
+    content: formData,
+    values: Object.fromEntries(formData.entries())
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}), postToApi3 = async ({
+  url: url2,
+  headers = {},
+  body,
+  successfulResponseHandler,
+  failedResponseHandler,
+  abortSignal,
+  fetch: fetch2 = getOriginalFetch23()
+}) => {
+  try {
+    let response = await fetch2(url2, {
+      method: "POST",
+      headers: withUserAgentSuffix4(headers, `ai-sdk/provider-utils/${VERSION7}`, getRuntimeEnvironmentUserAgent4()),
+      body: body.content,
+      signal: abortSignal
+    }), responseHeaders = extractResponseHeaders3(response);
+    if (!response.ok) {
+      let errorInformation;
+      try {
+        errorInformation = await failedResponseHandler({
+          response,
+          url: url2,
+          requestBodyValues: body.values
+        });
+      } catch (error51) {
+        if (isAbortError4(error51) || APICallError4.isInstance(error51))
+          throw error51;
+        throw new APICallError4({
+          message: "Failed to process error response",
+          cause: error51,
+          statusCode: response.status,
+          url: url2,
+          responseHeaders,
+          requestBodyValues: body.values
+        });
+      }
+      throw errorInformation.value;
+    }
+    try {
+      return await successfulResponseHandler({
+        response,
+        url: url2,
+        requestBodyValues: body.values
+      });
+    } catch (error51) {
+      if (error51 instanceof Error) {
+        if (isAbortError4(error51) || APICallError4.isInstance(error51))
+          throw error51;
+      }
+      throw new APICallError4({
+        message: "Failed to process successful response",
+        cause: error51,
+        statusCode: response.status,
+        url: url2,
+        responseHeaders,
+        requestBodyValues: body.values
+      });
+    }
+  } catch (error51) {
+    throw handleFetchError3({ error: error51, url: url2, requestBodyValues: body.values });
+  }
+};
+function tool4(tool22) {
+  return tool22;
+}
+function createProviderToolFactory({
+  id,
+  inputSchema
+}) {
+  return ({
+    execute,
+    outputSchema: outputSchema2,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+    ...args
+  }) => tool4({
+    type: "provider",
+    id,
+    args,
+    inputSchema,
+    outputSchema: outputSchema2,
+    execute,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable
+  });
+}
+function createProviderToolFactoryWithOutputSchema2({
+  id,
+  inputSchema,
+  outputSchema: outputSchema2,
+  supportsDeferredResults
+}) {
+  return ({
+    execute,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+    ...args
+  }) => tool4({
+    type: "provider",
+    id,
+    args,
+    inputSchema,
+    outputSchema: outputSchema2,
+    execute,
+    needsApproval,
+    toModelOutput,
+    onInputStart,
+    onInputDelta,
+    onInputAvailable,
+    supportsDeferredResults
+  });
+}
+var createJsonErrorResponseHandler3 = ({
+  errorSchema,
+  errorToMessage,
+  isRetryable
+}) => async ({ response, url: url2, requestBodyValues }) => {
+  let responseBody = await response.text(), responseHeaders = extractResponseHeaders3(response);
+  if (responseBody.trim() === "")
+    return {
+      responseHeaders,
+      value: new APICallError4({
+        message: response.statusText,
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
+    };
+  try {
+    let parsedError = await parseJSON3({
+      text: responseBody,
+      schema: errorSchema
+    });
+    return {
+      responseHeaders,
+      value: new APICallError4({
+        message: errorToMessage(parsedError),
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        data: parsedError,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
+      })
+    };
+  } catch (parseError) {
+    return {
+      responseHeaders,
+      value: new APICallError4({
+        message: response.statusText,
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
+    };
+  }
+}, createEventSourceResponseHandler3 = (chunkSchema2) => async ({ response }) => {
+  let responseHeaders = extractResponseHeaders3(response);
+  if (response.body == null)
+    throw new EmptyResponseBodyError4({});
+  return {
+    responseHeaders,
+    value: parseJsonEventStream4({
+      stream: response.body,
+      schema: chunkSchema2
+    })
+  };
+}, createJsonResponseHandler3 = (responseSchema2) => async ({ response, url: url2, requestBodyValues }) => {
+  let responseBody = await response.text(), parsedResult = await safeParseJSON4({
+    text: responseBody,
+    schema: responseSchema2
+  }), responseHeaders = extractResponseHeaders3(response);
+  if (!parsedResult.success)
+    throw new APICallError4({
+      message: "Invalid JSON response",
+      cause: parsedResult.error,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody,
+      url: url2,
+      requestBodyValues
+    });
+  return {
+    responseHeaders,
+    value: parsedResult.value,
+    rawValue: parsedResult.rawValue
+  };
+}, createBinaryResponseHandler = () => async ({ response, url: url2, requestBodyValues }) => {
+  let responseHeaders = extractResponseHeaders3(response);
+  if (!response.body)
+    throw new APICallError4({
+      message: "Response body is empty",
+      url: url2,
+      requestBodyValues,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody: void 0
+    });
+  try {
+    let buffer = await response.arrayBuffer();
+    return {
+      responseHeaders,
+      value: new Uint8Array(buffer)
+    };
+  } catch (error51) {
+    throw new APICallError4({
+      message: "Failed to read response as array buffer",
+      url: url2,
+      requestBodyValues,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody: void 0,
+      cause: error51
+    });
+  }
+};
+function withoutTrailingSlash3(url2) {
+  return url2 == null ? void 0 : url2.replace(/\/$/, "");
+}
+
 // node_modules/@ai-sdk/openai/dist/index.mjs
 var openaiErrorDataSchema = exports_external.object({
   error: exports_external.object({
@@ -31705,7 +38464,7 @@ var openaiErrorDataSchema = exports_external.object({
     param: exports_external.any().nullish(),
     code: exports_external.union([exports_external.string(), exports_external.number()]).nullish()
   })
-}), openaiFailedResponseHandler = createJsonErrorResponseHandler({
+}), openaiFailedResponseHandler = createJsonErrorResponseHandler3({
   errorSchema: openaiErrorDataSchema,
   errorToMessage: (data) => data.error.message
 });
@@ -31720,7 +38479,7 @@ function getOpenAILanguageModelCapabilities(modelId) {
   };
 }
 function convertOpenAIChatUsage(usage) {
-  var _a24, _b16, _c, _d, _e, _f;
+  var _a37, _b16, _c, _d, _e, _f;
   if (usage == null)
     return {
       inputTokens: {
@@ -31736,7 +38495,7 @@ function convertOpenAIChatUsage(usage) {
       },
       raw: void 0
     };
-  let promptTokens = (_a24 = usage.prompt_tokens) != null ? _a24 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, cachedTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0, reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
+  let promptTokens = (_a37 = usage.prompt_tokens) != null ? _a37 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, cachedTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0, reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
   return {
     inputTokens: {
       total: promptTokens,
@@ -31759,7 +38518,7 @@ function convertToOpenAIChatMessages({
   prompt,
   systemMessageMode = "system"
 }) {
-  var _a24;
+  var _a37;
   let messages = [], warnings = [];
   for (let { role, content } of prompt)
     switch (role) {
@@ -31793,7 +38552,7 @@ function convertToOpenAIChatMessages({
         messages.push({
           role: "user",
           content: content.map((part, index) => {
-            var _a25, _b16, _c;
+            var _a210, _b16, _c;
             switch (part.type) {
               case "text":
                 return { type: "text", text: part.text };
@@ -31803,13 +38562,13 @@ function convertToOpenAIChatMessages({
                   return {
                     type: "image_url",
                     image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`,
-                      detail: (_b16 = (_a25 = part.providerOptions) == null ? void 0 : _a25.openai) == null ? void 0 : _b16.imageDetail
+                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase642(part.data)}`,
+                      detail: (_b16 = (_a210 = part.providerOptions) == null ? void 0 : _a210.openai) == null ? void 0 : _b16.imageDetail
                     }
                   };
                 } else if (part.mediaType.startsWith("audio/")) {
                   if (part.data instanceof URL)
-                    throw new UnsupportedFunctionalityError({
+                    throw new UnsupportedFunctionalityError4({
                       functionality: "audio file parts with URLs"
                     });
                   switch (part.mediaType) {
@@ -31817,7 +38576,7 @@ function convertToOpenAIChatMessages({
                       return {
                         type: "input_audio",
                         input_audio: {
-                          data: convertToBase64(part.data),
+                          data: convertToBase642(part.data),
                           format: "wav"
                         }
                       };
@@ -31826,29 +38585,29 @@ function convertToOpenAIChatMessages({
                       return {
                         type: "input_audio",
                         input_audio: {
-                          data: convertToBase64(part.data),
+                          data: convertToBase642(part.data),
                           format: "mp3"
                         }
                       };
                     default:
-                      throw new UnsupportedFunctionalityError({
+                      throw new UnsupportedFunctionalityError4({
                         functionality: `audio content parts with media type ${part.mediaType}`
                       });
                   }
                 } else if (part.mediaType === "application/pdf") {
                   if (part.data instanceof URL)
-                    throw new UnsupportedFunctionalityError({
+                    throw new UnsupportedFunctionalityError4({
                       functionality: "PDF file parts with URLs"
                     });
                   return {
                     type: "file",
                     file: typeof part.data === "string" && part.data.startsWith("file-") ? { file_id: part.data } : {
                       filename: (_c = part.filename) != null ? _c : `part-${index}.pdf`,
-                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
+                      file_data: `data:application/pdf;base64,${convertToBase642(part.data)}`
                     }
                   };
                 } else
-                  throw new UnsupportedFunctionalityError({
+                  throw new UnsupportedFunctionalityError4({
                     functionality: `file part media type ${part.mediaType}`
                   });
             }
@@ -31894,7 +38653,7 @@ function convertToOpenAIChatMessages({
               contentValue = output.value;
               break;
             case "execution-denied":
-              contentValue = (_a24 = output.reason) != null ? _a24 : "Tool execution denied.";
+              contentValue = (_a37 = output.reason) != null ? _a37 : "Tool execution denied.";
               break;
             case "content":
             case "json":
@@ -31941,7 +38700,7 @@ function mapOpenAIFinishReason(finishReason) {
       return "other";
   }
 }
-var openaiChatResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+var openaiChatResponseSchema = lazySchema4(() => zodSchema4(exports_external.object({
   id: exports_external.string().nullish(),
   created: exports_external.number().nullish(),
   model: exports_external.string().nullish(),
@@ -31993,7 +38752,7 @@ var openaiChatResponseSchema = lazySchema(() => zodSchema(exports_external.objec
       rejected_prediction_tokens: exports_external.number().nullish()
     }).nullish()
   }).nullish()
-}))), openaiChatChunkSchema = lazySchema(() => zodSchema(exports_external.union([
+}))), openaiChatChunkSchema = lazySchema4(() => zodSchema4(exports_external.union([
   exports_external.object({
     id: exports_external.string().nullish(),
     created: exports_external.number().nullish(),
@@ -32049,7 +38808,7 @@ var openaiChatResponseSchema = lazySchema(() => zodSchema(exports_external.objec
     }).nullish()
   }),
   openaiErrorDataSchema
-]))), openaiLanguageModelChatOptions = lazySchema(() => zodSchema(exports_external.object({
+]))), openaiLanguageModelChatOptions = lazySchema4(() => zodSchema4(exports_external.object({
   logitBias: exports_external.record(exports_external.coerce.number(), exports_external.number()).optional(),
   logprobs: exports_external.union([exports_external.boolean(), exports_external.number()]).optional(),
   parallelToolCalls: exports_external.boolean().optional(),
@@ -32077,23 +38836,23 @@ function prepareChatTools({
   if (tools == null)
     return { tools: void 0, toolChoice: void 0, toolWarnings };
   let openaiTools2 = [];
-  for (let tool2 of tools)
-    switch (tool2.type) {
+  for (let tool5 of tools)
+    switch (tool5.type) {
       case "function":
         openaiTools2.push({
           type: "function",
           function: {
-            name: tool2.name,
-            description: tool2.description,
-            parameters: tool2.inputSchema,
-            ...tool2.strict != null ? { strict: tool2.strict } : {}
+            name: tool5.name,
+            description: tool5.description,
+            parameters: tool5.inputSchema,
+            ...tool5.strict != null ? { strict: tool5.strict } : {}
           }
         });
         break;
       default:
         toolWarnings.push({
           type: "unsupported",
-          feature: `tool type: ${tool2.type}`
+          feature: `tool type: ${tool5.type}`
         });
         break;
     }
@@ -32117,7 +38876,7 @@ function prepareChatTools({
         toolWarnings
       };
     default:
-      throw new UnsupportedFunctionalityError({
+      throw new UnsupportedFunctionalityError4({
         functionality: `tool choice type: ${type}`
       });
   }
@@ -32146,12 +38905,12 @@ var OpenAIChatLanguageModel = class {
     toolChoice,
     providerOptions
   }) {
-    var _a24, _b16, _c, _d, _e;
-    let warnings = [], openaiOptions = (_a24 = await parseProviderOptions({
+    var _a37, _b16, _c, _d, _e;
+    let warnings = [], openaiOptions = (_a37 = await parseProviderOptions2({
       provider: "openai",
       providerOptions,
       schema: openaiLanguageModelChatOptions
-    })) != null ? _a24 : {}, modelCapabilities = getOpenAILanguageModelCapabilities(this.modelId), isReasoningModel = (_b16 = openaiOptions.forceReasoning) != null ? _b16 : modelCapabilities.isReasoningModel;
+    })) != null ? _a37 : {}, modelCapabilities = getOpenAILanguageModelCapabilities(this.modelId), isReasoningModel = (_b16 = openaiOptions.forceReasoning) != null ? _b16 : modelCapabilities.isReasoningModel;
     if (topK != null)
       warnings.push({ type: "unsupported", feature: "topK" });
     let { messages, warnings: messageWarnings } = convertToOpenAIChatMessages({
@@ -32279,29 +39038,29 @@ var OpenAIChatLanguageModel = class {
     };
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g;
+    var _a37, _b16, _c, _d, _e, _f, _g;
     let { args: body, warnings } = await this.getArgs(options), {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi3({
       url: this.config.url({
         path: "/chat/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(openaiChatResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler3(openaiChatResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), choice2 = response.choices[0], content = [], text2 = choice2.message.content;
     if (text2 != null && text2.length > 0)
       content.push({ type: "text", text: text2 });
-    for (let toolCall of (_a24 = choice2.message.tool_calls) != null ? _a24 : [])
+    for (let toolCall of (_a37 = choice2.message.tool_calls) != null ? _a37 : [])
       content.push({
         type: "tool-call",
-        toolCallId: (_b16 = toolCall.id) != null ? _b16 : generateId(),
+        toolCallId: (_b16 = toolCall.id) != null ? _b16 : generateId4(),
         toolName: toolCall.function.name,
         input: toolCall.function.arguments
       });
@@ -32309,7 +39068,7 @@ var OpenAIChatLanguageModel = class {
       content.push({
         type: "source",
         sourceType: "url",
-        id: generateId(),
+        id: generateId4(),
         url: annotation.url_citation.url,
         title: annotation.url_citation.title
       });
@@ -32344,15 +39103,15 @@ var OpenAIChatLanguageModel = class {
       stream_options: {
         include_usage: !0
       }
-    }, { responseHeaders, value: response } = await postJsonToApi({
+    }, { responseHeaders, value: response } = await postJsonToApi3({
       url: this.config.url({
         path: "/chat/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(openaiChatChunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler3(openaiChatChunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), toolCalls = [], finishReason = {
@@ -32365,7 +39124,7 @@ var OpenAIChatLanguageModel = class {
           controller.enqueue({ type: "stream-start", warnings });
         },
         transform(chunk, controller) {
-          var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
+          var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q;
           if (options.includeRawChunks)
             controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
@@ -32386,7 +39145,7 @@ var OpenAIChatLanguageModel = class {
               });
           }
           if (value.usage != null) {
-            if (usage = value.usage, ((_a24 = value.usage.completion_tokens_details) == null ? void 0 : _a24.accepted_prediction_tokens) != null)
+            if (usage = value.usage, ((_a37 = value.usage.completion_tokens_details) == null ? void 0 : _a37.accepted_prediction_tokens) != null)
               providerMetadata.openai.acceptedPredictionTokens = (_b16 = value.usage.completion_tokens_details) == null ? void 0 : _b16.accepted_prediction_tokens;
             if (((_c = value.usage.completion_tokens_details) == null ? void 0 : _c.rejected_prediction_tokens) != null)
               providerMetadata.openai.rejectedPredictionTokens = (_d = value.usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens;
@@ -32416,17 +39175,17 @@ var OpenAIChatLanguageModel = class {
               let index = toolCallDelta.index;
               if (toolCalls[index] == null) {
                 if (toolCallDelta.type != null && toolCallDelta.type !== "function")
-                  throw new InvalidResponseDataError({
+                  throw new InvalidResponseDataError4({
                     data: toolCallDelta,
                     message: "Expected 'function' type."
                   });
                 if (toolCallDelta.id == null)
-                  throw new InvalidResponseDataError({
+                  throw new InvalidResponseDataError4({
                     data: toolCallDelta,
                     message: "Expected 'id' to be a string."
                   });
                 if (((_f = toolCallDelta.function) == null ? void 0 : _f.name) == null)
-                  throw new InvalidResponseDataError({
+                  throw new InvalidResponseDataError4({
                     data: toolCallDelta,
                     message: "Expected 'function.name' to be a string."
                   });
@@ -32457,7 +39216,7 @@ var OpenAIChatLanguageModel = class {
                       id: toolCall2.id
                     }), controller.enqueue({
                       type: "tool-call",
-                      toolCallId: (_j = toolCall2.id) != null ? _j : generateId(),
+                      toolCallId: (_j = toolCall2.id) != null ? _j : generateId4(),
                       toolName: toolCall2.function.name,
                       input: toolCall2.function.arguments
                     }), toolCall2.hasFinished = !0;
@@ -32479,7 +39238,7 @@ var OpenAIChatLanguageModel = class {
                   id: toolCall.id
                 }), controller.enqueue({
                   type: "tool-call",
-                  toolCallId: (_q = toolCall.id) != null ? _q : generateId(),
+                  toolCallId: (_q = toolCall.id) != null ? _q : generateId4(),
                   toolName: toolCall.function.name,
                   input: toolCall.function.arguments
                 }), toolCall.hasFinished = !0;
@@ -32489,7 +39248,7 @@ var OpenAIChatLanguageModel = class {
               controller.enqueue({
                 type: "source",
                 sourceType: "url",
-                id: generateId(),
+                id: generateId4(),
                 url: annotation.url_citation.url,
                 title: annotation.url_citation.title
               });
@@ -32511,7 +39270,7 @@ var OpenAIChatLanguageModel = class {
   }
 };
 function convertOpenAICompletionUsage(usage) {
-  var _a24, _b16, _c, _d;
+  var _a37, _b16, _c, _d;
   if (usage == null)
     return {
       inputTokens: {
@@ -32527,7 +39286,7 @@ function convertOpenAICompletionUsage(usage) {
       },
       raw: void 0
     };
-  let promptTokens = (_a24 = usage.prompt_tokens) != null ? _a24 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0;
+  let promptTokens = (_a37 = usage.prompt_tokens) != null ? _a37 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0;
   return {
     inputTokens: {
       total: (_c = usage.prompt_tokens) != null ? _c : void 0,
@@ -32556,7 +39315,7 @@ function convertToOpenAICompletionPrompt({
   for (let { role, content } of prompt)
     switch (role) {
       case "system":
-        throw new InvalidPromptError({
+        throw new InvalidPromptError4({
           message: "Unexpected system message in prompt: ${content}",
           prompt
         });
@@ -32579,7 +39338,7 @@ ${userMessage}
             case "text":
               return part.text;
             case "tool-call":
-              throw new UnsupportedFunctionalityError({
+              throw new UnsupportedFunctionalityError4({
                 functionality: "tool-call messages"
               });
           }
@@ -32591,7 +39350,7 @@ ${assistantMessage}
         break;
       }
       case "tool":
-        throw new UnsupportedFunctionalityError({
+        throw new UnsupportedFunctionalityError4({
           functionality: "tool messages"
         });
       default:
@@ -32630,7 +39389,7 @@ function mapOpenAIFinishReason2(finishReason) {
       return "other";
   }
 }
-var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+var openaiCompletionResponseSchema = lazySchema4(() => zodSchema4(exports_external.object({
   id: exports_external.string().nullish(),
   created: exports_external.number().nullish(),
   model: exports_external.string().nullish(),
@@ -32648,7 +39407,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
     completion_tokens: exports_external.number(),
     total_tokens: exports_external.number()
   }).nullish()
-}))), openaiCompletionChunkSchema = lazySchema(() => zodSchema(exports_external.union([
+}))), openaiCompletionChunkSchema = lazySchema4(() => zodSchema4(exports_external.union([
   exports_external.object({
     id: exports_external.string().nullish(),
     created: exports_external.number().nullish(),
@@ -32670,7 +39429,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
     }).nullish()
   }),
   openaiErrorDataSchema
-]))), openaiLanguageModelCompletionOptions = lazySchema(() => zodSchema(exports_external.object({
+]))), openaiLanguageModelCompletionOptions = lazySchema4(() => zodSchema4(exports_external.object({
   echo: exports_external.boolean().optional(),
   logitBias: exports_external.record(exports_external.string(), exports_external.number()).optional(),
   suffix: exports_external.string().optional(),
@@ -32702,12 +39461,12 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
     providerOptions
   }) {
     let warnings = [], openaiOptions = {
-      ...await parseProviderOptions({
+      ...await parseProviderOptions2({
         provider: "openai",
         providerOptions,
         schema: openaiLanguageModelCompletionOptions
       }),
-      ...await parseProviderOptions({
+      ...await parseProviderOptions2({
         provider: this.providerOptionsName,
         providerOptions,
         schema: openaiLanguageModelCompletionOptions
@@ -32747,20 +39506,20 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
     };
   }
   async doGenerate(options) {
-    var _a24;
+    var _a37;
     let { args, warnings } = await this.getArgs(options), {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi3({
       url: this.config.url({
         path: "/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       body: args,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(openaiCompletionResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler3(openaiCompletionResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), choice2 = response.choices[0], providerMetadata = { openai: {} };
@@ -32771,7 +39530,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
       usage: convertOpenAICompletionUsage(response.usage),
       finishReason: {
         unified: mapOpenAIFinishReason2(choice2.finish_reason),
-        raw: (_a24 = choice2.finish_reason) != null ? _a24 : void 0
+        raw: (_a37 = choice2.finish_reason) != null ? _a37 : void 0
       },
       request: { body: args },
       response: {
@@ -32790,15 +39549,15 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
       stream_options: {
         include_usage: !0
       }
-    }, { responseHeaders, value: response } = await postJsonToApi({
+    }, { responseHeaders, value: response } = await postJsonToApi3({
       url: this.config.url({
         path: "/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(openaiCompletionChunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler3(openaiCompletionChunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), finishReason = {
@@ -32859,10 +39618,10 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
       response: { headers: responseHeaders }
     };
   }
-}, openaiEmbeddingModelOptions = lazySchema(() => zodSchema(exports_external.object({
+}, openaiEmbeddingModelOptions = lazySchema4(() => zodSchema4(exports_external.object({
   dimensions: exports_external.number().optional(),
   user: exports_external.string().optional()
-}))), openaiTextEmbeddingResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), openaiTextEmbeddingResponseSchema = lazySchema4(() => zodSchema4(exports_external.object({
   data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
   usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish()
 }))), OpenAIEmbeddingModel = class {
@@ -32878,28 +39637,28 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
     abortSignal,
     providerOptions
   }) {
-    var _a24;
+    var _a37;
     if (values.length > this.maxEmbeddingsPerCall)
-      throw new TooManyEmbeddingValuesForCallError({
+      throw new TooManyEmbeddingValuesForCallError4({
         provider: this.provider,
         modelId: this.modelId,
         maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
         values
       });
-    let openaiOptions = (_a24 = await parseProviderOptions({
+    let openaiOptions = (_a37 = await parseProviderOptions2({
       provider: "openai",
       providerOptions,
       schema: openaiEmbeddingModelOptions
-    })) != null ? _a24 : {}, {
+    })) != null ? _a37 : {}, {
       responseHeaders,
       value: response,
       rawValue
-    } = await postJsonToApi({
+    } = await postJsonToApi3({
       url: this.config.url({
         path: "/embeddings",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), headers),
+      headers: combineHeaders3(this.config.headers(), headers),
       body: {
         model: this.modelId,
         input: values,
@@ -32908,7 +39667,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
         user: openaiOptions.user
       },
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(openaiTextEmbeddingResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler3(openaiTextEmbeddingResponseSchema),
       abortSignal,
       fetch: this.config.fetch
     });
@@ -32919,7 +39678,7 @@ var openaiCompletionResponseSchema = lazySchema(() => zodSchema(exports_external
       response: { headers: responseHeaders, body: rawValue }
     };
   }
-}, openaiImageResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+}, openaiImageResponseSchema = lazySchema4(() => zodSchema4(exports_external.object({
   created: exports_external.number().nullish(),
   data: exports_external.array(exports_external.object({
     b64_json: exports_external.string(),
@@ -32962,18 +39721,18 @@ var baseImageModelOptionsObject = exports_external.object({
   outputFormat: exports_external.enum(["png", "jpeg", "webp"]).optional(),
   outputCompression: exports_external.number().int().min(0).max(100).optional(),
   user: exports_external.string().optional()
-}), openaiImageModelOptions = lazySchema(() => zodSchema(baseImageModelOptionsObject)), openaiImageModelGenerationOptions = lazySchema(() => zodSchema(baseImageModelOptionsObject.extend({
+}), openaiImageModelOptions = lazySchema4(() => zodSchema4(baseImageModelOptionsObject)), openaiImageModelGenerationOptions = lazySchema4(() => zodSchema4(baseImageModelOptionsObject.extend({
   style: exports_external.enum(["vivid", "natural"]).optional(),
   moderation: exports_external.enum(["auto", "low"]).optional()
-}))), openaiImageModelEditOptions = lazySchema(() => zodSchema(baseImageModelOptionsObject.extend({
+}))), openaiImageModelEditOptions = lazySchema4(() => zodSchema4(baseImageModelOptionsObject.extend({
   inputFidelity: exports_external.enum(["high", "low"]).optional()
 }))), OpenAIImageModel = class {
   constructor(modelId, config2) {
     this.modelId = modelId, this.config = config2, this.specificationVersion = "v3";
   }
   get maxImagesPerCall() {
-    var _a24;
-    return (_a24 = modelMaxImagesPerCall[this.modelId]) != null ? _a24 : 1;
+    var _a37;
+    return (_a37 = modelMaxImagesPerCall[this.modelId]) != null ? _a37 : 1;
   }
   get provider() {
     return this.config.provider;
@@ -32990,7 +39749,7 @@ var baseImageModelOptionsObject = exports_external.object({
     headers,
     abortSignal
   }) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+    var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     let warnings = [];
     if (aspectRatio != null)
       warnings.push({
@@ -33000,25 +39759,25 @@ var baseImageModelOptionsObject = exports_external.object({
       });
     if (seed != null)
       warnings.push({ type: "unsupported", feature: "seed" });
-    let currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date;
+    let currentDate = (_c = (_b16 = (_a37 = this.config._internal) == null ? void 0 : _a37.currentDate) == null ? void 0 : _b16.call(_a37)) != null ? _c : /* @__PURE__ */ new Date;
     if (files != null) {
-      let openaiOptions2 = (_d = await parseProviderOptions({
+      let openaiOptions2 = (_d = await parseProviderOptions2({
         provider: "openai",
         providerOptions,
         schema: openaiImageModelEditOptions
-      })) != null ? _d : {}, { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi({
+      })) != null ? _d : {}, { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi2({
         url: this.config.url({
           path: "/images/edits",
           modelId: this.modelId
         }),
-        headers: combineHeaders(this.config.headers(), headers),
+        headers: combineHeaders3(this.config.headers(), headers),
         formData: convertToFormData({
           model: this.modelId,
           prompt,
           image: await Promise.all(files.map((file2) => file2.type === "file" ? new Blob([
             file2.data instanceof Uint8Array ? new Blob([file2.data], {
               type: file2.mediaType
-            }) : new Blob([convertBase64ToUint8Array(file2.data)], {
+            }) : new Blob([convertBase64ToUint8Array3(file2.data)], {
               type: file2.mediaType
             })
           ], { type: file2.mediaType }) : downloadBlob(file2.url))),
@@ -33033,7 +39792,7 @@ var baseImageModelOptionsObject = exports_external.object({
           user: openaiOptions2.user
         }),
         failedResponseHandler: openaiFailedResponseHandler,
-        successfulResponseHandler: createJsonResponseHandler(openaiImageResponseSchema),
+        successfulResponseHandler: createJsonResponseHandler3(openaiImageResponseSchema),
         abortSignal,
         fetch: this.config.fetch
       });
@@ -33053,11 +39812,11 @@ var baseImageModelOptionsObject = exports_external.object({
         providerMetadata: {
           openai: {
             images: response2.data.map((item, index) => {
-              var _a25, _b23, _c2, _d2, _e2, _f2;
+              var _a210, _b28, _c2, _d2, _e2, _f2;
               return {
                 ...item.revised_prompt ? { revisedPrompt: item.revised_prompt } : {},
-                created: (_a25 = response2.created) != null ? _a25 : void 0,
-                size: (_b23 = response2.size) != null ? _b23 : void 0,
+                created: (_a210 = response2.created) != null ? _a210 : void 0,
+                size: (_b28 = response2.size) != null ? _b28 : void 0,
                 quality: (_c2 = response2.quality) != null ? _c2 : void 0,
                 background: (_d2 = response2.background) != null ? _d2 : void 0,
                 outputFormat: (_e2 = response2.output_format) != null ? _e2 : void 0,
@@ -33068,16 +39827,16 @@ var baseImageModelOptionsObject = exports_external.object({
         }
       };
     }
-    let openaiOptions = (_h = await parseProviderOptions({
+    let openaiOptions = (_h = await parseProviderOptions2({
       provider: "openai",
       providerOptions,
       schema: openaiImageModelGenerationOptions
-    })) != null ? _h : {}, { value: response, responseHeaders } = await postJsonToApi({
+    })) != null ? _h : {}, { value: response, responseHeaders } = await postJsonToApi3({
       url: this.config.url({
         path: "/images/generations",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), headers),
+      headers: combineHeaders3(this.config.headers(), headers),
       body: {
         model: this.modelId,
         prompt,
@@ -33093,7 +39852,7 @@ var baseImageModelOptionsObject = exports_external.object({
         ...!hasDefaultResponseFormat(this.modelId) ? { response_format: "b64_json" } : {}
       },
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(openaiImageResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler3(openaiImageResponseSchema),
       abortSignal,
       fetch: this.config.fetch
     });
@@ -33113,11 +39872,11 @@ var baseImageModelOptionsObject = exports_external.object({
       providerMetadata: {
         openai: {
           images: response.data.map((item, index) => {
-            var _a25, _b23, _c2, _d2, _e2, _f2;
+            var _a210, _b28, _c2, _d2, _e2, _f2;
             return {
               ...item.revised_prompt ? { revisedPrompt: item.revised_prompt } : {},
-              created: (_a25 = response.created) != null ? _a25 : void 0,
-              size: (_b23 = response.size) != null ? _b23 : void 0,
+              created: (_a210 = response.created) != null ? _a210 : void 0,
+              size: (_b28 = response.size) != null ? _b28 : void 0,
               quality: (_c2 = response.quality) != null ? _c2 : void 0,
               background: (_d2 = response.background) != null ? _d2 : void 0,
               outputFormat: (_e2 = response.output_format) != null ? _e2 : void 0,
@@ -33148,10 +39907,10 @@ async function fileToBlob(file2) {
     return;
   if (file2.type === "url")
     return downloadBlob(file2.url);
-  let data = file2.data instanceof Uint8Array ? file2.data : convertBase64ToUint8Array(file2.data);
+  let data = file2.data instanceof Uint8Array ? file2.data : convertBase64ToUint8Array3(file2.data);
   return new Blob([data], { type: file2.mediaType });
 }
-var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
+var applyPatchInputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   callId: exports_external.string(),
   operation: exports_external.discriminatedUnion("type", [
     exports_external.object({
@@ -33169,35 +39928,35 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
       diff: exports_external.string()
     })
   ])
-}))), applyPatchOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), applyPatchOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   status: exports_external.enum(["completed", "failed"]),
   output: exports_external.string().optional()
-}))), applyPatchArgsSchema = lazySchema(() => zodSchema(exports_external.object({}))), applyPatchToolFactory = createProviderToolFactoryWithOutputSchema({
+}))), applyPatchArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({}))), applyPatchToolFactory = createProviderToolFactoryWithOutputSchema2({
   id: "openai.apply_patch",
   inputSchema: applyPatchInputSchema,
   outputSchema: applyPatchOutputSchema
-}), applyPatch = applyPatchToolFactory, codeInterpreterInputSchema = lazySchema(() => zodSchema(exports_external.object({
+}), applyPatch = applyPatchToolFactory, codeInterpreterInputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   code: exports_external.string().nullish(),
   containerId: exports_external.string()
-}))), codeInterpreterOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), codeInterpreterOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   outputs: exports_external.array(exports_external.discriminatedUnion("type", [
     exports_external.object({ type: exports_external.literal("logs"), logs: exports_external.string() }),
     exports_external.object({ type: exports_external.literal("image"), url: exports_external.string() })
   ])).nullish()
-}))), codeInterpreterArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), codeInterpreterArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   container: exports_external.union([
     exports_external.string(),
     exports_external.object({
       fileIds: exports_external.array(exports_external.string()).optional()
     })
   ]).optional()
-}))), codeInterpreterToolFactory = createProviderToolFactoryWithOutputSchema({
+}))), codeInterpreterToolFactory = createProviderToolFactoryWithOutputSchema2({
   id: "openai.code_interpreter",
   inputSchema: codeInterpreterInputSchema,
   outputSchema: codeInterpreterOutputSchema
 }), codeInterpreter = (args = {}) => {
   return codeInterpreterToolFactory(args);
-}, customArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, customArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   name: exports_external.string(),
   description: exports_external.string().optional(),
   format: exports_external.union([
@@ -33210,7 +39969,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
       type: exports_external.literal("text")
     })
   ]).optional()
-}))), customInputSchema = lazySchema(() => zodSchema(exports_external.string())), customToolFactory = createProviderToolFactory({
+}))), customInputSchema = lazySchema4(() => zodSchema4(exports_external.string())), customToolFactory = createProviderToolFactory({
   id: "openai.custom",
   inputSchema: customInputSchema
 }), customTool = (args) => customToolFactory(args), comparisonFilterSchema = exports_external.object({
@@ -33220,7 +39979,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
 }), compoundFilterSchema = exports_external.object({
   type: exports_external.enum(["and", "or"]),
   filters: exports_external.array(exports_external.union([comparisonFilterSchema, exports_external.lazy(() => compoundFilterSchema)]))
-}), fileSearchArgsSchema2 = lazySchema(() => zodSchema(exports_external.object({
+}), fileSearchArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   vectorStoreIds: exports_external.array(exports_external.string()),
   maxNumResults: exports_external.number().optional(),
   ranking: exports_external.object({
@@ -33228,7 +39987,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
     scoreThreshold: exports_external.number().optional()
   }).optional(),
   filters: exports_external.union([comparisonFilterSchema, compoundFilterSchema]).optional()
-}))), fileSearchOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), fileSearchOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   queries: exports_external.array(exports_external.string()),
   results: exports_external.array(exports_external.object({
     attributes: exports_external.record(exports_external.string(), exports_external.unknown()),
@@ -33237,11 +39996,11 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
     score: exports_external.number(),
     text: exports_external.string()
   })).nullable()
-}))), fileSearch2 = createProviderToolFactoryWithOutputSchema({
+}))), fileSearch2 = createProviderToolFactoryWithOutputSchema2({
   id: "openai.file_search",
   inputSchema: exports_external.object({}),
   outputSchema: fileSearchOutputSchema
-}), imageGenerationArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}), imageGenerationArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   background: exports_external.enum(["auto", "opaque", "transparent"]).optional(),
   inputFidelity: exports_external.enum(["low", "high"]).optional(),
   inputImageMask: exports_external.object({
@@ -33255,13 +40014,13 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
   partialImages: exports_external.number().int().min(0).max(3).optional(),
   quality: exports_external.enum(["auto", "low", "medium", "high"]).optional(),
   size: exports_external.enum(["1024x1024", "1024x1536", "1536x1024", "auto"]).optional()
-}).strict())), imageGenerationInputSchema = lazySchema(() => zodSchema(exports_external.object({}))), imageGenerationOutputSchema = lazySchema(() => zodSchema(exports_external.object({ result: exports_external.string() }))), imageGenerationToolFactory = createProviderToolFactoryWithOutputSchema({
+}).strict())), imageGenerationInputSchema = lazySchema4(() => zodSchema4(exports_external.object({}))), imageGenerationOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({ result: exports_external.string() }))), imageGenerationToolFactory = createProviderToolFactoryWithOutputSchema2({
   id: "openai.image_generation",
   inputSchema: imageGenerationInputSchema,
   outputSchema: imageGenerationOutputSchema
 }), imageGeneration = (args = {}) => {
   return imageGenerationToolFactory(args);
-}, localShellInputSchema = lazySchema(() => zodSchema(exports_external.object({
+}, localShellInputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   action: exports_external.object({
     type: exports_external.literal("exec"),
     command: exports_external.array(exports_external.string()),
@@ -33270,17 +40029,17 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
     workingDirectory: exports_external.string().optional(),
     env: exports_external.record(exports_external.string(), exports_external.string()).optional()
   })
-}))), localShellOutputSchema = lazySchema(() => zodSchema(exports_external.object({ output: exports_external.string() }))), localShell = createProviderToolFactoryWithOutputSchema({
+}))), localShellOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({ output: exports_external.string() }))), localShell = createProviderToolFactoryWithOutputSchema2({
   id: "openai.local_shell",
   inputSchema: localShellInputSchema,
   outputSchema: localShellOutputSchema
-}), shellInputSchema = lazySchema(() => zodSchema(exports_external.object({
+}), shellInputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   action: exports_external.object({
     commands: exports_external.array(exports_external.string()),
     timeoutMs: exports_external.number().optional(),
     maxOutputLength: exports_external.number().optional()
   })
-}))), shellOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), shellOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   output: exports_external.array(exports_external.object({
     stdout: exports_external.string(),
     stderr: exports_external.string(),
@@ -33305,7 +40064,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
       data: exports_external.string()
     })
   })
-])).optional(), shellArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+])).optional(), shellArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   environment: exports_external.union([
     exports_external.object({
       type: exports_external.literal("containerAuto"),
@@ -33338,24 +40097,24 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
       })).optional()
     })
   ]).optional()
-}))), shell = createProviderToolFactoryWithOutputSchema({
+}))), shell = createProviderToolFactoryWithOutputSchema2({
   id: "openai.shell",
   inputSchema: shellInputSchema,
   outputSchema: shellOutputSchema
-}), toolSearchArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}), toolSearchArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   execution: exports_external.enum(["server", "client"]).optional(),
   description: exports_external.string().optional(),
   parameters: exports_external.record(exports_external.string(), exports_external.unknown()).optional()
-}))), toolSearchInputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), toolSearchInputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   arguments: exports_external.unknown().optional(),
   call_id: exports_external.string().nullish()
-}))), toolSearchOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), toolSearchOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   tools: exports_external.array(exports_external.record(exports_external.string(), exports_external.unknown()))
-}))), toolSearchToolFactory = createProviderToolFactoryWithOutputSchema({
+}))), toolSearchToolFactory = createProviderToolFactoryWithOutputSchema2({
   id: "openai.tool_search",
   inputSchema: toolSearchInputSchema,
   outputSchema: toolSearchOutputSchema
-}), toolSearch = (args = {}) => toolSearchToolFactory(args), webSearchArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}), toolSearch = (args = {}) => toolSearchToolFactory(args), webSearchArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   externalWebAccess: exports_external.boolean().optional(),
   filters: exports_external.object({ allowedDomains: exports_external.array(exports_external.string()).optional() }).optional(),
   searchContextSize: exports_external.enum(["low", "medium", "high"]).optional(),
@@ -33366,7 +40125,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
     region: exports_external.string().optional(),
     timezone: exports_external.string().optional()
   }).optional()
-}))), webSearchInputSchema = lazySchema(() => zodSchema(exports_external.object({}))), webSearchOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), webSearchInputSchema = lazySchema4(() => zodSchema4(exports_external.object({}))), webSearchOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   action: exports_external.discriminatedUnion("type", [
     exports_external.object({
       type: exports_external.literal("search"),
@@ -33387,11 +40146,11 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
     exports_external.object({ type: exports_external.literal("url"), url: exports_external.string() }),
     exports_external.object({ type: exports_external.literal("api"), name: exports_external.string() })
   ])).optional()
-}))), webSearchToolFactory = createProviderToolFactoryWithOutputSchema({
+}))), webSearchToolFactory = createProviderToolFactoryWithOutputSchema2({
   id: "openai.web_search",
   inputSchema: webSearchInputSchema,
   outputSchema: webSearchOutputSchema
-}), webSearch = (args = {}) => webSearchToolFactory(args), webSearchPreviewArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}), webSearch = (args = {}) => webSearchToolFactory(args), webSearchPreviewArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   searchContextSize: exports_external.enum(["low", "medium", "high"]).optional(),
   userLocation: exports_external.object({
     type: exports_external.literal("approximate"),
@@ -33400,7 +40159,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
     region: exports_external.string().optional(),
     timezone: exports_external.string().optional()
   }).optional()
-}))), webSearchPreviewInputSchema = lazySchema(() => zodSchema(exports_external.object({}))), webSearchPreviewOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), webSearchPreviewInputSchema = lazySchema4(() => zodSchema4(exports_external.object({}))), webSearchPreviewOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   action: exports_external.discriminatedUnion("type", [
     exports_external.object({
       type: exports_external.literal("search"),
@@ -33416,7 +40175,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
       pattern: exports_external.string().nullish()
     })
   ]).optional()
-}))), webSearchPreview = createProviderToolFactoryWithOutputSchema({
+}))), webSearchPreview = createProviderToolFactoryWithOutputSchema2({
   id: "openai.web_search_preview",
   inputSchema: webSearchPreviewInputSchema,
   outputSchema: webSearchPreviewOutputSchema
@@ -33427,7 +40186,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
   exports_external.null(),
   exports_external.array(jsonValueSchema2),
   exports_external.record(exports_external.string(), jsonValueSchema2)
-])), mcpArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+])), mcpArgsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   serverLabel: exports_external.string(),
   allowedTools: exports_external.union([
     exports_external.array(exports_external.string()),
@@ -33449,14 +40208,14 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
   ]).optional(),
   serverDescription: exports_external.string().optional(),
   serverUrl: exports_external.string().optional()
-}).refine((v) => v.serverUrl != null || v.connectorId != null, "One of serverUrl or connectorId must be provided."))), mcpInputSchema = lazySchema(() => zodSchema(exports_external.object({}))), mcpOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}).refine((v) => v.serverUrl != null || v.connectorId != null, "One of serverUrl or connectorId must be provided."))), mcpInputSchema = lazySchema4(() => zodSchema4(exports_external.object({}))), mcpOutputSchema = lazySchema4(() => zodSchema4(exports_external.object({
   type: exports_external.literal("call"),
   serverLabel: exports_external.string(),
   name: exports_external.string(),
   arguments: exports_external.string(),
   output: exports_external.string().nullish(),
   error: exports_external.union([exports_external.string(), jsonValueSchema2]).optional()
-}))), mcpToolFactory = createProviderToolFactoryWithOutputSchema({
+}))), mcpToolFactory = createProviderToolFactoryWithOutputSchema2({
   id: "openai.mcp",
   inputSchema: mcpInputSchema,
   outputSchema: mcpOutputSchema
@@ -33474,7 +40233,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
   toolSearch
 };
 function convertOpenAIResponsesUsage(usage) {
-  var _a24, _b16, _c, _d;
+  var _a37, _b16, _c, _d;
   if (usage == null)
     return {
       inputTokens: {
@@ -33490,7 +40249,7 @@ function convertOpenAIResponsesUsage(usage) {
       },
       raw: void 0
     };
-  let { input_tokens: inputTokens, output_tokens: outputTokens } = usage, cachedTokens = (_b16 = (_a24 = usage.input_tokens_details) == null ? void 0 : _a24.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.output_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
+  let { input_tokens: inputTokens, output_tokens: outputTokens } = usage, cachedTokens = (_b16 = (_a37 = usage.input_tokens_details) == null ? void 0 : _a37.cached_tokens) != null ? _b16 : 0, reasoningTokens = (_d = (_c = usage.output_tokens_details) == null ? void 0 : _c.reasoning_tokens) != null ? _d : 0;
   return {
     inputTokens: {
       total: inputTokens,
@@ -33529,7 +40288,7 @@ async function convertToOpenAIResponsesInput({
   hasApplyPatchTool = !1,
   customProviderToolNames
 }) {
-  var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
+  var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w;
   let input = [], warnings = [], processedApprovalIds = /* @__PURE__ */ new Set;
   for (let { role, content } of prompt)
     switch (role) {
@@ -33559,7 +40318,7 @@ async function convertToOpenAIResponsesInput({
         input.push({
           role: "user",
           content: content.map((part, index) => {
-            var _a25, _b23, _c2;
+            var _a210, _b28, _c2;
             switch (part.type) {
               case "text":
                 return { type: "input_text", text: part.text };
@@ -33569,9 +40328,9 @@ async function convertToOpenAIResponsesInput({
                   return {
                     type: "input_image",
                     ...part.data instanceof URL ? { image_url: part.data.toString() } : typeof part.data === "string" && isFileId(part.data, fileIdPrefixes) ? { file_id: part.data } : {
-                      image_url: `data:${mediaType};base64,${convertToBase64(part.data)}`
+                      image_url: `data:${mediaType};base64,${convertToBase642(part.data)}`
                     },
-                    detail: (_b23 = (_a25 = part.providerOptions) == null ? void 0 : _a25[providerOptionsName]) == null ? void 0 : _b23.imageDetail
+                    detail: (_b28 = (_a210 = part.providerOptions) == null ? void 0 : _a210[providerOptionsName]) == null ? void 0 : _b28.imageDetail
                   };
                 if (part.data instanceof URL)
                   return {
@@ -33579,14 +40338,14 @@ async function convertToOpenAIResponsesInput({
                     file_url: part.data.toString()
                   };
                 if (mediaType !== "application/pdf" && !passThroughUnsupportedFiles)
-                  throw new UnsupportedFunctionalityError({
+                  throw new UnsupportedFunctionalityError4({
                     functionality: `file part media type ${mediaType}`
                   });
                 return {
                   type: "input_file",
                   ...typeof part.data === "string" && isFileId(part.data, fileIdPrefixes) ? { file_id: part.data } : {
                     filename: (_c2 = part.filename) != null ? _c2 : mediaType === "application/pdf" ? `part-${index}.pdf` : `part-${index}`,
-                    file_data: `data:${mediaType};base64,${convertToBase64(part.data)}`
+                    file_data: `data:${mediaType};base64,${convertToBase642(part.data)}`
                   }
                 };
               }
@@ -33600,7 +40359,7 @@ async function convertToOpenAIResponsesInput({
         for (let part of content)
           switch (part.type) {
             case "text": {
-              let providerOpts = (_a24 = part.providerOptions) == null ? void 0 : _a24[providerOptionsName], id = providerOpts == null ? void 0 : providerOpts.itemId, phase = providerOpts == null ? void 0 : providerOpts.phase;
+              let providerOpts = (_a37 = part.providerOptions) == null ? void 0 : _a37[providerOptionsName], id = providerOpts == null ? void 0 : providerOpts.itemId, phase = providerOpts == null ? void 0 : providerOpts.phase;
               if (hasConversation && id != null)
                 break;
               if (store && id != null) {
@@ -33625,10 +40384,10 @@ async function convertToOpenAIResponsesInput({
                   input.push({ type: "item_reference", id });
                   break;
                 }
-                let parsedInput = typeof part.input === "string" ? await parseJSON({
+                let parsedInput = typeof part.input === "string" ? await parseJSON3({
                   text: part.input,
                   schema: toolSearchInputSchema
-                }) : await validateTypes({
+                }) : await validateTypes4({
                   value: part.input,
                   schema: toolSearchInputSchema
                 }), execution = parsedInput.call_id != null ? "client" : "server";
@@ -33655,7 +40414,7 @@ async function convertToOpenAIResponsesInput({
                 break;
               }
               if (hasLocalShellTool && resolvedToolName === "local_shell") {
-                let parsedInput = await validateTypes({
+                let parsedInput = await validateTypes4({
                   value: part.input,
                   schema: localShellInputSchema
                 });
@@ -33675,7 +40434,7 @@ async function convertToOpenAIResponsesInput({
                 break;
               }
               if (hasShellTool && resolvedToolName === "shell") {
-                let parsedInput = await validateTypes({
+                let parsedInput = await validateTypes4({
                   value: part.input,
                   schema: shellInputSchema
                 });
@@ -33693,7 +40452,7 @@ async function convertToOpenAIResponsesInput({
                 break;
               }
               if (hasApplyPatchTool && resolvedToolName === "apply_patch") {
-                let parsedInput = await validateTypes({
+                let parsedInput = await validateTypes4({
                   value: part.input,
                   schema: applyPatchInputSchema
                 });
@@ -33736,7 +40495,7 @@ async function convertToOpenAIResponsesInput({
                 if (store)
                   input.push({ type: "item_reference", id: itemId });
                 else if (part.output.type === "json") {
-                  let parsedOutput = await validateTypes({
+                  let parsedOutput = await validateTypes4({
                     value: part.output.value,
                     schema: toolSearchOutputSchema
                   });
@@ -33753,7 +40512,7 @@ async function convertToOpenAIResponsesInput({
               }
               if (hasShellTool && resolvedResultToolName === "shell") {
                 if (part.output.type === "json") {
-                  let parsedOutput = await validateTypes({
+                  let parsedOutput = await validateTypes4({
                     value: part.output.value,
                     schema: shellOutputSchema
                   });
@@ -33783,7 +40542,7 @@ async function convertToOpenAIResponsesInput({
               break;
             }
             case "reasoning": {
-              let providerOptions = await parseProviderOptions({
+              let providerOptions = await parseProviderOptions2({
                 provider: providerOptionsName,
                 providerOptions: part.providerOptions,
                 schema: openaiResponsesReasoningProviderOptionsSchema
@@ -33871,7 +40630,7 @@ async function convertToOpenAIResponsesInput({
           }
           let resolvedToolName = toolNameMapping.toProviderToolName(part.toolName);
           if (resolvedToolName === "tool_search" && output.type === "json") {
-            let parsedOutput = await validateTypes({
+            let parsedOutput = await validateTypes4({
               value: output.value,
               schema: toolSearchOutputSchema
             });
@@ -33885,7 +40644,7 @@ async function convertToOpenAIResponsesInput({
             continue;
           }
           if (hasLocalShellTool && resolvedToolName === "local_shell" && output.type === "json") {
-            let parsedOutput = await validateTypes({
+            let parsedOutput = await validateTypes4({
               value: output.value,
               schema: localShellOutputSchema
             });
@@ -33897,7 +40656,7 @@ async function convertToOpenAIResponsesInput({
             continue;
           }
           if (hasShellTool && resolvedToolName === "shell" && output.type === "json") {
-            let parsedOutput = await validateTypes({
+            let parsedOutput = await validateTypes4({
               value: output.value,
               schema: shellOutputSchema
             });
@@ -33916,7 +40675,7 @@ async function convertToOpenAIResponsesInput({
             continue;
           }
           if (hasApplyPatchTool && part.toolName === "apply_patch" && output.type === "json") {
-            let parsedOutput = await validateTypes({
+            let parsedOutput = await validateTypes4({
               value: output.value,
               schema: applyPatchOutputSchema
             });
@@ -33944,7 +40703,7 @@ async function convertToOpenAIResponsesInput({
                 break;
               case "content":
                 outputValue = output.value.map((item) => {
-                  var _a25, _b23, _c2, _d2, _e2;
+                  var _a210, _b28, _c2, _d2, _e2;
                   switch (item.type) {
                     case "text":
                       return { type: "input_text", text: item.text };
@@ -33952,7 +40711,7 @@ async function convertToOpenAIResponsesInput({
                       return {
                         type: "input_image",
                         image_url: `data:${item.mediaType};base64,${item.data}`,
-                        detail: (_b23 = (_a25 = item.providerOptions) == null ? void 0 : _a25[providerOptionsName]) == null ? void 0 : _b23.imageDetail
+                        detail: (_b28 = (_a210 = item.providerOptions) == null ? void 0 : _a210[providerOptionsName]) == null ? void 0 : _b28.imageDetail
                       };
                     case "image-url":
                       return {
@@ -33978,7 +40737,7 @@ async function convertToOpenAIResponsesInput({
                       });
                       return;
                   }
-                }).filter(isNonNullable);
+                }).filter(isNonNullable2);
                 break;
               default:
                 outputValue = "";
@@ -34005,7 +40764,7 @@ async function convertToOpenAIResponsesInput({
               break;
             case "content":
               contentValue = output.value.map((item) => {
-                var _a25, _b23, _c2, _d2, _e2;
+                var _a210, _b28, _c2, _d2, _e2;
                 switch (item.type) {
                   case "text":
                     return { type: "input_text", text: item.text };
@@ -34013,7 +40772,7 @@ async function convertToOpenAIResponsesInput({
                     return {
                       type: "input_image",
                       image_url: `data:${item.mediaType};base64,${item.data}`,
-                      detail: (_b23 = (_a25 = item.providerOptions) == null ? void 0 : _a25[providerOptionsName]) == null ? void 0 : _b23.imageDetail
+                      detail: (_b28 = (_a210 = item.providerOptions) == null ? void 0 : _a210[providerOptionsName]) == null ? void 0 : _b28.imageDetail
                     };
                   case "image-url":
                     return {
@@ -34040,7 +40799,7 @@ async function convertToOpenAIResponsesInput({
                     return;
                   }
                 }
-              }).filter(isNonNullable);
+              }).filter(isNonNullable2);
               break;
           }
           input.push({
@@ -34088,7 +40847,7 @@ var jsonValueSchema22 = exports_external.lazy(() => exports_external.union([
   exports_external.null(),
   exports_external.array(jsonValueSchema22),
   exports_external.record(exports_external.string(), jsonValueSchema22.optional())
-])), openaiResponsesChunkSchema = lazySchema(() => zodSchema(exports_external.union([
+])), openaiResponsesChunkSchema = lazySchema4(() => zodSchema4(exports_external.union([
   exports_external.object({
     type: exports_external.literal("response.output_text.delta"),
     item_id: exports_external.string(),
@@ -34595,7 +41354,7 @@ var jsonValueSchema22 = exports_external.lazy(() => exports_external.union([
     type: "unknown_chunk",
     message: value.type
   }))
-]))), openaiResponsesResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+]))), openaiResponsesResponseSchema = lazySchema4(() => zodSchema4(exports_external.object({
   id: exports_external.string().optional(),
   created_at: exports_external.number().optional(),
   error: exports_external.object({
@@ -34930,7 +41689,7 @@ var jsonValueSchema22 = exports_external.lazy(() => exports_external.union([
   "gpt-3.5-turbo-1106",
   "gpt-5-chat-latest",
   ...openaiResponsesReasoningModelIds
-], openaiLanguageModelResponsesOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
+], openaiLanguageModelResponsesOptionsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   conversation: exports_external.string().nullish(),
   include: exports_external.array(exports_external.enum([
     "reasoning.encrypted_content",
@@ -34969,17 +41728,17 @@ async function prepareResponsesTools({
   toolNameMapping,
   customProviderToolNames
 }) {
-  var _a24, _b16, _c;
+  var _a37, _b16, _c;
   tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
   let toolWarnings = [];
   if (tools == null)
     return { tools: void 0, toolChoice: void 0, toolWarnings };
   let openaiTools2 = [], namespaceTools = /* @__PURE__ */ new Map, resolvedCustomProviderToolNames = customProviderToolNames != null ? customProviderToolNames : /* @__PURE__ */ new Set;
-  for (let tool2 of tools)
-    switch (tool2.type) {
+  for (let tool5 of tools)
+    switch (tool5.type) {
       case "function": {
-        let openaiOptions = (_a24 = tool2.providerOptions) == null ? void 0 : _a24.openai, openaiFunctionTool = prepareFunctionTool({
-          tool: tool2,
+        let openaiOptions = (_a37 = tool5.providerOptions) == null ? void 0 : _a37.openai, openaiFunctionTool = prepareFunctionTool({
+          tool: tool5,
           options: openaiOptions
         }), namespace = openaiOptions == null ? void 0 : openaiOptions.namespace;
         if (namespace == null)
@@ -34994,7 +41753,7 @@ async function prepareResponsesTools({
               tools: []
             }, namespaceTools.set(namespace.name, namespaceTool), openaiTools2.push(namespaceTool);
           else if (namespaceTool.description !== namespace.description)
-            throw new UnsupportedFunctionalityError({
+            throw new UnsupportedFunctionalityError4({
               functionality: `conflicting descriptions for OpenAI tool namespace "${namespace.name}"`
             });
           namespaceTool.tools.push(openaiFunctionTool);
@@ -35002,11 +41761,11 @@ async function prepareResponsesTools({
         break;
       }
       case "provider": {
-        switch (tool2.id) {
+        switch (tool5.id) {
           case "openai.file_search": {
-            let args = await validateTypes({
-              value: tool2.args,
-              schema: fileSearchArgsSchema2
+            let args = await validateTypes4({
+              value: tool5.args,
+              schema: fileSearchArgsSchema
             });
             openaiTools2.push({
               type: "file_search",
@@ -35027,8 +41786,8 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.shell": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: shellArgsSchema
             });
             openaiTools2.push({
@@ -35046,8 +41805,8 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.web_search_preview": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: webSearchPreviewArgsSchema
             });
             openaiTools2.push({
@@ -35058,8 +41817,8 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.web_search": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: webSearchArgsSchema
             });
             openaiTools2.push({
@@ -35072,8 +41831,8 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.code_interpreter": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: codeInterpreterArgsSchema
             });
             openaiTools2.push({
@@ -35083,8 +41842,8 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.image_generation": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: imageGenerationArgsSchema
             });
             openaiTools2.push({
@@ -35106,11 +41865,11 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.mcp": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: mcpArgsSchema
-            }), mapApprovalFilter = (filter2) => ({
-              tool_names: filter2.toolNames
+            }), mapApprovalFilter = (filter5) => ({
+              tool_names: filter5.toolNames
             }), requireApproval = args.requireApproval, requireApprovalParam = requireApproval == null ? void 0 : typeof requireApproval === "string" ? requireApproval : requireApproval.never != null ? { never: mapApprovalFilter(requireApproval.never) } : void 0;
             openaiTools2.push({
               type: "mcp",
@@ -35129,8 +41888,8 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.custom": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: customArgsSchema
             });
             openaiTools2.push({
@@ -35142,8 +41901,8 @@ async function prepareResponsesTools({
             break;
           }
           case "openai.tool_search": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes4({
+              value: tool5.args,
               schema: toolSearchArgsSchema
             });
             openaiTools2.push({
@@ -35160,7 +41919,7 @@ async function prepareResponsesTools({
       default:
         toolWarnings.push({
           type: "unsupported",
-          feature: `function tool ${tool2}`
+          feature: `function tool ${tool5}`
         });
         break;
     }
@@ -35170,11 +41929,11 @@ async function prepareResponsesTools({
       toolChoice: {
         type: "allowed_tools",
         mode: (_b16 = allowedTools.mode) != null ? _b16 : "auto",
-        tools: allowedTools.toolNames.map((name24) => {
-          var _a25;
+        tools: allowedTools.toolNames.map((name31) => {
+          var _a210;
           return {
             type: "function",
-            name: (_a25 = toolNameMapping == null ? void 0 : toolNameMapping.toProviderToolName(name24)) != null ? _a25 : name24
+            name: (_a210 = toolNameMapping == null ? void 0 : toolNameMapping.toProviderToolName(name31)) != null ? _a210 : name31
           };
         })
       },
@@ -35197,22 +41956,22 @@ async function prepareResponsesTools({
       };
     }
     default:
-      throw new UnsupportedFunctionalityError({
+      throw new UnsupportedFunctionalityError4({
         functionality: `tool choice type: ${type}`
       });
   }
 }
 function prepareFunctionTool({
-  tool: tool2,
+  tool: tool5,
   options
 }) {
   let deferLoading = options == null ? void 0 : options.deferLoading;
   return {
     type: "function",
-    name: tool2.name,
-    description: tool2.description,
-    parameters: tool2.inputSchema,
-    ...tool2.strict != null ? { strict: tool2.strict } : {},
+    name: tool5.name,
+    description: tool5.description,
+    parameters: tool5.inputSchema,
+    ...tool5.strict != null ? { strict: tool5.strict } : {},
     ...deferLoading != null ? { defer_loading: deferLoading } : {}
   };
 }
@@ -35258,7 +42017,7 @@ function mapShellSkills(skills) {
   });
 }
 function extractApprovalRequestIdToToolCallIdMapping(prompt) {
-  var _a24, _b16;
+  var _a37, _b16;
   let mapping = {};
   for (let message of prompt) {
     if (message.role !== "assistant")
@@ -35266,7 +42025,7 @@ function extractApprovalRequestIdToToolCallIdMapping(prompt) {
     for (let part of message.content) {
       if (part.type !== "tool-call")
         continue;
-      let approvalRequestId = (_b16 = (_a24 = part.providerOptions) == null ? void 0 : _a24.openai) == null ? void 0 : _b16.approvalRequestId;
+      let approvalRequestId = (_b16 = (_a37 = part.providerOptions) == null ? void 0 : _a37.openai) == null ? void 0 : _b16.approvalRequestId;
       if (approvalRequestId != null)
         mapping[approvalRequestId] = part.toolCallId;
     }
@@ -35298,7 +42057,7 @@ var OpenAIResponsesLanguageModel = class {
     toolChoice,
     responseFormat
   }) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
+    var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     let warnings = [], modelCapabilities = getOpenAILanguageModelCapabilities(this.modelId);
     if (topK != null)
       warnings.push({ type: "unsupported", feature: "topK" });
@@ -35310,25 +42069,25 @@ var OpenAIResponsesLanguageModel = class {
       warnings.push({ type: "unsupported", feature: "frequencyPenalty" });
     if (stopSequences != null)
       warnings.push({ type: "unsupported", feature: "stopSequences" });
-    let providerOptionsName = this.config.provider.includes("azure") ? "azure" : "openai", openaiOptions = await parseProviderOptions({
+    let providerOptionsName = this.config.provider.includes("azure") ? "azure" : "openai", openaiOptions = await parseProviderOptions2({
       provider: providerOptionsName,
       providerOptions,
       schema: openaiLanguageModelResponsesOptionsSchema
     });
     if (openaiOptions == null && providerOptionsName !== "openai")
-      openaiOptions = await parseProviderOptions({
+      openaiOptions = await parseProviderOptions2({
         provider: "openai",
         providerOptions,
         schema: openaiLanguageModelResponsesOptionsSchema
       });
-    let isReasoningModel = (_a24 = openaiOptions == null ? void 0 : openaiOptions.forceReasoning) != null ? _a24 : modelCapabilities.isReasoningModel;
+    let isReasoningModel = (_a37 = openaiOptions == null ? void 0 : openaiOptions.forceReasoning) != null ? _a37 : modelCapabilities.isReasoningModel;
     if ((openaiOptions == null ? void 0 : openaiOptions.conversation) && (openaiOptions == null ? void 0 : openaiOptions.previousResponseId))
       warnings.push({
         type: "unsupported",
         feature: "conversation",
         details: "conversation and previousResponseId cannot be used together"
       });
-    let toolNameMapping = createToolNameMapping({
+    let toolNameMapping = createToolNameMapping2({
       tools,
       providerToolNames: {
         "openai.code_interpreter": "code_interpreter",
@@ -35342,7 +42101,7 @@ var OpenAIResponsesLanguageModel = class {
         "openai.apply_patch": "apply_patch",
         "openai.tool_search": "tool_search"
       },
-      resolveProviderToolName: (tool2) => tool2.id === "openai.custom" ? tool2.args.name : void 0
+      resolveProviderToolName: (tool5) => tool5.id === "openai.custom" ? tool5.args.name : void 0
     }), customProviderToolNames = /* @__PURE__ */ new Set, {
       tools: openaiTools2,
       toolChoice: openaiToolChoice,
@@ -35377,12 +42136,12 @@ var OpenAIResponsesLanguageModel = class {
         include = [...include, key];
     }
     function hasOpenAITool(id) {
-      return (tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && tool2.id === id)) != null;
+      return (tools == null ? void 0 : tools.find((tool5) => tool5.type === "provider" && tool5.id === id)) != null;
     }
     let topLogprobs = typeof (openaiOptions == null ? void 0 : openaiOptions.logprobs) === "number" ? openaiOptions == null ? void 0 : openaiOptions.logprobs : (openaiOptions == null ? void 0 : openaiOptions.logprobs) === !0 ? TOP_LOGPROBS_MAX : void 0;
     if (topLogprobs)
       addInclude("message.output_text.logprobs");
-    let webSearchToolName = (_g = tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && (tool2.id === "openai.web_search" || tool2.id === "openai.web_search_preview"))) == null ? void 0 : _g.name;
+    let webSearchToolName = (_g = tools == null ? void 0 : tools.find((tool5) => tool5.type === "provider" && (tool5.id === "openai.web_search" || tool5.id === "openai.web_search_preview"))) == null ? void 0 : _g.name;
     if (webSearchToolName)
       addInclude("web_search_call.action.sources");
     if (hasOpenAITool("openai.code_interpreter"))
@@ -35479,7 +42238,7 @@ var OpenAIResponsesLanguageModel = class {
         feature: "serviceTier",
         details: "priority processing is only available for supported models (gpt-4, gpt-5, gpt-5-mini, o3, o4-mini) and requires Enterprise access. gpt-5-nano is not supported"
       }), delete baseArgs.service_tier;
-    let shellToolEnvType = (_k = (_j = (_i = tools == null ? void 0 : tools.find((tool2) => tool2.type === "provider" && tool2.id === "openai.shell")) == null ? void 0 : _i.args) == null ? void 0 : _j.environment) == null ? void 0 : _k.type, isShellProviderExecuted = shellToolEnvType === "containerAuto" || shellToolEnvType === "containerReference";
+    let shellToolEnvType = (_k = (_j = (_i = tools == null ? void 0 : tools.find((tool5) => tool5.type === "provider" && tool5.id === "openai.shell")) == null ? void 0 : _i.args) == null ? void 0 : _j.environment) == null ? void 0 : _k.type, isShellProviderExecuted = shellToolEnvType === "containerAuto" || shellToolEnvType === "containerReference";
     return {
       webSearchToolName,
       args: {
@@ -35495,7 +42254,7 @@ var OpenAIResponsesLanguageModel = class {
     };
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B;
+    var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B;
     let {
       args: body,
       warnings,
@@ -35510,17 +42269,17 @@ var OpenAIResponsesLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi3({
       url: url2,
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       body,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(openaiResponsesResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler3(openaiResponsesResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     });
     if (response.error)
-      throw new APICallError({
+      throw new APICallError4({
         message: response.error.message,
         url: url2,
         requestBodyValues: body,
@@ -35542,7 +42301,7 @@ var OpenAIResponsesLanguageModel = class {
               providerMetadata: {
                 [providerOptionsName]: {
                   itemId: part.id,
-                  reasoningEncryptedContent: (_a24 = part.encrypted_content) != null ? _a24 : null
+                  reasoningEncryptedContent: (_a37 = part.encrypted_content) != null ? _a37 : null
                 }
               }
             });
@@ -35679,7 +42438,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "url",
-                  id: (_i = (_h = (_g = this.config).generateId) == null ? void 0 : _h.call(_g)) != null ? _i : generateId(),
+                  id: (_i = (_h = (_g = this.config).generateId) == null ? void 0 : _h.call(_g)) != null ? _i : generateId4(),
                   url: annotation.url,
                   title: annotation.title
                 });
@@ -35687,7 +42446,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_l = (_k = (_j = this.config).generateId) == null ? void 0 : _k.call(_j)) != null ? _l : generateId(),
+                  id: (_l = (_k = (_j = this.config).generateId) == null ? void 0 : _k.call(_j)) != null ? _l : generateId4(),
                   mediaType: "text/plain",
                   title: annotation.filename,
                   filename: annotation.filename,
@@ -35703,7 +42462,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_o = (_n = (_m = this.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId(),
+                  id: (_o = (_n = (_m = this.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId4(),
                   mediaType: "text/plain",
                   title: annotation.filename,
                   filename: annotation.filename,
@@ -35719,7 +42478,7 @@ var OpenAIResponsesLanguageModel = class {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_r = (_q = (_p = this.config).generateId) == null ? void 0 : _q.call(_p)) != null ? _r : generateId(),
+                  id: (_r = (_q = (_p = this.config).generateId) == null ? void 0 : _q.call(_p)) != null ? _r : generateId4(),
                   mediaType: "application/octet-stream",
                   title: annotation.file_id,
                   filename: annotation.file_id,
@@ -35812,7 +42571,7 @@ var OpenAIResponsesLanguageModel = class {
         case "mcp_list_tools":
           break;
         case "mcp_approval_request": {
-          let approvalRequestId = (_t = part.approval_request_id) != null ? _t : part.id, dummyToolCallId = (_w = (_v = (_u = this.config).generateId) == null ? void 0 : _v.call(_u)) != null ? _w : generateId(), toolName = `mcp.${part.name}`;
+          let approvalRequestId = (_t = part.approval_request_id) != null ? _t : part.id, dummyToolCallId = (_w = (_v = (_u = this.config).generateId) == null ? void 0 : _v.call(_u)) != null ? _w : generateId4(), toolName = `mcp.${part.name}`;
           content.push({
             type: "tool-call",
             toolCallId: dummyToolCallId,
@@ -35945,18 +42704,18 @@ var OpenAIResponsesLanguageModel = class {
       store,
       providerOptionsName,
       isShellProviderExecuted
-    } = await this.getArgs(options), { responseHeaders, value: response } = await postJsonToApi({
+    } = await this.getArgs(options), { responseHeaders, value: response } = await postJsonToApi3({
       url: this.config.url({
         path: "/responses",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       body: {
         ...body,
         stream: !0
       },
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(openaiResponsesChunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler3(openaiResponsesChunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), self2 = this, approvalRequestIdToDummyToolCallIdFromPrompt = extractApprovalRequestIdToToolCallIdMapping(options.prompt), approvalRequestIdToDummyToolCallIdFromStream = /* @__PURE__ */ new Map, finishReason = {
@@ -35969,7 +42728,7 @@ var OpenAIResponsesLanguageModel = class {
           controller.enqueue({ type: "stream-start", warnings });
         },
         transform(chunk, controller) {
-          var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L;
+          var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L;
           if (options.includeRawChunks)
             controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
@@ -36064,7 +42823,7 @@ var OpenAIResponsesLanguageModel = class {
               if (ongoingToolCalls[value.output_index] = {
                 toolName,
                 toolCallId,
-                toolSearchExecution: (_a24 = value.item.execution) != null ? _a24 : "server"
+                toolSearchExecution: (_a37 = value.item.execution) != null ? _a37 : "server"
               }, isHosted)
                 controller.enqueue({
                   type: "tool-input-start",
@@ -36373,7 +43132,7 @@ var OpenAIResponsesLanguageModel = class {
               ongoingToolCalls[value.output_index] = void 0;
             } else if (value.item.type === "mcp_approval_request") {
               ongoingToolCalls[value.output_index] = void 0;
-              let dummyToolCallId = (_o = (_n = (_m = self2.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId(), approvalRequestId = (_p = value.item.approval_request_id) != null ? _p : value.item.id;
+              let dummyToolCallId = (_o = (_n = (_m = self2.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId4(), approvalRequestId = (_p = value.item.approval_request_id) != null ? _p : value.item.id;
               approvalRequestIdToDummyToolCallIdFromStream.set(approvalRequestId, dummyToolCallId);
               let toolName = `mcp.${value.item.name}`;
               controller.enqueue({
@@ -36622,7 +43381,7 @@ var OpenAIResponsesLanguageModel = class {
               controller.enqueue({
                 type: "source",
                 sourceType: "url",
-                id: (_C = (_B = (_A = self2.config).generateId) == null ? void 0 : _B.call(_A)) != null ? _C : generateId(),
+                id: (_C = (_B = (_A = self2.config).generateId) == null ? void 0 : _B.call(_A)) != null ? _C : generateId4(),
                 url: value.annotation.url,
                 title: value.annotation.title
               });
@@ -36630,7 +43389,7 @@ var OpenAIResponsesLanguageModel = class {
               controller.enqueue({
                 type: "source",
                 sourceType: "document",
-                id: (_F = (_E = (_D = self2.config).generateId) == null ? void 0 : _E.call(_D)) != null ? _F : generateId(),
+                id: (_F = (_E = (_D = self2.config).generateId) == null ? void 0 : _E.call(_D)) != null ? _F : generateId4(),
                 mediaType: "text/plain",
                 title: value.annotation.filename,
                 filename: value.annotation.filename,
@@ -36646,7 +43405,7 @@ var OpenAIResponsesLanguageModel = class {
               controller.enqueue({
                 type: "source",
                 sourceType: "document",
-                id: (_I = (_H = (_G = self2.config).generateId) == null ? void 0 : _H.call(_G)) != null ? _I : generateId(),
+                id: (_I = (_H = (_G = self2.config).generateId) == null ? void 0 : _H.call(_G)) != null ? _I : generateId4(),
                 mediaType: "text/plain",
                 title: value.annotation.filename,
                 filename: value.annotation.filename,
@@ -36662,7 +43421,7 @@ var OpenAIResponsesLanguageModel = class {
               controller.enqueue({
                 type: "source",
                 sourceType: "document",
-                id: (_L = (_K = (_J = self2.config).generateId) == null ? void 0 : _K.call(_J)) != null ? _L : generateId(),
+                id: (_L = (_K = (_J = self2.config).generateId) == null ? void 0 : _K.call(_J)) != null ? _L : generateId4(),
                 mediaType: "application/octet-stream",
                 title: value.annotation.file_id,
                 filename: value.annotation.file_id,
@@ -36744,7 +43503,7 @@ function isErrorChunk(chunk) {
   return chunk.type === "error";
 }
 function mapWebSearchOutput(action) {
-  var _a24;
+  var _a37;
   if (action == null)
     return {};
   switch (action.type) {
@@ -36752,7 +43511,7 @@ function mapWebSearchOutput(action) {
       return {
         action: {
           type: "search",
-          query: (_a24 = action.query) != null ? _a24 : void 0,
+          query: (_a37 = action.query) != null ? _a37 : void 0,
           ...action.queries != null && { queries: action.queries }
         },
         ...action.sources != null && { sources: action.sources }
@@ -36772,7 +43531,7 @@ function mapWebSearchOutput(action) {
 function escapeJSONDelta(delta) {
   return JSON.stringify(delta).slice(1, -1);
 }
-var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external.object({
+var openaiSpeechModelOptionsSchema = lazySchema4(() => zodSchema4(exports_external.object({
   instructions: exports_external.string().nullish(),
   speed: exports_external.number().min(0.25).max(4).default(1).nullish()
 }))), OpenAISpeechModel = class {
@@ -36791,7 +43550,7 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
     language,
     providerOptions
   }) {
-    let warnings = [], openAIOptions = await parseProviderOptions({
+    let warnings = [], openAIOptions = await parseProviderOptions2({
       provider: "openai",
       providerOptions,
       schema: openaiSpeechModelOptionsSchema
@@ -36832,17 +43591,17 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
     };
   }
   async doGenerate(options) {
-    var _a24, _b16, _c;
-    let currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date, { requestBody, warnings } = await this.getArgs(options), {
+    var _a37, _b16, _c;
+    let currentDate = (_c = (_b16 = (_a37 = this.config._internal) == null ? void 0 : _a37.currentDate) == null ? void 0 : _b16.call(_a37)) != null ? _c : /* @__PURE__ */ new Date, { requestBody, warnings } = await this.getArgs(options), {
       value: audio,
       responseHeaders,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi3({
       url: this.config.url({
         path: "/audio/speech",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       body: requestBody,
       failedResponseHandler: openaiFailedResponseHandler,
       successfulResponseHandler: createBinaryResponseHandler(),
@@ -36863,7 +43622,7 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
       }
     };
   }
-}, openaiTranscriptionResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+}, openaiTranscriptionResponseSchema = lazySchema4(() => zodSchema4(exports_external.object({
   text: exports_external.string(),
   language: exports_external.string().nullish(),
   duration: exports_external.number().nullish(),
@@ -36884,7 +43643,7 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
     compression_ratio: exports_external.number(),
     no_speech_prob: exports_external.number()
   })).nullish()
-}))), openAITranscriptionModelOptions = lazySchema(() => zodSchema(exports_external.object({
+}))), openAITranscriptionModelOptions = lazySchema4(() => zodSchema4(exports_external.object({
   include: exports_external.array(exports_external.string()).optional(),
   language: exports_external.string().optional(),
   prompt: exports_external.string().optional(),
@@ -36960,11 +43719,11 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
     mediaType,
     providerOptions
   }) {
-    let warnings = [], openAIOptions = await parseProviderOptions({
+    let warnings = [], openAIOptions = await parseProviderOptions2({
       provider: "openai",
       providerOptions,
       schema: openAITranscriptionModelOptions
-    }), formData = new FormData, blob = audio instanceof Uint8Array ? new Blob([audio]) : new Blob([convertBase64ToUint8Array(audio)]);
+    }), formData = new FormData, blob = audio instanceof Uint8Array ? new Blob([audio]) : new Blob([convertBase64ToUint8Array3(audio)]);
     formData.append("model", this.modelId);
     let fileExtension = mediaTypeToExtension(mediaType);
     if (formData.append("file", new File([blob], "audio", { type: mediaType }), `audio.${fileExtension}`), openAIOptions) {
@@ -36993,20 +43752,20 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
     };
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h;
-    let currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date, { formData, warnings } = await this.getArgs(options), {
+    var _a37, _b16, _c, _d, _e, _f, _g, _h;
+    let currentDate = (_c = (_b16 = (_a37 = this.config._internal) == null ? void 0 : _a37.currentDate) == null ? void 0 : _b16.call(_a37)) != null ? _c : /* @__PURE__ */ new Date, { formData, warnings } = await this.getArgs(options), {
       value: response,
       responseHeaders,
       rawValue: rawResponse
-    } = await postFormDataToApi({
+    } = await postFormDataToApi2({
       url: this.config.url({
         path: "/audio/transcriptions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders3(this.config.headers(), options.headers),
       formData,
       failedResponseHandler: openaiFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(openaiTranscriptionResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler3(openaiTranscriptionResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), language = response.language != null && response.language in languageMap ? languageMap[response.language] : void 0;
@@ -37032,14 +43791,14 @@ var openaiSpeechModelOptionsSchema = lazySchema(() => zodSchema(exports_external
       }
     };
   }
-}, VERSION6 = "3.0.73";
+}, VERSION8 = "3.0.73";
 function createOpenAI(options = {}) {
-  var _a24, _b16;
-  let baseURL = (_a24 = withoutTrailingSlash(loadOptionalSetting({
+  var _a37, _b16;
+  let baseURL = (_a37 = withoutTrailingSlash3(loadOptionalSetting3({
     settingValue: options.baseURL,
     environmentVariableName: "OPENAI_BASE_URL"
-  }))) != null ? _a24 : "https://api.openai.com/v1", providerName = (_b16 = options.name) != null ? _b16 : "openai", getHeaders = () => withUserAgentSuffix({
-    Authorization: `Bearer ${loadApiKey({
+  }))) != null ? _a37 : "https://api.openai.com/v1", providerName = (_b16 = options.name) != null ? _b16 : "openai", getHeaders = () => withUserAgentSuffix4({
+    Authorization: `Bearer ${loadApiKey2({
       apiKey: options.apiKey,
       environmentVariableName: "OPENAI_API_KEY",
       description: "OpenAI"
@@ -37047,7 +43806,7 @@ function createOpenAI(options = {}) {
     "OpenAI-Organization": options.organization,
     "OpenAI-Project": options.project,
     ...options.headers
-  }, `ai-sdk/openai/${VERSION6}`), createChatModel = (modelId) => new OpenAIChatLanguageModel(modelId, {
+  }, `ai-sdk/openai/${VERSION8}`), createChatModel = (modelId) => new OpenAIChatLanguageModel(modelId, {
     provider: `${providerName}.chat`,
     url: ({ path }) => `${baseURL}${path}`,
     headers: getHeaders,
@@ -37095,22 +43854,74 @@ function createOpenAI(options = {}) {
   return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chat = createChatModel, provider.completion = createCompletionModel, provider.responses = createResponsesModel, provider.embedding = createEmbeddingModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbedding = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.image = createImageModel, provider.imageModel = createImageModel, provider.transcription = createTranscriptionModel, provider.transcriptionModel = createTranscriptionModel, provider.speech = createSpeechModel, provider.speechModel = createSpeechModel, provider.tools = openaiTools, provider;
 }
 var openai = createOpenAI();
-// node_modules/@ai-sdk/anthropic/dist/index.mjs
-var VERSION7 = "3.0.85", anthropicErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
+// node_modules/@ai-sdk/anthropic/dist/index.js
+var anthropicErrorDataSchema = lazySchema3(() => zodSchema3(exports_external.object({
   type: exports_external.literal("error"),
   error: exports_external.object({
     type: exports_external.string(),
     message: exports_external.string()
   })
-}))), anthropicFailedResponseHandler = createJsonErrorResponseHandler({
+}))), anthropicFailedResponseHandler = createJsonErrorResponseHandler2({
   errorSchema: anthropicErrorDataSchema,
   errorToMessage: (data) => data.error.message
-}), anthropicStopDetailsSchema = exports_external.object({
+}), anthropicUploadFileResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  id: exports_external.string(),
+  type: exports_external.literal("file"),
+  filename: exports_external.string(),
+  mime_type: exports_external.string(),
+  size_bytes: exports_external.number(),
+  created_at: exports_external.string(),
+  downloadable: exports_external.boolean().nullish()
+}))), AnthropicFiles = class {
+  constructor(config2) {
+    this.config = config2, this.specificationVersion = "v4";
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async uploadFile({
+    data,
+    mediaType,
+    filename
+  }) {
+    var _a37, _b16;
+    let fileBytes = convertInlineFileDataToUint8Array(data), blob = new Blob([fileBytes], { type: mediaType }), formData = new FormData;
+    if (filename != null)
+      formData.append("file", blob, filename);
+    else
+      formData.append("file", blob);
+    let { value: response } = await postFormDataToApi({
+      url: `${this.config.baseURL}/files`,
+      headers: combineHeaders2(this.config.headers(), {
+        "anthropic-beta": "files-api-2025-04-14"
+      }),
+      formData,
+      failedResponseHandler: anthropicFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler2(anthropicUploadFileResponseSchema),
+      fetch: this.config.fetch
+    });
+    return {
+      warnings: [],
+      providerReference: { anthropic: response.id },
+      mediaType: (_a37 = response.mime_type) != null ? _a37 : mediaType,
+      filename: (_b16 = response.filename) != null ? _b16 : filename,
+      providerMetadata: {
+        anthropic: {
+          filename: response.filename,
+          mimeType: response.mime_type,
+          sizeBytes: response.size_bytes,
+          createdAt: response.created_at,
+          ...response.downloadable != null ? { downloadable: response.downloadable } : {}
+        }
+      }
+    };
+  }
+}, anthropicStopDetailsSchema = exports_external.object({
   type: exports_external.string(),
   category: exports_external.string().nullish(),
   explanation: exports_external.string().nullish(),
   recommended_model: exports_external.string().nullish()
-}), anthropicMessagesResponseSchema = lazySchema(() => zodSchema(exports_external.object({
+}), anthropicResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
   type: exports_external.literal("message"),
   id: exports_external.string().nullish(),
   model: exports_external.string().nullish(),
@@ -37423,7 +44234,7 @@ var VERSION7 = "3.0.85", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
       })
     ]))
   }).nullish()
-}))), anthropicMessagesChunkSchema = lazySchema(() => zodSchema(exports_external.discriminatedUnion("type", [
+}))), anthropicChunkSchema = lazySchema3(() => zodSchema3(exports_external.discriminatedUnion("type", [
   exports_external.object({
     type: exports_external.literal("message_start"),
     message: exports_external.object({
@@ -37829,10 +44640,11 @@ var VERSION7 = "3.0.85", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
   exports_external.object({
     type: exports_external.literal("ping")
   })
-]))), anthropicReasoningMetadataSchema = lazySchema(() => zodSchema(exports_external.object({
+]))), anthropicReasoningMetadataSchema = lazySchema3(() => zodSchema3(exports_external.object({
   signature: exports_external.string().optional(),
   redactedData: exports_external.string().optional()
 }))), anthropicFilePartProviderOptions = exports_external.object({
+  containerUpload: exports_external.boolean().optional(),
   citations: exports_external.object({
     enabled: exports_external.boolean()
   }).optional(),
@@ -37874,11 +44686,18 @@ var VERSION7 = "3.0.85", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
   })).optional(),
   container: exports_external.object({
     id: exports_external.string().optional(),
-    skills: exports_external.array(exports_external.object({
-      type: exports_external.union([exports_external.literal("anthropic"), exports_external.literal("custom")]),
-      skillId: exports_external.string(),
-      version: exports_external.string().optional()
-    })).optional()
+    skills: exports_external.array(exports_external.discriminatedUnion("type", [
+      exports_external.object({
+        type: exports_external.literal("anthropic"),
+        skillId: exports_external.string(),
+        version: exports_external.string().optional()
+      }),
+      exports_external.object({
+        type: exports_external.literal("custom"),
+        providerReference: exports_external.record(exports_external.string(), exports_external.string()),
+        version: exports_external.string().optional()
+      })
+    ])).optional()
   }).optional(),
   toolStreaming: exports_external.boolean().optional(),
   effort: exports_external.enum(["low", "medium", "high", "xhigh", "max"]).optional(),
@@ -37945,9 +44764,9 @@ var VERSION7 = "3.0.85", anthropicErrorDataSchema = lazySchema(() => zodSchema(e
   }).optional()
 }), MAX_CACHE_BREAKPOINTS = 4;
 function getCacheControl(providerMetadata) {
-  var _a24;
+  var _a37;
   let anthropic2 = providerMetadata == null ? void 0 : providerMetadata.anthropic;
-  return (_a24 = anthropic2 == null ? void 0 : anthropic2.cacheControl) != null ? _a24 : anthropic2 == null ? void 0 : anthropic2.cache_control;
+  return (_a37 = anthropic2 == null ? void 0 : anthropic2.cacheControl) != null ? _a37 : anthropic2 == null ? void 0 : anthropic2.cache_control;
 }
 var CacheControlValidator = class {
   constructor() {
@@ -37978,14 +44797,14 @@ var CacheControlValidator = class {
   getWarnings() {
     return this.warnings;
   }
-}, advisor_20260301ArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, advisor_20260301ArgsSchema = lazySchema3(() => zodSchema3(exports_external.object({
   model: exports_external.string(),
   maxUses: exports_external.number().optional(),
   caching: exports_external.object({
     type: exports_external.literal("ephemeral"),
     ttl: exports_external.union([exports_external.literal("5m"), exports_external.literal("1h")])
   }).optional()
-}))), advisor_20260301OutputSchema = lazySchema(() => zodSchema(exports_external.discriminatedUnion("type", [
+}))), advisor_20260301OutputSchema = lazySchema3(() => zodSchema3(exports_external.discriminatedUnion("type", [
   exports_external.object({
     type: exports_external.literal("advisor_result"),
     text: exports_external.string()
@@ -37998,16 +44817,16 @@ var CacheControlValidator = class {
     type: exports_external.literal("advisor_tool_result_error"),
     errorCode: exports_external.string()
   })
-]))), advisor_20260301InputSchema = lazySchema(() => zodSchema(exports_external.object({}).strict())), factory = createProviderToolFactoryWithOutputSchema({
+]))), advisor_20260301InputSchema = lazySchema3(() => zodSchema3(exports_external.object({}).strict())), factory = createProviderExecutedToolFactory({
   id: "anthropic.advisor_20260301",
   inputSchema: advisor_20260301InputSchema,
   outputSchema: advisor_20260301OutputSchema,
   supportsDeferredResults: !0
 }), advisor_20260301 = (args) => {
   return factory(args);
-}, textEditor_20250728ArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, textEditor_20250728ArgsSchema = lazySchema3(() => zodSchema3(exports_external.object({
   maxCharacters: exports_external.number().optional()
-}))), textEditor_20250728InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), textEditor_20250728InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   command: exports_external.enum(["view", "create", "str_replace", "insert"]),
   path: exports_external.string(),
   file_text: exports_external.string().optional(),
@@ -38016,12 +44835,12 @@ var CacheControlValidator = class {
   insert_text: exports_external.string().optional(),
   old_str: exports_external.string().optional(),
   view_range: exports_external.array(exports_external.number().int()).optional()
-}))), factory2 = createProviderToolFactory({
+}))), factory2 = createProviderDefinedToolFactory({
   id: "anthropic.text_editor_20250728",
   inputSchema: textEditor_20250728InputSchema
 }), textEditor_20250728 = (args = {}) => {
   return factory2(args);
-}, webSearch_20260209ArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, webSearch_20260209ArgsSchema = lazySchema3(() => zodSchema3(exports_external.object({
   maxUses: exports_external.number().optional(),
   allowedDomains: exports_external.array(exports_external.string()).optional(),
   blockedDomains: exports_external.array(exports_external.string()).optional(),
@@ -38032,22 +44851,22 @@ var CacheControlValidator = class {
     country: exports_external.string().optional(),
     timezone: exports_external.string().optional()
   }).optional()
-}))), webSearch_20260209OutputSchema = lazySchema(() => zodSchema(exports_external.array(exports_external.object({
+}))), webSearch_20260209OutputSchema = lazySchema3(() => zodSchema3(exports_external.array(exports_external.object({
   url: exports_external.string(),
   title: exports_external.string().nullable(),
   pageAge: exports_external.string().nullable(),
   encryptedContent: exports_external.string(),
   type: exports_external.literal("web_search_result")
-})))), webSearch_20260209InputSchema = lazySchema(() => zodSchema(exports_external.object({
+})))), webSearch_20260209InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   query: exports_external.string()
-}))), factory3 = createProviderToolFactoryWithOutputSchema({
+}))), factory3 = createProviderExecutedToolFactory({
   id: "anthropic.web_search_20260209",
   inputSchema: webSearch_20260209InputSchema,
   outputSchema: webSearch_20260209OutputSchema,
   supportsDeferredResults: !0
 }), webSearch_20260209 = (args = {}) => {
   return factory3(args);
-}, webSearch_20250305ArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, webSearch_20250305ArgsSchema = lazySchema3(() => zodSchema3(exports_external.object({
   maxUses: exports_external.number().optional(),
   allowedDomains: exports_external.array(exports_external.string()).optional(),
   blockedDomains: exports_external.array(exports_external.string()).optional(),
@@ -38058,28 +44877,28 @@ var CacheControlValidator = class {
     country: exports_external.string().optional(),
     timezone: exports_external.string().optional()
   }).optional()
-}))), webSearch_20250305OutputSchema = lazySchema(() => zodSchema(exports_external.array(exports_external.object({
+}))), webSearch_20250305OutputSchema = lazySchema3(() => zodSchema3(exports_external.array(exports_external.object({
   url: exports_external.string(),
   title: exports_external.string().nullable(),
   pageAge: exports_external.string().nullable(),
   encryptedContent: exports_external.string(),
   type: exports_external.literal("web_search_result")
-})))), webSearch_20250305InputSchema = lazySchema(() => zodSchema(exports_external.object({
+})))), webSearch_20250305InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   query: exports_external.string()
-}))), factory4 = createProviderToolFactoryWithOutputSchema({
+}))), factory4 = createProviderExecutedToolFactory({
   id: "anthropic.web_search_20250305",
   inputSchema: webSearch_20250305InputSchema,
   outputSchema: webSearch_20250305OutputSchema,
   supportsDeferredResults: !0
 }), webSearch_20250305 = (args = {}) => {
   return factory4(args);
-}, webFetch_20260209ArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, webFetch_20260209ArgsSchema = lazySchema3(() => zodSchema3(exports_external.object({
   maxUses: exports_external.number().optional(),
   allowedDomains: exports_external.array(exports_external.string()).optional(),
   blockedDomains: exports_external.array(exports_external.string()).optional(),
   citations: exports_external.object({ enabled: exports_external.boolean() }).optional(),
   maxContentTokens: exports_external.number().optional()
-}))), webFetch_20260209OutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), webFetch_20260209OutputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   type: exports_external.literal("web_fetch_result"),
   url: exports_external.string(),
   content: exports_external.object({
@@ -38100,22 +44919,22 @@ var CacheControlValidator = class {
     ])
   }),
   retrievedAt: exports_external.string().nullable()
-}))), webFetch_20260209InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), webFetch_20260209InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   url: exports_external.string()
-}))), factory5 = createProviderToolFactoryWithOutputSchema({
+}))), factory5 = createProviderExecutedToolFactory({
   id: "anthropic.web_fetch_20260209",
   inputSchema: webFetch_20260209InputSchema,
   outputSchema: webFetch_20260209OutputSchema,
   supportsDeferredResults: !0
 }), webFetch_20260209 = (args = {}) => {
   return factory5(args);
-}, webFetch_20250910ArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, webFetch_20250910ArgsSchema = lazySchema3(() => zodSchema3(exports_external.object({
   maxUses: exports_external.number().optional(),
   allowedDomains: exports_external.array(exports_external.string()).optional(),
   blockedDomains: exports_external.array(exports_external.string()).optional(),
   citations: exports_external.object({ enabled: exports_external.boolean() }).optional(),
   maxContentTokens: exports_external.number().optional()
-}))), webFetch_20250910OutputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), webFetch_20250910OutputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   type: exports_external.literal("web_fetch_result"),
   url: exports_external.string(),
   content: exports_external.object({
@@ -38136,9 +44955,9 @@ var CacheControlValidator = class {
     ])
   }),
   retrievedAt: exports_external.string().nullable()
-}))), webFetch_20250910InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), webFetch_20250910InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   url: exports_external.string()
-}))), factory6 = createProviderToolFactoryWithOutputSchema({
+}))), factory6 = createProviderExecutedToolFactory({
   id: "anthropic.web_fetch_20250910",
   inputSchema: webFetch_20250910InputSchema,
   outputSchema: webFetch_20250910OutputSchema,
@@ -38155,45 +44974,45 @@ async function prepareTools2({
   supportsStrictTools,
   defaultEagerInputStreaming = !1
 }) {
-  var _a24, _b16;
+  var _a37, _b16;
   tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
   let toolWarnings = [], betas = /* @__PURE__ */ new Set, validator = cacheControlValidator || new CacheControlValidator;
   if (tools == null)
     return { tools: void 0, toolChoice: void 0, toolWarnings, betas };
   let anthropicTools2 = [];
-  for (let tool2 of tools)
-    switch (tool2.type) {
+  for (let tool5 of tools)
+    switch (tool5.type) {
       case "function": {
-        let cacheControl = validator.getCacheControl(tool2.providerOptions, {
+        let cacheControl = validator.getCacheControl(tool5.providerOptions, {
           type: "tool definition",
           canCache: !0
-        }), anthropicOptions = (_a24 = tool2.providerOptions) == null ? void 0 : _a24.anthropic, eagerInputStreaming = (_b16 = anthropicOptions == null ? void 0 : anthropicOptions.eagerInputStreaming) != null ? _b16 : defaultEagerInputStreaming, deferLoading = anthropicOptions == null ? void 0 : anthropicOptions.deferLoading, allowedCallers = anthropicOptions == null ? void 0 : anthropicOptions.allowedCallers;
-        if (!supportsStrictTools && tool2.strict != null)
+        }), anthropicOptions = (_a37 = tool5.providerOptions) == null ? void 0 : _a37.anthropic, eagerInputStreaming = (_b16 = anthropicOptions == null ? void 0 : anthropicOptions.eagerInputStreaming) != null ? _b16 : defaultEagerInputStreaming, deferLoading = anthropicOptions == null ? void 0 : anthropicOptions.deferLoading, allowedCallers = anthropicOptions == null ? void 0 : anthropicOptions.allowedCallers;
+        if (!supportsStrictTools && tool5.strict != null)
           toolWarnings.push({
             type: "unsupported",
             feature: "strict",
-            details: `Tool '${tool2.name}' has strict: ${tool2.strict}, but strict mode is not supported by this provider. The strict property will be ignored.`
+            details: `Tool '${tool5.name}' has strict: ${tool5.strict}, but strict mode is not supported by this provider. The strict property will be ignored.`
           });
         if (anthropicTools2.push({
-          name: tool2.name,
-          description: tool2.description,
-          input_schema: tool2.inputSchema,
+          name: tool5.name,
+          description: tool5.description,
+          input_schema: tool5.inputSchema,
           cache_control: cacheControl,
           ...eagerInputStreaming ? { eager_input_streaming: !0 } : {},
-          ...supportsStrictTools === !0 && tool2.strict != null ? { strict: tool2.strict } : {},
+          ...supportsStrictTools === !0 && tool5.strict != null ? { strict: tool5.strict } : {},
           ...deferLoading != null ? { defer_loading: deferLoading } : {},
           ...allowedCallers != null ? { allowed_callers: allowedCallers } : {},
-          ...tool2.inputExamples != null ? {
-            input_examples: tool2.inputExamples.map((example) => example.input)
+          ...tool5.inputExamples != null ? {
+            input_examples: tool5.inputExamples.map((example) => example.input)
           } : {}
         }), supportsStructuredOutput === !0)
           betas.add("structured-outputs-2025-11-13");
-        if (tool2.inputExamples != null || allowedCallers != null)
+        if (tool5.inputExamples != null || allowedCallers != null)
           betas.add("advanced-tool-use-2025-11-20");
         break;
       }
       case "provider": {
-        switch (tool2.id) {
+        switch (tool5.id) {
           case "anthropic.code_execution_20250522": {
             betas.add("code-execution-2025-05-22"), anthropicTools2.push({
               type: "code_execution_20250522",
@@ -38220,9 +45039,9 @@ async function prepareTools2({
             betas.add("computer-use-2025-01-24"), anthropicTools2.push({
               name: "computer",
               type: "computer_20250124",
-              display_width_px: tool2.args.displayWidthPx,
-              display_height_px: tool2.args.displayHeightPx,
-              display_number: tool2.args.displayNumber,
+              display_width_px: tool5.args.displayWidthPx,
+              display_height_px: tool5.args.displayHeightPx,
+              display_number: tool5.args.displayNumber,
               cache_control: void 0
             });
             break;
@@ -38231,10 +45050,10 @@ async function prepareTools2({
             betas.add("computer-use-2025-11-24"), anthropicTools2.push({
               name: "computer",
               type: "computer_20251124",
-              display_width_px: tool2.args.displayWidthPx,
-              display_height_px: tool2.args.displayHeightPx,
-              display_number: tool2.args.displayNumber,
-              enable_zoom: tool2.args.enableZoom,
+              display_width_px: tool5.args.displayWidthPx,
+              display_height_px: tool5.args.displayHeightPx,
+              display_number: tool5.args.displayNumber,
+              enable_zoom: tool5.args.enableZoom,
               cache_control: void 0
             });
             break;
@@ -38243,9 +45062,9 @@ async function prepareTools2({
             betas.add("computer-use-2024-10-22"), anthropicTools2.push({
               name: "computer",
               type: "computer_20241022",
-              display_width_px: tool2.args.displayWidthPx,
-              display_height_px: tool2.args.displayHeightPx,
-              display_number: tool2.args.displayNumber,
+              display_width_px: tool5.args.displayWidthPx,
+              display_height_px: tool5.args.displayHeightPx,
+              display_number: tool5.args.displayNumber,
               cache_control: void 0
             });
             break;
@@ -38275,8 +45094,8 @@ async function prepareTools2({
             break;
           }
           case "anthropic.text_editor_20250728": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes3({
+              value: tool5.args,
               schema: textEditor_20250728ArgsSchema
             });
             anthropicTools2.push({
@@ -38312,8 +45131,8 @@ async function prepareTools2({
           }
           case "anthropic.web_fetch_20250910": {
             betas.add("web-fetch-2025-09-10");
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes3({
+              value: tool5.args,
               schema: webFetch_20250910ArgsSchema
             });
             anthropicTools2.push({
@@ -38330,8 +45149,8 @@ async function prepareTools2({
           }
           case "anthropic.web_fetch_20260209": {
             betas.add("code-execution-web-tools-2026-02-09");
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes3({
+              value: tool5.args,
               schema: webFetch_20260209ArgsSchema
             });
             anthropicTools2.push({
@@ -38347,8 +45166,8 @@ async function prepareTools2({
             break;
           }
           case "anthropic.web_search_20250305": {
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes3({
+              value: tool5.args,
               schema: webSearch_20250305ArgsSchema
             });
             anthropicTools2.push({
@@ -38364,8 +45183,8 @@ async function prepareTools2({
           }
           case "anthropic.web_search_20260209": {
             betas.add("code-execution-web-tools-2026-02-09");
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes3({
+              value: tool5.args,
               schema: webSearch_20260209ArgsSchema
             });
             anthropicTools2.push({
@@ -38395,8 +45214,8 @@ async function prepareTools2({
           }
           case "anthropic.advisor_20260301": {
             betas.add("advisor-tool-2026-03-01");
-            let args = await validateTypes({
-              value: tool2.args,
+            let args = await validateTypes3({
+              value: tool5.args,
               schema: advisor_20260301ArgsSchema
             });
             anthropicTools2.push({
@@ -38411,7 +45230,7 @@ async function prepareTools2({
           default: {
             toolWarnings.push({
               type: "unsupported",
-              feature: `provider-defined tool ${tool2.id}`
+              feature: `provider-defined tool ${tool5.id}`
             });
             break;
           }
@@ -38421,7 +45240,7 @@ async function prepareTools2({
       default: {
         toolWarnings.push({
           type: "unsupported",
-          feature: `tool ${tool2}`
+          feature: `tool ${tool5}`
         });
         break;
       }
@@ -38469,17 +45288,17 @@ async function prepareTools2({
         betas
       };
     default:
-      throw new UnsupportedFunctionalityError({
+      throw new UnsupportedFunctionalityError3({
         functionality: `tool choice type: ${type}`
       });
   }
 }
-function convertAnthropicMessagesUsage({
+function convertAnthropicUsage({
   usage,
   rawUsage
 }) {
-  var _a24, _b16, _c;
-  let cacheCreationTokens = (_a24 = usage.cache_creation_input_tokens) != null ? _a24 : 0, cacheReadTokens = (_b16 = usage.cache_read_input_tokens) != null ? _b16 : 0, inputTokens, outputTokens, servedByFallback = (_c = usage.iterations) == null ? void 0 : _c.some((iter) => iter.type === "fallback_message");
+  var _a37, _b16, _c;
+  let cacheCreationTokens = (_a37 = usage.cache_creation_input_tokens) != null ? _a37 : 0, cacheReadTokens = (_b16 = usage.cache_read_input_tokens) != null ? _b16 : 0, inputTokens, outputTokens, servedByFallback = (_c = usage.iterations) == null ? void 0 : _c.some((iter) => iter.type === "fallback_message");
   if (usage.iterations && usage.iterations.length > 0 && !servedByFallback) {
     let executorIterations = usage.iterations.filter((iter) => iter.type === "compaction" || iter.type === "message");
     if (executorIterations.length > 0) {
@@ -38507,7 +45326,7 @@ function convertAnthropicMessagesUsage({
     raw: rawUsage != null ? rawUsage : usage
   };
 }
-var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_external.object({
+var codeExecution_20250522OutputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   type: exports_external.literal("code_execution_result"),
   stdout: exports_external.string(),
   stderr: exports_external.string(),
@@ -38516,15 +45335,15 @@ var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_exte
     type: exports_external.literal("code_execution_output"),
     file_id: exports_external.string()
   })).optional().default([])
-}))), codeExecution_20250522InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}))), codeExecution_20250522InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   code: exports_external.string()
-}))), factory7 = createProviderToolFactoryWithOutputSchema({
+}))), factory7 = createProviderExecutedToolFactory({
   id: "anthropic.code_execution_20250522",
   inputSchema: codeExecution_20250522InputSchema,
   outputSchema: codeExecution_20250522OutputSchema
 }), codeExecution_20250522 = (args = {}) => {
   return factory7(args);
-}, codeExecution_20250825OutputSchema = lazySchema(() => zodSchema(exports_external.discriminatedUnion("type", [
+}, codeExecution_20250825OutputSchema = lazySchema3(() => zodSchema3(exports_external.discriminatedUnion("type", [
   exports_external.object({
     type: exports_external.literal("code_execution_result"),
     stdout: exports_external.string(),
@@ -38573,7 +45392,7 @@ var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_exte
     old_lines: exports_external.number().nullable(),
     old_start: exports_external.number().nullable()
   })
-]))), codeExecution_20250825InputSchema = lazySchema(() => zodSchema(exports_external.discriminatedUnion("type", [
+]))), codeExecution_20250825InputSchema = lazySchema3(() => zodSchema3(exports_external.discriminatedUnion("type", [
   exports_external.object({
     type: exports_external.literal("programmatic-tool-call"),
     code: exports_external.string()
@@ -38602,14 +45421,14 @@ var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_exte
       new_str: exports_external.string()
     })
   ])
-]))), factory8 = createProviderToolFactoryWithOutputSchema({
+]))), factory8 = createProviderExecutedToolFactory({
   id: "anthropic.code_execution_20250825",
   inputSchema: codeExecution_20250825InputSchema,
   outputSchema: codeExecution_20250825OutputSchema,
   supportsDeferredResults: !0
 }), codeExecution_20250825 = (args = {}) => {
   return factory8(args);
-}, codeExecution_20260120OutputSchema = lazySchema(() => zodSchema(exports_external.discriminatedUnion("type", [
+}, codeExecution_20260120OutputSchema = lazySchema3(() => zodSchema3(exports_external.discriminatedUnion("type", [
   exports_external.object({
     type: exports_external.literal("code_execution_result"),
     stdout: exports_external.string(),
@@ -38668,7 +45487,7 @@ var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_exte
     old_lines: exports_external.number().nullable(),
     old_start: exports_external.number().nullable()
   })
-]))), codeExecution_20260120InputSchema = lazySchema(() => zodSchema(exports_external.discriminatedUnion("type", [
+]))), codeExecution_20260120InputSchema = lazySchema3(() => zodSchema3(exports_external.discriminatedUnion("type", [
   exports_external.object({
     type: exports_external.literal("programmatic-tool-call"),
     code: exports_external.string()
@@ -38697,20 +45516,20 @@ var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_exte
       new_str: exports_external.string()
     })
   ])
-]))), factory9 = createProviderToolFactoryWithOutputSchema({
+]))), factory9 = createProviderExecutedToolFactory({
   id: "anthropic.code_execution_20260120",
   inputSchema: codeExecution_20260120InputSchema,
   outputSchema: codeExecution_20260120OutputSchema,
   supportsDeferredResults: !0
 }), codeExecution_20260120 = (args = {}) => {
   return factory9(args);
-}, toolSearchRegex_20251119OutputSchema = lazySchema(() => zodSchema(exports_external.array(exports_external.object({
+}, toolSearchRegex_20251119OutputSchema = lazySchema3(() => zodSchema3(exports_external.array(exports_external.object({
   type: exports_external.literal("tool_reference"),
   toolName: exports_external.string()
-})))), toolSearchRegex_20251119InputSchema = lazySchema(() => zodSchema(exports_external.object({
+})))), toolSearchRegex_20251119InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   pattern: exports_external.string(),
   limit: exports_external.number().optional()
-}))), factory10 = createProviderToolFactoryWithOutputSchema({
+}))), factory10 = createProviderExecutedToolFactory({
   id: "anthropic.tool_search_regex_20251119",
   inputSchema: toolSearchRegex_20251119InputSchema,
   outputSchema: toolSearchRegex_20251119OutputSchema,
@@ -38718,58 +45537,51 @@ var codeExecution_20250522OutputSchema = lazySchema(() => zodSchema(exports_exte
 }), toolSearchRegex_20251119 = (args = {}) => {
   return factory10(args);
 };
-function convertToString(data) {
+function convertBytesDataToString(data) {
   if (typeof data === "string")
-    return (/* @__PURE__ */ new TextDecoder()).decode(convertBase64ToUint8Array(data));
-  if (data instanceof Uint8Array)
-    return (/* @__PURE__ */ new TextDecoder()).decode(data);
-  if (data instanceof URL)
-    throw new UnsupportedFunctionalityError({
-      functionality: "URL-based text documents are not supported for citations"
-    });
-  throw new UnsupportedFunctionalityError({
-    functionality: `unsupported data type for text documents: ${typeof data}`
-  });
+    return (/* @__PURE__ */ new TextDecoder()).decode(convertBase64ToUint8Array2(data));
+  return (/* @__PURE__ */ new TextDecoder()).decode(data);
 }
-function isUrlData(data) {
-  return data instanceof URL || isUrlString(data);
-}
-function isUrlString(data) {
-  return typeof data === "string" && /^https?:\/\//i.test(data);
-}
-function getUrlString(data) {
-  return data instanceof URL ? data.toString() : data;
-}
-async function extractErrorValue(value) {
-  if (typeof value === "string") {
-    let result = await safeParseJSON({ text: value });
-    if (result.success && typeof result.value === "object" && result.value !== null)
-      return result.value;
+function extractErrorValue(value) {
+  try {
+    if (typeof value === "string")
+      return secureJsonParse3(value);
+    else if (typeof value === "object" && value !== null)
+      return value;
+  } catch (e) {
+    let extractedErrorCode = value == null ? void 0 : value.errorCode;
     return {
-      errorCode: "unavailable"
+      errorCode: typeof extractedErrorCode === "string" ? extractedErrorCode : "unavailable"
     };
   }
-  if (typeof value === "object" && value !== null)
-    return value;
   return {};
 }
-async function convertToAnthropicMessagesPrompt({
+async function convertToAnthropicPrompt({
   prompt,
   sendReasoning,
   warnings,
   cacheControlValidator,
   toolNameMapping
 }) {
-  var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u;
+  var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v;
   let betas = /* @__PURE__ */ new Set, blocks = groupIntoBlocks(prompt), validator = cacheControlValidator || new CacheControlValidator, system = void 0, messages = [];
   async function shouldEnableCitations(providerMetadata) {
-    var _a25, _b23;
+    var _a210, _b28;
     let anthropicOptions = await parseProviderOptions({
       provider: "anthropic",
       providerOptions: providerMetadata,
       schema: anthropicFilePartProviderOptions
     });
-    return (_b23 = (_a25 = anthropicOptions == null ? void 0 : anthropicOptions.citations) == null ? void 0 : _a25.enabled) != null ? _b23 : !1;
+    return (_b28 = (_a210 = anthropicOptions == null ? void 0 : anthropicOptions.citations) == null ? void 0 : _a210.enabled) != null ? _b28 : !1;
+  }
+  async function shouldUseContainerUpload(providerMetadata) {
+    var _a210;
+    let anthropicOptions = await parseProviderOptions({
+      provider: "anthropic",
+      providerOptions: providerMetadata,
+      schema: anthropicFilePartProviderOptions
+    });
+    return (_a210 = anthropicOptions == null ? void 0 : anthropicOptions.containerUpload) != null ? _a210 : !1;
   }
   async function getDocumentMetadata(providerMetadata) {
     let anthropicOptions = await parseProviderOptions({
@@ -38807,10 +45619,10 @@ async function convertToAnthropicMessagesPrompt({
           switch (role) {
             case "user": {
               for (let j = 0;j < content.length; j++) {
-                let part = content[j], isLastPart = j === content.length - 1, cacheControl = (_a24 = validator.getCacheControl(part.providerOptions, {
+                let part = content[j], isLastPart = j === content.length - 1, cacheControl = (_a37 = validator.getCacheControl(part.providerOptions, {
                   type: "user message part",
                   canCache: !0
-                })) != null ? _a24 : isLastPart ? validator.getCacheControl(message.providerOptions, {
+                })) != null ? _a37 : isLastPart ? validator.getCacheControl(message.providerOptions, {
                   type: "user message",
                   canCache: !0
                 }) : void 0;
@@ -38824,62 +45636,117 @@ async function convertToAnthropicMessagesPrompt({
                     break;
                   }
                   case "file": {
-                    if (part.mediaType.startsWith("image/"))
-                      anthropicContent.push({
-                        type: "image",
-                        source: isUrlData(part.data) ? {
-                          type: "url",
-                          url: getUrlString(part.data)
-                        } : {
-                          type: "base64",
-                          media_type: part.mediaType === "image/*" ? "image/jpeg" : part.mediaType,
-                          data: convertToBase64(part.data)
-                        },
-                        cache_control: cacheControl
-                      });
-                    else if (part.mediaType === "application/pdf") {
-                      betas.add("pdfs-2024-09-25");
-                      let enableCitations = await shouldEnableCitations(part.providerOptions), metadata = await getDocumentMetadata(part.providerOptions);
-                      anthropicContent.push({
-                        type: "document",
-                        source: isUrlData(part.data) ? {
-                          type: "url",
-                          url: getUrlString(part.data)
-                        } : {
-                          type: "base64",
-                          media_type: "application/pdf",
-                          data: convertToBase64(part.data)
-                        },
-                        title: (_b16 = metadata.title) != null ? _b16 : part.filename,
-                        ...metadata.context && { context: metadata.context },
-                        ...enableCitations && {
-                          citations: { enabled: !0 }
-                        },
-                        cache_control: cacheControl
-                      });
-                    } else if (part.mediaType === "text/plain") {
-                      let enableCitations = await shouldEnableCitations(part.providerOptions), metadata = await getDocumentMetadata(part.providerOptions);
-                      anthropicContent.push({
-                        type: "document",
-                        source: isUrlData(part.data) ? {
-                          type: "url",
-                          url: getUrlString(part.data)
-                        } : {
-                          type: "text",
-                          media_type: "text/plain",
-                          data: convertToString(part.data)
-                        },
-                        title: (_c = metadata.title) != null ? _c : part.filename,
-                        ...metadata.context && { context: metadata.context },
-                        ...enableCitations && {
-                          citations: { enabled: !0 }
-                        },
-                        cache_control: cacheControl
-                      });
-                    } else
-                      throw new UnsupportedFunctionalityError({
-                        functionality: `media type: ${part.mediaType}`
-                      });
+                    switch (part.data.type) {
+                      case "reference": {
+                        let fileId = resolveProviderReference({
+                          reference: part.data.reference,
+                          provider: "anthropic"
+                        });
+                        if (betas.add("files-api-2025-04-14"), await shouldUseContainerUpload(part.providerOptions))
+                          anthropicContent.push({
+                            type: "container_upload",
+                            file_id: fileId
+                          });
+                        else if (getTopLevelMediaType(part.mediaType) === "image")
+                          anthropicContent.push({
+                            type: "image",
+                            source: { type: "file", file_id: fileId },
+                            cache_control: cacheControl
+                          });
+                        else
+                          anthropicContent.push({
+                            type: "document",
+                            source: { type: "file", file_id: fileId },
+                            cache_control: cacheControl
+                          });
+                        break;
+                      }
+                      case "text": {
+                        let enableCitations = await shouldEnableCitations(part.providerOptions), metadata = await getDocumentMetadata(part.providerOptions);
+                        anthropicContent.push({
+                          type: "document",
+                          source: {
+                            type: "text",
+                            media_type: "text/plain",
+                            data: part.data.text
+                          },
+                          title: (_b16 = metadata.title) != null ? _b16 : part.filename,
+                          ...metadata.context && {
+                            context: metadata.context
+                          },
+                          ...enableCitations && {
+                            citations: { enabled: !0 }
+                          },
+                          cache_control: cacheControl
+                        });
+                        break;
+                      }
+                      case "url":
+                      case "data": {
+                        let topLevel = getTopLevelMediaType(part.mediaType);
+                        if (topLevel === "image")
+                          anthropicContent.push({
+                            type: "image",
+                            source: part.data.type === "url" ? {
+                              type: "url",
+                              url: part.data.url.toString()
+                            } : {
+                              type: "base64",
+                              media_type: resolveFullMediaType({ part }),
+                              data: convertToBase64(part.data.data)
+                            },
+                            cache_control: cacheControl
+                          });
+                        else if (topLevel === "application" && (part.data.type === "url" ? part.mediaType === "application/pdf" : resolveFullMediaType({ part }) === "application/pdf")) {
+                          betas.add("pdfs-2024-09-25");
+                          let enableCitations = await shouldEnableCitations(part.providerOptions), metadata = await getDocumentMetadata(part.providerOptions);
+                          anthropicContent.push({
+                            type: "document",
+                            source: part.data.type === "url" ? {
+                              type: "url",
+                              url: part.data.url.toString()
+                            } : {
+                              type: "base64",
+                              media_type: "application/pdf",
+                              data: convertToBase64(part.data.data)
+                            },
+                            title: (_c = metadata.title) != null ? _c : part.filename,
+                            ...metadata.context && {
+                              context: metadata.context
+                            },
+                            ...enableCitations && {
+                              citations: { enabled: !0 }
+                            },
+                            cache_control: cacheControl
+                          });
+                        } else if (part.mediaType === "text/plain") {
+                          let enableCitations = await shouldEnableCitations(part.providerOptions), metadata = await getDocumentMetadata(part.providerOptions);
+                          anthropicContent.push({
+                            type: "document",
+                            source: part.data.type === "url" ? {
+                              type: "url",
+                              url: part.data.url.toString()
+                            } : {
+                              type: "text",
+                              media_type: "text/plain",
+                              data: convertBytesDataToString(part.data.data)
+                            },
+                            title: (_d = metadata.title) != null ? _d : part.filename,
+                            ...metadata.context && {
+                              context: metadata.context
+                            },
+                            ...enableCitations && {
+                              citations: { enabled: !0 }
+                            },
+                            cache_control: cacheControl
+                          });
+                        } else
+                          throw new UnsupportedFunctionalityError3({
+                            functionality: `media type: ${part.mediaType}`
+                          });
+                        break;
+                      }
+                    }
                     break;
                   }
                 }
@@ -38891,69 +45758,80 @@ async function convertToAnthropicMessagesPrompt({
                 let part = content[i2];
                 if (part.type === "tool-approval-response")
                   continue;
-                let output = part.output, outputProviderOptions = "providerOptions" in output ? output.providerOptions : output.type === "content" ? (_d = output.value.find((contentPart) => contentPart.providerOptions != null)) == null ? void 0 : _d.providerOptions : void 0, isLastPart = i2 === content.length - 1, cacheControl = (_f = (_e = validator.getCacheControl(part.providerOptions, {
+                let output = part.output, outputProviderOptions = "providerOptions" in output ? output.providerOptions : output.type === "content" ? (_e = output.value.find((contentPart) => contentPart.providerOptions != null)) == null ? void 0 : _e.providerOptions : void 0, isLastPart = i2 === content.length - 1, cacheControl = (_g = (_f = validator.getCacheControl(part.providerOptions, {
                   type: "tool result part",
                   canCache: !0
-                })) != null ? _e : validator.getCacheControl(outputProviderOptions, {
+                })) != null ? _f : validator.getCacheControl(outputProviderOptions, {
                   type: "tool result output",
                   canCache: !0
-                })) != null ? _f : isLastPart ? validator.getCacheControl(message.providerOptions, {
+                })) != null ? _g : isLastPart ? validator.getCacheControl(message.providerOptions, {
                   type: "tool result message",
                   canCache: !0
                 }) : void 0, contentValue;
                 switch (output.type) {
                   case "content":
                     contentValue = output.value.map((contentPart) => {
-                      var _a25;
+                      var _a210;
                       switch (contentPart.type) {
                         case "text":
                           return {
                             type: "text",
                             text: contentPart.text
                           };
-                        case "image-data":
-                          return {
-                            type: "image",
-                            source: {
-                              type: "base64",
-                              media_type: contentPart.mediaType,
-                              data: contentPart.data
-                            }
-                          };
-                        case "image-url":
-                          return {
-                            type: "image",
-                            source: {
-                              type: "url",
-                              url: contentPart.url
-                            }
-                          };
-                        case "file-url":
-                          return {
-                            type: "document",
-                            source: {
-                              type: "url",
-                              url: contentPart.url
-                            }
-                          };
-                        case "file-data": {
-                          if (contentPart.mediaType === "application/pdf")
-                            return betas.add("pdfs-2024-09-25"), {
+                        case "file": {
+                          let topLevel = getTopLevelMediaType(contentPart.mediaType);
+                          if (contentPart.data.type === "url") {
+                            if (topLevel === "image")
+                              return {
+                                type: "image",
+                                source: {
+                                  type: "url",
+                                  url: contentPart.data.url.toString()
+                                }
+                              };
+                            return {
                               type: "document",
                               source: {
-                                type: "base64",
-                                media_type: contentPart.mediaType,
-                                data: contentPart.data
+                                type: "url",
+                                url: contentPart.data.url.toString()
                               }
                             };
+                          }
+                          if (contentPart.data.type === "data") {
+                            if (topLevel === "image")
+                              return {
+                                type: "image",
+                                source: {
+                                  type: "base64",
+                                  media_type: resolveFullMediaType({
+                                    part: contentPart
+                                  }),
+                                  data: convertToBase64(contentPart.data.data)
+                                }
+                              };
+                            if (resolveFullMediaType({ part: contentPart }) === "application/pdf")
+                              return betas.add("pdfs-2024-09-25"), {
+                                type: "document",
+                                source: {
+                                  type: "base64",
+                                  media_type: "application/pdf",
+                                  data: convertToBase64(contentPart.data.data)
+                                }
+                              };
+                            warnings.push({
+                              type: "other",
+                              message: `unsupported tool content part type: ${contentPart.type} with media type: ${contentPart.mediaType}`
+                            });
+                            return;
+                          }
                           warnings.push({
                             type: "other",
-                            message: `unsupported tool content part type: ${contentPart.type} with media type: ${contentPart.mediaType}`
+                            message: `unsupported tool content part type: ${contentPart.type} with data type: ${contentPart.data.type}`
                           });
                           return;
                         }
                         case "custom": {
-                          let anthropicOptions = (_a25 = contentPart.providerOptions) == null ? void 0 : _a25.anthropic;
+                          let anthropicOptions = (_a210 = contentPart.providerOptions) == null ? void 0 : _a210.anthropic;
                           if ((anthropicOptions == null ? void 0 : anthropicOptions.type) === "tool-reference")
                             return {
                               type: "tool_reference",
@@ -38980,7 +45858,7 @@ async function convertToAnthropicMessagesPrompt({
                     contentValue = output.value;
                     break;
                   case "execution-denied":
-                    contentValue = (_g = output.reason) != null ? _g : "Tool execution denied.";
+                    contentValue = (_h = output.reason) != null ? _h : "Tool call execution denied.";
                     break;
                   case "json":
                   case "error-json":
@@ -39010,16 +45888,16 @@ async function convertToAnthropicMessagesPrompt({
         for (let j = 0;j < block.messages.length; j++) {
           let message = block.messages[j], isLastMessage = j === block.messages.length - 1, { content } = message;
           for (let k = 0;k < content.length; k++) {
-            let part = content[k], isLastContentPart = k === content.length - 1, cacheControl = (_h = validator.getCacheControl(part.providerOptions, {
+            let part = content[k], isLastContentPart = k === content.length - 1, cacheControl = (_i = validator.getCacheControl(part.providerOptions, {
               type: "assistant message part",
               canCache: !0
-            })) != null ? _h : isLastContentPart ? validator.getCacheControl(message.providerOptions, {
+            })) != null ? _i : isLastContentPart ? validator.getCacheControl(message.providerOptions, {
               type: "assistant message",
               canCache: !0
             }) : void 0;
             switch (part.type) {
               case "text": {
-                let textMetadata = (_i = part.providerOptions) == null ? void 0 : _i.anthropic;
+                let textMetadata = (_j = part.providerOptions) == null ? void 0 : _j.anthropic;
                 if ((textMetadata == null ? void 0 : textMetadata.type) === "compaction")
                   anthropicContent.push({
                     type: "compaction",
@@ -39079,9 +45957,9 @@ async function convertToAnthropicMessagesPrompt({
               case "tool-call": {
                 if (part.providerExecuted) {
                   let providerToolName = toolNameMapping.toProviderToolName(part.toolName);
-                  if (((_k = (_j = part.providerOptions) == null ? void 0 : _j.anthropic) == null ? void 0 : _k.type) === "mcp-tool-use") {
+                  if (((_l = (_k = part.providerOptions) == null ? void 0 : _k.anthropic) == null ? void 0 : _l.type) === "mcp-tool-use") {
                     mcpToolUseIds.add(part.toolCallId);
-                    let serverName = (_m = (_l = part.providerOptions) == null ? void 0 : _l.anthropic) == null ? void 0 : _m.serverName;
+                    let serverName = (_n = (_m = part.providerOptions) == null ? void 0 : _m.anthropic) == null ? void 0 : _n.serverName;
                     if (serverName == null || typeof serverName !== "string") {
                       warnings.push({
                         type: "other",
@@ -39145,7 +46023,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                   break;
                 }
-                let callerOptions = (_n = part.providerOptions) == null ? void 0 : _n.anthropic, caller = (callerOptions == null ? void 0 : callerOptions.caller) ? (callerOptions.caller.type === "code_execution_20250825" || callerOptions.caller.type === "code_execution_20260120") && callerOptions.caller.toolId ? {
+                let callerOptions = (_o = part.providerOptions) == null ? void 0 : _o.anthropic, caller = (callerOptions == null ? void 0 : callerOptions.caller) ? (callerOptions.caller.type === "code_execution_20250825" || callerOptions.caller.type === "code_execution_20260120") && callerOptions.caller.toolId ? {
                   type: callerOptions.caller.type,
                   tool_id: callerOptions.caller.toolId
                 } : callerOptions.caller.type === "direct" ? { type: "direct" } : void 0 : void 0;
@@ -39153,7 +46031,7 @@ async function convertToAnthropicMessagesPrompt({
                   type: "tool_use",
                   id: part.toolCallId,
                   name: part.toolName,
-                  input: part.input,
+                  input: toAnthropicToolInput(part.input),
                   ...caller && { caller },
                   cache_control: cacheControl
                 });
@@ -39183,7 +46061,7 @@ async function convertToAnthropicMessagesPrompt({
                     let errorInfo = {};
                     try {
                       if (typeof output.value === "string")
-                        errorInfo = JSON.parse(output.value);
+                        errorInfo = secureJsonParse3(output.value);
                       else if (typeof output.value === "object" && output.value !== null)
                         errorInfo = output.value;
                     } catch (e) {}
@@ -39193,7 +46071,7 @@ async function convertToAnthropicMessagesPrompt({
                         tool_use_id: part.toolCallId,
                         content: {
                           type: "code_execution_tool_result_error",
-                          error_code: (_o = errorInfo.errorCode) != null ? _o : "unknown"
+                          error_code: (_p = errorInfo.errorCode) != null ? _p : "unknown"
                         },
                         cache_control: cacheControl
                       });
@@ -39204,7 +46082,7 @@ async function convertToAnthropicMessagesPrompt({
                         cache_control: cacheControl,
                         content: {
                           type: "bash_code_execution_tool_result_error",
-                          error_code: (_p = errorInfo.errorCode) != null ? _p : "unknown"
+                          error_code: (_q = errorInfo.errorCode) != null ? _q : "unknown"
                         }
                       });
                     break;
@@ -39224,7 +46102,7 @@ async function convertToAnthropicMessagesPrompt({
                     break;
                   }
                   if (output.value.type === "code_execution_result") {
-                    let codeExecutionOutput = await validateTypes({
+                    let codeExecutionOutput = await validateTypes3({
                       value: output.value,
                       schema: codeExecution_20250522OutputSchema
                     });
@@ -39236,12 +46114,12 @@ async function convertToAnthropicMessagesPrompt({
                         stdout: codeExecutionOutput.stdout,
                         stderr: codeExecutionOutput.stderr,
                         return_code: codeExecutionOutput.return_code,
-                        content: (_q = codeExecutionOutput.content) != null ? _q : []
+                        content: (_r = codeExecutionOutput.content) != null ? _r : []
                       },
                       cache_control: cacheControl
                     });
                   } else if (output.value.type === "encrypted_code_execution_result") {
-                    let codeExecutionOutput = await validateTypes({
+                    let codeExecutionOutput = await validateTypes3({
                       value: output.value,
                       schema: codeExecution_20260120OutputSchema
                     });
@@ -39254,12 +46132,12 @@ async function convertToAnthropicMessagesPrompt({
                           encrypted_stdout: codeExecutionOutput.encrypted_stdout,
                           stderr: codeExecutionOutput.stderr,
                           return_code: codeExecutionOutput.return_code,
-                          content: (_r = codeExecutionOutput.content) != null ? _r : []
+                          content: (_s = codeExecutionOutput.content) != null ? _s : []
                         },
                         cache_control: cacheControl
                       });
                   } else {
-                    let codeExecutionOutput = await validateTypes({
+                    let codeExecutionOutput = await validateTypes3({
                       value: output.value,
                       schema: codeExecution_20250825OutputSchema
                     });
@@ -39272,7 +46150,7 @@ async function convertToAnthropicMessagesPrompt({
                           stdout: codeExecutionOutput.stdout,
                           stderr: codeExecutionOutput.stderr,
                           return_code: codeExecutionOutput.return_code,
-                          content: (_s = codeExecutionOutput.content) != null ? _s : []
+                          content: (_t = codeExecutionOutput.content) != null ? _t : []
                         },
                         cache_control: cacheControl
                       });
@@ -39301,7 +46179,7 @@ async function convertToAnthropicMessagesPrompt({
                       tool_use_id: part.toolCallId,
                       content: {
                         type: "web_fetch_tool_result_error",
-                        error_code: (_t = (await extractErrorValue(output.value)).errorCode) != null ? _t : "unavailable"
+                        error_code: (_u = extractErrorValue(output.value).errorCode) != null ? _u : "unavailable"
                       },
                       cache_control: cacheControl
                     });
@@ -39314,7 +46192,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                     break;
                   }
-                  let webFetchOutput = await validateTypes({
+                  let webFetchOutput = await validateTypes3({
                     value: output.value,
                     schema: webFetch_20250910OutputSchema
                   });
@@ -39348,7 +46226,7 @@ async function convertToAnthropicMessagesPrompt({
                       tool_use_id: part.toolCallId,
                       content: {
                         type: "web_search_tool_result_error",
-                        error_code: (_u = (await extractErrorValue(output.value)).errorCode) != null ? _u : "unavailable"
+                        error_code: (_v = extractErrorValue(output.value).errorCode) != null ? _v : "unavailable"
                       },
                       cache_control: cacheControl
                     });
@@ -39361,7 +46239,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                     break;
                   }
-                  let webSearchOutput = await validateTypes({
+                  let webSearchOutput = await validateTypes3({
                     value: output.value,
                     schema: webSearch_20250305OutputSchema
                   });
@@ -39388,7 +46266,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                     break;
                   }
-                  let toolReferences = (await validateTypes({
+                  let toolReferences = (await validateTypes3({
                     value: output.value,
                     schema: toolSearchRegex_20251119OutputSchema
                   })).map((ref) => ({
@@ -39415,7 +46293,7 @@ async function convertToAnthropicMessagesPrompt({
                     });
                     break;
                   }
-                  let advisorOutput = await validateTypes({
+                  let advisorOutput = await validateTypes3({
                     value: output.value,
                     schema: advisor_20260301OutputSchema
                   });
@@ -39460,7 +46338,10 @@ async function convertToAnthropicMessagesPrompt({
             }
           }
         }
-        messages.push({ role: "assistant", content: anthropicContent });
+        messages.push({
+          role: "assistant",
+          content: moveToolUseBlocksToEnd(anthropicContent)
+        });
         break;
       }
       default:
@@ -39506,6 +46387,21 @@ function groupIntoBlocks(prompt) {
     }
   }
   return blocks;
+}
+function moveToolUseBlocksToEnd(content) {
+  let result = [], segment = [];
+  function flushSegment() {
+    result.push(...segment.filter((part) => part.type !== "tool_use"), ...segment.filter((part) => part.type === "tool_use")), segment = [];
+  }
+  for (let part of content)
+    if (part.type === "thinking" || part.type === "redacted_thinking")
+      flushSegment(), result.push(part);
+    else
+      segment.push(part);
+  return flushSegment(), result;
+}
+function toAnthropicToolInput(input) {
+  return typeof input === "object" && input !== null && !Array.isArray(input) ? input : { rawInvalidInput: input };
 }
 function mapAnthropicStopReason({
   finishReason,
@@ -39591,21 +46487,21 @@ function sanitizeSchema(schema) {
   if (schema.allOf != null)
     result.allOf = schema.allOf.map(sanitizeDefinition);
   if (schema.definitions != null)
-    result.definitions = Object.fromEntries(Object.entries(schema.definitions).map(([name24, definition]) => [
-      name24,
+    result.definitions = Object.fromEntries(Object.entries(schema.definitions).map(([name31, definition]) => [
+      name31,
       sanitizeDefinition(definition)
     ]));
   if (schemaWithDefs.$defs != null) {
     let resultWithDefs = result;
-    resultWithDefs.$defs = Object.fromEntries(Object.entries(schemaWithDefs.$defs).map(([name24, definition]) => [
-      name24,
+    resultWithDefs.$defs = Object.fromEntries(Object.entries(schemaWithDefs.$defs).map(([name31, definition]) => [
+      name31,
       sanitizeDefinition(definition)
     ]));
   }
   if (schema.type === "object" || schema.properties != null) {
     if (schema.properties != null)
-      result.properties = Object.fromEntries(Object.entries(schema.properties).map(([name24, definition]) => [
-        name24,
+      result.properties = Object.fromEntries(Object.entries(schema.properties).map(([name31, definition]) => [
+        name31,
         sanitizeDefinition(definition)
       ]));
     if (result.additionalProperties = !1, schema.required != null)
@@ -39643,13 +46539,13 @@ function formatConstraintValue(value) {
 function isPlainObject2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-function createCitationSource(citation, citationDocuments, generateId3) {
-  var _a24;
+function createCitationSource(citation, citationDocuments, generateId32) {
+  var _a37;
   if (citation.type === "web_search_result_location")
     return {
       type: "source",
       sourceType: "url",
-      id: generateId3(),
+      id: generateId32(),
       url: citation.url,
       title: citation.title,
       providerMetadata: {
@@ -39667,9 +46563,9 @@ function createCitationSource(citation, citationDocuments, generateId3) {
   return {
     type: "source",
     sourceType: "document",
-    id: generateId3(),
+    id: generateId32(),
     mediaType: documentInfo.mediaType,
-    title: (_a24 = citation.document_title) != null ? _a24 : documentInfo.title,
+    title: (_a37 = citation.document_title) != null ? _a37 : documentInfo.title,
     filename: documentInfo.filename,
     providerMetadata: {
       anthropic: citation.type === "page_location" ? {
@@ -39684,11 +46580,20 @@ function createCitationSource(citation, citationDocuments, generateId3) {
     }
   };
 }
-var AnthropicMessagesLanguageModel = class {
+var AnthropicLanguageModel = class _AnthropicLanguageModel {
   constructor(modelId, config2) {
-    this.specificationVersion = "v3";
-    var _a24;
-    this.modelId = modelId, this.config = config2, this.generateId = (_a24 = config2.generateId) != null ? _a24 : generateId;
+    this.specificationVersion = "v4";
+    var _a37;
+    this.modelId = modelId, this.config = config2, this.generateId = (_a37 = config2.generateId) != null ? _a37 : generateId3;
+  }
+  static [WORKFLOW_SERIALIZE](model) {
+    return serializeModelOptions({
+      modelId: model.modelId,
+      config: model.config
+    });
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _AnthropicLanguageModel(options.modelId, options.config);
   }
   supportsUrl(url2) {
     return url2.protocol === "https:";
@@ -39701,8 +46606,8 @@ var AnthropicMessagesLanguageModel = class {
     return dotIndex === -1 ? provider : provider.substring(0, dotIndex);
   }
   get supportedUrls() {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a24)) != null ? _c : {};
+    var _a37, _b16, _c;
+    return (_c = (_b16 = (_a37 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a37)) != null ? _c : {};
   }
   async getArgs({
     userSuppliedBetas,
@@ -39718,10 +46623,11 @@ var AnthropicMessagesLanguageModel = class {
     seed,
     tools,
     toolChoice,
+    reasoning,
     providerOptions,
     stream
   }) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h, _i, _j;
+    var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k;
     let warnings = [];
     if (frequencyPenalty != null)
       warnings.push({ type: "unsupported", feature: "frequencyPenalty" });
@@ -39760,7 +46666,9 @@ var AnthropicMessagesLanguageModel = class {
     }) : null, usedCustomProviderKey = customProviderOptions != null, anthropicOptions = Object.assign({}, canonicalOptions != null ? canonicalOptions : {}, customProviderOptions != null ? customProviderOptions : {}), {
       maxOutputTokens: maxOutputTokensForModel,
       supportsStructuredOutput: modelSupportsStructuredOutput,
+      supportsAdaptiveThinking,
       rejectsSamplingParameters,
+      supportsXhighEffort,
       isKnownModel
     } = getModelCapabilities(this.modelId);
     if (rejectsSamplingParameters) {
@@ -39783,7 +46691,7 @@ var AnthropicMessagesLanguageModel = class {
           details: `topP is not supported by ${this.modelId} and will be ignored`
         }), topP = void 0;
     }
-    let isAnthropicModel = isKnownModel || this.modelId.startsWith("claude-"), supportsStructuredOutput = ((_a24 = this.config.supportsNativeStructuredOutput) != null ? _a24 : !0) && modelSupportsStructuredOutput, supportsStrictTools = ((_b16 = this.config.supportsStrictTools) != null ? _b16 : !0) && modelSupportsStructuredOutput, structureOutputMode = (_c = anthropicOptions == null ? void 0 : anthropicOptions.structuredOutputMode) != null ? _c : "auto", useStructuredOutput = structureOutputMode === "outputFormat" || structureOutputMode === "auto" && supportsStructuredOutput, jsonResponseTool = (responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !useStructuredOutput ? {
+    let isAnthropicModel = isKnownModel || this.modelId.startsWith("claude-"), supportsStructuredOutput = ((_a37 = this.config.supportsNativeStructuredOutput) != null ? _a37 : !0) && modelSupportsStructuredOutput, supportsStrictTools = ((_b16 = this.config.supportsStrictTools) != null ? _b16 : !0) && modelSupportsStructuredOutput, structureOutputMode = (_c = anthropicOptions == null ? void 0 : anthropicOptions.structuredOutputMode) != null ? _c : "auto", useStructuredOutput = structureOutputMode === "outputFormat" || structureOutputMode === "auto" && supportsStructuredOutput, jsonResponseTool = (responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !useStructuredOutput ? {
       type: "function",
       name: "json",
       description: "Respond with a JSON object.",
@@ -39811,20 +46719,36 @@ var AnthropicMessagesLanguageModel = class {
         "anthropic.tool_search_bm25_20251119": "tool_search_tool_bm25",
         "anthropic.advisor_20260301": "advisor"
       }
-    }), { prompt: messagesPrompt, betas } = await convertToAnthropicMessagesPrompt({
+    }), { prompt: messagesPrompt, betas } = await convertToAnthropicPrompt({
       prompt,
       sendReasoning: (_d = anthropicOptions == null ? void 0 : anthropicOptions.sendReasoning) != null ? _d : !0,
       warnings,
       cacheControlValidator,
       toolNameMapping
-    }), thinkingType = (_e = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _e.type, isThinking = thinkingType === "enabled" || thinkingType === "adaptive", thinkingBudget = thinkingType === "enabled" ? (_f = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _f.budgetTokens : void 0, thinkingDisplay = thinkingType === "adaptive" ? (_g = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _g.display : void 0, maxTokens = maxOutputTokens != null ? maxOutputTokens : maxOutputTokensForModel, baseArgs = {
+    });
+    if (isCustomReasoning(reasoning) && (anthropicOptions == null ? void 0 : anthropicOptions.effort) == null) {
+      let reasoningConfig = resolveAnthropicReasoningConfig({
+        reasoning,
+        supportsAdaptiveThinking,
+        supportsXhighEffort,
+        maxOutputTokensForModel,
+        warnings
+      });
+      if (reasoningConfig != null) {
+        if (anthropicOptions.thinking == null)
+          anthropicOptions.thinking = reasoningConfig.thinking;
+        if (reasoningConfig.effort != null && ((_e = anthropicOptions.thinking) == null ? void 0 : _e.type) !== "disabled")
+          anthropicOptions.effort = reasoningConfig.effort;
+      }
+    }
+    let thinkingType = (_f = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _f.type, isThinking = thinkingType === "enabled" || thinkingType === "adaptive", sendThinking = isThinking || thinkingType === "disabled", thinkingBudget = thinkingType === "enabled" ? (_g = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _g.budgetTokens : void 0, thinkingDisplay = thinkingType === "adaptive" ? (_h = anthropicOptions == null ? void 0 : anthropicOptions.thinking) == null ? void 0 : _h.display : void 0, maxTokens = maxOutputTokens != null ? maxOutputTokens : maxOutputTokensForModel, baseArgs = {
       model: this.modelId,
       max_tokens: maxTokens,
       temperature,
       top_k: topK,
       top_p: topP,
       stop_sequences: stopSequences,
-      ...isThinking && {
+      ...sendThinking && {
         thinking: {
           type: thinkingType,
           ...thinkingBudget != null && { budget_tokens: thinkingBudget },
@@ -39865,7 +46789,7 @@ var AnthropicMessagesLanguageModel = class {
       ...(anthropicOptions == null ? void 0 : anthropicOptions.cacheControl) && {
         cache_control: anthropicOptions.cacheControl
       },
-      ...((_h = anthropicOptions == null ? void 0 : anthropicOptions.metadata) == null ? void 0 : _h.userId) != null && {
+      ...((_i = anthropicOptions == null ? void 0 : anthropicOptions.metadata) == null ? void 0 : _i.userId) != null && {
         metadata: { user_id: anthropicOptions.metadata.userId }
       },
       ...(anthropicOptions == null ? void 0 : anthropicOptions.mcpServers) && anthropicOptions.mcpServers.length > 0 && {
@@ -39885,7 +46809,10 @@ var AnthropicMessagesLanguageModel = class {
           id: anthropicOptions.container.id,
           skills: anthropicOptions.container.skills.map((skill) => ({
             type: skill.type,
-            skill_id: skill.skillId,
+            skill_id: skill.type === "custom" ? resolveProviderReference({
+              reference: skill.providerReference,
+              provider: "anthropic"
+            }) : skill.skillId,
             version: skill.version
           }))
         } : anthropicOptions.container.id
@@ -39994,7 +46921,7 @@ var AnthropicMessagesLanguageModel = class {
         betas.add("compact-2026-01-12");
     }
     if ((anthropicOptions == null ? void 0 : anthropicOptions.container) && anthropicOptions.container.skills && anthropicOptions.container.skills.length > 0) {
-      if (betas.add("code-execution-2025-08-25"), betas.add("skills-2025-10-02"), betas.add("files-api-2025-04-14"), !(tools == null ? void 0 : tools.some((tool2) => tool2.type === "provider" && (tool2.id === "anthropic.code_execution_20250825" || tool2.id === "anthropic.code_execution_20260120"))))
+      if (betas.add("code-execution-2025-08-25"), betas.add("skills-2025-10-02"), betas.add("files-api-2025-04-14"), !(tools == null ? void 0 : tools.some((tool5) => tool5.type === "provider" && (tool5.id === "anthropic.code_execution_20250825" || tool5.id === "anthropic.code_execution_20260120"))))
         warnings.push({
           type: "other",
           message: "code execution tool is required when using skills"
@@ -40006,7 +46933,7 @@ var AnthropicMessagesLanguageModel = class {
       betas.add("fast-mode-2026-02-01");
     if ((anthropicOptions == null ? void 0 : anthropicOptions.fallbacks) && anthropicOptions.fallbacks.length > 0)
       betas.add("server-side-fallback-2026-06-01");
-    let defaultEagerInputStreaming = stream && ((_i = anthropicOptions == null ? void 0 : anthropicOptions.toolStreaming) != null ? _i : !0), {
+    let defaultEagerInputStreaming = stream && ((_j = anthropicOptions == null ? void 0 : anthropicOptions.toolStreaming) != null ? _j : !0), {
       tools: anthropicTools2,
       toolChoice: anthropicToolChoice,
       toolWarnings,
@@ -40040,7 +46967,7 @@ var AnthropicMessagesLanguageModel = class {
         ...betas,
         ...toolsBetas,
         ...userSuppliedBetas,
-        ...(_j = anthropicOptions == null ? void 0 : anthropicOptions.anthropicBeta) != null ? _j : []
+        ...(_k = anthropicOptions == null ? void 0 : anthropicOptions.anthropicBeta) != null ? _k : []
       ]),
       usesJsonResponseTool: jsonResponseTool != null,
       toolNameMapping,
@@ -40052,46 +46979,46 @@ var AnthropicMessagesLanguageModel = class {
     betas,
     headers
   }) {
-    return combineHeaders(await resolve(this.config.headers), headers, betas.size > 0 ? { "anthropic-beta": Array.from(betas).join(",") } : {});
+    return combineHeaders2(this.config.headers ? await resolve3(this.config.headers) : void 0, headers, betas.size > 0 ? { "anthropic-beta": Array.from(betas).join(",") } : {});
   }
   async getBetasFromHeaders(requestHeaders) {
-    var _a24, _b16;
-    let configBetaHeader = (_a24 = (await resolve(this.config.headers))["anthropic-beta"]) != null ? _a24 : "", requestBetaHeader = (_b16 = requestHeaders == null ? void 0 : requestHeaders["anthropic-beta"]) != null ? _b16 : "";
+    var _a37, _b16;
+    let configHeaders = this.config.headers ? await resolve3(this.config.headers) : void 0, configBetaHeader = (_a37 = configHeaders == null ? void 0 : configHeaders["anthropic-beta"]) != null ? _a37 : "", requestBetaHeader = (_b16 = requestHeaders == null ? void 0 : requestHeaders["anthropic-beta"]) != null ? _b16 : "";
     return new Set([
       ...configBetaHeader.toLowerCase().split(","),
       ...requestBetaHeader.toLowerCase().split(",")
     ].map((beta) => beta.trim()).filter((beta) => beta !== ""));
   }
   buildRequestUrl(isStreaming) {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).buildRequestUrl) == null ? void 0 : _b16.call(_a24, this.config.baseURL, isStreaming)) != null ? _c : `${this.config.baseURL}/messages`;
+    var _a37, _b16, _c;
+    return (_c = (_b16 = (_a37 = this.config).buildRequestUrl) == null ? void 0 : _b16.call(_a37, this.config.baseURL, isStreaming)) != null ? _c : `${this.config.baseURL}/messages`;
   }
   transformRequestBody(args, betas) {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).transformRequestBody) == null ? void 0 : _b16.call(_a24, args, betas)) != null ? _c : args;
+    var _a37, _b16, _c;
+    return (_c = (_b16 = (_a37 = this.config).transformRequestBody) == null ? void 0 : _b16.call(_a37, args, betas)) != null ? _c : args;
   }
   extractCitationDocuments(prompt) {
     let isCitationPart = (part) => {
-      var _a24, _b16;
+      var _a37, _b16;
       if (part.type !== "file")
         return !1;
       if (part.mediaType !== "application/pdf" && part.mediaType !== "text/plain")
         return !1;
-      let anthropic2 = (_a24 = part.providerOptions) == null ? void 0 : _a24.anthropic, citationsConfig = anthropic2 == null ? void 0 : anthropic2.citations;
+      let anthropic2 = (_a37 = part.providerOptions) == null ? void 0 : _a37.anthropic, citationsConfig = anthropic2 == null ? void 0 : anthropic2.citations;
       return (_b16 = citationsConfig == null ? void 0 : citationsConfig.enabled) != null ? _b16 : !1;
     };
     return prompt.filter((message) => message.role === "user").flatMap((message) => message.content).filter(isCitationPart).map((part) => {
-      var _a24;
+      var _a37;
       let filePart = part;
       return {
-        title: (_a24 = filePart.filename) != null ? _a24 : "Untitled Document",
+        title: (_a37 = filePart.filename) != null ? _a37 : "Untitled Document",
         filename: filePart.filename,
         mediaType: filePart.mediaType
       };
     });
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g;
+    var _a37, _b16, _c, _d, _e, _f, _g;
     let {
       args,
       warnings,
@@ -40110,12 +47037,12 @@ var AnthropicMessagesLanguageModel = class {
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi2({
       url: this.buildRequestUrl(!1),
       headers: await this.getHeaders({ betas, headers: options.headers }),
       body: this.transformRequestBody(args, betas),
       failedResponseHandler: anthropicFailedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(anthropicMessagesResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler2(anthropicResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), content = [], mcpToolCalls = {}, serverToolCalls = {}, isJsonResponseFromTool = !1;
@@ -40265,7 +47192,7 @@ var AnthropicMessagesLanguageModel = class {
         case "web_fetch_tool_result": {
           if (part.content.type === "web_fetch_result")
             citationDocuments.push({
-              title: (_a24 = part.content.content.title) != null ? _a24 : part.content.url,
+              title: (_a37 = part.content.content.title) != null ? _a37 : part.content.url,
               mediaType: part.content.content.source.media_type
             }), content.push({
               type: "tool-result",
@@ -40307,11 +47234,11 @@ var AnthropicMessagesLanguageModel = class {
               toolCallId: part.tool_use_id,
               toolName: toolNameMapping.toCustomToolName("web_search"),
               result: part.content.map((result) => {
-                var _a25;
+                var _a210;
                 return {
                   url: result.url,
                   title: result.title,
-                  pageAge: (_a25 = result.page_age) != null ? _a25 : null,
+                  pageAge: (_a210 = result.page_age) != null ? _a210 : null,
                   encryptedContent: result.encrypted_content,
                   type: result.type
                 };
@@ -40474,7 +47401,7 @@ var AnthropicMessagesLanguageModel = class {
         }),
         raw: (_e = response.stop_reason) != null ? _e : void 0
       },
-      usage: convertAnthropicMessagesUsage({ usage: response.usage }),
+      usage: convertAnthropicUsage({ usage: response.usage }),
       request: { body: args },
       response: {
         id: (_f = response.id) != null ? _f : void 0,
@@ -40484,11 +47411,10 @@ var AnthropicMessagesLanguageModel = class {
       },
       warnings,
       providerMetadata: (() => {
-        var _a25, _b23, _c2, _d2, _e2;
+        var _a210, _b28, _c2, _d2;
         let stopDetails = mapAnthropicStopDetails(response.stop_details), anthropicMetadata = {
           usage: response.usage,
-          cacheCreationInputTokens: (_a25 = response.usage.cache_creation_input_tokens) != null ? _a25 : null,
-          stopSequence: (_b23 = response.stop_sequence) != null ? _b23 : null,
+          stopSequence: (_a210 = response.stop_sequence) != null ? _a210 : null,
           ...stopDetails != null ? { stopDetails } : {},
           iterations: response.usage.iterations ? response.usage.iterations.map((iter) => ({
             type: iter.type,
@@ -40505,13 +47431,13 @@ var AnthropicMessagesLanguageModel = class {
           container: response.container ? {
             expiresAt: response.container.expires_at,
             id: response.container.id,
-            skills: (_d2 = (_c2 = response.container.skills) == null ? void 0 : _c2.map((skill) => ({
+            skills: (_c2 = (_b28 = response.container.skills) == null ? void 0 : _b28.map((skill) => ({
               type: skill.type,
               skillId: skill.skill_id,
               version: skill.version
-            }))) != null ? _d2 : null
+            }))) != null ? _c2 : null
           } : null,
-          contextManagement: (_e2 = mapAnthropicResponseContextManagement(response.context_management)) != null ? _e2 : null
+          contextManagement: (_d2 = mapAnthropicResponseContextManagement(response.context_management)) != null ? _d2 : null
         }, providerMetadata = {
           anthropic: anthropicMetadata
         };
@@ -40522,7 +47448,7 @@ var AnthropicMessagesLanguageModel = class {
     };
   }
   async doStream(options) {
-    var _a24, _b16;
+    var _a37, _b16;
     let {
       args: body,
       warnings,
@@ -40537,12 +47463,12 @@ var AnthropicMessagesLanguageModel = class {
       userSuppliedBetas: await this.getBetasFromHeaders(options.headers)
     }), citationDocuments = [
       ...this.extractCitationDocuments(options.prompt)
-    ], markCodeExecutionDynamic = hasWebTool20260209WithoutCodeExecution(body.tools), url2 = this.buildRequestUrl(!0), { responseHeaders, value: response } = await postJsonToApi({
+    ], markCodeExecutionDynamic = hasWebTool20260209WithoutCodeExecution(body.tools), url2 = this.buildRequestUrl(!0), { responseHeaders, value: response } = await postJsonToApi2({
       url: url2,
       headers: await this.getHeaders({ betas, headers: options.headers }),
       body: this.transformRequestBody(body, betas),
       failedResponseHandler: anthropicFailedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(anthropicMessagesChunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler2(anthropicChunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), finishReason = {
@@ -40554,12 +47480,12 @@ var AnthropicMessagesLanguageModel = class {
       cache_creation_input_tokens: 0,
       cache_read_input_tokens: 0,
       iterations: null
-    }, contentBlocks = {}, mcpToolCalls = {}, serverToolCalls = {}, contextManagement = null, rawUsage = void 0, cacheCreationInputTokens = null, stopSequence = null, stopDetails = void 0, container = null, isJsonResponseFromTool = !1, blockType = void 0, generateId3 = this.generateId, transformedStream = response.pipeThrough(new TransformStream({
+    }, contentBlocks = {}, mcpToolCalls = {}, serverToolCalls = {}, contextManagement = null, rawUsage = void 0, stopSequence = null, stopDetails = void 0, container = null, isJsonResponseFromTool = !1, blockType = void 0, generateId32 = this.generateId, transformedStream = response.pipeThrough(new TransformStream({
       start(controller) {
         controller.enqueue({ type: "stream-start", warnings });
       },
       transform(chunk, controller) {
-        var _a25, _b23, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
+        var _a210, _b28, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
         if (options.includeRawChunks)
           controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
         if (!chunk.success) {
@@ -40649,7 +47575,7 @@ var AnthropicMessagesLanguageModel = class {
                   "text_editor_code_execution",
                   "bash_code_execution"
                 ].includes(part.name)) {
-                  let providerToolName = part.name === "text_editor_code_execution" || part.name === "bash_code_execution" ? "code_execution" : part.name, customToolName = toolNameMapping.toCustomToolName(providerToolName), finalInput = part.input != null && typeof part.input === "object" && Object.keys(part.input).length > 0 ? JSON.stringify(part.input) : "";
+                  let providerToolName = part.name === "text_editor_code_execution" || part.name === "bash_code_execution" ? "code_execution" : part.name, providerToolInputType = part.name === "text_editor_code_execution" || part.name === "bash_code_execution" ? part.name : part.name === "code_execution" ? "programmatic-tool-call" : void 0, customToolName = toolNameMapping.toCustomToolName(providerToolName), finalInput = part.input != null && typeof part.input === "object" && Object.keys(part.input).length > 0 ? JSON.stringify(part.input) : "";
                   contentBlocks[value.index] = {
                     type: "tool-call",
                     toolCallId: part.id,
@@ -40657,8 +47583,9 @@ var AnthropicMessagesLanguageModel = class {
                     input: finalInput,
                     providerExecuted: !0,
                     ...markCodeExecutionDynamic && providerToolName === "code_execution" ? { dynamic: !0 } : {},
-                    firstDelta: !0,
-                    providerToolName
+                    firstDelta: finalInput.length === 0,
+                    providerToolName,
+                    providerToolInputType
                   }, controller.enqueue({
                     type: "tool-input-start",
                     id: part.id,
@@ -40705,7 +47632,7 @@ var AnthropicMessagesLanguageModel = class {
               case "web_fetch_tool_result": {
                 if (part.content.type === "web_fetch_result")
                   citationDocuments.push({
-                    title: (_a25 = part.content.content.title) != null ? _a25 : part.content.url,
+                    title: (_a210 = part.content.content.title) != null ? _a210 : part.content.url,
                     mediaType: part.content.content.source.media_type
                   }), controller.enqueue({
                     type: "tool-result",
@@ -40747,11 +47674,11 @@ var AnthropicMessagesLanguageModel = class {
                     toolCallId: part.tool_use_id,
                     toolName: toolNameMapping.toCustomToolName("web_search"),
                     result: part.content.map((result) => {
-                      var _a34;
+                      var _a38;
                       return {
                         url: result.url,
                         title: result.title,
-                        pageAge: (_a34 = result.page_age) != null ? _a34 : null,
+                        pageAge: (_a38 = result.page_age) != null ? _a38 : null,
                         encryptedContent: result.encrypted_content,
                         type: result.type
                       };
@@ -40761,12 +47688,12 @@ var AnthropicMessagesLanguageModel = class {
                     controller.enqueue({
                       type: "source",
                       sourceType: "url",
-                      id: generateId3(),
+                      id: generateId32(),
                       url: result.url,
                       title: result.title,
                       providerMetadata: {
                         anthropic: {
-                          pageAge: (_b23 = result.page_age) != null ? _b23 : null
+                          pageAge: (_b28 = result.page_age) != null ? _b28 : null
                         }
                       }
                     });
@@ -40962,7 +47889,7 @@ var AnthropicMessagesLanguageModel = class {
                     let finalInput = contentBlock.input === "" ? "{}" : contentBlock.input;
                     if (contentBlock.providerToolName === "code_execution")
                       try {
-                        let parsed = JSON.parse(finalInput);
+                        let parsed = secureJsonParse3(finalInput);
                         if (parsed != null && typeof parsed === "object" && "code" in parsed && !("type" in parsed))
                           finalInput = JSON.stringify({
                             type: "programmatic-tool-call",
@@ -41051,8 +47978,8 @@ var AnthropicMessagesLanguageModel = class {
                 } else {
                   if ((contentBlock == null ? void 0 : contentBlock.type) !== "tool-call")
                     return;
-                  if (contentBlock.firstDelta && contentBlock.providerToolName === "code_execution")
-                    delta = `{"type": "programmatic-tool-call",${delta.substring(1)}`;
+                  if (contentBlock.firstDelta && contentBlock.providerToolInputType != null)
+                    delta = `{"type": "${contentBlock.providerToolInputType}",${delta.substring(1)}`;
                   controller.enqueue({
                     type: "tool-input-delta",
                     id: contentBlock.toolCallId,
@@ -41062,7 +47989,7 @@ var AnthropicMessagesLanguageModel = class {
                 return;
               }
               case "citations_delta": {
-                let citation = value.delta.citation, source = createCitationSource(citation, citationDocuments, generateId3);
+                let citation = value.delta.citation, source = createCitationSource(citation, citationDocuments, generateId32);
                 if (source)
                   controller.enqueue(source);
                 return;
@@ -41074,7 +48001,7 @@ var AnthropicMessagesLanguageModel = class {
           case "message_start": {
             if (usage.input_tokens = value.message.usage.input_tokens, usage.cache_read_input_tokens = (_e = value.message.usage.cache_read_input_tokens) != null ? _e : 0, usage.cache_creation_input_tokens = (_f = value.message.usage.cache_creation_input_tokens) != null ? _f : 0, rawUsage = {
               ...value.message.usage
-            }, cacheCreationInputTokens = (_g = value.message.usage.cache_creation_input_tokens) != null ? _g : null, value.message.container != null)
+            }, value.message.container != null)
               container = {
                 expiresAt: value.message.container.expires_at,
                 id: value.message.container.id,
@@ -41090,8 +48017,8 @@ var AnthropicMessagesLanguageModel = class {
               };
             if (controller.enqueue({
               type: "response-metadata",
-              id: (_h = value.message.id) != null ? _h : void 0,
-              modelId: (_i = value.message.model) != null ? _i : void 0
+              id: (_g = value.message.id) != null ? _g : void 0,
+              modelId: (_h = value.message.model) != null ? _h : void 0
             }), value.message.content != null)
               for (let contentIndex = 0;contentIndex < value.message.content.length; contentIndex++) {
                 let part = value.message.content[contentIndex];
@@ -41105,7 +48032,7 @@ var AnthropicMessagesLanguageModel = class {
                     id: part.id,
                     toolName: part.name
                   });
-                  let inputStr = JSON.stringify((_j = part.input) != null ? _j : {});
+                  let inputStr = JSON.stringify((_i = part.input) != null ? _i : {});
                   controller.enqueue({
                     type: "tool-input-delta",
                     id: part.id,
@@ -41136,7 +48063,7 @@ var AnthropicMessagesLanguageModel = class {
             if (usage.output_tokens = value.usage.output_tokens, value.usage.cache_read_input_tokens != null)
               usage.cache_read_input_tokens = value.usage.cache_read_input_tokens;
             if (value.usage.cache_creation_input_tokens != null)
-              usage.cache_creation_input_tokens = value.usage.cache_creation_input_tokens, cacheCreationInputTokens = value.usage.cache_creation_input_tokens;
+              usage.cache_creation_input_tokens = value.usage.cache_creation_input_tokens;
             if (value.usage.iterations != null)
               usage.iterations = value.usage.iterations;
             if (finishReason = {
@@ -41144,15 +48071,15 @@ var AnthropicMessagesLanguageModel = class {
                 finishReason: value.delta.stop_reason,
                 isJsonResponseFromTool
               }),
-              raw: (_k = value.delta.stop_reason) != null ? _k : void 0
-            }, stopSequence = (_l = value.delta.stop_sequence) != null ? _l : null, stopDetails = mapAnthropicStopDetails(value.delta.stop_details), container = value.delta.container != null ? {
+              raw: (_j = value.delta.stop_reason) != null ? _j : void 0
+            }, stopSequence = (_k = value.delta.stop_sequence) != null ? _k : null, stopDetails = mapAnthropicStopDetails(value.delta.stop_details), container = value.delta.container != null ? {
               expiresAt: value.delta.container.expires_at,
               id: value.delta.container.id,
-              skills: (_n = (_m = value.delta.container.skills) == null ? void 0 : _m.map((skill) => ({
+              skills: (_m = (_l = value.delta.container.skills) == null ? void 0 : _l.map((skill) => ({
                 type: skill.type,
                 skillId: skill.skill_id,
                 version: skill.version
-              }))) != null ? _n : null
+              }))) != null ? _m : null
             } : null, value.context_management)
               contextManagement = mapAnthropicResponseContextManagement(value.context_management);
             rawUsage = {
@@ -41164,7 +48091,6 @@ var AnthropicMessagesLanguageModel = class {
           case "message_stop": {
             let anthropicMetadata = {
               usage: rawUsage != null ? rawUsage : null,
-              cacheCreationInputTokens,
               stopSequence,
               ...stopDetails != null ? { stopDetails } : {},
               iterations: usage.iterations ? usage.iterations.map((iter) => ({
@@ -41189,7 +48115,7 @@ var AnthropicMessagesLanguageModel = class {
             controller.enqueue({
               type: "finish",
               finishReason,
-              usage: convertAnthropicMessagesUsage({ usage, rawUsage }),
+              usage: convertAnthropicUsage({ usage, rawUsage }),
               providerMetadata
             });
             return;
@@ -41206,11 +48132,11 @@ var AnthropicMessagesLanguageModel = class {
     try {
       await firstChunkReader.read();
       let result = await firstChunkReader.read();
-      if (((_a24 = result.value) == null ? void 0 : _a24.type) === "raw")
+      if (((_a37 = result.value) == null ? void 0 : _a37.type) === "raw")
         result = await firstChunkReader.read();
       if (((_b16 = result.value) == null ? void 0 : _b16.type) === "error") {
         let error51 = result.value.error;
-        throw new APICallError({
+        throw new APICallError3({
           message: error51.message,
           url: url2,
           requestBodyValues: body,
@@ -41231,60 +48157,76 @@ var AnthropicMessagesLanguageModel = class {
   }
 };
 function getModelCapabilities(modelId) {
-  if (modelId.includes("claude-opus-4-8") || modelId.includes("claude-opus-4-7") || modelId.includes("claude-fable-5"))
+  if (modelId.includes("claude-opus-4-8") || modelId.includes("claude-opus-4-7") || modelId.includes("claude-fable-5") || modelId.includes("claude-sonnet-5"))
     return {
       maxOutputTokens: 128000,
       supportsStructuredOutput: !0,
+      supportsAdaptiveThinking: !0,
       rejectsSamplingParameters: !0,
+      supportsXhighEffort: !0,
       isKnownModel: !0
     };
   else if (modelId.includes("claude-sonnet-4-6") || modelId.includes("claude-opus-4-6"))
     return {
       maxOutputTokens: 128000,
       supportsStructuredOutput: !0,
+      supportsAdaptiveThinking: !0,
       rejectsSamplingParameters: !1,
+      supportsXhighEffort: !1,
       isKnownModel: !0
     };
   else if (modelId.includes("claude-sonnet-4-5") || modelId.includes("claude-opus-4-5") || modelId.includes("claude-haiku-4-5"))
     return {
       maxOutputTokens: 64000,
       supportsStructuredOutput: !0,
+      supportsAdaptiveThinking: !1,
       rejectsSamplingParameters: !1,
+      supportsXhighEffort: !1,
       isKnownModel: !0
     };
   else if (modelId.includes("claude-opus-4-1"))
     return {
       maxOutputTokens: 32000,
       supportsStructuredOutput: !0,
+      supportsAdaptiveThinking: !1,
       rejectsSamplingParameters: !1,
+      supportsXhighEffort: !1,
       isKnownModel: !0
     };
   else if (modelId.includes("claude-sonnet-4-"))
     return {
       maxOutputTokens: 64000,
       supportsStructuredOutput: !1,
+      supportsAdaptiveThinking: !1,
       rejectsSamplingParameters: !1,
+      supportsXhighEffort: !1,
       isKnownModel: !0
     };
   else if (modelId.includes("claude-opus-4-"))
     return {
       maxOutputTokens: 32000,
       supportsStructuredOutput: !1,
+      supportsAdaptiveThinking: !1,
       rejectsSamplingParameters: !1,
+      supportsXhighEffort: !1,
       isKnownModel: !0
     };
   else if (modelId.includes("claude-3-haiku"))
     return {
       maxOutputTokens: 4096,
       supportsStructuredOutput: !1,
+      supportsAdaptiveThinking: !1,
       rejectsSamplingParameters: !1,
+      supportsXhighEffort: !1,
       isKnownModel: !0
     };
   else
     return {
       maxOutputTokens: 4096,
       supportsStructuredOutput: !1,
+      supportsAdaptiveThinking: !1,
       rejectsSamplingParameters: !1,
+      supportsXhighEffort: !1,
       isKnownModel: !1
     };
 }
@@ -41292,17 +48234,52 @@ function hasWebTool20260209WithoutCodeExecution(tools) {
   if (!tools)
     return !1;
   let hasWebTool20260209 = !1, hasCodeExecutionTool = !1;
-  for (let tool2 of tools) {
-    if ("type" in tool2 && (tool2.type === "web_fetch_20260209" || tool2.type === "web_search_20260209")) {
+  for (let tool5 of tools) {
+    if ("type" in tool5 && (tool5.type === "web_fetch_20260209" || tool5.type === "web_search_20260209")) {
       hasWebTool20260209 = !0;
       continue;
     }
-    if (tool2.name === "code_execution") {
+    if (tool5.name === "code_execution") {
       hasCodeExecutionTool = !0;
       break;
     }
   }
   return hasWebTool20260209 && !hasCodeExecutionTool;
+}
+function resolveAnthropicReasoningConfig({
+  reasoning,
+  supportsAdaptiveThinking,
+  supportsXhighEffort,
+  maxOutputTokensForModel,
+  warnings
+}) {
+  if (!isCustomReasoning(reasoning))
+    return;
+  if (reasoning === "none")
+    return { thinking: { type: "disabled" } };
+  if (supportsAdaptiveThinking) {
+    let effort = mapReasoningToProviderEffort({
+      reasoning,
+      effortMap: {
+        minimal: "low",
+        low: "low",
+        medium: "medium",
+        high: "high",
+        xhigh: supportsXhighEffort ? "xhigh" : "max"
+      },
+      warnings
+    });
+    return { thinking: { type: "adaptive" }, effort };
+  }
+  let budgetTokens = mapReasoningToProviderBudget({
+    reasoning,
+    maxOutputTokens: maxOutputTokensForModel,
+    maxReasoningBudget: maxOutputTokensForModel,
+    warnings
+  });
+  if (budgetTokens == null)
+    return;
+  return { thinking: { type: "enabled", budgetTokens } };
 }
 function mapAnthropicResponseContextManagement(contextManagement) {
   return contextManagement ? {
@@ -41338,19 +48315,59 @@ function mapAnthropicStopDetails(stopDetails) {
     ...stopDetails.recommended_model != null ? { recommendedModel: stopDetails.recommended_model } : {}
   };
 }
-var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.object({
+var bash_20241022InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   command: exports_external.string(),
   restart: exports_external.boolean().optional()
-}))), bash_20241022 = createProviderToolFactory({
+}))), bash_20241022_internal = createProviderDefinedToolFactory({
   id: "anthropic.bash_20241022",
   inputSchema: bash_20241022InputSchema
-}), bash_20250124InputSchema = lazySchema(() => zodSchema(exports_external.object({
+});
+function bash_20241022(options = {}) {
+  let { execute, ...rest } = options;
+  if (execute === void 0)
+    return bash_20241022_internal({
+      ...rest,
+      execute: async ({ command }, { abortSignal, experimental_sandbox: sandbox }) => {
+        if (!sandbox)
+          throw Error("Sandbox session is not available");
+        return await sandbox.run({
+          command,
+          abortSignal
+        });
+      }
+    });
+  return bash_20241022_internal({
+    ...rest,
+    ...execute === null ? {} : { execute }
+  });
+}
+var bash_20250124InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   command: exports_external.string(),
   restart: exports_external.boolean().optional()
-}))), bash_20250124 = createProviderToolFactory({
+}))), bash_20250124_internal = createProviderDefinedToolFactory({
   id: "anthropic.bash_20250124",
   inputSchema: bash_20250124InputSchema
-}), computer_20241022InputSchema = lazySchema(() => zodSchema(exports_external.object({
+});
+function bash_20250124(options = {}) {
+  let { execute, ...rest } = options;
+  if (execute === void 0)
+    return bash_20250124_internal({
+      ...rest,
+      execute: async ({ command }, { abortSignal, experimental_sandbox: sandbox }) => {
+        if (!sandbox)
+          throw Error("Sandbox session is not available");
+        return await sandbox.run({
+          command,
+          abortSignal
+        });
+      }
+    });
+  return bash_20250124_internal({
+    ...rest,
+    ...execute === null ? {} : { execute }
+  });
+}
+var computer_20241022InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   action: exports_external.enum([
     "key",
     "type",
@@ -41365,10 +48382,10 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
   ]),
   coordinate: exports_external.array(exports_external.number().int()).optional(),
   text: exports_external.string().optional()
-}))), computer_20241022 = createProviderToolFactory({
+}))), computer_20241022 = createProviderDefinedToolFactory({
   id: "anthropic.computer_20241022",
   inputSchema: computer_20241022InputSchema
-}), computer_20250124InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}), computer_20250124InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   action: exports_external.enum([
     "key",
     "hold_key",
@@ -41393,10 +48410,10 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
   scroll_direction: exports_external.enum(["up", "down", "left", "right"]).optional(),
   start_coordinate: exports_external.tuple([exports_external.number().int(), exports_external.number().int()]).optional(),
   text: exports_external.string().optional()
-}))), computer_20250124 = createProviderToolFactory({
+}))), computer_20250124 = createProviderDefinedToolFactory({
   id: "anthropic.computer_20250124",
   inputSchema: computer_20250124InputSchema
-}), computer_20251124InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}), computer_20251124InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   action: exports_external.enum([
     "key",
     "hold_key",
@@ -41428,10 +48445,10 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
   scroll_direction: exports_external.enum(["up", "down", "left", "right"]).optional(),
   start_coordinate: exports_external.tuple([exports_external.number().int(), exports_external.number().int()]).optional(),
   text: exports_external.string().optional()
-}))), computer_20251124 = createProviderToolFactory({
+}))), computer_20251124 = createProviderDefinedToolFactory({
   id: "anthropic.computer_20251124",
   inputSchema: computer_20251124InputSchema
-}), memory_20250818InputSchema = lazySchema(() => zodSchema(exports_external.discriminatedUnion("command", [
+}), memory_20250818InputSchema = lazySchema3(() => zodSchema3(exports_external.discriminatedUnion("command", [
   exports_external.object({
     command: exports_external.literal("view"),
     path: exports_external.string(),
@@ -41463,10 +48480,10 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
     old_path: exports_external.string(),
     new_path: exports_external.string()
   })
-]))), memory_20250818 = createProviderToolFactory({
+]))), memory_20250818 = createProviderDefinedToolFactory({
   id: "anthropic.memory_20250818",
   inputSchema: memory_20250818InputSchema
-}), textEditor_20241022InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}), textEditor_20241022InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   command: exports_external.enum(["view", "create", "str_replace", "insert", "undo_edit"]),
   path: exports_external.string(),
   file_text: exports_external.string().optional(),
@@ -41475,10 +48492,10 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
   insert_text: exports_external.string().optional(),
   old_str: exports_external.string().optional(),
   view_range: exports_external.array(exports_external.number().int()).optional()
-}))), textEditor_20241022 = createProviderToolFactory({
+}))), textEditor_20241022 = createProviderDefinedToolFactory({
   id: "anthropic.text_editor_20241022",
   inputSchema: textEditor_20241022InputSchema
-}), textEditor_20250124InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}), textEditor_20250124InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   command: exports_external.enum(["view", "create", "str_replace", "insert", "undo_edit"]),
   path: exports_external.string(),
   file_text: exports_external.string().optional(),
@@ -41487,10 +48504,10 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
   insert_text: exports_external.string().optional(),
   old_str: exports_external.string().optional(),
   view_range: exports_external.array(exports_external.number().int()).optional()
-}))), textEditor_20250124 = createProviderToolFactory({
+}))), textEditor_20250124 = createProviderDefinedToolFactory({
   id: "anthropic.text_editor_20250124",
   inputSchema: textEditor_20250124InputSchema
-}), textEditor_20250429InputSchema = lazySchema(() => zodSchema(exports_external.object({
+}), textEditor_20250429InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   command: exports_external.enum(["view", "create", "str_replace", "insert"]),
   path: exports_external.string(),
   file_text: exports_external.string().optional(),
@@ -41499,16 +48516,16 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
   insert_text: exports_external.string().optional(),
   old_str: exports_external.string().optional(),
   view_range: exports_external.array(exports_external.number().int()).optional()
-}))), textEditor_20250429 = createProviderToolFactory({
+}))), textEditor_20250429 = createProviderDefinedToolFactory({
   id: "anthropic.text_editor_20250429",
   inputSchema: textEditor_20250429InputSchema
-}), toolSearchBm25_20251119OutputSchema = lazySchema(() => zodSchema(exports_external.array(exports_external.object({
+}), toolSearchBm25_20251119OutputSchema = lazySchema3(() => zodSchema3(exports_external.array(exports_external.object({
   type: exports_external.literal("tool_reference"),
   toolName: exports_external.string()
-})))), toolSearchBm25_20251119InputSchema = lazySchema(() => zodSchema(exports_external.object({
+})))), toolSearchBm25_20251119InputSchema = lazySchema3(() => zodSchema3(exports_external.object({
   query: exports_external.string(),
   limit: exports_external.number().optional()
-}))), factory11 = createProviderToolFactoryWithOutputSchema({
+}))), factory11 = createProviderExecutedToolFactory({
   id: "anthropic.tool_search_bm25_20251119",
   inputSchema: toolSearchBm25_20251119InputSchema,
   outputSchema: toolSearchBm25_20251119OutputSchema,
@@ -41536,15 +48553,104 @@ var bash_20241022InputSchema = lazySchema(() => zodSchema(exports_external.objec
   webSearch_20260209,
   toolSearchRegex_20251119,
   toolSearchBm25_20251119
-};
+}, anthropicSkillResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  id: exports_external.string(),
+  display_title: exports_external.string().nullish(),
+  name: exports_external.string().nullish(),
+  description: exports_external.string().nullish(),
+  latest_version: exports_external.string().nullish(),
+  source: exports_external.string(),
+  created_at: exports_external.string(),
+  updated_at: exports_external.string()
+}))), anthropicSkillVersionListResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  data: exports_external.array(exports_external.object({
+    version: exports_external.string()
+  }))
+}))), anthropicSkillVersionResponseSchema = lazySchema3(() => zodSchema3(exports_external.object({
+  type: exports_external.string(),
+  skill_id: exports_external.string(),
+  name: exports_external.string().nullish(),
+  description: exports_external.string().nullish()
+}))), AnthropicSkills = class {
+  constructor(config2) {
+    this.config = config2, this.specificationVersion = "v4";
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  async getHeaders() {
+    return combineHeaders2(await resolve3(this.config.headers), {
+      "anthropic-beta": "skills-2025-10-02"
+    });
+  }
+  async fetchVersionMetadata({
+    skillId,
+    version: version2,
+    headers
+  }) {
+    let { value: versionResponse } = await getFromApi2({
+      url: `${this.config.baseURL}/skills/${skillId}/versions/${version2}`,
+      validateUrl: !1,
+      headers,
+      failedResponseHandler: anthropicFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler2(anthropicSkillVersionResponseSchema),
+      fetch: this.config.fetch
+    });
+    return {
+      ...versionResponse.name != null ? { name: versionResponse.name } : {},
+      ...versionResponse.description != null ? { description: versionResponse.description } : {}
+    };
+  }
+  async uploadSkill(params) {
+    var _a37, _b16;
+    let warnings = [], formData = new FormData;
+    if (params.displayTitle != null)
+      formData.append("display_title", params.displayTitle);
+    for (let file2 of params.files) {
+      let content = convertInlineFileDataToUint8Array(file2.data);
+      formData.append("files[]", new Blob([content]), file2.path);
+    }
+    let headers = await this.getHeaders(), { value: response } = await postFormDataToApi({
+      url: `${this.config.baseURL}/skills`,
+      headers,
+      formData,
+      failedResponseHandler: anthropicFailedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler2(anthropicSkillResponseSchema),
+      fetch: this.config.fetch
+    }), versionMetadata = response.latest_version != null ? await this.fetchVersionMetadata({
+      skillId: response.id,
+      version: response.latest_version,
+      headers
+    }) : {}, name31 = (_a37 = versionMetadata.name) != null ? _a37 : response.name, description = (_b16 = versionMetadata.description) != null ? _b16 : response.description;
+    return {
+      providerReference: { anthropic: response.id },
+      ...response.display_title != null ? { displayTitle: response.display_title } : {},
+      ...name31 != null ? { name: name31 } : {},
+      ...description != null ? { description } : {},
+      ...response.latest_version != null ? { latestVersion: response.latest_version } : {},
+      providerMetadata: {
+        anthropic: {
+          ...response.source != null ? { source: response.source } : {},
+          ...response.created_at != null ? { createdAt: response.created_at } : {},
+          ...response.updated_at != null ? { updatedAt: response.updated_at } : {}
+        }
+      },
+      warnings
+    };
+  }
+}, VERSION9 = "4.0.14", ANTHROPIC_API_URL = "https://api.anthropic.com", ANTHROPIC_API_VERSIONED_URL = `${ANTHROPIC_API_URL}/v1`;
+function normalizeBaseURL(baseURL) {
+  let baseURLWithoutTrailingSlash = withoutTrailingSlash2(validateBaseURL(baseURL));
+  return baseURLWithoutTrailingSlash === ANTHROPIC_API_URL ? ANTHROPIC_API_VERSIONED_URL : baseURLWithoutTrailingSlash;
+}
 function createAnthropic(options = {}) {
-  var _a24, _b16;
-  let baseURL = (_a24 = withoutTrailingSlash(loadOptionalSetting({
+  var _a37, _b16;
+  let baseURL = (_a37 = normalizeBaseURL(loadOptionalSetting2({
     settingValue: options.baseURL,
     environmentVariableName: "ANTHROPIC_BASE_URL"
-  }))) != null ? _a24 : "https://api.anthropic.com/v1", providerName = (_b16 = options.name) != null ? _b16 : "anthropic.messages";
+  }))) != null ? _a37 : ANTHROPIC_API_VERSIONED_URL, providerName = (_b16 = options.name) != null ? _b16 : "anthropic.messages";
   if (options.apiKey && options.authToken)
-    throw new InvalidArgumentError({
+    throw new InvalidArgumentError4({
       argument: "apiKey/authToken",
       message: "Both apiKey and authToken were provided. Please use only one authentication method."
     });
@@ -41556,36 +48662,1992 @@ function createAnthropic(options = {}) {
         description: "Anthropic"
       })
     };
-    return withUserAgentSuffix({
+    return withUserAgentSuffix3({
       "anthropic-version": "2023-06-01",
       ...authHeaders,
       ...options.headers
-    }, `ai-sdk/anthropic/${VERSION7}`);
+    }, `ai-sdk/anthropic/${VERSION9}`);
   }, createChatModel = (modelId) => {
-    var _a25;
-    return new AnthropicMessagesLanguageModel(modelId, {
+    var _a210;
+    return new AnthropicLanguageModel(modelId, {
       provider: providerName,
       baseURL,
       headers: getHeaders,
       fetch: options.fetch,
-      generateId: (_a25 = options.generateId) != null ? _a25 : generateId,
+      generateId: (_a210 = options.generateId) != null ? _a210 : generateId3,
       supportedUrls: () => ({
         "image/*": [/^https?:\/\/.*$/],
         "application/pdf": [/^https?:\/\/.*$/]
       })
     });
-  }, provider = function(modelId) {
+  }, createSkills = () => new AnthropicSkills({
+    provider: `${providerName.replace(".messages", "")}.skills`,
+    baseURL,
+    headers: getHeaders,
+    fetch: options.fetch
+  }), provider = function(modelId) {
     if (new.target)
       throw Error("The Anthropic model function cannot be called with the new keyword.");
     return createChatModel(modelId);
   };
-  return provider.specificationVersion = "v3", provider.languageModel = createChatModel, provider.chat = createChatModel, provider.messages = createChatModel, provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
+  return provider.specificationVersion = "v4", provider.languageModel = createChatModel, provider.chat = createChatModel, provider.messages = createChatModel, provider.embeddingModel = (modelId) => {
+    throw new NoSuchModelError3({ modelId, modelType: "embeddingModel" });
   }, provider.textEmbeddingModel = provider.embeddingModel, provider.imageModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
-  }, provider.tools = anthropicTools, provider;
+    throw new NoSuchModelError3({ modelId, modelType: "imageModel" });
+  }, provider.files = () => new AnthropicFiles({
+    provider: providerName,
+    baseURL,
+    headers: getHeaders,
+    fetch: options.fetch
+  }), provider.skills = createSkills, provider.tools = anthropicTools, provider;
 }
 var anthropic = createAnthropic();
+// node_modules/@ai-sdk/openai-compatible/node_modules/@ai-sdk/provider/dist/index.mjs
+var marker37 = "vercel.ai.error", symbol37 = Symbol.for(marker37), _a37, _b28, AISDKError5 = class _AISDKError5 extends (_b28 = Error, _a37 = symbol37, _b28) {
+  constructor({
+    name: name144,
+    message,
+    cause
+  }) {
+    super(message);
+    this[_a37] = !0, this.name = name144, this.cause = cause;
+  }
+  static isInstance(error51) {
+    return _AISDKError5.hasMarker(error51, marker37);
+  }
+  static hasMarker(error51, marker154) {
+    let markerSymbol = Symbol.for(marker154);
+    return error51 != null && typeof error51 === "object" && markerSymbol in error51 && typeof error51[markerSymbol] === "boolean" && error51[markerSymbol] === !0;
+  }
+}, name37 = "AI_APICallError", marker211 = `vercel.ai.error.${name37}`, symbol211 = Symbol.for(marker211), _a211, _b29, APICallError5 = class extends (_b29 = AISDKError5, _a211 = symbol211, _b29) {
+  constructor({
+    message,
+    url: url2,
+    requestBodyValues,
+    statusCode,
+    responseHeaders,
+    responseBody,
+    cause,
+    isRetryable = statusCode != null && (statusCode === 408 || statusCode === 409 || statusCode === 429 || statusCode >= 500),
+    data
+  }) {
+    super({ name: name37, message, cause });
+    this[_a211] = !0, this.url = url2, this.requestBodyValues = requestBodyValues, this.statusCode = statusCode, this.responseHeaders = responseHeaders, this.responseBody = responseBody, this.isRetryable = isRetryable, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker211);
+  }
+}, name211 = "AI_EmptyResponseBodyError", marker38 = `vercel.ai.error.${name211}`, symbol38 = Symbol.for(marker38), _a38, _b36, EmptyResponseBodyError5 = class extends (_b36 = AISDKError5, _a38 = symbol38, _b36) {
+  constructor({ message = "Empty response body" } = {}) {
+    super({ name: name211, message });
+    this[_a38] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker38);
+  }
+};
+function getErrorMessage6(error51) {
+  if (error51 == null)
+    return "unknown error";
+  if (typeof error51 === "string")
+    return error51;
+  if (error51 instanceof Error)
+    return error51.message;
+  return JSON.stringify(error51);
+}
+var name38 = "AI_InvalidArgumentError", marker47 = `vercel.ai.error.${name38}`, symbol47 = Symbol.for(marker47), _a47, _b46, InvalidArgumentError6 = class extends (_b46 = AISDKError5, _a47 = symbol47, _b46) {
+  constructor({
+    message,
+    cause,
+    argument
+  }) {
+    super({ name: name38, message, cause });
+    this[_a47] = !0, this.argument = argument;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker47);
+  }
+}, name47 = "AI_InvalidPromptError", marker57 = `vercel.ai.error.${name47}`, symbol57 = Symbol.for(marker57), _a57, _b56, InvalidPromptError5 = class extends (_b56 = AISDKError5, _a57 = symbol57, _b56) {
+  constructor({
+    prompt,
+    message,
+    cause
+  }) {
+    super({ name: name47, message: `Invalid prompt: ${message}`, cause });
+    this[_a57] = !0, this.prompt = prompt;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker57);
+  }
+}, name57 = "AI_InvalidResponseDataError", marker67 = `vercel.ai.error.${name57}`, symbol67 = Symbol.for(marker67), _a67, _b66, InvalidResponseDataError5 = class extends (_b66 = AISDKError5, _a67 = symbol67, _b66) {
+  constructor({
+    data,
+    message = `Invalid response data: ${JSON.stringify(data)}.`
+  }) {
+    super({ name: name57, message });
+    this[_a67] = !0, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker67);
+  }
+}, name67 = "AI_JSONParseError", marker77 = `vercel.ai.error.${name67}`, symbol77 = Symbol.for(marker77), _a77, _b76, JSONParseError5 = class extends (_b76 = AISDKError5, _a77 = symbol77, _b76) {
+  constructor({ text: text2, cause }) {
+    super({
+      name: name67,
+      message: `JSON parsing failed: Text: ${text2}.
+Error message: ${getErrorMessage6(cause)}`,
+      cause
+    });
+    this[_a77] = !0, this.text = text2;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker77);
+  }
+}, name77 = "AI_LoadAPIKeyError", marker87 = `vercel.ai.error.${name77}`, symbol87 = Symbol.for(marker87), _a87, _b86, LoadAPIKeyError5 = class extends (_b86 = AISDKError5, _a87 = symbol87, _b86) {
+  constructor({ message }) {
+    super({ name: name77, message });
+    this[_a87] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker87);
+  }
+}, name87 = "AI_LoadSettingError", marker97 = `vercel.ai.error.${name87}`, symbol97 = Symbol.for(marker97), _a97, _b96, LoadSettingError5 = class extends (_b96 = AISDKError5, _a97 = symbol97, _b96) {
+  constructor({ message }) {
+    super({ name: name87, message });
+    this[_a97] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker97);
+  }
+}, name97 = "AI_NoContentGeneratedError", marker107 = `vercel.ai.error.${name97}`, symbol107 = Symbol.for(marker107), _a107, _b106, NoContentGeneratedError5 = class extends (_b106 = AISDKError5, _a107 = symbol107, _b106) {
+  constructor({
+    message = "No content generated."
+  } = {}) {
+    super({ name: name97, message });
+    this[_a107] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker107);
+  }
+}, name106 = "AI_NoSuchModelError", marker116 = `vercel.ai.error.${name106}`, symbol116 = Symbol.for(marker116), _a116, _b115, NoSuchModelError5 = class extends (_b115 = AISDKError5, _a116 = symbol116, _b115) {
+  constructor({
+    errorName = name106,
+    modelId,
+    modelType,
+    message = `No such ${modelType}: ${modelId}`
+  }) {
+    super({ name: errorName, message });
+    this[_a116] = !0, this.modelId = modelId, this.modelType = modelType;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker116);
+  }
+}, name116 = "AI_TooManyEmbeddingValuesForCallError", marker126 = `vercel.ai.error.${name116}`, symbol126 = Symbol.for(marker126), _a126, _b125, TooManyEmbeddingValuesForCallError5 = class extends (_b125 = AISDKError5, _a126 = symbol126, _b125) {
+  constructor(options) {
+    super({
+      name: name116,
+      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+    });
+    this[_a126] = !0, this.provider = options.provider, this.modelId = options.modelId, this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall, this.values = options.values;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker126);
+  }
+}, name126 = "AI_TypeValidationError", marker136 = `vercel.ai.error.${name126}`, symbol136 = Symbol.for(marker136), _a136, _b135, TypeValidationError5 = class _TypeValidationError5 extends (_b135 = AISDKError5, _a136 = symbol136, _b135) {
+  constructor({
+    value,
+    cause,
+    context: context2
+  }) {
+    let contextPrefix = "Type validation failed";
+    if (context2 == null ? void 0 : context2.field)
+      contextPrefix += ` for ${context2.field}`;
+    if ((context2 == null ? void 0 : context2.entityName) || (context2 == null ? void 0 : context2.entityId)) {
+      contextPrefix += " (";
+      let parts = [];
+      if (context2.entityName)
+        parts.push(context2.entityName);
+      if (context2.entityId)
+        parts.push(`id: "${context2.entityId}"`);
+      contextPrefix += parts.join(", "), contextPrefix += ")";
+    }
+    super({
+      name: name126,
+      message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
+Error message: ${getErrorMessage6(cause)}`,
+      cause
+    });
+    this[_a136] = !0, this.value = value, this.context = context2;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker136);
+  }
+  static wrap({
+    value,
+    cause,
+    context: context2
+  }) {
+    var _a154, _b153, _c;
+    if (_TypeValidationError5.isInstance(cause) && cause.value === value && ((_a154 = cause.context) == null ? void 0 : _a154.field) === (context2 == null ? void 0 : context2.field) && ((_b153 = cause.context) == null ? void 0 : _b153.entityName) === (context2 == null ? void 0 : context2.entityName) && ((_c = cause.context) == null ? void 0 : _c.entityId) === (context2 == null ? void 0 : context2.entityId))
+      return cause;
+    return new _TypeValidationError5({ value, cause, context: context2 });
+  }
+}, name136 = "AI_UnsupportedFunctionalityError", marker146 = `vercel.ai.error.${name136}`, symbol146 = Symbol.for(marker146), _a146, _b145, UnsupportedFunctionalityError5 = class extends (_b145 = AISDKError5, _a146 = symbol146, _b145) {
+  constructor({
+    functionality,
+    message = `'${functionality}' functionality not supported.`
+  }) {
+    super({ name: name136, message });
+    this[_a146] = !0, this.functionality = functionality;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker146);
+  }
+};
+
+// node_modules/@ai-sdk/openai-compatible/node_modules/@ai-sdk/provider-utils/dist/index.mjs
+function combineHeaders4(...headers) {
+  return headers.reduce((combinedHeaders, currentHeaders) => ({
+    ...combinedHeaders,
+    ...currentHeaders != null ? currentHeaders : {}
+  }), {});
+}
+function extractResponseHeaders4(response) {
+  return Object.fromEntries([...response.headers]);
+}
+var { btoa: btoa6, atob: atob6 } = globalThis;
+function convertBase64ToUint8Array4(base64String) {
+  let base64Url = base64String.replace(/-/g, "+").replace(/_/g, "/"), latin1string = atob6(base64Url);
+  return Uint8Array.from(latin1string, (byte) => byte.codePointAt(0));
+}
+function convertUint8ArrayToBase645(array3) {
+  let latin1string = "";
+  for (let i = 0;i < array3.length; i++)
+    latin1string += String.fromCodePoint(array3[i]);
+  return btoa6(latin1string);
+}
+function convertToBase643(value) {
+  return value instanceof Uint8Array ? convertUint8ArrayToBase645(value) : value;
+}
+function convertToFormData2(input, options = {}) {
+  let { useArrayBrackets = !0 } = options, formData = new FormData;
+  for (let [key, value] of Object.entries(input)) {
+    if (value == null)
+      continue;
+    if (Array.isArray(value)) {
+      if (value.length === 1) {
+        formData.append(key, value[0]);
+        continue;
+      }
+      let arrayKey = useArrayBrackets ? `${key}[]` : key;
+      for (let item of value)
+        formData.append(arrayKey, item);
+      continue;
+    }
+    formData.append(key, value);
+  }
+  return formData;
+}
+async function cancelResponseBody4(response) {
+  var _a210;
+  try {
+    await ((_a210 = response.body) == null ? void 0 : _a210.cancel());
+  } catch (e) {}
+}
+var name39 = "AI_DownloadError", marker39 = `vercel.ai.error.${name39}`, symbol39 = Symbol.for(marker39), _a39, _b30, DownloadError5 = class extends (_b30 = AISDKError5, _a39 = symbol39, _b30) {
+  constructor({
+    url: url2,
+    statusCode,
+    statusText,
+    cause,
+    message = cause == null ? `Failed to download ${url2}: ${statusCode} ${statusText}` : `Failed to download ${url2}: ${cause}`
+  }) {
+    super({ name: name39, message, cause });
+    this[_a39] = !0, this.url = url2, this.statusCode = statusCode, this.statusText = statusText;
+  }
+  static isInstance(error51) {
+    return AISDKError5.hasMarker(error51, marker39);
+  }
+};
+function isBrowserRuntime4(globalThisAny = globalThis) {
+  return globalThisAny.window != null;
+}
+function validateDownloadUrl4(url2) {
+  let parsed;
+  try {
+    parsed = new URL(url2);
+  } catch (e) {
+    throw new DownloadError5({
+      url: url2,
+      message: `Invalid URL: ${url2}`
+    });
+  }
+  if (parsed.protocol === "data:")
+    return;
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
+    throw new DownloadError5({
+      url: url2,
+      message: `URL scheme must be http, https, or data, got ${parsed.protocol}`
+    });
+  let hostname3 = parsed.hostname.toLowerCase().replace(/\.+$/, "");
+  if (!hostname3)
+    throw new DownloadError5({
+      url: url2,
+      message: "URL must have a hostname"
+    });
+  if (hostname3 === "localhost" || hostname3.endsWith(".local") || hostname3.endsWith(".localhost"))
+    throw new DownloadError5({
+      url: url2,
+      message: `URL with hostname ${hostname3} is not allowed`
+    });
+  if (hostname3.startsWith("[") && hostname3.endsWith("]")) {
+    let ipv63 = hostname3.slice(1, -1);
+    if (isPrivateIPv64(ipv63))
+      throw new DownloadError5({
+        url: url2,
+        message: `URL with IPv6 address ${hostname3} is not allowed`
+      });
+    return;
+  }
+  if (isIPv44(hostname3)) {
+    if (isPrivateIPv44(hostname3))
+      throw new DownloadError5({
+        url: url2,
+        message: `URL with IP address ${hostname3} is not allowed`
+      });
+    return;
+  }
+}
+function isIPv44(hostname3) {
+  let parts = hostname3.split(".");
+  if (parts.length !== 4)
+    return !1;
+  return parts.every((part) => {
+    let num = Number(part);
+    return Number.isInteger(num) && num >= 0 && num <= 255 && String(num) === part;
+  });
+}
+function isPrivateIPv44(ip) {
+  let parts = ip.split(".").map(Number), [a, b, c] = parts;
+  if (a === 0)
+    return !0;
+  if (a === 10)
+    return !0;
+  if (a === 100 && b >= 64 && b <= 127)
+    return !0;
+  if (a === 127)
+    return !0;
+  if (a === 169 && b === 254)
+    return !0;
+  if (a === 172 && b >= 16 && b <= 31)
+    return !0;
+  if (a === 192 && b === 0 && c === 0)
+    return !0;
+  if (a === 192 && b === 168)
+    return !0;
+  if (a === 198 && (b === 18 || b === 19))
+    return !0;
+  if (a >= 240)
+    return !0;
+  return !1;
+}
+function parseIPv64(ip) {
+  let address = ip.toLowerCase(), zoneIndex = address.indexOf("%");
+  if (zoneIndex !== -1)
+    address = address.slice(0, zoneIndex);
+  let halves = address.split("::");
+  if (halves.length > 2)
+    return null;
+  let toGroups = (segment) => {
+    if (segment === "")
+      return [];
+    let groups = [], parts = segment.split(":");
+    for (let i = 0;i < parts.length; i++) {
+      let part = parts[i];
+      if (part.includes(".")) {
+        if (i !== parts.length - 1 || !isIPv44(part))
+          return null;
+        let [a, b, c, d] = part.split(".").map(Number);
+        groups.push(a << 8 | b, c << 8 | d);
+        continue;
+      }
+      if (!/^[0-9a-f]{1,4}$/.test(part))
+        return null;
+      groups.push(parseInt(part, 16));
+    }
+    return groups;
+  }, head = toGroups(halves[0]);
+  if (head === null)
+    return null;
+  if (halves.length === 2) {
+    let tail = toGroups(halves[1]);
+    if (tail === null)
+      return null;
+    let fill = 8 - head.length - tail.length;
+    if (fill < 0)
+      return null;
+    return [...head, ...Array(fill).fill(0), ...tail];
+  }
+  return head.length === 8 ? head : null;
+}
+function isPrivateIPv64(ip) {
+  let groups = parseIPv64(ip);
+  if (groups === null)
+    return !0;
+  let topZero = (count) => groups.slice(0, count).every((group) => group === 0);
+  if (topZero(7) && (groups[7] === 0 || groups[7] === 1))
+    return !0;
+  if ((groups[0] & 65024) === 64512)
+    return !0;
+  if ((groups[0] & 65472) === 65152)
+    return !0;
+  if ((groups[0] & 65472) === 65216)
+    return !0;
+  if ((groups[0] & 65280) === 65280)
+    return !0;
+  if (topZero(6) || topZero(5) && groups[5] === 65535 || topZero(4) && groups[4] === 65535 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 0 && groups[3] === 0 && groups[4] === 0 && groups[5] === 0 || groups[0] === 100 && groups[1] === 65435 && groups[2] === 1) {
+    let a = groups[6] >> 8 & 255, b = groups[6] & 255, c = groups[7] >> 8 & 255, d = groups[7] & 255;
+    return isPrivateIPv44(`${a}.${b}.${c}.${d}`);
+  }
+  return !1;
+}
+var MAX_DOWNLOAD_REDIRECTS4 = 10;
+async function fetchWithValidatedRedirects4({
+  url: url2,
+  headers,
+  abortSignal,
+  maxRedirects = MAX_DOWNLOAD_REDIRECTS4
+}) {
+  let baseInit = { signal: abortSignal };
+  if (headers !== void 0)
+    baseInit.headers = headers;
+  let currentUrl = url2;
+  for (let redirectCount = 0;redirectCount <= maxRedirects; redirectCount++) {
+    validateDownloadUrl4(currentUrl);
+    let response = await fetch(currentUrl, {
+      ...baseInit,
+      redirect: "manual"
+    });
+    if (response.type === "opaqueredirect") {
+      if (!isBrowserRuntime4())
+        throw new DownloadError5({
+          url: url2,
+          message: `Redirect from ${currentUrl} could not be validated and was blocked`
+        });
+      return await fetch(currentUrl, { ...baseInit, redirect: "follow" });
+    }
+    let location = response.headers.get("location");
+    if (response.status >= 300 && response.status < 400 && location) {
+      await cancelResponseBody4(response), currentUrl = new URL(location, currentUrl).toString();
+      continue;
+    }
+    return response;
+  }
+  throw new DownloadError5({
+    url: url2,
+    message: `Too many redirects (max ${maxRedirects})`
+  });
+}
+var DEFAULT_MAX_DOWNLOAD_SIZE4 = 2147483648;
+async function readResponseWithSizeLimit4({
+  response,
+  url: url2,
+  maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE4
+}) {
+  let contentLength = response.headers.get("content-length");
+  if (contentLength != null) {
+    let length = parseInt(contentLength, 10);
+    if (!isNaN(length) && length > maxBytes)
+      throw await cancelResponseBody4(response), new DownloadError5({
+        url: url2,
+        message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes (Content-Length: ${length}).`
+      });
+  }
+  let body = response.body;
+  if (body == null)
+    return new Uint8Array(0);
+  let reader = body.getReader(), chunks = [], totalBytes = 0;
+  try {
+    while (!0) {
+      let { done, value } = await reader.read();
+      if (done)
+        break;
+      if (totalBytes += value.length, totalBytes > maxBytes)
+        throw new DownloadError5({
+          url: url2,
+          message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes.`
+        });
+      chunks.push(value);
+    }
+  } finally {
+    try {
+      await reader.cancel();
+    } finally {
+      reader.releaseLock();
+    }
+  }
+  let result = new Uint8Array(totalBytes), offset = 0;
+  for (let chunk of chunks)
+    result.set(chunk, offset), offset += chunk.length;
+  return result;
+}
+async function downloadBlob2(url2, options) {
+  var _a210, _b210;
+  try {
+    let response = await fetchWithValidatedRedirects4({
+      url: url2,
+      abortSignal: options == null ? void 0 : options.abortSignal
+    });
+    if (!response.ok)
+      throw await cancelResponseBody4(response), new DownloadError5({
+        url: url2,
+        statusCode: response.status,
+        statusText: response.statusText
+      });
+    let data = await readResponseWithSizeLimit4({
+      response,
+      url: url2,
+      maxBytes: (_a210 = options == null ? void 0 : options.maxBytes) != null ? _a210 : DEFAULT_MAX_DOWNLOAD_SIZE4
+    }), contentType = (_b210 = response.headers.get("content-type")) != null ? _b210 : void 0;
+    return new Blob([data], contentType ? { type: contentType } : void 0);
+  } catch (error51) {
+    if (DownloadError5.isInstance(error51))
+      throw error51;
+    throw new DownloadError5({ url: url2, cause: error51 });
+  }
+}
+var createIdGenerator5 = ({
+  prefix,
+  size = 16,
+  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  separator = "-"
+} = {}) => {
+  let generator = () => {
+    let alphabetLength = alphabet.length, chars = Array(size);
+    for (let i = 0;i < size; i++)
+      chars[i] = alphabet[Math.random() * alphabetLength | 0];
+    return chars.join("");
+  };
+  if (prefix == null)
+    return generator;
+  if (alphabet.includes(separator))
+    throw new InvalidArgumentError6({
+      argument: "separator",
+      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
+    });
+  return () => `${prefix}${separator}${generator()}`;
+}, generateId5 = createIdGenerator5();
+function isAbortError5(error51) {
+  return (error51 instanceof Error || error51 instanceof DOMException) && (error51.name === "AbortError" || error51.name === "ResponseAborted" || error51.name === "TimeoutError");
+}
+var FETCH_FAILED_ERROR_MESSAGES4 = ["fetch failed", "failed to fetch"], BUN_ERROR_CODES4 = [
+  "ConnectionRefused",
+  "ConnectionClosed",
+  "FailedToOpenSocket",
+  "ECONNRESET",
+  "ECONNREFUSED",
+  "ETIMEDOUT",
+  "EPIPE"
+];
+function isBunNetworkError4(error51) {
+  if (!(error51 instanceof Error))
+    return !1;
+  let code = error51.code;
+  if (typeof code === "string" && BUN_ERROR_CODES4.includes(code))
+    return !0;
+  return !1;
+}
+function handleFetchError4({
+  error: error51,
+  url: url2,
+  requestBodyValues
+}) {
+  if (isAbortError5(error51))
+    return error51;
+  if (error51 instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES4.includes(error51.message.toLowerCase())) {
+    let cause = error51.cause;
+    if (cause != null)
+      return new APICallError5({
+        message: `Cannot connect to API: ${cause.message}`,
+        cause,
+        url: url2,
+        requestBodyValues,
+        isRetryable: !0
+      });
+  }
+  if (isBunNetworkError4(error51))
+    return new APICallError5({
+      message: `Cannot connect to API: ${error51.message}`,
+      cause: error51,
+      url: url2,
+      requestBodyValues,
+      isRetryable: !0
+    });
+  return error51;
+}
+function getRuntimeEnvironmentUserAgent5(globalThisAny = globalThis) {
+  var _a210, _b210, _c;
+  if (globalThisAny.window)
+    return "runtime/browser";
+  if ((_a210 = globalThisAny.navigator) == null ? void 0 : _a210.userAgent)
+    return `runtime/${globalThisAny.navigator.userAgent.toLowerCase()}`;
+  if ((_c = (_b210 = globalThisAny.process) == null ? void 0 : _b210.versions) == null ? void 0 : _c.node)
+    return `runtime/node.js/${globalThisAny.process.version.substring(0)}`;
+  if (globalThisAny.EdgeRuntime)
+    return "runtime/vercel-edge";
+  return "runtime/unknown";
+}
+function normalizeHeaders5(headers) {
+  if (headers == null)
+    return {};
+  let normalized = {};
+  if (headers instanceof Headers)
+    headers.forEach((value, key) => {
+      normalized[key.toLowerCase()] = value;
+    });
+  else {
+    if (!Array.isArray(headers))
+      headers = Object.entries(headers);
+    for (let [key, value] of headers)
+      if (value != null)
+        normalized[key.toLowerCase()] = value;
+  }
+  return normalized;
+}
+function withUserAgentSuffix5(headers, ...userAgentSuffixParts) {
+  let normalizedHeaders = new Headers(normalizeHeaders5(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
+  return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
+}
+var VERSION10 = "4.0.30";
+var suspectProtoRx5 = /"(?:_|\\u005[Ff])(?:_|\\u005[Ff])(?:p|\\u0070)(?:r|\\u0072)(?:o|\\u006[Ff])(?:t|\\u0074)(?:o|\\u006[Ff])(?:_|\\u005[Ff])(?:_|\\u005[Ff])"\s*:/, suspectConstructorRx5 = /"(?:c|\\u0063)(?:o|\\u006[Ff])(?:n|\\u006[Ee])(?:s|\\u0073)(?:t|\\u0074)(?:r|\\u0072)(?:u|\\u0075)(?:c|\\u0063)(?:t|\\u0074)(?:o|\\u006[Ff])(?:r|\\u0072)"\s*:/;
+function _parse6(text2) {
+  let obj = JSON.parse(text2);
+  if (obj === null || typeof obj !== "object")
+    return obj;
+  if (suspectProtoRx5.test(text2) === !1 && suspectConstructorRx5.test(text2) === !1)
+    return obj;
+  return filter5(obj);
+}
+function filter5(obj) {
+  let next = [obj];
+  while (next.length) {
+    let nodes = next;
+    next = [];
+    for (let node of nodes) {
+      if (Object.prototype.hasOwnProperty.call(node, "__proto__"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      if (Object.prototype.hasOwnProperty.call(node, "constructor") && node.constructor !== null && typeof node.constructor === "object" && Object.prototype.hasOwnProperty.call(node.constructor, "prototype"))
+        throw SyntaxError("Object contains forbidden prototype property");
+      for (let key in node) {
+        let value = node[key];
+        if (value && typeof value === "object")
+          next.push(value);
+      }
+    }
+  }
+  return obj;
+}
+function secureJsonParse5(text2) {
+  let { stackTraceLimit } = Error;
+  try {
+    Error.stackTraceLimit = 0;
+  } catch (e) {
+    return _parse6(text2);
+  }
+  try {
+    return _parse6(text2);
+  } finally {
+    Error.stackTraceLimit = stackTraceLimit;
+  }
+}
+function addAdditionalPropertiesToJsonSchema5(jsonSchema22) {
+  if (jsonSchema22.type === "object" || Array.isArray(jsonSchema22.type) && jsonSchema22.type.includes("object")) {
+    jsonSchema22.additionalProperties = !1;
+    let { properties } = jsonSchema22;
+    if (properties != null)
+      for (let key of Object.keys(properties))
+        properties[key] = visit5(properties[key]);
+  }
+  if (jsonSchema22.items != null)
+    jsonSchema22.items = Array.isArray(jsonSchema22.items) ? jsonSchema22.items.map(visit5) : visit5(jsonSchema22.items);
+  if (jsonSchema22.anyOf != null)
+    jsonSchema22.anyOf = jsonSchema22.anyOf.map(visit5);
+  if (jsonSchema22.allOf != null)
+    jsonSchema22.allOf = jsonSchema22.allOf.map(visit5);
+  if (jsonSchema22.oneOf != null)
+    jsonSchema22.oneOf = jsonSchema22.oneOf.map(visit5);
+  let { definitions } = jsonSchema22;
+  if (definitions != null)
+    for (let key of Object.keys(definitions))
+      definitions[key] = visit5(definitions[key]);
+  return jsonSchema22;
+}
+function visit5(def) {
+  if (typeof def === "boolean")
+    return def;
+  return addAdditionalPropertiesToJsonSchema5(def);
+}
+var ignoreOverride5 = /* @__PURE__ */ Symbol("Let zodToJsonSchema decide on which parser to use"), defaultOptions5 = {
+  name: void 0,
+  $refStrategy: "root",
+  basePath: ["#"],
+  effectStrategy: "input",
+  pipeStrategy: "all",
+  dateStrategy: "format:date-time",
+  mapStrategy: "entries",
+  removeAdditionalStrategy: "passthrough",
+  allowedAdditionalProperties: !0,
+  rejectedAdditionalProperties: !1,
+  definitionPath: "definitions",
+  strictUnions: !1,
+  definitions: {},
+  errorMessages: !1,
+  patternStrategy: "escape",
+  applyRegexFlags: !1,
+  emailStrategy: "format:email",
+  base64Strategy: "contentEncoding:base64",
+  nameStrategy: "ref"
+}, getDefaultOptions5 = (options) => typeof options === "string" ? {
+  ...defaultOptions5,
+  name: options
+} : {
+  ...defaultOptions5,
+  ...options
+};
+function parseAnyDef5() {
+  return {};
+}
+function parseArrayDef5(def, refs) {
+  var _a210, _b210, _c;
+  let res = {
+    type: "array"
+  };
+  if (((_a210 = def.type) == null ? void 0 : _a210._def) && ((_c = (_b210 = def.type) == null ? void 0 : _b210._def) == null ? void 0 : _c.typeName) !== ZodFirstPartyTypeKind2.ZodAny)
+    res.items = parseDef5(def.type._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    });
+  if (def.minLength)
+    res.minItems = def.minLength.value;
+  if (def.maxLength)
+    res.maxItems = def.maxLength.value;
+  if (def.exactLength)
+    res.minItems = def.exactLength.value, res.maxItems = def.exactLength.value;
+  return res;
+}
+function parseBigintDef5(def) {
+  let res = {
+    type: "integer",
+    format: "int64"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseBooleanDef5() {
+  return { type: "boolean" };
+}
+function parseBrandedDef5(_def, refs) {
+  return parseDef5(_def.type._def, refs);
+}
+var parseCatchDef5 = (def, refs) => {
+  return parseDef5(def.innerType._def, refs);
+};
+function parseDateDef5(def, refs, overrideDateStrategy) {
+  let strategy = overrideDateStrategy != null ? overrideDateStrategy : refs.dateStrategy;
+  if (Array.isArray(strategy))
+    return {
+      anyOf: strategy.map((item, i) => parseDateDef5(def, refs, item))
+    };
+  switch (strategy) {
+    case "string":
+    case "format:date-time":
+      return {
+        type: "string",
+        format: "date-time"
+      };
+    case "format:date":
+      return {
+        type: "string",
+        format: "date"
+      };
+    case "integer":
+      return integerDateParser5(def);
+  }
+}
+var integerDateParser5 = (def) => {
+  let res = {
+    type: "integer",
+    format: "unix-time"
+  };
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "min":
+        res.minimum = check2.value;
+        break;
+      case "max":
+        res.maximum = check2.value;
+        break;
+    }
+  return res;
+};
+function parseDefaultDef5(_def, refs) {
+  return {
+    ...parseDef5(_def.innerType._def, refs),
+    default: _def.defaultValue()
+  };
+}
+function parseEffectsDef5(_def, refs) {
+  return refs.effectStrategy === "input" ? parseDef5(_def.schema._def, refs) : parseAnyDef5();
+}
+function parseEnumDef5(def) {
+  return {
+    type: "string",
+    enum: Array.from(def.values)
+  };
+}
+var isJsonSchema7AllOfType5 = (type) => {
+  if ("type" in type && type.type === "string")
+    return !1;
+  return "allOf" in type;
+};
+function parseIntersectionDef5(def, refs) {
+  let allOf = [
+    parseDef5(def.left._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "0"]
+    }),
+    parseDef5(def.right._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "allOf", "1"]
+    })
+  ].filter((x) => !!x), mergedAllOf = [];
+  return allOf.forEach((schema) => {
+    if (isJsonSchema7AllOfType5(schema))
+      mergedAllOf.push(...schema.allOf);
+    else {
+      let nestedSchema = schema;
+      if ("additionalProperties" in schema && schema.additionalProperties === !1) {
+        let { additionalProperties, ...rest } = schema;
+        nestedSchema = rest;
+      }
+      mergedAllOf.push(nestedSchema);
+    }
+  }), mergedAllOf.length ? { allOf: mergedAllOf } : void 0;
+}
+function parseLiteralDef5(def) {
+  let parsedType2 = typeof def.value;
+  if (parsedType2 !== "bigint" && parsedType2 !== "number" && parsedType2 !== "boolean" && parsedType2 !== "string")
+    return {
+      type: Array.isArray(def.value) ? "array" : "object"
+    };
+  return {
+    type: parsedType2 === "bigint" ? "integer" : parsedType2,
+    const: def.value
+  };
+}
+var emojiRegex6 = void 0, zodPatterns5 = {
+  cuid: /^[cC][^\s-]{8,}$/,
+  cuid2: /^[0-9a-z]+$/,
+  ulid: /^[0-9A-HJKMNP-TV-Z]{26}$/,
+  email: /^(?!\.)(?!.*\.\.)([a-zA-Z0-9_'+\-\.]*)[a-zA-Z0-9_+-]@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/,
+  emoji: () => {
+    if (emojiRegex6 === void 0)
+      emojiRegex6 = RegExp("^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$", "u");
+    return emojiRegex6;
+  },
+  uuid: /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/,
+  ipv4: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$/,
+  ipv4Cidr: /^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\/(3[0-2]|[12]?[0-9])$/,
+  ipv6: /^(([a-f0-9]{1,4}:){7}|::([a-f0-9]{1,4}:){0,6}|([a-f0-9]{1,4}:){1}:([a-f0-9]{1,4}:){0,5}|([a-f0-9]{1,4}:){2}:([a-f0-9]{1,4}:){0,4}|([a-f0-9]{1,4}:){3}:([a-f0-9]{1,4}:){0,3}|([a-f0-9]{1,4}:){4}:([a-f0-9]{1,4}:){0,2}|([a-f0-9]{1,4}:){5}:([a-f0-9]{1,4}:){0,1})([a-f0-9]{1,4}|(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2})))$/,
+  ipv6Cidr: /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(12[0-8]|1[01][0-9]|[1-9]?[0-9])$/,
+  base64: /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/,
+  base64url: /^([0-9a-zA-Z-_]{4})*(([0-9a-zA-Z-_]{2}(==)?)|([0-9a-zA-Z-_]{3}(=)?))?$/,
+  nanoid: /^[a-zA-Z0-9_-]{21}$/,
+  jwt: /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*$/
+};
+function parseStringDef5(def, refs) {
+  let res = {
+    type: "string"
+  };
+  if (def.checks)
+    for (let check2 of def.checks)
+      switch (check2.kind) {
+        case "min":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value;
+          break;
+        case "max":
+          res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "email":
+          switch (refs.emailStrategy) {
+            case "format:email":
+              addFormat5(res, "email", check2.message, refs);
+              break;
+            case "format:idn-email":
+              addFormat5(res, "idn-email", check2.message, refs);
+              break;
+            case "pattern:zod":
+              addPattern5(res, zodPatterns5.email, check2.message, refs);
+              break;
+          }
+          break;
+        case "url":
+          addFormat5(res, "uri", check2.message, refs);
+          break;
+        case "uuid":
+          addFormat5(res, "uuid", check2.message, refs);
+          break;
+        case "regex":
+          addPattern5(res, check2.regex, check2.message, refs);
+          break;
+        case "cuid":
+          addPattern5(res, zodPatterns5.cuid, check2.message, refs);
+          break;
+        case "cuid2":
+          addPattern5(res, zodPatterns5.cuid2, check2.message, refs);
+          break;
+        case "startsWith":
+          addPattern5(res, RegExp(`^${escapeLiteralCheckValue5(check2.value, refs)}`), check2.message, refs);
+          break;
+        case "endsWith":
+          addPattern5(res, RegExp(`${escapeLiteralCheckValue5(check2.value, refs)}$`), check2.message, refs);
+          break;
+        case "datetime":
+          addFormat5(res, "date-time", check2.message, refs);
+          break;
+        case "date":
+          addFormat5(res, "date", check2.message, refs);
+          break;
+        case "time":
+          addFormat5(res, "time", check2.message, refs);
+          break;
+        case "duration":
+          addFormat5(res, "duration", check2.message, refs);
+          break;
+        case "length":
+          res.minLength = typeof res.minLength === "number" ? Math.max(res.minLength, check2.value) : check2.value, res.maxLength = typeof res.maxLength === "number" ? Math.min(res.maxLength, check2.value) : check2.value;
+          break;
+        case "includes": {
+          addPattern5(res, RegExp(escapeLiteralCheckValue5(check2.value, refs)), check2.message, refs);
+          break;
+        }
+        case "ip": {
+          if (check2.version !== "v6")
+            addFormat5(res, "ipv4", check2.message, refs);
+          if (check2.version !== "v4")
+            addFormat5(res, "ipv6", check2.message, refs);
+          break;
+        }
+        case "base64url":
+          addPattern5(res, zodPatterns5.base64url, check2.message, refs);
+          break;
+        case "jwt":
+          addPattern5(res, zodPatterns5.jwt, check2.message, refs);
+          break;
+        case "cidr": {
+          if (check2.version !== "v6")
+            addPattern5(res, zodPatterns5.ipv4Cidr, check2.message, refs);
+          if (check2.version !== "v4")
+            addPattern5(res, zodPatterns5.ipv6Cidr, check2.message, refs);
+          break;
+        }
+        case "emoji":
+          addPattern5(res, zodPatterns5.emoji(), check2.message, refs);
+          break;
+        case "ulid": {
+          addPattern5(res, zodPatterns5.ulid, check2.message, refs);
+          break;
+        }
+        case "base64": {
+          switch (refs.base64Strategy) {
+            case "format:binary": {
+              addFormat5(res, "binary", check2.message, refs);
+              break;
+            }
+            case "contentEncoding:base64": {
+              res.contentEncoding = "base64";
+              break;
+            }
+            case "pattern:zod": {
+              addPattern5(res, zodPatterns5.base64, check2.message, refs);
+              break;
+            }
+          }
+          break;
+        }
+        case "nanoid":
+          addPattern5(res, zodPatterns5.nanoid, check2.message, refs);
+        case "toLowerCase":
+        case "toUpperCase":
+        case "trim":
+          break;
+        default:
+      }
+  return res;
+}
+function escapeLiteralCheckValue5(literal2, refs) {
+  return refs.patternStrategy === "escape" ? escapeNonAlphaNumeric5(literal2) : literal2;
+}
+var ALPHA_NUMERIC5 = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+function escapeNonAlphaNumeric5(source) {
+  let result = "";
+  for (let i = 0;i < source.length; i++) {
+    if (!ALPHA_NUMERIC5.has(source[i]))
+      result += "\\";
+    result += source[i];
+  }
+  return result;
+}
+function addFormat5(schema, value, message, refs) {
+  var _a210;
+  if (schema.format || ((_a210 = schema.anyOf) == null ? void 0 : _a210.some((x) => x.format))) {
+    if (!schema.anyOf)
+      schema.anyOf = [];
+    if (schema.format)
+      schema.anyOf.push({
+        format: schema.format
+      }), delete schema.format;
+    schema.anyOf.push({
+      format: value,
+      ...message && refs.errorMessages && { errorMessage: { format: message } }
+    });
+  } else
+    schema.format = value;
+}
+function addPattern5(schema, regex, message, refs) {
+  var _a210;
+  if (schema.pattern || ((_a210 = schema.allOf) == null ? void 0 : _a210.some((x) => x.pattern))) {
+    if (!schema.allOf)
+      schema.allOf = [];
+    if (schema.pattern)
+      schema.allOf.push({
+        pattern: schema.pattern
+      }), delete schema.pattern;
+    schema.allOf.push({
+      pattern: stringifyRegExpWithFlags5(regex, refs),
+      ...message && refs.errorMessages && { errorMessage: { pattern: message } }
+    });
+  } else
+    schema.pattern = stringifyRegExpWithFlags5(regex, refs);
+}
+function stringifyRegExpWithFlags5(regex, refs) {
+  var _a210;
+  if (!refs.applyRegexFlags || !regex.flags)
+    return regex.source;
+  let flags = {
+    i: regex.flags.includes("i"),
+    m: regex.flags.includes("m"),
+    s: regex.flags.includes("s")
+  }, source = flags.i ? regex.source.toLowerCase() : regex.source, pattern = "", isEscaped = !1, inCharGroup = !1, inCharRange = !1;
+  for (let i = 0;i < source.length; i++) {
+    if (isEscaped) {
+      pattern += source[i], isEscaped = !1;
+      continue;
+    }
+    if (flags.i) {
+      if (inCharGroup) {
+        if (source[i].match(/[a-z]/)) {
+          if (inCharRange)
+            pattern += source[i], pattern += `${source[i - 2]}-${source[i]}`.toUpperCase(), inCharRange = !1;
+          else if (source[i + 1] === "-" && ((_a210 = source[i + 2]) == null ? void 0 : _a210.match(/[a-z]/)))
+            pattern += source[i], inCharRange = !0;
+          else
+            pattern += `${source[i]}${source[i].toUpperCase()}`;
+          continue;
+        }
+      } else if (source[i].match(/[a-z]/)) {
+        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
+        continue;
+      }
+    }
+    if (flags.m) {
+      if (source[i] === "^") {
+        pattern += `(^|(?<=[\r
+]))`;
+        continue;
+      } else if (source[i] === "$") {
+        pattern += `($|(?=[\r
+]))`;
+        continue;
+      }
+    }
+    if (flags.s && source[i] === ".") {
+      pattern += inCharGroup ? `${source[i]}\r
+` : `[${source[i]}\r
+]`;
+      continue;
+    }
+    if (pattern += source[i], source[i] === "\\")
+      isEscaped = !0;
+    else if (inCharGroup && source[i] === "]")
+      inCharGroup = !1;
+    else if (!inCharGroup && source[i] === "[")
+      inCharGroup = !0;
+  }
+  try {
+    new RegExp(pattern);
+  } catch (e) {
+    return console.warn(`Could not convert regex pattern at ${refs.currentPath.join("/")} to a flag-independent form! Falling back to the flag-ignorant source`), regex.source;
+  }
+  return pattern;
+}
+function parseRecordDef5(def, refs) {
+  var _a210, _b210, _c, _d, _e, _f;
+  let schema = {
+    type: "object",
+    additionalProperties: (_a210 = parseDef5(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    })) != null ? _a210 : refs.allowedAdditionalProperties
+  };
+  if (((_b210 = def.keyType) == null ? void 0 : _b210._def.typeName) === ZodFirstPartyTypeKind2.ZodString && ((_c = def.keyType._def.checks) == null ? void 0 : _c.length)) {
+    let { type, ...keyType } = parseStringDef5(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  } else if (((_d = def.keyType) == null ? void 0 : _d._def.typeName) === ZodFirstPartyTypeKind2.ZodEnum)
+    return {
+      ...schema,
+      propertyNames: {
+        enum: def.keyType._def.values
+      }
+    };
+  else if (((_e = def.keyType) == null ? void 0 : _e._def.typeName) === ZodFirstPartyTypeKind2.ZodBranded && def.keyType._def.type._def.typeName === ZodFirstPartyTypeKind2.ZodString && ((_f = def.keyType._def.type._def.checks) == null ? void 0 : _f.length)) {
+    let { type, ...keyType } = parseBrandedDef5(def.keyType._def, refs);
+    return {
+      ...schema,
+      propertyNames: keyType
+    };
+  }
+  return schema;
+}
+function parseMapDef5(def, refs) {
+  if (refs.mapStrategy === "record")
+    return parseRecordDef5(def, refs);
+  let keys = parseDef5(def.keyType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "0"]
+  }) || parseAnyDef5(), values = parseDef5(def.valueType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "items", "items", "1"]
+  }) || parseAnyDef5();
+  return {
+    type: "array",
+    maxItems: 125,
+    items: {
+      type: "array",
+      items: [keys, values],
+      minItems: 2,
+      maxItems: 2
+    }
+  };
+}
+function parseNativeEnumDef5(def) {
+  let object3 = def.values, actualValues = Object.keys(def.values).filter((key) => {
+    return typeof object3[object3[key]] !== "number";
+  }).map((key) => object3[key]), parsedTypes = Array.from(new Set(actualValues.map((values) => typeof values)));
+  return {
+    type: parsedTypes.length === 1 ? parsedTypes[0] === "string" ? "string" : "number" : ["string", "number"],
+    enum: actualValues
+  };
+}
+function parseNeverDef5() {
+  return { not: parseAnyDef5() };
+}
+function parseNullDef5() {
+  return {
+    type: "null"
+  };
+}
+var primitiveMappings5 = {
+  ZodString: "string",
+  ZodNumber: "number",
+  ZodBigInt: "integer",
+  ZodBoolean: "boolean",
+  ZodNull: "null"
+};
+function parseUnionDef5(def, refs) {
+  let options = def.options instanceof Map ? Array.from(def.options.values()) : def.options;
+  if (options.every((x) => (x._def.typeName in primitiveMappings5) && (!x._def.checks || !x._def.checks.length))) {
+    let types = options.reduce((types2, x) => {
+      let type = primitiveMappings5[x._def.typeName];
+      return type && !types2.includes(type) ? [...types2, type] : types2;
+    }, []);
+    return {
+      type: types.length > 1 ? types : types[0]
+    };
+  } else if (options.every((x) => x._def.typeName === "ZodLiteral" && !x.description)) {
+    let types = options.reduce((acc, x) => {
+      let type = typeof x._def.value;
+      switch (type) {
+        case "string":
+        case "number":
+        case "boolean":
+          return [...acc, type];
+        case "bigint":
+          return [...acc, "integer"];
+        case "object":
+          if (x._def.value === null)
+            return [...acc, "null"];
+        case "symbol":
+        case "undefined":
+        case "function":
+        default:
+          return acc;
+      }
+    }, []);
+    if (types.length === options.length) {
+      let uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
+      return {
+        type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
+        enum: options.reduce((acc, x) => {
+          return acc.includes(x._def.value) ? acc : [...acc, x._def.value];
+        }, [])
+      };
+    }
+  } else if (options.every((x) => x._def.typeName === "ZodEnum"))
+    return {
+      type: "string",
+      enum: options.reduce((acc, x) => [
+        ...acc,
+        ...x._def.values.filter((x2) => !acc.includes(x2))
+      ], [])
+    };
+  return asAnyOf5(def, refs);
+}
+var asAnyOf5 = (def, refs) => {
+  let anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef5(x._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", `${i}`]
+  })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
+  return anyOf.length ? { anyOf } : void 0;
+};
+function parseNullableDef5(def, refs) {
+  if (["ZodString", "ZodNumber", "ZodBigInt", "ZodBoolean", "ZodNull"].includes(def.innerType._def.typeName) && (!def.innerType._def.checks || !def.innerType._def.checks.length))
+    return {
+      type: [
+        primitiveMappings5[def.innerType._def.typeName],
+        "null"
+      ]
+    };
+  let base = parseDef5(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "0"]
+  });
+  return base && { anyOf: [base, { type: "null" }] };
+}
+function parseNumberDef5(def) {
+  let res = {
+    type: "number"
+  };
+  if (!def.checks)
+    return res;
+  for (let check2 of def.checks)
+    switch (check2.kind) {
+      case "int":
+        res.type = "integer";
+        break;
+      case "min":
+        if (check2.inclusive)
+          res.minimum = check2.value;
+        else
+          res.exclusiveMinimum = check2.value;
+        break;
+      case "max":
+        if (check2.inclusive)
+          res.maximum = check2.value;
+        else
+          res.exclusiveMaximum = check2.value;
+        break;
+      case "multipleOf":
+        res.multipleOf = check2.value;
+        break;
+    }
+  return res;
+}
+function parseObjectDef5(def, refs) {
+  let result = {
+    type: "object",
+    properties: {}
+  }, required2 = [], shape = def.shape();
+  for (let propName in shape) {
+    let propDef = shape[propName];
+    if (propDef === void 0 || propDef._def === void 0)
+      continue;
+    let propOptional = safeIsOptional5(propDef), parsedDef = parseDef5(propDef._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "properties", propName],
+      propertyPath: [...refs.currentPath, "properties", propName]
+    });
+    if (parsedDef === void 0)
+      continue;
+    if (result.properties[propName] = parsedDef, !propOptional)
+      required2.push(propName);
+  }
+  if (required2.length)
+    result.required = required2;
+  let additionalProperties = decideAdditionalProperties5(def, refs);
+  if (additionalProperties !== void 0)
+    result.additionalProperties = additionalProperties;
+  return result;
+}
+function decideAdditionalProperties5(def, refs) {
+  if (def.catchall._def.typeName !== "ZodNever")
+    return parseDef5(def.catchall._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "additionalProperties"]
+    });
+  switch (def.unknownKeys) {
+    case "passthrough":
+      return refs.allowedAdditionalProperties;
+    case "strict":
+      return refs.rejectedAdditionalProperties;
+    case "strip":
+      return refs.removeAdditionalStrategy === "strict" ? refs.allowedAdditionalProperties : refs.rejectedAdditionalProperties;
+  }
+}
+function safeIsOptional5(schema) {
+  try {
+    return schema.isOptional();
+  } catch (e) {
+    return !0;
+  }
+}
+var parseOptionalDef5 = (def, refs) => {
+  var _a210;
+  if (refs.currentPath.toString() === ((_a210 = refs.propertyPath) == null ? void 0 : _a210.toString()))
+    return parseDef5(def.innerType._def, refs);
+  let innerSchema = parseDef5(def.innerType._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "anyOf", "1"]
+  });
+  return innerSchema ? { anyOf: [{ not: parseAnyDef5() }, innerSchema] } : parseAnyDef5();
+}, parsePipelineDef5 = (def, refs) => {
+  if (refs.pipeStrategy === "input")
+    return parseDef5(def.in._def, refs);
+  else if (refs.pipeStrategy === "output")
+    return parseDef5(def.out._def, refs);
+  let a = parseDef5(def.in._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", "0"]
+  }), b = parseDef5(def.out._def, {
+    ...refs,
+    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
+  });
+  return {
+    allOf: [a, b].filter((x) => x !== void 0)
+  };
+};
+function parsePromiseDef5(def, refs) {
+  return parseDef5(def.type._def, refs);
+}
+function parseSetDef5(def, refs) {
+  let schema = {
+    type: "array",
+    uniqueItems: !0,
+    items: parseDef5(def.valueType._def, {
+      ...refs,
+      currentPath: [...refs.currentPath, "items"]
+    })
+  };
+  if (def.minSize)
+    schema.minItems = def.minSize.value;
+  if (def.maxSize)
+    schema.maxItems = def.maxSize.value;
+  return schema;
+}
+function parseTupleDef5(def, refs) {
+  if (def.rest)
+    return {
+      type: "array",
+      minItems: def.items.length,
+      items: def.items.map((x, i) => parseDef5(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
+      additionalItems: parseDef5(def.rest._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "additionalItems"]
+      })
+    };
+  else
+    return {
+      type: "array",
+      minItems: def.items.length,
+      maxItems: def.items.length,
+      items: def.items.map((x, i) => parseDef5(x._def, {
+        ...refs,
+        currentPath: [...refs.currentPath, "items", `${i}`]
+      })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
+    };
+}
+function parseUndefinedDef5() {
+  return {
+    not: parseAnyDef5()
+  };
+}
+function parseUnknownDef5() {
+  return parseAnyDef5();
+}
+var parseReadonlyDef5 = (def, refs) => {
+  return parseDef5(def.innerType._def, refs);
+}, selectParser5 = (def, typeName, refs) => {
+  switch (typeName) {
+    case ZodFirstPartyTypeKind2.ZodString:
+      return parseStringDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNumber:
+      return parseNumberDef5(def);
+    case ZodFirstPartyTypeKind2.ZodObject:
+      return parseObjectDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBigInt:
+      return parseBigintDef5(def);
+    case ZodFirstPartyTypeKind2.ZodBoolean:
+      return parseBooleanDef5();
+    case ZodFirstPartyTypeKind2.ZodDate:
+      return parseDateDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUndefined:
+      return parseUndefinedDef5();
+    case ZodFirstPartyTypeKind2.ZodNull:
+      return parseNullDef5();
+    case ZodFirstPartyTypeKind2.ZodArray:
+      return parseArrayDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodUnion:
+    case ZodFirstPartyTypeKind2.ZodDiscriminatedUnion:
+      return parseUnionDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodIntersection:
+      return parseIntersectionDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodTuple:
+      return parseTupleDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodRecord:
+      return parseRecordDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLiteral:
+      return parseLiteralDef5(def);
+    case ZodFirstPartyTypeKind2.ZodEnum:
+      return parseEnumDef5(def);
+    case ZodFirstPartyTypeKind2.ZodNativeEnum:
+      return parseNativeEnumDef5(def);
+    case ZodFirstPartyTypeKind2.ZodNullable:
+      return parseNullableDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodOptional:
+      return parseOptionalDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodMap:
+      return parseMapDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodSet:
+      return parseSetDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodLazy:
+      return () => def.getter()._def;
+    case ZodFirstPartyTypeKind2.ZodPromise:
+      return parsePromiseDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodNaN:
+    case ZodFirstPartyTypeKind2.ZodNever:
+      return parseNeverDef5();
+    case ZodFirstPartyTypeKind2.ZodEffects:
+      return parseEffectsDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodAny:
+      return parseAnyDef5();
+    case ZodFirstPartyTypeKind2.ZodUnknown:
+      return parseUnknownDef5();
+    case ZodFirstPartyTypeKind2.ZodDefault:
+      return parseDefaultDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodBranded:
+      return parseBrandedDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodReadonly:
+      return parseReadonlyDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodCatch:
+      return parseCatchDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodPipeline:
+      return parsePipelineDef5(def, refs);
+    case ZodFirstPartyTypeKind2.ZodFunction:
+    case ZodFirstPartyTypeKind2.ZodVoid:
+    case ZodFirstPartyTypeKind2.ZodSymbol:
+      return;
+    default:
+      return /* @__PURE__ */ ((_) => {
+        return;
+      })(typeName);
+  }
+}, getRelativePath5 = (pathA, pathB) => {
+  let i = 0;
+  for (;i < pathA.length && i < pathB.length; i++)
+    if (pathA[i] !== pathB[i])
+      break;
+  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
+};
+function parseDef5(def, refs, forceResolution = !1) {
+  var _a210;
+  let seenItem = refs.seen.get(def);
+  if (refs.override) {
+    let overrideResult = (_a210 = refs.override) == null ? void 0 : _a210.call(refs, def, refs, seenItem, forceResolution);
+    if (overrideResult !== ignoreOverride5)
+      return overrideResult;
+  }
+  if (seenItem && !forceResolution) {
+    let seenSchema = get$ref5(seenItem, refs);
+    if (seenSchema !== void 0)
+      return seenSchema;
+  }
+  let newItem = { def, path: refs.currentPath, jsonSchema: void 0 };
+  refs.seen.set(def, newItem);
+  let jsonSchemaOrGetter = selectParser5(def, def.typeName, refs), jsonSchema22 = typeof jsonSchemaOrGetter === "function" ? parseDef5(jsonSchemaOrGetter(), refs) : jsonSchemaOrGetter;
+  if (jsonSchema22)
+    addMeta5(def, refs, jsonSchema22);
+  if (refs.postProcess) {
+    let postProcessResult = refs.postProcess(jsonSchema22, def, refs);
+    return newItem.jsonSchema = jsonSchema22, postProcessResult;
+  }
+  return newItem.jsonSchema = jsonSchema22, jsonSchema22;
+}
+var get$ref5 = (item, refs) => {
+  switch (refs.$refStrategy) {
+    case "root":
+      return { $ref: item.path.join("/") };
+    case "relative":
+      return { $ref: getRelativePath5(refs.currentPath, item.path) };
+    case "none":
+    case "seen": {
+      if (item.path.length < refs.currentPath.length && item.path.every((value, index) => refs.currentPath[index] === value))
+        return console.warn(`Recursive reference detected at ${refs.currentPath.join("/")}! Defaulting to any`), parseAnyDef5();
+      return refs.$refStrategy === "seen" ? parseAnyDef5() : void 0;
+    }
+  }
+}, addMeta5 = (def, refs, jsonSchema22) => {
+  if (def.description)
+    jsonSchema22.description = def.description;
+  return jsonSchema22;
+}, getRefs5 = (options) => {
+  let _options = getDefaultOptions5(options), currentPath = _options.name !== void 0 ? [..._options.basePath, _options.definitionPath, _options.name] : _options.basePath;
+  return {
+    ..._options,
+    currentPath,
+    propertyPath: void 0,
+    seen: new Map(Object.entries(_options.definitions).map(([name210, def]) => [
+      def._def,
+      {
+        def: def._def,
+        path: [..._options.basePath, _options.definitionPath, name210],
+        jsonSchema: void 0
+      }
+    ]))
+  };
+}, zod3ToJsonSchema5 = (schema, options) => {
+  var _a210;
+  let refs = getRefs5(options), definitions = typeof options === "object" && options.definitions ? Object.entries(options.definitions).reduce((acc, [name310, schema2]) => {
+    var _a310;
+    return {
+      ...acc,
+      [name310]: (_a310 = parseDef5(schema2._def, {
+        ...refs,
+        currentPath: [...refs.basePath, refs.definitionPath, name310]
+      }, !0)) != null ? _a310 : parseAnyDef5()
+    };
+  }, {}) : void 0, name210 = typeof options === "string" ? options : (options == null ? void 0 : options.nameStrategy) === "title" ? void 0 : options == null ? void 0 : options.name, main = (_a210 = parseDef5(schema._def, name210 === void 0 ? refs : {
+    ...refs,
+    currentPath: [...refs.basePath, refs.definitionPath, name210]
+  }, !1)) != null ? _a210 : parseAnyDef5(), title = typeof options === "object" && options.name !== void 0 && options.nameStrategy === "title" ? options.name : void 0;
+  if (title !== void 0)
+    main.title = title;
+  let combined = name210 === void 0 ? definitions ? {
+    ...main,
+    [refs.definitionPath]: definitions
+  } : main : {
+    $ref: [
+      ...refs.$refStrategy === "relative" ? [] : refs.basePath,
+      refs.definitionPath,
+      name210
+    ].join("/"),
+    [refs.definitionPath]: {
+      ...definitions,
+      [name210]: main
+    }
+  };
+  return combined.$schema = "http://json-schema.org/draft-07/schema#", combined;
+}, schemaSymbol5 = /* @__PURE__ */ Symbol.for("vercel.ai.schema");
+function jsonSchema5(jsonSchema22, {
+  validate
+} = {}) {
+  return {
+    [schemaSymbol5]: !0,
+    _type: void 0,
+    get jsonSchema() {
+      if (typeof jsonSchema22 === "function")
+        jsonSchema22 = jsonSchema22();
+      return jsonSchema22;
+    },
+    validate
+  };
+}
+function isSchema5(value) {
+  return typeof value === "object" && value !== null && schemaSymbol5 in value && value[schemaSymbol5] === !0 && "jsonSchema" in value && "validate" in value;
+}
+function asSchema5(schema) {
+  return schema == null ? jsonSchema5({ properties: {}, additionalProperties: !1 }) : isSchema5(schema) ? schema : ("~standard" in schema) ? schema["~standard"].vendor === "zod" ? zodSchema5(schema) : standardSchema5(schema) : schema();
+}
+function standardSchema5(standardSchema22) {
+  return jsonSchema5(() => addAdditionalPropertiesToJsonSchema5(standardSchema22["~standard"].jsonSchema.input({
+    target: "draft-07"
+  })), {
+    validate: async (value) => {
+      let result = await standardSchema22["~standard"].validate(value);
+      return "value" in result ? { success: !0, value: result.value } : {
+        success: !1,
+        error: new TypeValidationError5({
+          value,
+          cause: result.issues
+        })
+      };
+    }
+  });
+}
+function zod3Schema5(zodSchema22, options) {
+  var _a210;
+  let useReferences = (_a210 = options == null ? void 0 : options.useReferences) != null ? _a210 : !1;
+  return jsonSchema5(() => zod3ToJsonSchema5(zodSchema22, {
+    $refStrategy: useReferences ? "root" : "none"
+  }), {
+    validate: async (value) => {
+      let result = await zodSchema22.safeParseAsync(value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function zod4Schema5(zodSchema22, options) {
+  var _a210;
+  let useReferences = (_a210 = options == null ? void 0 : options.useReferences) != null ? _a210 : !1;
+  return jsonSchema5(() => addAdditionalPropertiesToJsonSchema5(toJSONSchema(zodSchema22, {
+    target: "draft-7",
+    io: "input",
+    reused: useReferences ? "ref" : "inline"
+  })), {
+    validate: async (value) => {
+      let result = await safeParseAsync2(zodSchema22, value);
+      return result.success ? { success: !0, value: result.data } : { success: !1, error: result.error };
+    }
+  });
+}
+function isZod4Schema5(zodSchema22) {
+  return "_zod" in zodSchema22;
+}
+function zodSchema5(zodSchema22, options) {
+  if (isZod4Schema5(zodSchema22))
+    return zod4Schema5(zodSchema22, options);
+  else
+    return zod3Schema5(zodSchema22, options);
+}
+async function validateTypes5({
+  value,
+  schema,
+  context: context2
+}) {
+  let result = await safeValidateTypes5({ value, schema, context: context2 });
+  if (!result.success)
+    throw TypeValidationError5.wrap({ value, cause: result.error, context: context2 });
+  return result.value;
+}
+async function safeValidateTypes5({
+  value,
+  schema,
+  context: context2
+}) {
+  let actualSchema = asSchema5(schema);
+  try {
+    if (actualSchema.validate == null)
+      return { success: !0, value, rawValue: value };
+    let result = await actualSchema.validate(value);
+    if (result.success)
+      return { success: !0, value: result.value, rawValue: value };
+    return {
+      success: !1,
+      error: TypeValidationError5.wrap({ value, cause: result.error, context: context2 }),
+      rawValue: value
+    };
+  } catch (error51) {
+    return {
+      success: !1,
+      error: TypeValidationError5.wrap({ value, cause: error51, context: context2 }),
+      rawValue: value
+    };
+  }
+}
+async function parseJSON4({
+  text: text2,
+  schema
+}) {
+  try {
+    let value = secureJsonParse5(text2);
+    if (schema == null)
+      return value;
+    return validateTypes5({ value, schema });
+  } catch (error51) {
+    if (JSONParseError5.isInstance(error51) || TypeValidationError5.isInstance(error51))
+      throw error51;
+    throw new JSONParseError5({ text: text2, cause: error51 });
+  }
+}
+async function safeParseJSON5({
+  text: text2,
+  schema
+}) {
+  try {
+    let value = secureJsonParse5(text2);
+    if (schema == null)
+      return { success: !0, value, rawValue: value };
+    return await safeValidateTypes5({ value, schema });
+  } catch (error51) {
+    return {
+      success: !1,
+      error: JSONParseError5.isInstance(error51) ? error51 : new JSONParseError5({ text: text2, cause: error51 }),
+      rawValue: void 0
+    };
+  }
+}
+function isParsableJson2(input) {
+  try {
+    return secureJsonParse5(input), !0;
+  } catch (e) {
+    return !1;
+  }
+}
+function parseJsonEventStream5({
+  stream,
+  schema
+}) {
+  return stream.pipeThrough(new TextDecoderStream).pipeThrough(new EventSourceParserStream).pipeThrough(new TransformStream({
+    async transform({ data }, controller) {
+      if (data === "[DONE]")
+        return;
+      controller.enqueue(await safeParseJSON5({ text: data, schema }));
+    }
+  }));
+}
+async function parseProviderOptions3({
+  provider,
+  providerOptions,
+  schema
+}) {
+  if ((providerOptions == null ? void 0 : providerOptions[provider]) == null)
+    return;
+  let parsedProviderOptions = await safeValidateTypes5({
+    value: providerOptions[provider],
+    schema
+  });
+  if (!parsedProviderOptions.success)
+    throw new InvalidArgumentError6({
+      argument: "providerOptions",
+      message: `invalid ${provider} provider options`,
+      cause: parsedProviderOptions.error
+    });
+  return parsedProviderOptions.value;
+}
+var getOriginalFetch24 = () => globalThis.fetch, postJsonToApi4 = async ({
+  url: url2,
+  headers,
+  body,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => postToApi4({
+  url: url2,
+  headers: {
+    "Content-Type": "application/json",
+    ...headers
+  },
+  body: {
+    content: JSON.stringify(body),
+    values: body
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}), postFormDataToApi3 = async ({
+  url: url2,
+  headers,
+  formData,
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}) => postToApi4({
+  url: url2,
+  headers,
+  body: {
+    content: formData,
+    values: Object.fromEntries(formData.entries())
+  },
+  failedResponseHandler,
+  successfulResponseHandler,
+  abortSignal,
+  fetch: fetch2
+}), postToApi4 = async ({
+  url: url2,
+  headers = {},
+  body,
+  successfulResponseHandler,
+  failedResponseHandler,
+  abortSignal,
+  fetch: fetch2 = getOriginalFetch24()
+}) => {
+  try {
+    let response = await fetch2(url2, {
+      method: "POST",
+      headers: withUserAgentSuffix5(headers, `ai-sdk/provider-utils/${VERSION10}`, getRuntimeEnvironmentUserAgent5()),
+      body: body.content,
+      signal: abortSignal
+    }), responseHeaders = extractResponseHeaders4(response);
+    if (!response.ok) {
+      let errorInformation;
+      try {
+        errorInformation = await failedResponseHandler({
+          response,
+          url: url2,
+          requestBodyValues: body.values
+        });
+      } catch (error51) {
+        if (isAbortError5(error51) || APICallError5.isInstance(error51))
+          throw error51;
+        throw new APICallError5({
+          message: "Failed to process error response",
+          cause: error51,
+          statusCode: response.status,
+          url: url2,
+          responseHeaders,
+          requestBodyValues: body.values
+        });
+      }
+      throw errorInformation.value;
+    }
+    try {
+      return await successfulResponseHandler({
+        response,
+        url: url2,
+        requestBodyValues: body.values
+      });
+    } catch (error51) {
+      if (error51 instanceof Error) {
+        if (isAbortError5(error51) || APICallError5.isInstance(error51))
+          throw error51;
+      }
+      throw new APICallError5({
+        message: "Failed to process successful response",
+        cause: error51,
+        statusCode: response.status,
+        url: url2,
+        responseHeaders,
+        requestBodyValues: body.values
+      });
+    }
+  } catch (error51) {
+    throw handleFetchError4({ error: error51, url: url2, requestBodyValues: body.values });
+  }
+};
+var createJsonErrorResponseHandler4 = ({
+  errorSchema,
+  errorToMessage,
+  isRetryable
+}) => async ({ response, url: url2, requestBodyValues }) => {
+  let responseBody = await response.text(), responseHeaders = extractResponseHeaders4(response);
+  if (responseBody.trim() === "")
+    return {
+      responseHeaders,
+      value: new APICallError5({
+        message: response.statusText,
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
+    };
+  try {
+    let parsedError = await parseJSON4({
+      text: responseBody,
+      schema: errorSchema
+    });
+    return {
+      responseHeaders,
+      value: new APICallError5({
+        message: errorToMessage(parsedError),
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        data: parsedError,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response, parsedError)
+      })
+    };
+  } catch (parseError) {
+    return {
+      responseHeaders,
+      value: new APICallError5({
+        message: response.statusText,
+        url: url2,
+        requestBodyValues,
+        statusCode: response.status,
+        responseHeaders,
+        responseBody,
+        isRetryable: isRetryable == null ? void 0 : isRetryable(response)
+      })
+    };
+  }
+}, createEventSourceResponseHandler4 = (chunkSchema2) => async ({ response }) => {
+  let responseHeaders = extractResponseHeaders4(response);
+  if (response.body == null)
+    throw new EmptyResponseBodyError5({});
+  return {
+    responseHeaders,
+    value: parseJsonEventStream5({
+      stream: response.body,
+      schema: chunkSchema2
+    })
+  };
+}, createJsonResponseHandler4 = (responseSchema2) => async ({ response, url: url2, requestBodyValues }) => {
+  let responseBody = await response.text(), parsedResult = await safeParseJSON5({
+    text: responseBody,
+    schema: responseSchema2
+  }), responseHeaders = extractResponseHeaders4(response);
+  if (!parsedResult.success)
+    throw new APICallError5({
+      message: "Invalid JSON response",
+      cause: parsedResult.error,
+      statusCode: response.status,
+      responseHeaders,
+      responseBody,
+      url: url2,
+      requestBodyValues
+    });
+  return {
+    responseHeaders,
+    value: parsedResult.value,
+    rawValue: parsedResult.rawValue
+  };
+};
+function withoutTrailingSlash4(url2) {
+  return url2 == null ? void 0 : url2.replace(/\/$/, "");
+}
+
 // node_modules/@ai-sdk/openai-compatible/dist/index.mjs
 function toCamelCase(str) {
   return str.replace(/[_-]([a-z])/g, (g) => g[1].toUpperCase());
@@ -41608,7 +50670,7 @@ var openaiCompatibleErrorDataSchema = exports_external.object({
   errorToMessage: (data) => data.error.message
 };
 function convertOpenAICompatibleChatUsage(usage) {
-  var _a24, _b16, _c, _d, _e, _f;
+  var _a40, _b16, _c, _d, _e, _f;
   if (usage == null)
     return {
       inputTokens: {
@@ -41624,7 +50686,7 @@ function convertOpenAICompatibleChatUsage(usage) {
       },
       raw: void 0
     };
-  let promptTokens = (_a24 = usage.prompt_tokens) != null ? _a24 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0, reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
+  let promptTokens = (_a40 = usage.prompt_tokens) != null ? _a40 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0, reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
   return {
     inputTokens: {
       total: promptTokens,
@@ -41641,8 +50703,8 @@ function convertOpenAICompatibleChatUsage(usage) {
   };
 }
 function getOpenAIMetadata(message) {
-  var _a24, _b16;
-  return (_b16 = (_a24 = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a24.openaiCompatible) != null ? _b16 : {};
+  var _a40, _b16;
+  return (_b16 = (_a40 = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a40.openaiCompatible) != null ? _b16 : {};
 }
 function getAudioFormat(mediaType) {
   switch (mediaType) {
@@ -41656,7 +50718,7 @@ function getAudioFormat(mediaType) {
   }
 }
 function convertToOpenAICompatibleChatMessages(prompt) {
-  var _a24, _b16, _c;
+  var _a40, _b16, _c;
   let messages = [];
   for (let { role, content, ...message } of prompt) {
     let metadata = getOpenAIMetadata({ ...message });
@@ -41677,7 +50739,7 @@ function convertToOpenAICompatibleChatMessages(prompt) {
         messages.push({
           role: "user",
           content: content.map((part) => {
-            var _a25;
+            var _a210;
             let partMetadata = getOpenAIMetadata(part);
             switch (part.type) {
               case "text":
@@ -41688,25 +50750,25 @@ function convertToOpenAICompatibleChatMessages(prompt) {
                   return {
                     type: "image_url",
                     image_url: {
-                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase64(part.data)}`
+                      url: part.data instanceof URL ? part.data.toString() : `data:${mediaType};base64,${convertToBase643(part.data)}`
                     },
                     ...partMetadata
                   };
                 }
                 if (part.mediaType.startsWith("audio/")) {
                   if (part.data instanceof URL)
-                    throw new UnsupportedFunctionalityError({
+                    throw new UnsupportedFunctionalityError5({
                       functionality: "audio file parts with URLs"
                     });
                   let format = getAudioFormat(part.mediaType);
                   if (format === null)
-                    throw new UnsupportedFunctionalityError({
+                    throw new UnsupportedFunctionalityError5({
                       functionality: `audio media type ${part.mediaType}`
                     });
                   return {
                     type: "input_audio",
                     input_audio: {
-                      data: convertToBase64(part.data),
+                      data: convertToBase643(part.data),
                       format
                     },
                     ...partMetadata
@@ -41714,14 +50776,14 @@ function convertToOpenAICompatibleChatMessages(prompt) {
                 }
                 if (part.mediaType === "application/pdf") {
                   if (part.data instanceof URL)
-                    throw new UnsupportedFunctionalityError({
+                    throw new UnsupportedFunctionalityError5({
                       functionality: "PDF file parts with URLs"
                     });
                   return {
                     type: "file",
                     file: {
-                      filename: (_a25 = part.filename) != null ? _a25 : "document.pdf",
-                      file_data: `data:application/pdf;base64,${convertToBase64(part.data)}`
+                      filename: (_a210 = part.filename) != null ? _a210 : "document.pdf",
+                      file_data: `data:application/pdf;base64,${convertToBase643(part.data)}`
                     },
                     ...partMetadata
                   };
@@ -41729,10 +50791,10 @@ function convertToOpenAICompatibleChatMessages(prompt) {
                 if (part.mediaType.startsWith("text/"))
                   return {
                     type: "text",
-                    text: part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? (/* @__PURE__ */ new TextDecoder()).decode(convertBase64ToUint8Array(part.data)) : (/* @__PURE__ */ new TextDecoder()).decode(part.data),
+                    text: part.data instanceof URL ? part.data.toString() : typeof part.data === "string" ? (/* @__PURE__ */ new TextDecoder()).decode(convertBase64ToUint8Array4(part.data)) : (/* @__PURE__ */ new TextDecoder()).decode(part.data),
                     ...partMetadata
                   };
-                throw new UnsupportedFunctionalityError({
+                throw new UnsupportedFunctionalityError5({
                   functionality: `file part media type ${part.mediaType}`
                 });
               }
@@ -41756,7 +50818,7 @@ function convertToOpenAICompatibleChatMessages(prompt) {
               break;
             }
             case "tool-call": {
-              let thoughtSignature = (_b16 = (_a24 = part.providerOptions) == null ? void 0 : _a24.google) == null ? void 0 : _b16.thoughtSignature;
+              let thoughtSignature = (_b16 = (_a40 = part.providerOptions) == null ? void 0 : _a40.google) == null ? void 0 : _b16.thoughtSignature;
               toolCalls.push({
                 id: part.toolCallId,
                 type: "function",
@@ -41862,20 +50924,20 @@ function prepareTools3({
   if (tools == null)
     return { tools: void 0, toolChoice: void 0, toolWarnings };
   let openaiCompatTools = [];
-  for (let tool2 of tools)
-    if (tool2.type === "provider")
+  for (let tool5 of tools)
+    if (tool5.type === "provider")
       toolWarnings.push({
         type: "unsupported",
-        feature: `provider-defined tool ${tool2.id}`
+        feature: `provider-defined tool ${tool5.id}`
       });
     else
       openaiCompatTools.push({
         type: "function",
         function: {
-          name: tool2.name,
-          description: tool2.description,
-          parameters: tool2.inputSchema,
-          ...tool2.strict != null ? { strict: tool2.strict } : {}
+          name: tool5.name,
+          description: tool5.description,
+          parameters: tool5.inputSchema,
+          ...tool5.strict != null ? { strict: tool5.strict } : {}
         }
       });
   if (toolChoice == null)
@@ -41896,7 +50958,7 @@ function prepareTools3({
         toolWarnings
       };
     default:
-      throw new UnsupportedFunctionalityError({
+      throw new UnsupportedFunctionalityError5({
         functionality: `tool choice type: ${type}`
       });
   }
@@ -41904,10 +50966,10 @@ function prepareTools3({
 var OpenAICompatibleChatLanguageModel = class {
   constructor(modelId, config2) {
     this.specificationVersion = "v3";
-    var _a24, _b16;
+    var _a40, _b16;
     this.modelId = modelId, this.config = config2;
-    let errorStructure = (_a24 = config2.errorStructure) != null ? _a24 : defaultOpenAICompatibleErrorStructure;
-    this.chunkSchema = createOpenAICompatibleChatChunkSchema(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure), this.supportsStructuredOutputs = (_b16 = config2.supportsStructuredOutputs) != null ? _b16 : !1;
+    let errorStructure = (_a40 = config2.errorStructure) != null ? _a40 : defaultOpenAICompatibleErrorStructure;
+    this.chunkSchema = createOpenAICompatibleChatChunkSchema(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler4(errorStructure), this.supportsStructuredOutputs = (_b16 = config2.supportsStructuredOutputs) != null ? _b16 : !1;
   }
   get provider() {
     return this.config.provider;
@@ -41916,16 +50978,16 @@ var OpenAICompatibleChatLanguageModel = class {
     return this.config.provider.split(".")[0].trim();
   }
   get supportedUrls() {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a24)) != null ? _c : {};
+    var _a40, _b16, _c;
+    return (_c = (_b16 = (_a40 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a40)) != null ? _c : {};
   }
   transformRequestBody(args) {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).transformRequestBody) == null ? void 0 : _b16.call(_a24, args)) != null ? _c : args;
+    var _a40, _b16, _c;
+    return (_c = (_b16 = (_a40 = this.config).transformRequestBody) == null ? void 0 : _b16.call(_a40, args)) != null ? _c : args;
   }
   convertUsage(usage) {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).convertUsage) == null ? void 0 : _b16.call(_a24, usage)) != null ? _c : convertOpenAICompatibleChatUsage(usage);
+    var _a40, _b16, _c;
+    return (_c = (_b16 = (_a40 = this.config).convertUsage) == null ? void 0 : _b16.call(_a40, usage)) != null ? _c : convertOpenAICompatibleChatUsage(usage);
   }
   async getArgs({
     prompt,
@@ -41942,8 +51004,8 @@ var OpenAICompatibleChatLanguageModel = class {
     toolChoice,
     tools
   }) {
-    var _a24, _b16, _c, _d, _e;
-    let warnings = [], deprecatedOptions = await parseProviderOptions({
+    var _a40, _b16, _c, _d, _e;
+    let warnings = [], deprecatedOptions = await parseProviderOptions3({
       provider: "openai-compatible",
       providerOptions,
       schema: openaiCompatibleLanguageModelChatOptions
@@ -41953,15 +51015,15 @@ var OpenAICompatibleChatLanguageModel = class {
         type: "other",
         message: "The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead."
       });
-    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a24 = await parseProviderOptions({
+    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a40 = await parseProviderOptions3({
       provider: "openaiCompatible",
       providerOptions,
       schema: openaiCompatibleLanguageModelChatOptions
-    })) != null ? _a24 : {}, (_b16 = await parseProviderOptions({
+    })) != null ? _a40 : {}, (_b16 = await parseProviderOptions3({
       provider: this.providerOptionsName,
       providerOptions,
       schema: openaiCompatibleLanguageModelChatOptions
-    })) != null ? _b16 : {}, (_c = await parseProviderOptions({
+    })) != null ? _b16 : {}, (_c = await parseProviderOptions3({
       provider: toCamelCase(this.providerOptionsName),
       providerOptions,
       schema: openaiCompatibleLanguageModelChatOptions
@@ -42017,26 +51079,26 @@ var OpenAICompatibleChatLanguageModel = class {
     };
   }
   async doGenerate(options) {
-    var _a24, _b16, _c, _d, _e, _f, _g, _h;
+    var _a40, _b16, _c, _d, _e, _f, _g, _h;
     let { args, warnings, metadataKey } = await this.getArgs({ ...options }), transformedBody = this.transformRequestBody(args), body = JSON.stringify(transformedBody), {
       responseHeaders,
       value: responseBody,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi4({
       url: this.config.url({
         path: "/chat/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders4(this.config.headers(), options.headers),
       body: transformedBody,
       failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(OpenAICompatibleChatResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler4(OpenAICompatibleChatResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), choice2 = responseBody.choices[0], content = [], text2 = choice2.message.content;
     if (text2 != null && text2.length > 0)
       content.push({ type: "text", text: text2 });
-    let reasoning = (_a24 = choice2.message.reasoning_content) != null ? _a24 : choice2.message.reasoning;
+    let reasoning = (_a40 = choice2.message.reasoning_content) != null ? _a40 : choice2.message.reasoning;
     if (reasoning != null && reasoning.length > 0)
       content.push({
         type: "reasoning",
@@ -42047,7 +51109,7 @@ var OpenAICompatibleChatLanguageModel = class {
         let thoughtSignature = (_c = (_b16 = toolCall.extra_content) == null ? void 0 : _b16.google) == null ? void 0 : _c.thought_signature;
         content.push({
           type: "tool-call",
-          toolCallId: (_d = toolCall.id) != null ? _d : generateId(),
+          toolCallId: (_d = toolCall.id) != null ? _d : generateId5(),
           toolName: toolCall.function.name,
           input: toolCall.function.arguments,
           ...thoughtSignature ? {
@@ -42085,20 +51147,20 @@ var OpenAICompatibleChatLanguageModel = class {
     };
   }
   async doStream(options) {
-    var _a24;
+    var _a40;
     let { args, warnings, metadataKey } = await this.getArgs({ ...options }), body = this.transformRequestBody({
       ...args,
       stream: !0,
       stream_options: this.config.includeUsage ? { include_usage: !0 } : void 0
-    }), metadataExtractor = (_a24 = this.config.metadataExtractor) == null ? void 0 : _a24.createStreamExtractor(), { responseHeaders, value: response } = await postJsonToApi({
+    }), metadataExtractor = (_a40 = this.config.metadataExtractor) == null ? void 0 : _a40.createStreamExtractor(), { responseHeaders, value: response } = await postJsonToApi4({
       url: this.config.url({
         path: "/chat/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders4(this.config.headers(), options.headers),
       body,
       failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(this.chunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler4(this.chunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), toolCalls = [], finishReason = {
@@ -42111,7 +51173,7 @@ var OpenAICompatibleChatLanguageModel = class {
           controller.enqueue({ type: "stream-start", warnings });
         },
         transform(chunk, controller) {
-          var _a25, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
+          var _a210, _b16, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
           if (options.includeRawChunks)
             controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
@@ -42137,7 +51199,7 @@ var OpenAICompatibleChatLanguageModel = class {
           if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
             finishReason = {
               unified: mapOpenAICompatibleFinishReason(choice2.finish_reason),
-              raw: (_a25 = choice2.finish_reason) != null ? _a25 : void 0
+              raw: (_a210 = choice2.finish_reason) != null ? _a210 : void 0
             };
           if ((choice2 == null ? void 0 : choice2.delta) == null)
             return;
@@ -42178,12 +51240,12 @@ var OpenAICompatibleChatLanguageModel = class {
               let index = (_c = toolCallDelta.index) != null ? _c : toolCalls.length;
               if (toolCalls[index] == null) {
                 if (toolCallDelta.id == null)
-                  throw new InvalidResponseDataError({
+                  throw new InvalidResponseDataError5({
                     data: toolCallDelta,
                     message: "Expected 'id' to be a string."
                   });
                 if (((_d = toolCallDelta.function) == null ? void 0 : _d.name) == null)
-                  throw new InvalidResponseDataError({
+                  throw new InvalidResponseDataError5({
                     data: toolCallDelta,
                     message: "Expected 'function.name' to be a string."
                   });
@@ -42209,13 +51271,13 @@ var OpenAICompatibleChatLanguageModel = class {
                       id: toolCall2.id,
                       delta: toolCall2.function.arguments
                     });
-                  if (isParsableJson(toolCall2.function.arguments))
+                  if (isParsableJson2(toolCall2.function.arguments))
                     controller.enqueue({
                       type: "tool-input-end",
                       id: toolCall2.id
                     }), controller.enqueue({
                       type: "tool-call",
-                      toolCallId: (_k = toolCall2.id) != null ? _k : generateId(),
+                      toolCallId: (_k = toolCall2.id) != null ? _k : generateId5(),
                       toolName: toolCall2.function.name,
                       input: toolCall2.function.arguments,
                       ...toolCall2.thoughtSignature ? {
@@ -42238,13 +51300,13 @@ var OpenAICompatibleChatLanguageModel = class {
                 type: "tool-input-delta",
                 id: toolCall.id,
                 delta: (_o = toolCallDelta.function.arguments) != null ? _o : ""
-              }), ((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson(toolCall.function.arguments))
+              }), ((_p = toolCall.function) == null ? void 0 : _p.name) != null && ((_q = toolCall.function) == null ? void 0 : _q.arguments) != null && isParsableJson2(toolCall.function.arguments))
                 controller.enqueue({
                   type: "tool-input-end",
                   id: toolCall.id
                 }), controller.enqueue({
                   type: "tool-call",
-                  toolCallId: (_r = toolCall.id) != null ? _r : generateId(),
+                  toolCallId: (_r = toolCall.id) != null ? _r : generateId5(),
                   toolName: toolCall.function.name,
                   input: toolCall.function.arguments,
                   ...toolCall.thoughtSignature ? {
@@ -42259,7 +51321,7 @@ var OpenAICompatibleChatLanguageModel = class {
           }
         },
         flush(controller) {
-          var _a25, _b16, _c, _d, _e;
+          var _a210, _b16, _c, _d, _e;
           if (isActiveReasoning)
             controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
           if (isActiveText)
@@ -42270,7 +51332,7 @@ var OpenAICompatibleChatLanguageModel = class {
               id: toolCall.id
             }), controller.enqueue({
               type: "tool-call",
-              toolCallId: (_a25 = toolCall.id) != null ? _a25 : generateId(),
+              toolCallId: (_a210 = toolCall.id) != null ? _a210 : generateId5(),
               toolName: toolCall.function.name,
               input: toolCall.function.arguments,
               ...toolCall.thoughtSignature ? {
@@ -42368,7 +51430,7 @@ var OpenAICompatibleChatLanguageModel = class {
   usage: openaiCompatibleTokenUsageSchema
 }), createOpenAICompatibleChatChunkSchema = (errorSchema) => exports_external.union([chunkBaseSchema, errorSchema]);
 function convertOpenAICompatibleCompletionUsage(usage) {
-  var _a24, _b16;
+  var _a40, _b16;
   if (usage == null)
     return {
       inputTokens: {
@@ -42384,7 +51446,7 @@ function convertOpenAICompatibleCompletionUsage(usage) {
       },
       raw: void 0
     };
-  let promptTokens = (_a24 = usage.prompt_tokens) != null ? _a24 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0;
+  let promptTokens = (_a40 = usage.prompt_tokens) != null ? _a40 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0;
   return {
     inputTokens: {
       total: promptTokens,
@@ -42413,7 +51475,7 @@ function convertToOpenAICompatibleCompletionPrompt({
   for (let { role, content } of prompt)
     switch (role) {
       case "system":
-        throw new InvalidPromptError({
+        throw new InvalidPromptError5({
           message: "Unexpected system message in prompt: ${content}",
           prompt
         });
@@ -42436,7 +51498,7 @@ ${userMessage}
             case "text":
               return part.text;
             case "tool-call":
-              throw new UnsupportedFunctionalityError({
+              throw new UnsupportedFunctionalityError5({
                 functionality: "tool-call messages"
               });
           }
@@ -42448,7 +51510,7 @@ ${assistantMessage}
         break;
       }
       case "tool":
-        throw new UnsupportedFunctionalityError({
+        throw new UnsupportedFunctionalityError5({
           functionality: "tool messages"
         });
       default:
@@ -42495,10 +51557,10 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
 }), OpenAICompatibleCompletionLanguageModel = class {
   constructor(modelId, config2) {
     this.specificationVersion = "v3";
-    var _a24;
+    var _a40;
     this.modelId = modelId, this.config = config2;
-    let errorStructure = (_a24 = config2.errorStructure) != null ? _a24 : defaultOpenAICompatibleErrorStructure;
-    this.chunkSchema = createOpenAICompatibleCompletionChunkSchema(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler(errorStructure);
+    let errorStructure = (_a40 = config2.errorStructure) != null ? _a40 : defaultOpenAICompatibleErrorStructure;
+    this.chunkSchema = createOpenAICompatibleCompletionChunkSchema(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler4(errorStructure);
   }
   get provider() {
     return this.config.provider;
@@ -42507,8 +51569,8 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
     return this.config.provider.split(".")[0].trim();
   }
   get supportedUrls() {
-    var _a24, _b16, _c;
-    return (_c = (_b16 = (_a24 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a24)) != null ? _c : {};
+    var _a40, _b16, _c;
+    return (_c = (_b16 = (_a40 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a40)) != null ? _c : {};
   }
   async getArgs({
     prompt,
@@ -42525,12 +51587,12 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
     tools,
     toolChoice
   }) {
-    var _a24, _b16;
-    let warnings = [], completionOptions = Object.assign((_a24 = await parseProviderOptions({
+    var _a40, _b16;
+    let warnings = [], completionOptions = Object.assign((_a40 = await parseProviderOptions3({
       provider: this.providerOptionsName,
       providerOptions,
       schema: openaiCompatibleLanguageModelCompletionOptions
-    })) != null ? _a24 : {}, (_b16 = await parseProviderOptions({
+    })) != null ? _a40 : {}, (_b16 = await parseProviderOptions3({
       provider: toCamelCase(this.providerOptionsName),
       providerOptions,
       schema: openaiCompatibleLanguageModelCompletionOptions
@@ -42574,15 +51636,15 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
       responseHeaders,
       value: response,
       rawValue: rawResponse
-    } = await postJsonToApi({
+    } = await postJsonToApi4({
       url: this.config.url({
         path: "/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders4(this.config.headers(), options.headers),
       body: args,
       failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createJsonResponseHandler(openaiCompatibleCompletionResponseSchema),
+      successfulResponseHandler: createJsonResponseHandler4(openaiCompatibleCompletionResponseSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), choice2 = response.choices[0], content = [];
@@ -42609,15 +51671,15 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
       ...args,
       stream: !0,
       stream_options: this.config.includeUsage ? { include_usage: !0 } : void 0
-    }, { responseHeaders, value: response } = await postJsonToApi({
+    }, { responseHeaders, value: response } = await postJsonToApi4({
       url: this.config.url({
         path: "/completions",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), options.headers),
+      headers: combineHeaders4(this.config.headers(), options.headers),
       body,
       failedResponseHandler: this.failedResponseHandler,
-      successfulResponseHandler: createEventSourceResponseHandler(this.chunkSchema),
+      successfulResponseHandler: createEventSourceResponseHandler4(this.chunkSchema),
       abortSignal: options.abortSignal,
       fetch: this.config.fetch
     }), finishReason = {
@@ -42630,7 +51692,7 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
           controller.enqueue({ type: "stream-start", warnings });
         },
         transform(chunk, controller) {
-          var _a24;
+          var _a40;
           if (options.includeRawChunks)
             controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
@@ -42656,7 +51718,7 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
           if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
             finishReason = {
               unified: mapOpenAICompatibleFinishReason2(choice2.finish_reason),
-              raw: (_a24 = choice2.finish_reason) != null ? _a24 : void 0
+              raw: (_a40 = choice2.finish_reason) != null ? _a40 : void 0
             };
           if ((choice2 == null ? void 0 : choice2.text) != null)
             controller.enqueue({
@@ -42716,12 +51778,12 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
     return this.config.provider;
   }
   get maxEmbeddingsPerCall() {
-    var _a24;
-    return (_a24 = this.config.maxEmbeddingsPerCall) != null ? _a24 : 2048;
+    var _a40;
+    return (_a40 = this.config.maxEmbeddingsPerCall) != null ? _a40 : 2048;
   }
   get supportsParallelCalls() {
-    var _a24;
-    return (_a24 = this.config.supportsParallelCalls) != null ? _a24 : !0;
+    var _a40;
+    return (_a40 = this.config.supportsParallelCalls) != null ? _a40 : !0;
   }
   get providerOptionsName() {
     return this.config.provider.split(".")[0].trim();
@@ -42732,8 +51794,8 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
     abortSignal,
     providerOptions
   }) {
-    var _a24, _b16, _c;
-    let warnings = [], deprecatedOptions = await parseProviderOptions({
+    var _a40, _b16, _c;
+    let warnings = [], deprecatedOptions = await parseProviderOptions3({
       provider: "openai-compatible",
       providerOptions,
       schema: openaiCompatibleEmbeddingModelOptions
@@ -42743,17 +51805,17 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
         type: "other",
         message: "The 'openai-compatible' key in providerOptions is deprecated. Use 'openaiCompatible' instead."
       });
-    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a24 = await parseProviderOptions({
+    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a40 = await parseProviderOptions3({
       provider: "openaiCompatible",
       providerOptions,
       schema: openaiCompatibleEmbeddingModelOptions
-    })) != null ? _a24 : {}, (_b16 = await parseProviderOptions({
+    })) != null ? _a40 : {}, (_b16 = await parseProviderOptions3({
       provider: this.providerOptionsName,
       providerOptions,
       schema: openaiCompatibleEmbeddingModelOptions
     })) != null ? _b16 : {});
     if (values.length > this.maxEmbeddingsPerCall)
-      throw new TooManyEmbeddingValuesForCallError({
+      throw new TooManyEmbeddingValuesForCallError5({
         provider: this.provider,
         modelId: this.modelId,
         maxEmbeddingsPerCall: this.maxEmbeddingsPerCall,
@@ -42763,12 +51825,12 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
       responseHeaders,
       value: response,
       rawValue
-    } = await postJsonToApi({
+    } = await postJsonToApi4({
       url: this.config.url({
         path: "/embeddings",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), headers),
+      headers: combineHeaders4(this.config.headers(), headers),
       body: {
         model: this.modelId,
         input: values,
@@ -42776,8 +51838,8 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
         dimensions: compatibleOptions.dimensions,
         user: compatibleOptions.user
       },
-      failedResponseHandler: createJsonErrorResponseHandler((_c = this.config.errorStructure) != null ? _c : defaultOpenAICompatibleErrorStructure),
-      successfulResponseHandler: createJsonResponseHandler(openaiTextEmbeddingResponseSchema2),
+      failedResponseHandler: createJsonErrorResponseHandler4((_c = this.config.errorStructure) != null ? _c : defaultOpenAICompatibleErrorStructure),
+      successfulResponseHandler: createJsonResponseHandler4(openaiTextEmbeddingResponseSchema2),
       abortSignal,
       fetch: this.config.fetch
     });
@@ -42821,7 +51883,7 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
     files,
     mask
   }) {
-    var _a24, _b16, _c, _d, _e;
+    var _a40, _b16, _c, _d, _e;
     let warnings = [];
     if (aspectRatio != null)
       warnings.push({
@@ -42831,15 +51893,15 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
       });
     if (seed != null)
       warnings.push({ type: "unsupported", feature: "seed" });
-    let currentDate = (_c = (_b16 = (_a24 = this.config._internal) == null ? void 0 : _a24.currentDate) == null ? void 0 : _b16.call(_a24)) != null ? _c : /* @__PURE__ */ new Date, args = this.getArgs(providerOptions);
+    let currentDate = (_c = (_b16 = (_a40 = this.config._internal) == null ? void 0 : _a40.currentDate) == null ? void 0 : _b16.call(_a40)) != null ? _c : /* @__PURE__ */ new Date, args = this.getArgs(providerOptions);
     if (files != null && files.length > 0) {
-      let { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi({
+      let { value: response2, responseHeaders: responseHeaders2 } = await postFormDataToApi3({
         url: this.config.url({
           path: "/images/edits",
           modelId: this.modelId
         }),
-        headers: combineHeaders(this.config.headers(), headers),
-        formData: convertToFormData({
+        headers: combineHeaders4(this.config.headers(), headers),
+        formData: convertToFormData2({
           model: this.modelId,
           prompt,
           image: await Promise.all(files.map((file2) => fileToBlob2(file2))),
@@ -42848,8 +51910,8 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
           size,
           ...args
         }),
-        failedResponseHandler: createJsonErrorResponseHandler((_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure),
-        successfulResponseHandler: createJsonResponseHandler(openaiCompatibleImageResponseSchema),
+        failedResponseHandler: createJsonErrorResponseHandler4((_d = this.config.errorStructure) != null ? _d : defaultOpenAICompatibleErrorStructure),
+        successfulResponseHandler: createJsonResponseHandler4(openaiCompatibleImageResponseSchema),
         abortSignal,
         fetch: this.config.fetch
       });
@@ -42863,12 +51925,12 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
         }
       };
     }
-    let { value: response, responseHeaders } = await postJsonToApi({
+    let { value: response, responseHeaders } = await postJsonToApi4({
       url: this.config.url({
         path: "/images/generations",
         modelId: this.modelId
       }),
-      headers: combineHeaders(this.config.headers(), headers),
+      headers: combineHeaders4(this.config.headers(), headers),
       body: {
         model: this.modelId,
         prompt,
@@ -42877,8 +51939,8 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
         ...args,
         response_format: "b64_json"
       },
-      failedResponseHandler: createJsonErrorResponseHandler((_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure),
-      successfulResponseHandler: createJsonResponseHandler(openaiCompatibleImageResponseSchema),
+      failedResponseHandler: createJsonErrorResponseHandler4((_e = this.config.errorStructure) != null ? _e : defaultOpenAICompatibleErrorStructure),
+      successfulResponseHandler: createJsonResponseHandler4(openaiCompatibleImageResponseSchema),
       abortSignal,
       fetch: this.config.fetch
     });
@@ -42897,16 +51959,16 @@ var openaiCompatibleLanguageModelCompletionOptions = exports_external.object({
 });
 async function fileToBlob2(file2) {
   if (file2.type === "url")
-    return downloadBlob(file2.url);
-  let data = file2.data instanceof Uint8Array ? file2.data : convertBase64ToUint8Array(file2.data);
+    return downloadBlob2(file2.url);
+  let data = file2.data instanceof Uint8Array ? file2.data : convertBase64ToUint8Array4(file2.data);
   return new Blob([data], { type: file2.mediaType });
 }
-var VERSION8 = "2.0.51";
+var VERSION11 = "2.0.51";
 function createOpenAICompatible(options) {
-  let baseURL = withoutTrailingSlash(options.baseURL), providerName = options.name, headers = {
+  let baseURL = withoutTrailingSlash4(options.baseURL), providerName = options.name, headers = {
     ...options.apiKey && { Authorization: `Bearer ${options.apiKey}` },
     ...options.headers
-  }, getHeaders = () => withUserAgentSuffix(headers, `ai-sdk/openai-compatible/${VERSION8}`), getCommonModelConfig = (modelType) => ({
+  }, getHeaders = () => withUserAgentSuffix5(headers, `ai-sdk/openai-compatible/${VERSION11}`), getCommonModelConfig = (modelType) => ({
     provider: `${providerName}.${modelType}`,
     url: ({ path }) => {
       let url2 = new URL(`${baseURL}${path}`);
@@ -42932,6 +51994,298 @@ function createOpenAICompatible(options) {
   }), createImageModel = (modelId) => new OpenAICompatibleImageModel(modelId, getCommonModelConfig("image")), provider = (modelId) => createLanguageModel(modelId);
   return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chatModel = createChatModel, provider.completionModel = createCompletionModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.imageModel = createImageModel, provider;
 }
+// node_modules/@ai-sdk/cerebras/node_modules/@ai-sdk/provider/dist/index.mjs
+var marker40 = "vercel.ai.error", symbol40 = Symbol.for(marker40), _a40, _b37, AISDKError6 = class _AISDKError6 extends (_b37 = Error, _a40 = symbol40, _b37) {
+  constructor({
+    name: name144,
+    message,
+    cause
+  }) {
+    super(message);
+    this[_a40] = !0, this.name = name144, this.cause = cause;
+  }
+  static isInstance(error51) {
+    return _AISDKError6.hasMarker(error51, marker40);
+  }
+  static hasMarker(error51, marker154) {
+    let markerSymbol = Symbol.for(marker154);
+    return error51 != null && typeof error51 === "object" && markerSymbol in error51 && typeof error51[markerSymbol] === "boolean" && error51[markerSymbol] === !0;
+  }
+}, name40 = "AI_APICallError", marker212 = `vercel.ai.error.${name40}`, symbol213 = Symbol.for(marker212), _a213, _b211, APICallError6 = class extends (_b211 = AISDKError6, _a213 = symbol213, _b211) {
+  constructor({
+    message,
+    url: url2,
+    requestBodyValues,
+    statusCode,
+    responseHeaders,
+    responseBody,
+    cause,
+    isRetryable = statusCode != null && (statusCode === 408 || statusCode === 409 || statusCode === 429 || statusCode >= 500),
+    data
+  }) {
+    super({ name: name40, message, cause });
+    this[_a213] = !0, this.url = url2, this.requestBodyValues = requestBodyValues, this.statusCode = statusCode, this.responseHeaders = responseHeaders, this.responseBody = responseBody, this.isRetryable = isRetryable, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker212);
+  }
+}, name212 = "AI_EmptyResponseBodyError", marker310 = `vercel.ai.error.${name212}`, symbol310 = Symbol.for(marker310), _a310, _b38, EmptyResponseBodyError6 = class extends (_b38 = AISDKError6, _a310 = symbol310, _b38) {
+  constructor({ message = "Empty response body" } = {}) {
+    super({ name: name212, message });
+    this[_a310] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker310);
+  }
+};
+function getErrorMessage7(error51) {
+  if (error51 == null)
+    return "unknown error";
+  if (typeof error51 === "string")
+    return error51;
+  if (error51 instanceof Error)
+    return error51.message;
+  return JSON.stringify(error51);
+}
+var name310 = "AI_InvalidArgumentError", marker48 = `vercel.ai.error.${name310}`, symbol48 = Symbol.for(marker48), _a48, _b47, InvalidArgumentError7 = class extends (_b47 = AISDKError6, _a48 = symbol48, _b47) {
+  constructor({
+    message,
+    cause,
+    argument
+  }) {
+    super({ name: name310, message, cause });
+    this[_a48] = !0, this.argument = argument;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker48);
+  }
+}, name48 = "AI_InvalidPromptError", marker58 = `vercel.ai.error.${name48}`, symbol58 = Symbol.for(marker58), _a58, _b57, InvalidPromptError6 = class extends (_b57 = AISDKError6, _a58 = symbol58, _b57) {
+  constructor({
+    prompt,
+    message,
+    cause
+  }) {
+    super({ name: name48, message: `Invalid prompt: ${message}`, cause });
+    this[_a58] = !0, this.prompt = prompt;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker58);
+  }
+}, name58 = "AI_InvalidResponseDataError", marker68 = `vercel.ai.error.${name58}`, symbol68 = Symbol.for(marker68), _a68, _b67, InvalidResponseDataError6 = class extends (_b67 = AISDKError6, _a68 = symbol68, _b67) {
+  constructor({
+    data,
+    message = `Invalid response data: ${JSON.stringify(data)}.`
+  }) {
+    super({ name: name58, message });
+    this[_a68] = !0, this.data = data;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker68);
+  }
+}, name68 = "AI_JSONParseError", marker78 = `vercel.ai.error.${name68}`, symbol78 = Symbol.for(marker78), _a78, _b77, JSONParseError6 = class extends (_b77 = AISDKError6, _a78 = symbol78, _b77) {
+  constructor({ text: text2, cause }) {
+    super({
+      name: name68,
+      message: `JSON parsing failed: Text: ${text2}.
+Error message: ${getErrorMessage7(cause)}`,
+      cause
+    });
+    this[_a78] = !0, this.text = text2;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker78);
+  }
+}, name78 = "AI_LoadAPIKeyError", marker88 = `vercel.ai.error.${name78}`, symbol88 = Symbol.for(marker88), _a88, _b87, LoadAPIKeyError6 = class extends (_b87 = AISDKError6, _a88 = symbol88, _b87) {
+  constructor({ message }) {
+    super({ name: name78, message });
+    this[_a88] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker88);
+  }
+}, name88 = "AI_LoadSettingError", marker98 = `vercel.ai.error.${name88}`, symbol98 = Symbol.for(marker98), _a98, _b97, LoadSettingError6 = class extends (_b97 = AISDKError6, _a98 = symbol98, _b97) {
+  constructor({ message }) {
+    super({ name: name88, message });
+    this[_a98] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker98);
+  }
+}, name98 = "AI_NoContentGeneratedError", marker108 = `vercel.ai.error.${name98}`, symbol108 = Symbol.for(marker108), _a108, _b107, NoContentGeneratedError6 = class extends (_b107 = AISDKError6, _a108 = symbol108, _b107) {
+  constructor({
+    message = "No content generated."
+  } = {}) {
+    super({ name: name98, message });
+    this[_a108] = !0;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker108);
+  }
+}, name107 = "AI_NoSuchModelError", marker117 = `vercel.ai.error.${name107}`, symbol117 = Symbol.for(marker117), _a117, _b116, NoSuchModelError6 = class extends (_b116 = AISDKError6, _a117 = symbol117, _b116) {
+  constructor({
+    errorName = name107,
+    modelId,
+    modelType,
+    message = `No such ${modelType}: ${modelId}`
+  }) {
+    super({ name: errorName, message });
+    this[_a117] = !0, this.modelId = modelId, this.modelType = modelType;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker117);
+  }
+}, name117 = "AI_TooManyEmbeddingValuesForCallError", marker127 = `vercel.ai.error.${name117}`, symbol127 = Symbol.for(marker127), _a127, _b126, TooManyEmbeddingValuesForCallError6 = class extends (_b126 = AISDKError6, _a127 = symbol127, _b126) {
+  constructor(options) {
+    super({
+      name: name117,
+      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
+    });
+    this[_a127] = !0, this.provider = options.provider, this.modelId = options.modelId, this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall, this.values = options.values;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker127);
+  }
+}, name127 = "AI_TypeValidationError", marker137 = `vercel.ai.error.${name127}`, symbol137 = Symbol.for(marker137), _a137, _b136, TypeValidationError6 = class _TypeValidationError6 extends (_b136 = AISDKError6, _a137 = symbol137, _b136) {
+  constructor({
+    value,
+    cause,
+    context: context2
+  }) {
+    let contextPrefix = "Type validation failed";
+    if (context2 == null ? void 0 : context2.field)
+      contextPrefix += ` for ${context2.field}`;
+    if ((context2 == null ? void 0 : context2.entityName) || (context2 == null ? void 0 : context2.entityId)) {
+      contextPrefix += " (";
+      let parts = [];
+      if (context2.entityName)
+        parts.push(context2.entityName);
+      if (context2.entityId)
+        parts.push(`id: "${context2.entityId}"`);
+      contextPrefix += parts.join(", "), contextPrefix += ")";
+    }
+    super({
+      name: name127,
+      message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
+Error message: ${getErrorMessage7(cause)}`,
+      cause
+    });
+    this[_a137] = !0, this.value = value, this.context = context2;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker137);
+  }
+  static wrap({
+    value,
+    cause,
+    context: context2
+  }) {
+    var _a154, _b153, _c;
+    if (_TypeValidationError6.isInstance(cause) && cause.value === value && ((_a154 = cause.context) == null ? void 0 : _a154.field) === (context2 == null ? void 0 : context2.field) && ((_b153 = cause.context) == null ? void 0 : _b153.entityName) === (context2 == null ? void 0 : context2.entityName) && ((_c = cause.context) == null ? void 0 : _c.entityId) === (context2 == null ? void 0 : context2.entityId))
+      return cause;
+    return new _TypeValidationError6({ value, cause, context: context2 });
+  }
+}, name137 = "AI_UnsupportedFunctionalityError", marker147 = `vercel.ai.error.${name137}`, symbol147 = Symbol.for(marker147), _a147, _b146, UnsupportedFunctionalityError6 = class extends (_b146 = AISDKError6, _a147 = symbol147, _b146) {
+  constructor({
+    functionality,
+    message = `'${functionality}' functionality not supported.`
+  }) {
+    super({ name: name137, message });
+    this[_a147] = !0, this.functionality = functionality;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker147);
+  }
+};
+
+// node_modules/@ai-sdk/cerebras/node_modules/@ai-sdk/provider-utils/dist/index.mjs
+var name41 = "AI_DownloadError", marker41 = `vercel.ai.error.${name41}`, symbol41 = Symbol.for(marker41), _a41, _b39, DownloadError6 = class extends (_b39 = AISDKError6, _a41 = symbol41, _b39) {
+  constructor({
+    url: url2,
+    statusCode,
+    statusText,
+    cause,
+    message = cause == null ? `Failed to download ${url2}: ${statusCode} ${statusText}` : `Failed to download ${url2}: ${cause}`
+  }) {
+    super({ name: name41, message, cause });
+    this[_a41] = !0, this.url = url2, this.statusCode = statusCode, this.statusText = statusText;
+  }
+  static isInstance(error51) {
+    return AISDKError6.hasMarker(error51, marker41);
+  }
+};
+var createIdGenerator6 = ({
+  prefix,
+  size = 16,
+  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  separator = "-"
+} = {}) => {
+  let generator = () => {
+    let alphabetLength = alphabet.length, chars = Array(size);
+    for (let i = 0;i < size; i++)
+      chars[i] = alphabet[Math.random() * alphabetLength | 0];
+    return chars.join("");
+  };
+  if (prefix == null)
+    return generator;
+  if (alphabet.includes(separator))
+    throw new InvalidArgumentError7({
+      argument: "separator",
+      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
+    });
+  return () => `${prefix}${separator}${generator()}`;
+}, generateId6 = createIdGenerator6();
+function normalizeHeaders6(headers) {
+  if (headers == null)
+    return {};
+  let normalized = {};
+  if (headers instanceof Headers)
+    headers.forEach((value, key) => {
+      normalized[key.toLowerCase()] = value;
+    });
+  else {
+    if (!Array.isArray(headers))
+      headers = Object.entries(headers);
+    for (let [key, value] of headers)
+      if (value != null)
+        normalized[key.toLowerCase()] = value;
+  }
+  return normalized;
+}
+function withUserAgentSuffix6(headers, ...userAgentSuffixParts) {
+  let normalizedHeaders = new Headers(normalizeHeaders6(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
+  return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
+}
+function loadApiKey3({
+  apiKey,
+  environmentVariableName,
+  apiKeyParameterName = "apiKey",
+  description
+}) {
+  if (typeof apiKey === "string")
+    return apiKey;
+  if (apiKey != null)
+    throw new LoadAPIKeyError6({
+      message: `${description} API key must be a string.`
+    });
+  if (typeof process > "u")
+    throw new LoadAPIKeyError6({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables are not supported in this environment.`
+    });
+  if (apiKey = process.env[environmentVariableName], apiKey == null)
+    throw new LoadAPIKeyError6({
+      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
+    });
+  if (typeof apiKey !== "string")
+    throw new LoadAPIKeyError6({
+      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
+    });
+  return apiKey;
+}
+var ALPHA_NUMERIC6 = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
+function withoutTrailingSlash5(url2) {
+  return url2 == null ? void 0 : url2.replace(/\/$/, "");
+}
+
 // node_modules/@ai-sdk/cerebras/dist/index.mjs
 function isStructuredOutputWithToolCallsFinishReason({
   rawFinishReason,
@@ -42942,12 +52296,12 @@ function isStructuredOutputWithToolCallsFinishReason({
 }
 var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel {
   async doGenerate(options) {
-    var _a24;
+    var _a49;
     let result = await super.doGenerate(options);
     if (!isStructuredOutputWithToolCallsFinishReason({
       rawFinishReason: result.finishReason.raw,
       hasText: result.content.some((part) => part.type === "text" && part.text.length > 0),
-      responseFormatType: (_a24 = options.responseFormat) == null ? void 0 : _a24.type
+      responseFormatType: (_a49 = options.responseFormat) == null ? void 0 : _a49.type
     }))
       return result;
     return {
@@ -42965,13 +52319,13 @@ var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel 
       ...result,
       stream: result.stream.pipeThrough(new TransformStream({
         transform(part, controller) {
-          var _a24, _b16;
+          var _a49, _b16;
           if (part.type === "text-delta" && part.delta.length > 0)
             hasText = !0;
           if (part.type === "finish" && isStructuredOutputWithToolCallsFinishReason({
             rawFinishReason: part.finishReason.raw,
             hasText,
-            responseFormatType: (_a24 = options.responseFormat) == null ? void 0 : _a24.type
+            responseFormatType: (_a49 = options.responseFormat) == null ? void 0 : _a49.type
           })) {
             controller.enqueue({
               ...part,
@@ -42989,7 +52343,7 @@ var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel 
       }))
     };
   }
-}, VERSION9 = "2.0.57", cerebrasErrorSchema = exports_external.object({
+}, VERSION12 = "2.0.57", cerebrasErrorSchema = exports_external.object({
   message: exports_external.string(),
   type: exports_external.string(),
   param: exports_external.string(),
@@ -43013,15 +52367,15 @@ function transformCerebrasRequestBody(args) {
   };
 }
 function createCerebras(options = {}) {
-  var _a24;
-  let baseURL = withoutTrailingSlash((_a24 = options.baseURL) != null ? _a24 : "https://api.cerebras.ai/v1"), getHeaders = () => withUserAgentSuffix({
-    Authorization: `Bearer ${loadApiKey({
+  var _a49;
+  let baseURL = withoutTrailingSlash5((_a49 = options.baseURL) != null ? _a49 : "https://api.cerebras.ai/v1"), getHeaders = () => withUserAgentSuffix6({
+    Authorization: `Bearer ${loadApiKey3({
       apiKey: options.apiKey,
       environmentVariableName: "CEREBRAS_API_KEY",
       description: "Cerebras API key"
     })}`,
     ...options.headers
-  }, `ai-sdk/cerebras/${VERSION9}`), createLanguageModel = (modelId) => {
+  }, `ai-sdk/cerebras/${VERSION12}`), createLanguageModel = (modelId) => {
     return new CerebrasChatLanguageModel(modelId, {
       provider: "cerebras.chat",
       url: ({ path }) => `${baseURL}${path}`,
@@ -43033,21 +52387,21 @@ function createCerebras(options = {}) {
     });
   }, provider = (modelId) => createLanguageModel(modelId);
   return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chat = createLanguageModel, provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "embeddingModel" });
+    throw new NoSuchModelError6({ modelId, modelType: "embeddingModel" });
   }, provider.textEmbeddingModel = provider.embeddingModel, provider.imageModel = (modelId) => {
-    throw new NoSuchModelError({ modelId, modelType: "imageModel" });
+    throw new NoSuchModelError6({ modelId, modelType: "imageModel" });
   }, provider;
 }
 var cerebras = createCerebras();
 export {
   exports_external as z,
-  tool,
+  tool2 as tool,
   streamText,
   stepCountIs,
   generateText,
   createOpenAICompatible,
   createOpenAI,
-  createGoogleGenerativeAI,
+  createGoogle as createGoogleGenerativeAI,
   createCerebras,
   createAnthropic,
   output_exports as Output
