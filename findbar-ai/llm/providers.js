@@ -132,6 +132,10 @@ const openai = Object.assign(Object.create(providerPrototype), {
   faviconUrl: googleFaviconAPI("chatgpt.com"),
   apiKeyUrl: "https://platform.openai.com/account/api-keys",
   AVAILABLE_MODELS: [
+    "gpt-5.6",
+    "gpt-5.6-luna",
+    "gpt-5.6-sol",
+    "gpt-5.6-terra",
     "gpt-5.5",
     "gpt-5.4-pro",
     "gpt-5.4",
@@ -165,6 +169,10 @@ const openai = Object.assign(Object.create(providerPrototype), {
     "gpt-5-codex",
   ],
   AVAILABLE_MODELS_LABELS: {
+    "gpt-5.6": "GPT 5.6",
+    "gpt-5.6-luna": "GPT 5.6 Luna",
+    "gpt-5.6-sol": "GPT 5.6 Sol",
+    "gpt-5.6-terra": "GPT 5.6 Terra",
     "gpt-5.5": "GPT 5.5",
     "gpt-5.4-pro": "GPT 5.4 Pro",
     "gpt-5.4": "GPT 5.4",
@@ -208,6 +216,7 @@ const claude = Object.assign(Object.create(providerPrototype), {
   faviconUrl: googleFaviconAPI("anthropic.com"),
   apiKeyUrl: "https://console.anthropic.com/dashboard",
   AVAILABLE_MODELS: [
+    "claude-sonnet-5",
     "claude-fable-5",
     "claude-opus-4-8",
     "claude-opus-4-7",
@@ -223,6 +232,7 @@ const claude = Object.assign(Object.create(providerPrototype), {
     "claude-3-5-haiku-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
+    "claude-sonnet-5": "Claude Sonnet 5",
     "claude-fable-5": "Claude Fable 5",
     "claude-opus-4-8": "Claude Opus 4.8",
     "claude-opus-4-7": "Claude Opus 4.7",
@@ -248,6 +258,7 @@ const grok = Object.assign(Object.create(providerPrototype), {
   faviconUrl: googleFaviconAPI("x.ai"),
   apiKeyUrl: "https://x.ai/api",
   AVAILABLE_MODELS: [
+    "grok-4.5",
     "grok-4.20-reasoning",
     "grok-4.20-non-reasoning",
     "grok-4-1-fast-reasoning",
@@ -269,6 +280,7 @@ const grok = Object.assign(Object.create(providerPrototype), {
     "grok-2-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
+    "grok-4.5": "Grok 4.5",
     "grok-4.20-reasoning": "Grok 4.20 (Reasoning)",
     "grok-4.20-non-reasoning": "Grok 4.20 (Non-Reasoning)",
     "grok-4-1-fast-reasoning": "Grok 4.1 Fast (Reasoning)",
