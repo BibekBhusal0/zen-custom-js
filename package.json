@@ -26,7 +26,7 @@
   "type": "module",
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.2",
-    "@ai-sdk/cerebras": "^2.0.57",
+    "@ai-sdk/cerebras": "^3.0.9",
     "@ai-sdk/google": "^4.0.2",
     "@ai-sdk/openai": "^3.0.73",
     "@ai-sdk/openai-compatible": "^3.0.1",
