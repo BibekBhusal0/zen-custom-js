@@ -1,6 +1,9 @@
 <!-- Hey there. Thank you so much for contributing , and filling out the details. Having roughly the same layout helps everyone considerably, feel free to remove sections which are not relavent starting from this comment  -->
 
+### Checklist Before Merging
+
 - [ ] I have read and agreed to the [contribution guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md).
+- [ ] I have tested code properly and it has no issues.
 
 ### What Is It?
 

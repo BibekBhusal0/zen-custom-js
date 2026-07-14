@@ -240,6 +240,21 @@ The following commands are now native:
 - Collapse all groups
 - Expand all groups
 
+### Zen Library
+
+- Toggle Zen Library
+- Open Zen library: Downloads
+- Open Zen library: History
+- Open Zen library: Media
+- Open Zen library: Spaces
+- Open Zen library: Boosts
+
+### Live Folders
+
+- Create Live Folder - Github Pull Requests
+- Create Live Folder - Github Issues
+- Create Live Folder - RSS
+
 ### Dynamic Commands
 
 - **About Pages**: `Open about:[page-name]` (e.g., "Open about:config").
@@ -265,7 +280,8 @@ Adding your own commands from other scripts is straightforward. The `ZenCommandP
 - [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
 - [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
 - [Reopen Closed Tabs Menu](https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu)
-- [Browse Bot](https://github.com/BibekBhusal0/zen-custom-js/tree/dev/findbar-ai)
+- [Browse Bot](https://github.com/Vertex-Mods/Browse-Bot)
+- [Zen Library](https://github.com/JustAdumbPrsn/Zen-Library)
 
 ### Adding a Static Command
 

@@ -27,15 +27,11 @@ const togglePref = (prefName) => {
 };
 
 function isPinnedTabDifferent() {
-  if (!window.gZenPinnedTabManager) return false;
-  const currentTab = gBrowser.selectedTab;
-  if (!currentTab) return false;
-  if (!currentTab.pinned) return false;
-  const pin = gZenPinnedTabManager._pinsCache.find(
-    (pin) => pin.uuid === currentTab.getAttribute("zen-pin-id")
-  );
-  if (!pin) return false;
-  return pin.url !== currentTab.linkedBrowser.currentURI.spec;
+  const tab = gBrowser.selectedTab;
+  if (!tab?.pinned) return false;
+  const originalUrl = tab._zenPinnedInitialState?.entry?.url;
+  if (!originalUrl) return false;
+  return originalUrl !== tab.linkedBrowser.currentURI.spec;
 }
 
 export const commands = [
@@ -775,6 +771,56 @@ export const commands = [
     },
     icon: "chrome://browser/skin/zen-icons/folder.svg",
     tags: ["folder", "expand", "group", "tabs", "all"],
+  },
+
+  // ----------- Zen Library ------------
+  {
+    key: "toggle-zen-library",
+    label: "Toggle Zen Library",
+    tags: ["Download", "Media", "History", "spaces", "boosts"],
+    command: () => gZenLibrary.toggle(),
+    condition: () => !!gZenLibrary,
+    icon: svgToUrl(icons.library),
+  },
+  {
+    key: "open-zen-library-download",
+    label: "Open Zen library: Downloads",
+    tags: ["Download", "Library"],
+    command: () => gZenLibrary.openTab("downloads"),
+    condition: () => !!gZenLibrary,
+    icon: "chrome://browser/skin/downloads/downloads.svg",
+  },
+  {
+    key: "open-zen-library-history",
+    label: "Open Zen library: History",
+    tags: ["History", "Library"],
+    command: () => gZenLibrary.openTab("history"),
+    condition: () => !!gZenLibrary,
+    icon: "chrome://browser/skin/zen-icons/history.svg",
+  },
+  {
+    key: "open-zen-library-media",
+    label: "Open Zen library: Media",
+    tags: ["media", "Library"],
+    command: () => gZenLibrary.openTab("media"),
+    condition: () => !!gZenLibrary,
+    icon: "chrome://browser/skin/zen-icons/selectable/image.svg",
+  },
+  {
+    key: "open-zen-library-spaces",
+    label: "Open Zen library: Spaces",
+    tags: ["spaces", "Library"],
+    command: () => gZenLibrary.openTab("spaces"),
+    condition: () => !!gZenLibrary,
+    icon: "chrome://browser/skin/zen-icons/spaces.svg",
+  },
+  {
+    key: "open-zen-library-boosts",
+    label: "Open Zen library: Boosts",
+    tags: ["boosts", "Library"],
+    command: () => gZenLibrary.openTab("boosts"),
+    condition: () => !!gZenLibrary,
+    icon: "chrome://browser/skin/zen-icons/boost.svg",
   },
 
   // ----------- Live Folders ------------

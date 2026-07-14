@@ -10,7 +10,7 @@ body:
       description: Please ensure you've completed all of the following.
       options:
         - label: I have read the documentation for the mod properly.
-        - label: I have read the [Contributing Guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md) for this project.
+        - label: I have read the [Contributing Guidelines](https://github.com/BibekBhusal0/zen-custom-js/blob/main/CONTRIBUTING.md#opening-an-issue) for this project.
         - label: I have searched the [issue tracker](https://github.com/BibekBhusal0/zen-custom-js/issues) for a feature request that matches the one I want to file, without success.
         - label: I have checked all those boxes without reading.
         - label: I am on latest version of mod and also checked beta version for this feature.
@@ -28,7 +28,7 @@ body:
         - Search Engine Icon
         - Search Engine Select
         - Settings Shortcuts Search
-        - Other (not in this list)
+        - Other (please specify below)
   - type: textarea
     attributes:
       label: Problem/Usecase Description

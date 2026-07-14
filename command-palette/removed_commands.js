@@ -172,6 +172,11 @@ export const renoved_commands = [
     icon: svgToUrl(icons["incognito"]),
     tags: ["private", "browsing", "incognito", "window"],
   },
+  {
+    key: "context_zenSpaceRoutingSettings",
+    label: "Open Space Routing",
+    tags: ["air", "traffic", "control", "route", "workspace"],
+  },
 
   // removed because not working
 
