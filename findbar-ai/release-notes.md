@@ -1,14 +1,7 @@
-New Features
+# New Features
 
-- Support for other Open AI compatible API
+# Fixes
 
-- Support for new models
-  - GPT 5.6 (terra, luna and sol)
-  - Claude Sonnet 5
-  - Grok 4.5
+# Others
 
-Fixes
-
-- AI message text is now selectable
-- Markdown parsing no longer gives error
-- Better error handling (If there is error when getting message user will get proper feedback)
+# Contributes
