@@ -51458,299 +51458,822 @@ function createOpenAICompatible(options) {
   }), createImageModel = (modelId) => new OpenAICompatibleImageModel(modelId, getCommonModelConfig("image")), provider = (modelId) => createLanguageModel(modelId);
   return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chatModel = createChatModel, provider.completionModel = createCompletionModel, provider.embeddingModel = createEmbeddingModel, provider.textEmbeddingModel = createEmbeddingModel, provider.imageModel = createImageModel, provider;
 }
-// node_modules/@ai-sdk/cerebras/node_modules/@ai-sdk/provider/dist/index.mjs
-var marker37 = "vercel.ai.error", symbol37 = Symbol.for(marker37), _a37, _b28, AISDKError5 = class _AISDKError5 extends (_b28 = Error, _a37 = symbol37, _b28) {
-  constructor({
-    name: name144,
-    message,
-    cause
-  }) {
-    super(message);
-    this[_a37] = !0, this.name = name144, this.cause = cause;
-  }
-  static isInstance(error51) {
-    return _AISDKError5.hasMarker(error51, marker37);
-  }
-  static hasMarker(error51, marker154) {
-    let markerSymbol = Symbol.for(marker154);
-    return error51 != null && typeof error51 === "object" && markerSymbol in error51 && typeof error51[markerSymbol] === "boolean" && error51[markerSymbol] === !0;
-  }
-}, name37 = "AI_APICallError", marker211 = `vercel.ai.error.${name37}`, symbol211 = Symbol.for(marker211), _a211, _b29, APICallError5 = class extends (_b29 = AISDKError5, _a211 = symbol211, _b29) {
-  constructor({
-    message,
-    url: url2,
-    requestBodyValues,
-    statusCode,
-    responseHeaders,
-    responseBody,
-    cause,
-    isRetryable = statusCode != null && (statusCode === 408 || statusCode === 409 || statusCode === 429 || statusCode >= 500),
-    data
-  }) {
-    super({ name: name37, message, cause });
-    this[_a211] = !0, this.url = url2, this.requestBodyValues = requestBodyValues, this.statusCode = statusCode, this.responseHeaders = responseHeaders, this.responseBody = responseBody, this.isRetryable = isRetryable, this.data = data;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker211);
-  }
-}, name211 = "AI_EmptyResponseBodyError", marker38 = `vercel.ai.error.${name211}`, symbol38 = Symbol.for(marker38), _a38, _b36, EmptyResponseBodyError5 = class extends (_b36 = AISDKError5, _a38 = symbol38, _b36) {
-  constructor({ message = "Empty response body" } = {}) {
-    super({ name: name211, message });
-    this[_a38] = !0;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker38);
-  }
-};
-function getErrorMessage6(error51) {
-  if (error51 == null)
-    return "unknown error";
-  if (typeof error51 === "string")
-    return error51;
-  if (error51 instanceof Error)
-    return error51.message;
-  return JSON.stringify(error51);
+// node_modules/@ai-sdk/cerebras/node_modules/@ai-sdk/openai-compatible/dist/index.js
+function toCamelCase2(str) {
+  return str.replace(/[_-]([a-z])/g, (g) => g[1].toUpperCase());
 }
-var name38 = "AI_InvalidArgumentError", marker47 = `vercel.ai.error.${name38}`, symbol47 = Symbol.for(marker47), _a47, _b46, InvalidArgumentError6 = class extends (_b46 = AISDKError5, _a47 = symbol47, _b46) {
-  constructor({
-    message,
-    cause,
-    argument
-  }) {
-    super({ name: name38, message, cause });
-    this[_a47] = !0, this.argument = argument;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker47);
-  }
-}, name47 = "AI_InvalidPromptError", marker57 = `vercel.ai.error.${name47}`, symbol57 = Symbol.for(marker57), _a57, _b56, InvalidPromptError5 = class extends (_b56 = AISDKError5, _a57 = symbol57, _b56) {
-  constructor({
-    prompt,
-    message,
-    cause
-  }) {
-    super({ name: name47, message: `Invalid prompt: ${message}`, cause });
-    this[_a57] = !0, this.prompt = prompt;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker57);
-  }
-}, name57 = "AI_InvalidResponseDataError", marker67 = `vercel.ai.error.${name57}`, symbol67 = Symbol.for(marker67), _a67, _b66, InvalidResponseDataError5 = class extends (_b66 = AISDKError5, _a67 = symbol67, _b66) {
-  constructor({
-    data,
-    message = `Invalid response data: ${JSON.stringify(data)}.`
-  }) {
-    super({ name: name57, message });
-    this[_a67] = !0, this.data = data;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker67);
-  }
-}, name67 = "AI_JSONParseError", marker77 = `vercel.ai.error.${name67}`, symbol77 = Symbol.for(marker77), _a77, _b76, JSONParseError5 = class extends (_b76 = AISDKError5, _a77 = symbol77, _b76) {
-  constructor({ text: text2, cause }) {
-    super({
-      name: name67,
-      message: `JSON parsing failed: Text: ${text2}.
-Error message: ${getErrorMessage6(cause)}`,
-      cause
-    });
-    this[_a77] = !0, this.text = text2;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker77);
-  }
-}, name77 = "AI_LoadAPIKeyError", marker87 = `vercel.ai.error.${name77}`, symbol87 = Symbol.for(marker87), _a87, _b86, LoadAPIKeyError5 = class extends (_b86 = AISDKError5, _a87 = symbol87, _b86) {
-  constructor({ message }) {
-    super({ name: name77, message });
-    this[_a87] = !0;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker87);
-  }
-}, name87 = "AI_LoadSettingError", marker97 = `vercel.ai.error.${name87}`, symbol97 = Symbol.for(marker97), _a97, _b96, LoadSettingError5 = class extends (_b96 = AISDKError5, _a97 = symbol97, _b96) {
-  constructor({ message }) {
-    super({ name: name87, message });
-    this[_a97] = !0;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker97);
-  }
-}, name97 = "AI_NoContentGeneratedError", marker107 = `vercel.ai.error.${name97}`, symbol107 = Symbol.for(marker107), _a107, _b106, NoContentGeneratedError5 = class extends (_b106 = AISDKError5, _a107 = symbol107, _b106) {
-  constructor({
-    message = "No content generated."
-  } = {}) {
-    super({ name: name97, message });
-    this[_a107] = !0;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker107);
-  }
-}, name106 = "AI_NoSuchModelError", marker116 = `vercel.ai.error.${name106}`, symbol116 = Symbol.for(marker116), _a116, _b115, NoSuchModelError5 = class extends (_b115 = AISDKError5, _a116 = symbol116, _b115) {
-  constructor({
-    errorName = name106,
-    modelId,
-    modelType,
-    message = `No such ${modelType}: ${modelId}`
-  }) {
-    super({ name: errorName, message });
-    this[_a116] = !0, this.modelId = modelId, this.modelType = modelType;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker116);
-  }
-}, name116 = "AI_TooManyEmbeddingValuesForCallError", marker126 = `vercel.ai.error.${name116}`, symbol126 = Symbol.for(marker126), _a126, _b125, TooManyEmbeddingValuesForCallError5 = class extends (_b125 = AISDKError5, _a126 = symbol126, _b125) {
-  constructor(options) {
-    super({
-      name: name116,
-      message: `Too many values for a single embedding call. The ${options.provider} model "${options.modelId}" can only embed up to ${options.maxEmbeddingsPerCall} values per call, but ${options.values.length} values were provided.`
-    });
-    this[_a126] = !0, this.provider = options.provider, this.modelId = options.modelId, this.maxEmbeddingsPerCall = options.maxEmbeddingsPerCall, this.values = options.values;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker126);
-  }
-}, name126 = "AI_TypeValidationError", marker136 = `vercel.ai.error.${name126}`, symbol136 = Symbol.for(marker136), _a136, _b135, TypeValidationError5 = class _TypeValidationError5 extends (_b135 = AISDKError5, _a136 = symbol136, _b135) {
-  constructor({
-    value,
-    cause,
-    context: context2
-  }) {
-    let contextPrefix = "Type validation failed";
-    if (context2 == null ? void 0 : context2.field)
-      contextPrefix += ` for ${context2.field}`;
-    if ((context2 == null ? void 0 : context2.entityName) || (context2 == null ? void 0 : context2.entityId)) {
-      contextPrefix += " (";
-      let parts = [];
-      if (context2.entityName)
-        parts.push(context2.entityName);
-      if (context2.entityId)
-        parts.push(`id: "${context2.entityId}"`);
-      contextPrefix += parts.join(", "), contextPrefix += ")";
-    }
-    super({
-      name: name126,
-      message: `${contextPrefix}: Value: ${JSON.stringify(value)}.
-Error message: ${getErrorMessage6(cause)}`,
-      cause
-    });
-    this[_a136] = !0, this.value = value, this.context = context2;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker136);
-  }
-  static wrap({
-    value,
-    cause,
-    context: context2
-  }) {
-    var _a154, _b153, _c;
-    if (_TypeValidationError5.isInstance(cause) && cause.value === value && ((_a154 = cause.context) == null ? void 0 : _a154.field) === (context2 == null ? void 0 : context2.field) && ((_b153 = cause.context) == null ? void 0 : _b153.entityName) === (context2 == null ? void 0 : context2.entityName) && ((_c = cause.context) == null ? void 0 : _c.entityId) === (context2 == null ? void 0 : context2.entityId))
-      return cause;
-    return new _TypeValidationError5({ value, cause, context: context2 });
-  }
-}, name136 = "AI_UnsupportedFunctionalityError", marker146 = `vercel.ai.error.${name136}`, symbol146 = Symbol.for(marker146), _a146, _b145, UnsupportedFunctionalityError5 = class extends (_b145 = AISDKError5, _a146 = symbol146, _b145) {
-  constructor({
-    functionality,
-    message = `'${functionality}' functionality not supported.`
-  }) {
-    super({ name: name136, message });
-    this[_a146] = !0, this.functionality = functionality;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker146);
-  }
-};
-
-// node_modules/@ai-sdk/cerebras/node_modules/@ai-sdk/provider-utils/dist/index.mjs
-var name39 = "AI_DownloadError", marker39 = `vercel.ai.error.${name39}`, symbol39 = Symbol.for(marker39), _a39, _b30, DownloadError5 = class extends (_b30 = AISDKError5, _a39 = symbol39, _b30) {
-  constructor({
-    url: url2,
-    statusCode,
-    statusText,
-    cause,
-    message = cause == null ? `Failed to download ${url2}: ${statusCode} ${statusText}` : `Failed to download ${url2}: ${cause}`
-  }) {
-    super({ name: name39, message, cause });
-    this[_a39] = !0, this.url = url2, this.statusCode = statusCode, this.statusText = statusText;
-  }
-  static isInstance(error51) {
-    return AISDKError5.hasMarker(error51, marker39);
-  }
-};
-var createIdGenerator5 = ({
-  prefix,
-  size = 16,
-  alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-  separator = "-"
-} = {}) => {
-  let generator = () => {
-    let alphabetLength = alphabet.length, chars = Array(size);
-    for (let i = 0;i < size; i++)
-      chars[i] = alphabet[Math.random() * alphabetLength | 0];
-    return chars.join("");
-  };
-  if (prefix == null)
-    return generator;
-  if (alphabet.includes(separator))
-    throw new InvalidArgumentError6({
-      argument: "separator",
-      message: `The separator "${separator}" must not be part of the alphabet "${alphabet}".`
-    });
-  return () => `${prefix}${separator}${generator()}`;
-}, generateId5 = createIdGenerator5();
-function normalizeHeaders5(headers) {
-  if (headers == null)
-    return {};
-  let normalized = {};
-  if (headers instanceof Headers)
-    headers.forEach((value, key) => {
-      normalized[key.toLowerCase()] = value;
-    });
-  else {
-    if (!Array.isArray(headers))
-      headers = Object.entries(headers);
-    for (let [key, value] of headers)
-      if (value != null)
-        normalized[key.toLowerCase()] = value;
-  }
-  return normalized;
+function resolveProviderOptionsKey2(rawName, providerOptions) {
+  let camelName = toCamelCase2(rawName);
+  if (camelName !== rawName && (providerOptions == null ? void 0 : providerOptions[camelName]) != null)
+    return camelName;
+  return rawName;
 }
-function withUserAgentSuffix5(headers, ...userAgentSuffixParts) {
-  let normalizedHeaders = new Headers(normalizeHeaders5(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
-  return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
-}
-function loadApiKey2({
-  apiKey,
-  environmentVariableName,
-  apiKeyParameterName = "apiKey",
-  description
+function warnIfDeprecatedProviderOptionsKey({
+  rawName,
+  providerOptions,
+  warnings
 }) {
-  if (typeof apiKey === "string")
-    return apiKey;
-  if (apiKey != null)
-    throw new LoadAPIKeyError5({
-      message: `${description} API key must be a string.`
+  let camelName = toCamelCase2(rawName);
+  if (camelName !== rawName && (providerOptions == null ? void 0 : providerOptions[rawName]) != null)
+    warnings.push({
+      type: "deprecated",
+      setting: `providerOptions key '${rawName}'`,
+      message: `Use '${camelName}' instead.`
     });
-  if (typeof process > "u")
-    throw new LoadAPIKeyError5({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter. Environment variables are not supported in this environment.`
-    });
-  if (apiKey = process.env[environmentVariableName], apiKey == null)
-    throw new LoadAPIKeyError5({
-      message: `${description} API key is missing. Pass it using the '${apiKeyParameterName}' parameter or the ${environmentVariableName} environment variable.`
-    });
-  if (typeof apiKey !== "string")
-    throw new LoadAPIKeyError5({
-      message: `${description} API key must be a string. The value of the ${environmentVariableName} environment variable is not a string.`
-    });
-  return apiKey;
 }
-var ALPHA_NUMERIC5 = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
-function withoutTrailingSlash4(url2) {
-  return url2 == null ? void 0 : url2.replace(/\/$/, "");
+var openaiCompatibleErrorDataSchema2 = exports_external.object({
+  error: exports_external.object({
+    message: exports_external.string(),
+    type: exports_external.string().nullish(),
+    param: exports_external.any().nullish(),
+    code: exports_external.union([exports_external.string(), exports_external.number()]).nullish()
+  })
+}), defaultOpenAICompatibleErrorStructure2 = {
+  errorSchema: openaiCompatibleErrorDataSchema2,
+  errorToMessage: (data) => data.error.message
+};
+function convertOpenAICompatibleChatUsage2(usage) {
+  var _a37, _b16, _c, _d, _e, _f;
+  if (usage == null)
+    return {
+      inputTokens: {
+        total: void 0,
+        noCache: void 0,
+        cacheRead: void 0,
+        cacheWrite: void 0
+      },
+      outputTokens: {
+        total: void 0,
+        text: void 0,
+        reasoning: void 0
+      },
+      raw: void 0
+    };
+  let promptTokens = (_a37 = usage.prompt_tokens) != null ? _a37 : 0, completionTokens = (_b16 = usage.completion_tokens) != null ? _b16 : 0, cacheReadTokens = (_d = (_c = usage.prompt_tokens_details) == null ? void 0 : _c.cached_tokens) != null ? _d : 0, reasoningTokens = (_f = (_e = usage.completion_tokens_details) == null ? void 0 : _e.reasoning_tokens) != null ? _f : 0;
+  return {
+    inputTokens: {
+      total: promptTokens,
+      noCache: promptTokens - cacheReadTokens,
+      cacheRead: cacheReadTokens,
+      cacheWrite: void 0
+    },
+    outputTokens: {
+      total: completionTokens,
+      text: completionTokens - reasoningTokens,
+      reasoning: reasoningTokens
+    },
+    raw: usage
+  };
 }
+function getOpenAIMetadata2(message) {
+  var _a37, _b16;
+  return (_b16 = (_a37 = message == null ? void 0 : message.providerOptions) == null ? void 0 : _a37.openaiCompatible) != null ? _b16 : {};
+}
+function getAudioFormat2(mediaType) {
+  switch (mediaType) {
+    case "audio/wav":
+      return "wav";
+    case "audio/mp3":
+    case "audio/mpeg":
+      return "mp3";
+    default:
+      return null;
+  }
+}
+function convertToOpenAICompatibleChatMessages2(prompt) {
+  var _a37, _b16, _c;
+  let messages = [];
+  for (let { role, content, ...message } of prompt) {
+    let metadata = getOpenAIMetadata2({ ...message });
+    switch (role) {
+      case "system": {
+        messages.push({ role: "system", content, ...metadata });
+        break;
+      }
+      case "user": {
+        if (content.length === 1 && content[0].type === "text") {
+          messages.push({
+            role: "user",
+            content: content[0].text,
+            ...getOpenAIMetadata2(content[0])
+          });
+          break;
+        }
+        messages.push({
+          role: "user",
+          content: content.map((part) => {
+            var _a210;
+            let partMetadata = getOpenAIMetadata2(part);
+            switch (part.type) {
+              case "text":
+                return { type: "text", text: part.text, ...partMetadata };
+              case "file":
+                switch (part.data.type) {
+                  case "reference":
+                    throw new UnsupportedFunctionalityError3({
+                      functionality: "file parts with provider references"
+                    });
+                  case "text":
+                    throw new UnsupportedFunctionalityError3({
+                      functionality: "text file parts"
+                    });
+                  case "url":
+                  case "data": {
+                    let topLevel = getTopLevelMediaType(part.mediaType);
+                    if (topLevel === "image")
+                      return {
+                        type: "image_url",
+                        image_url: {
+                          url: part.data.type === "url" ? part.data.url.toString() : `data:${resolveFullMediaType({ part })};base64,${convertToBase64(part.data.data)}`
+                        },
+                        ...partMetadata
+                      };
+                    if (topLevel === "audio") {
+                      if (part.data.type === "url")
+                        throw new UnsupportedFunctionalityError3({
+                          functionality: "audio file parts with URLs"
+                        });
+                      let fullMediaType = resolveFullMediaType({ part }), format = getAudioFormat2(fullMediaType);
+                      if (format === null)
+                        throw new UnsupportedFunctionalityError3({
+                          functionality: `audio media type ${fullMediaType}`
+                        });
+                      return {
+                        type: "input_audio",
+                        input_audio: {
+                          data: convertToBase64(part.data.data),
+                          format
+                        },
+                        ...partMetadata
+                      };
+                    }
+                    if (topLevel === "application") {
+                      if (part.data.type === "url")
+                        throw new UnsupportedFunctionalityError3({
+                          functionality: "PDF file parts with URLs"
+                        });
+                      let fullMediaType = resolveFullMediaType({ part });
+                      if (fullMediaType !== "application/pdf")
+                        throw new UnsupportedFunctionalityError3({
+                          functionality: `file part media type ${fullMediaType}`
+                        });
+                      return {
+                        type: "file",
+                        file: {
+                          filename: (_a210 = part.filename) != null ? _a210 : "document.pdf",
+                          file_data: `data:application/pdf;base64,${convertToBase64(part.data.data)}`
+                        },
+                        ...partMetadata
+                      };
+                    }
+                    if (topLevel === "text")
+                      return {
+                        type: "text",
+                        text: part.data.type === "url" ? part.data.url.toString() : typeof part.data.data === "string" ? (/* @__PURE__ */ new TextDecoder()).decode(convertBase64ToUint8Array2(part.data.data)) : (/* @__PURE__ */ new TextDecoder()).decode(part.data.data),
+                        ...partMetadata
+                      };
+                    throw new UnsupportedFunctionalityError3({
+                      functionality: `file part media type ${part.mediaType}`
+                    });
+                  }
+                }
+            }
+          }),
+          ...metadata
+        });
+        break;
+      }
+      case "assistant": {
+        let text2 = "", reasoning = "", toolCalls = [];
+        for (let part of content) {
+          let partMetadata = getOpenAIMetadata2(part);
+          switch (part.type) {
+            case "text": {
+              text2 += part.text;
+              break;
+            }
+            case "reasoning": {
+              reasoning += part.text;
+              break;
+            }
+            case "tool-call": {
+              let thoughtSignature = (_b16 = (_a37 = part.providerOptions) == null ? void 0 : _a37.google) == null ? void 0 : _b16.thoughtSignature;
+              toolCalls.push({
+                id: part.toolCallId,
+                type: "function",
+                function: {
+                  name: part.toolName,
+                  arguments: JSON.stringify(part.input)
+                },
+                ...partMetadata,
+                ...thoughtSignature ? {
+                  extra_content: {
+                    google: {
+                      thought_signature: String(thoughtSignature)
+                    }
+                  }
+                } : {}
+              });
+              break;
+            }
+          }
+        }
+        messages.push({
+          role: "assistant",
+          content: toolCalls.length > 0 ? text2 || null : text2,
+          ...reasoning.length > 0 ? { reasoning_content: reasoning } : {},
+          tool_calls: toolCalls.length > 0 ? toolCalls : void 0,
+          ...metadata
+        });
+        break;
+      }
+      case "tool": {
+        for (let toolResponse of content) {
+          if (toolResponse.type === "tool-approval-response")
+            continue;
+          let output = toolResponse.output, contentValue;
+          switch (output.type) {
+            case "text":
+            case "error-text":
+              contentValue = output.value;
+              break;
+            case "execution-denied":
+              contentValue = (_c = output.reason) != null ? _c : "Tool call execution denied.";
+              break;
+            case "content":
+            case "json":
+            case "error-json":
+              contentValue = JSON.stringify(output.value);
+              break;
+          }
+          let toolResponseMetadata = getOpenAIMetadata2(toolResponse);
+          messages.push({
+            role: "tool",
+            tool_call_id: toolResponse.toolCallId,
+            content: contentValue,
+            ...toolResponseMetadata
+          });
+        }
+        break;
+      }
+      default:
+        throw Error(`Unsupported role: ${role}`);
+    }
+  }
+  return messages;
+}
+function getResponseMetadata5({
+  id,
+  model,
+  created
+}) {
+  return {
+    id: id != null ? id : void 0,
+    modelId: model != null ? model : void 0,
+    timestamp: created != null ? new Date(created * 1000) : void 0
+  };
+}
+function mapOpenAICompatibleFinishReason3(finishReason) {
+  switch (finishReason) {
+    case "stop":
+      return "stop";
+    case "length":
+      return "length";
+    case "content_filter":
+      return "content-filter";
+    case "function_call":
+    case "tool_calls":
+      return "tool-calls";
+    default:
+      return "other";
+  }
+}
+var openaiCompatibleLanguageModelChatOptions2 = exports_external.object({
+  user: exports_external.string().optional(),
+  reasoningEffort: exports_external.string().optional(),
+  textVerbosity: exports_external.string().optional(),
+  strictJsonSchema: exports_external.boolean().optional()
+});
+function prepareTools4({
+  tools,
+  toolChoice
+}) {
+  tools = (tools == null ? void 0 : tools.length) ? tools : void 0;
+  let toolWarnings = [];
+  if (tools == null)
+    return { tools: void 0, toolChoice: void 0, toolWarnings };
+  let openaiCompatTools = [];
+  for (let tool4 of tools)
+    if (tool4.type === "provider")
+      toolWarnings.push({
+        type: "unsupported",
+        feature: `provider-defined tool ${tool4.id}`
+      });
+    else
+      openaiCompatTools.push({
+        type: "function",
+        function: {
+          name: tool4.name,
+          description: tool4.description,
+          parameters: tool4.inputSchema,
+          ...tool4.strict != null ? { strict: tool4.strict } : {}
+        }
+      });
+  if (toolChoice == null)
+    return { tools: openaiCompatTools, toolChoice: void 0, toolWarnings };
+  let type = toolChoice.type;
+  switch (type) {
+    case "auto":
+    case "none":
+    case "required":
+      return { tools: openaiCompatTools, toolChoice: type, toolWarnings };
+    case "tool":
+      return {
+        tools: openaiCompatTools,
+        toolChoice: {
+          type: "function",
+          function: { name: toolChoice.toolName }
+        },
+        toolWarnings
+      };
+    default:
+      throw new UnsupportedFunctionalityError3({
+        functionality: `tool choice type: ${type}`
+      });
+  }
+}
+var OpenAICompatibleChatLanguageModel2 = class _OpenAICompatibleChatLanguageModel {
+  constructor(modelId, config2) {
+    this.specificationVersion = "v4";
+    var _a37, _b16;
+    this.modelId = modelId, this.config = config2;
+    let errorStructure = (_a37 = config2.errorStructure) != null ? _a37 : defaultOpenAICompatibleErrorStructure2;
+    this.chunkSchema = createOpenAICompatibleChatChunkSchema2(errorStructure.errorSchema), this.failedResponseHandler = createJsonErrorResponseHandler2(errorStructure), this.supportsStructuredOutputs = (_b16 = config2.supportsStructuredOutputs) != null ? _b16 : !1;
+  }
+  static [WORKFLOW_SERIALIZE](model) {
+    return serializeModelOptions({
+      modelId: model.modelId,
+      config: model.config
+    });
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _OpenAICompatibleChatLanguageModel(options.modelId, options.config);
+  }
+  get provider() {
+    return this.config.provider;
+  }
+  get providerOptionsName() {
+    return this.config.provider.split(".")[0].trim();
+  }
+  get supportedUrls() {
+    var _a37, _b16, _c;
+    return (_c = (_b16 = (_a37 = this.config).supportedUrls) == null ? void 0 : _b16.call(_a37)) != null ? _c : {};
+  }
+  transformRequestBody(args) {
+    var _a37, _b16, _c;
+    return (_c = (_b16 = (_a37 = this.config).transformRequestBody) == null ? void 0 : _b16.call(_a37, args)) != null ? _c : args;
+  }
+  convertUsage(usage) {
+    var _a37, _b16, _c;
+    return (_c = (_b16 = (_a37 = this.config).convertUsage) == null ? void 0 : _b16.call(_a37, usage)) != null ? _c : convertOpenAICompatibleChatUsage2(usage);
+  }
+  async getArgs({
+    prompt,
+    maxOutputTokens,
+    temperature,
+    topP,
+    topK,
+    frequencyPenalty,
+    presencePenalty,
+    reasoning,
+    providerOptions,
+    stopSequences,
+    responseFormat,
+    seed,
+    toolChoice,
+    tools
+  }) {
+    var _a37, _b16, _c, _d, _e, _f;
+    let warnings = [], deprecatedOptions = await parseProviderOptions({
+      provider: "openai-compatible",
+      providerOptions,
+      schema: openaiCompatibleLanguageModelChatOptions2
+    });
+    if (deprecatedOptions != null)
+      warnings.push({
+        type: "deprecated",
+        setting: "providerOptions key 'openai-compatible'",
+        message: "Use 'openaiCompatible' instead."
+      });
+    warnIfDeprecatedProviderOptionsKey({
+      rawName: this.providerOptionsName,
+      providerOptions,
+      warnings
+    });
+    let compatibleOptions = Object.assign(deprecatedOptions != null ? deprecatedOptions : {}, (_a37 = await parseProviderOptions({
+      provider: "openaiCompatible",
+      providerOptions,
+      schema: openaiCompatibleLanguageModelChatOptions2
+    })) != null ? _a37 : {}, (_b16 = await parseProviderOptions({
+      provider: this.providerOptionsName,
+      providerOptions,
+      schema: openaiCompatibleLanguageModelChatOptions2
+    })) != null ? _b16 : {}, (_c = await parseProviderOptions({
+      provider: toCamelCase2(this.providerOptionsName),
+      providerOptions,
+      schema: openaiCompatibleLanguageModelChatOptions2
+    })) != null ? _c : {}), strictJsonSchema = (_d = compatibleOptions == null ? void 0 : compatibleOptions.strictJsonSchema) != null ? _d : !0;
+    if (topK != null)
+      warnings.push({ type: "unsupported", feature: "topK" });
+    if ((responseFormat == null ? void 0 : responseFormat.type) === "json" && responseFormat.schema != null && !this.supportsStructuredOutputs)
+      warnings.push({
+        type: "unsupported",
+        feature: "responseFormat",
+        details: "JSON response format schema is only supported with structuredOutputs"
+      });
+    let {
+      tools: openaiTools2,
+      toolChoice: openaiToolChoice,
+      toolWarnings
+    } = prepareTools4({
+      tools,
+      toolChoice
+    });
+    return {
+      metadataKey: resolveProviderOptionsKey2(this.providerOptionsName, providerOptions),
+      args: {
+        model: this.modelId,
+        user: compatibleOptions.user,
+        max_tokens: maxOutputTokens,
+        temperature,
+        top_p: topP,
+        frequency_penalty: frequencyPenalty,
+        presence_penalty: presencePenalty,
+        response_format: (responseFormat == null ? void 0 : responseFormat.type) === "json" ? this.supportsStructuredOutputs === !0 && responseFormat.schema != null ? {
+          type: "json_schema",
+          json_schema: {
+            schema: responseFormat.schema,
+            strict: strictJsonSchema,
+            name: (_e = responseFormat.name) != null ? _e : "response",
+            description: responseFormat.description
+          }
+        } : { type: "json_object" } : void 0,
+        stop: stopSequences,
+        seed,
+        ...Object.fromEntries(Object.entries({
+          ...providerOptions == null ? void 0 : providerOptions[this.providerOptionsName],
+          ...providerOptions == null ? void 0 : providerOptions[toCamelCase2(this.providerOptionsName)]
+        }).filter(([key]) => !Object.keys(openaiCompatibleLanguageModelChatOptions2.shape).includes(key))),
+        reasoning_effort: (_f = compatibleOptions.reasoningEffort) != null ? _f : isCustomReasoning(reasoning) && reasoning !== "none" ? reasoning : void 0,
+        verbosity: compatibleOptions.textVerbosity,
+        messages: convertToOpenAICompatibleChatMessages2(prompt),
+        tools: openaiTools2,
+        tool_choice: openaiToolChoice
+      },
+      warnings: [...warnings, ...toolWarnings]
+    };
+  }
+  async doGenerate(options) {
+    var _a37, _b16, _c, _d, _e, _f, _g, _h, _i, _j;
+    let { args, warnings, metadataKey } = await this.getArgs({ ...options }), transformedBody = this.transformRequestBody(args), body = JSON.stringify(transformedBody), {
+      responseHeaders,
+      value: responseBody,
+      rawValue: rawResponse
+    } = await postJsonToApi2({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders2((_b16 = (_a37 = this.config).headers) == null ? void 0 : _b16.call(_a37), options.headers),
+      body: transformedBody,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createJsonResponseHandler2(OpenAICompatibleChatResponseSchema2),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    }), choice2 = responseBody.choices[0], content = [], text2 = choice2.message.content;
+    if (text2 != null && text2.length > 0)
+      content.push({ type: "text", text: text2 });
+    let reasoning = (_c = choice2.message.reasoning_content) != null ? _c : choice2.message.reasoning;
+    if (reasoning != null && reasoning.length > 0)
+      content.push({
+        type: "reasoning",
+        text: reasoning
+      });
+    if (choice2.message.tool_calls != null)
+      for (let toolCall of choice2.message.tool_calls) {
+        let thoughtSignature = (_e = (_d = toolCall.extra_content) == null ? void 0 : _d.google) == null ? void 0 : _e.thought_signature;
+        content.push({
+          type: "tool-call",
+          toolCallId: (_f = toolCall.id) != null ? _f : generateId3(),
+          toolName: toolCall.function.name,
+          input: toolCall.function.arguments,
+          ...thoughtSignature ? {
+            providerMetadata: {
+              [metadataKey]: { thoughtSignature }
+            }
+          } : {}
+        });
+      }
+    let providerMetadata = {
+      [metadataKey]: {},
+      ...await ((_h = (_g = this.config.metadataExtractor) == null ? void 0 : _g.extractMetadata) == null ? void 0 : _h.call(_g, {
+        parsedBody: rawResponse
+      }))
+    }, completionTokenDetails = (_i = responseBody.usage) == null ? void 0 : _i.completion_tokens_details;
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens) != null)
+      providerMetadata[metadataKey].acceptedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.accepted_prediction_tokens;
+    if ((completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens) != null)
+      providerMetadata[metadataKey].rejectedPredictionTokens = completionTokenDetails == null ? void 0 : completionTokenDetails.rejected_prediction_tokens;
+    return {
+      content,
+      finishReason: {
+        unified: mapOpenAICompatibleFinishReason3(choice2.finish_reason),
+        raw: (_j = choice2.finish_reason) != null ? _j : void 0
+      },
+      usage: this.convertUsage(responseBody.usage),
+      providerMetadata,
+      request: { body },
+      response: {
+        ...getResponseMetadata5(responseBody),
+        headers: responseHeaders,
+        body: rawResponse
+      },
+      warnings
+    };
+  }
+  async doStream(options) {
+    var _a37, _b16, _c;
+    let { args, warnings, metadataKey } = await this.getArgs({
+      ...options
+    }), body = this.transformRequestBody({
+      ...args,
+      stream: !0,
+      stream_options: this.config.includeUsage ? { include_usage: !0 } : void 0
+    }), metadataExtractor = (_a37 = this.config.metadataExtractor) == null ? void 0 : _a37.createStreamExtractor(), { responseHeaders, value: response } = await postJsonToApi2({
+      url: this.config.url({
+        path: "/chat/completions",
+        modelId: this.modelId
+      }),
+      headers: combineHeaders2((_c = (_b16 = this.config).headers) == null ? void 0 : _c.call(_b16), options.headers),
+      body,
+      failedResponseHandler: this.failedResponseHandler,
+      successfulResponseHandler: createEventSourceResponseHandler2(this.chunkSchema),
+      abortSignal: options.abortSignal,
+      fetch: this.config.fetch
+    }), providerOptionsName = metadataKey, toolCallTracker, pendingToolCalls = /* @__PURE__ */ new Map, forwardedToolCallIndices = /* @__PURE__ */ new Set, processToolCallDelta = (toolCallDelta) => {
+      var _a210, _b28, _c2, _d, _e;
+      let index = toolCallDelta.index;
+      if (index == null || forwardedToolCallIndices.has(index)) {
+        toolCallTracker.processDelta(toolCallDelta);
+        return;
+      }
+      let pending = pendingToolCalls.get(index);
+      if (pending == null)
+        pending = {
+          id: (_a210 = toolCallDelta.id) != null ? _a210 : null,
+          bufferedArguments: "",
+          extraContent: (_b28 = toolCallDelta.extra_content) != null ? _b28 : null
+        }, pendingToolCalls.set(index, pending);
+      else {
+        if (pending.id == null && toolCallDelta.id != null)
+          pending.id = toolCallDelta.id;
+        if (pending.extraContent == null && toolCallDelta.extra_content != null)
+          pending.extraContent = toolCallDelta.extra_content;
+      }
+      let argumentsDelta = (_c2 = toolCallDelta.function) == null ? void 0 : _c2.arguments;
+      if (argumentsDelta != null)
+        pending.bufferedArguments += argumentsDelta;
+      let name31 = (_d = toolCallDelta.function) == null ? void 0 : _d.name;
+      if (name31 != null) {
+        let forwardDelta = {
+          index,
+          id: pending.id,
+          function: {
+            name: name31,
+            arguments: pending.bufferedArguments
+          },
+          extra_content: (_e = pending.extraContent) != null ? _e : void 0
+        };
+        toolCallTracker.processDelta(forwardDelta), pendingToolCalls.delete(index), forwardedToolCallIndices.add(index);
+      }
+    }, finishReason = {
+      unified: "other",
+      raw: void 0
+    }, usage = void 0, isFirstChunk = !0, isActiveReasoning = !1, isActiveText = !1, convertUsage = (usage2) => this.convertUsage(usage2);
+    return {
+      stream: response.pipeThrough(new TransformStream({
+        start(controller) {
+          toolCallTracker = new StreamingToolCallTracker(controller, {
+            generateId: generateId3,
+            extractMetadata: (delta) => {
+              var _a210, _b28;
+              let thoughtSignature = (_b28 = (_a210 = delta.extra_content) == null ? void 0 : _a210.google) == null ? void 0 : _b28.thought_signature;
+              return thoughtSignature ? { [providerOptionsName]: { thoughtSignature } } : void 0;
+            },
+            buildToolCallProviderMetadata: (metadata) => metadata
+          }), controller.enqueue({ type: "stream-start", warnings });
+        },
+        transform(chunk, controller) {
+          var _a210, _b28;
+          if (options.includeRawChunks)
+            controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
+          if (!chunk.success) {
+            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({ type: "error", error: chunk.error });
+            return;
+          }
+          if (metadataExtractor == null || metadataExtractor.processChunk(chunk.rawValue), "error" in chunk.value) {
+            finishReason = { unified: "error", raw: void 0 }, controller.enqueue({
+              type: "error",
+              error: chunk.value.error.message
+            });
+            return;
+          }
+          let value = chunk.value;
+          if (isFirstChunk)
+            isFirstChunk = !1, controller.enqueue({
+              type: "response-metadata",
+              ...getResponseMetadata5(value)
+            });
+          if (value.usage != null)
+            usage = value.usage;
+          let choice2 = value.choices[0];
+          if ((choice2 == null ? void 0 : choice2.finish_reason) != null)
+            finishReason = {
+              unified: mapOpenAICompatibleFinishReason3(choice2.finish_reason),
+              raw: (_a210 = choice2.finish_reason) != null ? _a210 : void 0
+            };
+          if ((choice2 == null ? void 0 : choice2.delta) == null)
+            return;
+          let delta = choice2.delta, reasoningContent = (_b28 = delta.reasoning_content) != null ? _b28 : delta.reasoning;
+          if (reasoningContent) {
+            if (!isActiveReasoning)
+              controller.enqueue({
+                type: "reasoning-start",
+                id: "reasoning-0"
+              }), isActiveReasoning = !0;
+            controller.enqueue({
+              type: "reasoning-delta",
+              id: "reasoning-0",
+              delta: reasoningContent
+            });
+          }
+          if (delta.content) {
+            if (isActiveReasoning)
+              controller.enqueue({
+                type: "reasoning-end",
+                id: "reasoning-0"
+              }), isActiveReasoning = !1;
+            if (!isActiveText)
+              controller.enqueue({ type: "text-start", id: "txt-0" }), isActiveText = !0;
+            controller.enqueue({
+              type: "text-delta",
+              id: "txt-0",
+              delta: delta.content
+            });
+          }
+          if (delta.tool_calls != null) {
+            if (isActiveReasoning)
+              controller.enqueue({
+                type: "reasoning-end",
+                id: "reasoning-0"
+              }), isActiveReasoning = !1;
+            for (let toolCallDelta of delta.tool_calls)
+              processToolCallDelta(toolCallDelta);
+          }
+        },
+        flush(controller) {
+          var _a210, _b28, _c2, _d;
+          if (isActiveReasoning)
+            controller.enqueue({ type: "reasoning-end", id: "reasoning-0" });
+          if (isActiveText)
+            controller.enqueue({ type: "text-end", id: "txt-0" });
+          for (let [index, pending] of pendingToolCalls)
+            toolCallTracker.processDelta({
+              index,
+              id: pending.id,
+              function: { arguments: pending.bufferedArguments }
+            });
+          pendingToolCalls.clear(), toolCallTracker.flush();
+          let providerMetadata = {
+            [providerOptionsName]: {},
+            ...metadataExtractor == null ? void 0 : metadataExtractor.buildMetadata()
+          };
+          if (((_a210 = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _a210.accepted_prediction_tokens) != null)
+            providerMetadata[providerOptionsName].acceptedPredictionTokens = (_b28 = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _b28.accepted_prediction_tokens;
+          if (((_c2 = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _c2.rejected_prediction_tokens) != null)
+            providerMetadata[providerOptionsName].rejectedPredictionTokens = (_d = usage == null ? void 0 : usage.completion_tokens_details) == null ? void 0 : _d.rejected_prediction_tokens;
+          controller.enqueue({
+            type: "finish",
+            finishReason,
+            usage: convertUsage(usage),
+            providerMetadata
+          });
+        }
+      })),
+      request: { body },
+      response: { headers: responseHeaders }
+    };
+  }
+}, openaiCompatibleTokenUsageSchema2 = exports_external.looseObject({
+  prompt_tokens: exports_external.number().nullish(),
+  completion_tokens: exports_external.number().nullish(),
+  total_tokens: exports_external.number().nullish(),
+  prompt_tokens_details: exports_external.object({
+    cached_tokens: exports_external.number().nullish()
+  }).nullish(),
+  completion_tokens_details: exports_external.object({
+    reasoning_tokens: exports_external.number().nullish(),
+    accepted_prediction_tokens: exports_external.number().nullish(),
+    rejected_prediction_tokens: exports_external.number().nullish()
+  }).nullish()
+}).nullish(), OpenAICompatibleChatResponseSchema2 = exports_external.looseObject({
+  id: exports_external.string().nullish(),
+  created: exports_external.number().nullish(),
+  model: exports_external.string().nullish(),
+  choices: exports_external.array(exports_external.object({
+    message: exports_external.object({
+      role: exports_external.literal("assistant").nullish(),
+      content: exports_external.string().nullish(),
+      reasoning_content: exports_external.string().nullish(),
+      reasoning: exports_external.string().nullish(),
+      tool_calls: exports_external.array(exports_external.object({
+        id: exports_external.string().nullish(),
+        function: exports_external.object({
+          name: exports_external.string(),
+          arguments: exports_external.string()
+        }),
+        extra_content: exports_external.object({
+          google: exports_external.object({
+            thought_signature: exports_external.string().nullish()
+          }).nullish()
+        }).nullish()
+      })).nullish()
+    }),
+    finish_reason: exports_external.string().nullish()
+  })),
+  usage: openaiCompatibleTokenUsageSchema2
+}), chunkBaseSchema2 = exports_external.looseObject({
+  id: exports_external.string().nullish(),
+  created: exports_external.number().nullish(),
+  model: exports_external.string().nullish(),
+  choices: exports_external.array(exports_external.object({
+    delta: exports_external.object({
+      role: exports_external.enum(["assistant", ""]).nullish(),
+      content: exports_external.string().nullish(),
+      reasoning_content: exports_external.string().nullish(),
+      reasoning: exports_external.string().nullish(),
+      tool_calls: exports_external.array(exports_external.object({
+        index: exports_external.number().nullish(),
+        id: exports_external.string().nullish(),
+        function: exports_external.object({
+          name: exports_external.string().nullish(),
+          arguments: exports_external.string().nullish()
+        }),
+        extra_content: exports_external.object({
+          google: exports_external.object({
+            thought_signature: exports_external.string().nullish()
+          }).nullish()
+        }).nullish()
+      })).nullish()
+    }).nullish(),
+    finish_reason: exports_external.string().nullish()
+  })),
+  usage: openaiCompatibleTokenUsageSchema2
+}), createOpenAICompatibleChatChunkSchema2 = (errorSchema) => exports_external.union([chunkBaseSchema2, errorSchema]);
+var openaiCompatibleLanguageModelCompletionOptions2 = exports_external.object({
+  echo: exports_external.boolean().optional(),
+  logitBias: exports_external.record(exports_external.string(), exports_external.number()).optional(),
+  suffix: exports_external.string().optional(),
+  user: exports_external.string().optional()
+});
+var usageSchema5 = exports_external.object({
+  prompt_tokens: exports_external.number(),
+  completion_tokens: exports_external.number(),
+  total_tokens: exports_external.number()
+}), openaiCompatibleCompletionResponseSchema2 = exports_external.object({
+  id: exports_external.string().nullish(),
+  created: exports_external.number().nullish(),
+  model: exports_external.string().nullish(),
+  choices: exports_external.array(exports_external.object({
+    text: exports_external.string(),
+    finish_reason: exports_external.string()
+  })),
+  usage: usageSchema5.nullish()
+});
+var openaiCompatibleEmbeddingModelOptions2 = exports_external.object({
+  dimensions: exports_external.number().optional(),
+  user: exports_external.string().optional()
+});
+var openaiTextEmbeddingResponseSchema3 = exports_external.object({
+  data: exports_external.array(exports_external.object({ embedding: exports_external.array(exports_external.number()) })),
+  usage: exports_external.object({ prompt_tokens: exports_external.number() }).nullish(),
+  providerMetadata: exports_external.record(exports_external.string(), exports_external.record(exports_external.string(), exports_external.any())).optional()
+});
+var openaiCompatibleImageResponseSchema2 = exports_external.object({
+  data: exports_external.array(exports_external.object({ b64_json: exports_external.string() }))
+});
 
-// node_modules/@ai-sdk/cerebras/dist/index.mjs
+// node_modules/@ai-sdk/cerebras/dist/index.js
 function isStructuredOutputWithToolCallsFinishReason({
   rawFinishReason,
   hasText,
@@ -51758,14 +52281,23 @@ function isStructuredOutputWithToolCallsFinishReason({
 }) {
   return responseFormatType === "json" && rawFinishReason === "tool_calls" && hasText;
 }
-var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel {
+var CerebrasChatLanguageModel = class _CerebrasChatLanguageModel extends OpenAICompatibleChatLanguageModel2 {
+  static [WORKFLOW_SERIALIZE](model) {
+    return serializeModelOptions({
+      modelId: model.modelId,
+      config: model.config
+    });
+  }
+  static [WORKFLOW_DESERIALIZE](options) {
+    return new _CerebrasChatLanguageModel(options.modelId, options.config);
+  }
   async doGenerate(options) {
-    var _a40;
+    var _a37;
     let result = await super.doGenerate(options);
     if (!isStructuredOutputWithToolCallsFinishReason({
       rawFinishReason: result.finishReason.raw,
       hasText: result.content.some((part) => part.type === "text" && part.text.length > 0),
-      responseFormatType: (_a40 = options.responseFormat) == null ? void 0 : _a40.type
+      responseFormatType: (_a37 = options.responseFormat) == null ? void 0 : _a37.type
     }))
       return result;
     return {
@@ -51783,13 +52315,13 @@ var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel 
       ...result,
       stream: result.stream.pipeThrough(new TransformStream({
         transform(part, controller) {
-          var _a40, _b16;
+          var _a37, _b16;
           if (part.type === "text-delta" && part.delta.length > 0)
             hasText = !0;
           if (part.type === "finish" && isStructuredOutputWithToolCallsFinishReason({
             rawFinishReason: part.finishReason.raw,
             hasText,
-            responseFormatType: (_a40 = options.responseFormat) == null ? void 0 : _a40.type
+            responseFormatType: (_a37 = options.responseFormat) == null ? void 0 : _a37.type
           })) {
             controller.enqueue({
               ...part,
@@ -51807,7 +52339,7 @@ var CerebrasChatLanguageModel = class extends OpenAICompatibleChatLanguageModel 
       }))
     };
   }
-}, VERSION11 = "2.0.57", cerebrasErrorSchema = exports_external.object({
+}, VERSION11 = "3.0.9", cerebrasErrorSchema = exports_external.object({
   message: exports_external.string(),
   type: exports_external.string(),
   param: exports_external.string(),
@@ -51831,9 +52363,9 @@ function transformCerebrasRequestBody(args) {
   };
 }
 function createCerebras(options = {}) {
-  var _a40;
-  let baseURL = withoutTrailingSlash4((_a40 = options.baseURL) != null ? _a40 : "https://api.cerebras.ai/v1"), getHeaders = () => withUserAgentSuffix5({
-    Authorization: `Bearer ${loadApiKey2({
+  var _a37;
+  let baseURL = withoutTrailingSlash2((_a37 = options.baseURL) != null ? _a37 : "https://api.cerebras.ai/v1"), getHeaders = () => withUserAgentSuffix3({
+    Authorization: `Bearer ${loadApiKey({
       apiKey: options.apiKey,
       environmentVariableName: "CEREBRAS_API_KEY",
       description: "Cerebras API key"
@@ -51850,10 +52382,10 @@ function createCerebras(options = {}) {
       transformRequestBody: transformCerebrasRequestBody
     });
   }, provider = (modelId) => createLanguageModel(modelId);
-  return provider.specificationVersion = "v3", provider.languageModel = createLanguageModel, provider.chat = createLanguageModel, provider.embeddingModel = (modelId) => {
-    throw new NoSuchModelError5({ modelId, modelType: "embeddingModel" });
+  return provider.specificationVersion = "v4", provider.languageModel = createLanguageModel, provider.chat = createLanguageModel, provider.embeddingModel = (modelId) => {
+    throw new NoSuchModelError3({ modelId, modelType: "embeddingModel" });
   }, provider.textEmbeddingModel = provider.embeddingModel, provider.imageModel = (modelId) => {
-    throw new NoSuchModelError5({ modelId, modelType: "imageModel" });
+    throw new NoSuchModelError3({ modelId, modelType: "imageModel" });
   }, provider;
 }
 var cerebras = createCerebras();
