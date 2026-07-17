@@ -1,81 +1,88 @@
 /* Making the sidebar in settings page compact and expand on hover */
+/* Rewritten for Zen 1.21+ / new Firefox settings sidebar: the old
+   `vbox.navigation` + richlist markup was replaced by the shadow-DOM
+   <moz-page-nav id="categories"> component. It exports no CSS parts,
+   so shadow internals are unreachable from a user sheet.
+
+   Approach: labels stay rendered in BOTH states and the host width
+   does all the work. Collapsed width sits in the gap between icon
+   and label (icon ends 37.25px, text starts 48.5px), so labels are
+   fully clipped by overflow: hidden without hiding them. Because nothing about the
+   text ever changes, row heights are identical in both states and
+   the expand/collapse is a single smooth width animation.
+   (Do NOT hide labels with font-size: 0 — the label line box is
+   taller than the icon, so rows compress ~3px and the list crawls
+   during the transition. Do NOT use color: transparent — icon fills
+   ride currentColor and vanish.)
+
+   The "Settings" heading is sized by the --font-size-xlarge custom
+   property (inherits across the shadow boundary); it stays hidden in
+   both states since it cannot be animated from out here — the logo
+   remains as the top anchor. */
 
 @media -moz-pref("compact-settings.enabled") {
   @-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
-    #preferences-stack {
-      vbox.navigation {
-        position: absolute !important;
-        height: 100vh !important;
-        z-index: 20 !important;
-        width: auto !important;
-        padding: 10px !important;
+    #preferences-stack #categories {
+      position: fixed !important;
+      inset-inline-start: 0 !important;
+      top: 0 !important;
+      height: 100vh !important;
+      z-index: 20 !important;
+      box-sizing: border-box !important;
+      /* 8px host padding gives icons air from the window edge; icon spans
+         19.25–35.25px, center 27.25 = strip center at 54px width. The strip
+         must stay wider than the heading row's natural width (~51px: padding
+         + logo 32 + margin 3.25 + flex gap 7.5) or the logo div flex-shrinks
+         when collapsed and its centered background drifts left. Label text
+         starts at 46.5px — the fade mask below hides that sliver. */
+      width: var(--cs-strip-w, 54px) !important;
+      overflow: hidden !important;
+      margin-inline-start: 0 !important;
+      padding-inline-start: 8px !important;
+      /* the component's own padding-inline-end (7.5px) shrinks the content
+         box below the heading row's natural width and the logo squishes
+         again — drop it while collapsed (right side is clipped anyway) */
+      padding-inline-end: 0 !important;
+      background: var(--in-content-page-background, var(--zen-branding-bg)) !important;
+      --font-size-xlarge: 0px;
+      /* fade out the label sliver: logo ends at 43.25px, text starts at
+         46.5px — the ramp lives in that window (text ≤14% opacity) */
+      mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
 
-        #searchInput,
-        #categories,
-        vbox.sidebar-footer-list {
-          @media -moz-pref("compact-settings.animation.enabled") {
-            transition: width 150ms ease-in-out !important;
-          }
-          width: 40px !important;
-          white-space: nowrap !important;
-        }
+      @media -moz-pref("compact-settings.animation.enabled") {
+        /* decelerate curve: fast start, soft landing — shadow fades with it;
+           prefers-reduced-motion zeroes --cs-anim (see userContent.css) */
+        transition: width var(--cs-anim, 180ms cubic-bezier(0.2, 0, 0, 1)),
+                    box-shadow var(--cs-anim, 180ms cubic-bezier(0.2, 0, 0, 1)) !important;
+      }
 
-        #categories,
-        vbox.sidebar-footer-list {
-          overflow-x: hidden !important;
-        }
+      moz-page-nav-button {
+        width: 225px !important;
 
-        .sidebar-footer-label {
-          @media -moz-pref("compact-settings.animation.enabled") {
-            transition: opacity 150ms ease-in-out !important;
-          }
-          opacity: 0 !important;
-        }
-
-        #searchInput {
-          margin: 20px 0 !important;
-          padding-left: 12px !important;
-        }
-
-        #categories {
-          margin: 0 !important;
-          padding: 0 !important;
-          .category {
-            margin-left: 10px !important;
-            padding: 0 8px !important;
-            width: 250px !important;
-
-            &[selected="true"] {
-              color: var(--zen-primary-color) !important;
-            }
-          }
-        }
-
-        vbox.sidebar-footer-list {
-          margin-left: 13px !important;
-          .sidebar-footer-icon {
-            margin: 0 8px !important;
-            scale: 1.4 !important;
-          }
-
-          .sidebar-footer-label {
-            font-size: 16px !important;
-          }
-        }
-
-        &:has(#searchInput:focus),
-        &:hover {
-          #categories,
-          #searchInput,
-          .sidebar-footer-list {
-            width: 250px !important;
-          }
-
-          .sidebar-footer-label {
-            opacity: 1 !important;
-          }
+        &[selected] {
+          color: var(--cs-accent, var(--zen-primary-color)) !important;
         }
       }
+
+      /* hover-only expand: :focus-within would pin the sidebar open after
+         clicking a category (the button keeps focus), and the components
+         don't delegate focus, so keyboard-only (:focus-visible) detection
+         can't cross the shadow boundary */
+      &:hover {
+        width: var(--cs-flyout-w, 250px) !important;
+        mask-image: none !important;
+        padding-inline-end: var(--space-small, 7.5px) !important;
+        /* elevation: the flyout floats OVER content — shadow says so;
+           a mere border reads as the layout itself shifting */
+        box-shadow: var(--cs-elevation,
+                    0 0 0 1px color-mix(in srgb, currentColor 12%, transparent),
+                    6px 0 24px -8px rgba(0, 0, 0, 0.25)) !important;
+      }
+    }
+
+    /* keep content clear of the collapsed strip */
+    #preferences-stack .main-content {
+      margin-inline-start: var(--cs-content-offset, 66px) !important;
     }
   }
 }
