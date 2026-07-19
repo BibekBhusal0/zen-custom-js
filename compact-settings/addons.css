@@ -1,13 +1,5 @@
 /* Making the addons page sidebar compact (expand on hover) and  make addons as grid */
 /* inspiration from https://github.com/MrOtherGuy/firefox-csshacks/blob/master/content/multi_column_addons.css made available under Mozilla Public License v. 2.0 */
-/* Sidebar mirrors the about:preferences treatment (54px strip, 250px hover
-   flyout, 180ms decelerate, elevation shadow). .category is a light-DOM
-   button: label is its text, icon is a background-image with
-   fill: currentColor — so labels are hidden with color: transparent while
-   the fill is pinned to a concrete token color. That keeps icons solid and
-   gives labels a real fade. Row height is safe: .category has
-   min-height: 48px. Flat topology (media query outside @-moz-document)
-   matches preferences.css, which is known to apply. */
 
 @media -moz-pref("compact-settings.compact-addons.enabled") {
   @-moz-document url-prefix("about:addons") {
@@ -22,26 +14,26 @@
       height: 100vh !important;
       z-index: 20 !important;
       box-sizing: border-box !important;
-      width: var(--cs-strip-w, 54px) !important;
+      width: var(--cs-strip-w) !important;
       overflow: hidden !important;
       padding: 0 !important;
       margin: 0 !important;
       background: var(--background-color-canvas, var(--in-content-page-background)) !important;
     }
 
-    /* prefers-reduced-motion zeroes --cs-anim (see userContent.css) */
     @media -moz-pref("compact-settings.animation.enabled") {
       #full #sidebar {
-        transition: width var(--cs-anim, 180ms cubic-bezier(0.2, 0, 0, 1)),
-                    box-shadow var(--cs-anim, 180ms cubic-bezier(0.2, 0, 0, 1)) !important;
+        transition:
+          width var(--cs-anim),
+          box-shadow var(--cs-anim) !important;
       }
 
       #full #sidebar .category {
-        transition: color var(--cs-anim, 180ms cubic-bezier(0.2, 0, 0, 1)) !important;
+        transition: color var(--cs-anim) !important;
       }
 
       #full #sidebar .sidebar-footer-label {
-        transition: opacity var(--cs-anim, 180ms cubic-bezier(0.2, 0, 0, 1)) !important;
+        transition: opacity var(--cs-anim) !important;
       }
     }
 
@@ -51,13 +43,10 @@
     }
 
     #full #sidebar .category {
-      /* stock margin-inline-start is 30px; 5px puts the 24px icon box at
-         15–39px, center 27 = strip center, matching the settings sidebar */
       margin-inline-start: 5px !important;
       margin-inline-end: 0 !important;
       width: 240px !important;
-      /* pin the fill so the label can go transparent without the icon */
-      fill: var(--icon-color, light-dark(rgb(91, 91, 102), rgb(191, 191, 201))) !important;
+      fill: var(--icon-color) !important;
     }
 
     #full #sidebar:not(:hover) .category {
@@ -68,12 +57,12 @@
        flyout is open (collapsed labels are transparent) */
     #full #sidebar .category[selected],
     #full #sidebar .category[aria-selected="true"] {
-      fill: var(--cs-accent, var(--zen-primary-color, var(--color-accent-primary))) !important;
+      fill: var(--cs-accent) !important;
     }
 
     #full #sidebar:hover .category[selected],
     #full #sidebar:hover .category[aria-selected="true"] {
-      color: var(--cs-accent, var(--zen-primary-color, var(--color-accent-primary))) !important;
+      color: var(--cs-accent) !important;
     }
 
     /* footer ("Zen Settings" / "Add-ons Support"): stock indents the list
@@ -98,15 +87,13 @@
     }
 
     #full #sidebar:hover {
-      width: var(--cs-flyout-w, 250px) !important;
-      box-shadow: var(--cs-elevation,
-                  0 0 0 1px color-mix(in srgb, currentColor 12%, transparent),
-                  6px 0 24px -8px rgba(0, 0, 0, 0.25)) !important;
+      width: var(--cs-flyout-w) !important;
+      box-shadow: var(--cs-elevation) !important;
     }
 
     #full #content {
-      margin-inline-start: var(--cs-content-offset, 66px) !important;
-      max-width: calc(100% - var(--cs-content-offset, 66px) - 8px) !important;
+      margin-inline-start: var(--cs-content-offset) !important;
+      max-width: calc(100% - var(--cs-content-offset) - 8px) !important;
       height: 100vh !important;
       overflow-y: auto !important;
     }

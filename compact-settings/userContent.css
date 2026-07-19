@@ -1,18 +1,15 @@
 @import "preferences.css";
 @import "addons.css";
 
-/* Shared design tokens for both sidebars. Inert on other pages (prefixed,
-   unused); custom properties inherit across the moz-page-nav shadow
-   boundary. Both stylesheets carry literal fallbacks so they still work
-   imported standalone. */
 @-moz-document url-prefix("about:preferences"), url-prefix("about:settings"), url-prefix("about:addons") {
   :root {
     --cs-strip-w: 54px;
     --cs-flyout-w: 250px;
     --cs-content-offset: 66px;
     --cs-anim: 180ms cubic-bezier(0.2, 0, 0, 1);
-    --cs-elevation: 0 0 0 1px color-mix(in srgb, currentColor 12%, transparent),
-                    6px 0 24px -8px rgba(0, 0, 0, 0.25);
+    --cs-elevation:
+      0 0 0 1px color-mix(in srgb, currentColor 12%, transparent),
+      6px 0 24px -8px rgba(0, 0, 0, 0.25);
     --cs-accent: var(--zen-primary-color, var(--color-accent-primary));
   }
 
