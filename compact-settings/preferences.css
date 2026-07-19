@@ -44,4 +44,25 @@
       margin-inline-start: var(--cs-content-offset) !important;
     }
   }
+
+  @media (max-width: 950px) {
+    #preferences-stack #categories {
+      moz-page-nav-button {
+        width: 30px !important;
+        transition: width var(--cs-anim) !important;
+      }
+
+      &:hover {
+        moz-page-nav-button {
+          width: 220px !important;
+        }
+      }
+    }
+
+    slot {
+      .page-nav-icon + & {
+        display: block !important;
+      }
+    }
+  }
 }
