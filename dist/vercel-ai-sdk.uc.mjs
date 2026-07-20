@@ -17121,7 +17121,7 @@ function withUserAgentSuffix(headers, ...userAgentSuffixParts) {
   let normalizedHeaders = new Headers(normalizeHeaders(headers)), currentUserAgentHeader = normalizedHeaders.get("user-agent") || "";
   return normalizedHeaders.set("user-agent", [currentUserAgentHeader, ...userAgentSuffixParts].filter(Boolean).join(" ")), Object.fromEntries(normalizedHeaders.entries());
 }
-var VERSION = "5.0.9", getOriginalFetch = () => globalThis.fetch, getFromApi = async ({
+var VERSION = "5.0.11", getOriginalFetch = () => globalThis.fetch, getFromApi = async ({
   url: url2,
   headers = {},
   successfulResponseHandler,
@@ -18314,9 +18314,13 @@ function asSchema(schema) {
   }) : isSchema(schema) ? schema : ("~standard" in schema) ? schema["~standard"].vendor === "zod" ? zodSchema(schema) : standardSchema(schema) : schema();
 }
 function standardSchema(standardSchema2) {
-  return jsonSchema(() => addAdditionalPropertiesToJsonSchema(standardSchema2["~standard"].jsonSchema.input({
-    target: "draft-07"
-  })), {
+  return jsonSchema(() => {
+    if (!hasStandardJsonSchema(standardSchema2))
+      throw Error(`Standard schema vendor '${standardSchema2["~standard"].vendor}' does not support JSON Schema conversion.`);
+    return addAdditionalPropertiesToJsonSchema(standardSchema2["~standard"].jsonSchema.input({
+      target: "draft-07"
+    }));
+  }, {
     validate: async (value) => {
       let result = await standardSchema2["~standard"].validate(value);
       return "value" in result ? { success: !0, value: result.value } : {
@@ -18328,6 +18332,9 @@ function standardSchema(standardSchema2) {
       };
     }
   });
+}
+function hasStandardJsonSchema(schema) {
+  return schema["~standard"].jsonSchema != null;
 }
 function zod3Schema(zodSchema2, options) {
   var _a22;
@@ -20914,7 +20921,7 @@ async function getVercelRequestId() {
   var _a112;
   return (_a112 = import_oidc.getContext().headers) == null ? void 0 : _a112["x-vercel-id"];
 }
-var VERSION2 = "4.0.19", AI_GATEWAY_PROTOCOL_VERSION = "0.0.1", gatewayClientSecretResponseSchema = exports_external.object({
+var VERSION2 = "4.0.23", AI_GATEWAY_PROTOCOL_VERSION = "0.0.1", gatewayClientSecretResponseSchema = exports_external.object({
   token: exports_external.string(),
   expiresAt: exports_external.number().nullish()
 });
@@ -20948,8 +20955,8 @@ function createGateway(options = {}) {
         cause: error51
       });
     }
-  }, mintRealtimeClientSecret = async (params) => {
-    assertGatewayRealtimeServerEnvironment();
+  }, mintClientSecret = async (params) => {
+    assertGatewayClientSecretServerEnvironment();
     let auth = await getRealtimeAuthToken(), headers = createAuthHeaders(auth), url2 = new URL("/v1/realtime/client-secrets", baseURL).toString();
     try {
       let { value } = await postJsonToApi({
@@ -20957,6 +20964,7 @@ function createGateway(options = {}) {
         headers,
         body: {
           model: params.modelId,
+          ...params.routeKind != null && { routeKind: params.routeKind },
           ...params.expiresAfterSeconds != null && {
             expiresIn: params.expiresAfterSeconds
           }
@@ -21107,12 +21115,27 @@ function createGateway(options = {}) {
       webSocket: options.webSocket
     });
   };
-  provider.transcriptionModel = createTranscriptionModel, provider.transcription = createTranscriptionModel;
+  provider.transcriptionModel = createTranscriptionModel, provider.transcription = createTranscriptionModel, provider.experimental_transcription = Object.assign((modelId) => createTranscriptionModel(modelId), {
+    getToken: async (tokenOptions) => {
+      let secret = await mintClientSecret({
+        modelId: tokenOptions.model,
+        routeKind: "transcription",
+        ...tokenOptions.expiresAfterSeconds != null && {
+          expiresAfterSeconds: tokenOptions.expiresAfterSeconds
+        }
+      });
+      return {
+        token: secret.token,
+        url: toGatewayTranscriptionUrl(baseURL, tokenOptions.model),
+        ...secret.expiresAt != null && { expiresAt: secret.expiresAt }
+      };
+    }
+  });
   let createRealtimeModel = (modelId) => new GatewayRealtimeModel(modelId, {
     provider: "gateway.realtime",
     baseURL,
     teamIdOrSlug: options.teamIdOrSlug,
-    createClientSecret: mintRealtimeClientSecret
+    createClientSecret: mintClientSecret
   });
   return provider.experimental_realtime = Object.assign((modelId) => createRealtimeModel(modelId), {
     getToken: async (tokenOptions) => {
@@ -21141,9 +21164,9 @@ async function getGatewayAuthToken(options) {
     authMethod: "oidc"
   };
 }
-function assertGatewayRealtimeServerEnvironment() {
+function assertGatewayClientSecretServerEnvironment() {
   if (typeof globalThis.window < "u")
-    throw Error("AI Gateway realtime client secrets must be minted server-side: minting needs your Gateway credential, which must never reach the browser. Call gateway.experimental_realtime.getToken() from your server and pass the returned token to the client.");
+    throw Error("AI Gateway client secrets must be minted server-side: minting needs your Gateway credential, which must never reach the browser. Call gateway.experimental_realtime.getToken() or gateway.experimental_transcription.getToken() from your server and pass the returned token to the client.");
 }
 
 // node_modules/ai/dist/index.js
@@ -21707,7 +21730,7 @@ function cloneValue(value) {
     return Object.fromEntries(Object.entries(value).map(([key, value2]) => [key, cloneValue(value2)]));
   return value;
 }
-var VERSION3 = "7.0.26", download = async ({
+var VERSION3 = "7.0.31", download = async ({
   url: url2,
   maxBytes,
   abortSignal
@@ -23026,7 +23049,8 @@ function collectToolApprovals({
       throw new InvalidToolApprovalError({
         approvalId: approvalResponse.approvalId
       });
-    if (toolResults[approvalRequest.toolCallId] != null)
+    let existingToolResult = toolResults[approvalRequest.toolCallId];
+    if (existingToolResult != null && (approvalResponse.approved || existingToolResult.output.type !== "execution-denied"))
       continue;
     let toolCall = toolCallsByToolCallId[approvalRequest.toolCallId];
     if (toolCall == null)
@@ -23037,7 +23061,8 @@ function collectToolApprovals({
     let approval = {
       approvalRequest,
       approvalResponse,
-      toolCall
+      toolCall,
+      ...existingToolResult != null ? { existingToolResult } : {}
     };
     if (approvalResponse.approved)
       approvedToolApprovals.push(approval);
@@ -24876,11 +24901,11 @@ async function generateText({
           toolsContext,
           runtimeContext,
           toolApprovalSecret: experimental_toolApprovalSecret
-        }), deniedToolApprovals = [
+        }), deniedToolApprovalsWithoutResults = [
           ...collectedDeniedToolApprovals,
           ...revalidationDeniedToolApprovals
-        ];
-        if (deniedToolApprovals.length > 0 || localApprovedToolApprovals.length > 0) {
+        ].filter((toolApproval2) => toolApproval2.existingToolResult == null);
+        if (deniedToolApprovalsWithoutResults.length > 0 || localApprovedToolApprovals.length > 0) {
           let toolResults2 = await executeTools({
             toolCalls: localApprovedToolApprovals.map((toolApproval2) => toolApproval2.toolCall),
             tools,
@@ -24922,7 +24947,7 @@ async function generateText({
               output: modelOutput
             });
           }
-          for (let toolApproval2 of deniedToolApprovals)
+          for (let toolApproval2 of deniedToolApprovalsWithoutResults)
             toolContent.push({
               type: "tool-result",
               toolCallId: toolApproval2.toolCall.toolCallId,
@@ -25114,6 +25139,13 @@ async function generateText({
                   let tool2 = getOwn(tools, toolCall.toolName);
                   if (tool2 == null)
                     continue;
+                  if (tool2.onInputStart != null)
+                    await tool2.onInputStart({
+                      toolCallId: toolCall.toolCallId,
+                      messages: stepMessages,
+                      abortSignal: mergedAbortSignal,
+                      context: runtimeContext
+                    });
                   if ((tool2 == null ? void 0 : tool2.onInputAvailable) != null)
                     await tool2.onInputAvailable({
                       input: toolCall.input,
@@ -28121,7 +28153,7 @@ var DefaultStreamTextResult = class {
         }), localDeniedToolApprovals = [
           ...deniedToolApprovals.filter((toolApproval2) => !toolApproval2.toolCall.providerExecuted),
           ...revalidationDeniedToolApprovals
-        ], deniedProviderExecutedToolApprovals = deniedToolApprovals.filter((toolApproval2) => toolApproval2.toolCall.providerExecuted), toolExecutionStepStreamController, toolExecutionStepStream = new ReadableStream({
+        ], localDeniedToolApprovalsWithoutResults = localDeniedToolApprovals.filter((toolApproval2) => toolApproval2.existingToolResult == null), deniedProviderExecutedToolApprovals = deniedToolApprovals.filter((toolApproval2) => toolApproval2.toolCall.providerExecuted), toolExecutionStepStreamController, toolExecutionStepStream = new ReadableStream({
           start(controller) {
             toolExecutionStepStreamController = controller;
           }
@@ -28158,7 +28190,7 @@ var DefaultStreamTextResult = class {
             });
             if (result != null)
               toolExecutionStepStreamController == null || toolExecutionStepStreamController.enqueue(result.output), toolOutputs.push(result.output);
-          })), toolOutputs.length > 0 || localDeniedToolApprovals.length > 0) {
+          })), toolOutputs.length > 0 || localDeniedToolApprovalsWithoutResults.length > 0) {
             let localToolContent = [];
             for (let output2 of toolOutputs)
               localToolContent.push({
@@ -28173,7 +28205,7 @@ var DefaultStreamTextResult = class {
                   errorMode: output2.type === "tool-error" ? "text" : "none"
                 })
               });
-            for (let toolApproval2 of localDeniedToolApprovals)
+            for (let toolApproval2 of localDeniedToolApprovalsWithoutResults)
               localToolContent.push({
                 type: "tool-result",
                 toolCallId: toolApproval2.toolCall.toolCallId,
@@ -29085,7 +29117,18 @@ var toolMetadataSchema2 = exports_external.record(exports_external.string(), jso
         signature: exports_external.string().optional()
       })
     })
-  ])).nonempty("Message must contain at least one part")
+  ]))
+}).superRefine((message, context) => {
+  if (message.role !== "assistant" && message.parts.length === 0)
+    context.addIssue({
+      origin: "array",
+      code: "too_small",
+      minimum: 1,
+      inclusive: !0,
+      input: message.parts,
+      path: ["parts"],
+      message: "Message must contain at least one part"
+    });
 })).nonempty("Messages array must not be empty")));
 var originalGenerateCallId4 = createIdGenerator({
   prefix: "call",
@@ -29109,7 +29152,7 @@ var originalGenerateCallId6 = createIdGenerator({
 });
 var defaultDownload2 = createDownload();
 // node_modules/@ai-sdk/google/dist/index.js
-var VERSION4 = "4.0.14", googleErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
+var VERSION4 = "4.0.18", googleErrorDataSchema = lazySchema(() => zodSchema(exports_external.object({
   error: exports_external.object({
     code: exports_external.number().nullable(),
     message: exports_external.string(),
@@ -29789,7 +29832,22 @@ var googleLanguageModelOptions = lazySchema(() => zodSchema(exports_external.obj
       "1:4",
       "4:1"
     ]).optional(),
-    imageSize: exports_external.enum(["1K", "2K", "4K", "512"]).optional()
+    imageSize: exports_external.enum(["1K", "2K", "4K", "512"]).optional(),
+    personGeneration: exports_external.enum([
+      "PERSON_GENERATION_UNSPECIFIED",
+      "ALLOW_ALL",
+      "ALLOW_ADULT",
+      "ALLOW_NONE"
+    ]).optional(),
+    prominentPeople: exports_external.enum([
+      "PROMINENT_PEOPLE_UNSPECIFIED",
+      "ALLOW_PROMINENT_PEOPLE",
+      "BLOCK_PROMINENT_PEOPLE"
+    ]).optional(),
+    imageOutputOptions: exports_external.object({
+      mimeType: exports_external.enum(["image/jpeg", "image/png"]).optional(),
+      compressionQuality: exports_external.number().optional()
+    }).optional()
   }).optional(),
   retrievalConfig: exports_external.object({
     latLng: exports_external.object({
@@ -30280,7 +30338,25 @@ var configurableSafetySettingCategories = [
       ...googleOptions.requestType && {
         "X-Vertex-AI-LLM-Request-Type": googleOptions.requestType
       }
-    } : void 0, bodyServiceTier = isVertexProvider ? void 0 : googleOptions == null ? void 0 : googleOptions.serviceTier, isGemmaModel = this.modelId.toLowerCase().startsWith("gemma-"), isGemini3Model2 = /^gemini-3[.-]/.test(this.modelId), supportsFunctionResponseParts = isGemini3Model2, { contents, systemInstruction } = convertToGoogleMessages(prompt, {
+    } : void 0, bodyServiceTier = isVertexProvider ? void 0 : googleOptions == null ? void 0 : googleOptions.serviceTier, imageConfig = googleOptions == null ? void 0 : googleOptions.imageConfig;
+    if (imageConfig != null && !isVertexProvider) {
+      let {
+        personGeneration,
+        prominentPeople,
+        imageOutputOptions,
+        ...geminiApiImageConfig
+      } = imageConfig, droppedImageConfigFields = Object.entries({
+        personGeneration,
+        prominentPeople,
+        imageOutputOptions
+      }).filter(([, value]) => value != null).map(([key]) => `'imageConfig.${key}'`);
+      if (droppedImageConfigFields.length > 0)
+        warnings.push({
+          type: "other",
+          message: `${droppedImageConfigFields.join(", ")} ${droppedImageConfigFields.length === 1 ? "is a Vertex AI option and is" : "are Vertex AI options and are"} ignored with the current Google provider (${this.config.provider}).`
+        }), imageConfig = geminiApiImageConfig;
+    }
+    let isGemmaModel = this.modelId.toLowerCase().startsWith("gemma-"), isGemini3Model2 = /^gemini-3[.-]/.test(this.modelId), supportsFunctionResponseParts = isGemini3Model2, { contents, systemInstruction } = convertToGoogleMessages(prompt, {
       isGemmaModel,
       isGemini3Model: isGemini3Model2,
       onWarning: (warning) => warnings.push(warning),
@@ -30335,9 +30411,7 @@ var configurableSafetySettingCategories = [
           ...(googleOptions == null ? void 0 : googleOptions.mediaResolution) && {
             mediaResolution: googleOptions.mediaResolution
           },
-          ...(googleOptions == null ? void 0 : googleOptions.imageConfig) && {
-            imageConfig: googleOptions.imageConfig
-          }
+          ...imageConfig && { imageConfig }
         },
         contents,
         systemInstruction: isGemmaModel ? void 0 : systemInstruction,
@@ -33987,12 +34061,7 @@ var GoogleInteractionsLanguageModel = class _GoogleInteractionsLanguageModel {
       providerOptions: options.providerOptions,
       schema: googleInteractionsLanguageModelOptions
     }), isAgent = this.agent != null, hasTools = options.tools != null && options.tools.length > 0, toolsForBody, toolChoiceForBody;
-    if (hasTools && isAgent)
-      warnings.push({
-        type: "other",
-        message: "google.interactions: tools are not supported when an agent is set; tools will be omitted from the request body."
-      });
-    else if (hasTools) {
+    if (hasTools) {
       let prepared = prepareGoogleInteractionsTools({
         tools: options.tools,
         toolChoice: options.toolChoice
@@ -36525,7 +36594,82 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
   outputSchema: codeInterpreterOutputSchema
 }), codeInterpreter = (args = {}) => {
   return codeInterpreterToolFactory(args);
-}, customArgsSchema = lazySchema(() => zodSchema(exports_external.object({
+}, safetyCheckSchema = exports_external.object({
+  id: exports_external.string(),
+  code: exports_external.string().optional(),
+  message: exports_external.string().optional()
+}), computerActionSchema = exports_external.discriminatedUnion("type", [
+  exports_external.object({
+    type: exports_external.literal("click"),
+    button: exports_external.enum(["left", "right", "wheel", "back", "forward"]),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("double_click"),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("drag"),
+    path: exports_external.array(exports_external.object({ x: exports_external.number(), y: exports_external.number() })),
+    keys: exports_external.array(exports_external.string()).optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("keypress"),
+    keys: exports_external.array(exports_external.string())
+  }),
+  exports_external.object({
+    type: exports_external.literal("move"),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("screenshot")
+  }),
+  exports_external.object({
+    type: exports_external.literal("scroll"),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    scrollX: exports_external.number(),
+    scrollY: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).optional()
+  }),
+  exports_external.object({
+    type: exports_external.literal("type"),
+    text: exports_external.string()
+  }),
+  exports_external.object({
+    type: exports_external.literal("wait")
+  })
+]), computerInputSchema = lazySchema(() => zodSchema(exports_external.object({
+  actions: exports_external.array(computerActionSchema),
+  pendingSafetyChecks: exports_external.array(safetyCheckSchema),
+  status: exports_external.enum(["in_progress", "completed", "incomplete"])
+}))), computerOutputSchema = lazySchema(() => zodSchema(exports_external.object({
+  output: exports_external.union([
+    exports_external.object({
+      type: exports_external.literal("computer_screenshot"),
+      imageUrl: exports_external.string(),
+      fileId: exports_external.string().optional(),
+      detail: exports_external.enum(["auto", "low", "high", "original"]).optional()
+    }),
+    exports_external.object({
+      type: exports_external.literal("computer_screenshot"),
+      fileId: exports_external.string(),
+      imageUrl: exports_external.string().optional(),
+      detail: exports_external.enum(["auto", "low", "high", "original"]).optional()
+    })
+  ]),
+  acknowledgedSafetyChecks: exports_external.array(safetyCheckSchema).optional()
+}))), computerToolFactory = createProviderDefinedToolFactoryWithOutputSchema({
+  id: "openai.computer",
+  inputSchema: computerInputSchema,
+  outputSchema: computerOutputSchema
+}), computer = (options = {}) => computerToolFactory(options), customArgsSchema = lazySchema(() => zodSchema(exports_external.object({
   description: exports_external.string().optional(),
   format: exports_external.union([
     exports_external.object({
@@ -36791,6 +36935,7 @@ var applyPatchInputSchema = lazySchema(() => zodSchema(exports_external.object({
   applyPatch,
   customTool,
   codeInterpreter,
+  computer,
   fileSearch: fileSearch2,
   imageGeneration,
   localShell,
@@ -37206,9 +37351,10 @@ async function convertToOpenAIResponsesInput({
   hasLocalShellTool = !1,
   hasShellTool = !1,
   hasApplyPatchTool = !1,
+  hasComputerTool = !1,
   customProviderToolNames
 }) {
-  var _a24, _b17, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x;
+  var _a24, _b17, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y;
   let input = [], warnings = [], processedApprovalIds = /* @__PURE__ */ new Set;
   for (let { role, content, providerOptions } of prompt)
     switch (role) {
@@ -37398,7 +37544,7 @@ async function convertToOpenAIResponsesInput({
               }
               if (hasPreviousResponseId && store && id != null)
                 break;
-              let isProviderDefinedToolCall = hasLocalShellTool && resolvedToolName === "local_shell" || hasShellTool && resolvedToolName === "shell" || hasApplyPatchTool && resolvedToolName === "apply_patch" || ((_m = customProviderToolNames == null ? void 0 : customProviderToolNames.has(resolvedToolName)) != null ? _m : !1);
+              let isProviderDefinedToolCall = hasLocalShellTool && resolvedToolName === "local_shell" || hasShellTool && resolvedToolName === "shell" || hasApplyPatchTool && resolvedToolName === "apply_patch" || hasComputerTool && resolvedToolName === "computer" || ((_m = customProviderToolNames == null ? void 0 : customProviderToolNames.has(resolvedToolName)) != null ? _m : !1);
               if (store && id != null && isProviderDefinedToolCall) {
                 input.push({ type: "item_reference", id });
                 break;
@@ -37452,6 +37598,51 @@ async function convertToOpenAIResponsesInput({
                   id,
                   status: "completed",
                   operation: parsedInput.operation
+                });
+                break;
+              }
+              if (hasComputerTool && resolvedToolName === "computer") {
+                let parsedInput = await validateTypes({
+                  value: part.input,
+                  schema: computerInputSchema
+                });
+                input.push({
+                  type: "computer_call",
+                  call_id: part.toolCallId,
+                  id,
+                  status: parsedInput.status,
+                  actions: parsedInput.actions.map((action) => {
+                    switch (action.type) {
+                      case "click":
+                      case "double_click":
+                      case "move":
+                        return {
+                          ...action,
+                          keys: action.keys
+                        };
+                      case "drag":
+                        return {
+                          ...action,
+                          keys: action.keys
+                        };
+                      case "scroll":
+                        return {
+                          type: "scroll",
+                          x: action.x,
+                          y: action.y,
+                          scroll_x: action.scrollX,
+                          scroll_y: action.scrollY,
+                          keys: action.keys
+                        };
+                      default:
+                        return action;
+                    }
+                  }),
+                  pending_safety_checks: parsedInput.pendingSafetyChecks.map((safetyCheck) => ({
+                    id: safetyCheck.id,
+                    code: safetyCheck.code,
+                    message: safetyCheck.message
+                  }))
                 });
                 break;
               }
@@ -37696,6 +37887,28 @@ async function convertToOpenAIResponsesInput({
             });
             continue;
           }
+          if (hasComputerTool && resolvedToolName === "computer" && output.type === "json") {
+            let parsedOutput = await validateTypes({
+              value: output.value,
+              schema: computerOutputSchema
+            });
+            input.push({
+              type: "computer_call_output",
+              call_id: part.toolCallId,
+              output: {
+                type: "computer_screenshot",
+                image_url: parsedOutput.output.imageUrl,
+                file_id: parsedOutput.output.fileId,
+                detail: parsedOutput.output.detail
+              },
+              acknowledged_safety_checks: (_w = parsedOutput.acknowledgedSafetyChecks) == null ? void 0 : _w.map((safetyCheck) => ({
+                id: safetyCheck.id,
+                code: safetyCheck.code,
+                message: safetyCheck.message
+              }))
+            });
+            continue;
+          }
           if (customProviderToolNames == null ? void 0 : customProviderToolNames.has(resolvedToolName)) {
             let outputValue;
             switch (output.type) {
@@ -37704,7 +37917,7 @@ async function convertToOpenAIResponsesInput({
                 outputValue = output.value;
                 break;
               case "execution-denied":
-                outputValue = (_w = output.reason) != null ? _w : "Tool call execution denied.";
+                outputValue = (_x = output.reason) != null ? _x : "Tool call execution denied.";
                 break;
               case "json":
               case "error-json":
@@ -37797,7 +38010,7 @@ async function convertToOpenAIResponsesInput({
               contentValue = output.value;
               break;
             case "execution-denied":
-              contentValue = (_x = output.reason) != null ? _x : "Tool call execution denied.";
+              contentValue = (_y = output.reason) != null ? _y : "Tool call execution denied.";
               break;
             case "json":
             case "error-json":
@@ -37920,7 +38133,66 @@ var jsonValueSchema22 = exports_external.lazy(() => exports_external.union([
   exports_external.null(),
   exports_external.array(jsonValueSchema22),
   exports_external.record(exports_external.string(), jsonValueSchema22.optional())
-])), openaiResponsesNestedErrorChunkSchema = exports_external.object({
+])), openaiResponsesComputerSafetyCheckSchema = exports_external.object({
+  id: exports_external.string(),
+  code: exports_external.string().nullish(),
+  message: exports_external.string().nullish()
+}), openaiResponsesComputerActionSchema = exports_external.discriminatedUnion("type", [
+  exports_external.object({
+    type: exports_external.literal("click"),
+    button: exports_external.enum(["left", "right", "wheel", "back", "forward"]),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).nullish()
+  }),
+  exports_external.object({
+    type: exports_external.literal("double_click"),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).nullish()
+  }),
+  exports_external.object({
+    type: exports_external.literal("drag"),
+    path: exports_external.array(exports_external.object({ x: exports_external.number(), y: exports_external.number() })),
+    keys: exports_external.array(exports_external.string()).nullish()
+  }),
+  exports_external.object({
+    type: exports_external.literal("keypress"),
+    keys: exports_external.array(exports_external.string())
+  }),
+  exports_external.object({
+    type: exports_external.literal("move"),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).nullish()
+  }),
+  exports_external.object({
+    type: exports_external.literal("screenshot")
+  }),
+  exports_external.object({
+    type: exports_external.literal("scroll"),
+    x: exports_external.number(),
+    y: exports_external.number(),
+    scroll_x: exports_external.number(),
+    scroll_y: exports_external.number(),
+    keys: exports_external.array(exports_external.string()).nullish()
+  }),
+  exports_external.object({
+    type: exports_external.literal("type"),
+    text: exports_external.string()
+  }),
+  exports_external.object({
+    type: exports_external.literal("wait")
+  })
+]), openaiResponsesComputerCallSchema = exports_external.object({
+  type: exports_external.literal("computer_call"),
+  id: exports_external.string(),
+  call_id: exports_external.string().nullish(),
+  status: exports_external.enum(["in_progress", "completed", "incomplete"]),
+  action: openaiResponsesComputerActionSchema.nullish(),
+  actions: exports_external.array(openaiResponsesComputerActionSchema).nullish(),
+  pending_safety_checks: exports_external.array(openaiResponsesComputerSafetyCheckSchema).nullish()
+}), openaiResponsesNestedErrorChunkSchema = exports_external.object({
   type: exports_external.literal("error"),
   sequence_number: exports_external.number(),
   error: exports_external.object({
@@ -38038,11 +38310,7 @@ var jsonValueSchema22 = exports_external.lazy(() => exports_external.union([
         id: exports_external.string(),
         status: exports_external.string()
       }),
-      exports_external.object({
-        type: exports_external.literal("computer_call"),
-        id: exports_external.string(),
-        status: exports_external.string()
-      }),
+      openaiResponsesComputerCallSchema,
       exports_external.object({
         type: exports_external.literal("file_search_call"),
         id: exports_external.string()
@@ -38250,11 +38518,7 @@ var jsonValueSchema22 = exports_external.lazy(() => exports_external.union([
           env: exports_external.record(exports_external.string(), exports_external.string()).optional()
         })
       }),
-      exports_external.object({
-        type: exports_external.literal("computer_call"),
-        id: exports_external.string(),
-        status: exports_external.literal("completed")
-      }),
+      openaiResponsesComputerCallSchema,
       exports_external.object({
         type: exports_external.literal("mcp_call"),
         id: exports_external.string(),
@@ -38607,11 +38871,7 @@ var jsonValueSchema22 = exports_external.lazy(() => exports_external.union([
       input: exports_external.string(),
       id: exports_external.string()
     }),
-    exports_external.object({
-      type: exports_external.literal("computer_call"),
-      id: exports_external.string(),
-      status: exports_external.string().optional()
-    }),
+    openaiResponsesComputerCallSchema,
     exports_external.object({
       type: exports_external.literal("reasoning"),
       id: exports_external.string(),
@@ -38948,6 +39208,12 @@ async function prepareResponsesTools({
             });
             break;
           }
+          case "openai.computer": {
+            openaiTools2.push({
+              type: "computer"
+            });
+            break;
+          }
           case "openai.web_search_preview": {
             let args = await validateTypes({
               value: tool2.args,
@@ -39095,7 +39361,7 @@ async function prepareResponsesTools({
       let resolvedToolName = (_c = toolNameMapping == null ? void 0 : toolNameMapping.toProviderToolName(toolChoice.toolName)) != null ? _c : toolChoice.toolName;
       return {
         tools: openaiTools2,
-        toolChoice: resolvedToolName === "code_interpreter" || resolvedToolName === "file_search" || resolvedToolName === "image_generation" || resolvedToolName === "web_search_preview" || resolvedToolName === "web_search" || resolvedToolName === "mcp" || resolvedToolName === "apply_patch" ? { type: resolvedToolName } : resolvedCustomProviderToolNames.has(resolvedToolName) ? { type: "custom", name: resolvedToolName } : { type: "function", name: resolvedToolName },
+        toolChoice: resolvedToolName === "code_interpreter" || resolvedToolName === "file_search" || resolvedToolName === "image_generation" || resolvedToolName === "web_search_preview" || resolvedToolName === "web_search" || resolvedToolName === "mcp" || resolvedToolName === "apply_patch" || resolvedToolName === "computer" ? { type: resolvedToolName } : resolvedCustomProviderToolNames.has(resolvedToolName) ? { type: "custom", name: resolvedToolName } : { type: "function", name: resolvedToolName },
         toolWarnings
       };
     }
@@ -39182,6 +39448,72 @@ function extractApprovalRequestIdToToolCallIdMapping(prompt) {
   }
   return mapping;
 }
+function mapComputerAction(action) {
+  switch (action.type) {
+    case "click":
+      return {
+        type: "click",
+        button: action.button,
+        x: action.x,
+        y: action.y,
+        ...action.keys != null && { keys: action.keys }
+      };
+    case "double_click":
+      return {
+        type: "double_click",
+        x: action.x,
+        y: action.y,
+        ...action.keys != null && { keys: action.keys }
+      };
+    case "drag":
+      return {
+        type: "drag",
+        path: action.path,
+        ...action.keys != null && { keys: action.keys }
+      };
+    case "keypress":
+      return action;
+    case "move":
+      return {
+        type: "move",
+        x: action.x,
+        y: action.y,
+        ...action.keys != null && { keys: action.keys }
+      };
+    case "screenshot":
+      return action;
+    case "scroll":
+      return {
+        type: "scroll",
+        x: action.x,
+        y: action.y,
+        scrollX: action.scroll_x,
+        scrollY: action.scroll_y,
+        ...action.keys != null && { keys: action.keys }
+      };
+    case "type":
+      return action;
+    case "wait":
+      return action;
+  }
+}
+function mapComputerCallInput({
+  action,
+  actions,
+  pending_safety_checks,
+  status
+}) {
+  var _a24;
+  return {
+    actions: (actions != null ? actions : action != null ? [action] : []).map(mapComputerAction),
+    pendingSafetyChecks: (_a24 = pending_safety_checks == null ? void 0 : pending_safety_checks.map((safetyCheck) => ({
+      id: safetyCheck.id,
+      ...safetyCheck.code != null && { code: safetyCheck.code },
+      ...safetyCheck.message != null && { message: safetyCheck.message }
+    }))) != null ? _a24 : [],
+    status
+  };
+}
 var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
   constructor(modelId, config2) {
     this.specificationVersion = "v4", this.supportedUrls = {
@@ -39251,6 +39583,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
       tools,
       providerToolNames: {
         "openai.code_interpreter": "code_interpreter",
+        "openai.computer": "computer",
         "openai.file_search": "file_search",
         "openai.image_generation": "image_generation",
         "openai.local_shell": "local_shell",
@@ -39284,6 +39617,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
       hasLocalShellTool: hasOpenAITool("openai.local_shell"),
       hasShellTool: hasOpenAITool("openai.shell"),
       hasApplyPatchTool: hasOpenAITool("openai.apply_patch"),
+      hasComputerTool: hasOpenAITool("openai.computer"),
       customProviderToolNames: customProviderToolNames.size > 0 ? customProviderToolNames : void 0
     });
     warnings.push(...inputWarnings);
@@ -39438,7 +39772,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
     };
   }
   async doGenerate(options) {
-    var _a24, _b17, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E;
+    var _a24, _b17, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F;
     let {
       args: body,
       warnings,
@@ -39472,6 +39806,18 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
         responseBody: rawResponse,
         isRetryable: !1
       });
+    if (response.output == null) {
+      let detail = (_c = response.incomplete_details) == null ? void 0 : _c.reason;
+      throw new APICallError({
+        message: detail ? `Responses API returned no output (${detail})` : "Responses API returned no output",
+        url: url2,
+        requestBodyValues: body,
+        statusCode: 500,
+        responseHeaders,
+        responseBody: rawResponse,
+        isRetryable: !1
+      });
+    }
     let content = [], logprobs = [], hasFunctionCall = !1, hostedToolSearchCallIds = [];
     for (let part of response.output)
       switch (part.type) {
@@ -39485,7 +39831,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               providerMetadata: {
                 [providerOptionsName]: {
                   itemId: part.id,
-                  reasoningEncryptedContent: (_c = part.encrypted_content) != null ? _c : null
+                  reasoningEncryptedContent: (_d = part.encrypted_content) != null ? _d : null
                 }
               }
             });
@@ -39509,7 +39855,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
           break;
         }
         case "tool_search_call": {
-          let toolCallId = (_d = part.call_id) != null ? _d : part.id, isHosted = part.execution === "server";
+          let toolCallId = (_e = part.call_id) != null ? _e : part.id, isHosted = part.execution === "server";
           if (isHosted)
             hostedToolSearchCallIds.push(toolCallId);
           content.push({
@@ -39530,7 +39876,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
           break;
         }
         case "tool_search_output": {
-          let toolCallId = (_f = (_e = part.call_id) != null ? _e : hostedToolSearchCallIds.shift()) != null ? _f : part.id;
+          let toolCallId = (_g = (_f = part.call_id) != null ? _f : hostedToolSearchCallIds.shift()) != null ? _g : part.id;
           content.push({
             type: "tool-result",
             toolCallId,
@@ -39601,7 +39947,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
         }
         case "message": {
           for (let contentPart of part.content) {
-            if (((_h = (_g = options.providerOptions) == null ? void 0 : _g[providerOptionsName]) == null ? void 0 : _h.logprobs) && contentPart.logprobs)
+            if (((_i = (_h = options.providerOptions) == null ? void 0 : _h[providerOptionsName]) == null ? void 0 : _i.logprobs) && contentPart.logprobs)
               logprobs.push(contentPart.logprobs);
             let providerMetadata2 = {
               itemId: part.id,
@@ -39622,7 +39968,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 content.push({
                   type: "source",
                   sourceType: "url",
-                  id: (_k = (_j = (_i = this.config).generateId) == null ? void 0 : _j.call(_i)) != null ? _k : generateId(),
+                  id: (_l = (_k = (_j = this.config).generateId) == null ? void 0 : _k.call(_j)) != null ? _l : generateId(),
                   url: annotation.url,
                   title: annotation.title
                 });
@@ -39630,7 +39976,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_n = (_m = (_l = this.config).generateId) == null ? void 0 : _m.call(_l)) != null ? _n : generateId(),
+                  id: (_o = (_n = (_m = this.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId(),
                   mediaType: "text/plain",
                   title: annotation.filename,
                   filename: annotation.filename,
@@ -39646,7 +39992,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_q = (_p = (_o = this.config).generateId) == null ? void 0 : _p.call(_o)) != null ? _q : generateId(),
+                  id: (_r = (_q = (_p = this.config).generateId) == null ? void 0 : _q.call(_p)) != null ? _r : generateId(),
                   mediaType: "text/plain",
                   title: annotation.filename,
                   filename: annotation.filename,
@@ -39662,7 +40008,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 content.push({
                   type: "source",
                   sourceType: "document",
-                  id: (_t = (_s = (_r = this.config).generateId) == null ? void 0 : _s.call(_r)) != null ? _t : generateId(),
+                  id: (_u = (_t = (_s = this.config).generateId) == null ? void 0 : _t.call(_s)) != null ? _u : generateId(),
                   mediaType: "application/octet-stream",
                   title: annotation.file_id,
                   filename: annotation.file_id,
@@ -39724,7 +40070,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
           break;
         }
         case "mcp_call": {
-          let toolCallId = part.approval_request_id != null ? (_u = approvalRequestIdToDummyToolCallIdFromPrompt[part.approval_request_id]) != null ? _u : part.id : part.id, toolName = `mcp.${part.name}`;
+          let toolCallId = part.approval_request_id != null ? (_v = approvalRequestIdToDummyToolCallIdFromPrompt[part.approval_request_id]) != null ? _v : part.id : part.id, toolName = `mcp.${part.name}`;
           content.push({
             type: "tool-call",
             toolCallId,
@@ -39755,7 +40101,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
         case "mcp_list_tools":
           break;
         case "mcp_approval_request": {
-          let approvalRequestId = (_v = part.approval_request_id) != null ? _v : part.id, dummyToolCallId = (_y = (_x = (_w = this.config).generateId) == null ? void 0 : _x.call(_w)) != null ? _y : generateId(), toolName = `mcp.${part.name}`;
+          let approvalRequestId = (_w = part.approval_request_id) != null ? _w : part.id, dummyToolCallId = (_z = (_y = (_x = this.config).generateId) == null ? void 0 : _y.call(_x)) != null ? _z : generateId(), toolName = `mcp.${part.name}`;
           content.push({
             type: "tool-call",
             toolCallId: dummyToolCallId,
@@ -39771,19 +40117,35 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
           break;
         }
         case "computer_call": {
+          if (part.call_id == null) {
+            content.push({
+              type: "tool-call",
+              toolCallId: part.id,
+              toolName: toolNameMapping.toCustomToolName("computer_use"),
+              input: "",
+              providerExecuted: !0
+            }), content.push({
+              type: "tool-result",
+              toolCallId: part.id,
+              toolName: toolNameMapping.toCustomToolName("computer_use"),
+              result: {
+                type: "computer_use_tool_result",
+                status: part.status
+              }
+            });
+            break;
+          }
+          hasFunctionCall = !0;
+          let toolName = toolNameMapping.toCustomToolName("computer");
           content.push({
             type: "tool-call",
-            toolCallId: part.id,
-            toolName: toolNameMapping.toCustomToolName("computer_use"),
-            input: "",
-            providerExecuted: !0
-          }), content.push({
-            type: "tool-result",
-            toolCallId: part.id,
-            toolName: toolNameMapping.toCustomToolName("computer_use"),
-            result: {
-              type: "computer_use_tool_result",
-              status: part.status || "completed"
+            toolCallId: part.call_id,
+            toolName,
+            input: JSON.stringify(mapComputerCallInput(part)),
+            providerMetadata: {
+              [providerOptionsName]: {
+                itemId: part.id
+              }
             }
           });
           break;
@@ -39801,13 +40163,13 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
             toolName: toolNameMapping.toCustomToolName("file_search"),
             result: {
               queries: part.queries,
-              results: (_A = (_z = part.results) == null ? void 0 : _z.map((result) => ({
+              results: (_B = (_A = part.results) == null ? void 0 : _A.map((result) => ({
                 attributes: result.attributes,
                 fileId: result.file_id,
                 filename: result.filename,
                 score: result.score,
                 text: result.text
-              }))) != null ? _A : null
+              }))) != null ? _B : null
             }
           });
           break;
@@ -39869,17 +40231,17 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
         responseId: response.id,
         ...logprobs.length > 0 ? { logprobs } : {},
         ...typeof response.service_tier === "string" ? { serviceTier: response.service_tier } : {},
-        ...((_B = response.reasoning) == null ? void 0 : _B.context) != null ? { reasoningContext: response.reasoning.context } : {}
+        ...((_C = response.reasoning) == null ? void 0 : _C.context) != null ? { reasoningContext: response.reasoning.context } : {}
       }
     }, usage = response.usage;
     return {
       content,
       finishReason: {
         unified: mapOpenAIResponseFinishReason({
-          finishReason: (_C = response.incomplete_details) == null ? void 0 : _C.reason,
+          finishReason: (_D = response.incomplete_details) == null ? void 0 : _D.reason,
           hasFunctionCall
         }),
-        raw: (_E = (_D = response.incomplete_details) == null ? void 0 : _D.reason) != null ? _E : void 0
+        raw: (_F = (_E = response.incomplete_details) == null ? void 0 : _E.reason) != null ? _F : void 0
       },
       usage: convertOpenAIResponsesUsage(usage),
       request: { body },
@@ -39935,7 +40297,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
           controller.enqueue({ type: "stream-start", warnings });
         },
         transform(chunk, controller) {
-          var _a25, _b23, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N;
+          var _a25, _b23, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _A, _B, _C, _D, _E, _F, _G, _H, _I, _J, _K, _L, _M, _N, _O;
           if (options.includeRawChunks)
             controller.enqueue({ type: "raw", rawValue: chunk.rawValue });
           if (!chunk.success) {
@@ -39989,17 +40351,17 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 input: JSON.stringify({}),
                 providerExecuted: !0
               });
-            else if (value.item.type === "computer_call")
+            else if (value.item.type === "computer_call") {
+              let toolCallId = (_a25 = value.item.call_id) != null ? _a25 : value.item.id;
               ongoingToolCalls[value.output_index] = {
-                toolName: toolNameMapping.toCustomToolName("computer_use"),
-                toolCallId: value.item.id
+                toolName: toolNameMapping.toCustomToolName("computer"),
+                toolCallId
               }, controller.enqueue({
                 type: "tool-input-start",
-                id: value.item.id,
-                toolName: toolNameMapping.toCustomToolName("computer_use"),
-                providerExecuted: !0
+                id: toolCallId,
+                toolName: toolNameMapping.toCustomToolName("computer")
               });
-            else if (value.item.type === "code_interpreter_call")
+            } else if (value.item.type === "code_interpreter_call")
               ongoingToolCalls[value.output_index] = {
                 toolName: toolNameMapping.toCustomToolName("code_interpreter"),
                 toolCallId: value.item.id,
@@ -40037,7 +40399,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               if (ongoingToolCalls[value.output_index] = {
                 toolName,
                 toolCallId,
-                toolSearchExecution: (_a25 = value.item.execution) != null ? _a25 : "server"
+                toolSearchExecution: (_b23 = value.item.execution) != null ? _b23 : "server"
               }, isHosted)
                 controller.enqueue({
                   type: "tool-input-start",
@@ -40089,7 +40451,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
             else if (value.item.type === "shell_call_output")
               ;
             else if (value.item.type === "message")
-              ongoingAnnotations.splice(0, ongoingAnnotations.length), activeMessagePhase = (_b23 = value.item.phase) != null ? _b23 : void 0, controller.enqueue({
+              ongoingAnnotations.splice(0, ongoingAnnotations.length), activeMessagePhase = (_c = value.item.phase) != null ? _c : void 0, controller.enqueue({
                 type: "text-start",
                 id: value.item.id,
                 providerMetadata: {
@@ -40111,13 +40473,13 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 providerMetadata: {
                   [providerOptionsName]: {
                     itemId: value.item.id,
-                    reasoningEncryptedContent: (_c = value.item.encrypted_content) != null ? _c : null
+                    reasoningEncryptedContent: (_d = value.item.encrypted_content) != null ? _d : null
                   }
                 }
               });
           } else if (isResponseOutputItemDoneChunk(value)) {
             if (value.item.type === "message") {
-              let phase = (_d = value.item.phase) != null ? _d : activeMessagePhase;
+              let phase = (_e = value.item.phase) != null ? _e : activeMessagePhase;
               activeMessagePhase = void 0, controller.enqueue({
                 type: "text-end",
                 id: value.item.id,
@@ -40180,39 +40542,62 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 toolName: toolNameMapping.toCustomToolName(webSearchToolName != null ? webSearchToolName : "web_search"),
                 result: mapWebSearchOutput(value.item.action)
               });
-            else if (value.item.type === "computer_call")
-              ongoingToolCalls[value.output_index] = void 0, controller.enqueue({
+            else if (value.item.type === "computer_call") {
+              if (ongoingToolCalls[value.output_index] = void 0, value.item.call_id == null) {
+                controller.enqueue({
+                  type: "tool-input-end",
+                  id: value.item.id
+                }), controller.enqueue({
+                  type: "tool-call",
+                  toolCallId: value.item.id,
+                  toolName: toolNameMapping.toCustomToolName("computer_use"),
+                  input: "",
+                  providerExecuted: !0
+                }), controller.enqueue({
+                  type: "tool-result",
+                  toolCallId: value.item.id,
+                  toolName: toolNameMapping.toCustomToolName("computer_use"),
+                  result: {
+                    type: "computer_use_tool_result",
+                    status: value.item.status
+                  }
+                });
+                return;
+              }
+              hasFunctionCall = !0;
+              let toolName = toolNameMapping.toCustomToolName("computer"), input = JSON.stringify(mapComputerCallInput(value.item));
+              controller.enqueue({
+                type: "tool-input-delta",
+                id: value.item.call_id,
+                delta: input
+              }), controller.enqueue({
                 type: "tool-input-end",
-                id: value.item.id
+                id: value.item.call_id
               }), controller.enqueue({
                 type: "tool-call",
-                toolCallId: value.item.id,
-                toolName: toolNameMapping.toCustomToolName("computer_use"),
-                input: "",
-                providerExecuted: !0
-              }), controller.enqueue({
-                type: "tool-result",
-                toolCallId: value.item.id,
-                toolName: toolNameMapping.toCustomToolName("computer_use"),
-                result: {
-                  type: "computer_use_tool_result",
-                  status: value.item.status || "completed"
+                toolCallId: value.item.call_id,
+                toolName,
+                input,
+                providerMetadata: {
+                  [providerOptionsName]: {
+                    itemId: value.item.id
+                  }
                 }
               });
-            else if (value.item.type === "file_search_call")
+            } else if (value.item.type === "file_search_call")
               ongoingToolCalls[value.output_index] = void 0, controller.enqueue({
                 type: "tool-result",
                 toolCallId: value.item.id,
                 toolName: toolNameMapping.toCustomToolName("file_search"),
                 result: {
                   queries: value.item.queries,
-                  results: (_f = (_e = value.item.results) == null ? void 0 : _e.map((result2) => ({
+                  results: (_g = (_f = value.item.results) == null ? void 0 : _f.map((result2) => ({
                     attributes: result2.attributes,
                     fileId: result2.file_id,
                     filename: result2.filename,
                     score: result2.score,
                     text: result2.text
-                  }))) != null ? _f : null
+                  }))) != null ? _g : null
                 }
               });
             else if (value.item.type === "code_interpreter_call")
@@ -40236,7 +40621,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
             else if (value.item.type === "tool_search_call") {
               let toolCall = ongoingToolCalls[value.output_index], isHosted = value.item.execution === "server";
               if (toolCall != null) {
-                let toolCallId = isHosted ? toolCall.toolCallId : (_g = value.item.call_id) != null ? _g : value.item.id;
+                let toolCallId = isHosted ? toolCall.toolCallId : (_h = value.item.call_id) != null ? _h : value.item.id;
                 if (isHosted)
                   hostedToolSearchCallIds.push(toolCallId);
                 else
@@ -40266,7 +40651,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               }
               ongoingToolCalls[value.output_index] = void 0;
             } else if (value.item.type === "tool_search_output") {
-              let toolCallId = (_i = (_h = value.item.call_id) != null ? _h : hostedToolSearchCallIds.shift()) != null ? _i : value.item.id;
+              let toolCallId = (_j = (_i = value.item.call_id) != null ? _i : hostedToolSearchCallIds.shift()) != null ? _j : value.item.id;
               controller.enqueue({
                 type: "tool-result",
                 toolCallId,
@@ -40282,7 +40667,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               });
             } else if (value.item.type === "mcp_call") {
               ongoingToolCalls[value.output_index] = void 0;
-              let approvalRequestId = (_j = value.item.approval_request_id) != null ? _j : void 0, aliasedToolCallId = approvalRequestId != null ? (_l = (_k = approvalRequestIdToDummyToolCallIdFromStream.get(approvalRequestId)) != null ? _k : approvalRequestIdToDummyToolCallIdFromPrompt[approvalRequestId]) != null ? _l : value.item.id : value.item.id, toolName = `mcp.${value.item.name}`;
+              let approvalRequestId = (_k = value.item.approval_request_id) != null ? _k : void 0, aliasedToolCallId = approvalRequestId != null ? (_m = (_l = approvalRequestIdToDummyToolCallIdFromStream.get(approvalRequestId)) != null ? _l : approvalRequestIdToDummyToolCallIdFromPrompt[approvalRequestId]) != null ? _m : value.item.id : value.item.id, toolName = `mcp.${value.item.name}`;
               controller.enqueue({
                 type: "tool-call",
                 toolCallId: aliasedToolCallId,
@@ -40346,7 +40731,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               ongoingToolCalls[value.output_index] = void 0;
             } else if (value.item.type === "mcp_approval_request") {
               ongoingToolCalls[value.output_index] = void 0;
-              let dummyToolCallId = (_o = (_n = (_m = self.config).generateId) == null ? void 0 : _n.call(_m)) != null ? _o : generateId(), approvalRequestId = (_p = value.item.approval_request_id) != null ? _p : value.item.id;
+              let dummyToolCallId = (_p = (_o = (_n = self.config).generateId) == null ? void 0 : _o.call(_n)) != null ? _p : generateId(), approvalRequestId = (_q = value.item.approval_request_id) != null ? _q : value.item.id;
               approvalRequestIdToDummyToolCallIdFromStream.set(approvalRequestId, dummyToolCallId);
               let toolName = `mcp.${value.item.name}`;
               controller.enqueue({
@@ -40422,7 +40807,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                   providerMetadata: {
                     [providerOptionsName]: {
                       itemId: value.item.id,
-                      reasoningEncryptedContent: (_q = value.item.encrypted_content) != null ? _q : null
+                      reasoningEncryptedContent: (_r = value.item.encrypted_content) != null ? _r : null
                     }
                   }
                 });
@@ -40531,7 +40916,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               type: "text-delta",
               id: value.item_id,
               delta: value.delta
-            }), ((_s = (_r = options.providerOptions) == null ? void 0 : _r[providerOptionsName]) == null ? void 0 : _s.logprobs) && value.logprobs)
+            }), ((_t = (_s = options.providerOptions) == null ? void 0 : _s[providerOptionsName]) == null ? void 0 : _t.logprobs) && value.logprobs)
               logprobs.push(value.logprobs);
           } else if (value.type === "response.reasoning_summary_part.added") {
             if (value.summary_index > 0) {
@@ -40554,7 +40939,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
                 providerMetadata: {
                   [providerOptionsName]: {
                     itemId: value.item_id,
-                    reasoningEncryptedContent: (_u = (_t = activeReasoning[value.item_id]) == null ? void 0 : _t.encryptedContent) != null ? _u : null
+                    reasoningEncryptedContent: (_v = (_u = activeReasoning[value.item_id]) == null ? void 0 : _u.encryptedContent) != null ? _v : null
                   }
                 }
               });
@@ -40586,23 +40971,23 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
           else if (isResponseFinishedChunk(value)) {
             if (finishReason = {
               unified: mapOpenAIResponseFinishReason({
-                finishReason: (_v = value.response.incomplete_details) == null ? void 0 : _v.reason,
+                finishReason: (_w = value.response.incomplete_details) == null ? void 0 : _w.reason,
                 hasFunctionCall
               }),
-              raw: (_x = (_w = value.response.incomplete_details) == null ? void 0 : _w.reason) != null ? _x : void 0
+              raw: (_y = (_x = value.response.incomplete_details) == null ? void 0 : _x.reason) != null ? _y : void 0
             }, usage = value.response.usage, typeof value.response.service_tier === "string")
               serviceTier = value.response.service_tier;
-            if (((_y = value.response.reasoning) == null ? void 0 : _y.context) != null)
+            if (((_z = value.response.reasoning) == null ? void 0 : _z.context) != null)
               reasoningContext = value.response.reasoning.context;
           } else if (isResponseFailedChunk(value)) {
-            let incompleteReason = (_z = value.response.incomplete_details) == null ? void 0 : _z.reason;
+            let incompleteReason = (_A = value.response.incomplete_details) == null ? void 0 : _A.reason;
             if (finishReason = {
               unified: incompleteReason ? mapOpenAIResponseFinishReason({
                 finishReason: incompleteReason,
                 hasFunctionCall
               }) : "error",
               raw: incompleteReason != null ? incompleteReason : "error"
-            }, usage = (_A = value.response.usage) != null ? _A : void 0, ((_B = value.response.reasoning) == null ? void 0 : _B.context) != null)
+            }, usage = (_B = value.response.usage) != null ? _B : void 0, ((_C = value.response.reasoning) == null ? void 0 : _C.context) != null)
               reasoningContext = value.response.reasoning.context;
             if (!encounteredStreamError && value.response.error != null)
               encounteredStreamError = !0, controller.enqueue({
@@ -40622,7 +41007,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               controller.enqueue({
                 type: "source",
                 sourceType: "url",
-                id: (_E = (_D = (_C = self.config).generateId) == null ? void 0 : _D.call(_C)) != null ? _E : generateId(),
+                id: (_F = (_E = (_D = self.config).generateId) == null ? void 0 : _E.call(_D)) != null ? _F : generateId(),
                 url: value.annotation.url,
                 title: value.annotation.title
               });
@@ -40630,7 +41015,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               controller.enqueue({
                 type: "source",
                 sourceType: "document",
-                id: (_H = (_G = (_F = self.config).generateId) == null ? void 0 : _G.call(_F)) != null ? _H : generateId(),
+                id: (_I = (_H = (_G = self.config).generateId) == null ? void 0 : _H.call(_G)) != null ? _I : generateId(),
                 mediaType: "text/plain",
                 title: value.annotation.filename,
                 filename: value.annotation.filename,
@@ -40646,7 +41031,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               controller.enqueue({
                 type: "source",
                 sourceType: "document",
-                id: (_K = (_J = (_I = self.config).generateId) == null ? void 0 : _J.call(_I)) != null ? _K : generateId(),
+                id: (_L = (_K = (_J = self.config).generateId) == null ? void 0 : _K.call(_J)) != null ? _L : generateId(),
                 mediaType: "text/plain",
                 title: value.annotation.filename,
                 filename: value.annotation.filename,
@@ -40662,7 +41047,7 @@ var OpenAIResponsesLanguageModel = class _OpenAIResponsesLanguageModel {
               controller.enqueue({
                 type: "source",
                 sourceType: "document",
-                id: (_N = (_M = (_L = self.config).generateId) == null ? void 0 : _M.call(_L)) != null ? _N : generateId(),
+                id: (_O = (_N = (_M = self.config).generateId) == null ? void 0 : _N.call(_M)) != null ? _O : generateId(),
                 mediaType: "application/octet-stream",
                 title: value.annotation.file_id,
                 filename: value.annotation.file_id,
@@ -41353,7 +41738,7 @@ var openaiSkillResponseSchema = lazySchema(() => zodSchema(exports_external.obje
       warnings
     };
   }
-}, VERSION5 = "4.0.13";
+}, VERSION5 = "4.0.16";
 function createOpenAI(options = {}) {
   var _a24, _b17;
   let baseURL = (_a24 = withoutTrailingSlash(validateBaseURL(loadOptionalSetting({
@@ -43498,6 +43883,9 @@ async function convertToAnthropicPrompt({
                   anthropicContent.push({
                     type: "text",
                     text: isLastBlock && isLastMessage && isLastContentPart ? part.text.trim() : part.text,
+                    ...(textMetadata == null ? void 0 : textMetadata.citations) != null && {
+                      citations: textMetadata.citations
+                    },
                     cache_control: cacheControl
                   });
                 break;
@@ -44608,7 +44996,7 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
     });
   }
   async doGenerate(options) {
-    var _a24, _b17, _c, _d, _e, _f, _g;
+    var _a24, _b17, _c, _d, _e, _f, _g, _h;
     let {
       args,
       warnings,
@@ -44640,7 +45028,18 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
       switch (part.type) {
         case "text": {
           if (!usesJsonResponseTool) {
-            if (content.push({ type: "text", text: part.text }), part.citations)
+            let webSearchCitations = (_a24 = part.citations) == null ? void 0 : _a24.filter((citation) => citation.type === "web_search_result_location");
+            if (content.push({
+              type: "text",
+              text: part.text,
+              ...webSearchCitations != null && webSearchCitations.length > 0 && {
+                providerMetadata: {
+                  anthropic: {
+                    citations: webSearchCitations
+                  }
+                }
+              }
+            }), part.citations)
               for (let citation of part.citations) {
                 let source = createCitationSource(citation, citationDocuments, this.generateId);
                 if (source)
@@ -44782,7 +45181,7 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
         case "web_fetch_tool_result": {
           if (part.content.type === "web_fetch_result")
             citationDocuments.push({
-              title: (_a24 = part.content.content.title) != null ? _a24 : part.content.url,
+              title: (_b17 = part.content.content.title) != null ? _b17 : part.content.url,
               mediaType: part.content.content.source.media_type
             }), content.push({
               type: "tool-result",
@@ -44843,7 +45242,7 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
                 title: result.title,
                 providerMetadata: {
                   anthropic: {
-                    pageAge: (_b17 = result.page_age) != null ? _b17 : null
+                    pageAge: (_c = result.page_age) != null ? _c : null
                   }
                 }
               });
@@ -44871,7 +45270,7 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
                 stdout: part.content.stdout,
                 stderr: part.content.stderr,
                 return_code: part.content.return_code,
-                content: (_c = part.content.content) != null ? _c : []
+                content: (_d = part.content.content) != null ? _d : []
               }
             });
           else if (part.content.type === "encrypted_code_execution_result")
@@ -44884,7 +45283,7 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
                 encrypted_stdout: part.content.encrypted_stdout,
                 stderr: part.content.stderr,
                 return_code: part.content.return_code,
-                content: (_d = part.content.content) != null ? _d : []
+                content: (_e = part.content.content) != null ? _e : []
               }
             });
           else if (part.content.type === "code_execution_tool_result_error")
@@ -44989,13 +45388,13 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
           finishReason: response.stop_reason,
           isJsonResponseFromTool
         }),
-        raw: (_e = response.stop_reason) != null ? _e : void 0
+        raw: (_f = response.stop_reason) != null ? _f : void 0
       },
       usage: convertAnthropicUsage({ usage: response.usage }),
       request: { body: args },
       response: {
-        id: (_f = response.id) != null ? _f : void 0,
-        modelId: (_g = response.model) != null ? _g : void 0,
+        id: (_g = response.id) != null ? _g : void 0,
+        modelId: (_h = response.model) != null ? _h : void 0,
         headers: responseHeaders,
         body: rawResponse
       },
@@ -45094,7 +45493,10 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
               case "text": {
                 if (usesJsonResponseTool)
                   return;
-                contentBlocks[value.index] = { type: "text" }, controller.enqueue({
+                contentBlocks[value.index] = {
+                  type: "text",
+                  citations: []
+                }, controller.enqueue({
                   type: "text-start",
                   id: String(value.index)
                 });
@@ -45120,7 +45522,10 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
                 return;
               }
               case "compaction": {
-                contentBlocks[value.index] = { type: "text" }, controller.enqueue({
+                contentBlocks[value.index] = {
+                  type: "text",
+                  citations: []
+                }, controller.enqueue({
                   type: "text-start",
                   id: String(value.index),
                   providerMetadata: {
@@ -45133,7 +45538,10 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
               }
               case "tool_use": {
                 if (usesJsonResponseTool && part.name === "json")
-                  isJsonResponseFromTool = !0, contentBlocks[value.index] = { type: "text" }, controller.enqueue({
+                  isJsonResponseFromTool = !0, contentBlocks[value.index] = {
+                    type: "text",
+                    citations: []
+                  }, controller.enqueue({
                     type: "text-start",
                     id: String(value.index)
                   });
@@ -45459,7 +45867,14 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
                 case "text": {
                   controller.enqueue({
                     type: "text-end",
-                    id: String(value.index)
+                    id: String(value.index),
+                    ...contentBlock.citations.length > 0 && {
+                      providerMetadata: {
+                        anthropic: {
+                          citations: contentBlock.citations
+                        }
+                      }
+                    }
                   });
                   break;
                 }
@@ -45579,7 +45994,10 @@ var AnthropicLanguageModel = class _AnthropicLanguageModel {
                 return;
               }
               case "citations_delta": {
-                let citation = value.delta.citation, source = createCitationSource(citation, citationDocuments, generateId3);
+                let citation = value.delta.citation, contentBlock = contentBlocks[value.index];
+                if ((contentBlock == null ? void 0 : contentBlock.type) === "text" && citation.type === "web_search_result_location")
+                  contentBlock.citations.push(citation);
+                let source = createCitationSource(citation, citationDocuments, generateId3);
                 if (source)
                   controller.enqueue(source);
                 return;
@@ -46228,7 +46646,7 @@ var computer_20241022InputSchema = lazySchema(() => zodSchema(exports_external.o
       warnings
     };
   }
-}, VERSION6 = "4.0.14", ANTHROPIC_API_URL = "https://api.anthropic.com", ANTHROPIC_API_VERSIONED_URL = `${ANTHROPIC_API_URL}/v1`;
+}, VERSION6 = "4.0.16", ANTHROPIC_API_URL = "https://api.anthropic.com", ANTHROPIC_API_VERSIONED_URL = `${ANTHROPIC_API_URL}/v1`;
 function normalizeBaseURL(baseURL) {
   let baseURLWithoutTrailingSlash = withoutTrailingSlash(validateBaseURL(baseURL));
   return baseURLWithoutTrailingSlash === ANTHROPIC_API_URL ? ANTHROPIC_API_VERSIONED_URL : baseURLWithoutTrailingSlash;
@@ -46918,7 +47336,7 @@ var OpenAICompatibleChatLanguageModel = class _OpenAICompatibleChatLanguageModel
           if (metadataExtractor == null || metadataExtractor.processChunk(chunk.rawValue), "error" in chunk.value) {
             finishReason = { unified: "error", raw: void 0 }, controller.enqueue({
               type: "error",
-              error: chunk.value.error.message
+              error: chunk.value.error
             });
             return;
           }
@@ -47653,7 +48071,7 @@ async function fileToBlob2(file2) {
   let data = file2.data instanceof Uint8Array ? file2.data : convertBase64ToUint8Array(file2.data);
   return new Blob([data], { type: file2.mediaType });
 }
-var VERSION7 = "3.0.9";
+var VERSION7 = "3.0.12";
 function createOpenAICompatible(options) {
   let baseURL = withoutTrailingSlash(options.baseURL), providerName = options.name, headers = {
     ...options.apiKey && { Authorization: `Bearer ${options.apiKey}` },
@@ -47750,7 +48168,7 @@ var CerebrasChatLanguageModel = class _CerebrasChatLanguageModel extends OpenAIC
       }))
     };
   }
-}, VERSION8 = "3.0.9", cerebrasErrorSchema = exports_external.object({
+}, VERSION8 = "3.0.12", cerebrasErrorSchema = exports_external.object({
   message: exports_external.string(),
   type: exports_external.string(),
   param: exports_external.string(),
