@@ -38,31 +38,29 @@
         padding-inline-end: var(--space-small, 7.5px) !important;
         box-shadow: var(--cs-elevation) !important;
       }
-    }
 
-    #preferences-stack .main-content {
-      margin-inline-start: var(--cs-content-offset) !important;
-    }
-  }
-
-  @media (max-width: 950px) {
-    #preferences-stack #categories {
-      moz-page-nav-button {
-        width: 30px !important;
-        transition: width var(--cs-anim) !important;
-      }
-
-      &:hover {
+      @media (max-width: 950px) {
         moz-page-nav-button {
-          width: 220px !important;
+          width: 30px !important;
+          transition: width var(--cs-anim) !important;
+        }
+
+        &:hover {
+          moz-page-nav-button {
+            width: 220px !important;
+          }
         }
       }
     }
 
-    slot {
-      .page-nav-icon + & {
+    @media (max-width: 950px) {
+      slot {
         display: block !important;
       }
+    }
+
+    #preferences-stack .main-content {
+      margin-inline-start: var(--cs-content-offset) !important;
     }
   }
 }
