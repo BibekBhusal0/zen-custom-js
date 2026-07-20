@@ -100,6 +100,30 @@
   }
 }
 
+@media (max-width: 830px) {
+  @-moz-document url-prefix("about:addons") {
+    .category-name {
+      display: block !important;
+    }
+    .category {
+      background-position-x: 10px !important;
+      background-position-y: 10px !important;
+    }
+    .sidebar-footer-list {
+      margin-inline: 6px !important;
+      display: block !important;
+    }
+
+    .sidebar-footer-icon {
+      margin-inline: 6px !important;
+      margin-left: 10px !important;
+    }
+    .sidebar-footer-label {
+      display: flex !important;
+    }
+  }
+}
+
 @media -moz-pref("compact-settings.addons.grid-enabled") {
   @-moz-document url-prefix("about:addons") {
     #full #content #main {
