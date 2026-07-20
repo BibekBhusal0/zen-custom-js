@@ -4,6 +4,7 @@
 @-moz-document url-prefix("about:preferences"), url-prefix("about:settings"), url-prefix("about:addons") {
   :root {
     --cs-strip-w: 54px;
+    --cs-sidebar-background: var(--in-content-page-background, var(--zen-branding-bg));
     --cs-flyout-w: 250px;
     --cs-content-offset: 66px;
     --cs-anim: 180ms cubic-bezier(0.2, 0, 0, 1);

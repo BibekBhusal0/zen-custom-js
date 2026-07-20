@@ -14,7 +14,7 @@
       margin-inline-start: 0 !important;
       padding-inline-start: 8px !important;
       padding-inline-end: 0 !important;
-      background: var(--in-content-page-background, var(--zen-branding-bg)) !important;
+      background: var(--cs-sidebar-background) !important;
       --font-size-xlarge: 0px;
       mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
 
