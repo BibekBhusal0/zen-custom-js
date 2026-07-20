@@ -1,10 +1,11 @@
 # New Features
 
+- Consistent styles in addons and preferences page (same sidebar width when collapsed and expanded, same sidebar background and more).
 - If reduce motion is enabled, it disables the animation.
 
 # Fixes
 
-- Update the styles for newer version of firefix.
+- Update the styles for newer version of Firefox.
 
 # Contributes
 
