@@ -2,79 +2,66 @@
 
 @media -moz-pref("compact-settings.enabled") {
   @-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
-    #preferences-stack {
-      vbox.navigation {
-        position: absolute !important;
-        height: 100vh !important;
-        z-index: 20 !important;
-        width: auto !important;
-        padding: 10px !important;
+    #preferences-stack #categories {
+      position: fixed !important;
+      inset-inline-start: 0 !important;
+      top: 0 !important;
+      height: 100vh !important;
+      z-index: 20 !important;
+      box-sizing: border-box !important;
+      width: var(--cs-strip-w) !important;
+      overflow: hidden !important;
+      margin-inline-start: 0 !important;
+      padding-inline-start: 8px !important;
+      padding-inline-end: 0 !important;
+      background: var(--in-content-page-background, var(--zen-branding-bg)) !important;
+      --font-size-xlarge: 0px;
+      mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
 
-        #searchInput,
-        #categories,
-        vbox.sidebar-footer-list {
-          @media -moz-pref("compact-settings.animation.enabled") {
-            transition: width 150ms ease-in-out !important;
-          }
-          width: 40px !important;
-          white-space: nowrap !important;
+      @media -moz-pref("compact-settings.animation.enabled") {
+        transition:
+          width var(--cs-anim),
+          box-shadow var(--cs-anim) !important;
+      }
+
+      moz-page-nav-button {
+        width: 225px !important;
+
+        &[selected] {
+          color: var(--cs-accent) !important;
         }
+      }
 
-        #categories,
-        vbox.sidebar-footer-list {
-          overflow-x: hidden !important;
+      &:hover {
+        width: var(--cs-flyout-w) !important;
+        mask-image: none !important;
+        padding-inline-end: var(--space-small, 7.5px) !important;
+        box-shadow: var(--cs-elevation) !important;
+      }
+    }
+
+    #preferences-stack .main-content {
+      margin-inline-start: var(--cs-content-offset) !important;
+    }
+  }
+
+  @media (max-width: 950px) {
+    #preferences-stack #categories {
+      moz-page-nav-button {
+        width: 30px !important;
+        transition: width var(--cs-anim) !important;
+      }
+
+      &:hover {
+        moz-page-nav-button {
+          width: 220px !important;
         }
+      }
+    }
 
-        .sidebar-footer-label {
-          @media -moz-pref("compact-settings.animation.enabled") {
-            transition: opacity 150ms ease-in-out !important;
-          }
-          opacity: 0 !important;
-        }
-
-        #searchInput {
-          margin: 20px 0 !important;
-          padding-left: 12px !important;
-        }
-
-        #categories {
-          margin: 0 !important;
-          padding: 0 !important;
-          .category {
-            margin-left: 10px !important;
-            padding: 0 8px !important;
-            width: 250px !important;
-
-            &[selected="true"] {
-              color: var(--zen-primary-color) !important;
-            }
-          }
-        }
-
-        vbox.sidebar-footer-list {
-          margin-left: 13px !important;
-          .sidebar-footer-icon {
-            margin: 0 8px !important;
-            scale: 1.4 !important;
-          }
-
-          .sidebar-footer-label {
-            font-size: 16px !important;
-          }
-        }
-
-        &:has(#searchInput:focus),
-        &:hover {
-          #categories,
-          #searchInput,
-          .sidebar-footer-list {
-            width: 250px !important;
-          }
-
-          .sidebar-footer-label {
-            opacity: 1 !important;
-          }
-        }
+    slot {
+      .page-nav-icon + & {
+        display: block !important;
       }
     }
   }
