@@ -794,7 +794,7 @@ export const ZenCommandPalette = {
     );
     const UrlbarProvidersManager = ProvidersManager.getInstanceForSap("urlbar");
     const { UrlbarResult } = ChromeUtils.importESModule(
-      "moz-src:///browser/components/urlbar/UrlbarResult.sys.mjs"
+      "chrome://browser/content/urlbar/UrlbarResult.mjs"
     );
 
     // Polyfill for payloadAndSimpleHighlights removed in newer Firefox/Zen versions
@@ -821,8 +821,6 @@ export const ZenCommandPalette = {
     PREFS.debugLog("Urlbar modules imported.");
 
     const DYNAMIC_TYPE_NAME = "ZenCommandPalette";
-    UrlbarResult.addDynamicResultType(DYNAMIC_TYPE_NAME);
-    PREFS.debugLog(`Dynamic result type "${DYNAMIC_TYPE_NAME}" added.`);
 
     try {
       const self = this;
