@@ -3,6 +3,9 @@
 
 @-moz-document url-prefix("about:addons") {
   @media -moz-pref("compact-settings.compact-addons.enabled") {
+    /* Since Zen 1.21.9 the sidebar is a categories-box rendering the same
+       moz-page-nav component as about:preferences, so the shell below mirrors
+       preferences.css exactly (same strip width, mask fade, hover flyout). */
     #full {
       display: block !important;
 
@@ -15,70 +18,41 @@
         box-sizing: border-box !important;
         width: var(--cs-strip-w) !important;
         overflow: hidden !important;
-        padding: 0 !important;
         margin: 0 !important;
+        padding: 0 !important;
+        padding-inline-start: 8px !important;
         background: var(--cs-sidebar-background) !important;
+        --font-size-xlarge: 0px;
+        mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
 
         @media -moz-pref("compact-settings.animation.enabled") {
           transition:
             width var(--cs-anim),
             box-shadow var(--cs-anim) !important;
-
-          .category {
-            transition: color var(--cs-anim) !important;
-          }
-
-          .sidebar-footer-label {
-            transition: opacity var(--cs-anim) !important;
-          }
         }
 
-        #categories,
-        sidebar-footer {
-          width: auto !important;
+        /* Zero the component's own 40px --page-nav-margin-inline-start and
+           inline padding so icon geometry matches the settings page (host
+           padding 8px + component internals); with the margin left in place
+           every icon lands past the 47px mask edge and the strip looks empty. */
+        moz-page-nav {
+          margin-inline-start: 0 !important;
+          padding-inline: 0 !important;
         }
 
-        .category {
-          margin-inline-start: 5px !important;
-          margin-inline-end: 0 !important;
-          width: 240px !important;
-          fill: var(--icon-color) !important;
-        }
+        moz-page-nav-button {
+          width: 225px !important;
 
-        &:not(:hover) {
-          .category {
-            color: transparent !important;
-          }
-          .sidebar-footer-label {
-            opacity: 0 !important;
-          }
-        }
-
-        .category[selected],
-        .category[aria-selected="true"] {
-          fill: var(--cs-accent) !important;
-        }
-
-        &:hover {
-          width: var(--cs-flyout-w) !important;
-          box-shadow: var(--cs-elevation) !important;
-
-          .category[selected],
-          .category[aria-selected="true"] {
+          &[selected] {
             color: var(--cs-accent) !important;
           }
         }
 
-        .sidebar-footer-list {
-          margin-inline-start: 8px !important;
-        }
-
-        .sidebar-footer-link {
-          width: 235px !important;
-        }
-
-        .sidebar-footer-label {
-          white-space: nowrap !important;
+        &:hover {
+          width: var(--cs-flyout-w) !important;
+          mask-image: none !important;
+          padding-inline-end: var(--space-small, 7.5px) !important;
+          box-shadow: var(--cs-elevation) !important;
         }
       }
 
@@ -87,31 +61,6 @@
         max-width: calc(100% - var(--cs-content-offset) - 8px) !important;
         height: 100vh !important;
         overflow-y: auto !important;
-      }
-    }
-
-    @media (max-width: 830px) {
-      .category-name {
-        display: block !important;
-      }
-
-      .category {
-        background-position-x: 10px !important;
-        background-position-y: 10px !important;
-      }
-
-      .sidebar-footer-list {
-        margin-inline: 6px !important;
-        display: block !important;
-      }
-
-      .sidebar-footer-icon {
-        margin-inline: 6px !important;
-        margin-left: 10px !important;
-      }
-
-      .sidebar-footer-label {
-        display: flex !important;
       }
     }
   }
