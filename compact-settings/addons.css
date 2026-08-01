@@ -3,9 +3,6 @@
 
 @-moz-document url-prefix("about:addons") {
   @media -moz-pref("compact-settings.compact-addons.enabled") {
-    /* Since Zen 1.21.9 the sidebar is a categories-box rendering the same
-       moz-page-nav component as about:preferences, so the shell below mirrors
-       preferences.css exactly (same strip width, mask fade, hover flyout). */
     #full {
       display: block !important;
 
@@ -31,16 +28,6 @@
             box-shadow var(--cs-anim) !important;
         }
 
-        /* Zero the component's own 40px --page-nav-margin-inline-start and
-           inline padding so icon geometry matches the settings page (host
-           padding 8px + component internals); with the margin left in place
-           every icon lands past the 47px mask edge and the strip looks empty.
-           The width pin matters too: the shadow nav inside is a scroll
-           container, and if the 225px buttons overflow it (host left at
-           natural width, the strip's 46px), focus/scrollIntoView can shift
-           it sideways, icons vanish and labels show mid-word tails. 234px =
-           flyout 250px minus the 8px + 7.5px inline paddings, so nothing
-           overflows at any strip width and there is nothing to scroll. */
         moz-page-nav {
           margin-inline-start: 0 !important;
           padding-inline: 0 !important;
@@ -71,18 +58,11 @@
       }
     }
 
-    /* Below 950px the component switches to icon-only mode: labels hidden
-       via the slot inside the button's shadow tree, tighter padding, badge
-       dot. The strip already handles compactness, so undo that mode and let
-       the hover flyout work at every width. Sine registers the sheet as a
-       USER sheet and Stylo applies user-origin rules inside shadow trees,
-       which is why the slot rule reaches where a page sheet could not. */
     @media (max-width: 950px) {
       slot {
         display: block !important;
       }
 
-      /* keep the icon column where it sits on wide windows */
       #full #sidebar moz-page-nav-button {
         --page-nav-button-padding: var(--space-small, 7.5px) var(--space-medium, 11.25px) !important;
       }
