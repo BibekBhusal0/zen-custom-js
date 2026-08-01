@@ -640,7 +640,6 @@ export async function generateCustomCommands() {
           const Cu = Components.utils;
           const sandbox = Cu.Sandbox(window, {
             sandboxPrototype: window,
-            wantXrays: false,
           });
           Cu.evalInSandbox(cmd.code, sandbox);
         } catch (e) {
