@@ -131,6 +131,7 @@ const SettingsModal = {
       customShortcuts: filteredCustomShortcuts,
       toolbarButtons: [...(this._currentSettings.toolbarButtons || [])],
       customCommands: [...(this._currentSettings.customCommands || [])],
+      approvedCommandHashes: { ...(this._currentSettings.approvedCommandHashes || {}) },
     };
 
     // Commands tab

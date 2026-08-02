@@ -6,6 +6,7 @@ const DEFAULTS = {
   customShortcuts: {},
   toolbarButtons: [],
   customCommands: [],
+  approvedCommandHashes: {},
 };
 
 let _settings = null;

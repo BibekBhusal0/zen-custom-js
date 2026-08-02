@@ -626,6 +626,15 @@ export function generateWorkspaceMoveCommands() {
   return commands;
 }
 
+function hashCode(str) {
+  let hash = 5381;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
+    hash |= 0;
+  }
+  return (hash >>> 0).toString(16);
+}
+
 export async function generateCustomCommands() {
   const { customCommands } = await Storage.loadSettings();
   if (!customCommands || customCommands.length === 0) {
@@ -637,9 +646,30 @@ export async function generateCustomCommands() {
     if (cmd.type === "js") {
       commandFunc = async () => {
         try {
+          const settings = Storage.getSettings();
+          const approvedHashes = settings.approvedCommandHashes || {};
+          const codeHash = hashCode(cmd.code);
+
+          if (!approvedHashes[codeHash]) {
+            const preview = cmd.code.length > 200 ? cmd.code.slice(0, 200) + "…" : cmd.code;
+            const approved = window.confirm(
+              `Run custom JS command "${cmd.name}"?\n\n` +
+              `This will execute the following JavaScript in the browser:\n\n` +
+              `${preview}\n\n` +
+              `Only proceed if you trust the source of this command. ` +
+              `You will not be asked again unless the code changes.`
+            );
+            if (!approved) return;
+            await Storage.saveSettings({
+              ...settings,
+              approvedCommandHashes: { ...approvedHashes, [codeHash]: true },
+            });
+          }
+
           const Cu = Components.utils;
           const sandbox = Cu.Sandbox(window, {
             sandboxPrototype: window,
+            wantXrays: true,
           });
           Cu.evalInSandbox(cmd.code, sandbox);
         } catch (e) {
