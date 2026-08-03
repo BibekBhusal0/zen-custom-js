@@ -626,13 +626,12 @@ export function generateWorkspaceMoveCommands() {
   return commands;
 }
 
-function hashCode(str) {
-  let hash = 5381;
-  for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
-    hash |= 0;
-  }
-  return (hash >>> 0).toString(16);
+async function hashCode(str) {
+  const data = new TextEncoder().encode(str);
+  const buffer = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(buffer))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export async function generateCustomCommands() {
@@ -648,7 +647,7 @@ export async function generateCustomCommands() {
         try {
           const settings = Storage.getSettings();
           const approvedHashes = settings.approvedCommandHashes || {};
-          const codeHash = hashCode(cmd.code);
+          const codeHash = await hashCode(cmd.code);
 
           if (!approvedHashes[codeHash]) {
             const preview = cmd.code.length > 200 ? cmd.code.slice(0, 200) + "…" : cmd.code;
