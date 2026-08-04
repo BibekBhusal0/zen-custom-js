@@ -112,6 +112,10 @@ class CommandPalettePREFS extends BasePREFS {
     return this.getPref(this.COMMAND_TRUST_KEY, null);
   }
 
+  static set commandTrustKey(val) {
+    this.setPref(this.COMMAND_TRUST_KEY, val);
+  }
+
   static setTempMaxRichResults(value) {
     if (_originalMaxResults === null) {
       _originalMaxResults = this.getPref("browser.urlbar.maxRichResults", 10);

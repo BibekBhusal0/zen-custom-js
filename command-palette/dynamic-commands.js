@@ -629,14 +629,36 @@ export function generateWorkspaceMoveCommands() {
 let _cachedTrustKeyHex = null;
 let _cachedCryptoKey = null;
 
+function getOSKeyStore() {
+  return ChromeUtils.importESModule("resource://gre/modules/OSKeyStore.sys.mjs").OSKeyStore;
+}
+
+function generateTrustKey() {
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 async function getOrCreateTrustKey() {
   let key = PREFS.commandTrustKey;
+  if (key && !/^[0-9a-f]{64}$/.test(key)) {
+    try {
+      return await getOSKeyStore().decrypt(key, "zen-command-palette");
+    } catch (e) {
+      PREFS.debugError("Failed to decrypt command trust key:", e);
+      key = null;
+    }
+  }
   if (!key) {
-    const bytes = crypto.getRandomValues(new Uint8Array(32));
-    key = Array.from(bytes)
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    PREFS.setPref(PREFS.COMMAND_TRUST_KEY, key);
+    key = generateTrustKey();
+    try {
+      const encrypted = await getOSKeyStore().encrypt(key);
+      PREFS.commandTrustKey = encrypted;
+    } catch (e) {
+      PREFS.debugError("OSKeyStore unavailable:", e);
+      PREFS.commandTrustKey = key;
+    }
   }
   return key;
 }
@@ -680,10 +702,10 @@ export async function generateCustomCommands() {
             const preview = cmd.code.length > 200 ? cmd.code.slice(0, 200) + "…" : cmd.code;
             const approved = window.confirm(
               `Run custom JS command "${cmd.name}"?\n\n` +
-              `This will execute the following JavaScript in the browser:\n\n` +
-              `${preview}\n\n` +
-              `Only proceed if you trust the source of this command. ` +
-              `You will not be asked again unless the code changes.`
+                `This will execute the following JavaScript in the browser:\n\n` +
+                `${preview}\n\n` +
+                `Only proceed if you trust the source of this command. ` +
+                `You will not be asked again unless the code changes.`
             );
             if (!approved) return;
             await Storage.saveSettings({
