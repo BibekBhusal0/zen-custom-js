@@ -6,7 +6,7 @@ import { ZenCommandPalette } from "./index.js";
 import { showToast } from "../utils/toast.js";
 import { isNotEmptyTab } from "./utils/notEmptyTab.js";
 import { getVisibleEngines } from "../utils/search-service.js";
-import { hmacCode } from "./utils/trust.js";
+import { hmacCode, loadApprovedHashes, trustHash } from "./utils/trust.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -638,8 +638,7 @@ export async function generateCustomCommands() {
     if (cmd.type === "js") {
       commandFunc = async () => {
         try {
-          const settings = Storage.getSettings();
-          const approvedHashes = settings.approvedCommandHashes || {};
+          const approvedHashes = await loadApprovedHashes();
           const codeHash = await hmacCode(cmd.code);
 
           if (!approvedHashes[codeHash]) {
@@ -652,10 +651,7 @@ export async function generateCustomCommands() {
                 `You will not be asked again unless the code changes.`
             );
             if (!approved) return;
-            await Storage.saveSettings({
-              ...settings,
-              approvedCommandHashes: { ...approvedHashes, [codeHash]: true },
-            });
+            await trustHash(codeHash);
           }
 
           const Cu = Components.utils;

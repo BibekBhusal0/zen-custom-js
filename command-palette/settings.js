@@ -1,6 +1,6 @@
 import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
-import { hmacCode } from "./utils/trust.js";
+import { hmacCode, trustHash } from "./utils/trust.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import {
@@ -132,7 +132,6 @@ const SettingsModal = {
       customShortcuts: filteredCustomShortcuts,
       toolbarButtons: [...(this._currentSettings.toolbarButtons || [])],
       customCommands: [...(this._currentSettings.customCommands || [])],
-      approvedCommandHashes: { ...(this._currentSettings.approvedCommandHashes || {}) },
     };
 
     // Commands tab
@@ -937,10 +936,7 @@ const SettingsModal = {
       const code = editor.querySelector("#custom-cmd-code").value;
       newCmd.code = code;
       const hash = await hmacCode(code);
-      this._currentSettings.approvedCommandHashes = {
-        ...(this._currentSettings.approvedCommandHashes || {}),
-        [hash]: true,
-      };
+      await trustHash(hash);
     } else {
       newCmd.commands = currentChain;
     }
