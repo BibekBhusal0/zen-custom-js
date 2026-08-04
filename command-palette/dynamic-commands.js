@@ -6,6 +6,7 @@ import { ZenCommandPalette } from "./index.js";
 import { showToast } from "../utils/toast.js";
 import { isNotEmptyTab } from "./utils/notEmptyTab.js";
 import { getVisibleEngines } from "../utils/search-service.js";
+import { hmacCode, loadApprovedHashes, trustHash } from "./utils/trust.js";
 
 const commandChainUtils = {
   async openLink(params) {
@@ -637,10 +638,26 @@ export async function generateCustomCommands() {
     if (cmd.type === "js") {
       commandFunc = async () => {
         try {
+          const approvedHashes = await loadApprovedHashes();
+          const codeHash = await hmacCode(cmd.code);
+
+          if (!approvedHashes[codeHash]) {
+            const preview = cmd.code.length > 200 ? cmd.code.slice(0, 200) + "…" : cmd.code;
+            const approved = window.confirm(
+              `Run custom JS command "${cmd.name}"?\n\n` +
+                `This will execute the following JavaScript in the browser:\n\n` +
+                `${preview}\n\n` +
+                `Only proceed if you trust the source of this command. ` +
+                `You will not be asked again unless the code changes.`
+            );
+            if (!approved) return;
+            await trustHash(codeHash);
+          }
+
           const Cu = Components.utils;
           const sandbox = Cu.Sandbox(window, {
             sandboxPrototype: window,
-            wantXrays: false,
+            wantXrays: true,
           });
           Cu.evalInSandbox(cmd.code, sandbox);
         } catch (e) {

@@ -24,6 +24,7 @@ class CommandPalettePREFS extends BasePREFS {
   static DYNAMIC_EXTENSION_ENABLE_DISABLE = "zen-command-palette.dynamic.extension-enable-disable";
   static DYNAMIC_EXTENSION_UNINSTALL = "zen-command-palette.dynamic.extension-uninstall";
   static COMMAND_SETTINGS_FILE = "zen-command-palette.settings-file-path";
+  static COMMAND_TRUST_KEY = "zen-command-palette.command-trust-key";
 
   static defaultValues = {
     [CommandPalettePREFS.PREFIX_REQUIRED]: false,
@@ -105,6 +106,14 @@ class CommandPalettePREFS extends BasePREFS {
 
   static get commandSettingsFile() {
     return this.getPref(this.COMMAND_SETTINGS_FILE);
+  }
+
+  static get commandTrustKey() {
+    return this.getPref(this.COMMAND_TRUST_KEY, null);
+  }
+
+  static set commandTrustKey(val) {
+    this.setPref(this.COMMAND_TRUST_KEY, val);
   }
 
   static setTempMaxRichResults(value) {

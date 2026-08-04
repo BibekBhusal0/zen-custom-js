@@ -356,6 +356,8 @@ Thanks to [Bliwi](https://github.com/Bliwi) for adding commands for Advanced Tab
 
 Thanks to [okilonet1](https://github.com/okilonet1) fixing multiple bugs.
 
+Thanks to [anupamme](https://github.com/anupamme) fixing finding potential security vulnerability and fixing it.
+
 Special thanks to [ferrocyante](https://github.com/ferrocyante) that I don't have to go through pain of writing CSS.
 
 Special thanks to [Darsh-A](https://github.com/Darsh-A/) entire command list is adapted from her project **[ZBar-Zen](https://github.com/Darsh-A/ZBar-Zen)**. This will not have been possible without command list from [Darsh-A](https://github.com/Darsh-A/).
