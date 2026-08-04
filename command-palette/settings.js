@@ -1,6 +1,6 @@
 import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
-import { hmacCode } from "./dynamic-commands.js";
+import { hmacCode } from "./utils/trust.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import {
