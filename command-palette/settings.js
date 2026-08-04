@@ -817,7 +817,7 @@ const SettingsModal = {
     };
 
     // Define and bind the new delegated event listener
-    this._boundEditorClickHandler = (e) => {
+    this._boundEditorClickHandler = async (e) => {
       const target = e.target;
 
       // Handle "Add Function" buttons
