@@ -626,10 +626,37 @@ export function generateWorkspaceMoveCommands() {
   return commands;
 }
 
-async function hashCode(str) {
+let _cachedTrustKeyHex = null;
+let _cachedCryptoKey = null;
+
+async function getOrCreateTrustKey() {
+  let key = PREFS.commandTrustKey;
+  if (!key) {
+    const bytes = crypto.getRandomValues(new Uint8Array(32));
+    key = Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    PREFS.setPref(PREFS.COMMAND_TRUST_KEY, key);
+  }
+  return key;
+}
+
+export async function hmacCode(str) {
+  const keyHex = await getOrCreateTrustKey();
+  if (keyHex !== _cachedTrustKeyHex) {
+    const keyBytes = new Uint8Array(keyHex.match(/.{2}/g).map((b) => parseInt(b, 16)));
+    _cachedCryptoKey = await crypto.subtle.importKey(
+      "raw",
+      keyBytes,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    _cachedTrustKeyHex = keyHex;
+  }
   const data = new TextEncoder().encode(str);
-  const buffer = await crypto.subtle.digest("SHA-256", data);
-  return Array.from(new Uint8Array(buffer))
+  const sig = await crypto.subtle.sign("HMAC", _cachedCryptoKey, data);
+  return Array.from(new Uint8Array(sig))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
@@ -647,7 +674,7 @@ export async function generateCustomCommands() {
         try {
           const settings = Storage.getSettings();
           const approvedHashes = settings.approvedCommandHashes || {};
-          const codeHash = await hashCode(cmd.code);
+          const codeHash = await hmacCode(cmd.code);
 
           if (!approvedHashes[codeHash]) {
             const preview = cmd.code.length > 200 ? cmd.code.slice(0, 200) + "…" : cmd.code;

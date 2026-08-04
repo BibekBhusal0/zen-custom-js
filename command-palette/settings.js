@@ -1,5 +1,6 @@
 import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
+import { hmacCode } from "./dynamic-commands.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import {
@@ -849,7 +850,7 @@ const SettingsModal = {
 
       // Handle "Save" button
       if (target.id === "save-custom-cmd") {
-        self._saveCustomCommand(cmd, currentChain);
+        await self._saveCustomCommand(cmd, currentChain);
         return;
       }
 
@@ -916,7 +917,7 @@ const SettingsModal = {
     this._renderCustomCommands();
   },
 
-  _saveCustomCommand(cmd, currentChain) {
+  async _saveCustomCommand(cmd, currentChain) {
     const editor = this._modalElement.querySelector("#custom-command-editor");
     const name = editor.querySelector("#custom-cmd-name").value.trim();
     let icon = editor.querySelector("#custom-cmd-icon").value.trim();
@@ -935,6 +936,11 @@ const SettingsModal = {
     if (cmd.type === "js") {
       const code = editor.querySelector("#custom-cmd-code").value;
       newCmd.code = code;
+      const hash = await hmacCode(code);
+      this._currentSettings.approvedCommandHashes = {
+        ...(this._currentSettings.approvedCommandHashes || {}),
+        [hash]: true,
+      };
     } else {
       newCmd.commands = currentChain;
     }
