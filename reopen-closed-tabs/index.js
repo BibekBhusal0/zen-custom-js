@@ -1,5 +1,5 @@
 import { PREFS } from "./utils/prefs.js";
-import { registerShortcut } from "../utils/keyboard.js";
+import { initShortcutRegistry, registerShortcut } from "../utils/keyboard.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { timeAgo } from "../utils/timesAgo.js";
 import TabManager from "./utils/tab-manager.js";
@@ -40,11 +40,12 @@ const ReopenClosedTabs = {
       this._boundToggleMenu
     );
 
-    if (result.success) {
+    if (result) {
       PREFS.debugLog(`Registered shortcut: ${shortcutString}`);
     } else {
       PREFS.debugError("Failed to register keyboard shortcut");
     }
+    initShortcutRegistry();
   },
 
   onHotkeyChange() {
