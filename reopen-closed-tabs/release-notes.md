@@ -1,3 +1,7 @@
+# New Features
+
 # Fixes
 
-- Fixed keyboard shortcut not working.
+# Others
+
+# Contributes
