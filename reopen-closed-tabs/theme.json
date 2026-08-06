@@ -17,7 +17,7 @@
   "version": "1.1.6",
   "tags": ["tabs", "history", "reopen", "closed tabs", "productivity", "zen browser"],
   "createdAt": "2025-09-22",
-  "updatedAt": "2026-08-05",
+  "updatedAt": "2026-08-07",
   "fork": ["zen"],
   "onlyonce": true
 }
