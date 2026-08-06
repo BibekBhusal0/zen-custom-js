@@ -88,6 +88,6 @@ body:
       label: Contribution
       description: Are you willing to contribute to fix this bug?
       options:
-        - label: Yes I am opeing a pull request soon
+        - label: I'd be willing to fix this bug
         - label: I'd be willing to test the bug when fixed
         - label: I can provide additional details or clarification if needed

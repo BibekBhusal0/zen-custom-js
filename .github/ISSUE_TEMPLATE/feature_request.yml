@@ -65,6 +65,6 @@ body:
       label: Contribution
       description: Are you willing to contribute to this feature?
       options:
-        - label: I'd be willing to implement this feature
+        - label: I am opeing a pull request soon
         - label: I'd be willing to test this feature once implemented
         - label: I can provide additional details or clarification if needed
