@@ -72,12 +72,22 @@ const ReopenClosedTabs = {
 
   async toggleMenu(event) {
     PREFS.debugLog("Toggle menu called.");
+
+    let win = event && event.target ? event.target.ownerGlobal : null;
+    if (!win || !win.gBrowser) {
+      win = Services.wm.getMostRecentBrowserWindow();
+    }
+    if (!win) {
+      PREFS.debugError("Could not determine the target window.");
+      return;
+    }
+    const doc = win.document;
+
     let button;
     if (event && event.target && event.target.id === "reopen-closed-tabs-button") {
       button = event.target;
     } else {
-      // Called from hotkey, find the button in the current window
-      button = document.getElementById("reopen-closed-tabs-button");
+      button = doc.getElementById("reopen-closed-tabs-button");
     }
 
     if (!button) {
@@ -97,7 +107,7 @@ const ReopenClosedTabs = {
         "xul"
       );
 
-      const mainPopupSet = document.getElementById("mainPopupSet");
+      const mainPopupSet = doc.getElementById("mainPopupSet");
       if (mainPopupSet) {
         mainPopupSet.appendChild(panel);
         button._reopenClosedTabsPanel = panel; // Store panel on the button
@@ -300,7 +310,7 @@ const ReopenClosedTabs = {
   _handleRemoveTabClick(event, tabItem) {
     event.stopPropagation();
     if (tabItem && tabItem.tabData && tabItem.tabData.isClosed) {
-      TabManager.removeClosedTab(tabItem.tabData);
+      TabManager.removeClosedTab(tabItem.tabData, tabItem.ownerGlobal);
       tabItem.remove();
       this._allTabsCache = this._allTabsCache.filter((tab) => tab !== tabItem.tabData);
     } else {
@@ -420,7 +430,7 @@ const ReopenClosedTabs = {
     }
 
     if (tabItem && tabItem.tabData) {
-      TabManager.reopenTab(tabItem.tabData);
+      TabManager.reopenTab(tabItem.tabData, tabItem.ownerGlobal);
       const panel = tabItem.closest("panel");
       if (panel) {
         panel.hidePopup();

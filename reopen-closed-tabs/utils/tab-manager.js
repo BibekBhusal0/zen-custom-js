@@ -10,20 +10,21 @@ const TabManager = {
     try {
       if (typeof SessionStore !== "undefined" && SessionStore.getClosedTabData) {
         const closedTabsData = SessionStore.getClosedTabData(window);
-        const closedTabs = closedTabsData
-          .map((tab, index) => {
-            const url = tab.state.entries[0]?.url;
-            return {
-              url: url,
-              title: tab.title || tab.state.entries[0]?.title,
-              isClosed: true,
-              sessionData: tab,
-              sessionIndex: index,
-              faviconUrl: tab.image,
-              closedAt: tab.closedAt,
-            };
-          })
-          .sort((a, b) => b.closedAt - a.closedAt);
+        const closedTabs = [];
+        closedTabsData.forEach((tab, index) => {
+          const url = tab.state.entries[0]?.url;
+          if (closedTabs.some((t) => t.url === url)) return;
+          closedTabs.push({
+            url: url,
+            title: tab.title || tab.state.entries[0]?.title,
+            isClosed: true,
+            sessionData: tab,
+            sessionIndex: index,
+            faviconUrl: tab.image,
+            closedAt: tab.closedAt,
+          });
+        });
+        closedTabs.sort((a, b) => b.closedAt - a.closedAt);
         PREFS.debugLog("Recently closed tabs fetched:", closedTabs);
         return closedTabs;
       } else {
@@ -161,13 +162,15 @@ const TabManager = {
    * If the tab is already open, it switches to it. Otherwise, it opens a new tab.
    * @param {object} tabData - The data of the tab to reopen.
    */
-  async reopenTab(tabData) {
+  async reopenTab(tabData, win = window) {
     PREFS.debugLog("Reopening tab:", tabData);
     try {
       // If the tab is already open, switch to it.
       if (!tabData.isClosed && tabData.tabElement) {
         const tab = tabData.tabElement;
-        gZenWorkspaces.switchTabIfNeeded(tab);
+        const tabWin = tab.ownerGlobal || win;
+        tabWin.focus();
+        tabWin.gZenWorkspaces.switchTabIfNeeded(tab);
         return;
       }
 
@@ -180,46 +183,47 @@ const TabManager = {
           return;
         }
 
-        const newTab = gBrowser.addTab(url, {
+        const newTab = win.gBrowser.addTab(url, {
           triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
           userContextId: tabState.userContextId || 0,
           skipAnimation: true,
         });
-        gBrowser.selectedTab = newTab;
+        win.gBrowser.selectedTab = newTab;
 
         // Remove the tab from the closed tabs list after successful reopening
         this.removeClosedTab(tabData);
 
         const workspaceId = tabState.zenWorkspace;
-        const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
+        const activeWorkspaceId = win.gZenWorkspaces.activeWorkspace;
 
         // Switch workspace if necessary
         if (workspaceId && workspaceId !== activeWorkspaceId) {
-          await gZenWorkspaces.changeWorkspaceWithID(workspaceId);
-          gZenWorkspaces.moveTabToWorkspace(newTab, workspaceId);
+          await win.gZenWorkspaces.changeWorkspaceWithID(workspaceId);
+          win.gZenWorkspaces.moveTabToWorkspace(newTab, workspaceId);
         }
 
         // Pin if it was previously pinned
-        if (tabState.pinned) gBrowser.pinTab(newTab);
+        if (tabState.pinned) win.gBrowser.pinTab(newTab);
 
         // Restore to folder state
         const groupId = tabData.sessionData.closedInTabGroupId;
         if (groupId) {
-          const folder = document.getElementById(groupId);
+          const folder = win.document.getElementById(groupId);
           if (folder && typeof folder.addTabs === "function") {
             folder.addTabs([newTab]);
           }
         }
-        gBrowser.selectedTab = newTab;
+        win.gBrowser.selectedTab = newTab;
+        win.focus();
         return;
       }
 
       // Fallback for any other case.
       if (tabData.url) {
-        const newTab = gBrowser.addTab(tabData.url, {
+        const newTab = win.gBrowser.addTab(tabData.url, {
           triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
         });
-        gBrowser.selectedTab = newTab;
+        win.gBrowser.selectedTab = newTab;
       } else {
         PREFS.debugError("Cannot reopen tab: missing URL or session data.", tabData);
       }
