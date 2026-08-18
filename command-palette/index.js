@@ -777,6 +777,9 @@ export const ZenCommandPalette = {
     const { UrlbarUtils, UrlbarProvider: UrlbarProviderFromUtils } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
     );
+    const { UrlbarShared } = ChromeUtils.importESModule(
+      "chrome://browser/content/urlbar/UrlbarShared.mjs"
+    );
 
     // UrlbarProvider was moved to its own module in newer Zen/Firefox versions
     let UrlbarProvider = UrlbarProviderFromUtils;
@@ -911,8 +914,8 @@ export const ZenCommandPalette = {
               if (!cmd) return;
               const shortcut = self.getShortcutForCommand(cmd.key);
               const result = new UrlbarResult({
-                type: UrlbarUtils.RESULT_TYPE.DYNAMIC,
-                source: UrlbarUtils.RESULT_SOURCE.OTHER_LOCAL,
+                type: UrlbarShared.RESULT_TYPE.DYNAMIC,
+                source: UrlbarShared.RESULT_SOURCE.OTHER_LOCAL,
                 payload: {
                   suggestion: cmd.label,
                   title: cmd.label,
