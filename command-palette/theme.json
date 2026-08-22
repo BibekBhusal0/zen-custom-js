@@ -17,7 +17,7 @@
   "version": "1.8.99",
   "tags": ["command", "palette", "raycast", "arc", "productivity", "zen browser", "urlbar"],
   "createdAt": "2024-09-07",
-  "updatedAt": "2026-08-21",
+  "updatedAt": "2026-08-22",
   "fork": ["zen"],
   "onlyonce": true
 }
