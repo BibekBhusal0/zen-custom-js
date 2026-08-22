@@ -1,5 +1,4 @@
 name: zen-config
-root: "~/.config/zen/pv0a13t0.Default (release)/chrome/sine-mods/zen-custom-js"
 
 windows:
   - editor: nvim :SessionLoad zen-config

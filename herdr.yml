@@ -1,0 +1,15 @@
+workspaces:
+  - name: zen-config
+    tabs:
+      - label: editor
+        panes:
+          - command: nvim :SessionLoad zen-config
+      - label: ai
+        panes:
+          - command: opencode
+      - label: server
+        panes:
+          - command: bun run dev
+      - label: misc
+        panes:
+          - {}
