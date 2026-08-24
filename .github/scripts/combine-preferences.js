@@ -15,7 +15,8 @@ async function combinePreferences() {
 
   // Get all directories that contain theme.json (these are the mods)
   const modDirs = (await $`ls -d ${ROOT_DIR}/*/theme.json`.quiet())
-    .text().split("\n")
+    .text()
+    .split("\n")
     .filter(Boolean)
     .map((p) => path.dirname(p))
     .sort((a, b) => path.basename(a).localeCompare(path.basename(b)));
