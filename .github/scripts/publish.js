@@ -1,8 +1,6 @@
-import fs from "fs";
+import { $ } from "bun";
 import path from "path";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
-import https from "https";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,8 +9,6 @@ const __dirname = path.dirname(__filename);
 const MODS_DIR = path.resolve(__dirname, "../../");
 const TEMPLATES_DIR = path.join(MODS_DIR, "templates");
 const ORG_NAME = "Vertex-Mods";
-// const MAIN_REPO = 'BibekBhusal0/zen-custom-js';
-// const SINE_STORE_REPO = 'bibekBhusal0/sine-store';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const GITHUB_ACTOR = process.env.GITHUB_ACTOR || "github-actions[bot]";
@@ -23,10 +19,11 @@ if (!GITHUB_TOKEN) {
 }
 
 // Helper to run shell commands
-function run(command, cwd = MODS_DIR) {
+async function run(command, cwd = MODS_DIR) {
   console.log(`Running: ${command} in ${cwd}`);
   try {
-    return execSync(command, { cwd, encoding: "utf8", stdio: "pipe" }).trim();
+    const result = await $`${command}`.cwd(cwd).quiet().text();
+    return result.trim();
   } catch (e) {
     console.error(`Command failed: ${command}`);
     console.error(e.stderr);
@@ -35,28 +32,34 @@ function run(command, cwd = MODS_DIR) {
 }
 
 // Helper to copy directories recursively, excluding JS files and empty folders
-function copyDirectoryExcludingJs(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
+async function copyDirectoryExcludingJs(src, dest) {
+  if (!(await Bun.file(dest).exists())) {
+    await $`mkdir -p ${dest}`;
   }
 
-  const entries = fs.readdirSync(src, { withFileTypes: true });
+  const entries = await $`ls -la ${src}`.quiet().text();
   let hasFiles = false;
 
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
+  for (const entry of entries.trim().split("\n").slice(1)) {
+    const parts = entry.trim().split(/\s+/);
+    if (parts.length < 9) continue;
+    const name = parts.slice(8).join(" ");
+    if (name === "." || name === "..") continue;
 
-    if (entry.isDirectory()) {
-      const subDirHasFiles = copyDirectoryExcludingJs(srcPath, destPath);
+    const srcPath = path.join(src, name);
+    const destPath = path.join(dest, name);
+
+    const stat = await $`test -d ${srcPath} && echo dir || echo file`.quiet().text();
+    if (stat.trim() === "dir") {
+      const subDirHasFiles = await copyDirectoryExcludingJs(srcPath, destPath);
       if (!subDirHasFiles) {
-        fs.rmSync(destPath, { recursive: true, force: true });
+        await $`rm -rf ${destPath}`;
       } else {
         hasFiles = true;
       }
     } else {
-      if (entry.name.endsWith(".js") || entry.name.endsWith(".mjs")) continue;
-      fs.copyFileSync(srcPath, destPath);
+      if (name.endsWith(".js") || name.endsWith(".mjs")) continue;
+      await $`cp ${srcPath} ${destPath}`;
       hasFiles = true;
     }
   }
@@ -64,69 +67,58 @@ function copyDirectoryExcludingJs(src, dest) {
   return hasFiles;
 }
 
-// Helper to make HTTP requests (replaces curl)
-function githubRequest(url, method = "GET", body = null) {
-  return new Promise((resolve, reject) => {
-    const urlObj = new URL(url);
-    const options = {
-      hostname: urlObj.hostname,
-      path: urlObj.pathname + urlObj.search,
-      method: method,
-      headers: {
-        Authorization: `token ${GITHUB_TOKEN}`,
-        "User-Agent": GITHUB_ACTOR,
-        Accept: "application/vnd.github.v3+json",
-      },
-    };
+// Helper to make HTTP requests using fetch (built into Bun)
+async function githubRequest(url, method = "GET", body = null) {
+  const options = {
+    method,
+    headers: {
+      Authorization: `token ${GITHUB_TOKEN}`,
+      "User-Agent": GITHUB_ACTOR,
+      Accept: "application/vnd.github.v3+json",
+    },
+  };
 
-    if (body) {
-      options.headers["Content-Type"] = "application/json";
+  if (body) {
+    options.headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(body);
+  }
+
+  const res = await fetch(url, options);
+  const data = await res.text();
+
+  if (res.status >= 200 && res.status < 300) {
+    try {
+      return data ? JSON.parse(data) : {};
+    } catch {
+      return data;
     }
-
-    const req = https.request(options, (res) => {
-      let data = "";
-      res.on("data", (chunk) => (data += chunk));
-      res.on("end", () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) {
-          try {
-            // Some responses might not be JSON or empty
-            resolve(data ? JSON.parse(data) : {});
-          } catch {
-            resolve(data); // Return raw text if not JSON
-          }
-        } else {
-          // If 404, we might want to handle it specifically, but generally it's an error for the caller
-          // Unless checking if repo exists
-          if (res.statusCode === 404) {
-            reject(new Error("404 Not Found"));
-          } else {
-            reject(new Error(`Request failed with status ${res.statusCode}: ${data}`));
-          }
-        }
-      });
-    });
-
-    req.on("error", (e) => reject(e));
-
-    if (body) {
-      req.write(JSON.stringify(body));
+  } else {
+    if (res.status === 404) {
+      throw new Error("404 Not Found");
+    } else {
+      throw new Error(`Request failed with status ${res.status}: ${data}`);
     }
-    req.end();
-  });
+  }
 }
 
 // Helper to configure git
-function configureGit() {
-  run(`git config --global user.name "${GITHUB_ACTOR}"`);
-  run(`git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"`);
+async function configureGit() {
+  await run(`git config --global user.name "${GITHUB_ACTOR}"`);
+  await run(`git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"`);
 }
 
 // Get all mod folders
-function getModFolders() {
-  return fs.readdirSync(MODS_DIR).filter((file) => {
-    const fullPath = path.join(MODS_DIR, file);
-    return fs.statSync(fullPath).isDirectory() && fs.existsSync(path.join(fullPath, "theme.json"));
-  });
+async function getModFolders() {
+  const dirs = await $`ls -d ${MODS_DIR}/*/`.quiet().text();
+  return dirs
+    .trim()
+    .split("\n")
+    .filter(Boolean)
+    .map((d) => path.basename(d.trim()))
+    .filter((file) => {
+      const fullPath = path.join(MODS_DIR, file);
+      return Bun.file(path.join(fullPath, "theme.json")).existsSync();
+    });
 }
 
 // Helper to get repository name from theme
@@ -134,18 +126,17 @@ function getRepoName(theme) {
   if (theme.homepage && theme.homepage.includes("github.com/" + ORG_NAME)) {
     return theme.homepage.split("/").pop();
   }
-  // Fallback to name-based generation if homepage is missing or doesn't match ORG_NAME
   return theme.name.replace(/\s+/g, "-");
 }
 
 // Check for version changes by comparing with remote
 async function getUpdatedMods() {
-  const mods = getModFolders();
+  const mods = await getModFolders();
   const updatedMods = [];
 
   for (const modFolder of mods) {
     const themePath = path.join(MODS_DIR, modFolder, "theme.json");
-    const theme = JSON.parse(fs.readFileSync(themePath, "utf8"));
+    const theme = JSON.parse(await Bun.file(themePath).text());
 
     if (theme.vertex === false) {
       console.log(`Skipping ${modFolder}: vertex is false`);
@@ -181,7 +172,7 @@ async function getUpdatedMods() {
 }
 
 // Build Mod
-function buildMod(mod) {
+async function buildMod(mod) {
   if (!mod.theme.scripts) {
     console.log(`Skipping build for ${mod.folder}: no scripts`);
     return;
@@ -191,7 +182,7 @@ function buildMod(mod) {
   const themeId = mod.theme.id;
   const command = `TARGET=${themeId} bun build.js`;
 
-  run(command);
+  await run(command);
 }
 
 // Process Mod
@@ -205,40 +196,41 @@ async function processMod(modData) {
   console.log(`Processing ${folder} (v${version}, ${branch})...`);
 
   // Build
-  buildMod(modData);
+  await buildMod(modData);
 
   // Prepare files
   const workDir = path.join(process.env.RUNNER_TEMP || "/tmp", `${folder}-${Date.now()}`);
-  fs.mkdirSync(workDir, { recursive: true });
+  await $`mkdir -p ${workDir}`;
 
   // Copy all files from mod folder (excluding JS source and release-notes)
   const sourceDir = path.join(MODS_DIR, folder);
-  const files = fs.readdirSync(sourceDir);
-  for (const file of files) {
+  const files = await $`ls ${sourceDir}`.quiet().text();
+  for (const file of files.trim().split("\n").filter(Boolean)) {
     if (file === "release-notes.md") continue;
 
     const srcPath = path.join(sourceDir, file);
     const destPath = path.join(workDir, file);
-    if (fs.statSync(srcPath).isDirectory()) {
-      copyDirectoryExcludingJs(srcPath, destPath);
+    const stat = await $`test -d ${srcPath} && echo dir || echo file`.quiet().text();
+    if (stat.trim() === "dir") {
+      await copyDirectoryExcludingJs(srcPath, destPath);
     } else {
       if (file.endsWith(".js") || file.endsWith(".mjs")) continue;
-      fs.copyFileSync(srcPath, destPath);
+      await $`cp ${srcPath} ${destPath}`;
     }
   }
 
   // Copy bundled JS
   if (theme.scripts) {
     const distDir = path.join(MODS_DIR, "dist");
-    if (fs.existsSync(distDir)) {
-      const distFiles = fs.readdirSync(distDir);
-      for (const file of distFiles) {
+    if (await Bun.file(distDir).exists()) {
+      const distFiles = await $`ls ${distDir}`.quiet().text();
+      for (const file of distFiles.trim().split("\n").filter(Boolean)) {
         const normalizedId = theme.id.replace(/-/g, "_");
         // For browse-bot, also copy the vendor chunk (vercel-ai-sdk)
         if (file.startsWith(`${theme.id}.`) || file.startsWith(`${normalizedId}.`)) {
-          fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
+          await $`cp ${path.join(distDir, file)} ${path.join(workDir, file)}`;
         } else if (theme.id === "browse-bot" && file.startsWith("vercel-ai-sdk")) {
-          fs.copyFileSync(path.join(distDir, file), path.join(workDir, file));
+          await $`cp ${path.join(distDir, file)} ${path.join(workDir, file)}`;
         }
       }
     }
@@ -250,23 +242,26 @@ async function processMod(modData) {
     MOD_FOLDER: folder,
   };
 
-  const applyTemplate = (templateName, destRelativePath) => {
-    const templateContent = fs.readFileSync(path.join(TEMPLATES_DIR, templateName), "utf8");
+  const applyTemplate = async (templateName, destRelativePath) => {
+    const templateContent = await Bun.file(path.join(TEMPLATES_DIR, templateName)).text();
     const content = templateContent
       .replace(/\{MOD_NAME\}/g, placeholders.MOD_NAME)
       .replace(/\{MOD_FOLDER\}/g, placeholders.MOD_FOLDER);
     const dest = path.join(workDir, destRelativePath);
-    fs.mkdirSync(path.dirname(dest), { recursive: true });
-    fs.writeFileSync(dest, content);
+    await $`mkdir -p ${path.dirname(dest)}`;
+    await Bun.write(dest, content);
   };
 
-  applyTemplate("CONTRIBUTING.template.md", "CONTRIBUTING.md");
-  applyTemplate("config.template.yml", ".github/ISSUE_TEMPLATE/config.yml");
-  applyTemplate("pull_request_template.template.md", ".github/pull_request_template.md");
-  applyTemplate("close-pull-requests.template.yml", ".github/workflows/close-pull-requests.yml");
+  await applyTemplate("CONTRIBUTING.template.md", "CONTRIBUTING.md");
+  await applyTemplate("config.template.yml", ".github/ISSUE_TEMPLATE/config.yml");
+  await applyTemplate("pull_request_template.template.md", ".github/pull_request_template.md");
+  await applyTemplate(
+    "close-pull-requests.template.yml",
+    ".github/workflows/close-pull-requests.yml"
+  );
 
   // License
-  fs.copyFileSync(path.join(MODS_DIR, "LICENSE"), path.join(workDir, "LICENSE"));
+  await $`cp ${path.join(MODS_DIR, "LICENSE")} ${path.join(workDir, "LICENSE")}`;
 
   // Theme.json filtering
   const themeKeys = [
@@ -291,18 +286,19 @@ async function processMod(modData) {
     if (theme[key] !== undefined) newTheme[key] = theme[key];
   }
 
-  fs.writeFileSync(path.join(workDir, "theme.json"), JSON.stringify(newTheme, null, 2));
+  await Bun.write(path.join(workDir, "theme.json"), JSON.stringify(newTheme, null, 2));
 
   // README update links
-  if (fs.existsSync(path.join(workDir, "README.md"))) {
-    let readme = fs.readFileSync(path.join(workDir, "README.md"), "utf8");
+  const readmePath = path.join(workDir, "README.md");
+  if (await Bun.file(readmePath).exists()) {
+    let readme = await Bun.file(readmePath).text();
     if (isBeta) {
       const warning = `> [!WARNING]\n> This is a beta version and may contain issues. Some bugs and breaking changes are expected.\n\n`;
       readme = warning + readme;
     }
     readme = readme.replace(/\(\.\.\/CONTRIBUTING\.md\)/g, "(./CONTRIBUTING.md)");
     readme = readme.replace(/\(\.\.\/LICENSE\)/g, "(./LICENSE)");
-    fs.writeFileSync(path.join(workDir, "README.md"), readme);
+    await Bun.write(readmePath, readme);
   }
 
   // Publish
@@ -326,29 +322,29 @@ async function processMod(modData) {
   }
 
   const repoDir = path.join(process.env.RUNNER_TEMP || "/tmp", `repo-${folder}-${Date.now()}`);
-  run(`git clone ${remoteUrl} ${repoDir}`);
+  await run(`git clone ${remoteUrl} ${repoDir}`);
 
   // Checkout branch
   try {
-    run(`git checkout ${branch}`, repoDir);
+    await run(`git checkout ${branch}`, repoDir);
   } catch {
-    run(`git checkout -b ${branch}`, repoDir);
+    await run(`git checkout -b ${branch}`, repoDir);
   }
 
   // Copy files to repoDir
-  const repoFiles = fs.readdirSync(repoDir);
-  for (const file of repoFiles) {
+  const repoFiles = await $`ls ${repoDir}`.quiet().text();
+  for (const file of repoFiles.trim().split("\n").filter(Boolean)) {
     if (file === ".git") continue;
-    fs.rmSync(path.join(repoDir, file), { recursive: true, force: true });
+    await $`rm -rf ${path.join(repoDir, file)}`;
   }
 
-  fs.cpSync(workDir, repoDir, { recursive: true });
+  await $`cp -r ${workDir}/* ${repoDir}/`;
 
   // Push
-  run(`git add .`, repoDir);
+  await run(`git add .`, repoDir);
   try {
-    run(`git commit -m "Update to v${version}"`, repoDir);
-    run(`git push origin ${branch}`, repoDir);
+    await run(`git commit -m "Update to v${version}"`, repoDir);
+    await run(`git push origin ${branch}`, repoDir);
   } catch {
     console.log("No changes to commit.");
   }
@@ -357,11 +353,11 @@ async function processMod(modData) {
   const releaseNotesPath = path.join(MODS_DIR, folder, "release-notes.md");
   const releaseTemplatePath = path.join(TEMPLATES_DIR, "release-notes.template.md");
 
-  if (fs.existsSync(releaseNotesPath)) {
-    const releaseNotes = fs.readFileSync(releaseNotesPath, "utf8").trim();
+  if (await Bun.file(releaseNotesPath).exists()) {
+    const releaseNotes = (await Bun.file(releaseNotesPath).text()).trim();
     let templateContent = "";
-    if (fs.existsSync(releaseTemplatePath)) {
-      templateContent = fs.readFileSync(releaseTemplatePath, "utf8").trim();
+    if (await Bun.file(releaseTemplatePath).exists()) {
+      templateContent = (await Bun.file(releaseTemplatePath).text()).trim();
     }
 
     // Check if release notes has actual content (different from template)
@@ -376,12 +372,12 @@ async function processMod(modData) {
       });
 
       // Reset release notes in parent
-      const rawTemplate = fs.existsSync(releaseTemplatePath)
-        ? fs.readFileSync(releaseTemplatePath, "utf8")
+      const rawTemplate = (await Bun.file(releaseTemplatePath).exists())
+        ? await Bun.file(releaseTemplatePath).text()
         : "";
-      fs.writeFileSync(releaseNotesPath, rawTemplate);
-      run(`git add ${releaseNotesPath}`, MODS_DIR);
-      run(`git commit -m "Reset release notes for ${theme.name} v${version}"`, MODS_DIR);
+      await Bun.write(releaseNotesPath, rawTemplate);
+      await run(`git add ${releaseNotesPath}`, MODS_DIR);
+      await run(`git commit -m "Reset release notes for ${theme.name} v${version}"`, MODS_DIR);
     } else {
       console.log("Release notes empty or match template. Skipping release creation.");
     }
@@ -390,7 +386,7 @@ async function processMod(modData) {
 
 // Main
 async function main() {
-  configureGit();
+  await configureGit();
   const updatedMods = await getUpdatedMods();
 
   if (updatedMods.length === 0) {
@@ -408,7 +404,7 @@ async function main() {
 
   // Push changes to parent repo (release notes reset)
   try {
-    run(`git push`);
+    await run(`git push`);
   } catch {
     console.log("Nothing to push to parent repo");
   }

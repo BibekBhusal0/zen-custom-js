@@ -1,7 +1,6 @@
-import fs from "fs";
+import { $ } from "bun";
 import path from "path";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,57 +9,55 @@ const ROOT_DIR = path.resolve(__dirname, "../../");
 /**
  * Updates updatedAt field in all theme.json files based on git history
  */
-function updateThemeFiles() {
+async function updateThemeFiles() {
   let updatedAny = false;
 
-  // Get all theme.json files
-  const result = execSync('find . -name "theme.json" -print0', {
-    cwd: ROOT_DIR,
-    encoding: "utf8",
-  });
-  const files = result.split("\0").filter(Boolean);
+  // Get all theme.json files using Bun's glob
+  const files = await $`find . -name "theme.json" -print0`.cwd(ROOT_DIR).quiet().text();
+  const fileList = files.split("\0").filter(Boolean);
 
-  for (const file of files) {
+  for (const file of fileList) {
     const filePath = path.join(ROOT_DIR, file);
     const dirPath = path.dirname(filePath);
 
     try {
       // Get git modified date for directory
       const relativeDir = path.relative(ROOT_DIR, dirPath);
-      const gitDate = execSync(`git log -1 --format=%ad --date=short -- ${relativeDir}`, {
-        cwd: ROOT_DIR,
-        encoding: "utf8",
-      }).trim();
+      const gitDate = await $`git log -1 --format=%ad --date=short -- ${relativeDir}`
+        .cwd(ROOT_DIR)
+        .quiet()
+        .text();
+      const trimmedGitDate = gitDate.trim();
 
-      if (!gitDate) {
+      if (!trimmedGitDate) {
         console.log(`No git history for directory ${dirPath}`);
         continue;
       }
 
       // Read and parse theme.json
-      const originalData = JSON.parse(fs.readFileSync(filePath, "utf8"));
+      const originalData = JSON.parse(await Bun.file(filePath).text());
 
-      if (originalData.updatedAt === gitDate) {
-        console.log(`Unchanged ${file} — updatedAt already set to ${gitDate}`);
+      if (originalData.updatedAt === trimmedGitDate) {
+        console.log(`Unchanged ${file} — updatedAt already set to ${trimmedGitDate}`);
         continue;
       }
 
-      const originalJson = fs.readFileSync(filePath, "utf8");
+      const originalJson = await Bun.file(filePath).text();
 
       // Only change the updatedAt field, preserve original formatting for rest of the file
       const lines = originalJson.split("\n");
       const result = lines
         .map((line) => {
           if (line.trim().startsWith('"updatedAt"')) {
-            return '  "updatedAt": "' + gitDate + '",';
+            return '  "updatedAt": "' + trimmedGitDate + '",';
           }
           return line;
         })
         .join("\n");
 
-      fs.writeFileSync(filePath, result);
+      await Bun.write(filePath, result);
 
-      console.log(`Updated ${file} with date ${gitDate}`);
+      console.log(`Updated ${file} with date ${trimmedGitDate}`);
       updatedAny = true;
     } catch (e) {
       console.error(`Error processing ${file}:`, e.message);
@@ -72,12 +69,12 @@ function updateThemeFiles() {
 
 // Run the function
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const updated = updateThemeFiles();
+  const updated = await updateThemeFiles();
   console.log(`Theme files updated: ${updated}`);
 
   // Set output for GitHub Actions
   if (process.env.GITHUB_OUTPUT) {
-    fs.appendFileSync(process.env.GITHUB_OUTPUT, `updated=${updated}\n`);
+    await Bun.write(process.env.GITHUB_OUTPUT, `updated=${updated}\n`, { append: true });
   }
 }
 

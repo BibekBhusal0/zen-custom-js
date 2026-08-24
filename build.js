@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { spawn } from "child_process";
+import { $ } from "bun";
 
 const getSubdirectories = (dir) => {
   return fs.readdirSync(dir).filter((file) => {
@@ -74,7 +74,7 @@ const createBanner = (themePath) => {
   return banner;
 };
 
-function buildMod(themePath, entryFile, theme, isWatch = false) {
+async function buildMod(themePath, entryFile, theme, isWatch = false) {
   const banner = createBanner(themePath);
 
   if (theme.id === "browse-bot") {
@@ -86,137 +86,83 @@ function buildMod(themePath, entryFile, theme, isWatch = false) {
       "*/vercel-ai-sdk.uc.mjs",
     ];
 
-    // Build main entry with vendor packages as external
-    const mainArgs = [
-      "build",
-      entryFile,
-      "--outdir",
-      "./dist",
-      "--format",
-      "esm",
-      "--target",
-      "browser",
-      "--entry-naming",
-      "browse-bot.uc.mjs",
-      "--banner",
+    await Bun.build({
+      entrypoints: [entryFile],
+      outdir: "./dist",
+      format: "esm",
+      target: "browser",
+      naming: "browse-bot.uc.mjs",
       banner,
-      "--minify-syntax",
-    ];
-
-    externalPackages.forEach((pkg) => mainArgs.push("--external", pkg));
-
-    // Build vendor bundle
-    const vendorArgs = [
-      "build",
-      "./findbar-ai/vercel-ai-sdk.uc.mjs",
-      "--outdir",
-      "./dist",
-      "--format",
-      "esm",
-      "--target",
-      "browser",
-      "--entry-naming",
-      "vercel-ai-sdk.uc.mjs",
-      "--minify-syntax",
-    ];
-
-    if (isWatch) {
-      mainArgs.push("--watch");
-      vendorArgs.push("--watch");
-      spawn("bun", vendorArgs, { stdio: "inherit" });
-      spawn("bun", mainArgs, { stdio: "inherit" });
-
-      return;
-    } else {
-      const mainChild = spawn("bun", mainArgs, { stdio: "inherit" });
-      const vendorChild = spawn("bun", vendorArgs, { stdio: "inherit" });
-
-      return new Promise((resolve, reject) => {
-        let mainDone = false;
-        let vendorDone = false;
-
-        mainChild.on("close", () => {
-          mainDone = true;
-          if (mainDone && vendorDone) resolve();
-        });
-
-        vendorChild.on("close", () => {
-          vendorDone = true;
-          if (mainDone && vendorDone) resolve();
-        });
-
-        mainChild.on("error", reject);
-        vendorChild.on("error", reject);
-      });
-    }
-  }
-
-  const args = [
-    "build",
-    entryFile,
-    "--outdir",
-    "./dist",
-    "--format",
-    "iife",
-    "--target",
-    "browser",
-    "--entry-naming",
-    `${theme.id}.uc.js`,
-    "--banner",
-    banner,
-    "--minify-syntax",
-  ];
-
-  if (isWatch) args.push("--watch");
-
-  const child = spawn("bun", args, { stdio: "inherit" });
-
-  return new Promise((resolve, reject) => {
-    child.on("close", (code) => {
-      if (code === 0) {
-        resolve();
-      } else {
-        reject(new Error(`Build failed with code ${code}`));
-      }
+      minify: { syntax: true },
+      external: externalPackages,
     });
 
-    child.on("error", reject);
+    await Bun.build({
+      entrypoints: ["./findbar-ai/vercel-ai-sdk.uc.mjs"],
+      outdir: "./dist",
+      format: "esm",
+      target: "browser",
+      naming: "vercel-ai-sdk.uc.mjs",
+      minify: { syntax: true },
+    });
+
+    if (isWatch) {
+      const mainWatch = $`bun build ${entryFile} --outdir ./dist --format esm --target browser --entry-naming browse-bot.uc.mjs --banner "${banner}" --minify-syntax --external "@ai-sdk/*" --external ai --external zod --external ollama-ai-provider-v2 --external "*/vercel-ai-sdk.uc.mjs" --watch`;
+      const vendorWatch = $`bun build ./findbar-ai/vercel-ai-sdk.uc.mjs --outdir ./dist --format esm --target browser --entry-naming vercel-ai-sdk.uc.mjs --minify-syntax --watch`;
+      await Promise.all([mainWatch, vendorWatch]);
+    }
+
+    return;
+  }
+
+  await Bun.build({
+    entrypoints: [entryFile],
+    outdir: "./dist",
+    format: "iife",
+    target: "browser",
+    naming: `${theme.id}.uc.js`,
+    banner,
+    minify: { syntax: true },
   });
+
+  if (isWatch) {
+    await $`bun build ${entryFile} --outdir ./dist --format iife --target browser --entry-naming ${theme.id}.uc.js --banner "${banner}" --minify-syntax --watch`;
+  }
 }
 
 async function build() {
   const target = process.env.TARGET;
   const isWatch = process.argv.includes("--watch");
 
-  // For watch mode without target, only build browse-bot
   if (isWatch && !target) {
-    const browseBotTheme = JSON.parse(fs.readFileSync("findbar-ai/theme.json", "utf-8"));
+    const browseBotTheme = JSON.parse(await Bun.file("findbar-ai/theme.json").text());
     const browseBotEntry = "findbar-ai/index.js";
 
-    buildMod("findbar-ai/theme.json", browseBotEntry, browseBotTheme, true);
+    await buildMod("findbar-ai/theme.json", browseBotEntry, browseBotTheme, true);
     return;
   }
 
   const mods = getSubdirectories(process.cwd());
   let modsToBuild = mods;
   if (target) {
-    modsToBuild = mods.filter((dir) => {
-      const themePath = path.join(dir, "theme.json");
-      if (!fs.existsSync(themePath)) return false;
+    const normalizedTarget = target.replace(/-/g, "");
+    const modsWithThemes = await Promise.all(
+      mods.map(async (dir) => {
+        const themePath = path.join(dir, "theme.json");
+        if (!fs.existsSync(themePath)) return { dir, include: false };
 
-      try {
-        const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
-        const normalizedTarget = target.replace(/-/g, "");
-        const normalizedThemeId = theme.id.replace(/-/g, "");
-        const includesTarget = normalizedThemeId.includes(normalizedTarget);
-        return includesTarget;
-      } catch {
-        return false;
-      }
-    });
+        try {
+          const theme = JSON.parse(await Bun.file(themePath).text());
+          const normalizedThemeId = theme.id.replace(/-/g, "");
+          return { dir, include: normalizedThemeId.includes(normalizedTarget) };
+        } catch {
+          return { dir, include: false };
+        }
+      })
+    );
+    modsToBuild = modsWithThemes.filter((m) => m.include).map((m) => m.dir);
   }
 
-  // Build each mod
   for (const dir of modsToBuild) {
     const themePath = path.join(dir, "theme.json");
     const entryFile = path.join(dir, "index.js");
@@ -225,7 +171,7 @@ async function build() {
       continue;
     }
 
-    const theme = JSON.parse(fs.readFileSync(themePath, "utf-8"));
+    const theme = JSON.parse(await Bun.file(themePath).text());
     if (!theme.scripts) continue;
     await buildMod(themePath, entryFile, theme, isWatch);
   }
