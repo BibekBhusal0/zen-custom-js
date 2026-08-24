@@ -406,12 +406,10 @@ var PREFS2 = BrowseBotPREFS, prefs_default = PREFS2;
 
 // findbar-ai/messageManager.js
 async function frameScript() {
-  let getUrlAndTitle = () => {
-    return {
-      url: content.location.href,
-      title: content.document.title
-    };
-  }, extractRelevantContent = () => {
+  let getUrlAndTitle = () => ({
+    url: content.location.href,
+    title: content.document.title
+  }), extractRelevantContent = () => {
     let clonedBody = content.document.body.cloneNode(!0);
     return clonedBody.querySelectorAll("script, style, meta, noscript, iframe, svg, canvas, img, video, audio, object, embed, applet, link, head").forEach((el) => el.remove()), clonedBody.innerHTML;
   }, extractTextContent = (trimWhiteSpace = !0) => {
@@ -497,13 +495,11 @@ async function frameScript() {
       return ["No comments found or they are not loaded yet."];
     return comments.map((c) => c.textContent.trim());
   }, handlers = {
-    GetPageHTMLContent: () => {
-      return {
-        content: extractRelevantContent(),
-        url: getUrlAndTitle().url,
-        title: getUrlAndTitle().title
-      };
-    },
+    GetPageHTMLContent: () => ({
+      content: extractRelevantContent(),
+      url: getUrlAndTitle().url,
+      title: getUrlAndTitle().title
+    }),
     GetSelectedText: () => {
       let selection = content.getSelection();
       return {
@@ -512,12 +508,10 @@ async function frameScript() {
         ...getUrlAndTitle()
       };
     },
-    GetPageTextContent: ({ trimWhiteSpace }) => {
-      return {
-        textContent: extractTextContent(trimWhiteSpace),
-        ...getUrlAndTitle()
-      };
-    },
+    GetPageTextContent: ({ trimWhiteSpace }) => ({
+      textContent: extractTextContent(trimWhiteSpace),
+      ...getUrlAndTitle()
+    }),
     ClickElement: ({ selector }) => {
       let element = content.document.querySelector(selector);
       if (!element)
@@ -532,15 +526,9 @@ async function frameScript() {
         result: `Filled element with selector "${selector}" with value "${value}".`
       };
     },
-    GetYoutubeTranscript: async () => {
-      return { transcript: await getYouTubeTranscript() };
-    },
-    GetYoutubeDescription: async () => {
-      return { description: await getYoutubeDescription() };
-    },
-    GetYoutubeComments: ({ count }) => {
-      return { comments: getYoutubeComments(count) };
-    }
+    GetYoutubeTranscript: async () => ({ transcript: await getYouTubeTranscript() }),
+    GetYoutubeDescription: async () => ({ description: await getYoutubeDescription() }),
+    GetYoutubeComments: ({ count }) => ({ comments: getYoutubeComments(count) })
   };
   addMessageListener("FindbarAI:Command", async function(msg) {
     let cmd = msg.data.command, data = msg.data.data || {};
@@ -584,48 +572,32 @@ var currentMessageManager = null, updateMessageManager = () => {
     };
   },
   async getHTMLContent() {
-    return this.send("GetPageHTMLContent").catch((error) => {
-      return PREFS2.debugError("Failed to get page HTML content:", error), {};
-    });
+    return this.send("GetPageHTMLContent").catch((error) => (PREFS2.debugError("Failed to get page HTML content:", error), {}));
   },
   async getSelectedText() {
     return this.send("GetSelectedText").then((result) => {
       if (!result || !result.hasSelection)
         return this.getUrlAndTitle();
       return result;
-    }).catch((error) => {
-      return PREFS2.debugError("Failed to get selected text:", error), this.getUrlAndTitle();
-    });
+    }).catch((error) => (PREFS2.debugError("Failed to get selected text:", error), this.getUrlAndTitle()));
   },
   async getPageTextContent(trimWhiteSpace = !0) {
-    return this.send("GetPageTextContent", { trimWhiteSpace }).catch((error) => {
-      return PREFS2.debugError("Failed to get page text content:", error), this.getUrlAndTitle();
-    });
+    return this.send("GetPageTextContent", { trimWhiteSpace }).catch((error) => (PREFS2.debugError("Failed to get page text content:", error), this.getUrlAndTitle()));
   },
   async clickElement(selector) {
-    return this.send("ClickElement", { selector }).catch((error) => {
-      return PREFS2.debugError(`Failed to click element with selector "${selector}":`, error), { error: `Failed to click element with selector "${selector}".` };
-    });
+    return this.send("ClickElement", { selector }).catch((error) => (PREFS2.debugError(`Failed to click element with selector "${selector}":`, error), { error: `Failed to click element with selector "${selector}".` }));
   },
   async fillForm(selector, value) {
-    return this.send("FillForm", { selector, value }).catch((error) => {
-      return PREFS2.debugError(`Failed to fill form with selector "${selector}":`, error), { error: `Failed to fill form with selector "${selector}".` };
-    });
+    return this.send("FillForm", { selector, value }).catch((error) => (PREFS2.debugError(`Failed to fill form with selector "${selector}":`, error), { error: `Failed to fill form with selector "${selector}".` }));
   },
   async getYoutubeTranscript() {
-    return this.send("GetYoutubeTranscript").catch((error) => {
-      return PREFS2.debugError("Failed to get youtube transcript:", error), { error: `Failed to get youtube transcript: ${error.message}` };
-    });
+    return this.send("GetYoutubeTranscript").catch((error) => (PREFS2.debugError("Failed to get youtube transcript:", error), { error: `Failed to get youtube transcript: ${error.message}` }));
   },
   async getYoutubeDescription() {
-    return this.send("GetYoutubeDescription").catch((error) => {
-      return PREFS2.debugError("Failed to get youtube description:", error), { error: `Failed to get youtube description: ${error.message}` };
-    });
+    return this.send("GetYoutubeDescription").catch((error) => (PREFS2.debugError("Failed to get youtube description:", error), { error: `Failed to get youtube description: ${error.message}` }));
   },
   async getYoutubeComments(count) {
-    return this.send("GetYoutubeComments", { count }).catch((error) => {
-      return PREFS2.debugError("Failed to get youtube comments:", error), { error: `Failed to get youtube comments: ${error.message}` };
-    });
+    return this.send("GetYoutubeComments", { count }).catch((error) => (PREFS2.debugError("Failed to get youtube comments:", error), { error: `Failed to get youtube comments: ${error.message}` }));
   }
 };
 
@@ -1420,13 +1392,11 @@ var TabIdManager = new class {
 }, createStringArrayParameter = (description, isOptional = !1) => {
   let schema = z.array(z.string()).describe(description);
   return isOptional ? schema.optional() : schema;
-}, createTool = (description, parameters, executeFn) => {
-  return tool({
-    description,
-    inputSchema: z.object(parameters),
-    execute: executeFn
-  });
-};
+}, createTool = (description, parameters, executeFn) => tool({
+  description,
+  inputSchema: z.object(parameters),
+  execute: executeFn
+});
 function getTabsByIds(tabIds) {
   if (!Array.isArray(tabIds))
     tabIds = [tabIds];
@@ -1936,14 +1906,12 @@ var toolNameMapping = {
         where: createStringParameter("Where to open results. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.", !0)
       }, search)
     },
-    example: async () => {
-      return `#### Searching and Spliting: 
+    example: async () => `#### Searching and Spliting: 
 -   **User Prompt:** "search cat in google and dog in youtube open them in vertical split"
 -   **Your first Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "cat", "engineName": "google", where: "new tab"}}}\`
 -   **Your second Tool Call:** \`{"functionCall": {"name": "search", "args": {"searchTerm": "dog", "engineName": "youtube", where: "vsplit"}}}\`
 Note: Only second search is open in split (vertial by default), this will make it split with first search.
-`;
-    }
+`
   },
   navigation: {
     moreInstructions: tabsInstructions + "While opening tab make sure it has valid URL.",
