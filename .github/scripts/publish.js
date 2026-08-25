@@ -22,7 +22,7 @@ if (!GITHUB_TOKEN) {
 async function run(command, cwd = MODS_DIR) {
   console.log(`Running: ${command} in ${cwd}`);
   try {
-    const result = await $`${command}`.cwd(cwd).quiet().text();
+    const result = await $`${{ raw: command }}`.cwd(cwd).quiet().text();
     return result.trim();
   } catch (e) {
     console.error(`Command failed: ${command}`);
@@ -110,15 +110,19 @@ async function configureGit() {
 // Get all mod folders
 async function getModFolders() {
   const dirs = await $`ls -d ${MODS_DIR}/*/`.quiet().text();
-  return dirs
+  const allDirs = dirs
     .trim()
     .split("\n")
     .filter(Boolean)
-    .map((d) => path.basename(d.trim()))
-    .filter((file) => {
-      const fullPath = path.join(MODS_DIR, file);
-      return Bun.file(path.join(fullPath, "theme.json")).existsSync();
-    });
+    .map((d) => path.basename(d.trim()));
+
+  const validDirs = [];
+  for (const dir of allDirs) {
+    if (await Bun.file(path.join(MODS_DIR, dir, "theme.json")).exists()) {
+      validDirs.push(dir);
+    }
+  }
+  return validDirs;
 }
 
 // Helper to get repository name from theme
