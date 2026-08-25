@@ -1,6 +1,7 @@
 import { $ } from "bun";
 import path from "path";
 import { fileURLToPath } from "url";
+import { existsSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +34,7 @@ async function run(command, cwd = MODS_DIR) {
 
 // Helper to copy directories recursively, excluding JS files and empty folders
 async function copyDirectoryExcludingJs(src, dest) {
-  if (!(await Bun.file(dest).exists())) {
+  if (!existsSync(dest)) {
     await $`mkdir -p ${dest}`;
   }
 
@@ -226,7 +227,7 @@ async function processMod(modData) {
   // Copy bundled JS
   if (theme.scripts) {
     const distDir = path.join(MODS_DIR, "dist");
-    if (await Bun.file(distDir).exists()) {
+    if (existsSync(distDir)) {
       const distFiles = await $`ls ${distDir}`.quiet().text();
       for (const file of distFiles.trim().split("\n").filter(Boolean)) {
         const normalizedId = theme.id.replace(/-/g, "_");
