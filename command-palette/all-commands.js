@@ -237,6 +237,34 @@ export const commands = [
 
   // ----------- Tab Management -----------
   {
+    key: "cycle-tab-container",
+    label: "Cycle Tab Container",
+    command: () => {
+      if (!window.ContextualIdentityService) return;
+      const tabToMove = gBrowser.selectedTab;
+      if (!tabToMove || !tabToMove.linkedBrowser) return;
+
+      const identities = ContextualIdentityService.getPublicIdentities() || [];
+      const currentContextId = tabToMove.userContextId || 0;
+
+      const allContexts = [0, ...identities.map((id) => id.userContextId)];
+      const currentIndex = allContexts.indexOf(currentContextId);
+      const nextIndex = (currentIndex + 1) % allContexts.length;
+      const nextContextId = allContexts[nextIndex];
+
+      const url = tabToMove.linkedBrowser.currentURI.spec;
+      openTrustedLinkIn(url, "tab", {
+        userContextId: nextContextId,
+        relatedToCurrent: true,
+        triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal(),
+      });
+      gBrowser.removeTab(tabToMove);
+    },
+    condition: () => !!window.ContextualIdentityService && isNotEmptyTab(),
+    icon: "chrome://browser/skin/zen-icons/container-tab.svg",
+    tags: ["container", "cycle", "switch", "tab", "change"],
+  },
+  {
     key: "rename-tab",
     label: "Rename Tab",
     command: () => {
