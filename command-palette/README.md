@@ -155,6 +155,7 @@ The following commands are now native:
 - Replace Pinned Tab URL with Current
 - Reset Pinned Tab
 - Toggle Collapsed Pins
+- Cycle Tab Container
 
 ### Window Management
 
