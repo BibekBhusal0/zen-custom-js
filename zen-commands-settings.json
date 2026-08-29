@@ -50,9 +50,9 @@
     "toggle-toolbar": "Ctrl+Alt+T",
     "unload-other-tabs": "Ctrl+Alt+U",
     "unload-tab": "Alt+U",
-    "cmd_zenTogglePinTab": "Ctrl+P"
+    "cmd_zenTogglePinTab": "Ctrl+P",
+    "cycle-tab-container": "Ctrl+Shift+<"
   },
-  "toolbarButtons": ["toggle-zen-library"],
   "customCommands": [
     {
       "type": "chain",
