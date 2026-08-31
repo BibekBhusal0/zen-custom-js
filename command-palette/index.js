@@ -774,7 +774,7 @@ export const ZenCommandPalette = {
 
     this.attachUrlbarListeners();
 
-    const { UrlbarUtils, UrlbarProvider: UrlbarProviderFromUtils } = ChromeUtils.importESModule(
+    const { UrlbarProvider: UrlbarProviderFromUtils } = ChromeUtils.importESModule(
       "moz-src:///browser/components/urlbar/UrlbarUtils.sys.mjs"
     );
     const { UrlbarShared } = ChromeUtils.importESModule(
@@ -834,7 +834,7 @@ export const ZenCommandPalette = {
           return "TestProvider";
         }
         get type() {
-          return UrlbarUtils.PROVIDER_TYPE.HEURISTIC;
+          return UrlbarShared.PROVIDER_TYPE.HEURISTIC;
         }
         getPriority() {
           return this._isInPrefixMode ? 10000 : 0;
