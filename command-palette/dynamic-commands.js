@@ -119,9 +119,7 @@ export async function generateSearchEngineCommands() {
     const isDefault = defaultEngineName !== null && engineName === defaultEngineName;
     return {
       key: `search:${engineName}`,
-      label: isDefault
-        ? `Search with: ${engineName} (Default)`
-        : `Search with: ${engineName}`,
+      label: isDefault ? `Search with: ${engineName} (Default)` : `Search with: ${engineName}`,
       command: () => {
         const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
         const gURLBar = browserWindow.gURLBar;
