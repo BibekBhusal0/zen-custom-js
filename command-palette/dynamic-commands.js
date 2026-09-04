@@ -5,7 +5,7 @@ import { Storage } from "./utils/storage.js";
 import { ZenCommandPalette } from "./index.js";
 import { showToast } from "../utils/toast.js";
 import { isNotEmptyTab } from "./utils/notEmptyTab.js";
-import { getVisibleEngines } from "../utils/search-service.js";
+import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
 import { hmacCode, loadApprovedHashes, trustHash } from "./utils/trust.js";
 
 const commandChainUtils = {
@@ -142,11 +142,23 @@ export async function generateAboutPageCommands() {
  */
 export async function generateSearchEngineCommands() {
   const engines = await getVisibleEngines();
+
+  let defaultEngineName = null;
+  try {
+    const defaultEngine = await getDefaultEngine();
+    defaultEngineName = defaultEngine?.name ?? null;
+  } catch (e) {
+    PREFS.debugError("Failed to get default search engine for command palette.", e);
+  }
+
   return engines.map((engine) => {
     const engineName = engine.name;
+    const isDefault = defaultEngineName !== null && engineName === defaultEngineName;
     return {
       key: `search:${engineName}`,
-      label: `Search with: ${engineName}`,
+      label: isDefault
+        ? `Search with: ${engineName} (Default)`
+        : `Search with: ${engineName}`,
       command: () => {
         const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
         const gURLBar = browserWindow.gURLBar;
@@ -161,7 +173,9 @@ export async function generateSearchEngineCommands() {
         }
       },
       icon: getSearchEngineFavicon(engine),
-      tags: ["search", "engine", engineName.toLowerCase()],
+      tags: isDefault
+        ? ["search", "engine", "default", engineName.toLowerCase()]
+        : ["search", "engine", engineName.toLowerCase()],
       openUrl: true,
     };
   });
