@@ -3,7 +3,7 @@
 // @description     Transforms the standard Zen Browser findbar into a modern, floating, AI-powered chat interface. Inspired by Arc Browser.
 // @author          Bibek Bhusal
 // @version         2.5.88
-// @lastUpdated     2026-07-14
+// @lastUpdated     2026-09-05
 // @ignorecache
 // @homepage        https://github.com/Vertex-Mods/Browse-Bot
 // ==/UserScript==
@@ -452,9 +452,9 @@ async function frameScript() {
           if (el)
             return resolve(el);
           let observer = new win.MutationObserver(() => {
-            let el2 = doc.querySelector(selector);
-            if (el2)
-              observer.disconnect(), resolve(el2);
+            let el = doc.querySelector(selector);
+            if (el)
+              observer.disconnect(), resolve(el);
           });
           observer.observe(doc.body, {
             childList: !0,
@@ -822,12 +822,12 @@ var SettingsModal = {
       });
     this._modalElement.querySelectorAll(".verify-model-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        let provider = btn.dataset.verifyModel, statusEl = this._modalElement.querySelector(`[data-verify-status="${provider}"]`), modelInput2 = this._modalElement.querySelector("#pref-custom-model");
+        let provider = btn.dataset.verifyModel, statusEl = this._modalElement.querySelector(`[data-verify-status="${provider}"]`), modelInput = this._modalElement.querySelector("#pref-custom-model");
         if (!statusEl)
           return;
         let baseUrl = this._currentPrefValues[PREFS2.CUSTOM_BASE_URL] || "", model = this._currentPrefValues[PREFS2.CUSTOM_MODEL] || "", apiKey = this._currentPrefValues[PREFS2.CUSTOM_API_KEY] || "", setError = (msg) => {
-          if (statusEl.textContent = msg, statusEl.className = "verify-model-status error", modelInput2)
-            modelInput2.classList.remove("verify-success"), modelInput2.classList.add("verify-error");
+          if (statusEl.textContent = msg, statusEl.className = "verify-model-status error", modelInput)
+            modelInput.classList.remove("verify-success"), modelInput.classList.add("verify-error");
         };
         if (!baseUrl) {
           setError("Enter a base URL first");
@@ -837,8 +837,8 @@ var SettingsModal = {
           setError("Enter a model name");
           return;
         }
-        if (statusEl.textContent = "Verifying...", statusEl.className = "verify-model-status", modelInput2)
-          modelInput2.classList.remove("verify-success", "verify-error");
+        if (statusEl.textContent = "Verifying...", statusEl.className = "verify-model-status", modelInput)
+          modelInput.classList.remove("verify-success", "verify-error");
         btn.disabled = !0;
         try {
           let url = `${baseUrl.replace(/\/+$/, "")}/models/${encodeURIComponent(model)}`, headers = { "Content-Type": "application/json" };
@@ -846,8 +846,8 @@ var SettingsModal = {
             headers.Authorization = `Bearer ${apiKey}`;
           let response = await fetch(url, { headers });
           if (response.ok) {
-            if (statusEl.textContent = `Model "${model}" exists`, statusEl.className = "verify-model-status success", modelInput2)
-              modelInput2.classList.add("verify-success"), modelInput2.classList.remove("verify-error");
+            if (statusEl.textContent = `Model "${model}" exists`, statusEl.className = "verify-model-status success", modelInput)
+              modelInput.classList.add("verify-success"), modelInput.classList.remove("verify-error");
           } else if (response.status === 404)
             setError(`Model "${model}" not found`);
           else
@@ -1309,9 +1309,9 @@ function showToast(options = {}) {
       }
       if (debugLog(`Checked ${windowCount} windows, found toast: ${foundToast}`), !foundToast && retryCount < maxRetries) {
         retryCount++, debugLog("Toast not found, retrying...");
-        let browserWindow2 = Services.wm.getMostRecentWindow("navigator:browser");
-        if (browserWindow2)
-          browserWindow2.setTimeout(tryReplaceText, retryInterval);
+        let browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
+        if (browserWindow)
+          browserWindow.setTimeout(tryReplaceText, retryInterval);
         else
           debugLog("No browser window found for retry");
       } else if (!foundToast)
@@ -1342,6 +1342,58 @@ async function getEngineByName(name) {
 }
 async function getDefaultEngine() {
   return (await getSearchService()).getDefault();
+}
+
+// utils/open-link.js
+async function openLink(url, where = "new tab") {
+  if (!url)
+    return !1;
+  let destination = where?.toLowerCase()?.trim();
+  switch (destination) {
+    case "current tab":
+      return openTrustedLinkIn(url, "current"), !0;
+    case "new tab":
+      return openTrustedLinkIn(url, "tab"), !0;
+    case "background tab":
+      return openTrustedLinkIn(url, "tab", { inBackground: !0, relatedToCurrent: !0 }), !0;
+    case "new window":
+      return openTrustedLinkIn(url, "window"), !0;
+    case "incognito":
+    case "private":
+      return window.openTrustedLinkIn(url, "window", { private: !0 }), !0;
+    case "glance": {
+      let manager = window.gZenGlanceManager;
+      if (manager?.openGlance)
+        try {
+          let tabboxRect = gBrowser.tabbox?.getBoundingClientRect(), clickPosition = window.gZenUIManager?._lastClickPosition ?? {
+            clientX: tabboxRect ? tabboxRect.width / 2 : window.innerWidth / 2,
+            clientY: tabboxRect ? tabboxRect.height / 2 : window.innerHeight / 2
+          };
+          return manager.openGlance({
+            url,
+            ...clickPosition,
+            width: 0,
+            height: 0,
+            triggeringPrincipal: Services.scriptSecurityManager.getSystemPrincipal()
+          }), !0;
+        } catch {
+          break;
+        }
+      break;
+    }
+    case "vsplit":
+    case "hsplit":
+      if (window.gZenViewSplitter) {
+        let sep = destination === "vsplit" ? "vsep" : "hsep", tab1 = gBrowser.selectedTab;
+        await openTrustedLinkIn(url, "tab");
+        let tab2 = gBrowser.selectedTab;
+        return gZenViewSplitter.splitTabs([tab1, tab2], sep, 1), !0;
+      }
+      break;
+    default:
+      break;
+  }
+  return openTrustedLinkIn(url, "tab"), !1;
 }
 
 // findbar-ai/llm/tools.js
@@ -1424,56 +1476,21 @@ async function search(args) {
     return { error: "Search tool requires a searchTerm." };
   let url = await getSearchURL(searchEngineName, searchTerm);
   if (url)
-    return await openLink({ link: url, where });
+    return await openLinkTool({ link: url, where });
   else
     return {
       error: `Could not find search engine named '${searchEngineName}'.`
     };
 }
-async function openLink(args) {
+async function openLinkTool(args) {
   let { link, where = "new tab" } = args;
   if (!link)
     return { error: "openLink requires a link." };
-  let whereNormalized = where?.toLowerCase()?.trim();
+  let destination = where?.toLowerCase()?.trim();
   try {
-    switch (whereNormalized) {
-      case "current tab":
-        openTrustedLinkIn(link, "current");
-        break;
-      case "new tab":
-        openTrustedLinkIn(link, "tab");
-        break;
-      case "new window":
-        openTrustedLinkIn(link, "window");
-        break;
-      case "incognito":
-      case "private":
-        window.openTrustedLinkIn(link, "window", { private: !0 });
-        break;
-      case "glance":
-        if (window.gZenGlanceManager)
-          window.gZenGlanceManager.openGlance({
-            url: link
-          });
-        else
-          return openTrustedLinkIn(link, "tab"), { result: "Glance not available. Opened in a new tab." };
-        break;
-      case "vsplit":
-      case "hsplit":
-        if (window.gZenViewSplitter) {
-          let sep = whereNormalized === "vsplit" ? "vsep" : "hsep", tab1 = gBrowser.selectedTab;
-          await openTrustedLinkIn(link, "tab");
-          let tab2 = gBrowser.selectedTab;
-          gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
-        } else
-          return { error: "Split view is not available." };
-        break;
-      default:
-        return openTrustedLinkIn(link, "tab"), {
-          result: `Unknown location "${where}". Opened in a new tab as fallback.`
-        };
-    }
-    return { result: `Successfully opened ${link} in ${where}.` };
+    if (await openLink(link, destination))
+      return { result: `Successfully opened ${link} in ${where}.` };
+    return { result: `${destination === "glance" ? "Glance not available." : (destination || "").endsWith("split") ? "Split view is not available." : `Unknown location "${where}".`} Opened in a new tab as fallback.` };
   } catch (e) {
     return PREFS2.debugError(`Failed to open link "${link}" in "${where}".`, e), { error: "Failed to open link." };
   }
@@ -1918,8 +1935,8 @@ Note: Only second search is open in split (vertial by default), this will make i
     tools: {
       openLink: createTool("Opens a given URL in a specified location. Can also create a split view with the current tab.", {
         link: createStringParameter("The URL to open."),
-        where: createStringParameter("Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.", !0)
-      }, openLink),
+        where: createStringParameter("Where to open the link. Options: 'current tab', 'new tab', 'background tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.", !0)
+      }, openLinkTool),
       newSplit: createTool("Creates a split view by opening multiple new URLs in new tabs, then arranging them side-by-side.", {
         links: createStringArrayParameter("An array of URLs for the new tabs."),
         type: createStringParameter("The split type: 'vertical', 'horizontal', or 'grid'. Defaults to 'vertical'.", !0)
@@ -2170,8 +2187,8 @@ If tab is essential which means does not belong to any specific workspace.
       if (group) {
         if (group.tools)
           for (let toolName in group.tools) {
-            let tool2 = group.tools[toolName], params = Object.keys(tool2.inputSchema.shape).join(", ");
-            availableTools.push(`- \`${toolName}(${params})\`: ${tool2.description}`);
+            let tool = group.tools[toolName], params = Object.keys(tool.inputSchema.shape).join(", ");
+            availableTools.push(`- \`${toolName}(${params})\`: ${tool.description}`);
           }
         if (group.moreInstructions) {
           let instructions = typeof group.moreInstructions === "function" ? await group.moreInstructions() : group.moreInstructions;
@@ -3066,7 +3083,7 @@ Declined by user.`;
   snapToClosestCorner() {
     if (!this.findbar || !PREFS2.dndEnabled)
       return;
-    let rect = this.findbar.getBoundingClientRect(), currentX = rect.left, currentY = rect.top, findbarWidth = rect.width, findbarHeight = rect.height, snapPoints = {
+    let rect = this.findbar.getBoundingClientRect(), { left: currentX, top: currentY, width: findbarWidth, height: findbarHeight } = rect, snapPoints = {
       "top-left": { x: 0, y: 0 },
       "top-right": { x: window.innerWidth - findbarWidth, y: 0 },
       "bottom-left": { x: 0, y: window.innerHeight - findbarHeight },
@@ -3189,12 +3206,12 @@ var providerPrototype = {
   },
   getModel() {
     if (this.create === createOpenAICompatible) {
-      let config2 = {
+      let config = {
         name: this.name,
         apiKey: this.apiKey || "not_required",
         baseURL: this.baseURL
       };
-      return this.create(config2).chatModel(this.model);
+      return this.create(config).chatModel(this.model);
     }
     let config = { apiKey: this.apiKey };
     return this.create(config)(this.model);
@@ -3208,8 +3225,13 @@ var providerPrototype = {
     "pixtral-large-latest",
     "mistral-large-latest",
     "mistral-medium-latest",
+    "mistral-medium-3",
+    "mistral-medium-3.5",
+    "mistral-medium-2508",
     "mistral-medium-2505",
     "mistral-small-latest",
+    "magistral-small-2507",
+    "magistral-medium-2507",
     "magistral-small-2506",
     "magistral-medium-2506",
     "ministral-3b-latest",
@@ -3223,8 +3245,13 @@ var providerPrototype = {
     "pixtral-large-latest": "Pixtral Large (Latest)",
     "mistral-large-latest": "Mistral Large (Latest)",
     "mistral-medium-latest": "Mistral Medium (Latest)",
+    "mistral-medium-3": "Mistral Medium 3",
+    "mistral-medium-3.5": "Mistral Medium 3.5",
+    "mistral-medium-2508": "Mistral Medium (2508)",
     "mistral-medium-2505": "Mistral Medium (2505)",
     "mistral-small-latest": "Mistral Small(Latest)",
+    "magistral-small-2507": "Magistral Small (2507)",
+    "magistral-medium-2507": "Magistral Medium (2507)",
     "magistral-small-2506": "Magistral Small (2506)",
     "magistral-medium-2506": "Magistral Medium (2506)",
     "ministral-3b-latest": "Ministral 3B (Latest)",
@@ -3244,7 +3271,11 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("gemini.google.com"),
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
   AVAILABLE_MODELS: [
+    "gemini-3.8-flash",
+    "gemini-3.7-flash",
+    "gemini-3.6-flash",
     "gemini-3.5-flash",
+    "gemini-3.5-flash-lite",
     "gemini-3.1-pro-preview",
     "gemini-3.1-flash-image-preview",
     "gemini-3.1-flash-lite-preview",
@@ -3261,7 +3292,11 @@ var providerPrototype = {
     "gemini-1.5-flash-8b-latest"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "gemini-3.8-flash": "Gemini 3.8 Flash",
+    "gemini-3.7-flash": "Gemini 3.7 Flash",
+    "gemini-3.6-flash": "Gemini 3.6 Flash",
     "gemini-3.5-flash": "Gemini 3.5 Flash",
+    "gemini-3.5-flash-lite": "Gemini 3.5 Flash Lite",
     "gemini-3.1-pro-preview": "Gemini 3.1 Pro Preview",
     "gemini-3.1-flash-image-preview": "Gemini 3.1 Flash Image Preview",
     "gemini-3.1-flash-lite-preview": "Gemini 3.1 Flash Lite Preview",
@@ -3286,6 +3321,7 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("chatgpt.com"),
   apiKeyUrl: "https://platform.openai.com/account/api-keys",
   AVAILABLE_MODELS: [
+    "gpt-6-astra",
     "gpt-5.6",
     "gpt-5.6-luna",
     "gpt-5.6-sol",
@@ -3323,6 +3359,7 @@ var providerPrototype = {
     "gpt-5-codex"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "gpt-6-astra": "GPT 6 Astra",
     "gpt-5.6": "GPT 5.6",
     "gpt-5.6-luna": "GPT 5.6 Luna",
     "gpt-5.6-sol": "GPT 5.6 Sol",
@@ -3368,7 +3405,9 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("anthropic.com"),
   apiKeyUrl: "https://console.anthropic.com/dashboard",
   AVAILABLE_MODELS: [
+    "claude-opus-5",
     "claude-sonnet-5",
+    "claude-fable-5-1",
     "claude-fable-5",
     "claude-opus-4-8",
     "claude-opus-4-7",
@@ -3384,7 +3423,9 @@ var providerPrototype = {
     "claude-3-5-haiku-latest"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "claude-opus-5": "Claude Opus 5",
     "claude-sonnet-5": "Claude Sonnet 5",
+    "claude-fable-5-1": "Claude Fable 5.1",
     "claude-fable-5": "Claude Fable 5",
     "claude-opus-4-8": "Claude Opus 4.8",
     "claude-opus-4-7": "Claude Opus 4.7",
@@ -3408,6 +3449,7 @@ var providerPrototype = {
   faviconUrl: googleFaviconAPI("x.ai"),
   apiKeyUrl: "https://x.ai/api",
   AVAILABLE_MODELS: [
+    "grok-4.6",
     "grok-4.5",
     "grok-4.20-reasoning",
     "grok-4.20-non-reasoning",
@@ -3430,6 +3472,7 @@ var providerPrototype = {
     "grok-2-latest"
   ],
   AVAILABLE_MODELS_LABELS: {
+    "grok-4.6": "Grok 4.6",
     "grok-4.5": "Grok 4.5",
     "grok-4.20-reasoning": "Grok 4.20 (Reasoning)",
     "grok-4.20-non-reasoning": "Grok 4.20 (Non-Reasoning)",
@@ -3483,21 +3526,10 @@ var providerPrototype = {
   label: "Cerebras AI",
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=cerebras.ai",
   apiKeyUrl: "https://cerebras.ai",
-  AVAILABLE_MODELS: [
-    "llama3.1-8b",
-    "llama-3.3-70b",
-    "gpt-oss-120b",
-    "qwen-3-32b",
-    "qwen-3-235b-a22b-instruct-2507",
-    "zai-glm-4.6"
-  ],
+  AVAILABLE_MODELS: ["gpt-oss-120b", "gemma-4-31b"],
   AVAILABLE_MODELS_LABELS: {
-    "llama3.1-8b": "Llama 3.1 8B",
-    "llama-3.3-70b": "Llama 3.3 70B",
     "gpt-oss-120b": "OpenAI GPT OSS 120B",
-    "qwen-3-32b": "Qwen 3 32B",
-    "qwen-3-235b-a22b-instruct-2507": "Qwen 3 235B Instruct (Preview)",
-    "zai-glm-4.6": "Z.ai GLM 4.6 (Preview)"
+    "gemma-4-31b": "Gemma 4 31B"
   },
   modelPref: prefs_default.CEREBRAS_MODEL,
   apiPref: prefs_default.CEREBRAS_API_KEY,
