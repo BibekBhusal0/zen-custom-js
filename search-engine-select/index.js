@@ -17,6 +17,7 @@ const SearchEngineSwitcher = {
   _initialTop: 0,
   _boundListeners: {},
   _progressListener: null,
+  _resizeObserver: null,
 
   async init() {
     if (!PREFS.enabled) {
@@ -126,6 +127,7 @@ const SearchEngineSwitcher = {
     this._hide();
     this.updateSwitcherVisibility();
     this.handleSplitOrGlance();
+    this.observeSelectedBrowser();
     if (gBrowser.selectedTab?.hasAttribute("zen-glance-tab")) {
       setTimeout(() => this.updatePosition(), 500);
     }
@@ -151,8 +153,25 @@ const SearchEngineSwitcher = {
       this._container.classList.remove("in-split-view");
       return;
     }
-    this.updatePosition();
     this._container.classList.add("in-split-view");
+    this.updatePosition();
+  },
+
+  observeSelectedBrowser() {
+    // Reposition the UI whenever the active pane's size changes for any reason
+    // (splitter drag, window resize, sidebar toggle, compact mode, ...).
+    try {
+      this._resizeObserver?.disconnect();
+    } catch {
+      // ignore
+    }
+    const browser = typeof gBrowser !== "undefined" ? gBrowser.selectedBrowser : null;
+    if (!browser || !this._resizeObserver) return;
+    try {
+      this._resizeObserver.observe(browser);
+    } catch (e) {
+      PREFS.debugError("Failed to observe selected browser for repositioning.", e);
+    }
   },
 
   updatePosition() {
@@ -168,6 +187,7 @@ const SearchEngineSwitcher = {
     }
 
     const rect = activeBrowser.getBoundingClientRect();
+    if (!rect.width) return;
     this._container.style.setProperty("--ses-pane-x", `${rect.x}px`);
     this._container.style.setProperty("--ses-pane-width", `${rect.width}px`);
   },
@@ -364,6 +384,8 @@ const SearchEngineSwitcher = {
       this.updatePosition();
       setTimeout(() => this.updatePosition(), 500);
     };
+    this._resizeObserver = new ResizeObserver(() => this.updatePosition());
+    this.observeSelectedBrowser();
 
     gBrowser.tabContainer.addEventListener("TabSelect", this._boundListeners.handleTabSelect);
     gBrowser.addTabsProgressListener(this._progressListener);
@@ -409,6 +431,12 @@ const SearchEngineSwitcher = {
     );
     window.removeEventListener("ZenCompactMode:Toggled", this._boundListeners.onCompactModeToggled);
     window.removeEventListener("resize", this._boundListeners.onResize);
+    try {
+      this._resizeObserver?.disconnect();
+    } catch {
+      // ignore
+    }
+    this._resizeObserver = null;
 
     this._boundListeners = {};
   },
