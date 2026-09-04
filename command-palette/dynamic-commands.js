@@ -7,51 +7,14 @@ import { showToast } from "../utils/toast.js";
 import { isNotEmptyTab } from "./utils/notEmptyTab.js";
 import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
 import { hmacCode, loadApprovedHashes, trustHash } from "./utils/trust.js";
+import { openLink } from "../utils/open-link.js";
 
 const commandChainUtils = {
   async openLink(params) {
     const { link, where = "new tab" } = params;
     if (!link) return;
-    const whereNormalized = where?.toLowerCase()?.trim();
     try {
-      switch (whereNormalized) {
-        case "current tab":
-          openTrustedLinkIn(link, "current");
-          break;
-        case "new tab":
-          openTrustedLinkIn(link, "tab");
-          break;
-        case "new window":
-          openTrustedLinkIn(link, "window");
-          break;
-        case "incognito":
-        case "private":
-          window.openTrustedLinkIn(link, "window", { private: true });
-          break;
-        case "glance":
-          if (window.gZenGlanceManager) {
-            window.gZenGlanceManager.openGlance({
-              url: link,
-            });
-          } else {
-            openTrustedLinkIn(link, "tab");
-          }
-          break;
-        case "vsplit":
-        case "hsplit":
-          if (window.gZenViewSplitter) {
-            const sep = whereNormalized === "vsplit" ? "vsep" : "hsep";
-            const tab1 = gBrowser.selectedTab;
-            await openTrustedLinkIn(link, "tab");
-            const tab2 = gBrowser.selectedTab;
-            gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
-          } else {
-            openTrustedLinkIn(link, "tab");
-          }
-          break;
-        default:
-          openTrustedLinkIn(link, "tab");
-      }
+      await openLink(link, where);
     } catch (e) {
       PREFS.debugError(`Command Chain: Failed to open link "${link}" in "${where}".`, e);
     }

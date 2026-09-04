@@ -5,6 +5,7 @@
 # Fixes
 
 - Fixed switcher position not being applied when resizing split view.
+- Fixed Alt+Click not opening results in Glance.
 
 # Others
 

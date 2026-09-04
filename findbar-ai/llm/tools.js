@@ -8,6 +8,7 @@ import {
   getDefaultEngine,
   getVisibleEngines,
 } from "../../utils/search-service.js";
+import { openLink } from "../../utils/open-link.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
@@ -150,7 +151,7 @@ async function search(args) {
 
   const url = await getSearchURL(searchEngineName, searchTerm);
   if (url) {
-    return await openLink({ link: url, where });
+    return await openLinkTool({ link: url, where });
   } else {
     return {
       error: `Could not find search engine named '${searchEngineName}'.`,
@@ -161,52 +162,20 @@ async function search(args) {
 // ╭─────────────────────────────────────────────────────────╮
 // │                          TABS                           │
 // ╰─────────────────────────────────────────────────────────╯
-async function openLink(args) {
+async function openLinkTool(args) {
   const { link, where = "new tab" } = args;
   if (!link) return { error: "openLink requires a link." };
-  const whereNormalized = where?.toLowerCase()?.trim();
+  const destination = where?.toLowerCase()?.trim();
   try {
-    switch (whereNormalized) {
-      case "current tab":
-        openTrustedLinkIn(link, "current");
-        break;
-      case "new tab":
-        openTrustedLinkIn(link, "tab");
-        break;
-      case "new window":
-        openTrustedLinkIn(link, "window");
-        break;
-      case "incognito":
-      case "private":
-        window.openTrustedLinkIn(link, "window", { private: true });
-        break;
-      case "glance":
-        if (window.gZenGlanceManager) {
-          window.gZenGlanceManager.openGlance({
-            url: link,
-          });
-        } else {
-          openTrustedLinkIn(link, "tab");
-          return { result: `Glance not available. Opened in a new tab.` };
-        }
-        break;
-      case "vsplit":
-      case "hsplit":
-        if (window.gZenViewSplitter) {
-          const sep = whereNormalized === "vsplit" ? "vsep" : "hsep";
-          const tab1 = gBrowser.selectedTab;
-          await openTrustedLinkIn(link, "tab");
-          const tab2 = gBrowser.selectedTab;
-          gZenViewSplitter.splitTabs([tab1, tab2], sep, 1);
-        } else return { error: "Split view is not available." };
-        break;
-      default:
-        openTrustedLinkIn(link, "tab");
-        return {
-          result: `Unknown location "${where}". Opened in a new tab as fallback.`,
-        };
-    }
-    return { result: `Successfully opened ${link} in ${where}.` };
+    const opened = await openLink(link, destination);
+    if (opened) return { result: `Successfully opened ${link} in ${where}.` };
+    const reason =
+      destination === "glance"
+        ? "Glance not available."
+        : (destination || "").endsWith("split")
+          ? "Split view is not available."
+          : `Unknown location "${where}".`;
+    return { result: `${reason} Opened in a new tab as fallback.` };
   } catch (e) {
     PREFS.debugError(`Failed to open link "${link}" in "${where}".`, e);
     return { error: `Failed to open link.` };
@@ -963,11 +932,11 @@ Note: Only second search is open in split (vertial by default), this will make i
         {
           link: createStringParameter("The URL to open."),
           where: createStringParameter(
-            "Where to open the link. Options: 'current tab', 'new tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
+            "Where to open the link. Options: 'current tab', 'new tab', 'background tab', 'new window', 'incognito', 'glance', 'vsplit', 'hsplit'. Default: 'new tab'.",
             true
           ),
         },
-        openLink
+        openLinkTool
       ),
       newSplit: createTool(
         "Creates a split view by opening multiple new URLs in new tabs, then arranging them side-by-side.",

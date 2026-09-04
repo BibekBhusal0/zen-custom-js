@@ -4,6 +4,7 @@ import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { PREFS } from "./utils/prefs.js";
 import { addPrefListener } from "../utils/pref.js";
 import { getVisibleEngines, getEngineByName, getDefaultEngine } from "../utils/search-service.js";
+import { openLink } from "../utils/open-link.js";
 
 const SearchEngineSwitcher = {
   _container: null,
@@ -273,42 +274,26 @@ const SearchEngineSwitcher = {
 
     const term = this._currentSearchInfo.term;
     const newUrl = newEngine.getSubmission(term).uri.spec;
-    let actionTaken = false;
 
+    let where = null;
     if (event.button === 0 && event.ctrlKey && !event.altKey && !event.shiftKey) {
-      PREFS.debugLog("Action: Split View");
-      if (window.gZenViewSplitter) {
-        const previousTab = gBrowser.selectedTab;
-        await openTrustedLinkIn(newUrl, "tab");
-        const currentTab = gBrowser.selectedTab;
-        gZenViewSplitter.splitTabs([currentTab, previousTab], "vsep", 1);
-      } else {
-        openTrustedLinkIn(newUrl, "tab");
-      }
-      actionTaken = true;
+      where = "vsplit";
     } else if (event.button === 0 && event.altKey) {
-      PREFS.debugLog("Action: Glance");
-      if (window.gZenGlanceManager) {
-        window.gZenGlanceManager.openGlance({
-          url: newUrl,
-        });
-      } else {
-        openTrustedLinkIn(newUrl, "tab");
-      }
-      actionTaken = true;
+      where = "glance";
     } else if (event.button === 1) {
-      PREFS.debugLog("Action: Background Tab");
-      openTrustedLinkIn(newUrl, "tab", {
-        inBackground: true,
-        relatedToCurrent: true,
-      });
+      where = "background tab";
     } else if (event.button === 0) {
-      PREFS.debugLog("Action: Current Tab");
-      openTrustedLinkIn(newUrl, "current");
-      actionTaken = true;
+      where = "current tab";
     }
 
-    if (actionTaken) {
+    if (!where) {
+      this._engineOptions.style.display = "none";
+      this._container.classList.remove("options-visible");
+      return;
+    }
+
+    PREFS.debugLog(`Action: ${where}`);
+    if (await openLink(newUrl, where)) {
       this.updateSelectedEngineDisplay();
     }
 

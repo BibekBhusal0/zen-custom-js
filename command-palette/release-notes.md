@@ -4,6 +4,8 @@
 
 # Fixes
 
+- Fixed opening links in Glance from custom command chains.
+
 # Others
 
 # Contributes
