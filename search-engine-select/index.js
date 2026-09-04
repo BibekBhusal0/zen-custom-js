@@ -80,7 +80,46 @@ const SearchEngineSwitcher = {
         }
       }
     }
-    return null;
+    return this.matchGenericSearchUrl(url);
+  },
+
+  /**
+   * Fallback for search pages whose engine isn't among the known/visible
+   * engines: extract the term from common search query params and
+   * best-effort match the hostname against known engine names.
+   * `engine` may be null when no known engine matches.
+   */
+  matchGenericSearchUrl(url) {
+    let parsed;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return null;
+    }
+
+    let term = null;
+    const searchParams = ["q", "query", "search", "text", "p", "wd"];
+    for (const key of searchParams) {
+      const value = parsed.searchParams.get(key);
+      if (value && value.trim()) {
+        term = value.trim();
+        break;
+      }
+    }
+    if (!term) return null;
+
+    const host = parsed.hostname.toLowerCase().replace(/[^a-z0-9]/g, "");
+    let engine = null;
+    for (const { engine: candidate } of this._engineCache) {
+      const nameKey = candidate.name.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (nameKey && host.includes(nameKey)) {
+        engine = candidate;
+        break;
+      }
+    }
+
+    PREFS.debugLog(`Generic match: Engine='${engine?.name ?? "unknown"}', Term='${term}'`);
+    return { engine, term, host: parsed.hostname };
   },
 
   updateSwitcherVisibility() {
@@ -111,10 +150,13 @@ const SearchEngineSwitcher = {
 
   updateSelectedEngineDisplay() {
     if (!this._currentSearchInfo || !this._engineSelect) return;
-    const { engine } = this._currentSearchInfo;
+    const { engine, host } = this._currentSearchInfo;
     const img = parseElement("<img>");
-    img.src = getSearchEngineFavicon(engine);
-    const nameSpan = parseElement(`<span>${escapeXmlAttribute(engine.name)}</span>`);
+    img.src = engine
+      ? getSearchEngineFavicon(engine)
+      : "chrome://browser/skin/zen-icons/search-glass.svg";
+    const label = engine ? engine.name : host || "Unknown search";
+    const nameSpan = parseElement(`<span>${escapeXmlAttribute(label)}</span>`);
     this._engineSelect.replaceChildren(img, nameSpan);
   },
 
@@ -220,7 +262,7 @@ const SearchEngineSwitcher = {
     event.preventDefault();
     event.stopPropagation();
 
-    if (newEngine.name === this._currentSearchInfo?.engine.name) {
+    if (newEngine.name === this._currentSearchInfo?.engine?.name) {
       PREFS.debugLog(`Clicked on same engine ('${newEngine.name}'). Closing menu.`);
       this._engineOptions.style.display = "none";
       this._container.classList.remove("options-visible");
