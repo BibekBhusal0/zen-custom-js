@@ -93,6 +93,8 @@
       width: 32px;
       height: 32px;
       flex-shrink: 0;
+      fill: var(--ses-text-color) !important;
+      -moz-context-properties: fill !important;
     }
 
     span {
