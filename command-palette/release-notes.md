@@ -5,6 +5,7 @@
 # Fixes
 
 - Fixed opening links in Glance from custom command chains.
+- Fixed in for zen `1.22b`
 
 # Others
 
