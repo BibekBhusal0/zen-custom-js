@@ -267,7 +267,7 @@
   },
   {
     "type": "text",
-    "label": "**compact-settings**",
+    "label": "**Compact Settings**",
     "size": "18px",
     "margin": "20px 0 10px 0"
   },
@@ -1857,7 +1857,7 @@
   },
   {
     "type": "text",
-    "label": "**floating-sidebar**",
+    "label": "**Floating Sidebar**",
     "size": "18px",
     "margin": "20px 0 10px 0"
   },
