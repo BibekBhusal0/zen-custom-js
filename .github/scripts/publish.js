@@ -428,7 +428,9 @@ async function runPublish() {
 
   if (updatedMods.length === 0) {
     console.log("No updated mods found.");
-    await appendStepSummary("## Publish Mods Summary\n\n_No updated mods found. Everything is up to date._");
+    await appendStepSummary(
+      "## Publish Mods Summary\n\n_No updated mods found. Everything is up to date._"
+    );
     return;
   }
 
