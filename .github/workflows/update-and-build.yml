@@ -17,6 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Record start commit
+        id: start
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -74,3 +78,32 @@ jobs:
 
       - name: Push all changes
         run: git push origin ${{ github.ref_name || 'main' }}
+
+      - name: Workflow summary
+        if: always()
+        run: |
+          START="${{ steps.start.outputs.sha }}"
+          {
+            echo "## Update and Build Summary"
+            echo ""
+            echo "### Commits in this run"
+            echo ""
+            LOG=$(git log --pretty=format:'- %s (%h)' "$START"..HEAD -- 2>/dev/null)
+            if [ -z "$LOG" ]; then
+              echo "_No new commits._"
+            else
+              echo "$LOG"
+            fi
+            echo ""
+            echo ""
+            echo "### Files changed in this run"
+            echo ""
+            echo '```'
+            STAT=$(git diff --stat "$START"..HEAD -- . 2>/dev/null)
+            if [ -z "$STAT" ]; then
+              echo "No changes."
+            else
+              echo "$STAT"
+            fi
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

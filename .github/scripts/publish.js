@@ -108,6 +108,22 @@ async function configureGit() {
   await run(`git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"`);
 }
 
+// Append markdown to the GitHub Actions job summary (visible in the Actions UI).
+// Falls back to console output when not running in GitHub Actions.
+async function appendStepSummary(markdown) {
+  if (!process.env.GITHUB_STEP_SUMMARY) {
+    console.log(markdown);
+    return;
+  }
+  try {
+    const summaryFile = Bun.file(process.env.GITHUB_STEP_SUMMARY);
+    const existing = (await summaryFile.exists()) ? await summaryFile.text() : "";
+    await Bun.write(process.env.GITHUB_STEP_SUMMARY, existing + markdown + "\n");
+  } catch (e) {
+    console.error("Failed to write step summary:", e.message);
+  }
+}
+
 // Get all mod folders
 async function getModFolders() {
   const dirs = await $`ls -d ${MODS_DIR}/*/`.quiet().text();
@@ -358,6 +374,7 @@ async function processMod(modData) {
   const releaseNotesPath = path.join(MODS_DIR, folder, "release-notes.md");
   const releaseTemplatePath = path.join(TEMPLATES_DIR, "release-notes.template.md");
 
+  let releaseCreated = false;
   if (await Bun.file(releaseNotesPath).exists()) {
     const releaseNotes = (await Bun.file(releaseNotesPath).text()).trim();
     let templateContent = "";
@@ -375,6 +392,7 @@ async function processMod(modData) {
         body: releaseNotes,
         prerelease: isBeta,
       });
+      releaseCreated = true;
 
       // Reset release notes in parent
       const rawTemplate = (await Bun.file(releaseTemplatePath).exists())
@@ -387,23 +405,53 @@ async function processMod(modData) {
       console.log("Release notes empty or match template. Skipping release creation.");
     }
   }
+
+  return { branch, releaseCreated };
 }
 
 // Main
 async function main() {
+  try {
+    await runPublish();
+  } catch (e) {
+    console.error("Publish run failed:", e);
+    await appendStepSummary(
+      `## Publish Mods Summary\n\nWorkflow failed before completing: \`${String(e.message || e).slice(0, 200)}\`\n\nCheck the step logs for details.`
+    );
+    process.exit(1);
+  }
+}
+
+async function runPublish() {
   await configureGit();
   const updatedMods = await getUpdatedMods();
 
   if (updatedMods.length === 0) {
     console.log("No updated mods found.");
+    await appendStepSummary("## Publish Mods Summary\n\n_No updated mods found. Everything is up to date._");
     return;
   }
 
+  const results = [];
   for (const mod of updatedMods) {
     try {
-      await processMod(mod);
+      const outcome = await processMod(mod);
+      results.push({
+        name: mod.theme.name,
+        version: mod.theme.version,
+        branch: outcome.branch,
+        release: outcome.releaseCreated ? "Created" : "Skipped",
+        status: "Published",
+      });
     } catch (e) {
       console.error(`Failed to process ${mod.folder}`, e);
+      results.push({
+        name: mod.theme.name,
+        version: mod.theme.version,
+        branch: mod.theme.version.endsWith("b") ? "beta" : "main",
+        release: "N/A",
+        status: "Failed",
+      });
     }
   }
 
@@ -413,6 +461,14 @@ async function main() {
   } catch {
     console.log("Nothing to push to parent repo");
   }
+
+  let summary = "## Publish Mods Summary\n\n";
+  summary += "| Mod | Version | Branch | Release | Status |\n";
+  summary += "| --- | --- | --- | --- | --- |\n";
+  for (const r of results) {
+    summary += `| ${r.name} | v${r.version} | ${r.branch} | ${r.release} | ${r.status} |\n`;
+  }
+  await appendStepSummary(summary);
 }
 
 main();
