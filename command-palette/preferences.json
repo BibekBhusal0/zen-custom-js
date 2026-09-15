@@ -169,6 +169,29 @@
     "defaultValue": false
   },
   {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.quick-split",
+    "label": "Enable Quick Split (split view and glance from the palette)",
+    "defaultValue": true
+  },
+  {
+    "type": "separator",
+    "label": "Quick Split",
+    "margin": "25px 0 15px 0"
+  },
+  {
+    "type": "text",
+    "label": "Type `site1 | site2` for side-by-side, `site1 - site2` for stacked, or `+site` for glance in the palette. `-` and `_` need spaces around them. Manage keywords in the palette settings, in the Quick Split section."
+  },
+  {
+    "type": "string",
+    "property": "zen-command-palette.quick-split.search-engine",
+    "label": "Search Engine",
+    "placeholder": "Empty for browser default",
+    "defaultValue": "",
+    "description": "Name of the search engine used for plain terms (e.g. Google, DuckDuckGo). Empty means the browser default."
+  },
+  {
     "type": "separator",
     "label": "Development",
     "margin": "25px 0 15px 0"

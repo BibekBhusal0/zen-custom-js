@@ -24,6 +24,8 @@ class CommandPalettePREFS extends BasePREFS {
   static DYNAMIC_EXTENSION_ENABLE_DISABLE = "zen-command-palette.dynamic.extension-enable-disable";
   static DYNAMIC_EXTENSION_UNINSTALL = "zen-command-palette.dynamic.extension-uninstall";
   static DYNAMIC_PROFILES = "zen-command-palette.dynamic.profiles";
+  static DYNAMIC_QUICK_SPLIT = "zen-command-palette.dynamic.quick-split";
+  static QUICK_SPLIT_SEARCH_ENGINE = "zen-command-palette.quick-split.search-engine";
   static COMMAND_SETTINGS_FILE = "zen-command-palette.settings-file-path";
   static COMMAND_TRUST_KEY = "zen-command-palette.command-trust-key";
 
@@ -47,6 +49,8 @@ class CommandPalettePREFS extends BasePREFS {
     [CommandPalettePREFS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
     [CommandPalettePREFS.DYNAMIC_EXTENSION_UNINSTALL]: false,
     [CommandPalettePREFS.DYNAMIC_PROFILES]: true,
+    [CommandPalettePREFS.DYNAMIC_QUICK_SPLIT]: true,
+    [CommandPalettePREFS.QUICK_SPLIT_SEARCH_ENGINE]: "",
     [CommandPalettePREFS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
   };
 
@@ -106,8 +110,16 @@ class CommandPalettePREFS extends BasePREFS {
     return this.getPref(this.DYNAMIC_ACTIVE_TABS);
   }
 
+  static get loadQuickSplit() {
+    return this.getPref(this.DYNAMIC_QUICK_SPLIT);
+  }
+
   static get commandSettingsFile() {
     return this.getPref(this.COMMAND_SETTINGS_FILE);
+  }
+
+  static get quickSplitSearchEngine() {
+    return this.getPref(this.QUICK_SPLIT_SEARCH_ENGINE);
   }
 
   static get commandTrustKey() {

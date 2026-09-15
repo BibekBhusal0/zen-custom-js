@@ -3,6 +3,8 @@ import { Storage } from "./utils/storage.js";
 import { hmacCode, trustHash } from "./utils/trust.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { icons, svgToUrl } from "../utils/icon.js";
+import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
+import { getSearchEngineFavicon } from "../utils/favicon.js";
 import {
   checkShortcutConflicts,
   eventToShortcutSignature,
@@ -76,6 +78,7 @@ const SettingsModal = {
     this._populateCommandsTab();
     this._populateSettingsTab();
     this._populateCustomCommandsTab();
+    await this._populateQuickSplitSection();
     this._populateHelpTab();
     this._attachEventListeners();
 
@@ -132,6 +135,7 @@ const SettingsModal = {
       customShortcuts: filteredCustomShortcuts,
       toolbarButtons: [...(this._currentSettings.toolbarButtons || [])],
       customCommands: [...(this._currentSettings.customCommands || [])],
+      quickSplitKeywords: { ...(this._currentSettings.quickSplitKeywords || {}) },
     };
 
     // Commands tab
@@ -225,6 +229,11 @@ const SettingsModal = {
     modal
       .querySelector("#command-search-input")
       .addEventListener("input", (e) => this._filterCommands(e.target.value));
+
+    // Quick Split section is only shown while the feature is enabled
+    modal
+      .querySelector(`[data-pref="${PREFS.DYNAMIC_QUICK_SPLIT}"]`)
+      ?.addEventListener("change", () => this._updateQuickSplitSectionVisibility());
 
     // Help tab links
     modal.querySelectorAll(".help-button").forEach((button) => {
@@ -583,6 +592,136 @@ const SettingsModal = {
       (c) => c.id !== id
     );
     this._renderCustomCommands();
+  },
+
+  async _populateQuickSplitSection() {
+    const container = this._modalElement.querySelector("#settings-tab-content");
+    container.querySelector("#quick-split-section")?.remove();
+    if (!this._currentSettings.quickSplitKeywords || typeof this._currentSettings.quickSplitKeywords !== "object") {
+      this._currentSettings.quickSplitKeywords = {};
+    }
+    const section = parseElement(`
+      <section class="settings-section" id="quick-split-section">
+        <h4>Quick Split</h4>
+        <div class="setting-item">
+          <label for="quick-split-search-engine">Search Engine</label>
+          <div id="quick-split-engine-picker"><span class="engine-picker-loading">Loading…</span></div>
+        </div>
+        <div class="quick-split-list-header">
+          <span>Keywords</span>
+          <button id="add-quick-split-keyword" type="button"><img src="chrome://browser/skin/zen-icons/plus.svg" />Add Keyword</button>
+        </div>
+        <div id="quick-split-keywords-list"></div>
+      </section>
+    `);
+    container.appendChild(section);
+
+    this._renderQuickSplitKeywords();
+
+    section.querySelector("#add-quick-split-keyword").addEventListener("click", () => {
+      const list = section.querySelector("#quick-split-keywords-list");
+      list.querySelector(".no-quick-split-keywords")?.remove();
+      const row = this._renderQuickSplitKeywordRow("", "");
+      list.appendChild(row);
+      list.scrollTop = list.scrollHeight;
+      row.querySelector(".keyword-key").focus();
+    });
+
+    await this._populateQuickSplitEnginePicker(section);
+    this._updateQuickSplitSectionVisibility();
+  },
+
+  async _populateQuickSplitEnginePicker(section) {
+    const picker = section.querySelector("#quick-split-engine-picker");
+    try {
+      const engines = await getVisibleEngines();
+      let defaultEngineName = null;
+      try {
+        defaultEngineName = (await getDefaultEngine())?.name ?? null;
+      } catch (e) {
+        PREFS.debugError("Failed to get default search engine for Quick Split picker.", e);
+      }
+      const saved = PREFS.getPref(PREFS.QUICK_SPLIT_SEARCH_ENGINE) || "";
+      const current =
+        saved && engines.some((engine) => engine.name === saved) ? saved : "";
+      const items = [
+        `<menuitem value="" label="Browser default"/>`,
+        ...engines.map((engine) => {
+          const label =
+            engine.name === defaultEngineName ? `${engine.name} (Default)` : engine.name;
+          return `<menuitem value="${escapeXmlAttribute(engine.name)}" label="${escapeXmlAttribute(label)}" image="${escapeXmlAttribute(getSearchEngineFavicon(engine))}"/>`;
+        }),
+      ].join("");
+      const menulist = parseElement(
+        `<menulist id="quick-split-search-engine" data-pref="${PREFS.QUICK_SPLIT_SEARCH_ENGINE}" value="${escapeXmlAttribute(current)}"><menupopup>${items}</menupopup></menulist>`,
+        "xul"
+      );
+      picker.replaceChildren(menulist);
+    } catch (e) {
+      PREFS.debugError("Failed to load search engines for Quick Split picker.", e);
+      picker.textContent = "Could not load search engines.";
+    }
+  },
+
+  _renderQuickSplitKeywords() {
+    const list = this._modalElement.querySelector("#quick-split-keywords-list");
+    list.innerHTML = "";
+    const keywords = this._currentSettings.quickSplitKeywords || {};
+    const entries = Object.entries(keywords).sort(([a], [b]) => a.localeCompare(b));
+
+    if (entries.length === 0) {
+      list.innerHTML = `<p class="no-quick-split-keywords">No keywords yet. Add one to get started!</p>`;
+      return;
+    }
+
+    for (const [keyword, url] of entries) {
+      list.appendChild(this._renderQuickSplitKeywordRow(keyword, url));
+    }
+  },
+
+  _renderQuickSplitKeywordRow(keyword, url) {
+    const row = parseElement(`
+      <div class="keyword-row" data-key="${escapeXmlAttribute(keyword)}">
+        <input type="text" class="keyword-key" value="${escapeXmlAttribute(keyword)}" placeholder="keyword" />
+        <input type="text" class="keyword-url" value="${escapeXmlAttribute(url)}" placeholder="https://…" />
+        <button class="keyword-remove icon-button delete-button" type="button" title="Remove Keyword"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
+      </div>
+    `);
+
+    row.querySelector(".keyword-key").addEventListener("change", (e) => {
+      const keywords = this._currentSettings.quickSplitKeywords || {};
+      const oldKey = row.dataset.key;
+      const newKey = e.target.value.trim().toLowerCase();
+      e.target.value = newKey;
+      if (newKey === oldKey) return;
+      const value = oldKey ? keywords[oldKey] : row.querySelector(".keyword-url").value.trim();
+      if (oldKey) delete keywords[oldKey];
+      if (newKey && value) keywords[newKey] = value;
+      row.dataset.key = newKey;
+      this._currentSettings.quickSplitKeywords = keywords;
+    });
+
+    row.querySelector(".keyword-url").addEventListener("change", (e) => {
+      const keywords = this._currentSettings.quickSplitKeywords || {};
+      const key = row.dataset.key;
+      if (!key) return;
+      keywords[key] = e.target.value.trim();
+      this._currentSettings.quickSplitKeywords = keywords;
+    });
+
+    row.querySelector(".keyword-remove").addEventListener("click", () => {
+      const keywords = this._currentSettings.quickSplitKeywords || {};
+      if (row.dataset.key) delete keywords[row.dataset.key];
+      this._currentSettings.quickSplitKeywords = keywords;
+      this._renderQuickSplitKeywords();
+    });
+
+    return row;
+  },
+
+  _updateQuickSplitSectionVisibility() {
+    const section = this._modalElement?.querySelector("#quick-split-section");
+    if (section) section.hidden = !PREFS.loadQuickSplit;
   },
 
   _createCommandMenuItems(allCommands) {
@@ -963,6 +1102,12 @@ const SettingsModal = {
         icon: svgToUrl(icons["book"]),
         title: "View Documentation",
         description: "Read the full guide on GitHub.",
+      },
+      {
+        url: "https://github.com/Vertex-Mods/Zen-Command-Palette/tree/main/command-palette",
+        icon: svgToUrl(icons["splitVz"]),
+        title: "Quick Split Guide",
+        description: "Split views and glance from the palette.",
       },
       {
         url: "https://github.com/Vertex-Mods/Zen-Command-Palette",

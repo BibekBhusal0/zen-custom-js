@@ -676,7 +676,73 @@
         }
       }
 
-      /*
+/*
+ * ╭─────────────────────────────────────────────────────────╮
+ * │                  Quick Split Section                    │
+ * ╰─────────────────────────────────────────────────────────╯
+*/
+      #quick-split-section {
+        .quick-split-list-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin: 10px 0;
+
+          #add-quick-split-keyword {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+
+            img {
+              width: 14px;
+              height: 14px;
+              fill: light-dark(black, white) !important;
+              -moz-context-properties: fill !important;
+            }
+          }
+        }
+
+        #quick-split-engine-picker {
+          display: flex;
+          flex-grow: 1;
+          min-width: 0;
+          justify-content: flex-end;
+
+          menulist {
+            flex-grow: 1;
+            max-width: 320px;
+          }
+        }
+
+        #quick-split-keywords-list {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          max-height: 260px;
+          overflow-y: auto;
+
+          .no-quick-split-keywords {
+            text-align: center;
+            opacity: 0.7;
+          }
+
+          .keyword-row {
+            display: grid;
+            grid-template-columns: 130px 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 4px 0;
+
+            input[type="text"] {
+              background-color: rgba(0, 0, 0, 0.2) !important;
+              border: 1px solid rgba(127, 127, 127, 0.3) !important;
+              min-width: 0;
+            }
+          }
+        }
+      }
+
+/*
  * ╭─────────────────────────────────────────────────────────╮
  * │                        Help Tab                         │
  * ╰─────────────────────────────────────────────────────────╯

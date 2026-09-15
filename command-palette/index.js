@@ -13,6 +13,7 @@ import {
   generateExtensionEnableDisableCommands,
   generateExtensionUninstallCommands,
   generateCustomCommands,
+  getQuickSplitCommand,
 } from "./dynamic-commands.js";
 import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
@@ -871,6 +872,8 @@ export const ZenCommandPalette = {
             if (isPrefixSearch) return true;
             if (PREFS.prefixRequired) return false;
 
+            if (getQuickSplitCommand(input) !== null) return true;
+
             if (input.length >= PREFS.minQueryLength) {
               const liveCommands = await self.generateLiveCommands(true, false);
               return self.filterCommandsByInput(input, liveCommands, false).length > 0;
@@ -942,6 +945,8 @@ export const ZenCommandPalette = {
               add(this, result);
               return true;
             };
+            const quickSplitCmd = getQuickSplitCommand(query);
+            if (quickSplitCmd && !context.canceled) addResult(quickSplitCmd, true);
 
             if (this._isInPrefixMode && !query) {
               let count = 0;
@@ -982,7 +987,7 @@ export const ZenCommandPalette = {
 
             const matches = self.filterCommandsByInput(query, liveCommands, this._isInPrefixMode);
 
-            if (!matches.length && this._isInPrefixMode) {
+            if (!matches.length && this._isInPrefixMode && !quickSplitCmd) {
               addResult({
                 key: "no-results",
                 label: "No matching commands found",
@@ -992,7 +997,7 @@ export const ZenCommandPalette = {
               return;
             }
 
-            matches.forEach((cmd, index) => addResult(cmd, index === 0));
+            matches.forEach((cmd, index) => addResult(cmd, index === 0 && !quickSplitCmd));
           } catch (e) {
             PREFS.debugError("startQuery unexpected error:", e);
           }
@@ -1022,8 +1027,8 @@ export const ZenCommandPalette = {
             const gURLBar = browserWindow.gURLBar;
             if (cmd.openUrl) gURLBar.value = "";
             else self._closeUrlBar();
-            self.addRecentCommand(cmd);
-            setTimeout(() => self.executeCommand(cmd.key), 0);
+            if (!cmd.transient) self.addRecentCommand(cmd);
+            setTimeout(() => self.executeCommand(cmd), 0);
           }
         }
 

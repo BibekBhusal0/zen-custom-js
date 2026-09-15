@@ -14,6 +14,7 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 - ⚡ **Feels Native**: Utilizes the browser's URL bar for a seamless experience.
 - 🔍 **Fuzzy Search & Smart Sorting**: Effortlessly locate what you need with a robust fuzzy search feature.
 - 🔄 **Dynamic Commands**: Automatically generates commands for your installed search engines, extensions, workspaces, folders, and internal `about:` pages.
+- ✂️ **Quick Split**: Open side-by-side/stacked split views or glance directly from the palette with `site1 | site2`, `site1 - site2`, or `+site`.
 - 🛠️ **Extensible API**: User scripts and browser modifications can easily add their own commands, making the palette a central hub for all your custom actions.
 - 🎨 **Highly Customizable**: Offers customizable keyboard shortcuts, widgets, icons, dynamic commands, and more.
 - ⌨️ **Custom Commands**: Make your own commands with custom JS or chaining other commands.
@@ -75,6 +76,8 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.dynamic.active-tabs`              | Boolean | `false`                             | Automatically generate commands for switching between active tabs.           |
 | `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |
 | `zen-command-palette.dynamic.profiles`                 | Boolean | `true`                              | Automatically generate commands for switching between profiles.              |
+| `zen-command-palette.dynamic.quick-split`              | Boolean | `true`                              | Open split views and glance from the palette with split syntax.              |
+| `zen-command-palette.quick-split.search-engine`        | String  | `""` (browser default)              | Search engine used for plain terms that are not keywords or URLs.            |
 | `zen-command-palette.settings-file-path`               | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
 
 ## ⌨️ Default Keyboard Shortcuts
@@ -129,6 +132,12 @@ The following commands are now native:
   - Close Glance
   - Expand Glance
   - Split Glance
+- **Quick Split** (type the syntax directly in the palette, with or without the prefix):
+  - `github | youtube`: open side-by-side split
+  - `github - youtube`: open stacked split (mixing `|` and `-` uses grid)
+  - `+github`: open in glance
+
+  Keywords open their website directly, URLs open as-is, anything else uses your search engine. Manage keywords in the palette settings, in the Quick Split section below (shown while Quick Split is enabled).
 - **Folders**:
   - Remove Tab from Folder
   - Rename Current Folder
