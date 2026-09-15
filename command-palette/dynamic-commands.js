@@ -626,13 +626,42 @@ async function resolveProfileName(profile, numberedFallback, toolkitNames = null
 
 /**
  * Generates commands for switching between profiles.
- * Supports new Selectable Profiles (via SelectableProfileService) with a
- * fallback to legacy toolkit profiles (via nsIToolkitProfileService +
- * Services.startup.createInstanceWithProfile, same as about:profiles).
+ * Lists toolkit profiles first (the about:profiles list, launched with
+ * Services.startup.createInstanceWithProfile just like its buttons do),
+ * then selectable profiles not already covered (launched with
+ * SelectableProfileService.launchInstance), deduplicated by folder path.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of profile commands.
  */
 export async function generateProfileCommands() {
   const commands = [];
+  const seenPaths = new Set();
+
+  try {
+    const profileService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
+      Ci.nsIToolkitProfileService
+    );
+    const currentRoot = profileService.currentProfile?.rootDir?.path;
+    let index = 0;
+    for (const profile of profileService.profiles) {
+      index++;
+      let root = null;
+      try {
+        root = profile.rootDir?.path;
+      } catch {}
+      if (!root || root === currentRoot) continue;
+      seenPaths.add(root);
+      const name = await resolveProfileName(profile, `Profile ${index}`);
+      commands.push({
+        key: `profile:launch:${name}`,
+        label: `Switch to Profile: ${name}`,
+        command: () => Services.startup.createInstanceWithProfile(profile),
+        icon: "chrome://browser/skin/zen-icons/tab.svg",
+        tags: ["profile", "switch", "launch", name.toLowerCase()],
+      });
+    }
+  } catch (e) {
+    PREFS.debugError("Failed to load toolkit profiles.", e);
+  }
 
   try {
     const { SelectableProfileService } = ChromeUtils.importESModule(
@@ -644,8 +673,9 @@ export async function generateProfileCommands() {
       const toolkitNames = loadToolkitProfileNames();
       for (const profile of profiles) {
         if (profile.id === currentId) continue;
+        if (profile.path && seenPaths.has(profile.path)) continue;
         const name = await resolveProfileName(profile, `Profile ${profile.id}`, toolkitNames);
-        let icon = "chrome://browser/skin/zen-icons/container-tab.svg";
+        let icon = "chrome://browser/skin/zen-icons/tab.svg";
         try {
           if (!profile.hasCustomAvatar && typeof profile.getAvatarPath === "function") {
             icon = profile.getAvatarPath(24) || icon;
@@ -659,32 +689,9 @@ export async function generateProfileCommands() {
           tags: ["profile", "switch", name.toLowerCase()],
         });
       }
-      if (commands.length) return commands;
     }
   } catch (e) {
     PREFS.debugError("Failed to load selectable profiles.", e);
-  }
-
-  try {
-    const profileService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
-      Ci.nsIToolkitProfileService
-    );
-    const currentProfile = profileService.currentProfile;
-    let index = 0;
-    for (const profile of profileService.profiles) {
-      index++;
-      if (profile.name === currentProfile?.name) continue;
-      const name = await resolveProfileName(profile, `Profile ${index}`);
-      commands.push({
-        key: `profile:launch:${name}`,
-        label: `Switch to Profile: ${name}`,
-        command: () => Services.startup.createInstanceWithProfile(profile),
-        icon: "chrome://browser/skin/zen-icons/container-tab.svg",
-        tags: ["profile", "switch", "launch", name.toLowerCase()],
-      });
-    }
-  } catch (e) {
-    PREFS.debugError("Failed to load toolkit profiles.", e);
   }
 
   if (!commands.length) {
