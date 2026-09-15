@@ -3,6 +3,7 @@
 
 @-moz-document url-prefix("about:addons") {
   @media -moz-pref("compact-settings.compact-addons.enabled") {
+  @media (min-width: 951px) {
     #full {
       display: block !important;
 
@@ -57,21 +58,7 @@
         overflow-y: auto !important;
       }
     }
-
-    @media (max-width: 950px) {
-      slot {
-        display: block !important;
-      }
-
-      #full #sidebar moz-page-nav-button {
-        --page-nav-button-padding: var(--space-small, 7.5px) var(--space-medium, 11.25px) !important;
-      }
-
-      /* icon-only mode's corner dot duplicates the badge once labels are back */
-      moz-page-nav-button[badged-category]::after {
-        display: none !important;
-      }
-    }
+  }
   }
 
   @media -moz-pref("compact-settings.addons.grid-enabled") {
