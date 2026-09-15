@@ -65,7 +65,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.           |
 | `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                          |
 | `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.           |
-| `zen-command-palette.dynamic.extensions`               | Boolean | `false`                             | Automatically generate commands for extensions with an options page.         |
+| `zen-command-palette.dynamic.extensions`                 | Boolean | `true`                              | Trigger extension actions and run their commands.                    |
 | `zen-command-palette.dynamic.extension-uninstall`      | Boolean | `false`                             | Automatically generate commands for uninstalling extension                   |
 | `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.           |
 | `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.     |
@@ -74,6 +74,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.dynamic.container-tabs`           | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.          |
 | `zen-command-palette.dynamic.active-tabs`              | Boolean | `false`                             | Automatically generate commands for switching between active tabs.           |
 | `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |
+| `zen-command-palette.dynamic.profiles`                 | Boolean | `true`                              | Automatically generate commands for switching between profiles.              |
 | `zen-command-palette.settings-file-path`               | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
 
 ## ⌨️ Default Keyboard Shortcuts
@@ -260,7 +261,8 @@ The following commands are now native:
 
 - **About Pages**: `Open about:[page-name]` (e.g., "Open about:config").
 - **Search Engines**: `Search with: [Engine Name]` to use a specific search engine.
-- **Extensions**: `Enable/Disable/Uninstall Extension: [Name]`.
+- **Extensions**: `Enable/Disable/Uninstall Extension: [Name]`, `Trigger Extension: [Name]`, and `[Extension Name]: [Command]`.
+- **Profiles**: `Switch to Profile: [Name]` to launch another profile in a new window.
 - **Container Tabs**: `Open Tab in: [Container Name]` to open current tab to a different container.
 - **Active Tabs**: `Switch to Tab: [Tab Title]` to quickly switch to any open tab, even across workspaces.
 - **Unload Tabs**: `Unload Tab: [Tab Title]` to quickly unload tab (to save memory).

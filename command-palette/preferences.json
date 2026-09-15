@@ -105,8 +105,8 @@
   {
     "type": "checkbox",
     "property": "zen-command-palette.dynamic.extensions",
-    "label": "Enable Extension Options commands",
-    "defaultValue": false
+    "label": "Enable Extension commands",
+    "defaultValue": true
   },
   {
     "type": "checkbox",
@@ -155,6 +155,12 @@
     "property": "zen-command-palette.dynamic.extension-uninstall",
     "label": "Enable Extension Uninstall commands",
     "defaultValue": false
+  },
+  {
+    "type": "checkbox",
+    "property": "zen-command-palette.dynamic.profiles",
+    "label": "Enable Profile switching commands",
+    "defaultValue": true
   },
   {
     "type": "checkbox",

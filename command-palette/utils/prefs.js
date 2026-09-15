@@ -23,6 +23,7 @@ class CommandPalettePREFS extends BasePREFS {
   static DYNAMIC_UNLOAD_TABS = "zen-command-palette.dynamic.unload-tab";
   static DYNAMIC_EXTENSION_ENABLE_DISABLE = "zen-command-palette.dynamic.extension-enable-disable";
   static DYNAMIC_EXTENSION_UNINSTALL = "zen-command-palette.dynamic.extension-uninstall";
+  static DYNAMIC_PROFILES = "zen-command-palette.dynamic.profiles";
   static COMMAND_SETTINGS_FILE = "zen-command-palette.settings-file-path";
   static COMMAND_TRUST_KEY = "zen-command-palette.command-trust-key";
 
@@ -36,7 +37,7 @@ class CommandPalettePREFS extends BasePREFS {
     [CommandPalettePREFS.MIN_SCORE_THRESHOLD]: 150,
     [CommandPalettePREFS.DYNAMIC_ABOUT_PAGES]: false,
     [CommandPalettePREFS.DYNAMIC_SEARCH_ENGINES]: true,
-    [CommandPalettePREFS.DYNAMIC_EXTENSIONS]: false,
+    [CommandPalettePREFS.DYNAMIC_EXTENSIONS]: true,
     [CommandPalettePREFS.DYNAMIC_WORKSPACES]: false,
     [CommandPalettePREFS.DYNAMIC_SINE_MODS]: true,
     [CommandPalettePREFS.DYNAMIC_FOLDERS]: true,
@@ -45,6 +46,7 @@ class CommandPalettePREFS extends BasePREFS {
     [CommandPalettePREFS.DYNAMIC_UNLOAD_TABS]: false,
     [CommandPalettePREFS.DYNAMIC_EXTENSION_ENABLE_DISABLE]: false,
     [CommandPalettePREFS.DYNAMIC_EXTENSION_UNINSTALL]: false,
+    [CommandPalettePREFS.DYNAMIC_PROFILES]: true,
     [CommandPalettePREFS.COMMAND_SETTINGS_FILE]: "chrome/zen-commands-settings.json",
   };
 

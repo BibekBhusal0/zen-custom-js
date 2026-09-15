@@ -199,34 +199,6 @@ export async function generateExtensionUninstallCommands() {
 }
 
 /**
- * Generates commands for opening extension options pages.
- * @returns {Promise<Array<object>>} A promise that resolves to an array of extension commands.
- */
-export async function generateExtensionCommands() {
-  const addons = await AddonManager.getAddonsByTypes(["extension"]);
-  return addons
-    .filter((addon) => addon.isActive && !addon.isSystem && addon.optionsURL)
-    .map((addon) => ({
-      key: `extension:${addon.id}`,
-      label: `Extension Options: ${addon.name}`,
-      command: () =>
-        BrowserAddonUI.openAddonsMgr(
-          "addons://detail/" + encodeURIComponent(addon.id) + "/preferences"
-        ),
-      icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
-      // HACK: adding tags 3 times so that this appears in top
-      tags: [
-        "extension",
-        "addon",
-        "options",
-        addon.name.toLowerCase(),
-        addon.name.toLowerCase(),
-        addon.name.toLowerCase(),
-      ],
-    }));
-}
-
-/**
  * Generates commands for opening the current tab in different containers.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of container commands.
  */
@@ -599,6 +571,254 @@ export function generateWorkspaceMoveCommands() {
     });
   }
 
+  return commands;
+}
+
+/**
+ * Loads toolkit profile names keyed by root directory path, so selectable
+ * profiles can fall back to the matching toolkit name.
+ * @returns {Map<string, string>} Map of root path to profile name.
+ */
+function loadToolkitProfileNames() {
+  const names = new Map();
+  try {
+    const profileService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
+      Ci.nsIToolkitProfileService
+    );
+    for (const profile of profileService.profiles) {
+      try {
+        const root = profile.rootDir?.path;
+        const name = String(profile.name ?? "").trim();
+        if (root && name) names.set(root, name);
+      } catch {}
+    }
+  } catch {}
+  return names;
+}
+
+/**
+ * Resolves the display name of a profile from every available source. Falls
+ * back to a numbered name only when no name is found anywhere.
+ * @param {object} profile - A SelectableProfile or nsIToolkitProfile.
+ * @param {string} numberedFallback - Fallback used when no name is available.
+ * @param {Map<string, string>|null} toolkitNames - Toolkit names by root path.
+ * @returns {Promise<string>} The profile name or the fallback.
+ */
+async function resolveProfileName(profile, numberedFallback, toolkitNames = null) {
+  const direct = String(profile.name ?? "").trim();
+  if (direct) return direct;
+  try {
+    const safe = await profile.toContentSafeObject?.();
+    const contentName = String(safe?.name ?? "").trim();
+    if (contentName) return contentName;
+  } catch {}
+  try {
+    if (typeof profile.path === "string") {
+      const toolkitName = toolkitNames?.get(profile.path);
+      if (toolkitName) return toolkitName;
+      const leaf = profile.path.split(/[/\\]/).pop() || "";
+      const suffix = leaf.includes(".") ? leaf.slice(leaf.indexOf(".") + 1).trim() : leaf.trim();
+      if (suffix) return suffix;
+    }
+  } catch {}
+  return numberedFallback;
+}
+
+/**
+ * Generates commands for switching between profiles.
+ * Supports new Selectable Profiles (via SelectableProfileService) with a
+ * fallback to legacy toolkit profiles (via nsIToolkitProfileService +
+ * Services.startup.createInstanceWithProfile, same as about:profiles).
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of profile commands.
+ */
+export async function generateProfileCommands() {
+  const commands = [];
+
+  try {
+    const { SelectableProfileService } = ChromeUtils.importESModule(
+      "resource:///modules/profiles/SelectableProfileService.sys.mjs"
+    );
+    const profiles = await SelectableProfileService.getAllProfiles?.();
+    if (profiles?.length) {
+      const currentId = SelectableProfileService.currentProfile?.id;
+      const toolkitNames = loadToolkitProfileNames();
+      for (const profile of profiles) {
+        if (profile.id === currentId) continue;
+        const name = await resolveProfileName(profile, `Profile ${profile.id}`, toolkitNames);
+        let icon = "chrome://browser/skin/zen-icons/container-tab.svg";
+        try {
+          if (!profile.hasCustomAvatar && typeof profile.getAvatarPath === "function") {
+            icon = profile.getAvatarPath(24) || icon;
+          }
+        } catch {}
+        commands.push({
+          key: `profile:switch:${profile.id}`,
+          label: `Switch to Profile: ${name}`,
+          command: () => SelectableProfileService.launchInstance(profile),
+          icon,
+          tags: ["profile", "switch", name.toLowerCase()],
+        });
+      }
+      if (commands.length) return commands;
+    }
+  } catch (e) {
+    PREFS.debugError("Failed to load selectable profiles.", e);
+  }
+
+  try {
+    const profileService = Cc["@mozilla.org/toolkit/profile-service;1"].getService(
+      Ci.nsIToolkitProfileService
+    );
+    const currentProfile = profileService.currentProfile;
+    let index = 0;
+    for (const profile of profileService.profiles) {
+      index++;
+      if (profile.name === currentProfile?.name) continue;
+      const name = await resolveProfileName(profile, `Profile ${index}`);
+      commands.push({
+        key: `profile:launch:${name}`,
+        label: `Switch to Profile: ${name}`,
+        command: () => Services.startup.createInstanceWithProfile(profile),
+        icon: "chrome://browser/skin/zen-icons/container-tab.svg",
+        tags: ["profile", "switch", "launch", name.toLowerCase()],
+      });
+    }
+  } catch (e) {
+    PREFS.debugError("Failed to load toolkit profiles.", e);
+  }
+
+  if (!commands.length) {
+    commands.push({
+      key: "profile:manage",
+      label: "Manage Profiles (about:profiles)",
+      command: () => switchToTabHavingURI("about:profiles", true),
+      condition: !!window.switchToTabHavingURI,
+      icon: "chrome://browser/skin/zen-icons/container-tab.svg",
+      tags: ["profile", "manage", "about"],
+    });
+  }
+
+  return commands;
+}
+
+function triggerExtensionAction(addonId) {
+  const policy = globalThis.WebExtensionPolicy?.getByID(addonId);
+  const extension = policy?.extension;
+  if (!extension) return false;
+
+  const browserWindow = Services.wm.getMostRecentWindow("navigator:browser") || window;
+
+  try {
+    const { ExtensionParent } = ChromeUtils.importESModule(
+      "resource://gre/modules/ExtensionParent.sys.mjs"
+    );
+    const apiGlobal = ExtensionParent.apiManager?.global;
+    for (const getter of ["browserActionFor", "pageActionFor", "sidebarActionFor"]) {
+      try {
+        const forFn = apiGlobal?.[getter];
+        if (typeof forFn === "function") {
+          const action = forFn(extension);
+          if (action?.triggerAction) {
+            action.triggerAction(browserWindow);
+            return true;
+          }
+        }
+      } catch {}
+    }
+  } catch (e) {
+    PREFS.debugError("triggerExtensionAction via ExtensionParent failed", e);
+  }
+
+  try {
+    const button =
+      browserWindow.document.querySelector(
+        `toolbarbutton[data-extensionid="${addonId}"]`
+      ) || document.querySelector(`toolbarbutton[data-extensionid="${addonId}"]`);
+    if (button) {
+      button.click();
+      return true;
+    }
+  } catch (e) {
+    PREFS.debugError("triggerExtensionAction via toolbar button failed", e);
+  }
+
+  return false;
+}
+
+/**
+ * Generates commands for triggering extension actions (toolbar button click)
+ * and running named extension commands declared in manifest.json `commands`
+ * (e.g. Obsidian Web Clipper capture, Dark Reader toggle).
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of extension action commands.
+ */
+export async function generateExtensionCommands() {
+  let addons;
+  try {
+    addons = await AddonManager.getAddonsByTypes(["extension"]);
+  } catch (e) {
+    PREFS.debugError("Failed to load addons for extension actions.", e);
+    return [];
+  }
+
+  const commands = [];
+  for (const addon of addons) {
+    if (!addon.isActive || addon.isSystem) continue;
+
+    const policy = globalThis.WebExtensionPolicy?.getByID(addon.id);
+    const extension = policy?.extension;
+    if (!extension) continue;
+
+    const manifest = extension.manifest || {};
+    const hasAction = !!(manifest.action || manifest.browser_action || manifest.page_action);
+    if (hasAction) {
+      commands.push({
+        key: `extension-action:${addon.id}`,
+        label: `Trigger Extension: ${addon.name}`,
+        command: () => triggerExtensionAction(addon.id),
+        icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+        tags: ["extension", "addon", "trigger", "action", addon.name.toLowerCase()],
+      });
+    }
+
+    let extensionCommands = [];
+    try {
+      if (extension.shortcuts?.allCommands) {
+        extensionCommands = await extension.shortcuts.allCommands();
+      }
+    } catch (e) {
+      PREFS.debugError(`Failed to load commands for ${addon.id}`, e);
+      continue;
+    }
+
+    for (const cmd of extensionCommands) {
+      if (!cmd?.name || cmd.name.startsWith("_execute_")) continue;
+      const cmdLabel = cmd.description || cmd.name;
+      commands.push({
+        key: `extension-command:${addon.id}:${cmd.name}`,
+        label: `${addon.name}: ${cmdLabel}`,
+        command: () => {
+          try {
+            extension.shortcuts.onCommand(cmd.name);
+          } catch (e) {
+            PREFS.debugError(`Failed to run extension command ${cmd.name}`, e);
+          }
+        },
+        icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
+        // Manifest-declared shortcut (e.g. "Ctrl+Shift+Y"), shown in the
+        // palette via getShortcutForCommand unless the user overrides it.
+        shortcut: cmd.shortcut || null,
+        tags: [
+          "extension",
+          "addon",
+          "command",
+          "run",
+          addon.name.toLowerCase(),
+          cmd.name.toLowerCase(),
+          cmdLabel.toLowerCase(),
+        ],
+      });
+    }
+  }
   return commands;
 }
 

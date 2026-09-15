@@ -2,6 +2,7 @@ import { commands as staticCommands } from "./all-commands.js";
 import {
   generateAboutPageCommands,
   generateExtensionCommands,
+  generateProfileCommands,
   generateSearchEngineCommands,
   generateSineCommands,
   generateFolderCommands,
@@ -125,6 +126,12 @@ export const ZenCommandPalette = {
       pref: PREFS.DYNAMIC_EXTENSION_UNINSTALL,
       allowIcons: false,
       allowShortcuts: false,
+    },
+    {
+      func: generateProfileCommands,
+      pref: PREFS.DYNAMIC_PROFILES,
+      allowIcons: false,
+      allowShortcuts: true,
     },
   ],
   staticCommands,
@@ -593,6 +600,10 @@ export const ZenCommandPalette = {
       // shortcut is empty string ""
       else return;
     }
+
+    // Then, check shortcuts declared by dynamic providers
+    const dynamicCmd = this._dynamicCommandsCache?.find?.((c) => c.key === commandKey);
+    if (dynamicCmd?.shortcut) return getPrettyShortcut(dynamicCmd.shortcut);
 
     // Then, check Zen's native shortcut manager
     if (
