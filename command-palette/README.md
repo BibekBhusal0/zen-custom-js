@@ -65,7 +65,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.           |
 | `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                          |
 | `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.           |
-| `zen-command-palette.dynamic.extensions`                 | Boolean | `true`                              | Trigger extension actions and run their commands.                    |
+| `zen-command-palette.dynamic.extensions`               | Boolean | `true`                              | Trigger extension actions and run their commands.                            |
 | `zen-command-palette.dynamic.extension-uninstall`      | Boolean | `false`                             | Automatically generate commands for uninstalling extension                   |
 | `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.           |
 | `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.     |

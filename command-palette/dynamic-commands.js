@@ -738,9 +738,8 @@ function triggerExtensionAction(addonId) {
 
   try {
     const button =
-      browserWindow.document.querySelector(
-        `toolbarbutton[data-extensionid="${addonId}"]`
-      ) || document.querySelector(`toolbarbutton[data-extensionid="${addonId}"]`);
+      browserWindow.document.querySelector(`toolbarbutton[data-extensionid="${addonId}"]`) ||
+      document.querySelector(`toolbarbutton[data-extensionid="${addonId}"]`);
     if (button) {
       button.click();
       return true;

@@ -2,48 +2,48 @@
 
 @media -moz-pref("compact-settings.enabled") {
   @-moz-document url-prefix("about:preferences"), url-prefix("about:settings") {
-  @media (min-width: 951px) {
-    #preferences-stack #categories {
-      position: fixed !important;
-      inset-inline-start: 0 !important;
-      top: 0 !important;
-      height: 100vh !important;
-      z-index: 20 !important;
-      box-sizing: border-box !important;
-      width: var(--cs-strip-w) !important;
-      overflow: hidden !important;
-      margin-inline-start: 0 !important;
-      padding-inline-start: 8px !important;
-      padding-inline-end: 0 !important;
-      background: var(--cs-sidebar-background) !important;
-      --font-size-xlarge: 0px;
-      mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
+    @media (min-width: 951px) {
+      #preferences-stack #categories {
+        position: fixed !important;
+        inset-inline-start: 0 !important;
+        top: 0 !important;
+        height: 100vh !important;
+        z-index: 20 !important;
+        box-sizing: border-box !important;
+        width: var(--cs-strip-w) !important;
+        overflow: hidden !important;
+        margin-inline-start: 0 !important;
+        padding-inline-start: 8px !important;
+        padding-inline-end: 0 !important;
+        background: var(--cs-sidebar-background) !important;
+        --font-size-xlarge: 0px;
+        mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
 
-      @media -moz-pref("compact-settings.animation.enabled") {
-        transition:
-          width var(--cs-anim),
-          box-shadow var(--cs-anim) !important;
-      }
+        @media -moz-pref("compact-settings.animation.enabled") {
+          transition:
+            width var(--cs-anim),
+            box-shadow var(--cs-anim) !important;
+        }
 
-      moz-page-nav-button {
-        width: 225px !important;
+        moz-page-nav-button {
+          width: 225px !important;
 
-        &[selected] {
-          color: var(--cs-accent) !important;
+          &[selected] {
+            color: var(--cs-accent) !important;
+          }
+        }
+
+        &:hover {
+          width: var(--cs-flyout-w) !important;
+          mask-image: none !important;
+          padding-inline-end: var(--space-small, 7.5px) !important;
+          box-shadow: var(--cs-elevation) !important;
         }
       }
 
-      &:hover {
-        width: var(--cs-flyout-w) !important;
-        mask-image: none !important;
-        padding-inline-end: var(--space-small, 7.5px) !important;
-        box-shadow: var(--cs-elevation) !important;
+      #preferences-stack .main-content {
+        margin-inline-start: var(--cs-content-offset) !important;
       }
     }
-
-    #preferences-stack .main-content {
-      margin-inline-start: var(--cs-content-offset) !important;
-    }
-  }
   }
 }

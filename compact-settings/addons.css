@@ -3,62 +3,62 @@
 
 @-moz-document url-prefix("about:addons") {
   @media -moz-pref("compact-settings.compact-addons.enabled") {
-  @media (min-width: 951px) {
-    #full {
-      display: block !important;
+    @media (min-width: 951px) {
+      #full {
+        display: block !important;
 
-      #sidebar {
-        position: fixed !important;
-        inset-inline-start: 0 !important;
-        top: 0 !important;
-        height: 100vh !important;
-        z-index: 20 !important;
-        box-sizing: border-box !important;
-        width: var(--cs-strip-w) !important;
-        overflow: clip !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        padding-inline-start: 8px !important;
-        background: var(--cs-sidebar-background) !important;
-        --font-size-xlarge: 0px;
-        mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
+        #sidebar {
+          position: fixed !important;
+          inset-inline-start: 0 !important;
+          top: 0 !important;
+          height: 100vh !important;
+          z-index: 20 !important;
+          box-sizing: border-box !important;
+          width: var(--cs-strip-w) !important;
+          overflow: clip !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          padding-inline-start: 8px !important;
+          background: var(--cs-sidebar-background) !important;
+          --font-size-xlarge: 0px;
+          mask-image: linear-gradient(to right, black 43px, transparent 47px) !important;
 
-        @media -moz-pref("compact-settings.animation.enabled") {
-          transition:
-            width var(--cs-anim),
-            box-shadow var(--cs-anim) !important;
-        }
+          @media -moz-pref("compact-settings.animation.enabled") {
+            transition:
+              width var(--cs-anim),
+              box-shadow var(--cs-anim) !important;
+          }
 
-        moz-page-nav {
-          margin-inline-start: 0 !important;
-          padding-inline: 0 !important;
-          width: 234px !important;
-        }
+          moz-page-nav {
+            margin-inline-start: 0 !important;
+            padding-inline: 0 !important;
+            width: 234px !important;
+          }
 
-        moz-page-nav-button {
-          width: 225px !important;
+          moz-page-nav-button {
+            width: 225px !important;
 
-          &[selected] {
-            color: var(--cs-accent) !important;
+            &[selected] {
+              color: var(--cs-accent) !important;
+            }
+          }
+
+          &:hover {
+            width: var(--cs-flyout-w) !important;
+            mask-image: none !important;
+            padding-inline-end: var(--space-small, 7.5px) !important;
+            box-shadow: var(--cs-elevation) !important;
           }
         }
 
-        &:hover {
-          width: var(--cs-flyout-w) !important;
-          mask-image: none !important;
-          padding-inline-end: var(--space-small, 7.5px) !important;
-          box-shadow: var(--cs-elevation) !important;
+        #content {
+          margin-inline-start: var(--cs-content-offset) !important;
+          max-width: calc(100% - var(--cs-content-offset) - 8px) !important;
+          height: 100vh !important;
+          overflow-y: auto !important;
         }
       }
-
-      #content {
-        margin-inline-start: var(--cs-content-offset) !important;
-        max-width: calc(100% - var(--cs-content-offset) - 8px) !important;
-        height: 100vh !important;
-        overflow-y: auto !important;
-      }
     }
-  }
   }
 
   @media -moz-pref("compact-settings.addons.grid-enabled") {
