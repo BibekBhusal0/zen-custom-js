@@ -179,16 +179,18 @@
             }
 
           .command-icon {
-            width: 16px;
-            height: 16px;
+            padding: 3px !important;
+            width: 20px !important;
+            height: 20px !important;
+            object-fit: contain !important;
             justify-self: center;
             fill: light-dark(black, white) !important;
-            -moz-context-properties: fill !important;
+            stroke: light-dark(black, white) !important;
+            -moz-context-properties: fill, stroke !important;
 
             &.editable {
               cursor: pointer;
               border-radius: 4px;
-              padding: 4px;
 
               &:hover {
                 background-color: rgba(127, 127, 127, 0.1);
@@ -338,11 +340,13 @@
             border: 1px solid rgba(127, 127, 127, 0.1);
 
             .custom-command-icon {
-              width: 16px;
-              height: 16px;
+              width: 16px !important;
+              height: 16px !important;
+              object-fit: contain !important;
               justify-self: center;
               fill: light-dark(black, white) !important;
-              -moz-context-properties: fill !important;
+              stroke: light-dark(black, white) !important;
+              -moz-context-properties: fill, stroke !important;
             }
 
             .custom-command-name {

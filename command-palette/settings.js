@@ -1,7 +1,7 @@
 import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { hmacCode, trustHash } from "./utils/trust.js";
-import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { parseElement, escapeXmlAttribute, xulImage } from "../utils/parse.js";
 import { createCombobox } from "../utils/combobox.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
@@ -347,9 +347,6 @@ const SettingsModal = {
 
     const itemHtml = `
       <div class="command-item" data-key="${escapeXmlAttribute(cmd.key)}">
-        <img src="${escapeXmlAttribute(
-          customIcon || cmd.icon || "chrome://browser/skin/trending.svg"
-        )}" class="command-icon ${allowIconChange ? "editable" : ""}" />
         <span class="command-label">${escapeXmlAttribute(cmd.label)}</span>
         <div class="command-controls">
             ${shortcutInputHtml}
@@ -362,22 +359,33 @@ const SettingsModal = {
     const item = parseElement(itemHtml);
     container.appendChild(item);
 
-    // Fallback for failed icon loads
-    item.querySelector(".command-icon").onerror = function () {
-      this.src = "chrome://browser/skin/trending.svg";
-      this.onerror = null;
-    };
+    const iconEl = xulImage(
+      customIcon || cmd.icon || "chrome://browser/skin/trending.svg",
+      `command-icon${allowIconChange ? " editable" : ""}`
+    );
+    item.insertBefore(iconEl, item.querySelector(".command-label"));
+
+    iconEl.addEventListener(
+      "error",
+      () => {
+        iconEl.setAttribute("src", "chrome://browser/skin/trending.svg");
+      },
+      { once: true }
+    );
 
     if (allowIconChange) {
-      item.querySelector(".command-icon").addEventListener("click", (e) => {
-        const newIconInput = prompt("Enter new icon URL or paste SVG code:", e.target.src);
+      iconEl.addEventListener("click", (e) => {
+        const newIconInput = prompt(
+          "Enter new icon URL or paste SVG code:",
+          e.target.getAttribute("src")
+        );
         if (newIconInput !== null) {
           let finalIconSrc = newIconInput.trim();
           // Check if the input is likely SVG code
           if (finalIconSrc.startsWith("<svg") && finalIconSrc.endsWith("</svg>")) {
             finalIconSrc = svgToUrl(finalIconSrc);
           }
-          e.target.src = finalIconSrc;
+          e.target.setAttribute("src", finalIconSrc);
           this._currentSettings.customIcons[cmd.key] = finalIconSrc;
         }
       });
@@ -563,7 +571,6 @@ const SettingsModal = {
 
       const item = parseElement(`
         <div class="custom-command-item" data-id="${cmd.id}">
-          <img src="${escapeXmlAttribute(icon)}" class="custom-command-icon" />
           <span class="custom-command-name">${escapeXmlAttribute(cmd.name)}</span>
           <span class="custom-command-type zenux-count">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
@@ -572,6 +579,10 @@ const SettingsModal = {
           </div>
         </div>
       `);
+      item.insertBefore(
+        xulImage(icon, "custom-command-icon"),
+        item.querySelector(".custom-command-name")
+      );
       item.querySelector(".edit-custom-cmd").addEventListener("click", () => {
         const commandData = (this._currentSettings.customCommands || []).find(
           (c) => c.id === cmd.id
@@ -596,7 +607,10 @@ const SettingsModal = {
   async _populateQuickSplitSection() {
     const container = this._modalElement.querySelector("#settings-tab-content");
     container.querySelector("#quick-split-section")?.remove();
-    if (!this._currentSettings.quickSplitKeywords || typeof this._currentSettings.quickSplitKeywords !== "object") {
+    if (
+      !this._currentSettings.quickSplitKeywords ||
+      typeof this._currentSettings.quickSplitKeywords !== "object"
+    ) {
       this._currentSettings.quickSplitKeywords = {};
     }
     const section = parseElement(`
@@ -641,8 +655,7 @@ const SettingsModal = {
         PREFS.debugError("Failed to get default search engine for Quick Split picker.", e);
       }
       const saved = PREFS.getPref(PREFS.QUICK_SPLIT_SEARCH_ENGINE) || "";
-      const current =
-        saved && engines.some((engine) => engine.name === saved) ? saved : "";
+      const current = saved && engines.some((engine) => engine.name === saved) ? saved : "";
       const combo = createCombobox({
         id: "quick-split-search-engine",
         attrs: { "data-pref": PREFS.QUICK_SPLIT_SEARCH_ENGINE },
@@ -743,7 +756,9 @@ const SettingsModal = {
     if (!functionSchema) return parseElement(`<div>Unknown function: ${step.action}</div>`);
 
     const wrapper = parseElement(`<div class="function-step" data-index="${index}"></div>`);
-    const label = parseElement(`<label class="zenux-count">${escapeXmlAttribute(functionSchema.label)}</label>`);
+    const label = parseElement(
+      `<label class="zenux-count">${escapeXmlAttribute(functionSchema.label)}</label>`
+    );
     wrapper.appendChild(label);
 
     for (const param of functionSchema.params) {

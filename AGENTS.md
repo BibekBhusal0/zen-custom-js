@@ -55,7 +55,7 @@ Styles loaded via `userChrome.css`:
 
 Single source of truth: `shared/zen-design.css`. It defines `zenux-*` tokens (colors sourced from `--zen-primary-color`, radii, shadows, easing) and reusable classes, all written with nesting.
 
-Available classes: `zenux-input`, `zenux-btn-primary/ghost/danger/success/warning`, `zenux-icon-btn` with `zenux-icon-btn-danger` and `zenux-icon-btn-accent` (toggle with `is-active`, uses `outline` so enabling never shifts layout), `zenux-section` + `zenux-section-title`, `zenux-count` (+ `zenux-count-accent`, requires both classes), `zenux-empty`.
+Available classes: `zenux-input`, `zenux-btn-primary/ghost/danger/success/warning`, `zenux-icon-btn` with `zenux-icon-btn-danger` and `zenux-icon-btn-accent` (toggle with `is-active`, uses `outline` so enabling never shifts layout), `zenux-section` + `zenux-section-title`, `zenux-count` (+ `zenux-count-accent`, requires both classes), `zenux-empty`, `zenux-combobox` (searchable dropdown, popup uses `zenux-combobox-popup`/`zenux-combobox-item`).
 
 Rules:
 
@@ -66,6 +66,8 @@ Rules:
 - Interactive classes (`zenux-input`, `zenux-btn-*`, `zenux-icon-btn`) use `!important` throughout because Firefox native and XUL controls need it to lose. Structural classes do not.
 - Browser-made elements (XUL `image`, `toolbarbutton`, `menulist`, findbar/URL bar internals) cannot take classes reliably, or shared selectors do not match them (shared icon rules target HTML `img`/`svg`, never XUL `image`). Style those with local CSS mirroring shared values.
 - `display` toggles for show-on-hover elements stay local (e.g. reopen tab close button), since shared classes force their own display.
+- Icons that can be `jar:`/extension URLs must be XUL `image` via `xulImage()` from `utils/parse.js`. HTML `img` throws a Security Error on those in chrome UI. Recolor context icons with `-moz-context-properties: fill, stroke` plus `fill`/`stroke`.
+- Dropdowns use `createCombobox()` from `utils/combobox.js`, never XUL `menulist`. It exposes `.value`, fires `command`, and works with the `data-pref` flow.
 
 ## Preferences pattern
 
