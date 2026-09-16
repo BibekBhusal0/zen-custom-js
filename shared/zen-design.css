@@ -356,13 +356,12 @@
   }
 
   .zenux-combobox-marker {
-    width: 0 !important;
-    height: 0 !important;
+    width: 12px !important;
+    height: 12px !important;
     flex-shrink: 0 !important;
-    border-left: 4px solid transparent !important;
-    border-right: 4px solid transparent !important;
-    border-top: 5px solid currentColor !important;
     opacity: 0.7 !important;
+    -moz-context-properties: fill !important;
+    fill: currentColor !important;
   }
 }
 
@@ -406,11 +405,14 @@
     font-size: 13px !important;
     color: var(--zenux-text) !important;
 
-    img {
+    .zenux-combobox-item-icon {
       width: 16px !important;
       height: 16px !important;
       object-fit: contain !important;
       flex-shrink: 0 !important;
+      -moz-context-properties: fill, stroke !important;
+      fill: light-dark(black, white) !important;
+      stroke: light-dark(black, white) !important;
 
       &:not([src]) {
         visibility: hidden !important;

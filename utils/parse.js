@@ -18,3 +18,13 @@ export const escapeXmlAttribute = (str) => {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
 };
+
+export const xulImage = (src = "", className = "") => {
+  const el = parseElement(
+    `<image${
+      className ? ` class="${escapeXmlAttribute(className)}"` : ""
+    }${src ? ` src="${escapeXmlAttribute(src)}"` : ""}/>`,
+    "xul"
+  );
+  return el;
+};

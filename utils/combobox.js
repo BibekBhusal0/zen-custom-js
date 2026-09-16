@@ -1,4 +1,4 @@
-import { parseElement, escapeXmlAttribute } from "./parse.js";
+import { parseElement, escapeXmlAttribute, xulImage } from "./parse.js";
 
 export function createCombobox({
   id = "",
@@ -18,10 +18,14 @@ export function createCombobox({
     `<div class="zenux-combobox ${extraClass}"${id ? ` id="${id}"` : ""}${
       attrString ? ` ${attrString}` : ""
     } tabindex="0" role="combobox" aria-expanded="false" aria-haspopup="listbox">
-      <img class="zenux-combobox-icon" alt="" />
       <span class="zenux-combobox-label"></span>
-      <span class="zenux-combobox-marker"></span>
     </div>`
+  );
+
+  const iconEl = xulImage("", "zenux-combobox-icon");
+  const markerEl = xulImage(
+    "chrome://global/skin/icons/arrow-down-12.svg",
+    "zenux-combobox-marker"
   );
 
   const popup = parseElement(
@@ -33,8 +37,9 @@ export function createCombobox({
     </div>`
   );
 
-  const iconEl = root.querySelector(".zenux-combobox-icon");
   const labelEl = root.querySelector(".zenux-combobox-label");
+  root.insertBefore(iconEl, labelEl);
+  root.appendChild(markerEl);
   const searchEl = popup.querySelector(".zenux-combobox-search");
   const listEl = popup.querySelector(".zenux-combobox-list");
 
@@ -87,10 +92,10 @@ export function createCombobox({
         `<div class="zenux-combobox-item" role="option" data-value="${escapeXmlAttribute(
           item.value
         )}" aria-selected="${item.value === currentValue}">
-          <img alt=""${item.image ? ` src="${escapeXmlAttribute(item.image)}"` : ""} />
           <span></span>
         </div>`
       );
+      itemEl.insertBefore(xulImage(item.image || "", "zenux-combobox-item-icon"), itemEl.firstChild);
       itemEl.querySelector("span").textContent = item.label;
       itemEl.addEventListener("click", () => select(item.value));
       itemEl.addEventListener("mousemove", () => highlight(itemEl));
