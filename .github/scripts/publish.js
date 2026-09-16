@@ -1,7 +1,7 @@
 import { $ } from "bun";
 import path from "path";
 import { fileURLToPath } from "url";
-import { existsSync } from "fs";
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -206,6 +206,41 @@ async function buildMod(mod) {
   await run(command);
 }
 
+// Copies shared/zen-design.css into the child repo when any of its CSS files
+// references it, and rewrites those imports to the published location.
+async function wireSharedCss(workDir) {
+  const cssFiles = [];
+  const collect = (dir) => {
+    for (const entry of readdirSync(dir)) {
+      const full = path.join(dir, entry);
+      if (statSync(full).isDirectory()) {
+        collect(full);
+      } else if (entry.endsWith(".css")) {
+        cssFiles.push(full);
+      }
+    }
+  };
+  collect(workDir);
+
+  const importTest = /@import\s+["'][^"']*(shared\/zen-design\.css|shared-design\.css)["']\s*;/;
+  const importPattern = /@import\s+["'][^"']*(shared\/zen-design\.css|shared-design\.css)["']\s*;/g;
+  let referenced = false;
+  for (const file of cssFiles) {
+    const original = readFileSync(file, "utf-8");
+    if (!importTest.test(original)) continue;
+    referenced = true;
+    writeFileSync(
+      file,
+      original.replace(importPattern, '@import "shared-design.css";')
+    );
+  }
+
+  if (referenced) {
+    const sharedSrc = path.join(MODS_DIR, "shared", "zen-design.css");
+    await $`cp ${sharedSrc} ${path.join(workDir, "shared-design.css")}`;
+  }
+}
+
 // Process Mod
 async function processMod(modData) {
   const { folder, theme } = modData;
@@ -241,6 +276,7 @@ async function processMod(modData) {
   }
 
   // Copy bundled JS
+  await wireSharedCss(workDir);
   if (theme.scripts) {
     const distDir = path.join(MODS_DIR, "dist");
     if (existsSync(distDir)) {
