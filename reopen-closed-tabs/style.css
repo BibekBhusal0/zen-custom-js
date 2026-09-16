@@ -1,32 +1,36 @@
+@import "../shared/zen-design.css";
+
 #reopen-closed-tabs-panel {
   --panel-padding: 0 3px 0 3px !important;
   width: fit-content !important;
   position: relative !important;
   padding: 0 !important;
+  font-family: var(--zenux-font);
 
   #reopen-closed-tabs-search-container {
     display: flex;
     align-items: center !important;
     justify-content: center !important;
     position: relative;
-    padding: 8px 0;
+    padding: 10px 8px 8px 8px;
 
     .search-icon {
       position: absolute;
-      left: 12px;
-      top: 17px;
-      width: 16px;
-      height: 16px;
-      fill: light-dark(black, white) !important;
+      left: 18px;
+      top: 50%;
+      transform: translateY(calc(-50% + 1px));
+      width: 14px;
+      height: 14px;
+      fill: var(--zenux-faint) !important;
       -moz-context-properties: fill !important;
-      opacity: 0.6;
+      opacity: 1;
+      pointer-events: none;
     }
 
     #reopen-closed-tabs-search-input {
-      width: 97% !important;
+      width: 100% !important;
       box-sizing: border-box !important;
-      padding: 8px 12px 8px 30px !important;
-      border-radius: 6px !important;
+      padding-left: 32px !important;
     }
   }
 
@@ -35,37 +39,51 @@
     overflow-x: hidden;
     max-height: 500px;
     width: fit-content !important;
+    padding: 0 8px 10px 8px;
   }
 
   .reopen-closed-tabs-group-header {
     position: sticky;
     top: 0;
     z-index: 1;
-    background-color: var(--zen-primary-color);
-    border-radius: 12px;
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    padding: 2px;
-    & label {
-      font-size: 16px;
-      padding-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--arrowpanel-background, var(--zenux-bg));
+    padding: 10px 4px 6px 4px;
+    border-bottom: 1px solid var(--zenux-separator);
+    margin-bottom: 4px;
+
+    & label:not(.zenux-count) {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--zenux-muted);
+      padding: 0;
+      margin: 0 !important;
     }
   }
 
   .reopen-closed-tab-item {
-    width: 325px;
-    padding: 5px;
-    margin-right: 11px;
+    width: 320px;
+    box-sizing: border-box;
+    padding: 6px 8px;
     cursor: default;
-    border-radius: 4px;
-    margin-bottom: 2px;
+    border-radius: var(--zenux-radius-s);
+    border: 1px solid transparent;
+    margin-bottom: 1px;
 
     &:hover,
     &[selected="true"] {
-      background-color: light-dark(rgba(0, 0, 0, 0.1), rgba(255, 255, 255, 0.1));
+      background-color: var(--zenux-surface-hover);
+      border-color: var(--zenux-border-soft);
       .close-button {
         display: flex;
       }
+    }
+
+    &[selected="true"] {
+      background-color: var(--zenux-accent-soft);
+      border-color: var(--zenux-accent-border);
     }
 
     &.unloaded-tab {
@@ -102,11 +120,15 @@
     .tab-item-context {
       font-size: 0.9em;
       opacity: 0.7;
-      &:before {
-        width: 90%;
-        overflow: hidden;
-        text-overflow: ellipsis !important;
-      }
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-block: 0;
+      margin-inline: 0;
+    }
+
+    .tab-item-status-icons {
+      flex-shrink: 0;
     }
 
     .tab-status-icon {
@@ -119,26 +141,27 @@
     }
 
     .close-button {
-      padding: 4px;
       width: 22px;
       height: 22px;
-      border-radius: var(--toolbarbutton-border-radius);
+      padding: 3px;
+      box-sizing: border-box;
       margin-inline-start: 4px;
+      border-radius: var(--zenux-radius-s);
       fill: light-dark(black, white) !important;
       -moz-context-properties: fill !important;
       cursor: pointer;
       display: none;
+      transition: background-color 0.15s var(--zenux-ease);
 
       &:hover {
-        background-color: var(--toolbarbutton-hover-background);
+        background-color: var(--zenux-danger-bg);
+        fill: var(--zenux-danger) !important;
       }
     }
   }
 
   .reopen-closed-tab-item-disabled {
-    padding: 5px;
-    width: 325px;
-    color: var(--panel-disabled-text-color);
-    font-size: 14px;
+    width: 320px;
+    box-sizing: border-box;
   }
 }

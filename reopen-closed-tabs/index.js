@@ -142,7 +142,7 @@ const ReopenClosedTabs = {
       `
       <div id="reopen-closed-tabs-search-container">
         <img src="chrome://global/skin/icons/search-glass.svg" class="search-icon"/>
-        <input id="reopen-closed-tabs-search-input" type="search" placeholder="Search tabs..."/>
+        <input id="reopen-closed-tabs-search-input" class="zenux-input" type="search" placeholder="Search tabs..."/>
       </div>
     `,
       "html"
@@ -173,7 +173,7 @@ const ReopenClosedTabs = {
 
     if (closedTabs.length === 0 && openTabs.length === 0) {
       const noTabsItem = parseElement(
-        `<label class="reopen-closed-tab-item-disabled" value="No tabs to display."/>`,
+        `<label class="reopen-closed-tab-item-disabled zenux-empty" value="No tabs to display."/>`,
         "xul"
       );
       allItemsContainer.appendChild(noTabsItem);
@@ -239,6 +239,7 @@ const ReopenClosedTabs = {
       `
       <hbox class="reopen-closed-tabs-group-header" align="center">
         <label value="${escapeXmlAttribute(groupTitle)}"/>
+        <label class="group-count zenux-count" value="${tabs.length}"/>
       </hbox>
     `,
       "xul"
