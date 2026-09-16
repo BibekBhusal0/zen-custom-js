@@ -51,6 +51,22 @@ Styles loaded via `userChrome.css`:
 - `floating-sidebar/style.css`, `search-engine-select/style.css`, `findbar-ai/style.css`, `command-palette/style.css`, `reopen-closed-tabs/style.css`
 - `css/userChrome.css` (shared utilities)
 
+## Shared design system
+
+Single source of truth: `shared/zen-design.css`. It defines `zenux-*` tokens (colors sourced from `--zen-primary-color`, radii, shadows, easing) and reusable classes, all written with nesting.
+
+Available classes: `zenux-input`, `zenux-btn-primary/ghost/danger/success/warning`, `zenux-icon-btn` with `zenux-icon-btn-danger` and `zenux-icon-btn-accent` (toggle with `is-active`, uses `outline` so enabling never shifts layout), `zenux-section` + `zenux-section-title`, `zenux-count` (+ `zenux-count-accent`, requires both classes), `zenux-empty`.
+
+Rules:
+
+- Mods import it relatively: `@import "../shared/zen-design.css";` as the first line of `style.css`.
+- Publishing (`wireSharedCss` in `.github/scripts/publish.js`) copies it into each child repo as `shared-design.css` and rewrites the import. Never duplicate the file per mod.
+- Use classes for anything repeated. Prefer a variant over per-action styles.
+- Never alias variables (`--x: var(--zenux-y)`). Reference `zenux-*` directly. The only exception is behavioral variables like the browse-bot background-style switcher.
+- Interactive classes (`zenux-input`, `zenux-btn-*`, `zenux-icon-btn`) use `!important` throughout because Firefox native and XUL controls need it to lose. Structural classes do not.
+- Browser-made elements (XUL `image`, `toolbarbutton`, `menulist`, findbar/URL bar internals) cannot take classes reliably, or shared selectors do not match them (shared icon rules target HTML `img`/`svg`, never XUL `image`). Style those with local CSS mirroring shared values.
+- `display` toggles for show-on-hover elements stay local (e.g. reopen tab close button), since shared classes force their own display.
+
 ## Preferences pattern
 
 Every mod that uses prefs extends a base `PREFS` class from `utils/pref.js`:
