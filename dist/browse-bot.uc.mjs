@@ -617,6 +617,138 @@ var parseElement = (elementString, type = "html") => {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 };
 
+// utils/combobox.js
+function createCombobox({
+  id = "",
+  extraClass = "",
+  items = [],
+  value = "",
+  placeholder = "Select…",
+  searchable = !0,
+  searchPlaceholder = "Search…",
+  attrs = {}
+} = {}) {
+  let attrString = Object.entries(attrs).map(([key, val]) => `${key}="${escapeXmlAttribute(String(val))}"`).join(" "), root = parseElement(`<div class="zenux-combobox ${extraClass}"${id ? ` id="${id}"` : ""}${attrString ? ` ${attrString}` : ""} tabindex="0" role="combobox" aria-expanded="false" aria-haspopup="listbox">
+      <img class="zenux-combobox-icon" alt="" />
+      <span class="zenux-combobox-label"></span>
+      <span class="zenux-combobox-marker"></span>
+    </div>`), popup = parseElement(`<div class="zenux-combobox-popup" hidden>
+      <input type="text" class="zenux-combobox-search zenux-input" placeholder="${escapeXmlAttribute(searchPlaceholder)}" aria-label="${escapeXmlAttribute(searchPlaceholder)}" />
+      <div class="zenux-combobox-list" role="listbox"></div>
+    </div>`), iconEl = root.querySelector(".zenux-combobox-icon"), labelEl = root.querySelector(".zenux-combobox-label"), searchEl = popup.querySelector(".zenux-combobox-search"), listEl = popup.querySelector(".zenux-combobox-list"), currentItems = [], currentValue = value ?? "", isOpen = !1;
+  function syncDisplay() {
+    let selected = currentItems.find((item) => item.value === currentValue);
+    if (selected)
+      if (labelEl.textContent = selected.label, labelEl.classList.remove("is-placeholder"), selected.image)
+        iconEl.setAttribute("src", selected.image);
+      else
+        iconEl.removeAttribute("src");
+    else
+      labelEl.textContent = placeholder, labelEl.classList.add("is-placeholder"), iconEl.removeAttribute("src");
+    root.setAttribute("aria-label", labelEl.textContent);
+  }
+  function syncListSelection() {
+    listEl.querySelectorAll(".zenux-combobox-item").forEach((el) => {
+      el.setAttribute("aria-selected", String(el.dataset.value === currentValue));
+    });
+  }
+  function visibleItems() {
+    return [...listEl.querySelectorAll(".zenux-combobox-item:not([hidden])")];
+  }
+  function highlight(el) {
+    if (listEl.querySelectorAll(".zenux-combobox-item.is-highlighted").forEach((item) => {
+      item.classList.remove("is-highlighted");
+    }), el)
+      el.classList.add("is-highlighted"), el.scrollIntoView({ block: "nearest" });
+  }
+  function renderList(filter = "") {
+    let query = filter.toLowerCase().trim();
+    listEl.innerHTML = "";
+    let firstVisible = null;
+    for (let item of currentItems) {
+      if (query && !(item.label || "").toLowerCase().includes(query))
+        continue;
+      let itemEl = parseElement(`<div class="zenux-combobox-item" role="option" data-value="${escapeXmlAttribute(item.value)}" aria-selected="${item.value === currentValue}">
+          <img alt=""${item.image ? ` src="${escapeXmlAttribute(item.image)}"` : ""} />
+          <span></span>
+        </div>`);
+      itemEl.querySelector("span").textContent = item.label, itemEl.addEventListener("click", () => select(item.value)), itemEl.addEventListener("mousemove", () => highlight(itemEl)), listEl.appendChild(itemEl), firstVisible ??= itemEl;
+    }
+    if (!firstVisible)
+      listEl.appendChild(parseElement('<div class="zenux-combobox-no-results">No results</div>'));
+    highlight(firstVisible);
+  }
+  function positionPopup() {
+    let rect = root.getBoundingClientRect();
+    popup.style.minWidth = `${rect.width}px`, popup.style.maxWidth = `${Math.max(rect.width, 320)}px`, popup.hidden = !1;
+    let height = Math.min(popup.offsetHeight, 280), below = window.innerHeight - rect.bottom - 8;
+    if (popup.style.left = `${Math.min(rect.left, window.innerWidth - popup.offsetWidth - 8)}px`, below >= height || below >= rect.top)
+      popup.style.top = `${rect.bottom + 4}px`, popup.style.bottom = "", popup.style.maxHeight = `${Math.min(280, below)}px`;
+    else
+      popup.style.bottom = `${window.innerHeight - rect.top + 4}px`, popup.style.top = "", popup.style.maxHeight = `${Math.min(280, rect.top - 8)}px`;
+  }
+  function open() {
+    if (isOpen)
+      return;
+    if (isOpen = !0, root.setAttribute("aria-expanded", "true"), searchEl.value = "", renderList(""), document.documentElement.appendChild(popup), positionPopup(), searchEl.hidden)
+      root.focus();
+    else
+      searchEl.focus();
+  }
+  function close(refocus = !1) {
+    if (!isOpen)
+      return;
+    if (isOpen = !1, root.setAttribute("aria-expanded", "false"), popup.remove(), refocus)
+      root.focus();
+  }
+  function select(nextValue) {
+    currentValue = nextValue ?? "", syncDisplay(), syncListSelection(), close(), root.dispatchEvent(new Event("command", { bubbles: !0 }));
+  }
+  return root.addEventListener("click", (event) => {
+    if (event.target === searchEl)
+      return;
+    if (isOpen)
+      close();
+    else
+      open();
+  }), root.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " " || event.key === "ArrowDown")
+      event.preventDefault(), open();
+  }), searchEl.addEventListener("input", () => renderList(searchEl.value)), searchEl.addEventListener("keydown", (event) => {
+    let items = visibleItems(), index = items.findIndex((el) => el.classList.contains("is-highlighted"));
+    if (event.key === "Escape")
+      event.preventDefault(), close(!0);
+    else if (event.key === "ArrowDown")
+      event.preventDefault(), highlight(items[(index + 1) % items.length] ?? null);
+    else if (event.key === "ArrowUp")
+      event.preventDefault(), highlight(items[(index - 1 + items.length) % items.length] ?? null);
+    else if (event.key === "Enter") {
+      event.preventDefault();
+      let target = items[index] ?? items[0];
+      if (target)
+        select(target.dataset.value);
+    }
+  }), document.addEventListener("pointerdown", (event) => {
+    if (isOpen && !popup.contains(event.target) && !root.contains(event.target))
+      close();
+  }, !0), document.addEventListener("scroll", (event) => {
+    if (isOpen && !popup.contains(event.target))
+      close();
+  }, !0), window.addEventListener("resize", () => close()), document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && isOpen)
+      close(!0);
+  }), Object.defineProperty(root, "value", {
+    get: () => currentValue,
+    set: (next) => {
+      currentValue = next ?? "", syncDisplay(), syncListSelection();
+    },
+    configurable: !0
+  }), root.setItems = (nextItems) => {
+    if (currentItems = nextItems ?? [], searchEl.hidden = !searchable || currentItems.length < 8, syncDisplay(), isOpen)
+      renderList(searchEl.value);
+  }, root.setItems(items), root;
+}
+
 // utils/keyboard.js
 function eventToShortcutSignature(event) {
   let modifiers = [];
@@ -716,19 +848,18 @@ var SettingsModal = {
     this._initShortcutHandler();
     let settingsHtml = this._generateSettingsHtml(), container = parseElement(settingsHtml);
     this._modalElement = container;
-    let providerOptionsXUL = Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(([name, provider]) => `<menuitem
-            value="${name}"
-            label="${escapeXmlAttribute(provider.label)}"
-            ${name === PREFS2.llmProvider ? 'selected="true"' : ""}
-            ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
-          />`).join(""), menulistXul = `
-      <menulist id="pref-llm-provider" data-pref="${PREFS2.LLM_PROVIDER}" value="${PREFS2.llmProvider}">
-        <menupopup>
-          ${providerOptionsXUL}
-        </menupopup>
-      </menulist>`, providerSelectorXulElement = parseElement(menulistXul, "xul"), placeholder = this._modalElement.querySelector("#llm-provider-selector-placeholder");
+    let providerCombo = createCombobox({
+      id: "pref-llm-provider",
+      attrs: { "data-pref": PREFS2.LLM_PROVIDER },
+      value: PREFS2.llmProvider,
+      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(([name, provider]) => ({
+        value: name,
+        label: provider.label,
+        image: provider.faviconUrl || ""
+      }))
+    }), placeholder = this._modalElement.querySelector("#llm-provider-selector-placeholder");
     if (placeholder)
-      placeholder.replaceWith(providerSelectorXulElement);
+      placeholder.replaceWith(providerCombo);
     for (let [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       let { modelPref: modelPrefKey, model: currentModel } = provider, modelPlaceholder = this._modalElement.querySelector(`#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`);
       if (modelPlaceholder) {
@@ -738,19 +869,17 @@ var SettingsModal = {
             <input type="text" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
           `;
           modelSelectorElement = parseElement(modelInputHtml, "html");
-        } else {
-          let modelOptionsXUL = provider.AVAILABLE_MODELS.map((model) => `<menuitem
-                  value="${model}"
-                  label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
-                  ${model === currentModel ? 'selected="true"' : ""}
-                />`).join(""), modelMenulistXul = `
-              <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${currentModel}">
-                <menupopup>
-                  ${modelOptionsXUL}
-                </menupopup>
-              </menulist>`;
-          modelSelectorElement = parseElement(modelMenulistXul, "xul");
-        }
+        } else
+          modelSelectorElement = createCombobox({
+            id: `pref-${this._getSafeIdForProvider(name)}-model`,
+            attrs: { "data-pref": modelPrefKey },
+            value: currentModel,
+            items: provider.AVAILABLE_MODELS.map((model) => ({
+              value: model,
+              label: provider.AVAILABLE_MODELS_LABELS[model] || model,
+              image: ""
+            }))
+          });
         modelPlaceholder.replaceWith(modelSelectorElement);
       }
     }
@@ -778,11 +907,11 @@ var SettingsModal = {
       let prefKey = control.dataset.pref;
       if (control.type === "checkbox")
         control.checked = PREFS2.getPref(prefKey);
-      else if (control.tagName.toLowerCase() === "menulist")
+      else if (control.classList.contains("zenux-combobox"))
         control.value = PREFS2.getPref(prefKey);
       else
         control.value = PREFS2.getPref(prefKey);
-      if (this._currentPrefValues[prefKey] = PREFS2.getPref(prefKey), control.tagName.toLowerCase() === "menulist")
+      if (this._currentPrefValues[prefKey] = PREFS2.getPref(prefKey), control.classList.contains("zenux-combobox"))
         control.addEventListener("command", (e) => {
           if (this._currentPrefValues[prefKey] = e.target.value, PREFS2.debugLog(`Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`), prefKey === PREFS2.LLM_PROVIDER)
             this._updateProviderSpecificSettings(this._modalElement, this._currentPrefValues[prefKey]);
@@ -875,7 +1004,7 @@ var SettingsModal = {
           if (control) {
             if (control.type === "checkbox")
               control.checked = defVal;
-            else if (control.tagName.toLowerCase() === "menulist")
+            else if (control.classList.contains("zenux-combobox"))
               control.value = defVal;
             else
               control.value = defVal;
@@ -910,7 +1039,7 @@ var SettingsModal = {
       let prefKey = control.dataset.pref;
       if (control.type === "checkbox")
         control.checked = PREFS2.getPref(prefKey);
-      else if (control.tagName.toLowerCase() === "menulist")
+      else if (control.classList.contains("zenux-combobox"))
         control.value = PREFS2.getPref(prefKey);
       else
         control.value = PREFS2.getPref(prefKey);
@@ -2491,19 +2620,15 @@ var browseBotFindbar = {
       this.findbar.aiStatus = this.aiStatus;
   },
   createAPIKeyInterface() {
-    let currentProviderName = browseBotFindbarLLM.currentProvider.name, menuItems = Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(([name, provider]) => `
-                  <menuitem
-                    value="${name}"
-                    label="${escapeXmlAttribute(provider.label)}"
-                    ${name === currentProviderName ? 'selected="true"' : ""}
-                    ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
-                  />
-                `).join(""), menulistXul = `
-        <menulist id="provider-selector" class="provider-selector" value="${currentProviderName}">
-          <menupopup>
-            ${menuItems}
-          </menupopup>
-        </menulist>`, providerSelectorXulElement = parseElement(menulistXul, "xul"), html = `
+    let currentProviderName = browseBotFindbarLLM.currentProvider.name, providerSelectorXulElement = createCombobox({
+      id: "provider-selector",
+      value: currentProviderName,
+      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(([name, provider]) => ({
+        value: name,
+        label: provider.label,
+        image: provider.faviconUrl || ""
+      }))
+    }), html = `
         <div class="browse-bot-setup">
           <div class="ai-setup-content">
             <h3>AI Setup Required</h3>

@@ -306,3 +306,136 @@
     border-color: var(--zenux-accent-border);
   }
 }
+
+.zenux-combobox {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-family: var(--zenux-font) !important;
+  font-size: 13px !important;
+  color: var(--zenux-text) !important;
+  background-color: var(--zenux-input-bg) !important;
+  border: 1px solid var(--zenux-border) !important;
+  border-radius: var(--zenux-radius-s) !important;
+  padding: 7px 10px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  min-width: 0 !important;
+
+  &:focus-visible {
+    outline: 2px solid var(--zenux-accent-border) !important;
+    outline-offset: 0 !important;
+  }
+
+  .zenux-combobox-icon {
+    width: 16px !important;
+    height: 16px !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+
+    &:not([src]) {
+      visibility: hidden !important;
+    }
+  }
+
+  .zenux-combobox-label {
+    flex: 1 !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: start !important;
+
+    &.is-placeholder {
+      color: var(--zenux-faint) !important;
+    }
+  }
+
+  .zenux-combobox-marker {
+    width: 0 !important;
+    height: 0 !important;
+    flex-shrink: 0 !important;
+    border-left: 4px solid transparent !important;
+    border-right: 4px solid transparent !important;
+    border-top: 5px solid currentColor !important;
+    opacity: 0.7 !important;
+  }
+}
+
+.zenux-combobox-popup {
+  position: fixed !important;
+  z-index: 10001 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  padding: 6px !important;
+  background-color: var(--zenux-bg) !important;
+  border: 1px solid var(--zenux-border) !important;
+  border-radius: var(--zenux-radius-m) !important;
+  box-shadow: var(--zenux-shadow-l) !important;
+  font-family: var(--zenux-font) !important;
+
+  &[hidden] {
+    display: none !important;
+  }
+
+  .zenux-combobox-search {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .zenux-combobox-list {
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    scrollbar-width: thin !important;
+  }
+
+  .zenux-combobox-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 6px 8px !important;
+    border-radius: var(--zenux-radius-s) !important;
+    cursor: pointer !important;
+    font-size: 13px !important;
+    color: var(--zenux-text) !important;
+
+    img {
+      width: 16px !important;
+      height: 16px !important;
+      object-fit: contain !important;
+      flex-shrink: 0 !important;
+
+      &:not([src]) {
+        visibility: hidden !important;
+      }
+    }
+
+    span {
+      flex: 1 !important;
+      min-width: 0 !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    &.is-highlighted {
+      background-color: var(--zenux-surface-hover) !important;
+    }
+
+    &[aria-selected="true"] {
+      color: var(--zenux-accent-text) !important;
+      background-color: var(--zenux-accent-soft) !important;
+    }
+  }
+
+  .zenux-combobox-no-results {
+    padding: 10px !important;
+    text-align: center !important;
+    color: var(--zenux-muted) !important;
+    font-size: 12px !important;
+  }
+}

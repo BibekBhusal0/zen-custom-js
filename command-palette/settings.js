@@ -2,6 +2,7 @@ import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { hmacCode, trustHash } from "./utils/trust.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { createCombobox } from "../utils/combobox.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
 import { getSearchEngineFavicon } from "../utils/favicon.js";
@@ -55,8 +56,6 @@ const SettingsModal = {
   _boundHandleShortcutKeyDown: null,
   _boundCloseOnEscape: null,
   _boundEditorClickHandler: null,
-  // BUG: I can't figure out way to control size of icon for menulist, not including icon till fixed, turn this variable to true when fixed
-  _showCommandIconsInSelect: false,
 
   init(mainModule) {
     this._mainModule = mainModule;
@@ -644,19 +643,24 @@ const SettingsModal = {
       const saved = PREFS.getPref(PREFS.QUICK_SPLIT_SEARCH_ENGINE) || "";
       const current =
         saved && engines.some((engine) => engine.name === saved) ? saved : "";
-      const items = [
-        `<menuitem value="" label="Browser default"/>`,
-        ...engines.map((engine) => {
-          const label =
-            engine.name === defaultEngineName ? `${engine.name} (Default)` : engine.name;
-          return `<menuitem value="${escapeXmlAttribute(engine.name)}" label="${escapeXmlAttribute(label)}" image="${escapeXmlAttribute(getSearchEngineFavicon(engine))}"/>`;
-        }),
-      ].join("");
-      const menulist = parseElement(
-        `<menulist id="quick-split-search-engine" data-pref="${PREFS.QUICK_SPLIT_SEARCH_ENGINE}" value="${escapeXmlAttribute(current)}"><menupopup>${items}</menupopup></menulist>`,
-        "xul"
-      );
-      picker.replaceChildren(menulist);
+      const combo = createCombobox({
+        id: "quick-split-search-engine",
+        attrs: { "data-pref": PREFS.QUICK_SPLIT_SEARCH_ENGINE },
+        value: current,
+        items: [
+          { value: "", label: "Browser default", image: "" },
+          ...engines.map((engine) => {
+            const label =
+              engine.name === defaultEngineName ? `${engine.name} (Default)` : engine.name;
+            return {
+              value: engine.name,
+              label,
+              image: getSearchEngineFavicon(engine),
+            };
+          }),
+        ],
+      });
+      picker.replaceChildren(combo);
     } catch (e) {
       PREFS.debugError("Failed to load search engines for Quick Split picker.", e);
       picker.textContent = "Could not load search engines.";
@@ -724,19 +728,14 @@ const SettingsModal = {
     if (section) section.hidden = !PREFS.loadQuickSplit;
   },
 
-  _createCommandMenuItems(allCommands) {
-    const sortedCommands = allCommands.sort((a, b) => a.label.localeCompare(b.label));
-    return sortedCommands
-      .map((c) => {
-        const iconAttr = this._showCommandIconsInSelect
-          ? `image="${escapeXmlAttribute(c.icon || "chrome://browser/skin/trending.svg")}"`
-          : "";
-        return `<menuitem value="${escapeXmlAttribute(c.key)}"
-                         label="${escapeXmlAttribute(c.label)}"
-                         ${iconAttr}
-                         />`;
-      })
-      .join("");
+  _getCommandComboItems(allCommands) {
+    return allCommands
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map((c) => ({
+        value: c.key,
+        label: c.label,
+        image: c.icon || "chrome://browser/skin/trending.svg",
+      }));
   },
 
   _renderFunctionStep(step, index, chain) {
@@ -886,21 +885,22 @@ const SettingsModal = {
       const allCommands = await this._mainModule.getAllCommandsForConfig();
       PREFS.debugLog(`renderChainList: building list with ${currentChain.length} items`);
 
-      const menuitemsXUL = this._createCommandMenuItems(allCommands);
+      const comboItems = this._getCommandComboItems(allCommands);
 
       currentChain.forEach((step, index) => {
         const itemContainer = parseElement(`<div class="chain-item-container"></div>`);
 
         if (typeof step === "string") {
-          const menulistXUL = `
-              <menulist class="chain-item-selector" value="${escapeXmlAttribute(step)}">
-                <menupopup>${menuitemsXUL}</menupopup>
-              </menulist>`;
-          const menulistElement = parseElement(menulistXUL, "xul");
-          menulistElement.addEventListener("command", (e) => {
+          const combo = createCombobox({
+            extraClass: "chain-item-selector",
+            value: step,
+            items: comboItems,
+            placeholder: "Select a command…",
+          });
+          combo.addEventListener("command", (e) => {
             currentChain[index] = e.target.value;
           });
-          itemContainer.appendChild(menulistElement);
+          itemContainer.appendChild(combo);
         } else if (typeof step === "object" && step.action) {
           PREFS.debugLog(`Rendering function step: ${step.action}`);
           const functionStepEl = self._renderFunctionStep(step, index, currentChain);
@@ -1017,21 +1017,15 @@ const SettingsModal = {
             return;
           }
 
-          const menuitemsXUL = this._createCommandMenuItems(allCommands);
+          const menuitems = this._getCommandComboItems(allCommands);
 
-          const menulistXUL = `
-            <menulist id="chain-command-selector">
-              <menupopup>${menuitemsXUL}</menupopup>
-            </menulist>`;
-
-          try {
-            const menulistElement = parseElement(menulistXUL, "xul");
-            placeholder.replaceWith(menulistElement);
-            PREFS.debugLog("Chain editor: XUL menulist successfully created and inserted.");
-          } catch (e) {
-            PREFS.debugLog("Chain editor: Failed to parse or insert XUL menulist.", e);
-            placeholder.textContent = "Error creating command list.";
-          }
+          const combo = createCombobox({
+            id: "chain-command-selector",
+            value: "",
+            items: menuitems,
+            placeholder: "Select a command…",
+          });
+          placeholder.replaceWith(combo);
         })
         .catch((err) => {
           PREFS.debugLog("Chain editor: getAllCommandsForConfig promise rejected.", err);

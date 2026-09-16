@@ -2,6 +2,7 @@ import { eventToShortcutSignature, getPrettyShortcut } from "../utils/keyboard.j
 import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { createCombobox } from "../utils/combobox.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
 
 export const SettingsModal = {
@@ -80,29 +81,22 @@ export const SettingsModal = {
     const container = parseElement(settingsHtml);
     this._modalElement = container;
 
-    const providerOptionsXUL = Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
-      .map(
-        ([name, provider]) =>
-          `<menuitem
-            value="${name}"
-            label="${escapeXmlAttribute(provider.label)}"
-            ${name === PREFS.llmProvider ? 'selected="true"' : ""}
-            ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
-          />`
-      )
-      .join("");
+    const providerCombo = createCombobox({
+      id: "pref-llm-provider",
+      attrs: { "data-pref": PREFS.LLM_PROVIDER },
+      value: PREFS.llmProvider,
+      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(
+        ([name, provider]) => ({
+          value: name,
+          label: provider.label,
+          image: provider.faviconUrl || "",
+        })
+      ),
+    });
 
-    const menulistXul = `
-      <menulist id="pref-llm-provider" data-pref="${PREFS.LLM_PROVIDER}" value="${PREFS.llmProvider}">
-        <menupopup>
-          ${providerOptionsXUL}
-        </menupopup>
-      </menulist>`;
-
-    const providerSelectorXulElement = parseElement(menulistXul, "xul");
     const placeholder = this._modalElement.querySelector("#llm-provider-selector-placeholder");
     if (placeholder) {
-      placeholder.replaceWith(providerSelectorXulElement);
+      placeholder.replaceWith(providerCombo);
     }
 
     for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
@@ -120,22 +114,17 @@ export const SettingsModal = {
           `;
           modelSelectorElement = parseElement(modelInputHtml, "html");
         } else {
-          const modelOptionsXUL = provider.AVAILABLE_MODELS.map(
-            (model) =>
-              `<menuitem
-                  value="${model}"
-                  label="${escapeXmlAttribute(provider.AVAILABLE_MODELS_LABELS[model] || model)}"
-                  ${model === currentModel ? 'selected="true"' : ""}
-                />`
-          ).join("");
-
-          const modelMenulistXul = `
-              <menulist id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${currentModel}">
-                <menupopup>
-                  ${modelOptionsXUL}
-                </menupopup>
-              </menulist>`;
-          modelSelectorElement = parseElement(modelMenulistXul, "xul");
+          const modelCombo = createCombobox({
+            id: `pref-${this._getSafeIdForProvider(name)}-model`,
+            attrs: { "data-pref": modelPrefKey },
+            value: currentModel,
+            items: provider.AVAILABLE_MODELS.map((model) => ({
+              value: model,
+              label: provider.AVAILABLE_MODELS_LABELS[model] || model,
+              image: "",
+            })),
+          });
+          modelSelectorElement = modelCombo;
         }
         modelPlaceholder.replaceWith(modelSelectorElement);
       }
@@ -182,7 +171,7 @@ export const SettingsModal = {
       // Initialize control value from PREFS
       if (control.type === "checkbox") {
         control.checked = PREFS.getPref(prefKey);
-      } else if (control.tagName.toLowerCase() === "menulist") {
+      } else if (control.classList.contains("zenux-combobox")) {
         control.value = PREFS.getPref(prefKey);
       } else {
         control.value = PREFS.getPref(prefKey);
@@ -191,7 +180,7 @@ export const SettingsModal = {
       this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
 
       // Store changes in _currentPrefValues
-      if (control.tagName.toLowerCase() === "menulist") {
+      if (control.classList.contains("zenux-combobox")) {
         control.addEventListener("command", (e) => {
           this._currentPrefValues[prefKey] = e.target.value;
           PREFS.debugLog(
@@ -355,7 +344,7 @@ export const SettingsModal = {
           if (control) {
             if (control.type === "checkbox") {
               control.checked = defVal;
-            } else if (control.tagName.toLowerCase() === "menulist") {
+            } else if (control.classList.contains("zenux-combobox")) {
               control.value = defVal;
             } else {
               control.value = defVal;
@@ -402,8 +391,7 @@ export const SettingsModal = {
       if (control.type === "checkbox") {
         control.checked = PREFS.getPref(prefKey);
       } else {
-        // For XUL menulist, ensure its value is set correctly on show
-        if (control.tagName.toLowerCase() === "menulist") {
+        if (control.classList.contains("zenux-combobox")) {
           control.value = PREFS.getPref(prefKey);
         } else {
           control.value = PREFS.getPref(prefKey);
@@ -734,7 +722,7 @@ export const SettingsModal = {
           : "";
       }
 
-      // Placeholder for the XUL menulist, which will be inserted dynamically in createModalElement
+      // Placeholder for the combobox, which will be inserted dynamically in createModalElement
       const modelSelectPlaceholderHtml = modelPrefKey
         ? `
         <div class="setting-item" data-provider-model="${name}">

@@ -438,11 +438,6 @@
               max-width: 450px;
             }
 
-            menulist {
-              fill: light-dark(black, white) !important;
-              -moz-context-properties: fill !important;
-            }
-
             #chain-command-selector-container {
               display: flex;
               align-content: center;
@@ -557,7 +552,7 @@
           min-width: 0;
           justify-content: flex-end;
 
-          menulist {
+          .zenux-combobox {
             flex-grow: 1;
             max-width: 320px;
           }

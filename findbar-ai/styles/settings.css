@@ -337,7 +337,7 @@
 
 findbar,
 .browse-bot-settings-modal {
-  menulist,
+  .zenux-combobox,
   select {
     flex-grow: 1 !important;
     padding: 8px 12px !important;
@@ -375,7 +375,7 @@ findbar,
     margin: 0 !important;
   }
 
-  menulist {
+  .zenux-combobox {
     padding: 4px !important;
   }
 

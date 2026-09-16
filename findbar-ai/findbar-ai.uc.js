@@ -2,6 +2,7 @@ import { messageManagerAPI } from "./messageManager.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { createCombobox } from "../utils/combobox.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
 import { addPrefListener, removePrefListener } from "../utils/pref.js";
@@ -376,27 +377,19 @@ export const browseBotFindbar = {
 
   createAPIKeyInterface() {
     const currentProviderName = browseBotFindbarLLM.currentProvider.name;
-    const menuItems = Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)
-      .map(
-        ([name, provider]) => `
-                  <menuitem
-                    value="${name}"
-                    label="${escapeXmlAttribute(provider.label)}"
-                    ${name === currentProviderName ? 'selected="true"' : ""}
-                    ${provider.faviconUrl ? `image="${escapeXmlAttribute(provider.faviconUrl)}"` : ""}
-                  />
-                `
-      )
-      .join("");
+    const providerCombo = createCombobox({
+      id: "provider-selector",
+      value: currentProviderName,
+      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(
+        ([name, provider]) => ({
+          value: name,
+          label: provider.label,
+          image: provider.faviconUrl || "",
+        })
+      ),
+    });
 
-    const menulistXul = `
-        <menulist id="provider-selector" class="provider-selector" value="${currentProviderName}">
-          <menupopup>
-            ${menuItems}
-          </menupopup>
-        </menulist>`;
-
-    const providerSelectorXulElement = parseElement(menulistXul, "xul");
+    const providerSelectorXulElement = providerCombo;
 
     const html = `
         <div class="browse-bot-setup">
@@ -422,7 +415,7 @@ export const browseBotFindbar = {
     const container = parseElement(html);
 
     const providerSelectionGroup = container.querySelector(".provider-selection-group");
-    // Insert the XUL menulist after the label within the group
+    // Insert the combobox after the label within the group
     providerSelectionGroup.appendChild(providerSelectorXulElement);
 
     const providerSelector = container.querySelector("#provider-selector");
@@ -474,7 +467,7 @@ export const browseBotFindbar = {
 
     updateUIForProvider(currentProviderName);
 
-    // Use 'command' event for XUL menulist
+    // Use 'command' event for combobox selection
     providerSelector.addEventListener("command", (e) => {
       const selectedProviderName = e.target.value;
       browseBotFindbarLLM.setProvider(selectedProviderName); // This also updates PREFS.llmProvider internally
