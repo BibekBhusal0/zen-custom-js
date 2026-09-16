@@ -77,6 +77,23 @@ const createBanner = (themePath) => {
 async function buildMod(themePath, entryFile, theme, isWatch = false) {
   const banner = createBanner(themePath);
 
+  const runBuild = async (options, label) => {
+    try {
+      const result = await Bun.build(options);
+      if (!result.success) {
+        for (const log of result.logs) console.error(`[${label}]`, log);
+        throw new Error(`Build failed: ${label}`);
+      }
+      console.log(`Built ${label}`);
+    } catch (err) {
+      if (err instanceof AggregateError) {
+        for (const sub of err.errors) console.error(`[${label}]`, sub?.message ?? sub);
+        throw new Error(`Build failed: ${label}`);
+      }
+      throw err;
+    }
+  };
+
   if (theme.id === "browse-bot") {
     const externalPackages = [
       "@ai-sdk/*",
@@ -86,25 +103,31 @@ async function buildMod(themePath, entryFile, theme, isWatch = false) {
       "*/vercel-ai-sdk.uc.mjs",
     ];
 
-    await Bun.build({
-      entrypoints: [entryFile],
-      outdir: "./dist",
-      format: "esm",
-      target: "browser",
-      naming: "browse-bot.uc.mjs",
-      banner,
-      minify: { syntax: true },
-      external: externalPackages,
-    });
+    await runBuild(
+      {
+        entrypoints: [entryFile],
+        outdir: "./dist",
+        format: "esm",
+        target: "browser",
+        naming: "browse-bot.uc.mjs",
+        banner,
+        minify: { syntax: true },
+        external: externalPackages,
+      },
+      "browse-bot.uc.mjs"
+    );
 
-    await Bun.build({
-      entrypoints: ["./findbar-ai/vercel-ai-sdk.uc.mjs"],
-      outdir: "./dist",
-      format: "esm",
-      target: "browser",
-      naming: "vercel-ai-sdk.uc.mjs",
-      minify: { syntax: true },
-    });
+    await runBuild(
+      {
+        entrypoints: ["./findbar-ai/vercel-ai-sdk.uc.mjs"],
+        outdir: "./dist",
+        format: "esm",
+        target: "browser",
+        naming: "vercel-ai-sdk.uc.mjs",
+        minify: { syntax: true },
+      },
+      "vercel-ai-sdk.uc.mjs"
+    );
 
     if (isWatch) {
       const mainWatch = $`bun build ${entryFile} --outdir ./dist --format esm --target browser --entry-naming browse-bot.uc.mjs --banner "${banner}" --minify-syntax --external "@ai-sdk/*" --external ai --external zod --external ollama-ai-provider-v2 --external "*/vercel-ai-sdk.uc.mjs" --watch`;
@@ -115,15 +138,18 @@ async function buildMod(themePath, entryFile, theme, isWatch = false) {
     return;
   }
 
-  await Bun.build({
-    entrypoints: [entryFile],
-    outdir: "./dist",
-    format: "iife",
-    target: "browser",
-    naming: `${theme.id}.uc.js`,
-    banner,
-    minify: { syntax: true },
-  });
+  await runBuild(
+    {
+      entrypoints: [entryFile],
+      outdir: "./dist",
+      format: "iife",
+      target: "browser",
+      naming: `${theme.id}.uc.js`,
+      banner,
+      minify: { syntax: true },
+    },
+    `${theme.id}.uc.js`
+  );
 
   if (isWatch) {
     await $`bun build ${entryFile} --outdir ./dist --format iife --target browser --entry-naming ${theme.id}.uc.js --banner "${banner}" --minify-syntax --watch`;
@@ -163,20 +189,32 @@ async function build() {
     modsToBuild = modsWithThemes.filter((m) => m.include).map((m) => m.dir);
   }
 
+  let built = 0;
   for (const dir of modsToBuild) {
     const themePath = path.join(dir, "theme.json");
     const entryFile = path.join(dir, "index.js");
 
     if (!fs.existsSync(themePath) || !fs.existsSync(entryFile)) {
+      console.warn(`Skipped ${dir}: missing theme.json or index.js`);
       continue;
     }
 
     const theme = JSON.parse(await Bun.file(themePath).text());
-    if (!theme.scripts) continue;
+    if (!theme.scripts) {
+      console.warn(`Skipped ${dir}: no scripts key in theme.json`);
+      continue;
+    }
     await buildMod(themePath, entryFile, theme, isWatch);
+    built++;
   }
+
+  if (target && built === 0) {
+    throw new Error(`No mods matched TARGET="${target}"`);
+  }
+  console.log(`Done: built ${built} mod(s).`);
 }
 
-build().catch(() => {
+build().catch((err) => {
+  console.error(err?.message ?? err);
   process.exit(1);
 });
