@@ -628,6 +628,12 @@ function eventToShortcutSignature(event) {
     modifiers.push("shift");
   return modifiers.push(normalizeKeyName(event.key)), modifiers.join("+");
 }
+function getPrettyShortcut(shortcutStr) {
+  if (!shortcutStr)
+    return "";
+  let pretty = shortcutStr.toLowerCase().replace(/control/g, "⌘").replace(/accel/g, "⌘").replace(/ctrl/g, "⌘").replace(/shift/g, "⇧").replace(/option/g, "Alt").replace(/alt/g, "Alt").replace(/space/g, "␣").replace(/spacebar/g, "␣").replace(/enter/g, "↩").replace(/arrowright/g, "→").replace(/arrowleft/g, "←").replace(/arrowup/g, "↑").replace(/arrowdown/g, "↓");
+  return pretty ? pretty[0].toUpperCase() + pretty.slice(1) : "";
+}
 function normalizeKeyName(key) {
   if (!key)
     return "";
@@ -685,7 +691,7 @@ var SettingsModal = {
     event.preventDefault(), event.stopPropagation();
     let targetInput = this._currentShortcutTarget, prefKey = targetInput.dataset.pref;
     if (event.key === "Escape") {
-      targetInput.value = PREFS2.getPref(prefKey), targetInput.classList.remove("recording"), targetInput.placeholder = "Click to set", this._currentShortcutTarget = null, window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, !0);
+      targetInput.value = getPrettyShortcut(PREFS2.getPref(prefKey)), targetInput.classList.remove("recording"), targetInput.placeholder = "Click to set", this._currentShortcutTarget = null, window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, !0);
       return;
     }
     if (event.key === "Backspace" || event.key === "Delete") {
@@ -695,14 +701,14 @@ var SettingsModal = {
     if (["Control", "Alt", "Shift", "Meta"].includes(event.key))
       return;
     let shortcutString = eventToShortcutSignature(event);
-    targetInput.value = shortcutString, this._currentPrefValues[prefKey] = shortcutString, PREFS2.debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`), targetInput.classList.remove("recording"), targetInput.placeholder = "Click to set", this._currentShortcutTarget = null, window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, !0);
+    targetInput.value = getPrettyShortcut(shortcutString), this._currentPrefValues[prefKey] = shortcutString, PREFS2.debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`), targetInput.classList.remove("recording"), targetInput.placeholder = "Click to set", this._currentShortcutTarget = null, window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, !0);
   },
   _generateShortcutInputHtml(prefConstant, label) {
-    let currentValue = PREFS2.getPref(prefConstant), prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
+    let currentValue = getPrettyShortcut(PREFS2.getPref(prefConstant)), prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
     return `
       <div class="setting-item">
         <label for="${prefId}">${label}</label>
-        <input type="text" id="${prefId}" data-pref="${prefConstant}" value="${escapeXmlAttribute(currentValue)}" readonly placeholder="Click to set" class="shortcut-input" />
+        <input type="text" id="${prefId}" data-pref="${prefConstant}" value="${escapeXmlAttribute(currentValue)}" readonly placeholder="Click to set" class="shortcut-input zenux-input" />
       </div>
     `;
   },
@@ -729,7 +735,7 @@ var SettingsModal = {
         let modelSelectorElement;
         if (name === "custom") {
           let modelInputHtml = `
-            <input type="text" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
+            <input type="text" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
           `;
           modelSelectorElement = parseElement(modelInputHtml, "html");
         } else {
@@ -953,7 +959,7 @@ var SettingsModal = {
           ${label}
           ${infoIconHtml}
         </label>
-        <input type="number" id="${prefId}" data-pref="${prefConstant}" min="${min}" max="${max}" step="${step}" />
+        <input type="number" class="zenux-input" id="${prefId}" data-pref="${prefConstant}" min="${min}" max="${max}" step="${step}" />
       </div>
     `;
   },
@@ -964,7 +970,7 @@ var SettingsModal = {
       return this._generateCheckboxSettingHtml(s.label, s.pref);
     }).join(""), prefsToReset = (resetPrefs.length > 0 ? resetPrefs : settingsArray.map((s) => s.pref)).join(",");
     return `
-    <section class="settings-section settings-accordion" data-expanded="${expanded}" >
+    <section class="settings-section settings-accordion zenux-section" data-expanded="${expanded}" >
       <h4 class="accordion-header">
         ${title}
         <div class="reset-section-btn" data-reset-prefs="${prefsToReset}" title="Reset Section" role="button">
@@ -1018,7 +1024,7 @@ var SettingsModal = {
       { label: "Enable Animations", pref: PREFS2.URLBAR_AI_ANIMATIONS_ENABLED },
       { label: "Hide Suggestions", pref: PREFS2.URLBAR_AI_HIDE_SUGGESTIONS }
     ], urlbarSectionHtml = this._createCheckboxSectionHtml("URLBar AI", urlbarSettings, !1, "", "", urlbarSettings.map((s) => s.pref)), shortcutFindbarHtml = this._generateShortcutInputHtml(PREFS2.SHORTCUT_FINDBAR, "Open Findbar AI"), shortcutUrlbarHtml = this._generateShortcutInputHtml(PREFS2.SHORTCUT_URLBAR, "Toggle URLBar AI"), shortcutsSectionHtml = `
-      <section class="settings-section settings-accordion" data-expanded="true">
+      <section class="settings-section settings-accordion zenux-section" data-expanded="true">
         <h4 class="accordion-header">
           Keyboard Shortcuts
           <div class="reset-section-btn" data-reset-prefs="${PREFS2.SHORTCUT_FINDBAR},${PREFS2.SHORTCUT_URLBAR}" title="Reset Section" role="button">
@@ -1042,12 +1048,12 @@ var SettingsModal = {
     `, maxToolCallsHtml = `
    <div class="setting-item">
      <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
-     <input type="number" id="pref-max-tool-calls" data-pref="${PREFS2.MAX_TOOL_CALLS}" />
+      <input type="number" class="zenux-input" id="pref-max-tool-calls" data-pref="${PREFS2.MAX_TOOL_CALLS}" />
    </div>
  `, customSystemPromptHtml = `
    <div class="setting-item">
      <label for="pref-custom-system-prompt">Custom System Prompt</label>
-     <textarea id="pref-custom-system-prompt" data-pref="${PREFS2.CUSTOM_SYSTEM_PROMPT}" rows="3" placeholder="Pretend like ...."></textarea>
+      <textarea class="zenux-input" id="pref-custom-system-prompt" data-pref="${PREFS2.CUSTOM_SYSTEM_PROMPT}" rows="3" placeholder="Pretend like ...."></textarea>
    </div>
  `, aiBehaviorResetPrefs = [
       ...aiBehaviorSettings.map((s) => s.pref),
@@ -1066,11 +1072,11 @@ var SettingsModal = {
     ], contextMenuCommandsHtml = `
       <div class="setting-item">
         <label for="pref-context-menu-command-no-selection">Command when no text is selected</label>
-        <textarea id="pref-context-menu-command-no-selection" data-pref="${PREFS2.CONTEXT_MENU_COMMAND_NO_SELECTION}" rows="3"></textarea>
+        <textarea class="zenux-input" id="pref-context-menu-command-no-selection" data-pref="${PREFS2.CONTEXT_MENU_COMMAND_NO_SELECTION}" rows="3"></textarea>
       </div>
       <div class="setting-item">
         <label for="pref-context-menu-command-with-selection">Command when text is selected. Use {selection} for the selected text.</label>
-        <textarea id="pref-context-menu-command-with-selection" data-pref="${PREFS2.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
+        <textarea class="zenux-input" id="pref-context-menu-command-with-selection" data-pref="${PREFS2.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
       </div>
     `, contextMenuResetPrefs = [
       ...contextMenuSettings.map((s) => s.pref),
@@ -1083,7 +1089,7 @@ var SettingsModal = {
         apiInputHtml = `
         <div class="setting-item">
           <label for="pref-ollama-base-url">Base URL</label>
-          <input type="text" id="pref-ollama-base-url" data-pref="${PREFS2.OLLAMA_BASE_URL}" placeholder="http://localhost:11434/api" />
+          <input type="text" class="zenux-input" id="pref-ollama-base-url" data-pref="${PREFS2.OLLAMA_BASE_URL}" placeholder="http://localhost:11434/api" />
         </div>
       `;
       else if (name === "custom") {
@@ -1091,11 +1097,11 @@ var SettingsModal = {
         apiInputHtml = `
         <div class="setting-item">
           <label for="pref-custom-base-url">Base URL</label>
-          <input type="text" id="pref-custom-base-url" data-pref="${baseUrlPrefKey}" placeholder="https://api.your-provider.com/v1" />
+          <input type="text" class="zenux-input" id="pref-custom-base-url" data-pref="${baseUrlPrefKey}" placeholder="https://api.your-provider.com/v1" />
         </div>
         <div class="setting-item">
           <label for="pref-custom-api-key">API Key</label>
-          <input type="password" id="pref-custom-api-key" data-pref="${apiPrefKey}" placeholder="Enter Custom API Key" />
+          <input type="password" class="zenux-input" id="pref-custom-api-key" data-pref="${apiPrefKey}" placeholder="Enter Custom API Key" />
         </div>
       `;
       } else {
@@ -1103,7 +1109,7 @@ var SettingsModal = {
         apiInputHtml = apiPrefKey ? `
         <div class="setting-item">
           <label for="pref-${this._getSafeIdForProvider(name)}-api-key">API Key</label>
-          <input type="password" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
+          <input type="password" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
         </div>
       ` : "";
       }
@@ -1112,7 +1118,7 @@ var SettingsModal = {
           <label for="pref-${this._getSafeIdForProvider(name)}-model">Model</label>
           <div class="model-input-row">
             <div id="llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}"></div>
-            ${name === "custom" ? '<button class="verify-model-btn" data-verify-model="custom">Verify</button>' : ""}
+             ${name === "custom" ? '<button class="verify-model-btn zenux-btn-ghost" data-verify-model="custom">Verify</button>' : ""}
           </div>
           ${name === "custom" ? '<span class="verify-model-status" data-verify-status="custom"></span>' : ""}
         </div>
@@ -1121,7 +1127,7 @@ var SettingsModal = {
         <div id="${this._getSafeIdForProvider(name)}-settings-group" class="provider-settings-group">
           <div class="provider-header-group">
             <h5>${provider.label}</h5>
-            <button class="get-api-key-link" data-url="${provider.apiKeyUrl || ""}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
+            <button class="get-api-key-link zenux-btn-ghost" data-url="${provider.apiKeyUrl || ""}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
           </div>
           ${apiInputHtml}
           ${modelSelectPlaceholderHtml}
@@ -1129,7 +1135,7 @@ var SettingsModal = {
       `;
     }
     let llmProvidersSectionHtml = `
-      <section class="settings-section settings-accordion" data-expanded="false">
+      <section class="settings-section settings-accordion zenux-section" data-expanded="false">
         <h4 class="accordion-header">
             LLM Providers
             <div class="reset-section-btn" data-reset-prefs="${[
@@ -1157,7 +1163,7 @@ var SettingsModal = {
         tooltip: "Controls randomness. Lower values are more deterministic."
       },
       {
-        label: "Top P  -----",
+        label: "Top P",
         pref: PREFS2.LLM_TOP_P,
         type: "number",
         step: 0.1,
@@ -1166,7 +1172,7 @@ var SettingsModal = {
         tooltip: "Nucleus sampling. Limits token selection to top cumulative probability."
       },
       {
-        label: "Top K  ----- ",
+        label: "Top K",
         pref: PREFS2.LLM_TOP_K,
         type: "number",
         step: 1,
@@ -1216,8 +1222,8 @@ var SettingsModal = {
           <div class="ai-settings-header">
             <h3>Settings</h3>
             <div>
-              <button id="close-settings" class="settings-close-btn">Close</button>
-              <button id="save-settings" class="settings-save-btn">Save</button>
+              <button id="close-settings" class="settings-close-btn zenux-btn-ghost">Close</button>
+              <button id="save-settings" class="settings-save-btn zenux-btn-primary">Save</button>
             </div>
           </div>
           <div class="ai-settings-content">
@@ -2385,10 +2391,10 @@ var browseBotFindbar = {
           <div class="tool-confirmation-content">
             <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
             <div class="buttons">
-              <button class="not-again">Don't ask again</button>
+              <button class="not-again zenux-btn-ghost">Don't ask again</button>
               <div class="right-side-buttons">
-                <button class="confirm-tool">Yes</button>
-                <button class="cancel-tool">No</button>
+                <button class="confirm-tool zenux-btn-success">Yes</button>
+                <button class="cancel-tool zenux-btn-danger">No</button>
               </div>
             </div>
           </div>
@@ -2506,15 +2512,15 @@ var browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="text" id="base-url" class="api-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
-              <input type="text" id="model-name" class="api-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
+              <input type="text" id="base-url" class="api-input zenux-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
+              <input type="text" id="model-name" class="api-input zenux-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
               <div class="api-key-row">
-                <input type="password" id="api-key" placeholder="Enter your API key" />
-                <button id="save-api-key">Save</button>
+                <input type="password" id="api-key" class="zenux-input" placeholder="Enter your API key" />
+                <button id="save-api-key" class="zenux-btn-primary">Save</button>
               </div>
             </div>
             <div class="api-key-links">
-              <button id="get-api-key-link">Get API Key</button>
+              <button id="get-api-key-link" class="zenux-btn-ghost">Get API Key</button>
             </div>
           </div>
         </div>`, container = parseElement(`
@@ -2526,15 +2532,15 @@ var browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="text" id="base-url" class="api-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
-              <input type="text" id="model-name" class="api-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
+              <input type="text" id="base-url" class="api-input zenux-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
+              <input type="text" id="model-name" class="api-input zenux-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
               <div class="api-key-row">
-                <input type="password" id="api-key" placeholder="Enter your API key" />
-                <button id="save-api-key">Save</button>
+                <input type="password" id="api-key" class="zenux-input" placeholder="Enter your API key" />
+                <button id="save-api-key" class="zenux-btn-primary">Save</button>
               </div>
             </div>
             <div class="api-key-links">
-              <button id="get-api-key-link">Get API Key</button>
+              <button id="get-api-key-link" class="zenux-btn-ghost">Get API Key</button>
             </div>
           </div>
         </div>`);
@@ -2766,12 +2772,12 @@ Declined by user.`;
           <div class="ai-chat-messages" id="chat-messages"></div>
           <div class="ai-chat-input-group">
           <textarea id="ai-prompt" placeholder="Ask AI anything..." rows="2"></textarea>
-          <button id="send-prompt" class="send-btn">
+          <button id="send-prompt" class="send-btn zenux-btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M17.991 6.01L5.399 10.563l4.195 2.428l3.699-3.7a1 1 0 0 1 1.414 1.415l-3.7 3.7l2.43 4.194L17.99 6.01Zm.323-2.244c1.195-.433 2.353.725 1.92 1.92l-5.282 14.605c-.434 1.198-2.07 1.344-2.709.241l-3.217-5.558l-5.558-3.217c-1.103-.639-.957-2.275.241-2.709z" />
             </svg>
           </button>
-          <button id="stop-generation" class="stop-btn" style="display: none;">
+          <button id="stop-generation" class="stop-btn zenux-btn-primary" style="display: none;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m2 6h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" />
               </svg>
@@ -2780,19 +2786,19 @@ Declined by user.`;
         </div>`), chatHeader = container.querySelector(".ai-chat-header"), clearBtn = parseElement(`
         <toolbarbutton 
           id="clear-chat" 
-          class="clear-chat-btn" 
+          class="clear-chat-btn zenux-icon-btn" 
           image="chrome://global/skin/icons/delete.svg" 
           tooltiptext="Clear Chat"
         />`, "xul"), settingsBtn = parseElement(`
         <toolbarbutton 
           id="open-settings-btn" 
-          class="settings-btn" 
+          class="settings-btn zenux-icon-btn" 
           image="chrome://global/skin/icons/settings.svg" 
           tooltiptext="Settings"
         />`, "xul"), collapseBtn = parseElement(`
         <toolbarbutton 
           id="findbar-collapse-btn" 
-          class="findbar-collapse-btn" 
+          class="findbar-collapse-btn zenux-icon-btn" 
           image="chrome://browser/skin/zen-icons/unpin.svg" 
           tooltiptext="Collapse"
         />`, "xul");
@@ -2940,14 +2946,14 @@ Declined by user.`;
     if (this.removeExpandButton(), this.minimal) {
       let container = this.findbar.querySelector(".findbar-container");
       if (container && !container.querySelector("#findbar-ask")) {
-        let askBtn = parseElement('<button id="findbar-ask" anonid="findbar-ask">Ask</button>');
+        let askBtn = parseElement('<button id="findbar-ask" class="zenux-btn-primary" anonid="findbar-ask">Ask</button>');
         askBtn.addEventListener("click", () => {
           let inpText = this.findbar._findField.value.trim();
           this.sendMessage(inpText), this.findbar._findField.value = "", this.focusInput();
         }), container.appendChild(askBtn), this.askButton = askBtn;
       }
     } else {
-      let button = parseElement('<button id="findbar-expand" anonid="findbar-expand">Expand</button>');
+      let button = parseElement('<button id="findbar-expand" class="zenux-btn-primary" anonid="findbar-expand">Expand</button>');
       button.addEventListener("click", () => this.expanded = !0), button.textContent = "Expand", this.findbar.appendChild(button), this.expandButton = button;
     }
     return !0;

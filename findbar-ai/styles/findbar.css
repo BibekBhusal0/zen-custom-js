@@ -40,7 +40,19 @@ browser {
 }
 
 @keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes thinking-bar {
   0% {
+    transform: translateX(-30%);
     opacity: 0.4;
   }
 
@@ -49,17 +61,8 @@ browser {
   }
 
   100% {
+    transform: translateX(30%);
     opacity: 0.4;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-
-  100% {
-    background-position: -200% 0;
   }
 }
 
@@ -173,38 +176,37 @@ browser {
     .findbar-collapse-btn {
       width: 28px !important;
       height: 28px !important;
-      appearance: none !important;
-      outline: none !important;
-      border: none !important;
-      border-radius: 5px !important;
-      transition: all 0.2s ease !important;
-      display: inline-flex !important;
-      justify-content: center !important;
-      align-content: center !important;
-      background-color: transparent !important;
       -moz-context-properties: fill !important;
       fill: light-dark(black, white) !important;
-      /* border: 1px solid red !important; */
 
       label {
         display: none !important;
       }
-
-      &:hover {
-        background: var(--tab-hover-background-color) !important;
-        border: none !important;
-      }
-
-      &:active {
-        scale: 0.9 !important;
-      }
     }
 
     .findbar-closebutton {
+      padding: 4px !important;
+      background: transparent !important;
+      border: none !important;
+      border-radius: var(--zenux-radius-s) !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      appearance: none !important;
+      outline: none !important;
+      transition: background-color 0.15s var(--zenux-ease) !important;
       position: absolute !important;
       top: 7px !important;
       right: 0 !important;
-      transition: background-color 0.2s ease !important;
+
+      &:hover {
+        background-color: var(--zenux-surface-hover) !important;
+      }
+
+      &:active {
+        transform: scale(0.92) !important;
+      }
     }
 
     &.ai-expanded {
@@ -429,6 +431,11 @@ browser {
           max-height: 40px !important;
           flex-basis: 0 !important;
           display: flex !important;
+          text-align: start !important;
+
+          .menulist-label {
+            text-align: start !important;
+          }
         }
       }
 
@@ -448,30 +455,7 @@ browser {
           width: 100%;
 
           button {
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-            background-color: var(--browse-bot-primary-bg) !important;
-            min-width: 60px !important;
-            font-size: 17px !important;
-            appearance: none !important;
-            outline: none !important;
-
-            &:hover {
-              transform: translateY(-1px);
-            }
-
-            &:active {
-              transform: translateY(0);
-            }
-
-            &:disabled {
-              opacity: 0.6;
-              cursor: not-allowed;
-              transform: none;
-            }
+            font-size: 14px !important;
           }
         }
 
@@ -482,27 +466,10 @@ browser {
 
       .api-key-links {
         margin-top: 12px;
-        font-size: 12px;
         display: flex;
         justify-content: center;
         align-items: center;
         gap: 8px;
-
-        button {
-          background: none;
-          text-decoration: underline;
-          cursor: pointer;
-          padding: 4px 8px;
-          font-size: 12px;
-          border-radius: 4px;
-          transition: all 0.2s ease;
-          appearance: none !important;
-          outline: none !important;
-
-          &:hover {
-            text-decoration: none;
-          }
-        }
       }
     }
 
@@ -545,10 +512,11 @@ browser {
 
       .chat-message-user {
         align-self: flex-end;
-        background: var(--browse-bot-primary-bg);
-        color: var(--tab-selected-textcolor);
+        background: var(--zenux-accent-soft);
+        border: 1px solid var(--zenux-accent-border);
+        color: var(--zenux-text);
         border-bottom-right-radius: 4px;
-        padding: 4px 8px !important;
+        padding: 6px 10px !important;
         font-weight: 500;
       }
 
@@ -563,8 +531,8 @@ browser {
 
       .chat-message-error {
         align-self: flex-start;
-        background: var(--browse-bot-error-bg);
-        color: var(--browse-bot-error);
+        background: var(--zenux-danger-bg);
+        color: var(--zenux-danger);
       }
 
       .ai-chat-input-group {
@@ -615,61 +583,62 @@ browser {
         .send-btn,
         .stop-btn {
           margin-left: auto !important;
-          border: none !important;
-          background-color: var(--browse-bot-primary-bg) !important;
           padding: 3px !important;
-          color: var(--browse-bot-primary) !important;
           align-self: end !important;
           min-width: 30px !important;
           min-height: 30px !important;
           display: flex;
-
-          &:active:not(:disabled) {
-            transform: translateY(0);
-          }
-
-          &:disabled {
-            background: color-mix(in srgb, var(--browse-bot-primary-bg) 30%, black 70%);
-            cursor: not-allowed;
-            opacity: 0.6;
-          }
         }
       }
 
       .chat-message-loading {
         align-self: flex-start;
-        background: transparent;
-        color: transparent;
-        width: 85% !important;
+        width: 60% !important;
 
         .message-content {
-          animation: pulse 1.5s ease-in-out infinite;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            color-mix(in srgb, var(--browse-bot-primary-bg) 20%, transparent 80%),
-            transparent
-          );
-          background-size: 200% 100%;
-          animation: shimmer 2s infinite;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: var(--zenux-muted);
+          font-size: 13px;
+          animation: pulse 1.6s var(--zenux-ease) infinite;
+
+          &::before {
+            content: "";
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--zenux-accent-border);
+            border-top-color: var(--zenux-accent-text);
+            animation: spin 0.8s linear infinite;
+            flex-shrink: 0;
+          }
         }
       }
     }
 
     .citation-link {
-      /* To-do: Style This*/
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 1.7em !important;
-      height: 1.7em !important;
-      font-size: 0.75em !important;
-      font-weight: 700 !important;
+      min-width: 1.6em !important;
+      height: 1.6em !important;
+      font-size: 0.72em !important;
+      font-weight: 600 !important;
       cursor: pointer;
       margin: 1px 3px;
-      vertical-align: middle;
-      padding: 0.3px !important;
-      background: color-mix(in srgb, var(--browse-bot-primary-bg) 40%, transparent 60%) !important;
+      vertical-align: baseline;
+      padding: 0 0.45em !important;
+      color: var(--zenux-accent-text) !important;
+      background: var(--zenux-accent-soft) !important;
+      border: 1px solid var(--zenux-accent-border) !important;
+      border-radius: var(--zenux-radius-pill) !important;
+      text-decoration: none !important;
+      transition: background-color 0.15s var(--zenux-ease);
+
+      &:hover {
+        background: color-mix(in srgb, var(--zenux-accent) 28%, transparent) !important;
+      }
     }
 
     .tool-calls-container {
@@ -688,8 +657,8 @@ browser {
         font-weight: 500;
 
         &[data-status="loading"] {
-          background-color: color-mix(in srgb, var(--browse-bot-muted-bg) 60%, transparent 40%);
-          color: var(--browse-bot-muted);
+          background-color: color-mix(in srgb, var(--zenux-muted-bg) 60%, transparent 40%);
+          color: var(--zenux-muted);
           opacity: 0.8;
 
           .tool-call-icon {
@@ -707,13 +676,13 @@ browser {
         }
 
         &[data-status="success"] {
-          background-color: var(--browse-bot-success-bg);
-          color: var(--browse-bot-success);
+          background-color: var(--zenux-success-bg);
+          color: var(--zenux-success);
         }
 
         &[data-status="error"] {
-          background-color: var(--browse-bot-error-bg);
-          color: var(--browse-bot-error);
+          background-color: var(--zenux-danger-bg);
+          color: var(--zenux-danger);
         }
 
         .tool-call-error {
@@ -726,8 +695,8 @@ browser {
         }
 
         &[data-status="declined"] {
-          background-color: var(--browse-bot-warning-bg);
-          color: var(--browse-bot-warning);
+          background-color: var(--zenux-warning-bg);
+          color: var(--zenux-warning);
           opacity: 0.7;
         }
 
@@ -985,23 +954,7 @@ browser {
       }
 
       button {
-        padding: 7px 14px;
         margin: 0 !important;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        appearance: none;
-
-        &.confirm-tool {
-          background-color: var(--browse-bot-success);
-          color: white;
-        }
-
-        &.cancel-tool {
-          color: white;
-          background-color: var(--browse-bot-error);
-        }
       }
     }
   }

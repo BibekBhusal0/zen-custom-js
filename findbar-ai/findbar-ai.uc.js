@@ -218,10 +218,10 @@ export const browseBotFindbar = {
           <div class="tool-confirmation-content">
             <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
             <div class="buttons">
-              <button class="not-again">Don't ask again</button>
+              <button class="not-again zenux-btn-ghost">Don't ask again</button>
               <div class="right-side-buttons">
-                <button class="confirm-tool">Yes</button>
-                <button class="cancel-tool">No</button>
+                <button class="confirm-tool zenux-btn-success">Yes</button>
+                <button class="cancel-tool zenux-btn-danger">No</button>
               </div>
             </div>
           </div>
@@ -407,15 +407,15 @@ export const browseBotFindbar = {
               <label for="provider-selector">Select Provider:</label>
             </div>
             <div class="api-key-input-group">
-              <input type="text" id="base-url" class="api-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
-              <input type="text" id="model-name" class="api-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
+              <input type="text" id="base-url" class="api-input zenux-input" placeholder="Enter API Endpoint (e.g. https://api.your-provider.com/v1)" />
+              <input type="text" id="model-name" class="api-input zenux-input" placeholder="Enter Model Name (e.g. deepseek-chat)" />
               <div class="api-key-row">
-                <input type="password" id="api-key" placeholder="Enter your API key" />
-                <button id="save-api-key">Save</button>
+                <input type="password" id="api-key" class="zenux-input" placeholder="Enter your API key" />
+                <button id="save-api-key" class="zenux-btn-primary">Save</button>
               </div>
             </div>
             <div class="api-key-links">
-              <button id="get-api-key-link">Get API Key</button>
+              <button id="get-api-key-link" class="zenux-btn-ghost">Get API Key</button>
             </div>
           </div>
         </div>`;
@@ -795,12 +795,12 @@ export const browseBotFindbar = {
   createChatInterface() {
     const chatInputGroup = `<div class="ai-chat-input-group">
           <textarea id="ai-prompt" placeholder="Ask AI anything..." rows="2"></textarea>
-          <button id="send-prompt" class="send-btn">
+          <button id="send-prompt" class="send-btn zenux-btn-primary">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M17.991 6.01L5.399 10.563l4.195 2.428l3.699-3.7a1 1 0 0 1 1.414 1.415l-3.7 3.7l2.43 4.194L17.99 6.01Zm.323-2.244c1.195-.433 2.353.725 1.92 1.92l-5.282 14.605c-.434 1.198-2.07 1.344-2.709.241l-3.217-5.558l-5.558-3.217c-1.103-.639-.957-2.275.241-2.709z" />
             </svg>
           </button>
-          <button id="stop-generation" class="stop-btn" style="display: none;">
+          <button id="stop-generation" class="stop-btn zenux-btn-primary" style="display: none;">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                   <path fill="currentColor" d="M12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12S6.477 2 12 2m2 6h-4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" />
               </svg>
@@ -822,7 +822,7 @@ export const browseBotFindbar = {
       `
         <toolbarbutton 
           id="clear-chat" 
-          class="clear-chat-btn" 
+          class="clear-chat-btn zenux-icon-btn" 
           image="chrome://global/skin/icons/delete.svg" 
           tooltiptext="Clear Chat"
         />`,
@@ -833,7 +833,7 @@ export const browseBotFindbar = {
       `
         <toolbarbutton 
           id="open-settings-btn" 
-          class="settings-btn" 
+          class="settings-btn zenux-icon-btn" 
           image="chrome://global/skin/icons/settings.svg" 
           tooltiptext="Settings"
         />`,
@@ -844,7 +844,7 @@ export const browseBotFindbar = {
       `
         <toolbarbutton 
           id="findbar-collapse-btn" 
-          class="findbar-collapse-btn" 
+          class="findbar-collapse-btn zenux-icon-btn" 
           image="chrome://browser/skin/zen-icons/unpin.svg" 
           tooltiptext="Collapse"
         />`,
@@ -1085,7 +1085,7 @@ export const browseBotFindbar = {
     if (this.minimal) {
       const container = this.findbar.querySelector(".findbar-container");
       if (container && !container.querySelector("#findbar-ask")) {
-        const askBtn = parseElement(`<button id="findbar-ask" anonid="findbar-ask">Ask</button>`);
+        const askBtn = parseElement(`<button id="findbar-ask" class="zenux-btn-primary" anonid="findbar-ask">Ask</button>`);
         askBtn.addEventListener("click", () => {
           const inpText = this.findbar._findField.value.trim();
           this.sendMessage(inpText);
@@ -1098,7 +1098,7 @@ export const browseBotFindbar = {
     } else {
       const button_id = "findbar-expand";
       const button = parseElement(
-        `<button id="${button_id}" anonid="${button_id}">Expand</button>`
+        `<button id="${button_id}" class="zenux-btn-primary" anonid="${button_id}">Expand</button>`
       );
       button.addEventListener("click", () => (this.expanded = true));
       button.textContent = "Expand";

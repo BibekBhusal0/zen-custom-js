@@ -1,4 +1,4 @@
-import { eventToShortcutSignature } from "../utils/keyboard.js";
+import { eventToShortcutSignature, getPrettyShortcut } from "../utils/keyboard.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
@@ -28,7 +28,7 @@ export const SettingsModal = {
     const prefKey = targetInput.dataset.pref;
 
     if (event.key === "Escape") {
-      targetInput.value = PREFS.getPref(prefKey);
+      targetInput.value = getPrettyShortcut(PREFS.getPref(prefKey));
       targetInput.classList.remove("recording");
       targetInput.placeholder = "Click to set";
       this._currentShortcutTarget = null;
@@ -51,7 +51,7 @@ export const SettingsModal = {
     }
 
     const shortcutString = eventToShortcutSignature(event);
-    targetInput.value = shortcutString;
+    targetInput.value = getPrettyShortcut(shortcutString);
     this._currentPrefValues[prefKey] = shortcutString;
     PREFS.debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`);
 
@@ -62,14 +62,14 @@ export const SettingsModal = {
   },
 
   _generateShortcutInputHtml(prefConstant, label) {
-    const currentValue = PREFS.getPref(prefConstant);
+    const currentValue = getPrettyShortcut(PREFS.getPref(prefConstant));
     const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
     return `
       <div class="setting-item">
         <label for="${prefId}">${label}</label>
         <input type="text" id="${prefId}" data-pref="${prefConstant}" value="${escapeXmlAttribute(
           currentValue
-        )}" readonly placeholder="Click to set" class="shortcut-input" />
+        )}" readonly placeholder="Click to set" class="shortcut-input zenux-input" />
       </div>
     `;
   },
@@ -116,7 +116,7 @@ export const SettingsModal = {
         let modelSelectorElement;
         if (name === "custom") {
           const modelInputHtml = `
-            <input type="text" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
+            <input type="text" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
           `;
           modelSelectorElement = parseElement(modelInputHtml, "html");
         } else {
@@ -483,7 +483,7 @@ export const SettingsModal = {
           ${label}
           ${infoIconHtml}
         </label>
-        <input type="number" id="${prefId}" data-pref="${prefConstant}" min="${min}" max="${max}" step="${step}" />
+        <input type="number" class="zenux-input" id="${prefId}" data-pref="${prefConstant}" min="${min}" max="${max}" step="${step}" />
       </div>
     `;
   },
@@ -511,7 +511,7 @@ export const SettingsModal = {
     ).join(",");
 
     return `
-    <section class="settings-section settings-accordion" data-expanded="${expanded}" >
+    <section class="settings-section settings-accordion zenux-section" data-expanded="${expanded}" >
       <h4 class="accordion-header">
         ${title}
         <div class="reset-section-btn" data-reset-prefs="${prefsToReset}" title="Reset Section" role="button">
@@ -610,7 +610,7 @@ export const SettingsModal = {
       "Toggle URLBar AI"
     );
     const shortcutsSectionHtml = `
-      <section class="settings-section settings-accordion" data-expanded="true">
+      <section class="settings-section settings-accordion zenux-section" data-expanded="true">
         <h4 class="accordion-header">
           Keyboard Shortcuts
           <div class="reset-section-btn" data-reset-prefs="${PREFS.SHORTCUT_FINDBAR},${PREFS.SHORTCUT_URLBAR}" title="Reset Section" role="button">
@@ -639,13 +639,13 @@ export const SettingsModal = {
     const maxToolCallsHtml = `
    <div class="setting-item">
      <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
-     <input type="number" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
+      <input type="number" class="zenux-input" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
    </div>
  `;
     const customSystemPromptHtml = `
    <div class="setting-item">
      <label for="pref-custom-system-prompt">Custom System Prompt</label>
-     <textarea id="pref-custom-system-prompt" data-pref="${PREFS.CUSTOM_SYSTEM_PROMPT}" rows="3" placeholder="Pretend like ...."></textarea>
+      <textarea class="zenux-input" id="pref-custom-system-prompt" data-pref="${PREFS.CUSTOM_SYSTEM_PROMPT}" rows="3" placeholder="Pretend like ...."></textarea>
    </div>
  `;
 
@@ -674,11 +674,11 @@ export const SettingsModal = {
     const contextMenuCommandsHtml = `
       <div class="setting-item">
         <label for="pref-context-menu-command-no-selection">Command when no text is selected</label>
-        <textarea id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" rows="3"></textarea>
+        <textarea class="zenux-input" id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" rows="3"></textarea>
       </div>
       <div class="setting-item">
         <label for="pref-context-menu-command-with-selection">Command when text is selected. Use {selection} for the selected text.</label>
-        <textarea id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
+        <textarea class="zenux-input" id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
       </div>
     `;
     const contextMenuResetPrefs = [
@@ -706,7 +706,7 @@ export const SettingsModal = {
         apiInputHtml = `
         <div class="setting-item">
           <label for="pref-ollama-base-url">Base URL</label>
-          <input type="text" id="pref-ollama-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
+          <input type="text" class="zenux-input" id="pref-ollama-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
         </div>
       `;
       } else if (name === "custom") {
@@ -715,11 +715,11 @@ export const SettingsModal = {
         apiInputHtml = `
         <div class="setting-item">
           <label for="pref-custom-base-url">Base URL</label>
-          <input type="text" id="pref-custom-base-url" data-pref="${baseUrlPrefKey}" placeholder="https://api.your-provider.com/v1" />
+          <input type="text" class="zenux-input" id="pref-custom-base-url" data-pref="${baseUrlPrefKey}" placeholder="https://api.your-provider.com/v1" />
         </div>
         <div class="setting-item">
           <label for="pref-custom-api-key">API Key</label>
-          <input type="password" id="pref-custom-api-key" data-pref="${apiPrefKey}" placeholder="Enter Custom API Key" />
+          <input type="password" class="zenux-input" id="pref-custom-api-key" data-pref="${apiPrefKey}" placeholder="Enter Custom API Key" />
         </div>
       `;
       } else {
@@ -728,7 +728,7 @@ export const SettingsModal = {
           ? `
         <div class="setting-item">
           <label for="pref-${this._getSafeIdForProvider(name)}-api-key">API Key</label>
-          <input type="password" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
+          <input type="password" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
         </div>
       `
           : "";
@@ -741,7 +741,7 @@ export const SettingsModal = {
           <label for="pref-${this._getSafeIdForProvider(name)}-model">Model</label>
           <div class="model-input-row">
             <div id="llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}"></div>
-            ${name === "custom" ? '<button class="verify-model-btn" data-verify-model="custom">Verify</button>' : ""}
+             ${name === "custom" ? '<button class="verify-model-btn zenux-btn-ghost" data-verify-model="custom">Verify</button>' : ""}
           </div>
           ${name === "custom" ? '<span class="verify-model-status" data-verify-status="custom"></span>' : ""}
         </div>
@@ -752,7 +752,7 @@ export const SettingsModal = {
         <div id="${this._getSafeIdForProvider(name)}-settings-group" class="provider-settings-group">
           <div class="provider-header-group">
             <h5>${provider.label}</h5>
-            <button class="get-api-key-link" data-url="${provider.apiKeyUrl || ""}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
+            <button class="get-api-key-link zenux-btn-ghost" data-url="${provider.apiKeyUrl || ""}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
           </div>
           ${apiInputHtml}
           ${modelSelectPlaceholderHtml}
@@ -770,7 +770,7 @@ export const SettingsModal = {
     ];
 
     const llmProvidersSectionHtml = `
-      <section class="settings-section settings-accordion" data-expanded="false">
+      <section class="settings-section settings-accordion zenux-section" data-expanded="false">
         <h4 class="accordion-header">
             LLM Providers
             <div class="reset-section-btn" data-reset-prefs="${llmProvidersResetPrefs.join(",")}" title="Reset Section" role="button">
@@ -796,7 +796,7 @@ export const SettingsModal = {
         tooltip: "Controls randomness. Lower values are more deterministic.",
       },
       {
-        label: "Top P  -----", // :HACK: adding space so that tooltip stay under container
+        label: "Top P",
         pref: PREFS.LLM_TOP_P,
         type: "number",
         step: 0.1,
@@ -805,7 +805,7 @@ export const SettingsModal = {
         tooltip: "Nucleus sampling. Limits token selection to top cumulative probability.",
       },
       {
-        label: "Top K  ----- ", // :HACK: adding space so that tooltip stay under container
+        label: "Top K",
         pref: PREFS.LLM_TOP_K,
         type: "number",
         step: 1,
@@ -884,8 +884,8 @@ export const SettingsModal = {
           <div class="ai-settings-header">
             <h3>Settings</h3>
             <div>
-              <button id="close-settings" class="settings-close-btn">Close</button>
-              <button id="save-settings" class="settings-save-btn">Save</button>
+              <button id="close-settings" class="settings-close-btn zenux-btn-ghost">Close</button>
+              <button id="save-settings" class="settings-save-btn zenux-btn-primary">Save</button>
             </div>
           </div>
           <div class="ai-settings-content">
