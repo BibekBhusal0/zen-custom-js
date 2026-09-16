@@ -1,23 +1,25 @@
+@import "../shared/zen-design.css";
+
 :root {
-  --ses-bg-color: #1c1b22;
-  --ses-text-color: #fbfbfe;
-  --ses-border-color: #5a5a5e;
-  --ses-hover-bg: #424246;
-  --ses-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  --ses-bg-color: var(--zenux-bg);
+  --ses-text-color: var(--zenux-text);
+  --ses-border-color: var(--zenux-border);
+  --ses-hover-bg: var(--zenux-surface-hover);
+  --ses-shadow: var(--zenux-shadow-s);
   --ses-scale: 1;
 
   @media -moz-pref("extension.search-engine-select.theme", "light") {
-    --ses-bg-color: #f0f0f2;
+    --ses-bg-color: rgb(250, 250, 250);
     --ses-text-color: #15141a;
-    --ses-border-color: #cfcfd8;
-    --ses-hover-bg: #e0e0e6;
+    --ses-border-color: rgba(127, 127, 127, 0.35);
+    --ses-hover-bg: rgba(20, 20, 22, 0.07);
   }
 
   @media -moz-pref("extension.search-engine-select.theme", "amoled") {
     --ses-bg-color: #000000;
     --ses-text-color: #ffffff;
-    --ses-border-color: #333333;
-    --ses-hover-bg: #1a1a1a;
+    --ses-border-color: rgba(255, 255, 255, 0.16);
+    --ses-hover-bg: rgba(255, 255, 255, 0.08);
   }
 
   @media -moz-pref("extension.search-engine-select.size", "small") {
@@ -32,6 +34,7 @@
 #search-engine-switcher-container {
   --container-padding: 7px;
   position: fixed;
+  font-family: var(--zenux-font);
   right: 0;
   top: 50%;
   transform: translateY(-50%) scale(var(--ses-scale));
@@ -62,16 +65,14 @@
 
       span {
         opacity: 1;
-        scale: 1;
-        width: auto;
+        max-width: 160px;
         margin-right: 5px;
       }
     }
 
     #ses-drag-handle {
-      opacity: 1;
+      opacity: 0.7;
       width: 14px;
-      scale: 0.8;
       margin-left: 5px;
     }
   }
@@ -83,31 +84,33 @@
     cursor: pointer;
     height: 100%;
     box-sizing: border-box;
-    transition: all 0.2s ease-in-out;
+    transition: max-width 0.18s var(--zenux-ease);
     overflow: hidden;
     z-index: 2;
-    max-width: 34px;
+    max-width: 40px;
     width: max-content;
 
     img {
-      width: 32px;
-      height: 32px;
+      width: 28px;
+      height: 28px;
       flex-shrink: 0;
+      border-radius: var(--zenux-radius-s);
       fill: var(--ses-text-color) !important;
       -moz-context-properties: fill !important;
     }
 
     span {
-      font-size: 14px;
+      font-size: 13px;
+      font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       opacity: 0;
-      scale: 0;
-      width: 0;
-      transform-origin: right;
+      max-width: 0;
+      transition:
+        opacity 0.15s var(--zenux-ease),
+        max-width 0.18s var(--zenux-ease);
       color: var(--ses-text-color);
-      transition: all 0.2s 0.1s ease-in-out;
     }
   }
 
@@ -119,10 +122,11 @@
     background-repeat: no-repeat;
     background-position: center;
     z-index: 1;
-    scale: 0;
     opacity: 0;
-    transition: all 0.2s ease;
-    transform-origin: center;
+    overflow: hidden;
+    transition:
+      opacity 0.15s var(--zenux-ease),
+      width 0.18s var(--zenux-ease);
   }
 
   #ses-engine-options {
@@ -132,13 +136,13 @@
     box-shadow: var(--ses-shadow);
     position: absolute;
     right: 0;
-    width: 220px;
-    border-radius: 8px;
+    width: 230px;
+    border-radius: var(--zenux-radius-m);
     max-height: 50vh;
     overflow-y: auto;
     z-index: 10001;
     display: none;
-    padding: 4px;
+    padding: 6px;
 
     &.popup-above {
       bottom: 100%;
@@ -151,21 +155,30 @@
     }
 
     .ses-engine-option {
-      padding: 6px 10px;
+      padding: 7px 10px;
       display: flex;
       align-items: center;
       cursor: pointer;
-      gap: 8px;
-      border-radius: 4px;
+      gap: 10px;
+      border-radius: var(--zenux-radius-s);
+      border: 1px solid transparent;
+      font-size: 13px;
 
       &:hover {
         background-color: var(--ses-hover-bg);
+      }
+
+      &[data-current="true"] {
+        background: var(--zenux-accent-soft);
+        border-color: var(--zenux-accent-border);
+        font-weight: 600;
       }
 
       img {
         width: 16px;
         height: 16px;
         flex-shrink: 0;
+        border-radius: 4px;
       }
     }
   }

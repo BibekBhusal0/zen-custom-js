@@ -159,6 +159,10 @@ const SearchEngineSwitcher = {
     const label = engine ? engine.name : host || "Unknown search";
     const nameSpan = parseElement(`<span>${escapeXmlAttribute(label)}</span>`);
     this._engineSelect.replaceChildren(img, nameSpan);
+    this._engineOptions?.querySelectorAll(".ses-engine-option").forEach((opt) => {
+      const optLabel = opt.querySelector("span")?.textContent;
+      opt.dataset.current = optLabel === label ? "true" : "false";
+    });
   },
 
   handleEnabledChange(pref) {
@@ -340,9 +344,10 @@ const SearchEngineSwitcher = {
   async populateEngineList() {
     this._engineOptions.innerHTML = "";
     const engines = await getVisibleEngines();
+    const currentName = this._currentSearchInfo?.engine?.name;
     engines.forEach((engine) => {
       const option = parseElement(`
-        <div class="ses-engine-option" title="Search with ${escapeXmlAttribute(engine.name)}">
+        <div class="ses-engine-option" data-current="${engine.name === currentName}" title="Search with ${escapeXmlAttribute(engine.name)}">
           <span>${escapeXmlAttribute(engine.name)}</span>
         </div>
       `);
