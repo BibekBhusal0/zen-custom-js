@@ -333,6 +333,9 @@
     height: 16px !important;
     object-fit: contain !important;
     flex-shrink: 0 !important;
+    -moz-context-properties: fill, stroke !important;
+    fill: light-dark(black, white) !important;
+    stroke: light-dark(black, white) !important;
 
     &:not([src]) {
       visibility: hidden !important;
