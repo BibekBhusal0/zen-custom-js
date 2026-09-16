@@ -1,3 +1,5 @@
+@import "../shared/zen-design.css";
+
 #zen-cmd-settings-modal-overlay {
   position: fixed;
   top: 0;
@@ -9,38 +11,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: var(--zenux-font);
 
   .command-palette-settings-modal {
-    --modal-bg: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));
-    --primary-color: var(--zen-primary-color, #8ae3be);
-    --primary-bg: light-dark(
-      color-mix(in srgb, var(--primary-color) 90%, white 10%),
-      color-mix(in srgb, var(--primary-color) 70%, black 30%)
-    );
-    --primary-text-color: light-dark(
-      color-mix(in srgb, var(--primary-color) 50%, black 50%),
-      color-mix(in srgb, var(--primary-color) 50%, white 50%)
-    );
-
     width: 600px;
     max-width: 90vw;
     height: 80vh;
-    background-color: var(--modal-bg);
-    border-radius: 8px;
-    border: 1px solid rgba(127, 127, 127, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    background-color: var(--zenux-bg);
+    color: var(--zenux-text);
+    border-radius: var(--zenux-radius-l);
+    border: 1px solid var(--zenux-border);
+    box-shadow: var(--zenux-shadow-l);
     display: flex;
     flex-direction: column;
 
@@ -48,103 +29,76 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 20px;
-      border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--zenux-separator);
 
       h3 {
         margin: 0;
-        font-size: 18px;
+        font-size: 15px;
         font-weight: 600;
       }
 
       div {
         display: flex;
-        gap: 10px;
-      }
-
-      .settings-save-btn {
-        background-color: var(--zen-primary-color);
-        border-color: transparent !important;
-        color: var(--primary-text-color) !important;
+        gap: 8px;
       }
     }
 
     button {
       cursor: pointer;
+      font-family: inherit;
       font-weight: 600;
-      transition: all 0.2s ease;
       background-color: transparent;
-      border: 1px solid rgba(127, 127, 127, 0.3);
-      border-radius: 6px;
+      border: 1px solid transparent;
+      border-radius: var(--zenux-radius-s);
       padding: 6px 12px;
-      font-size: 14px;
+      font-size: 13px;
       appearance: none !important;
       outline: none !important;
-      border: none !important;
+      transition:
+        background-color 0.15s var(--zenux-ease),
+        border-color 0.15s var(--zenux-ease);
 
       &:hover {
-        background-color: rgba(127, 127, 127, 0.1);
-        border-color: var(--primary-color);
-      }
-
-      &.icon-button {
-        padding: 4px !important;
-        background: transparent;
-        border: none;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        img {
-          width: 16px;
-          height: 16px;
-          fill: light-dark(black, white) !important;
-          -moz-context-properties: fill !important;
-          transition: filter 0.2s ease;
-        }
-
-        &:hover {
-          background-color: rgba(127, 127, 127, 0.1);
-
-          &.delete-button img {
-            filter: invert(25%) sepia(80%) saturate(5000%) hue-rotate(350deg) brightness(100%)
-              contrast(100%);
-          }
-        }
+        background-color: var(--zenux-surface-hover);
+        border-color: var(--zenux-border-soft);
       }
     }
 
     .cmd-settings-tabs {
       display: flex;
       padding: 10px 20px;
-      border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-      gap: 10px;
+      border-bottom: 1px solid var(--zenux-separator);
+      gap: 4px;
+      background: var(--zenux-surface);
+      border-radius: 0;
 
       .cmd-settings-tab {
-        border: none;
-        border-radius: 999px;
-        padding: 6px 16px;
-        font-weight: 700;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.5px;
-        line-height: 1;
+        border: 1px solid transparent;
+        border-radius: var(--zenux-radius-s);
+        padding: 7px 14px;
+        font-weight: 600;
+        font-size: 13px;
+        line-height: 1.2;
         cursor: pointer;
-        transition: all 150ms ease-in-out;
+        color: var(--zenux-muted);
+        transition:
+          background-color 0.15s var(--zenux-ease),
+          color 0.15s var(--zenux-ease);
 
         &:hover {
-          transform: scale(1.03);
+          background-color: var(--zenux-surface-hover);
+          color: var(--zenux-text);
         }
 
         &.active {
-          background-color: var(--zen-primary-color);
-
-          transform: scale(1.05);
+          background-color: var(--zenux-accent-soft);
+          border-color: var(--zenux-accent-border);
+          color: var(--zenux-accent-text);
 
           &:hover {
-            background-color: var(--zen-primary-color);
-            transform: scale(1.1);
+            background-color: var(--zenux-accent-soft);
+            color: var(--zenux-accent-text);
           }
         }
       }
@@ -167,74 +121,62 @@
         .search-bar-wrapper {
           position: sticky;
           top: -20px;
-          background: var(--modal-bg);
-          padding-bottom: 15px;
-          margin: -20px -20px 15px -20px;
-          padding-left: 20px;
-          padding-right: 20px;
-          padding-top: 20px;
+          background: var(--zenux-bg);
+          padding: 20px 20px 12px 20px;
+          margin: -20px -20px 12px -20px;
           z-index: 1;
+          border-bottom: 1px solid var(--zenux-border-soft);
 
           #command-search-input {
-            width: calc(100% - 34px);
-            padding: 8px 8px 8px 30px !important;
-            font-size: 14px !important;
-            border: 1px solid rgba(127, 127, 127, 0.3) !important;
-            border-radius: 6px !important;
-            background-color: rgba(0, 0, 0, 0.2) !important;
-            color: inherit !important;
+            width: 100%;
+            box-sizing: border-box;
+            padding-left: 32px !important;
             background-repeat: no-repeat !important;
-            background-position: 8px 8px !important;
+            background-position: 8px center !important;
             background-size: 16px 16px !important;
             background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="%239b9a9a" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21l-4.343-4.343m0 0A8 8 0 1 0 5.343 5.343a8 8 0 0 0 11.314 11.314"/></svg>') !important;
-
-            &:focus {
-              outline: none !important;
-              border-color: var(--primary-color) !important;
-            }
           }
         }
 
-        #commands-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-          .commands-group-header {
+          #commands-list {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 16px 0 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+            flex-direction: column;
+            gap: 2px;
+            .commands-group-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin: 14px 0 6px;
+              padding-bottom: 6px;
+              border-bottom: 1px solid var(--zenux-separator);
 
-            h4 {
-              margin: 0;
-              font-size: 16px;
-              font-weight: 600;
-              color: var(--primary-text-color);
+              h4 {
+                margin: 0;
+                font-size: 13px;
+                font-weight: 600;
+                color: var(--zenux-muted);
+              }
             }
-          }
 
-          .command-item {
-            display: grid;
-            grid-template-columns: 24px 1fr auto;
-            gap: 12px;
-            align-items: center;
-            padding: 8px;
-            border-radius: 6px;
-            transition:
-              background-color 0.2s,
-              box-shadow 0.2s;
+            .command-item {
+              display: grid;
+              grid-template-columns: 24px 1fr auto;
+              gap: 12px;
+              align-items: center;
+              padding: 7px 8px;
+              border-radius: var(--zenux-radius-s);
+              border: 1px solid transparent;
+              transition: background-color 0.15s var(--zenux-ease);
 
-            &:hover {
-              background-color: rgba(127, 127, 127, 0.05);
+              &:hover {
+                background-color: var(--zenux-surface-hover);
+              }
             }
-          }
 
-          .command-item:has(.shortcut-input.conflict) {
-            background-color: rgba(255, 107, 107, 0.1);
-            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.15);
-          }
+            .command-item:has(.shortcut-input.conflict) {
+              background-color: var(--zenux-danger-bg);
+              border-color: var(--zenux-danger);
+            }
 
           .command-icon {
             width: 16px;
@@ -267,74 +209,40 @@
             gap: 10px;
 
             .shortcut-input-wrapper {
-              position: relative;
               display: flex;
-              flex-direction: column;
-              margin-bottom: 4px;
             }
 
             .shortcut-input {
               width: 120px;
-              padding: 6px 10px !important;
-              font-size: 13px !important;
+              font-size: 12px !important;
               text-align: center !important;
-              border-radius: 4px !important;
-              border: 1px solid rgba(127, 127, 127, 0.3) !important;
-              background-color: rgba(0, 0, 0, 0.2) !important;
-              transition:
-                border-color 0.2s ease,
-                outline-color 0.2s ease,
-                background-color 0.2s ease;
-
-              &:disabled {
-                opacity: 0.5 !important;
-                cursor: not-allowed !important;
-              }
 
               &.conflict {
-                border-color: #ff6b6b !important;
-                outline: 2px solid #ff6b6b !important;
-                background-color: rgba(255, 107, 107, 0.1) !important;
+                border-color: var(--zenux-danger) !important;
+                outline: 2px solid color-mix(in srgb, var(--zenux-danger) 35%, transparent) !important;
+                background-color: var(--zenux-danger-bg) !important;
               }
-            }
-
-            .shortcut-conflict-warning {
-              position: absolute;
-              bottom: -13px;
-              width: 400% !important;
-              text-align: center;
-              font-size: 10px;
-              color: #ff6b6b;
-              font-weight: bold;
-              transform: translateX(-50%);
-              left: 50%;
             }
 
             .toolbar-button-toggle {
-              padding: 0px;
-              display: flex;
-              align-content: center;
-              justify-content: center;
-              width: 24px;
-              height: 24px;
-
               svg {
                 scale: 0.75;
-              }
-
-              &.active {
-                opacity: 1;
-                background-color: var(--primary-bg);
-
-                img {
-                  filter: invert(0.2);
-                }
               }
             }
 
             .visibility-toggle {
               transform: scale(1.2);
             }
+          }
+
+          .shortcut-conflict-warning {
+            grid-column: 1 / -1;
+            font-size: 11px;
+            color: var(--zenux-danger);
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
       }
@@ -346,26 +254,14 @@
 */
       #settings-tab-content {
         .settings-section {
-          background: rgba(127, 127, 127, 0.05);
-          border-radius: 8px;
-          padding: 15px;
-          border: 1px solid rgba(127, 127, 127, 0.3);
-          margin-bottom: 15px;
-
-          h4 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            color: var(--primary-text-color);
-            border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-            padding-bottom: 8px;
-          }
+          margin-bottom: 12px;
 
           .setting-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 8px 0;
-            border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
+            border-bottom: 1px solid var(--zenux-border-soft);
 
             &:last-child {
               border-bottom: none;
@@ -385,11 +281,6 @@
 
               &[type="number"] {
                 width: 30px !important;
-                padding: 6px 10px !important;
-                font-size: 14px !important;
-                background: rgba(0, 0, 0, 0.2) !important;
-                border: 1px solid rgba(127, 127, 127, 0.3) !important;
-                border-radius: 4px !important;
                 text-align: right !important;
                 &::-moz-number-spin-box,
                 &::-moz-number-spin-up,
@@ -415,14 +306,14 @@
         .custom-commands-toolbar {
           padding: 10px;
           margin-bottom: 10px;
-          background: rgba(127, 127, 127, 0.05);
-          border-radius: 6px;
-          border: 1px solid rgba(127, 127, 127, 0.3);
+          background: var(--zenux-surface);
+          border-radius: var(--zenux-radius-s);
+          border: 1px solid var(--zenux-border-soft);
 
           p {
             margin: 0 0 10px 0;
-            font-size: 14px;
-            opacity: 0.8;
+            font-size: 13px;
+            color: var(--zenux-muted);
           }
         }
 
@@ -435,12 +326,6 @@
           display: flex;
           flex-direction: column;
           gap: 8px;
-
-          .no-custom-commands {
-            text-align: center;
-            opacity: 0.7;
-            margin-top: 20px;
-          }
 
           .custom-command-item {
             display: grid;
@@ -464,24 +349,9 @@
               font-weight: 600;
             }
 
-            .custom-command-type {
-              font-size: 12px;
-              font-weight: bold;
-              padding: 2px 6px;
-              border-radius: 4px;
-              background-color: rgba(127, 127, 127, 0.2);
-            }
-
             .custom-command-controls {
               display: flex;
               gap: 8px;
-
-              button {
-                padding: 4px 8px;
-                font-size: 12px;
-                appearance: none !important;
-                outline: none !important;
-              }
             }
           }
         }
@@ -502,13 +372,7 @@
           textarea {
             width: calc(100% - 20px);
             min-height: 150px;
-            padding: 8px 10px !important;
-            font-family: monospace !important;
-            font-size: 13px !important;
-            border: 1px solid rgba(127, 127, 127, 0.3) !important;
-            border-radius: 6px !important;
-            background: rgba(0, 0, 0, 0.2) !important;
-            color: inherit !important;
+            font-family: var(--zenux-mono) !important;
           }
 
           .setting-item {
@@ -522,11 +386,6 @@
               padding-right: 20px;
             }
             input[type="text"] {
-              padding: 8px 12px !important;
-              font-size: 14px !important;
-              border: 1px solid rgba(127, 127, 127, 0.3) !important;
-              border-radius: 6px !important;
-              background: rgba(0, 0, 0, 0.2) !important;
               flex-grow: 1;
             }
           }
@@ -534,9 +393,10 @@
           .js-warning {
             font-size: 12px;
             padding: 8px;
-            border-radius: 4px;
-            background-color: light-dark(rgba(255, 230, 150, 0.5), rgba(100, 80, 0, 0.5));
-            border: 1px solid light-dark(rgba(255, 200, 0, 0.8), rgba(255, 200, 0, 0.5));
+            border-radius: var(--zenux-radius-s);
+            color: var(--zenux-text);
+            background-color: var(--zenux-warning-bg);
+            border: 1px solid var(--zenux-warning);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -546,8 +406,8 @@
               height: 16px;
               min-width: 16px;
               min-height: 16px;
-              filter: invert(50%) sepia(100%) saturate(2000%) hue-rotate(30deg) brightness(100%)
-                contrast(100%);
+              fill: var(--zenux-warning) !important;
+              -moz-context-properties: fill !important;
             }
           }
         }
@@ -563,13 +423,14 @@
             padding-top: 2px;
           }
 
-          #chain-builder {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            padding: 10px;
-            background: rgba(127, 127, 127, 0.05);
-            border-radius: 6px;
+            #chain-builder {
+              display: flex;
+              flex-direction: column;
+              gap: 15px;
+              padding: 10px;
+              background: var(--zenux-surface);
+              border: 1px solid var(--zenux-border-soft);
+              border-radius: var(--zenux-radius-s);
 
             #chain-command-selector-placeholder,
             #chain-command-selector {
@@ -599,8 +460,9 @@
               align-items: center;
               margin-top: 10px;
               padding: 10px;
-              background: rgba(127, 127, 127, 0.05);
-              border-radius: 6px;
+              background: var(--zenux-surface);
+              border: 1px solid var(--zenux-border-soft);
+              border-radius: var(--zenux-radius-s);
               label {
                 font-weight: 600;
               }
@@ -610,27 +472,14 @@
               flex-wrap: wrap;
               gap: 10px;
               align-items: center;
-              background: rgba(127, 127, 127, 0.1);
+              background: var(--zenux-surface-hover);
               padding: 8px;
-              border-radius: 4px;
+              border-radius: var(--zenux-radius-s);
               flex-grow: 1;
-              label {
-                font-weight: bold;
-                font-size: 12px;
-                text-transform: uppercase;
-                padding: 2px 6px;
-                border-radius: 4px;
-                background-color: rgba(127, 127, 127, 0.2);
-              }
               .param-item {
                 display: contents;
               }
               .param-input {
-                padding: 4px 8px !important;
-                font-size: 13px !important;
-                border-radius: 4px !important;
-                border: 1px solid rgba(127, 127, 127, 0.3) !important;
-                background-color: rgba(0, 0, 0, 0.2) !important;
                 min-width: 100px;
                 flex-grow: 1;
               }
@@ -643,8 +492,8 @@
               max-height: 250px;
               overflow-y: auto;
               padding: 10px;
-              border: 1px solid rgba(127, 127, 127, 0.1);
-              border-radius: 6px;
+              border: 1px solid var(--zenux-border-soft);
+              border-radius: var(--zenux-radius-s);
               .chain-item-container {
                 display: flex;
                 align-items: center;
@@ -696,7 +545,7 @@
             img {
               width: 14px;
               height: 14px;
-              fill: light-dark(black, white) !important;
+              fill: currentColor !important;
               -moz-context-properties: fill !important;
             }
           }
@@ -721,11 +570,6 @@
           max-height: 260px;
           overflow-y: auto;
 
-          .no-quick-split-keywords {
-            text-align: center;
-            opacity: 0.7;
-          }
-
           .keyword-row {
             display: grid;
             grid-template-columns: 130px 1fr auto;
@@ -734,8 +578,6 @@
             padding: 4px 0;
 
             input[type="text"] {
-              background-color: rgba(0, 0, 0, 0.2) !important;
-              border: 1px solid rgba(127, 127, 127, 0.3) !important;
               min-width: 0;
             }
           }
@@ -758,20 +600,21 @@
             display: grid;
             grid-template-areas: "icon title" "icon description";
             grid-template-columns: auto 1fr;
-            gap: 0 15px;
-            padding: 20px;
+            gap: 0 14px;
+            padding: 16px 18px;
             text-align: left;
-            border: 1px solid rgba(127, 127, 127, 0.3);
-            border-radius: 8px;
-            background-color: rgba(127, 127, 127, 0.05);
-            transition: all 0.2s ease;
+            border: 1px solid var(--zenux-border-soft);
+            border-radius: var(--zenux-radius-m);
+            background-color: var(--zenux-surface);
+            transition:
+              background-color 0.15s var(--zenux-ease),
+              border-color 0.15s var(--zenux-ease);
             appearance: none !important;
             outline: none !important;
 
             &:hover {
-              background-color: rgba(127, 127, 127, 0.1);
-              border-color: var(--primary-color);
-              scale: 1.02 !important;
+              background-color: var(--zenux-surface-hover);
+              border-color: var(--zenux-accent-border);
             }
             img {
               grid-area: icon;
@@ -786,7 +629,7 @@
               grid-area: title;
               font-size: 18px;
               font-weight: 600;
-              color: var(--primary-text-color);
+              color: var(--zenux-accent-text);
             }
 
             p {

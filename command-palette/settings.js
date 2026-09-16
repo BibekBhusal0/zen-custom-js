@@ -330,10 +330,9 @@ const SettingsModal = {
     const shortcutValue = customShortcut || nativeShortcut || "";
     const prettyShortcut = shortcutValue ? getPrettyShortcut(shortcutValue) : "";
     const shortcutInputHtml = `<div class="shortcut-input-wrapper">
-      <input type="text" class="shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
+      <input type="text" class="shortcut-input zenux-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
         prettyShortcut
       )}" ${!allowShortcutChange ? "readonly" : ""} />
-      <span class="shortcut-conflict-warning" hidden title="Shortcut conflict"></span>
     </div>`;
 
     const visibilityToggleHtml = `<input type="checkbox" class="visibility-toggle" title="Show/Hide Command" ${
@@ -342,7 +341,7 @@ const SettingsModal = {
 
     const isToolbarButton = this._currentSettings.toolbarButtons?.includes(cmd.key);
     const toolbarButtonHtml = allowToolbarButton
-      ? `<button class="toolbar-button-toggle ${isToolbarButton ? "active" : ""}" title="${
+      ? `<button class="toolbar-button-toggle zenux-icon-btn zenux-icon-btn-accent ${isToolbarButton ? "is-active" : ""}" title="${
           isToolbarButton ? "Remove from Toolbar" : "Add to Toolbar"
         }">${icons.pin}</button>`
       : "";
@@ -358,6 +357,7 @@ const SettingsModal = {
             ${toolbarButtonHtml}
             ${visibilityToggleHtml}
         </div>
+        <span class="shortcut-conflict-warning" hidden title="Shortcut conflict"></span>
       </div>
     `;
     const item = parseElement(itemHtml);
@@ -423,11 +423,11 @@ const SettingsModal = {
         const index = this._currentSettings.toolbarButtons.indexOf(commandKey);
         if (index > -1) {
           this._currentSettings.toolbarButtons.splice(index, 1);
-          button.classList.remove("active");
+          button.classList.remove("is-active");
           button.title = "Add to Toolbar";
         } else {
           this._currentSettings.toolbarButtons.push(commandKey);
-          button.classList.add("active");
+          button.classList.add("is-active");
           button.title = "Remove from Toolbar";
         }
       });
@@ -516,8 +516,8 @@ const SettingsModal = {
           <div class="custom-commands-toolbar">
             <p>Define your own commands. They will be available in the command palette immediately after saving.</p>
             <div class="custom-commands-actions">
-              <button id="add-js-command">Add JS Command</button>
-              <button id="add-chain-command">Add Command Chain</button>
+              <button id="add-js-command" class="zenux-btn-primary">Add JS Command</button>
+              <button id="add-chain-command" class="zenux-btn-ghost">Add Command Chain</button>
             </div>
           </div>
           <div id="custom-commands-list"></div>
@@ -554,7 +554,7 @@ const SettingsModal = {
     const customCommands = this._currentSettings.customCommands || [];
 
     if (customCommands.length === 0) {
-      listContainer.innerHTML = `<p class="no-custom-commands">No custom commands yet. Add one to get started!</p>`;
+      listContainer.innerHTML = `<p class="no-custom-commands zenux-empty">No custom commands yet. Add one to get started!</p>`;
       return;
     }
 
@@ -566,10 +566,10 @@ const SettingsModal = {
         <div class="custom-command-item" data-id="${cmd.id}">
           <img src="${escapeXmlAttribute(icon)}" class="custom-command-icon" />
           <span class="custom-command-name">${escapeXmlAttribute(cmd.name)}</span>
-          <span class="custom-command-type">${cmd.type === "js" ? "JS" : "Chain"}</span>
+          <span class="custom-command-type zenux-count">${cmd.type === "js" ? "JS" : "Chain"}</span>
           <div class="custom-command-controls">
-            <button class="edit-custom-cmd icon-button" title="Edit Command"><img src="chrome://global/skin/icons/edit.svg" /></button>
-            <button class="delete-custom-cmd delete-button icon-button" title="Delete Command"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
+            <button class="edit-custom-cmd zenux-icon-btn" title="Edit Command"><img src="chrome://global/skin/icons/edit.svg" /></button>
+            <button class="delete-custom-cmd zenux-icon-btn zenux-icon-btn-danger" title="Delete Command"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
           </div>
         </div>
       `);
@@ -601,15 +601,15 @@ const SettingsModal = {
       this._currentSettings.quickSplitKeywords = {};
     }
     const section = parseElement(`
-      <section class="settings-section" id="quick-split-section">
-        <h4>Quick Split</h4>
+      <section class="settings-section zenux-section" id="quick-split-section">
+        <h4 class="zenux-section-title">Quick Split</h4>
         <div class="setting-item">
           <label for="quick-split-search-engine">Search Engine</label>
           <div id="quick-split-engine-picker"><span class="engine-picker-loading">Loading…</span></div>
         </div>
         <div class="quick-split-list-header">
           <span>Keywords</span>
-          <button id="add-quick-split-keyword" type="button"><img src="chrome://browser/skin/zen-icons/plus.svg" />Add Keyword</button>
+          <button id="add-quick-split-keyword" class="zenux-btn-ghost" type="button"><img src="chrome://browser/skin/zen-icons/plus.svg" />Add Keyword</button>
         </div>
         <div id="quick-split-keywords-list"></div>
       </section>
@@ -670,7 +670,7 @@ const SettingsModal = {
     const entries = Object.entries(keywords).sort(([a], [b]) => a.localeCompare(b));
 
     if (entries.length === 0) {
-      list.innerHTML = `<p class="no-quick-split-keywords">No keywords yet. Add one to get started!</p>`;
+      list.innerHTML = `<p class="no-quick-split-keywords zenux-empty">No keywords yet. Add one to get started!</p>`;
       return;
     }
 
@@ -682,9 +682,9 @@ const SettingsModal = {
   _renderQuickSplitKeywordRow(keyword, url) {
     const row = parseElement(`
       <div class="keyword-row" data-key="${escapeXmlAttribute(keyword)}">
-        <input type="text" class="keyword-key" value="${escapeXmlAttribute(keyword)}" placeholder="keyword" />
-        <input type="text" class="keyword-url" value="${escapeXmlAttribute(url)}" placeholder="https://…" />
-        <button class="keyword-remove icon-button delete-button" type="button" title="Remove Keyword"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
+        <input type="text" class="keyword-key zenux-input" value="${escapeXmlAttribute(keyword)}" placeholder="keyword" />
+        <input type="text" class="keyword-url zenux-input" value="${escapeXmlAttribute(url)}" placeholder="https://…" />
+        <button class="keyword-remove zenux-icon-btn zenux-icon-btn-danger" type="button" title="Remove Keyword"><img src="chrome://browser/skin/zen-icons/edit-delete.svg" /></button>
       </div>
     `);
 
@@ -744,7 +744,7 @@ const SettingsModal = {
     if (!functionSchema) return parseElement(`<div>Unknown function: ${step.action}</div>`);
 
     const wrapper = parseElement(`<div class="function-step" data-index="${index}"></div>`);
-    const label = parseElement(`<label>${escapeXmlAttribute(functionSchema.label)}</label>`);
+    const label = parseElement(`<label class="zenux-count">${escapeXmlAttribute(functionSchema.label)}</label>`);
     wrapper.appendChild(label);
 
     for (const param of functionSchema.params) {
@@ -757,7 +757,7 @@ const SettingsModal = {
         case "text":
           inputHtml = `<input
             type="${param.type}"
-            class="param-input"
+            class="param-input zenux-input"
             data-param="${param.name}"
             placeholder="${param.label || ""}"
             value="${escapeXmlAttribute(currentValue)}"
@@ -811,11 +811,11 @@ const SettingsModal = {
       <h3>${isEditing ? "Edit" : "Add"} ${cmd.type === "js" ? "JS Command" : "Command Chain"}</h3>
       <div class="setting-item">
         <label for="custom-cmd-name">Name</label>
-        <input type="text" id="custom-cmd-name" value="${escapeXmlAttribute(cmd.name)}"/>
+        <input type="text" id="custom-cmd-name" class="zenux-input" value="${escapeXmlAttribute(cmd.name)}"/>
       </div>
       <div class="setting-item">
         <label for="custom-cmd-icon">Icon URL</label>
-        <input type="text" id="custom-cmd-icon" placeholder="Leave empty for default" value="${escapeXmlAttribute(
+        <input type="text" id="custom-cmd-icon" class="zenux-input" placeholder="Leave empty for default" value="${escapeXmlAttribute(
           cmd.icon || ""
         )}"/>
       </div>
@@ -830,12 +830,15 @@ const SettingsModal = {
             ${icons.warning}
             Only run code from sources you trust. Malicious code can compromise your browser.
           </div>
-          <textarea id="custom-cmd-code">${escapeXmlAttribute(cmd.code)}</textarea>
+          <textarea id="custom-cmd-code" class="zenux-input">${escapeXmlAttribute(cmd.code)}</textarea>
         </div>
       `;
     } else {
       const functionButtons = Object.entries(commandChainFunctions)
-        .map(([action, schema]) => `<button data-action="${action}">${schema.label}</button>`)
+        .map(
+          ([action, schema]) =>
+            `<button class="zenux-btn-ghost" data-action="${action}">${schema.label}</button>`
+        )
         .join("");
 
       typeSpecificHtml = `
@@ -844,7 +847,7 @@ const SettingsModal = {
           <div id="chain-builder">
             <div id="chain-command-selector-container">
               <div id="chain-command-selector-placeholder">Loading...</div>
-              <button id="add-command-to-chain">Add Command</button>
+              <button id="add-command-to-chain" class="zenux-btn-primary">Add Command</button>
             </div>
             <div class="function-actions">
                 <label>Add Function:</label>
@@ -858,8 +861,8 @@ const SettingsModal = {
 
     const actionsHtml = `
       <div class="custom-command-editor-actions">
-        <button id="cancel-custom-cmd">Cancel</button>
-        <button id="save-custom-cmd">Save Command</button>
+        <button id="cancel-custom-cmd" class="zenux-btn-ghost">Cancel</button>
+        <button id="save-custom-cmd" class="zenux-btn-primary">Save Command</button>
       </div>
     `;
 
@@ -876,7 +879,7 @@ const SettingsModal = {
       listContainer.innerHTML = "";
 
       if (currentChain.length === 0) {
-        listContainer.innerHTML = `<p class="no-custom-commands">No commands in chain. Use the dropdown above to add one.</p>`;
+        listContainer.innerHTML = `<p class="no-custom-commands zenux-empty">No commands in chain. Use the dropdown above to add one.</p>`;
         return;
       }
 
@@ -908,7 +911,7 @@ const SettingsModal = {
 
         if (index > 0) {
           const upButton = parseElement(
-            `<button class="move-up-button icon-button" title="Move Up">
+            `<button class="move-up-button zenux-icon-btn" title="Move Up">
                <img src="chrome://global/skin/icons/arrow-up.svg" />
              </button>`
           );
@@ -924,7 +927,7 @@ const SettingsModal = {
 
         if (index < currentChain.length - 1) {
           const downButton = parseElement(
-            `<button class="move-down-button icon-button" title="Move Down">
+            `<button class="move-down-button zenux-icon-btn" title="Move Down">
                <img src="chrome://global/skin/icons/arrow-down.svg" />
              </button>`
           );
@@ -940,7 +943,7 @@ const SettingsModal = {
         itemContainer.appendChild(arrowControls);
 
         const deleteButton = parseElement(
-          `<button class="delete-button icon-button" title="Remove Command">
+          `<button class="zenux-icon-btn zenux-icon-btn-danger" title="Remove Command">
              <img src="chrome://browser/skin/zen-icons/edit-delete.svg" />
            </button>`
         );
@@ -1194,8 +1197,8 @@ const SettingsModal = {
 
     for (const prefSection of prefs) {
       const sectionEl = document.createElement("section");
-      sectionEl.className = "settings-section";
-      sectionEl.innerHTML = `<h4>${escapeXmlAttribute(prefSection.section)}</h4>`;
+      sectionEl.className = "settings-section zenux-section";
+      sectionEl.innerHTML = `<h4 class="zenux-section-title">${escapeXmlAttribute(prefSection.section)}</h4>`;
       for (const item of prefSection.items) {
         const currentValue = PREFS.getPref(item.key);
         const safeId = this._sanitizeForId(`pref-${item.key}`);
@@ -1214,7 +1217,7 @@ const SettingsModal = {
           itemHtml = `
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
-              <input type="number" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
+              <input type="number" class="zenux-input" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
                 currentValue
               )}" />
             </div>
@@ -1223,7 +1226,7 @@ const SettingsModal = {
           itemHtml = `
             <div class="setting-item">
               <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
-              <input type="text" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
+              <input type="text" class="zenux-input" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
                 currentValue
               )}" maxlength="1" />
             </div>
@@ -1244,8 +1247,8 @@ const SettingsModal = {
           <div class="cmd-settings-header">
             <h3>Command Palette Settings</h3>
             <div>
-              <button id="cmd-settings-close" class="settings-close-btn">Close</button>
-              <button id="cmd-settings-save" class="settings-save-btn">Save Settings</button>
+              <button id="cmd-settings-close" class="settings-close-btn zenux-btn-ghost">Close</button>
+              <button id="cmd-settings-save" class="settings-save-btn zenux-btn-primary">Save</button>
             </div>
           </div>
           <div class="cmd-settings-tabs">
@@ -1257,7 +1260,7 @@ const SettingsModal = {
           <div class="cmd-settings-content">
             <div id="commands-tab-content" class="cmd-settings-tab-content" hidden>
               <div class="search-bar-wrapper">
-                <input type="text" id="command-search-input" placeholder="Search commands..." />
+                <input type="text" id="command-search-input" class="zenux-input" placeholder="Search commands..." />
               </div>
               <div id="commands-list"></div>
             </div>
