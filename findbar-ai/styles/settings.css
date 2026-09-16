@@ -21,7 +21,7 @@
   max-width: 90vw;
   height: 80vh;
   padding: 20px 0px 0px 20px;
-  border-radius: var(--acrylic-radius) !important;
+  border-radius: var(--zenux-radius-m) !important;
   outline: 1px solid rgba(0, 0, 0, 1) !important;
   border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
   background: var(--browse-bot-dialog-bg) !important;
@@ -356,7 +356,7 @@ findbar,
   }
 
   menupopup {
-    --panel-background: var(--acrylic-bg) !important;
+    --panel-background: var(--zenux-bg) !important;
   }
 
   input[type="number"] {

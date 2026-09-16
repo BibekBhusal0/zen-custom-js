@@ -99,7 +99,7 @@ browser {
     max-width: 800px !important;
     min-width: 300px !important;
     height: unset !important;
-    border-radius: var(--acrylic-radius) !important;
+    border-radius: var(--zenux-radius-m) !important;
     outline: 1px solid rgba(0, 0, 0, 1) !important;
     border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
     z-index: 9999;
@@ -785,7 +785,7 @@ browser {
         &::after {
           content: "";
           position: absolute !important;
-          border-radius: var(--acrylic-radius) !important;
+          border-radius: var(--zenux-radius-m) !important;
           opacity: 0 !important;
           top: 0px !important;
           width: 140px !important;
@@ -799,7 +799,7 @@ browser {
           outline: 1px solid rgba(0, 0, 0, 1) !important;
 
           @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
-            background: var(--acrylic-bg) !important;
+            background: var(--zenux-bg) !important;
           }
 
           border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
@@ -820,7 +820,7 @@ browser {
           outline: 1px solid rgba(0, 0, 0, 1) !important;
 
           @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "pseudo") {
-            background: var(--acrylic-bg) !important;
+            background: var(--zenux-bg) !important;
           }
 
           border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
@@ -931,7 +931,7 @@ browser {
     height: 100px;
     min-width: 200px;
     max-width: 90vw;
-    border-radius: var(--acrylic-radius) !important;
+    border-radius: var(--zenux-radius-m) !important;
     outline: 1px solid rgba(0, 0, 0, 1) !important;
     border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
     background: var(--browse-bot-dialog-bg) !important;

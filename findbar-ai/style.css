@@ -8,18 +8,13 @@
 :root {
   --browser-themed-toolbar-bg: var(--zen-themed-toolbar-bg, #333333);
 
-  --acrylic-bg: var(--zenux-bg);
-  --acrylic-background: rgba(36, 37, 39, 0.6) !important;
-  --acrylic-border: 0.5px solid var(--zenux-border);
-  --acrylic-radius: var(--zenux-radius-m);
-  --acrylic-glass-bg: color-mix(in srgb, var(--acrylic-bg) 40%, transparent 60%);
-  --acrylic-glass-border: 1.5px solid var(--zenux-accent-border);
+  --acrylic-glass-bg: color-mix(in srgb, var(--zenux-bg) 40%, transparent 60%);
 
   --browse-bot-dialog-bg: var(--acrylic-glass-bg);
   --browse-bot-dialog-backdrop-filter: blur(32px) brightness(0.7) saturate(2.5);
 
   @media -moz-pref("extension.browse-bot.findbar-ai.background-style", "solid") {
-    --browse-bot-dialog-bg: var(--acrylic-bg) !important;
+    --browse-bot-dialog-bg: var(--zenux-bg) !important;
     --browse-bot-dialog-backdrop-filter: none !important;
   }
 

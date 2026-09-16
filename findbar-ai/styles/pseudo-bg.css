@@ -8,7 +8,7 @@
       align-self: center !important;
       z-index: 1 !important;
       content: "" !important;
-      background-color: var(--acrylic-bg) !important;
+      background-color: var(--zenux-bg) !important;
       top: calc(var(--findbar-y) - 38px) !important;
       left: calc(var(--findbar-x) - var(--zen-sidebar-width)) !important;
       width: var(--findbar-width) !important;
@@ -71,11 +71,11 @@
       position: absolute !important;
       align-self: center !important;
       content: "" !important;
-      background-color: var(--acrylic-bg) !important;
+      background-color: var(--zenux-bg) !important;
       visibility: visible;
       transition: none !important;
       opacity: 1 !important;
-      border-radius: var(--acrylic-radius) !important;
+      border-radius: var(--zenux-radius-m) !important;
     }
   }
 

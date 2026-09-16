@@ -1,25 +1,24 @@
 @import "../shared/zen-design.css";
 
 :root {
-  --ses-bg-color: var(--zenux-bg);
-  --ses-text-color: var(--zenux-text);
-  --ses-border-color: var(--zenux-border);
-  --ses-hover-bg: var(--zenux-surface-hover);
-  --ses-shadow: var(--zenux-shadow-s);
   --ses-scale: 1;
 
   @media -moz-pref("extension.search-engine-select.theme", "light") {
-    --ses-bg-color: rgb(250, 250, 250);
-    --ses-text-color: #15141a;
-    --ses-border-color: rgba(127, 127, 127, 0.35);
-    --ses-hover-bg: rgba(20, 20, 22, 0.07);
+    #search-engine-switcher-container {
+      --zenux-bg: rgb(250, 250, 250);
+      --zenux-text: #15141a;
+      --zenux-border: rgba(127, 127, 127, 0.35);
+      --zenux-surface-hover: rgba(20, 20, 22, 0.07);
+    }
   }
 
   @media -moz-pref("extension.search-engine-select.theme", "amoled") {
-    --ses-bg-color: #000000;
-    --ses-text-color: #ffffff;
-    --ses-border-color: rgba(255, 255, 255, 0.16);
-    --ses-hover-bg: rgba(255, 255, 255, 0.08);
+    #search-engine-switcher-container {
+      --zenux-bg: #000000;
+      --zenux-text: #ffffff;
+      --zenux-border: rgba(255, 255, 255, 0.16);
+      --zenux-surface-hover: rgba(255, 255, 255, 0.08);
+    }
   }
 
   @media -moz-pref("extension.search-engine-select.size", "small") {
@@ -44,8 +43,8 @@
   align-items: center;
   border-right: none;
   border-radius: 30px 0 0 30px;
-  background-color: var(--ses-bg-color) !important;
-  border: 1px solid var(--ses-border-color);
+  background-color: var(--zenux-bg) !important;
+  border: 2px solid var(--zenux-border);
   padding: var(--container-padding) 4px var(--container-padding) var(--container-padding);
   gap: 0px;
   transform-origin: right center;
@@ -95,7 +94,7 @@
       height: 28px;
       flex-shrink: 0;
       border-radius: var(--zenux-radius-s);
-      fill: var(--ses-text-color) !important;
+      fill: var(--zenux-text) !important;
       -moz-context-properties: fill !important;
     }
 
@@ -110,7 +109,7 @@
       transition:
         opacity 0.15s var(--zenux-ease),
         max-width 0.18s var(--zenux-ease);
-      color: var(--ses-text-color);
+      color: var(--zenux-text);
     }
   }
 
@@ -130,10 +129,10 @@
   }
 
   #ses-engine-options {
-    background: var(--ses-bg-color) !important;
-    border: 1px solid var(--ses-border-color);
-    color: var(--ses-text-color);
-    box-shadow: var(--ses-shadow);
+    background: var(--zenux-bg) !important;
+    border: 1px solid var(--zenux-border);
+    color: var(--zenux-text);
+    box-shadow: var(--zenux-shadow-s);
     position: absolute;
     right: 0;
     width: 230px;
@@ -165,7 +164,7 @@
       font-size: 13px;
 
       &:hover {
-        background-color: var(--ses-hover-bg);
+        background-color: var(--zenux-surface-hover);
       }
 
       &[data-current="true"] {
@@ -189,7 +188,7 @@
     left: 0 !important;
     right: unset !important;
     border-left: none !important;
-    border-right: 1px solid var(--ses-border-color);
+    border-right: 1px solid var(--zenux-border);
     border-radius: 0 30px 30px 0;
     flex-direction: row-reverse !important;
     transform-origin: left center;
