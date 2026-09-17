@@ -618,6 +618,15 @@ export const SettingsModal = {
       { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
       { label: "Agentic Mode (AI can use tool calls)", pref: PREFS.AGENTIC_MODE },
       { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
+      {
+        label: "Max Context Chars (0 = unlimited)",
+        pref: PREFS.MAX_CONTEXT_CHARS,
+        type: "number",
+        step: 1000,
+        min: 0,
+        max: 200000,
+        tooltip: "Maximum page or transcript characters sent to the AI per message.",
+      },
     ];
     const aiBehaviorWarningHtml = `
       <div id="citations-agentic-mode-warning" class="warning-message" >

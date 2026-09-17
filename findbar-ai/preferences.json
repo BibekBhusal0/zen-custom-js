@@ -1122,6 +1122,43 @@
     "operator": "AND"
   },
   {
+    "property": "extension.browse-bot.findbar-ai.max-context-chars",
+    "label": "Max Context Characters",
+    "type": "dropdown",
+    "defaultValue": 0,
+    "description": "Maximum page or transcript characters sent to the AI per message. 0 means unlimited.",
+    "options": [
+      {
+        "value": 0,
+        "label": "Unlimited"
+      },
+      {
+        "value": 8000,
+        "label": "8000"
+      },
+      {
+        "value": 15000,
+        "label": "15000"
+      },
+      {
+        "value": 30000,
+        "label": "30000"
+      },
+      {
+        "value": 60000,
+        "label": "60000"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.findbar-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
     "property": "extension.browse-bot.findbar-ai.max-tool-calls",
     "label": "Max Tool Calls",
     "type": "dropdown",
