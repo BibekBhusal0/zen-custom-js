@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 - 🚀 **URL Bar AI Commands**: Activate an AI command mode directly in your URL bar for quick actions.
 - 🤖 **Multi-Provider Support**: Integrates with Google Gemini, Mistral AI, OpenAI, Anthropic Claude, xAI Grok, Perplexity AI, Cerebras, DeepSeek, OpenRouter, any OpenAI-compatible endpoint, and local models via Ollama.
 - 🧠 **Page Content Awareness**: Lets the AI read the current page's text, HTML, and even YouTube transcripts to provide context-aware answers.
-- 👑 **Powerful AI Tool-belt**: Empowers the AI to control the browser—manage tabs, workspaces, bookmarks, perform searches, and interact with page elements.
+- 👑 **Powerful AI Tool-belt**: Empowers the AI to control the browser: manage tabs, workspaces, bookmarks, perform searches, and interact with page elements.
 - 🖱️ **Context Menu Integration**: Right-click to quickly ask the AI about selected text or summarize the current page.
 - 📚 **Citation Support**: Get direct quotes from the page text that support the AI's answer.
 - 🔧 **Highly Customizable**: Fine-tune every aspect through an sine settings or `about:config`.
@@ -46,7 +46,7 @@ https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
 3. Open settings and go to the `Sine` tab.
 4. Search for `BrowseBot`.
 5. Click Install.
-6. A toast for restart should appear — click on that to restart Zen.
+6. A toast for restart should appear. Click on that to restart Zen.
 7. Enjoy your new AI assistant! ✨
 
 > [!NOTE]

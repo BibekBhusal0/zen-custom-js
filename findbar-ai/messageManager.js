@@ -96,7 +96,7 @@ async function frameScript() {
     if (!doc.querySelector("ytd-transcript-renderer")) {
       const button = doc.querySelector('button[aria-label="Show transcript"]');
       if (!button)
-        throw new Error('"Show transcript" button not found — transcript may not be available.');
+        throw new Error('"Show transcript" button not found. Transcript may not be available.');
       button.click();
       await waitForSelectorWithObserver("ytd-transcript-renderer", 5000);
     }

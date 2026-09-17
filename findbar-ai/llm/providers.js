@@ -80,6 +80,12 @@ function chatUrl(base) {
   return clean.endsWith("/chat/completions") ? clean : `${clean}/chat/completions`;
 }
 
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
 const mistral = Object.assign(Object.create(providerPrototype), {
   name: "mistral",
   label: "Mistral AI",
@@ -242,27 +248,60 @@ const deepseek = Object.assign(Object.create(providerPrototype), {
   baseURL: "https://api.deepseek.com/chat/completions",
 });
 
-const openrouter = Object.assign(Object.create(providerPrototype), {
-  name: "openrouter",
-  label: "OpenRouter",
-  faviconUrl: googleFaviconAPI("openrouter.ai"),
-  apiKeyUrl: "https://openrouter.ai/keys",
-  customModel: true,
-  modelPlaceholder: "e.g. anthropic/claude-opus-4-8",
-  get model() {
-    return PREFS.getPref(this.modelPref) || "";
-  },
-  set model(v) {
-    if (typeof v === "string") PREFS.setPref(this.modelPref, v);
-  },
-  modelPref: PREFS.OPENROUTER_MODEL,
-  apiPref: PREFS.OPENROUTER_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1/chat/completions",
-  extraHeaders: {
-    "HTTP-Referer": "https://github.com/BibekBhusal0/zen-custom-js",
-    "X-Title": "BrowseBot",
-  },
-});
+const openrouter = Object.create(
+  providerPrototype,
+  Object.getOwnPropertyDescriptors({
+    name: "openrouter",
+    label: "OpenRouter",
+    faviconUrl: googleFaviconAPI("openrouter.ai"),
+    apiKeyUrl: "https://openrouter.ai/keys",
+    customModel: true,
+    modelPlaceholder: "e.g. anthropic/claude-opus-4-8",
+    get model() {
+      return PREFS.getPref(this.modelPref) || "";
+    },
+    set model(v) {
+      if (typeof v === "string") PREFS.setPref(this.modelPref, v);
+    },
+    isFreeModel(id) {
+      return String(id || "").endsWith(":free");
+    },
+    async checkKey(apiKey) {
+      if (!apiKey) return { valid: false };
+      const headers = { Authorization: `Bearer ${apiKey}` };
+      const keyRes = await fetch("https://openrouter.ai/api/v1/auth/key", { headers });
+      if (keyRes.status === 401 || keyRes.status === 403) return { valid: false };
+      if (!keyRes.ok) throw new Error(`HTTP ${keyRes.status}`);
+      const keyJson = await keyRes.json().catch(() => ({}));
+      const creditRes = await fetch("https://openrouter.ai/api/v1/credits", { headers });
+      if (!creditRes.ok) throw new Error(`HTTP ${creditRes.status}`);
+      const creditJson = await creditRes.json().catch(() => ({}));
+      const data = creditJson?.data || {};
+      const remaining =
+        (data.total_credits ?? data.limit ?? 0) - (data.total_usage ?? data.usage ?? 0);
+      return {
+        valid: true,
+        freeTier: keyJson?.data?.is_free_tier !== false,
+        paidAccess: remaining > 0,
+      };
+    },
+    async refreshModels() {
+      const json = await fetchJson("https://openrouter.ai/api/v1/models");
+      const ids = [...new Set((json?.data || []).map((m) => m?.id).filter(Boolean))];
+      ids.sort(
+        (a, b) => Number(this.isFreeModel(b)) - Number(this.isFreeModel(a)) || a.localeCompare(b)
+      );
+      return ids;
+    },
+    modelPref: PREFS.OPENROUTER_MODEL,
+    apiPref: PREFS.OPENROUTER_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1/chat/completions",
+    extraHeaders: {
+      "HTTP-Referer": "https://github.com/BibekBhusal0/zen-custom-js",
+      "X-Title": "BrowseBot",
+    },
+  })
+);
 
 const ollama = Object.assign(Object.create(providerPrototype), {
   name: "ollama",
