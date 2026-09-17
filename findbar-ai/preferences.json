@@ -121,9 +121,13 @@
     "property": "extension.browse-bot.claude-model",
     "label": "Claude Model",
     "type": "dropdown",
-    "defaultValue": "claude-opus-4-8",
+    "defaultValue": "claude-sonnet-5",
     "description": "Select the Claude model to use.",
     "options": [
+      {
+        "value": "claude-fable-5-1",
+        "label": "Claude Fable 5.1"
+      },
       {
         "value": "claude-opus-5",
         "label": "Claude Opus 5"
@@ -133,8 +137,8 @@
         "label": "Claude Sonnet 5"
       },
       {
-        "value": "claude-fable-5-1",
-        "label": "Claude Fable 5.1"
+        "value": "claude-haiku-4-5",
+        "label": "Claude Haiku 4.5"
       },
       {
         "value": "claude-fable-5",
@@ -161,32 +165,8 @@
         "label": "Claude Opus 4.5"
       },
       {
-        "value": "claude-hiku-4-5",
-        "label": "Claude Hiku 4.5"
-      },
-      {
         "value": "claude-sonnet-4-5",
         "label": "Claude Sonnet 4.5"
-      },
-      {
-        "value": "claude-opus-4-1",
-        "label": "Claude Opus 4.1"
-      },
-      {
-        "value": "claude-opus-4-0",
-        "label": "Claude Opus 4.0"
-      },
-      {
-        "value": "claude-sonnet-4-0",
-        "label": "Claude Sonnet 4.0"
-      },
-      {
-        "value": "claude-3-7-sonnet-latest",
-        "label": "Claude 3.7 Sonnet Latest"
-      },
-      {
-        "value": "claude-3-5-haiku-latest",
-        "label": "Claude 3.5 Haiku Latest"
       }
     ],
     "conditions": [
@@ -242,20 +222,16 @@
         "label": "Gemini 3.5 Flash Lite"
       },
       {
+        "value": "gemini-3.1-flash-lite",
+        "label": "Gemini 3.1 Flash Lite"
+      },
+      {
         "value": "gemini-3.1-pro-preview",
         "label": "Gemini 3.1 Pro Preview"
       },
       {
-        "value": "gemini-3.1-flash-image-preview",
-        "label": "Gemini 3.1 Flash Image Preview"
-      },
-      {
-        "value": "gemini-3.1-flash-lite-preview",
-        "label": "Gemini 3.1 Flash Lite Preview"
-      },
-      {
-        "value": "gemini-3-pro-preview",
-        "label": "Gemini 3 Pro Preview"
+        "value": "gemini-3-flash-preview",
+        "label": "Gemini 3 Flash Preview"
       },
       {
         "value": "gemini-2.5-pro",
@@ -268,34 +244,6 @@
       {
         "value": "gemini-2.5-flash-lite",
         "label": "Gemini 2.5 Flash Lite"
-      },
-      {
-        "value": "gemini-2.0-flash",
-        "label": "Gemini 2.0 Flash"
-      },
-      {
-        "value": "gemini-1.5-pro",
-        "label": "Gemini 1.5 Pro"
-      },
-      {
-        "value": "gemini-1.5-pro-latest",
-        "label": "Gemini 1.5 Pro Latest"
-      },
-      {
-        "value": "gemini-1.5-flash",
-        "label": "Gemini 1.5 Flash"
-      },
-      {
-        "value": "gemini-1.5-flash-latest",
-        "label": "Gemini 1.5 Flash Latest"
-      },
-      {
-        "value": "gemini-1.5-flash-8b",
-        "label": "Gemini 1.5 Flash 8B"
-      },
-      {
-        "value": "gemini-1.5-flash-8b-latest",
-        "label": "Gemini 1.5 Flash 8B Latest"
       }
     ],
     "conditions": [
@@ -327,7 +275,7 @@
     "property": "extension.browse-bot.grok-model",
     "label": "Grok Model",
     "type": "dropdown",
-    "defaultValue": "grok-4",
+    "defaultValue": "grok-4.6",
     "description": "Select the Grok model to use.",
     "options": [
       {
@@ -339,80 +287,24 @@
         "label": "Grok 4.5"
       },
       {
-        "value": "grok-4.20-reasoning",
-        "label": "Grok 4.20 (Reasoning)"
+        "value": "grok-4.3",
+        "label": "Grok 4.3"
       },
       {
-        "value": "grok-4.20-non-reasoning",
-        "label": "Grok 4.20 (Non-Reasoning)"
-      },
-      {
-        "value": "grok-4-1-fast-reasoning",
-        "label": "Grok 4.1 Fast (Reasoning)"
-      },
-      {
-        "value": "grok-4-1-fast-non-reasoning",
-        "label": "Grok 4.1 Fast (Non-Reasoning)"
-      },
-      {
-        "value": "grok-4-1",
-        "label": "Grok 4.1"
-      },
-      {
-        "value": "grok-4-fast-non-reasoning",
-        "label": "Grok 4 Fast (Non-Reasoning)"
-      },
-      {
-        "value": "grok-4-fast-reasoning",
-        "label": "Grok 4 Fast (Reasoning)"
+        "value": "grok-4.1-fast",
+        "label": "Grok 4.1 Fast"
       },
       {
         "value": "grok-code-fast-1",
         "label": "Grok Code Fast 1"
       },
       {
-        "value": "grok-4",
-        "label": "Grok 4"
+        "value": "grok-4.20-0309-reasoning",
+        "label": "Grok 4.20 (Reasoning)"
       },
       {
-        "value": "grok-3",
-        "label": "Grok 3"
-      },
-      {
-        "value": "grok-3-latest",
-        "label": "Grok 3 Latest"
-      },
-      {
-        "value": "grok-3-fast",
-        "label": "Grok 3 Fast"
-      },
-      {
-        "value": "grok-3-fast-latest",
-        "label": "Grok 3 Fast Latest"
-      },
-      {
-        "value": "grok-3-mini",
-        "label": "Grok 3 Mini"
-      },
-      {
-        "value": "grok-3-mini-latest",
-        "label": "Grok 3 Mini Latest"
-      },
-      {
-        "value": "grok-3-mini-fast",
-        "label": "Grok 3 Mini Fast"
-      },
-      {
-        "value": "grok-3-mini-fast-latest",
-        "label": "Grok 3 Mini Fast Latest"
-      },
-      {
-        "value": "grok-2",
-        "label": "Grok 2"
-      },
-      {
-        "value": "grok-2-latest",
-        "label": "Grok 2 Latest"
+        "value": "grok-4.20-0309-non-reasoning",
+        "label": "Grok 4.20 (Non-Reasoning)"
       }
     ],
     "conditions": [
@@ -448,10 +340,6 @@
     "description": "Select the Mistral model to use.",
     "options": [
       {
-        "value": "pixtral-large-latest",
-        "label": "Pixtral Large (Latest)"
-      },
-      {
         "value": "mistral-large-latest",
         "label": "Mistral Large (Latest)"
       },
@@ -460,64 +348,32 @@
         "label": "Mistral Medium (Latest)"
       },
       {
-        "value": "mistral-medium-3",
-        "label": "Mistral Medium 3"
-      },
-      {
         "value": "mistral-medium-3.5",
         "label": "Mistral Medium 3.5"
       },
       {
-        "value": "mistral-medium-2508",
-        "label": "Mistral Medium (2508)"
-      },
-      {
-        "value": "mistral-medium-2505",
-        "label": "Mistral Medium (2505)"
-      },
-      {
         "value": "mistral-small-latest",
-        "label": "Mistral Small(Latest)"
+        "label": "Mistral Small (Latest)"
       },
       {
-        "value": "magistral-small-2507",
-        "label": "Magistral Small (2507)"
+        "value": "magistral-medium-latest",
+        "label": "Magistral Medium (Latest)"
       },
       {
-        "value": "magistral-medium-2507",
-        "label": "Magistral Medium (2507)"
+        "value": "codestral-latest",
+        "label": "Codestral (Latest)"
       },
       {
-        "value": "magistral-small-2506",
-        "label": "Magistral Small (2506)"
-      },
-      {
-        "value": "magistral-medium-2506",
-        "label": "Magistral Medium (2506)"
-      },
-      {
-        "value": "ministral-3b-latest",
-        "label": "Ministral 3B (Latest)"
+        "value": "pixtral-large-latest",
+        "label": "Pixtral Large (Latest)"
       },
       {
         "value": "ministral-8b-latest",
         "label": "Ministral 8B (Latest)"
       },
       {
-        "value": "pixtral-12b-2409",
-        "label": "Pixtral 12B (2409)"
-      },
-      {
-        "value": "open-mistral-7b",
-        "label": "Open Mistral 7B"
-      },
-      {
-        "value": "open-mixtral-8x7b",
-        "label": "Open Mixtral 8x7B"
-      },
-      {
-        "value": "open-mixtral-8x22b",
-        "label": "Open Mixtral 8x22B"
+        "value": "ministral-3b-latest",
+        "label": "Ministral 3B (Latest)"
       }
     ],
     "conditions": [
@@ -548,83 +404,9 @@
   {
     "property": "extension.browse-bot.ollama-model",
     "label": "Ollama Model",
-    "type": "dropdown",
-    "defaultValue": "mixtral:8x7b",
-    "description": "Select the Ollama model to use. You must have this model installed locally.",
-    "options": [
-      {
-        "value": "deepseek-r1:8b",
-        "label": "DeepSeek R1 (8B parameters)"
-      },
-      {
-        "value": "deepseek-r1:1.5b",
-        "label": "DeepSeek R1 (1.5B parameters)"
-      },
-      {
-        "value": "deepseek-r1:7b",
-        "label": "DeepSeek R1 (7B parameters)"
-      },
-      {
-        "value": "deepseek-r1:14b",
-        "label": "DeepSeek R1 (14B parameters)"
-      },
-      {
-        "value": "deepseek-r1:32b",
-        "label": "DeepSeek R1 (32B parameters)"
-      },
-      {
-        "value": "deepseek-r1:70b",
-        "label": "DeepSeek R1 (70B parameters)"
-      },
-      {
-        "value": "mixtral:8x22b",
-        "label": "Mixtral (8x22B)"
-      },
-      {
-        "value": "mixtral:8x7b",
-        "label": "Mixtral (8x7B)"
-      },
-      {
-        "value": "qwen3:0.6b",
-        "label": "Qwen3 (0.6B parameters)"
-      },
-      {
-        "value": "qwen3:1.7b",
-        "label": "Qwen3 (1.7B parameters)"
-      },
-      {
-        "value": "qwen3:4b",
-        "label": "Qwen3 (4B parameters)"
-      },
-      {
-        "value": "qwen3:8b",
-        "label": "Qwen3 (8B parameters)"
-      },
-      {
-        "value": "qwen3:14b",
-        "label": "Qwen3 (14B parameters)"
-      },
-      {
-        "value": "qwen3:32b",
-        "label": "Qwen3 (32B parameters)"
-      },
-      {
-        "value": "qwen3:30b-a3b",
-        "label": "Qwen3 (30B-A3B)"
-      },
-      {
-        "value": "qwen3:235b-a22b",
-        "label": "Qwen3 (235B-A22B)"
-      },
-      {
-        "value": "llama4:scout",
-        "label": "Llama 4 Scout"
-      },
-      {
-        "value": "llama4:maverick",
-        "label": "Llama 4 Maverick"
-      }
-    ],
+    "type": "string",
+    "defaultValue": "qwen3:8b",
+    "description": "The Ollama model to use. You must have this model installed locally.",
     "conditions": [
       {
         "if": {
@@ -632,7 +414,8 @@
           "value": "ollama"
         }
       }
-    ]
+    ],
+    "placeholder": "e.g. qwen3:8b"
   },
   {
     "property": "extension.browse-bot.openai-api-key",
@@ -654,7 +437,7 @@
     "property": "extension.browse-bot.openai-model",
     "label": "OpenAI Model",
     "type": "dropdown",
-    "defaultValue": "gpt-5.2",
+    "defaultValue": "gpt-5.6-terra",
     "description": "Select the OpenAI model to use.",
     "options": [
       {
@@ -666,10 +449,6 @@
         "label": "GPT 5.6"
       },
       {
-        "value": "gpt-5.6-luna",
-        "label": "GPT 5.6 Luna"
-      },
-      {
         "value": "gpt-5.6-sol",
         "label": "GPT 5.6 Sol"
       },
@@ -678,12 +457,12 @@
         "label": "GPT 5.6 Terra"
       },
       {
-        "value": "gpt-5.5",
-        "label": "GPT 5.5"
+        "value": "gpt-5.6-luna",
+        "label": "GPT 5.6 Luna"
       },
       {
-        "value": "gpt-5.4-pro",
-        "label": "GPT 5.4 Pro"
+        "value": "gpt-5.5",
+        "label": "GPT 5.5"
       },
       {
         "value": "gpt-5.4",
@@ -698,88 +477,12 @@
         "label": "GPT 5.4 Nano"
       },
       {
-        "value": "gpt-5.3-chat-latest",
-        "label": "GPT 5.3 Latest"
-      },
-      {
-        "value": "gpt-5.2-pro",
-        "label": "GPT 5.2 Pro"
-      },
-      {
-        "value": "gpt-5.2-chat-latest",
-        "label": "GPT 5.2 Latest"
-      },
-      {
         "value": "gpt-5.2",
         "label": "GPT 5.2"
       },
       {
-        "value": "gpt-5.1-codex-mini",
-        "label": "GPT 5.1 Mini"
-      },
-      {
-        "value": "gpt-5.1-codex",
-        "label": "GPT 5.1 Codex"
-      },
-      {
-        "value": "gpt-5.1-chat-latest",
-        "label": "GPT 5.1 Latest"
-      },
-      {
         "value": "gpt-5.1",
         "label": "GPT 5.1"
-      },
-      {
-        "value": "gpt-5-pro",
-        "label": "GPT 5 Pro"
-      },
-      {
-        "value": "gpt-4.1",
-        "label": "GPT 4.1"
-      },
-      {
-        "value": "gpt-4.1-mini",
-        "label": "GPT 4.1 Mini"
-      },
-      {
-        "value": "gpt-4.1-nano",
-        "label": "GPT 4.1 Nano"
-      },
-      {
-        "value": "gpt-4o",
-        "label": "GPT 4o"
-      },
-      {
-        "value": "gpt-4o-mini",
-        "label": "GPT 4o Mini"
-      },
-      {
-        "value": "gpt-4-turbo",
-        "label": "GPT 4 Turbo"
-      },
-      {
-        "value": "gpt-4",
-        "label": "GPT 4"
-      },
-      {
-        "value": "gpt-3.5-turbo",
-        "label": "GPT 3.5 Turbo"
-      },
-      {
-        "value": "o1",
-        "label": "O1"
-      },
-      {
-        "value": "o3-mini",
-        "label": "O3 Mini"
-      },
-      {
-        "value": "o3",
-        "label": "O3"
-      },
-      {
-        "value": "o4-mini",
-        "label": "O4 Mini"
       },
       {
         "value": "gpt-5",
@@ -790,16 +493,20 @@
         "label": "GPT 5 Mini"
       },
       {
-        "value": "gpt-5-nano",
-        "label": "GPT 5 Nano"
+        "value": "gpt-4.1",
+        "label": "GPT 4.1"
       },
       {
-        "value": "gpt-5-chat-latest",
-        "label": "GPT 5 Latest"
+        "value": "gpt-4.1-mini",
+        "label": "GPT 4.1 Mini"
       },
       {
-        "value": "gpt-5-codex",
-        "label": "GPT 5 Codex"
+        "value": "gpt-4o",
+        "label": "GPT 4o"
+      },
+      {
+        "value": "gpt-4o-mini",
+        "label": "GPT 4o Mini"
       }
     ],
     "conditions": [
