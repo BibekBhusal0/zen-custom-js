@@ -27,6 +27,7 @@ import {
 } from "../utils/keyboard.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { addWidget } from "../utils/widget.js";
+import { calculateFuzzyScore as sharedFuzzyScore } from "../utils/fuzzy.js";
 
 function doCommand(command) {
   const commandEl = document.getElementById(command);
@@ -230,65 +231,13 @@ export const ZenCommandPalette = {
   },
 
   /**
-   * A VS Code-style fuzzy scoring algorithm.
+   * A VS Code-style fuzzy scoring algorithm (shared via utils/fuzzy.js).
    * @param {string} target The string to score against.
    * @param {string} query The user's search query.
    * @returns {number} A score representing the match quality.
    */
   calculateFuzzyScore(target, query) {
-    if (!target || !query) return 0;
-
-    const targetLower = target.toLowerCase();
-    const queryLower = query.toLowerCase();
-    const targetLen = target.length;
-    const queryLen = query.length;
-
-    if (queryLen > targetLen) return 0;
-    if (queryLen === 0) return 0;
-
-    if (targetLower === queryLower) {
-      return 200;
-    }
-
-    if (targetLower.startsWith(queryLower)) {
-      return 100 + queryLen;
-    }
-
-    const initials = targetLower
-      .split(/[\s-_]+/)
-      .map((word) => word[0])
-      .join("");
-    if (initials === queryLower) {
-      return 90 + queryLen;
-    }
-
-    let score = 0;
-    let queryIndex = 0;
-    let lastMatchIndex = -1;
-    let consecutiveMatches = 0;
-
-    for (let targetIndex = 0; targetIndex < targetLen; targetIndex++) {
-      if (queryIndex < queryLen && targetLower[targetIndex] === queryLower[queryIndex]) {
-        let bonus = 10;
-        if (targetIndex === 0 || [" ", "-", "_"].includes(targetLower[targetIndex - 1])) {
-          bonus += 15;
-        }
-        if (lastMatchIndex === targetIndex - 1) {
-          consecutiveMatches++;
-          bonus += 20 * consecutiveMatches;
-        } else {
-          consecutiveMatches = 0;
-        }
-        if (lastMatchIndex !== -1) {
-          const distance = targetIndex - lastMatchIndex;
-          bonus -= Math.min(distance - 1, 10);
-        }
-        score += bonus;
-        lastMatchIndex = targetIndex;
-        queryIndex++;
-      }
-    }
-    return queryIndex === queryLen ? score : 0;
+    return sharedFuzzyScore(target, query);
   },
 
   /**
