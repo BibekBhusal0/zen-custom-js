@@ -1,5 +1,6 @@
 # New Features
 
+- Settings commands search now uses the same fuzzy matching as the palette, with results sorted by relevance.
 - All dropdowns in settings (search engine picker, command pickers) now use fuzzy matching and stay sorted by relevance.
 - Switch profiles from the palette.
 - Trigger extension buttons and run extension commands, with their shortcuts shown.

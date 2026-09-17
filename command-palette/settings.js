@@ -11,6 +11,7 @@ import {
   eventToShortcutSignature,
   getPrettyShortcut,
 } from "../utils/keyboard.js";
+import { bestFuzzyScore } from "../utils/fuzzy.js";
 
 const commandChainFunctions = {
   delay: {
@@ -247,22 +248,31 @@ const SettingsModal = {
   },
 
   _filterCommands(query) {
-    const lowerQuery = query.toLowerCase().trim();
+    const cleanQuery = (query || "").trim();
     const commandList = this._modalElement.querySelector("#commands-list");
 
-    // Filter individual items
+    // Filter individual items with fuzzy matching, then sort by score within each group
     commandList.querySelectorAll(".command-item").forEach((item) => {
-      const label = (item.querySelector(".command-label")?.textContent || "").toLowerCase();
-      const key = (item.dataset.key || "").toLowerCase();
-      item.hidden = !(label.includes(lowerQuery) || key.includes(lowerQuery));
+      if (!cleanQuery) {
+        item.hidden = false;
+        item.dataset.score = "0";
+        return;
+      }
+      const label = item.querySelector(".command-label")?.textContent || "";
+      const key = item.dataset.key || "";
+      const score = bestFuzzyScore([label, key], cleanQuery);
+      item.hidden = score <= 0;
+      item.dataset.score = String(score);
     });
 
-    // Hide/show group headers based on visible children
     commandList.querySelectorAll(".commands-group").forEach((group) => {
+      const visibleItems = [...group.querySelectorAll(".command-item:not([hidden])")].sort(
+        (a, b) => Number(b.dataset.score || 0) - Number(a.dataset.score || 0)
+      );
+      for (const item of visibleItems) group.appendChild(item);
       const header = group.querySelector(".commands-group-header");
       if (header) {
-        const hasVisibleItems = !!group.querySelector(".command-item:not([hidden])");
-        header.hidden = !hasVisibleItems;
+        header.hidden = visibleItems.length === 0;
       }
     });
   },
