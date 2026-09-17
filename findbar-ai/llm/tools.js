@@ -8,6 +8,7 @@ import {
   getVisibleEngines,
 } from "../../utils/search-service.js";
 import { openLink } from "../../utils/open-link.js";
+import { bestFuzzyScore } from "../../utils/fuzzy.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
@@ -294,17 +295,18 @@ async function splitExistingTabs(args) {
 async function searchTabs(args) {
   const { query } = args;
   if (!query) return { error: "searchTabs requires a query." };
-  const lowerCaseQuery = query.toLowerCase();
 
   try {
     const allTabs = gZenWorkspaces.allStoredTabs;
     const results = allTabs
-      .filter((tab) => {
-        const title = tab.label?.toLowerCase() || "";
-        const url = tab.linkedBrowser?.currentURI?.spec?.toLowerCase() || "";
-        return title.includes(lowerCaseQuery) || url.includes(lowerCaseQuery);
+      .map((tab) => {
+        const title = tab.label || "";
+        const url = tab.linkedBrowser?.currentURI?.spec || "";
+        return { tab, score: bestFuzzyScore([title, url], query) };
       })
-      .map(mapTabToObject)
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score)
+      .map(({ tab }) => mapTabToObject(tab))
       .filter(Boolean);
 
     return { tabs: results };
