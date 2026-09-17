@@ -6,11 +6,11 @@
 
 // My mods
 import "./command-palette/index.js";
+import "./findbar-ai/index.js";
 import "./floating-sidebar/index.js";
 import "./reopen-closed-tabs/index.js";
-import "./search-engine-select/index.js";
 import "./search-engine-icon/index.js";
-import "./dist/browse-bot.uc.mjs";
+import "./search-engine-select/index.js";
 
 // Other scripts
 import "./others/tab-explode.js";
