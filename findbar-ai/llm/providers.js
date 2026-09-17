@@ -303,11 +303,46 @@ const openrouter = Object.create(
   })
 );
 
+const pollinations = Object.assign(Object.create(providerPrototype), {
+  name: "pollinations",
+  label: "Pollinations AI",
+  faviconUrl: googleFaviconAPI("pollinations.ai"),
+  apiKeyUrl: "",
+  noApiKey: true,
+  customModel: true,
+  modelPlaceholder: "e.g. openai-fast",
+  get model() {
+    return PREFS.getPref(this.modelPref) || "";
+  },
+  set model(v) {
+    if (typeof v === "string") PREFS.setPref(this.modelPref, v);
+  },
+  isFreeModel() {
+    return true;
+  },
+  async refreshModels() {
+    const json = await fetchJson("https://text.pollinations.ai/models");
+    const ids = [];
+    for (const m of Array.isArray(json) ? json : []) {
+      if (m?.name) ids.push(m.name);
+      for (const alias of m?.aliases || []) ids.push(alias);
+    }
+    return [...new Set(ids)];
+  },
+  modelPref: PREFS.POLLINATIONS_MODEL,
+  get apiKey() {
+    return "";
+  },
+  set apiKey(v) {},
+  baseURL: "https://text.pollinations.ai/openai",
+});
+
 const ollama = Object.assign(Object.create(providerPrototype), {
   name: "ollama",
   label: "Ollama (local)",
   faviconUrl: googleFaviconAPI("ollama.com"),
   apiKeyUrl: "",
+  noApiKey: true,
   customModel: true,
   modelPlaceholder: "e.g. qwen3:8b",
   baseUrlPref: PREFS.OLLAMA_BASE_URL,
@@ -354,6 +389,7 @@ const custom = Object.create(
 );
 
 export {
+  pollinations,
   mistral,
   gemini,
   openai,

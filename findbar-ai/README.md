@@ -13,7 +13,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 - 🎨 **Floating Chat UI**: A sleek, draggable, and resizable findbar that transforms into an AI chat panel.
 - 🚀 **URL Bar AI Commands**: Activate an AI command mode directly in your URL bar for quick actions.
-- 🤖 **Multi-Provider Support**: Integrates with Google Gemini, Mistral AI, OpenAI, Anthropic Claude, xAI Grok, Perplexity AI, Cerebras, DeepSeek, OpenRouter, any OpenAI-compatible endpoint, and local models via Ollama.
+- 🤖 **Multi-Provider Support**: Works out of the box with Pollinations AI (free, no API key needed). Also integrates with Google Gemini, Mistral AI, OpenAI, Anthropic Claude, xAI Grok, Perplexity AI, Cerebras, DeepSeek, OpenRouter, any OpenAI-compatible endpoint, and local models via Ollama.
 - 🧠 **Page Content Awareness**: Lets the AI read the current page's text, HTML, and even YouTube transcripts to provide context-aware answers.
 - 👑 **Powerful AI Tool-belt**: Empowers the AI to control the browser: manage tabs, workspaces, bookmarks, perform searches, and interact with page elements.
 - 🖱️ **Context Menu Integration**: Right-click to quickly ask the AI about selected text or summarize the current page.
@@ -90,7 +90,10 @@ For advanced users or those not using Sine or who are willing to contribute:
 
 ### Findbar AI Chat
 
-1.  **Configure Provider**: After installation, press `Ctrl+Shift+F`. For most providers, BrowseBot will prompt you to select a provider and set an API key. For **Ollama**, no initial setup is required, and it will default to the local address. You can configure the Base URL in the settings.
+1.  **Configure Provider**: After installation, press `Ctrl+Shift+F`. No setup is needed to start: BrowseBot defaults to **Pollinations AI**, which is free and requires no API key. To use a different provider, select it and paste its API key instead. For **Ollama**, set the local Base URL in the settings.
+
+> [!NOTE]
+> The default Pollinations tier is anonymous and rate limited (about one request per 15 seconds) and serves smaller models on sponsor funded infrastructure, so heavy or agentic use can feel slow. Switch to a keyed provider, or register for a free Pollinations key for higher limits, when you need more.
 2.  **Save the Key**: Paste the key into the input field and click "Save". The chat interface will now appear.
 3.  **Start Chatting**:
     - Press `Ctrl+F` to open the standard findbar.
@@ -135,7 +138,8 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.findbar-ai.width`                               | Number  | `500`                                                       | The width of the findbar.                                                                                               |
 | `extension.browse-bot.findbar-ai.position`                            | String  | `"top-right"`                                               | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`.               |
 | `extension.browse-bot.findbar-ai.background-style`                    | String  | `"solid"`                                                   | The background style of the findbar. Options: `solid`, `acrylic`, `pseudo`.                                             |
-| `extension.browse-bot.llm-provider`                                   | String  | `"gemini"`                                                  | Which AI provider to use. Options: `gemini`, `mistral`, `openai`, `claude`, `grok`, `perplexity`, `cerebras`, `deepseek`, `openrouter`, `ollama`, `custom`. |
+| `extension.browse-bot.llm-provider`                                   | String  | `"pollinations"`                                            | Which AI provider to use. Options: `pollinations`, `gemini`, `mistral`, `openai`, `claude`, `grok`, `perplexity`, `cerebras`, `deepseek`, `openrouter`, `ollama`, `custom`. |
+| `extension.browse-bot.pollinations-model`                             | String  | `"openai"`                                                  | The Pollinations model ID to use. Pick from the live-fetched list in settings. |
 | `extension.browse-bot.deepseek-api-key`                               | String  | _(empty)_                                                   | Your API key for DeepSeek.                                                                                              |
 | `extension.browse-bot.deepseek-model`                                 | String  | `"deepseek-chat"`                                           | The specific DeepSeek model to use.                                                                                     |
 | `extension.browse-bot.openrouter-api-key`                             | String  | _(empty)_                                                   | Your API key for OpenRouter.                                                                                            |

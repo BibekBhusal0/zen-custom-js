@@ -748,12 +748,13 @@ export const SettingsModal = {
       const modelPrefKey = provider.modelPref;
 
       let apiInputHtml;
-      if (name === "ollama") {
-        const baseUrlPrefKey = PREFS.OLLAMA_BASE_URL;
+      if (provider.baseUrlPref) {
+        const baseUrlPrefKey = provider.baseUrlPref;
+        const safeId = this._getSafeIdForProvider(name);
         apiInputHtml = `
         <div class="setting-item">
-          <label for="pref-ollama-base-url">Base URL</label>
-          <input type="text" class="zenux-input" id="pref-ollama-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
+          <label for="pref-${safeId}-base-url">Base URL</label>
+          <input type="text" class="zenux-input" id="pref-${safeId}-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
         </div>
       `;
       } else if (name === "custom") {

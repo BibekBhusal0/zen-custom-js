@@ -52,9 +52,13 @@
     "property": "extension.browse-bot.llm-provider",
     "label": "AI Provider",
     "type": "dropdown",
-    "defaultValue": "gemini",
+    "defaultValue": "pollinations",
     "description": "Select the AI service provider to use.",
     "options": [
+      {
+        "value": "pollinations",
+        "label": "Pollinations AI (free, no key required)"
+      },
       {
         "value": "claude",
         "label": "Anthropic Claude"
@@ -514,6 +518,22 @@
         "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "openai"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.pollinations-model",
+    "label": "Pollinations Model",
+    "type": "string",
+    "placeholder": "e.g. openai-fast",
+    "defaultValue": "openai",
+    "description": "The Pollinations model ID to use. The live list is fetched in the BrowseBot settings modal.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "pollinations"
         }
       }
     ]

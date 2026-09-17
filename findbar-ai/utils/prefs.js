@@ -54,6 +54,7 @@ class BrowseBotPREFS extends BasePREFS {
   static DEEPSEEK_MODEL = "extension.browse-bot.deepseek-model";
   static OPENROUTER_API_KEY = "extension.browse-bot.openrouter-api-key";
   static OPENROUTER_MODEL = "extension.browse-bot.openrouter-model";
+  static POLLINATIONS_MODEL = "extension.browse-bot.pollinations-model";
   static OLLAMA_MODEL = "extension.browse-bot.ollama-model";
   static OLLAMA_BASE_URL = "extension.browse-bot.ollama-base-url";
   static CUSTOM_API_KEY = "extension.browse-bot.custom-api-key";
@@ -87,7 +88,7 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.CONTEXT_MENU_COMMAND_NO_SELECTION]: "Summarize current page",
     [BrowseBotPREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION]:
       "Explain this in context of current page:\n\n{selection}",
-    [BrowseBotPREFS.LLM_PROVIDER]: "gemini",
+    [BrowseBotPREFS.LLM_PROVIDER]: "pollinations",
     [BrowseBotPREFS.MISTRAL_API_KEY]: "",
     [BrowseBotPREFS.MISTRAL_MODEL]: "mistral-medium-latest",
     [BrowseBotPREFS.GEMINI_API_KEY]: "",
@@ -106,6 +107,7 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.DEEPSEEK_MODEL]: "deepseek-v4-flash",
     [BrowseBotPREFS.OPENROUTER_API_KEY]: "",
     [BrowseBotPREFS.OPENROUTER_MODEL]: "google/gemini-2.5-flash",
+    [BrowseBotPREFS.POLLINATIONS_MODEL]: "openai",
     [BrowseBotPREFS.OLLAMA_MODEL]: "qwen3:8b",
     [BrowseBotPREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
     [BrowseBotPREFS.CUSTOM_API_KEY]: "",

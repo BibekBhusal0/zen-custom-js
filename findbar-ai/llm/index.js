@@ -1,6 +1,7 @@
 import { streamText, generateText } from "./client.js";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import {
+  pollinations,
   claude,
   gemini,
   grok,
@@ -27,6 +28,7 @@ class LLM {
   constructor() {
     this.history = [];
     this.AVAILABLE_PROVIDERS = {
+      pollinations: pollinations,
       claude: claude,
       gemini: gemini,
       grok: grok,
@@ -47,7 +49,8 @@ class LLM {
 
   get currentProvider() {
     return (
-      this.AVAILABLE_PROVIDERS[this.llmProvider || "gemini"] || this.AVAILABLE_PROVIDERS["gemini"]
+      this.AVAILABLE_PROVIDERS[this.llmProvider || "pollinations"] ||
+      this.AVAILABLE_PROVIDERS["pollinations"]
     );
   }
 
