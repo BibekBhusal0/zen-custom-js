@@ -7,6 +7,7 @@ import { startupFinish } from "../utils/startup-finish.js";
 import { addPrefListener } from "../utils/pref.js";
 import { addWidget } from "../utils/widget.js";
 import { addCommands } from "../utils/command-palete.js";
+import { fuzzyFilterSort } from "../utils/fuzzy.js";
 
 const ReopenClosedTabs = {
   _boundToggleMenu: null,
@@ -320,21 +321,13 @@ const ReopenClosedTabs = {
   },
 
   _filterTabs(query, panel) {
-    const lowerQuery = query.toLowerCase();
-    const filteredTabs = this._allTabsCache.filter((tab) => {
-      const title = (tab.title || "").toLowerCase();
-      const url = (tab.url || "").toLowerCase();
-      const workspace = (tab.workspace || "").toLowerCase();
-      const folder = (tab.folder || "").toLowerCase();
-      const clientName = (tab.clientName || "").toLowerCase();
-      return (
-        title.includes(lowerQuery) ||
-        url.includes(lowerQuery) ||
-        workspace.includes(lowerQuery) ||
-        folder.includes(lowerQuery) ||
-        clientName.includes(lowerQuery)
-      );
-    });
+    const filteredTabs = fuzzyFilterSort(this._allTabsCache, query, (tab) => [
+      tab.title || "",
+      tab.url || "",
+      tab.workspace || "",
+      tab.folder || "",
+      tab.clientName || "",
+    ]);
 
     const tabItemsContainer = panel.querySelector("#reopen-closed-tabs-list-container");
     if (tabItemsContainer) {
