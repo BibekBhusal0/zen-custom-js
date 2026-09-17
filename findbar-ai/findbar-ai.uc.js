@@ -2,6 +2,7 @@ import { messageManagerAPI } from "./messageManager.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { parseMD } from "./utils/markdown.js";
 import { createCombobox } from "../utils/combobox.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
@@ -56,20 +57,13 @@ const sidebarWidthUpdate = function () {
 
 sidebarWidthUpdate();
 
-function parseMD(markdown, convertHTML = true) {
-  let htmlContent = parseElement(`<div class="markdown-body"></div>`);
-  try {
-    const parse = ChromeUtils.importESModule("chrome://userscripts/content/utils/dom.mjs").default
-      .parseMD;
-    const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
-    parse(htmlContent, markdown, "", browserWindow || window);
-  } catch {
-    PREFS.debugLog("Parsing markdown failed");
-    htmlContent.innerHTML = markdown;
-  }
-
-  if (convertHTML) return htmlContent;
-  else return htmlContent.innerHTML.replace(/<(img|hr|br|input)([^>]*?)(?<!\/)>/gi, "<$1$2 />");
+function renderCitationMarkers(answer, citations) {
+  const byId = new Map((citations || []).map((c) => [String(c.id), c]));
+  return String(answer).replace(/\[(\d+)\]/g, (match, id) => {
+    const ts = byId.get(id)?.timestamp;
+    const tsAttr = ts ? ` data-timestamp="${escapeXmlAttribute(String(ts))}"` : "";
+    return `<span class="citation-link" data-citation-id="${id}"${tsAttr}>[${id}]</span>`;
+  });
 }
 
 PREFS.setInitialPrefs();
