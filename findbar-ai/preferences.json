@@ -599,8 +599,8 @@
         "label": "OpenAI GPT OSS 120B"
       },
       {
-        "value": "gemma-4-31b",
-        "label": "Gemma 4 31B"
+        "value": "qwen-3.8-27b",
+        "label": "Qwen 3.8 27B"
       }
     ],
     "conditions": [
@@ -680,16 +680,20 @@
     "property": "extension.browse-bot.deepseek-model",
     "label": "DeepSeek Model",
     "type": "dropdown",
-    "defaultValue": "deepseek-chat",
+    "defaultValue": "deepseek-v4-flash",
     "description": "Select the DeepSeek model to use.",
     "options": [
       {
-        "value": "deepseek-chat",
-        "label": "DeepSeek V3 (Chat)"
+        "value": "deepseek-v4-flash",
+        "label": "DeepSeek V4 Flash"
       },
       {
-        "value": "deepseek-reasoner",
-        "label": "DeepSeek R1 (Reasoner)"
+        "value": "deepseek-v4-pro",
+        "label": "DeepSeek V4 Pro"
+      },
+      {
+        "value": "deepseek-v4-flash-vision-exp",
+        "label": "DeepSeek V4 Flash Vision (Experimental)"
       }
     ],
     "conditions": [

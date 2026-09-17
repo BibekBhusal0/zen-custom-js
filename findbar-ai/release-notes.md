@@ -2,6 +2,8 @@
 
 - Provider and model dropdowns now use fuzzy matching, same as the command palette.
 - All dropdowns now always show the search box, no matter how short the list is.
+- DeepSeek models updated to V4 Flash, V4 Pro, and V4 Flash Vision (Experimental). The retired `deepseek-chat` / `deepseek-reasoner` names migrate to V4 Flash automatically.
+- Cerebras models updated: added Qwen 3.8 27B, removed Gemma 4 31B (no longer on Cerebras public endpoints).
 - Settings pages refreshed to match your Zen theme.
 - Provider and model dropdowns are now searchable, show provider logos, and stay a consistent size. The AI setup screen's provider picker got the same treatment.
 - New providers: DeepSeek and OpenRouter.

@@ -103,7 +103,7 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.CEREBRAS_API_KEY]: "",
     [BrowseBotPREFS.CEREBRAS_MODEL]: "gpt-oss-120b",
     [BrowseBotPREFS.DEEPSEEK_API_KEY]: "",
-    [BrowseBotPREFS.DEEPSEEK_MODEL]: "deepseek-chat",
+    [BrowseBotPREFS.DEEPSEEK_MODEL]: "deepseek-v4-flash",
     [BrowseBotPREFS.OPENROUTER_API_KEY]: "",
     [BrowseBotPREFS.OPENROUTER_MODEL]: "google/gemini-2.5-flash",
     [BrowseBotPREFS.OLLAMA_MODEL]: "qwen3:8b",
@@ -136,6 +136,28 @@ class BrowseBotPREFS extends BasePREFS {
   }
 
   static migratePrefs() {
+    const valueMigrations = {
+      [this.DEEPSEEK_MODEL]: {
+        "deepseek-chat": "deepseek-v4-flash",
+        "deepseek-reasoner": "deepseek-v4-flash",
+      },
+      [this.CEREBRAS_MODEL]: {
+        "gemma-4-31b": "gpt-oss-120b",
+      },
+    };
+
+    for (const [prefKey, mapping] of Object.entries(valueMigrations)) {
+      try {
+        const current = this.getPref(prefKey);
+        if (current != undefined && mapping[current] != undefined) {
+          this.debugLog(`Migrating retired model ${current} to ${mapping[current]}`);
+          this.setPref(prefKey, mapping[current]);
+        }
+      } catch (e) {
+        this.debugError(`Could not migrate model value for ${prefKey}:`, e);
+      }
+    }
+
     const migrationMap = {
       "extension.browse-bot.enabled": this.ENABLED,
       "extension.browse-bot.minimal": this.MINIMAL,

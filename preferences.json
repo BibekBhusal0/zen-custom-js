@@ -1197,8 +1197,8 @@
         "label": "OpenAI GPT OSS 120B"
       },
       {
-        "value": "gemma-4-31b",
-        "label": "Gemma 4 31B"
+        "value": "qwen-3.8-27b",
+        "label": "Qwen 3.8 27B"
       }
     ],
     "conditions": [
