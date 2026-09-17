@@ -228,9 +228,10 @@
     }
   }
 
-  .setting-item:has(label[for="pref-llm-top-p"]) .info-icon-wrapper,
-  .setting-item:has(label[for="pref-llm-top-k"]) .info-icon-wrapper {
-    padding-left: 70px;
+  /* HACK: Pushing them right so that tooltip will not overflow  */
+  .setting-item:has(label[for="pref-extension.browse-bot.llm.top-p"]) .info-icon-wrapper,
+  .setting-item:has(label[for="pref-extension.browse-bot.llm.top-k"]) .info-icon-wrapper {
+    margin-left: 40px;
   }
 
   .provider-settings-group {
@@ -390,11 +391,7 @@ findbar,
     &:focus,
     &.recording {
       border-color: var(--zenux-accent-text) !important;
-      background-color: color-mix(
-        in srgb,
-        var(--zenux-accent) 20%,
-        transparent 80%
-      ) !important;
+      background-color: color-mix(in srgb, var(--zenux-accent) 20%, transparent 80%) !important;
     }
 
     &::placeholder {
