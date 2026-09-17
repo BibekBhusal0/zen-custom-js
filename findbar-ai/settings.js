@@ -108,9 +108,9 @@ export const SettingsModal = {
       );
       if (modelPlaceholder) {
         let modelSelectorElement;
-        if (name === "custom") {
+        if (provider.customModel) {
           const modelInputHtml = `
-            <input type="text" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="e.g. deepseek-chat" />
+            <input type="text" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="${escapeXmlAttribute(provider.modelPlaceholder || "")}" />
           `;
           modelSelectorElement = parseElement(modelInputHtml, "html");
         } else {

@@ -15,6 +15,7 @@ class BrowseBotPREFS extends BasePREFS {
   static AGENTIC_MODE = "extension.browse-bot.findbar-ai.agentic-mode";
   static CITATIONS_ENABLED = "extension.browse-bot.findbar-ai.citations-enabled";
   static MAX_TOOL_CALLS = "extension.browse-bot.findbar-ai.max-tool-calls";
+  static MAX_CONTEXT_CHARS = "extension.browse-bot.findbar-ai.max-context-chars";
   static CONFORMATION = "extension.browse-bot.findbar-ai.conform-before-tool-call";
   static CONTEXT_MENU_ENABLED = "extension.browse-bot.findbar-ai.context-menu-enabled";
   static CONTEXT_MENU_AUTOSEND = "extension.browse-bot.findbar-ai.context-menu-autosend";
@@ -49,6 +50,10 @@ class BrowseBotPREFS extends BasePREFS {
   static PERPLEXITY_MODEL = "extension.browse-bot.perplexity-model";
   static CEREBRAS_API_KEY = "extension.browse-bot.cerebras-api-key";
   static CEREBRAS_MODEL = "extension.browse-bot.cerebras-model";
+  static DEEPSEEK_API_KEY = "extension.browse-bot.deepseek-api-key";
+  static DEEPSEEK_MODEL = "extension.browse-bot.deepseek-model";
+  static OPENROUTER_API_KEY = "extension.browse-bot.openrouter-api-key";
+  static OPENROUTER_MODEL = "extension.browse-bot.openrouter-model";
   static OLLAMA_MODEL = "extension.browse-bot.ollama-model";
   static OLLAMA_BASE_URL = "extension.browse-bot.ollama-base-url";
   static CUSTOM_API_KEY = "extension.browse-bot.custom-api-key";
@@ -88,16 +93,20 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.GEMINI_API_KEY]: "",
     [BrowseBotPREFS.GEMINI_MODEL]: "gemini-2.5-flash",
     [BrowseBotPREFS.OPENAI_API_KEY]: "",
-    [BrowseBotPREFS.OPENAI_MODEL]: "gpt-5.2",
+    [BrowseBotPREFS.OPENAI_MODEL]: "gpt-5.6-terra",
     [BrowseBotPREFS.CLAUDE_API_KEY]: "",
-    [BrowseBotPREFS.CLAUDE_MODEL]: "claude-4-opus",
+    [BrowseBotPREFS.CLAUDE_MODEL]: "claude-sonnet-5",
     [BrowseBotPREFS.GROK_API_KEY]: "",
-    [BrowseBotPREFS.GROK_MODEL]: "grok-4",
+    [BrowseBotPREFS.GROK_MODEL]: "grok-4.6",
     [BrowseBotPREFS.PERPLEXITY_API_KEY]: "",
     [BrowseBotPREFS.PERPLEXITY_MODEL]: "sonar",
     [BrowseBotPREFS.CEREBRAS_API_KEY]: "",
-    [BrowseBotPREFS.CEREBRAS_MODEL]: "llama3.1-8b",
-    [BrowseBotPREFS.OLLAMA_MODEL]: "llama2",
+    [BrowseBotPREFS.CEREBRAS_MODEL]: "gpt-oss-120b",
+    [BrowseBotPREFS.DEEPSEEK_API_KEY]: "",
+    [BrowseBotPREFS.DEEPSEEK_MODEL]: "deepseek-chat",
+    [BrowseBotPREFS.OPENROUTER_API_KEY]: "",
+    [BrowseBotPREFS.OPENROUTER_MODEL]: "google/gemini-2.5-flash",
+    [BrowseBotPREFS.OLLAMA_MODEL]: "qwen3:8b",
     [BrowseBotPREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",
     [BrowseBotPREFS.CUSTOM_API_KEY]: "",
     [BrowseBotPREFS.CUSTOM_MODEL]: "",
@@ -107,6 +116,7 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.REMEMBER_DIMENSIONS]: true,
     [BrowseBotPREFS.WIDTH]: 500,
     [BrowseBotPREFS.MAX_TOOL_CALLS]: 5,
+    [BrowseBotPREFS.MAX_CONTEXT_CHARS]: 0,
     [BrowseBotPREFS.CONFORMATION]: true,
     [BrowseBotPREFS.BACKGROUND_STYLE]: "solid",
     [BrowseBotPREFS.SHORTCUT_FINDBAR]: "ctrl+shift+f",

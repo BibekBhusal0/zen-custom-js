@@ -64,6 +64,10 @@
         "label": "Cerebras AI"
       },
       {
+        "value": "deepseek",
+        "label": "DeepSeek"
+      },
+      {
         "value": "gemini",
         "label": "Google Gemini"
       },
@@ -82,6 +86,10 @@
       {
         "value": "openai",
         "label": "OpenAI GPT"
+      },
+      {
+        "value": "openrouter",
+        "label": "OpenRouter"
       },
       {
         "value": "perplexity",
@@ -941,6 +949,79 @@
         "if": {
           "property": "extension.browse-bot.llm-provider",
           "value": "custom"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.deepseek-api-key",
+    "label": "DeepSeek API Key",
+    "type": "string",
+    "placeholder": "Enter your DeepSeek API key",
+    "defaultValue": "",
+    "description": "Your personal API key from DeepSeek. Required to use DeepSeek models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "deepseek"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.deepseek-model",
+    "label": "DeepSeek Model",
+    "type": "dropdown",
+    "defaultValue": "deepseek-chat",
+    "description": "Select the DeepSeek model to use.",
+    "options": [
+      {
+        "value": "deepseek-chat",
+        "label": "DeepSeek V3 (Chat)"
+      },
+      {
+        "value": "deepseek-reasoner",
+        "label": "DeepSeek R1 (Reasoner)"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "deepseek"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.openrouter-api-key",
+    "label": "OpenRouter API Key",
+    "type": "string",
+    "placeholder": "Enter your OpenRouter API key",
+    "defaultValue": "",
+    "description": "Your personal API key from OpenRouter. Required to use OpenRouter models.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openrouter"
+        }
+      }
+    ]
+  },
+  {
+    "property": "extension.browse-bot.openrouter-model",
+    "label": "OpenRouter Model",
+    "type": "string",
+    "placeholder": "e.g. anthropic/claude-opus-4-8",
+    "defaultValue": "google/gemini-2.5-flash",
+    "description": "The OpenRouter model ID to use.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "openrouter"
         }
       }
     ]

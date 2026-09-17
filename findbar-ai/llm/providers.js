@@ -1,14 +1,10 @@
-import {
-  createGoogleGenerativeAI,
-  createOpenAI,
-  createAnthropic,
-  createOpenAICompatible,
-  createCerebras,
-} from "./vercel-ai-sdk.uc.mjs";
 import PREFS from "../utils/prefs.js";
 import { googleFaviconAPI } from "../../utils/favicon.js";
 
-// Base object with shared logic for all providers
+// Every provider is a key plus an endpoint. Providers on the OpenAI Chat
+// Completions protocol share one code path in client.js; only the transport
+// kind differs ("openai" full params, "gemini" no penalty params, "anthropic"
+// translated via anthropic.js).
 const providerPrototype = {
   get apiKey() {
     return PREFS.getPref(this.apiPref);
@@ -27,19 +23,20 @@ const providerPrototype = {
     }
   },
   getModel() {
-    if (this.create === createOpenAICompatible) {
-      const config = {
-        name: this.name,
-        apiKey: this.apiKey || "not_required",
-        baseURL: this.baseURL,
-      };
-      const provider = this.create(config);
-      return provider.chatModel(this.model);
-    }
-    const config = { apiKey: this.apiKey };
-    return this.create(config)(this.model);
+    return {
+      kind: this.kind || "openai",
+      baseURL: this.baseURL,
+      apiKey: this.apiKey,
+      model: this.model,
+      ...(this.extraHeaders ? { extraHeaders: this.extraHeaders } : {}),
+    };
   },
 };
+
+function chatUrl(base) {
+  const clean = String(base || "").replace(/\/+$/, "");
+  return clean.endsWith("/chat/completions") ? clean : `${clean}/chat/completions`;
+}
 
 const mistral = Object.assign(Object.create(providerPrototype), {
   name: "mistral",
@@ -47,49 +44,30 @@ const mistral = Object.assign(Object.create(providerPrototype), {
   faviconUrl: googleFaviconAPI("mistral.ai"),
   apiKeyUrl: "https://console.mistral.ai/api-keys/",
   AVAILABLE_MODELS: [
-    "pixtral-large-latest",
     "mistral-large-latest",
     "mistral-medium-latest",
-    "mistral-medium-3",
     "mistral-medium-3.5",
-    "mistral-medium-2508",
-    "mistral-medium-2505",
     "mistral-small-latest",
-    "magistral-small-2507",
-    "magistral-medium-2507",
-    "magistral-small-2506",
-    "magistral-medium-2506",
-    "ministral-3b-latest",
+    "magistral-medium-latest",
+    "codestral-latest",
+    "pixtral-large-latest",
     "ministral-8b-latest",
-    "pixtral-12b-2409",
-    "open-mistral-7b",
-    "open-mixtral-8x7b",
-    "open-mixtral-8x22b",
+    "ministral-3b-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
-    "pixtral-large-latest": "Pixtral Large (Latest)",
     "mistral-large-latest": "Mistral Large (Latest)",
     "mistral-medium-latest": "Mistral Medium (Latest)",
-    "mistral-medium-3": "Mistral Medium 3",
     "mistral-medium-3.5": "Mistral Medium 3.5",
-    "mistral-medium-2508": "Mistral Medium (2508)",
-    "mistral-medium-2505": "Mistral Medium (2505)",
-    "mistral-small-latest": "Mistral Small(Latest)",
-    "magistral-small-2507": "Magistral Small (2507)",
-    "magistral-medium-2507": "Magistral Medium (2507)",
-    "magistral-small-2506": "Magistral Small (2506)",
-    "magistral-medium-2506": "Magistral Medium (2506)",
-    "ministral-3b-latest": "Ministral 3B (Latest)",
+    "mistral-small-latest": "Mistral Small (Latest)",
+    "magistral-medium-latest": "Magistral Medium (Latest)",
+    "codestral-latest": "Codestral (Latest)",
+    "pixtral-large-latest": "Pixtral Large (Latest)",
     "ministral-8b-latest": "Ministral 8B (Latest)",
-    "pixtral-12b-2409": "Pixtral 12B (2409)",
-    "open-mistral-7b": "Open Mistral 7B",
-    "open-mixtral-8x7b": "Open Mixtral 8x7B",
-    "open-mixtral-8x22b": "Open Mixtral 8x22B",
+    "ministral-3b-latest": "Ministral 3B (Latest)",
   },
   modelPref: PREFS.MISTRAL_MODEL,
   apiPref: PREFS.MISTRAL_API_KEY,
-  create: createOpenAICompatible,
-  baseURL: "https://api.mistral.ai/v1",
+  baseURL: "https://api.mistral.ai/v1/chat/completions",
 });
 
 const gemini = Object.assign(Object.create(providerPrototype), {
@@ -97,26 +75,19 @@ const gemini = Object.assign(Object.create(providerPrototype), {
   label: "Google Gemini",
   faviconUrl: googleFaviconAPI("gemini.google.com"),
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
+  kind: "gemini",
   AVAILABLE_MODELS: [
     "gemini-3.8-flash",
     "gemini-3.7-flash",
     "gemini-3.6-flash",
     "gemini-3.5-flash",
     "gemini-3.5-flash-lite",
+    "gemini-3.1-flash-lite",
     "gemini-3.1-pro-preview",
-    "gemini-3.1-flash-image-preview",
-    "gemini-3.1-flash-lite-preview",
-    "gemini-3-pro-preview",
+    "gemini-3-flash-preview",
     "gemini-2.5-pro",
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
-    "gemini-2.0-flash",
-    "gemini-1.5-pro",
-    "gemini-1.5-pro-latest",
-    "gemini-1.5-flash",
-    "gemini-1.5-flash-latest",
-    "gemini-1.5-flash-8b",
-    "gemini-1.5-flash-8b-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
     "gemini-3.8-flash": "Gemini 3.8 Flash",
@@ -124,24 +95,16 @@ const gemini = Object.assign(Object.create(providerPrototype), {
     "gemini-3.6-flash": "Gemini 3.6 Flash",
     "gemini-3.5-flash": "Gemini 3.5 Flash",
     "gemini-3.5-flash-lite": "Gemini 3.5 Flash Lite",
+    "gemini-3.1-flash-lite": "Gemini 3.1 Flash Lite",
     "gemini-3.1-pro-preview": "Gemini 3.1 Pro Preview",
-    "gemini-3.1-flash-image-preview": "Gemini 3.1 Flash Image Preview",
-    "gemini-3.1-flash-lite-preview": "Gemini 3.1 Flash Lite Preview",
-    "gemini-3-pro-preview": "Gemini 3 Pro Preview",
+    "gemini-3-flash-preview": "Gemini 3 Flash Preview",
     "gemini-2.5-pro": "Gemini 2.5 Pro",
     "gemini-2.5-flash": "Gemini 2.5 Flash",
     "gemini-2.5-flash-lite": "Gemini 2.5 Flash Lite",
-    "gemini-2.0-flash": "Gemini 2.0 Flash",
-    "gemini-1.5-pro": "Gemini 1.5 Pro",
-    "gemini-1.5-pro-latest": "Gemini 1.5 Pro Latest",
-    "gemini-1.5-flash": "Gemini 1.5 Flash",
-    "gemini-1.5-flash-latest": "Gemini 1.5 Flash Latest",
-    "gemini-1.5-flash-8b": "Gemini 1.5 Flash 8B",
-    "gemini-1.5-flash-8b-latest": "Gemini 1.5 Flash 8B Latest",
   },
   modelPref: PREFS.GEMINI_MODEL,
   apiPref: PREFS.GEMINI_API_KEY,
-  create: createGoogleGenerativeAI,
+  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
 });
 
 const openai = Object.assign(Object.create(providerPrototype), {
@@ -152,82 +115,44 @@ const openai = Object.assign(Object.create(providerPrototype), {
   AVAILABLE_MODELS: [
     "gpt-6-astra",
     "gpt-5.6",
-    "gpt-5.6-luna",
     "gpt-5.6-sol",
     "gpt-5.6-terra",
+    "gpt-5.6-luna",
     "gpt-5.5",
-    "gpt-5.4-pro",
     "gpt-5.4",
     "gpt-5.4-mini",
     "gpt-5.4-nano",
-    "gpt-5.3-chat-latest",
-    "gpt-5.2-pro",
-    "gpt-5.2-chat-latest",
     "gpt-5.2",
-    "gpt-5.1-codex-mini",
-    "gpt-5.1-codex",
-    "gpt-5.1-chat-latest",
     "gpt-5.1",
-    "gpt-5-pro",
-    "gpt-4.1",
-    "gpt-4.1-mini",
-    "gpt-4.1-nano",
-    "gpt-4o",
-    "gpt-4o-mini",
-    "gpt-4-turbo",
-    "gpt-4",
-    "gpt-3.5-turbo",
-    "o1",
-    "o3-mini",
-    "o3",
-    "o4-mini",
     "gpt-5",
     "gpt-5-mini",
-    "gpt-5-nano",
-    "gpt-5-chat-latest",
-    "gpt-5-codex",
+    "gpt-4.1",
+    "gpt-4.1-mini",
+    "gpt-4o",
+    "gpt-4o-mini",
   ],
   AVAILABLE_MODELS_LABELS: {
     "gpt-6-astra": "GPT 6 Astra",
     "gpt-5.6": "GPT 5.6",
-    "gpt-5.6-luna": "GPT 5.6 Luna",
     "gpt-5.6-sol": "GPT 5.6 Sol",
     "gpt-5.6-terra": "GPT 5.6 Terra",
+    "gpt-5.6-luna": "GPT 5.6 Luna",
     "gpt-5.5": "GPT 5.5",
-    "gpt-5.4-pro": "GPT 5.4 Pro",
     "gpt-5.4": "GPT 5.4",
     "gpt-5.4-mini": "GPT 5.4 Mini",
     "gpt-5.4-nano": "GPT 5.4 Nano",
-    "gpt-5.3-chat-latest": "GPT 5.3 Latest",
-    "gpt-5.2-pro": "GPT 5.2 Pro",
-    "gpt-5.2-chat-latest": "GPT 5.2 Latest",
     "gpt-5.2": "GPT 5.2",
-    "gpt-5.1-codex-mini": "GPT 5.1 Mini",
-    "gpt-5.1-codex": "GPT 5.1 Codex",
-    "gpt-5.1-chat-latest": "GPT 5.1 Latest",
     "gpt-5.1": "GPT 5.1",
-    "gpt-5-pro": "GPT 5 Pro",
-    "gpt-4.1": "GPT 4.1",
-    "gpt-4.1-mini": "GPT 4.1 Mini",
-    "gpt-4.1-nano": "GPT 4.1 Nano",
-    "gpt-4o": "GPT 4o",
-    "gpt-4o-mini": "GPT 4o Mini",
-    "gpt-4-turbo": "GPT 4 Turbo",
-    "gpt-4": "GPT 4",
-    "gpt-3.5-turbo": "GPT 3.5 Turbo",
-    o1: "O1",
-    "o3-mini": "O3 Mini",
-    o3: "O3",
-    "o4-mini": "O4 Mini",
     "gpt-5": "GPT 5",
     "gpt-5-mini": "GPT 5 Mini",
-    "gpt-5-nano": "GPT 5 Nano",
-    "gpt-5-chat-latest": "GPT 5 Latest",
-    "gpt-5-codex": "GPT 5 Codex",
+    "gpt-4.1": "GPT 4.1",
+    "gpt-4.1-mini": "GPT 4.1 Mini",
+    "gpt-4o": "GPT 4o",
+    "gpt-4o-mini": "GPT 4o Mini",
   },
   modelPref: PREFS.OPENAI_MODEL,
   apiPref: PREFS.OPENAI_API_KEY,
-  create: createOpenAI,
+  baseURL: "https://api.openai.com/v1/chat/completions",
 });
 
 const claude = Object.assign(Object.create(providerPrototype), {
@@ -235,45 +160,38 @@ const claude = Object.assign(Object.create(providerPrototype), {
   label: "Anthropic Claude",
   faviconUrl: googleFaviconAPI("anthropic.com"),
   apiKeyUrl: "https://console.anthropic.com/dashboard",
+  kind: "anthropic",
   AVAILABLE_MODELS: [
+    "claude-fable-5-1",
     "claude-opus-5",
     "claude-sonnet-5",
-    "claude-fable-5-1",
+    "claude-haiku-4-5",
     "claude-fable-5",
     "claude-opus-4-8",
     "claude-opus-4-7",
     "claude-opus-4-6",
     "claude-sonnet-4-6",
     "claude-opus-4-5",
-    "claude-hiku-4-5",
     "claude-sonnet-4-5",
-    "claude-opus-4-1",
-    "claude-opus-4-0",
-    "claude-sonnet-4-0",
-    "claude-3-7-sonnet-latest",
-    "claude-3-5-haiku-latest",
   ],
   AVAILABLE_MODELS_LABELS: {
+    "claude-fable-5-1": "Claude Fable 5.1",
     "claude-opus-5": "Claude Opus 5",
     "claude-sonnet-5": "Claude Sonnet 5",
-    "claude-fable-5-1": "Claude Fable 5.1",
+    "claude-haiku-4-5": "Claude Haiku 4.5",
     "claude-fable-5": "Claude Fable 5",
     "claude-opus-4-8": "Claude Opus 4.8",
     "claude-opus-4-7": "Claude Opus 4.7",
     "claude-opus-4-6": "Claude Opus 4.6",
     "claude-sonnet-4-6": "Claude Sonnet 4.6",
     "claude-opus-4-5": "Claude Opus 4.5",
-    "claude-hiku-4-5": "Claude Hiku 4.5",
     "claude-sonnet-4-5": "Claude Sonnet 4.5",
-    "claude-opus-4-1": "Claude Opus 4.1",
-    "claude-opus-4-0": "Claude Opus 4.0",
-    "claude-sonnet-4-0": "Claude Sonnet 4.0",
-    "claude-3-7-sonnet-latest": "Claude 3.7 Sonnet Latest",
-    "claude-3-5-haiku-latest": "Claude 3.5 Haiku Latest",
   },
   modelPref: PREFS.CLAUDE_MODEL,
   apiPref: PREFS.CLAUDE_API_KEY,
-  create: createAnthropic,
+  get baseURL() {
+    return "";
+  },
 });
 
 const grok = Object.assign(Object.create(providerPrototype), {
@@ -284,53 +202,24 @@ const grok = Object.assign(Object.create(providerPrototype), {
   AVAILABLE_MODELS: [
     "grok-4.6",
     "grok-4.5",
-    "grok-4.20-reasoning",
-    "grok-4.20-non-reasoning",
-    "grok-4-1-fast-reasoning",
-    "grok-4-1-fast-non-reasoning",
-    "grok-4-1",
-    "grok-4-fast-non-reasoning",
-    "grok-4-fast-reasoning",
+    "grok-4.3",
+    "grok-4.1-fast",
     "grok-code-fast-1",
-    "grok-4",
-    "grok-3",
-    "grok-3-latest",
-    "grok-3-fast",
-    "grok-3-fast-latest",
-    "grok-3-mini",
-    "grok-3-mini-latest",
-    "grok-3-mini-fast",
-    "grok-3-mini-fast-latest",
-    "grok-2",
-    "grok-2-latest",
+    "grok-4.20-0309-reasoning",
+    "grok-4.20-0309-non-reasoning",
   ],
   AVAILABLE_MODELS_LABELS: {
     "grok-4.6": "Grok 4.6",
     "grok-4.5": "Grok 4.5",
-    "grok-4.20-reasoning": "Grok 4.20 (Reasoning)",
-    "grok-4.20-non-reasoning": "Grok 4.20 (Non-Reasoning)",
-    "grok-4-1-fast-reasoning": "Grok 4.1 Fast (Reasoning)",
-    "grok-4-1-fast-non-reasoning": "Grok 4.1 Fast (Non-Reasoning)",
-    "grok-4-1": "Grok 4.1",
-    "grok-4-fast-non-reasoning": "Grok 4 Fast (Non-Reasoning)",
-    "grok-4-fast-reasoning": "Grok 4 Fast (Reasoning)",
+    "grok-4.3": "Grok 4.3",
+    "grok-4.1-fast": "Grok 4.1 Fast",
     "grok-code-fast-1": "Grok Code Fast 1",
-    "grok-4": "Grok 4",
-    "grok-3": "Grok 3",
-    "grok-3-latest": "Grok 3 Latest",
-    "grok-3-fast": "Grok 3 Fast",
-    "grok-3-fast-latest": "Grok 3 Fast Latest",
-    "grok-3-mini": "Grok 3 Mini",
-    "grok-3-mini-latest": "Grok 3 Mini Latest",
-    "grok-3-mini-fast": "Grok 3 Mini Fast",
-    "grok-3-mini-fast-latest": "Grok 3 Mini Fast Latest",
-    "grok-2": "Grok 2",
-    "grok-2-latest": "Grok 2 Latest",
+    "grok-4.20-0309-reasoning": "Grok 4.20 (Reasoning)",
+    "grok-4.20-0309-non-reasoning": "Grok 4.20 (Non-Reasoning)",
   },
   modelPref: PREFS.GROK_MODEL,
   apiPref: PREFS.GROK_API_KEY,
-  create: createOpenAICompatible,
-  baseURL: "https://api.x.ai/v1",
+  baseURL: "https://api.x.ai/v1/chat/completions",
 });
 
 const perplexity = Object.assign(Object.create(providerPrototype), {
@@ -354,8 +243,7 @@ const perplexity = Object.assign(Object.create(providerPrototype), {
   },
   modelPref: PREFS.PERPLEXITY_MODEL,
   apiPref: PREFS.PERPLEXITY_API_KEY,
-  create: createOpenAICompatible,
-  baseURL: "https://api.perplexity.ai",
+  baseURL: "https://api.perplexity.ai/chat/completions",
 });
 
 const cerebras = Object.assign(Object.create(providerPrototype), {
@@ -370,7 +258,44 @@ const cerebras = Object.assign(Object.create(providerPrototype), {
   },
   modelPref: PREFS.CEREBRAS_MODEL,
   apiPref: PREFS.CEREBRAS_API_KEY,
-  create: createCerebras,
+  baseURL: "https://api.cerebras.ai/v1/chat/completions",
+});
+
+const deepseek = Object.assign(Object.create(providerPrototype), {
+  name: "deepseek",
+  label: "DeepSeek",
+  faviconUrl: googleFaviconAPI("deepseek.com"),
+  apiKeyUrl: "https://platform.deepseek.com/api_keys",
+  AVAILABLE_MODELS: ["deepseek-chat", "deepseek-reasoner"],
+  AVAILABLE_MODELS_LABELS: {
+    "deepseek-chat": "DeepSeek V3 (Chat)",
+    "deepseek-reasoner": "DeepSeek R1 (Reasoner)",
+  },
+  modelPref: PREFS.DEEPSEEK_MODEL,
+  apiPref: PREFS.DEEPSEEK_API_KEY,
+  baseURL: "https://api.deepseek.com/chat/completions",
+});
+
+const openrouter = Object.assign(Object.create(providerPrototype), {
+  name: "openrouter",
+  label: "OpenRouter",
+  faviconUrl: googleFaviconAPI("openrouter.ai"),
+  apiKeyUrl: "https://openrouter.ai/keys",
+  customModel: true,
+  modelPlaceholder: "e.g. anthropic/claude-opus-4-8",
+  get model() {
+    return PREFS.getPref(this.modelPref) || "";
+  },
+  set model(v) {
+    if (typeof v === "string") PREFS.setPref(this.modelPref, v);
+  },
+  modelPref: PREFS.OPENROUTER_MODEL,
+  apiPref: PREFS.OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1/chat/completions",
+  extraHeaders: {
+    "HTTP-Referer": "https://github.com/BibekBhusal0/zen-custom-js",
+    "X-Title": "BrowseBot",
+  },
 });
 
 const ollama = Object.assign(Object.create(providerPrototype), {
@@ -378,6 +303,8 @@ const ollama = Object.assign(Object.create(providerPrototype), {
   label: "Ollama (local)",
   faviconUrl: googleFaviconAPI("ollama.com"),
   apiKeyUrl: "",
+  customModel: true,
+  modelPlaceholder: "e.g. qwen3:8b",
   baseUrlPref: PREFS.OLLAMA_BASE_URL,
   get baseUrl() {
     return PREFS.ollamaBaseUrl;
@@ -386,47 +313,7 @@ const ollama = Object.assign(Object.create(providerPrototype), {
     if (typeof v === "string") PREFS.ollamaBaseUrl = v;
   },
   get baseURL() {
-    return this.baseUrl.replace(/\/api$/, "/v1");
-  },
-  AVAILABLE_MODELS: [
-    "deepseek-r1:8b",
-    "deepseek-r1:1.5b",
-    "deepseek-r1:7b",
-    "deepseek-r1:14b",
-    "deepseek-r1:32b",
-    "deepseek-r1:70b",
-    "mixtral:8x22b",
-    "mixtral:8x7b",
-    "qwen3:0.6b",
-    "qwen3:1.7b",
-    "qwen3:4b",
-    "qwen3:8b",
-    "qwen3:14b",
-    "qwen3:32b",
-    "qwen3:30b-a3b",
-    "qwen3:235b-a22b",
-    "llama4:scout",
-    "llama4:maverick",
-  ],
-  AVAILABLE_MODELS_LABELS: {
-    "deepseek-r1:8b": "DeepSeek R1 (8B parameters)",
-    "deepseek-r1:1.5b": "DeepSeek R1 (1.5B parameters)",
-    "deepseek-r1:7b": "DeepSeek R1 (7B parameters)",
-    "deepseek-r1:14b": "DeepSeek R1 (14B parameters)",
-    "deepseek-r1:32b": "DeepSeek R1 (32B parameters)",
-    "deepseek-r1:70b": "DeepSeek R1 (70B parameters)",
-    "mixtral:8x22b": "Mixtral (8x22B)",
-    "mixtral:8x7b": "Mixtral (8x7B)",
-    "qwen3:0.6b": "Qwen3 (0.6B parameters)",
-    "qwen3:1.7b": "Qwen3 (1.7B parameters)",
-    "qwen3:4b": "Qwen3 (4B parameters)",
-    "qwen3:8b": "Qwen3 (8B parameters)",
-    "qwen3:14b": "Qwen3 (14B parameters)",
-    "qwen3:32b": "Qwen3 (32B parameters)",
-    "qwen3:30b-a3b": "Qwen3 (30B-A3B)",
-    "qwen3:235b-a22b": "Qwen3 (235B-A22B)",
-    "llama4:scout": "Llama 4 Scout",
-    "llama4:maverick": "Llama 4 Maverick",
+    return chatUrl(this.baseUrl.replace(/\/api$/, "/v1"));
   },
   modelPref: PREFS.OLLAMA_MODEL,
   get apiKey() {
@@ -436,7 +323,6 @@ const ollama = Object.assign(Object.create(providerPrototype), {
     return;
     // Not required at all
   },
-  create: createOpenAICompatible,
 });
 
 const custom = Object.create(
@@ -446,6 +332,8 @@ const custom = Object.create(
     label: "Custom Provider (OpenAI Compatible)",
     faviconUrl: "chrome://global/skin/icons/settings.svg",
     apiKeyUrl: "",
+    customModel: true,
+    modelPlaceholder: "e.g. deepseek-chat",
     modelPref: PREFS.CUSTOM_MODEL,
     apiPref: PREFS.CUSTOM_API_KEY,
     get model() {
@@ -455,10 +343,21 @@ const custom = Object.create(
       if (typeof v === "string") PREFS.setPref(this.modelPref, v);
     },
     get baseURL() {
-      return PREFS.getPref(PREFS.CUSTOM_BASE_URL) || "";
+      return chatUrl(PREFS.getPref(PREFS.CUSTOM_BASE_URL) || "");
     },
-    create: createOpenAICompatible,
   })
 );
 
-export { mistral, gemini, openai, claude, grok, perplexity, cerebras, ollama, custom };
+export {
+  mistral,
+  gemini,
+  openai,
+  claude,
+  grok,
+  perplexity,
+  cerebras,
+  deepseek,
+  openrouter,
+  ollama,
+  custom,
+};
