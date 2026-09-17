@@ -7,9 +7,6 @@ workspaces:
       - label: ai
         panes:
           - command: opencode
-      - label: server
-        panes:
-          - command: bun run dev
       - label: misc
         panes:
           - {}

@@ -3,5 +3,4 @@ name: zen-config
 windows:
   - editor: nvim :SessionLoad zen-config
   - ai: opencode
-  - server: bun run dev
   - misc:
