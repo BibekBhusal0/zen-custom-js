@@ -15,6 +15,7 @@
 
 # Fixes
 
+- Claude and Grok provider icons now use the model icons (claude.ai, grok.com) instead of the company logos.
 - Dropdowns no longer leave empty space when the selected item has no icon.
 - Shortcut fields now show readable key symbols.
 - Chat markdown rendering no longer depends on the Sine runtime.

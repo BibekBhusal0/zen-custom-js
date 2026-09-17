@@ -158,7 +158,7 @@ const openai = Object.assign(Object.create(providerPrototype), {
 const claude = Object.assign(Object.create(providerPrototype), {
   name: "claude",
   label: "Anthropic Claude",
-  faviconUrl: googleFaviconAPI("anthropic.com"),
+  faviconUrl: googleFaviconAPI("claude.ai"),
   apiKeyUrl: "https://console.anthropic.com/dashboard",
   kind: "anthropic",
   AVAILABLE_MODELS: [
@@ -197,7 +197,7 @@ const claude = Object.assign(Object.create(providerPrototype), {
 const grok = Object.assign(Object.create(providerPrototype), {
   name: "grok",
   label: "xAI Grok",
-  faviconUrl: googleFaviconAPI("x.ai"),
+  faviconUrl: googleFaviconAPI("grok.com"),
   apiKeyUrl: "https://x.ai/api",
   AVAILABLE_MODELS: [
     "grok-4.6",
