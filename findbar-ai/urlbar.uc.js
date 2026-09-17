@@ -1,7 +1,6 @@
 import { LLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
-import { stepCountIs } from "./vercel-ai-sdk.uc.mjs";
 import { parseElement } from "../utils/parse.js";
 
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
@@ -47,7 +46,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
     await super.generateText({
       prompt,
       tools: urlBarToolSet,
-      stopWhen: stepCountIs(PREFS.maxToolCalls),
+      maxSteps: PREFS.maxToolCalls,
     });
   }
 }

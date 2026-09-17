@@ -1,4 +1,4 @@
-import { streamText, generateText, Output, stepCountIs, z } from "./vercel-ai-sdk.uc.mjs";
+import { streamText, generateText } from "./client.js";
 import { browseBotFindbar } from "../findbar-ai.uc.js";
 import {
   claude,
@@ -9,31 +9,13 @@ import {
   openai,
   perplexity,
   cerebras,
+  deepseek,
+  openrouter,
   custom,
 } from "./providers.js";
 import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS from "../utils/prefs.js";
-
-const citationSchema = z.object({
-  answer: z.string().describe("The conversational answer to the user's query."),
-  citations: z
-    .array(
-      z.object({
-        id: z
-          .number()
-          .describe(
-            "Unique identifier for the citation, corresponding to the marker in the answer text."
-          ),
-        source_quote: z
-          .string()
-          .describe(
-            "The exact, verbatim quote from the source text that supports the information."
-          ),
-      })
-    )
-    .describe("An array of citation objects from the source text."),
-});
 
 /**
  * A base class for interacting with language models.
@@ -52,6 +34,8 @@ class LLM {
       openai: openai,
       perplexity: perplexity,
       cerebras: cerebras,
+      deepseek: deepseek,
+      openrouter: openrouter,
       custom: custom,
     };
   }
@@ -80,88 +64,90 @@ class LLM {
     return "";
   }
 
-  async generateText(options) {
-    const { prompt, ...rest } = options;
-    if (prompt) {
-      this.history.push({ role: "user", content: prompt });
-    }
-
-    const config = {
-      model: this.currentProvider.getModel(),
-      system: await this.getSystemPrompt(),
-      messages: this.history,
+  getSampling() {
+    return {
       temperature: PREFS.llmTemperature,
       topP: PREFS.llmTopP,
       topK: PREFS.llmTopK,
       frequencyPenalty: PREFS.llmFrequencyPenalty,
       presencePenalty: PREFS.llmPresencePenalty,
-      maxOutputTokens: PREFS.llmMaxOutputTokens,
-      ...rest,
+      maxTokens: PREFS.llmMaxOutputTokens,
     };
+  }
 
-    const result = await generateText(config);
+  async generateText(options) {
+    const { prompt, tools, maxSteps, messages, abortSignal } = options;
+    if (prompt) {
+      this.history.push({ role: "user", content: prompt });
+    }
+
+    const result = await generateText({
+      provider: this.currentProvider.getModel(),
+      system: await this.getSystemPrompt(),
+      messages: messages || this.history,
+      tools,
+      maxSteps: maxSteps || 1,
+      sampling: this.getSampling(),
+      abortSignal,
+    });
 
     // Only update history if it wasn't overridden in the options
-    if (!rest.messages) {
+    if (!messages) {
       this.history.push(...result.response.messages);
     }
     return result;
   }
 
   async streamText(options) {
-    const { prompt, onFinish, ...rest } = options;
+    const { prompt, onFinish, tools, maxSteps, messages, abortSignal } = options;
     if (prompt) {
       this.history.push({ role: "user", content: prompt });
     }
 
     const self = this;
-    const config = {
-      model: this.currentProvider.getModel(),
+    return streamText({
+      provider: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
-      messages: this.history,
-      temperature: PREFS.llmTemperature,
-      topP: PREFS.llmTopP,
-      topK: PREFS.llmTopK,
-      frequencyPenalty: PREFS.llmFrequencyPenalty,
-      presencePenalty: PREFS.llmPresencePenalty,
-      maxOutputTokens: PREFS.llmMaxOutputTokens,
-      ...rest,
+      messages: messages || this.history,
+      tools,
+      maxSteps: maxSteps || 1,
+      sampling: this.getSampling(),
+      abortSignal,
       async onFinish(result) {
         // Only update history if it wasn't overridden in the options
-        if (!rest.messages) {
+        if (!messages) {
           self.history.push(...result.response.messages);
         }
         if (onFinish) onFinish(result);
       },
-    };
-    return streamText(config);
+    });
   }
 
   async generateTextWithCitations(options) {
-    const { prompt, ...rest } = options;
+    const { prompt, messages, abortSignal } = options;
     if (prompt) {
       this.history.push({ role: "user", content: prompt });
     }
 
-    const config = {
-      model: this.currentProvider.getModel(),
+    const result = await generateText({
+      provider: this.currentProvider.getModel(),
       system: await this.getSystemPrompt(),
-      messages: this.history,
-      output: Output.object({ schema: citationSchema }),
-      temperature: PREFS.llmTemperature,
-      topP: PREFS.llmTopP,
-      topK: PREFS.llmTopK,
-      frequencyPenalty: PREFS.llmFrequencyPenalty,
-      presencePenalty: PREFS.llmPresencePenalty,
-      maxOutputTokens: PREFS.llmMaxOutputTokens,
-      ...rest,
-    };
+      messages: messages || this.history,
+      sampling: this.getSampling(),
+      jsonMode: true,
+      abortSignal,
+    });
 
-    const { output } = await generateText(config);
+    let output;
+    try {
+      output = JSON.parse(result.text);
+    } catch {
+      output = { answer: result.text, citations: [] };
+    }
 
     // Only update history if it wasn't overridden in the options
-    if (!rest.messages) {
-      this.history.push({ role: "assistant", content: JSON.stringify(output) });
+    if (!messages) {
+      this.history.push({ role: "assistant", content: result.text });
     }
     return output;
   }
@@ -416,7 +402,7 @@ Here is the initial info about the current page:
     const commonConfig = {
       prompt,
       tools,
-      stopWhen: stepCountIs(this.maxToolCalls),
+      maxSteps: this.maxToolCalls,
       abortSignal,
     };
 

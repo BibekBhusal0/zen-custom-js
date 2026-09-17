@@ -1,5 +1,4 @@
-import { tool } from "./vercel-ai-sdk.uc.mjs";
-import { z } from "./vercel-ai-sdk.uc.mjs";
+import { str, num, strArr, obj, paramNames } from "./schema.js";
 import { messageManagerAPI } from "../messageManager.js";
 import { PREFS } from "../utils/prefs.js";
 import { showToast } from "../../utils/toast.js";
@@ -77,25 +76,23 @@ const TabIdManager = new (class {
   }
 })();
 
-// Helper function to create Zod string parameters
+// Helper function to create string parameters
 const createStringParameter = (description, isOptional = false) => {
-  let schema = z.string().describe(description);
-  return isOptional ? schema.optional() : schema;
+  return str(description, isOptional);
 };
 
 // Helper function for array of strings parameter
 const createStringArrayParameter = (description, isOptional = false) => {
-  let schema = z.array(z.string()).describe(description);
-  return isOptional ? schema.optional() : schema;
+  return strArr(description, isOptional);
 };
 
 // Helper function to create tools with consistent structure
 const createTool = (description, parameters, executeFn) => {
-  return tool({
+  return {
     description,
-    inputSchema: z.object(parameters),
+    parameters: obj(parameters),
     execute: executeFn,
-  });
+  };
 };
 
 // ╭─────────────────────────────────────────────────────────╮
@@ -1005,7 +1002,7 @@ More importantly, please don't use IDs of folder/tabs/workspace while talking to
         "Reorders a tab to a new index.",
         {
           tabId: createStringParameter("The session ID of the tab to reorder."),
-          newIndex: z.number().describe("The new index for the tab."),
+          newIndex: num("The new index for the tab."),
         },
         reorderTab
       ),
@@ -1123,10 +1120,7 @@ Note: you must run tool getHTMLContent before clicking button or filling form to
       getYoutubeComments: createTool(
         "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video.",
         {
-          count: z
-            .number()
-            .optional()
-            .describe("The maximum number of comments to retrieve. Defaults to 10."),
+          count: num("The maximum number of comments to retrieve. Defaults to 10.", true),
         },
         getYoutubeComments
       ),
@@ -1241,7 +1235,7 @@ If tab is essential which means does not belong to any specific workspace.
         "Reorders a workspace to a new position.",
         {
           id: createStringParameter("The ID of the workspace to reorder."),
-          newPosition: z.number().describe("The new zero-based index for the workspace."),
+          newPosition: num("The new zero-based index for the workspace."),
         },
         reorderWorkspace
       ),
@@ -1349,7 +1343,7 @@ const getToolSystemPrompt = async (groups, includeExamples = true) => {
         if (group.tools) {
           for (const toolName in group.tools) {
             const tool = group.tools[toolName];
-            const params = Object.keys(tool.inputSchema.shape).join(", ");
+            const params = paramNames(tool.parameters).join(", ");
             availableTools.push(`- \`${toolName}(${params})\`: ${tool.description}`);
           }
         }
