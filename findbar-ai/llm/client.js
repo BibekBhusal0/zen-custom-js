@@ -118,7 +118,9 @@ function parseToolCalls(rawCalls) {
     } catch {
       args = {};
     }
-    calls.push({ id: c.id, name: c.function?.name, arguments: args });
+    const call = { id: c.id, name: c.function?.name, arguments: args };
+    if (c.extra_content) call.extra_content = c.extra_content;
+    calls.push(call);
   }
   return calls;
 }
@@ -213,6 +215,7 @@ async function* streamStep(provider, system, messages, tools, sampling, signal, 
       if (tc.id) entry.id = tc.id;
       if (tc.function?.name) entry.name = tc.function.name;
       if (tc.function?.arguments) entry.args += tc.function.arguments;
+      if (tc.extra_content) entry.extra_content = tc.extra_content;
     }
     if (choice.finish_reason) finishReason = choice.finish_reason;
   }
@@ -224,7 +227,11 @@ async function* streamStep(provider, system, messages, tools, sampling, signal, 
     } catch {
       args = {};
     }
-    if (entry.name) toolCalls.push({ id: entry.id, name: entry.name, arguments: args });
+    if (entry.name) {
+      const call = { id: entry.id, name: entry.name, arguments: args };
+      if (entry.extra_content) call.extra_content = entry.extra_content;
+      toolCalls.push(call);
+    }
   }
   onDone({ text, toolCalls, finishReason: normalizeFinish(finishReason, toolCalls) });
 }
@@ -281,6 +288,7 @@ async function runLoop({ provider, system, messages, tools, maxSteps, sampling =
         id: c.id,
         type: "function",
         function: { name: c.name, arguments: JSON.stringify(c.arguments || {}) },
+        ...(c.extra_content ? { extra_content: c.extra_content } : {}),
       })),
     };
     convo.push(assistantMsg);

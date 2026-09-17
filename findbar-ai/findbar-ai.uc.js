@@ -653,7 +653,12 @@ export const browseBotFindbar = {
       if (e.name !== "AbortError") {
         PREFS.debugError("Error sending message:", e);
         if (aiMessageDiv) aiMessageDiv.remove();
-        this.addChatMessage({ role: "error", content: `**Error**: ${e.message}` });
+        let errorText = e.message;
+        try {
+          const parsed = JSON.parse(e.message);
+          errorText = parsed?.error?.message || parsed?.message || errorText;
+        } catch {}
+        this.addChatMessage({ role: "error", content: errorText });
       } else {
         PREFS.debugLog("Streaming aborted by user.");
         if (contentDiv && contentDiv.textContent.trim()) {
