@@ -338,7 +338,7 @@
     stroke: light-dark(black, white) !important;
 
     &:not([src]) {
-      visibility: hidden !important;
+      display: none !important;
     }
   }
 
@@ -415,7 +415,7 @@
       stroke: light-dark(black, white) !important;
 
       &:not([src]) {
-        visibility: hidden !important;
+        display: none !important;
       }
     }
 

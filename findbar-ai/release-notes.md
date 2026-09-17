@@ -1,5 +1,7 @@
 # New Features
 
+- Provider and model dropdowns now use fuzzy matching, same as the command palette.
+- All dropdowns now always show the search box, no matter how short the list is.
 - Settings pages refreshed to match your Zen theme.
 - Provider and model dropdowns are now searchable, show provider logos, and stay a consistent size. The AI setup screen's provider picker got the same treatment.
 - New providers: DeepSeek and OpenRouter.
@@ -13,5 +15,6 @@
 
 # Fixes
 
+- Dropdowns no longer leave empty space when the selected item has no icon.
 - Shortcut fields now show readable key symbols.
 - Chat markdown rendering no longer depends on the Sine runtime.

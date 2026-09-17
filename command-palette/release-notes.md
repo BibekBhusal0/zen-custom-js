@@ -1,5 +1,6 @@
 # New Features
 
+- All dropdowns in settings (search engine picker, command pickers) now use fuzzy matching and stay sorted by relevance.
 - Switch profiles from the palette.
 - Trigger extension buttons and run extension commands, with their shortcuts shown.
 - Both can be turned on/off in settings under Dynamic Commands.
@@ -9,6 +10,7 @@
 
 # Fixes
 
+- Dropdowns no longer leave empty space when the selected item has no icon.
 - Command icons, including extension icons, now always render at the right size and follow your theme colors.
 
 # Breaking Changes

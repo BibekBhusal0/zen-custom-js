@@ -1,4 +1,5 @@
 import { parseElement, escapeXmlAttribute, xulImage } from "./parse.js";
+import { fuzzyFilterSort } from "./fuzzy.js";
 
 export function createCombobox({
   id = "",
@@ -52,12 +53,18 @@ export function createCombobox({
     if (selected) {
       labelEl.textContent = selected.label;
       labelEl.classList.remove("is-placeholder");
-      if (selected.image) iconEl.setAttribute("src", selected.image);
-      else iconEl.removeAttribute("src");
+      if (selected.image) {
+        iconEl.setAttribute("src", selected.image);
+        iconEl.style.display = "";
+      } else {
+        iconEl.removeAttribute("src");
+        iconEl.style.display = "none";
+      }
     } else {
       labelEl.textContent = placeholder;
       labelEl.classList.add("is-placeholder");
       iconEl.removeAttribute("src");
+      iconEl.style.display = "none";
     }
     root.setAttribute("aria-label", labelEl.textContent);
   }
@@ -83,11 +90,13 @@ export function createCombobox({
   }
 
   function renderList(filter = "") {
-    const query = filter.toLowerCase().trim();
     listEl.innerHTML = "";
     let firstVisible = null;
-    for (const item of currentItems) {
-      if (query && !(item.label || "").toLowerCase().includes(query)) continue;
+    const matches = fuzzyFilterSort(currentItems, filter, (item) => [
+      item.label || "",
+      item.value || "",
+    ]);
+    for (const item of matches) {
       const itemEl = parseElement(
         `<div class="zenux-combobox-item" role="option" data-value="${escapeXmlAttribute(
           item.value
@@ -95,7 +104,14 @@ export function createCombobox({
           <span></span>
         </div>`
       );
-      itemEl.insertBefore(xulImage(item.image || "", "zenux-combobox-item-icon"), itemEl.firstChild);
+      itemEl.insertBefore(
+        xulImage(item.image || "", "zenux-combobox-item-icon"),
+        itemEl.firstChild
+      );
+      if (!item.image) {
+        const itemIcon = itemEl.querySelector(".zenux-combobox-item-icon");
+        if (itemIcon) itemIcon.style.display = "none";
+      }
       itemEl.querySelector("span").textContent = item.label;
       itemEl.addEventListener("click", () => select(item.value));
       itemEl.addEventListener("mousemove", () => highlight(itemEl));
@@ -154,7 +170,7 @@ export function createCombobox({
     currentValue = nextValue ?? "";
     syncDisplay();
     syncListSelection();
-    close();
+    close(true);
     root.dispatchEvent(new Event("command", { bubbles: true }));
   }
 
@@ -226,7 +242,7 @@ export function createCombobox({
 
   root.setItems = (nextItems) => {
     currentItems = nextItems ?? [];
-    searchEl.hidden = !searchable || currentItems.length < 8;
+    searchEl.hidden = !searchable;
     syncDisplay();
     if (isOpen) renderList(searchEl.value);
   };
