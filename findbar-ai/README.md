@@ -31,12 +31,6 @@ https://github.com/user-attachments/assets/78e37797-0e6a-4176-8eb2-e5e03f868db3
 
 https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
 
-## 🛠️ Technologies used
-
-- **[Vercel AI SDK](https://ai-sdk.dev/)**: For managing multiple Providers for AI.
-- **[Zod](https://zod.dev/)**: Schema validation (making sure AI is giving output in correct format and calling correct tools).
-- **[Marked](https://marked.js.org/)**: For markdown parsing.
-
 ## 🚨 Caution
 
 - **Privacy**: To answer questions about a webpage, this script sends the text content of the page to your selected provider. Please be aware of the privacy implications before using this feature on pages with sensitive information. Or if you are using ollama you don't have to worry about this.
