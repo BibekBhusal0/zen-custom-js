@@ -120,7 +120,7 @@ export const SettingsModal = {
             value: currentModel,
             items: provider.AVAILABLE_MODELS.map((model) => ({
               value: model,
-              label: provider.AVAILABLE_MODELS_LABELS[model] || model,
+              label: provider.getModelLabel(model),
               image: "",
             })),
           });

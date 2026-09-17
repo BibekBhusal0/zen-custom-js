@@ -31,7 +31,49 @@ const providerPrototype = {
       ...(this.extraHeaders ? { extraHeaders: this.extraHeaders } : {}),
     };
   },
+  getModelLabel(model) {
+    return this.AVAILABLE_MODELS_LABELS?.[model] ?? formatModelLabel(model);
+  },
 };
+
+export function formatModelLabel(modelId) {
+  const tokens = String(modelId || "").split("-");
+  const suffixTerms = {
+    latest: "Latest",
+    experimental: "Experimental",
+    exp: "Experimental",
+    reasoning: "Reasoning",
+  };
+  let suffix = "";
+  if (
+    tokens.length > 2 &&
+    tokens[tokens.length - 2] === "non" &&
+    tokens[tokens.length - 1] === "reasoning"
+  ) {
+    tokens.splice(-2);
+    suffix = " (Non-Reasoning)";
+  } else if (tokens.length > 1 && suffixTerms[tokens[tokens.length - 1].toLowerCase()]) {
+    suffix = ` (${suffixTerms[tokens.pop().toLowerCase()]})`;
+  }
+  const words = [];
+  for (const token of tokens) {
+    const prev = words[words.length - 1];
+    if (prev && /^\d+$/.test(prev.raw) && /^\d+$/.test(token)) {
+      prev.raw += `.${token}`;
+      prev.text = prev.raw;
+      continue;
+    }
+    const lower = token.toLowerCase();
+    let text;
+    if (lower === "gpt") text = "GPT";
+    else if (lower === "oss") text = "OSS";
+    else if (lower === "deepseek") text = "DeepSeek";
+    else if (/^\d+b$/i.test(token)) text = token.toUpperCase();
+    else text = token.charAt(0).toUpperCase() + token.slice(1);
+    words.push({ raw: token, text });
+  }
+  return words.map((word) => word.text).join(" ") + suffix;
+}
 
 function chatUrl(base) {
   const clean = String(base || "").replace(/\/+$/, "");
@@ -54,17 +96,6 @@ const mistral = Object.assign(Object.create(providerPrototype), {
     "ministral-8b-latest",
     "ministral-3b-latest",
   ],
-  AVAILABLE_MODELS_LABELS: {
-    "mistral-large-latest": "Mistral Large (Latest)",
-    "mistral-medium-latest": "Mistral Medium (Latest)",
-    "mistral-medium-3.5": "Mistral Medium 3.5",
-    "mistral-small-latest": "Mistral Small (Latest)",
-    "magistral-medium-latest": "Magistral Medium (Latest)",
-    "codestral-latest": "Codestral (Latest)",
-    "pixtral-large-latest": "Pixtral Large (Latest)",
-    "ministral-8b-latest": "Ministral 8B (Latest)",
-    "ministral-3b-latest": "Ministral 3B (Latest)",
-  },
   modelPref: PREFS.MISTRAL_MODEL,
   apiPref: PREFS.MISTRAL_API_KEY,
   baseURL: "https://api.mistral.ai/v1/chat/completions",
@@ -89,19 +120,6 @@ const gemini = Object.assign(Object.create(providerPrototype), {
     "gemini-2.5-flash",
     "gemini-2.5-flash-lite",
   ],
-  AVAILABLE_MODELS_LABELS: {
-    "gemini-3.8-flash": "Gemini 3.8 Flash",
-    "gemini-3.7-flash": "Gemini 3.7 Flash",
-    "gemini-3.6-flash": "Gemini 3.6 Flash",
-    "gemini-3.5-flash": "Gemini 3.5 Flash",
-    "gemini-3.5-flash-lite": "Gemini 3.5 Flash Lite",
-    "gemini-3.1-flash-lite": "Gemini 3.1 Flash Lite",
-    "gemini-3.1-pro-preview": "Gemini 3.1 Pro Preview",
-    "gemini-3-flash-preview": "Gemini 3 Flash Preview",
-    "gemini-2.5-pro": "Gemini 2.5 Pro",
-    "gemini-2.5-flash": "Gemini 2.5 Flash",
-    "gemini-2.5-flash-lite": "Gemini 2.5 Flash Lite",
-  },
   modelPref: PREFS.GEMINI_MODEL,
   apiPref: PREFS.GEMINI_API_KEY,
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
@@ -131,25 +149,6 @@ const openai = Object.assign(Object.create(providerPrototype), {
     "gpt-4o",
     "gpt-4o-mini",
   ],
-  AVAILABLE_MODELS_LABELS: {
-    "gpt-6-astra": "GPT 6 Astra",
-    "gpt-5.6": "GPT 5.6",
-    "gpt-5.6-sol": "GPT 5.6 Sol",
-    "gpt-5.6-terra": "GPT 5.6 Terra",
-    "gpt-5.6-luna": "GPT 5.6 Luna",
-    "gpt-5.5": "GPT 5.5",
-    "gpt-5.4": "GPT 5.4",
-    "gpt-5.4-mini": "GPT 5.4 Mini",
-    "gpt-5.4-nano": "GPT 5.4 Nano",
-    "gpt-5.2": "GPT 5.2",
-    "gpt-5.1": "GPT 5.1",
-    "gpt-5": "GPT 5",
-    "gpt-5-mini": "GPT 5 Mini",
-    "gpt-4.1": "GPT 4.1",
-    "gpt-4.1-mini": "GPT 4.1 Mini",
-    "gpt-4o": "GPT 4o",
-    "gpt-4o-mini": "GPT 4o Mini",
-  },
   modelPref: PREFS.OPENAI_MODEL,
   apiPref: PREFS.OPENAI_API_KEY,
   baseURL: "https://api.openai.com/v1/chat/completions",
@@ -174,19 +173,6 @@ const claude = Object.assign(Object.create(providerPrototype), {
     "claude-opus-4-5",
     "claude-sonnet-4-5",
   ],
-  AVAILABLE_MODELS_LABELS: {
-    "claude-fable-5-1": "Claude Fable 5.1",
-    "claude-opus-5": "Claude Opus 5",
-    "claude-sonnet-5": "Claude Sonnet 5",
-    "claude-haiku-4-5": "Claude Haiku 4.5",
-    "claude-fable-5": "Claude Fable 5",
-    "claude-opus-4-8": "Claude Opus 4.8",
-    "claude-opus-4-7": "Claude Opus 4.7",
-    "claude-opus-4-6": "Claude Opus 4.6",
-    "claude-sonnet-4-6": "Claude Sonnet 4.6",
-    "claude-opus-4-5": "Claude Opus 4.5",
-    "claude-sonnet-4-5": "Claude Sonnet 4.5",
-  },
   modelPref: PREFS.CLAUDE_MODEL,
   apiPref: PREFS.CLAUDE_API_KEY,
   get baseURL() {
@@ -209,11 +195,6 @@ const grok = Object.assign(Object.create(providerPrototype), {
     "grok-4.20-0309-non-reasoning",
   ],
   AVAILABLE_MODELS_LABELS: {
-    "grok-4.6": "Grok 4.6",
-    "grok-4.5": "Grok 4.5",
-    "grok-4.3": "Grok 4.3",
-    "grok-4.1-fast": "Grok 4.1 Fast",
-    "grok-code-fast-1": "Grok Code Fast 1",
     "grok-4.20-0309-reasoning": "Grok 4.20 (Reasoning)",
     "grok-4.20-0309-non-reasoning": "Grok 4.20 (Non-Reasoning)",
   },
@@ -234,13 +215,6 @@ const perplexity = Object.assign(Object.create(providerPrototype), {
     "sonar-pro",
     "sonar",
   ],
-  AVAILABLE_MODELS_LABELS: {
-    "sonar-deep-research": "Sonar Deep Research",
-    "sonar-reasoning-pro": "Sonar Reasoning Pro",
-    "sonar-reasoning": "Sonar Reasoning",
-    "sonar-pro": "Sonar Pro",
-    sonar: "Sonar",
-  },
   modelPref: PREFS.PERPLEXITY_MODEL,
   apiPref: PREFS.PERPLEXITY_API_KEY,
   baseURL: "https://api.perplexity.ai/chat/completions",
@@ -252,10 +226,6 @@ const cerebras = Object.assign(Object.create(providerPrototype), {
   faviconUrl: "https://www.google.com/s2/favicons?sz=32&domain_url=cerebras.ai",
   apiKeyUrl: "https://cerebras.ai",
   AVAILABLE_MODELS: ["gpt-oss-120b", "qwen-3.8-27b"],
-  AVAILABLE_MODELS_LABELS: {
-    "gpt-oss-120b": "OpenAI GPT OSS 120B",
-    "qwen-3.8-27b": "Qwen 3.8 27B",
-  },
   modelPref: PREFS.CEREBRAS_MODEL,
   apiPref: PREFS.CEREBRAS_API_KEY,
   baseURL: "https://api.cerebras.ai/v1/chat/completions",
@@ -267,11 +237,6 @@ const deepseek = Object.assign(Object.create(providerPrototype), {
   faviconUrl: googleFaviconAPI("deepseek.com"),
   apiKeyUrl: "https://platform.deepseek.com/api_keys",
   AVAILABLE_MODELS: ["deepseek-v4-flash", "deepseek-v4-pro", "deepseek-v4-flash-vision-exp"],
-  AVAILABLE_MODELS_LABELS: {
-    "deepseek-v4-flash": "DeepSeek V4 Flash",
-    "deepseek-v4-pro": "DeepSeek V4 Pro",
-    "deepseek-v4-flash-vision-exp": "DeepSeek V4 Flash Vision (Experimental)",
-  },
   modelPref: PREFS.DEEPSEEK_MODEL,
   apiPref: PREFS.DEEPSEEK_API_KEY,
   baseURL: "https://api.deepseek.com/chat/completions",
