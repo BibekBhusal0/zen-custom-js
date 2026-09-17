@@ -1,4 +1,5 @@
 import { parseElement } from "../utils/parse.js";
+import { fuzzyScore } from "../utils/fuzzy.js";
 
 function _setupKeymapSearchUI(groupbox) {
   if (groupbox.querySelector(".zen-keyboard-controls")) return;
@@ -57,7 +58,7 @@ function _setupKeymapSearchUI(groupbox) {
   });
 
   function applyFilters() {
-    const searchValue = searchInput.value.toLowerCase();
+    const searchValue = searchInput.value.trim();
     const visibleGroups = new Set();
 
     for (const groupId in groupCheckboxes) {
@@ -70,10 +71,10 @@ function _setupKeymapSearchUI(groupbox) {
     allOptions.forEach((option) => {
       const input = option.querySelector(".zenCKSOption-input");
       const label = option.querySelector(".zenCKSOption-label");
-      const shortcutName = label?.textContent?.toLowerCase() || "";
+      const shortcutName = label?.textContent || "";
       const group = input?.getAttribute("data-group");
 
-      const matchesSearch = shortcutName.includes(searchValue);
+      const matchesSearch = fuzzyScore(shortcutName, searchValue) > 0;
       const matchesGroup = visibleGroups.has(group);
 
       option.style.display = matchesSearch && matchesGroup ? "" : "none";
