@@ -298,6 +298,16 @@ You have access to browser functions. The user knows you have these abilities.
     }
 
     if (this.citationsEnabled) {
+      let isVideoPage = false;
+      try {
+        isVideoPage = !!getYouTubeVideoId(messageManagerAPI.getUrlAndTitle().url);
+      } catch {
+        isVideoPage = false;
+      }
+      const videoCitationLine = isVideoPage
+        ? `- **Video transcripts**: The provided content is a timestamped transcript where each line starts with its \`[mm:ss]\` time. Each citation object SHOULD also include a \`"timestamp"\` field with that segment's time (e.g. \`"4:30"\`). Keep the \`[id]\` markers in the answer unchanged; clicking them seeks the video to that moment.`
+        : "";
+      const citationExamples = isVideoPage ? videoCitationExample : pageCitationExamples;
       systemPrompt += `
 
 ## Citation Instructions
@@ -313,65 +323,20 @@ You have access to browser functions. The user knows you have these abilities.
     4.  **Unique IDs**: Each citation object **must** have a unique \`"id"\` that matches its marker in the answer text.
     5.  **Short**: The source quote must be short no longer than one sentence and should not contain line brakes.
 - **Do Not Cite**: Do not cite your own abilities, general greetings, or information not from the provided text. Make sure the text is from page text content not from page title or URL.
+${videoCitationLine}
 - **Tool Calls**: If you call a tool, you **must not** provide citations in the same turn.
 
-### Citation Examples
-
-Here are some examples demonstrating the correct JSON output format.
-
-**Example 1: General Question with a List and Multiple Citations**
--   **User Prompt:** "What are the main benefits of using this library?"
--   **Your JSON Response:**
-    \`\`\`json
-    {
-      "answer": "This library offers several key benefits:\n\n*   **High Performance**: It is designed to be fast and efficient for large-scale data processing [1].\n*   **Flexibility**: You can integrate it with various frontend frameworks [2].\n*   **Ease of Use**: The API is well-documented and simple to get started with [3].",
-      "citations": [
-        {
-          "id": 1,
-          "source_quote": "The new architecture provides significant performance gains, especially for large-scale data processing."
-        },
-        {
-          "id": 2,
-          "source_quote": "It is framework-agnostic, offering adapters for React, Vue, and Svelte."
-        },
-        {
-          "id": 3,
-          "source_quote": "Our extensive documentation and simple API make getting started a breeze."
-        }
-      ]
-    }
-    \`\`\`
-
-**Example 2: A Sentence Supported by Two Different Sources**
--   **User Prompt:** "Tell me about the project's history."
--   **Your JSON Response:**
-    \`\`\`json
-    {
-      "answer": "The project was initially created in 2021 [1] and later became open-source in 2022 [2].",
-      "citations": [
-        {
-          "id": 1,
-          "source_quote": "Development began on the initial prototype in early 2021."
-        },
-        {
-          "id": 2,
-          "source_quote": "We are proud to announce that as of September 2022, the project is fully open-source."
-        }
-      ]
-    }
-    \`\`\`
+${citationExamples}
 `;
     }
 
     if (!this.agenticMode) {
+      const { url, title } = messageManagerAPI.getUrlAndTitle();
       systemPrompt += `
-- Strictly base all your answers on the webpage content provided below.
+- Strictly base all your answers on the webpage content provided as a separate message in this conversation.
 - If the user's question cannot be answered from the content, state that the information is not available on the page.
-
-Here is the initial info about the current page:
+- Current page: "${title}" (${url})
 `;
-      const pageContext = await messageManagerAPI.getPageTextContent(!this.citationsEnabled);
-      systemPrompt += JSON.stringify(pageContext);
     }
     return systemPrompt;
   }

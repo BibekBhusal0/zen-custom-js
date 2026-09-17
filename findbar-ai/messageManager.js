@@ -189,6 +189,16 @@ async function frameScript() {
       };
     },
 
+    SeekVideo: ({ seconds }) => {
+      const video = content.document.querySelector("video");
+      if (!video) {
+        throw new Error("No video element found on this page.");
+      }
+      video.currentTime = Math.max(0, Number(seconds) || 0);
+      video.scrollIntoView({ block: "center" });
+      return { result: `Seeked to ${seconds}s.` };
+    },
+
     GetYoutubeTranscript: async () => {
       const transcript = await getYouTubeTranscript();
       return { transcript };
@@ -305,6 +315,13 @@ export const messageManagerAPI = {
     return this.send("FillForm", { selector, value }).catch((error) => {
       PREFS.debugError(`Failed to fill form with selector "${selector}":`, error);
       return { error: `Failed to fill form with selector "${selector}".` };
+    });
+  },
+
+  async seekVideo(seconds) {
+    return this.send("SeekVideo", { seconds }).catch((error) => {
+      PREFS.debugError(`Failed to seek video to ${seconds}s:`, error);
+      return { error: `Failed to seek video.` };
     });
   },
 

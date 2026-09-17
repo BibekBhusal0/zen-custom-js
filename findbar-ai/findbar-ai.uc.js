@@ -1,5 +1,6 @@
 import { messageManagerAPI } from "./messageManager.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
+import { timestampToSeconds } from "./llm/youtube.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { parseMD } from "./utils/markdown.js";
@@ -607,10 +608,7 @@ export const browseBotFindbar = {
             if (citations && citations.length > 0) {
               aiMessageDiv.dataset.citations = JSON.stringify(citations);
             }
-            const textToParse = answer.replace(
-              /\[(\d+)\]/g,
-              `<span class="citation-link" data-citation-id="$1">[$1]</span>`
-            );
+            const textToParse = renderCitationMarkers(answer, citations);
             contentDiv.appendChild(parseMD(textToParse));
           } else {
             if (result.text.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
@@ -881,6 +879,11 @@ export const browseBotFindbar = {
     chatMessages.addEventListener("click", async (e) => {
       if (e.target.classList.contains("citation-link")) {
         const button = e.target;
+        if (button.dataset.timestamp) {
+          const seconds = timestampToSeconds(button.dataset.timestamp);
+          if (seconds !== null) messageManagerAPI.seekVideo(seconds);
+          return;
+        }
         const citationId = button.dataset.citationId;
         const messageEl = button.closest(".chat-message[data-citations]");
 
@@ -944,10 +947,7 @@ export const browseBotFindbar = {
       if (citations && citations.length > 0) {
         messageDiv.dataset.citations = JSON.stringify(citations);
       }
-      const textToParse = answer.replace(
-        /\[(\d+)\]/g,
-        `<span class="citation-link" data-citation-id="$1">[$1]</span>`
-      );
+      const textToParse = renderCitationMarkers(answer, citations);
       contentDiv.appendChild(parseMD(textToParse));
     } else {
       // Case 2: String content (from user, stream, generateText, or history)
@@ -960,10 +960,7 @@ export const browseBotFindbar = {
         if (citations && citations.length > 0) {
           messageDiv.dataset.citations = JSON.stringify(citations);
         }
-        const textToParse = answer.replace(
-          /\[(\d+)\]/g,
-          `<span class="citation-link" data-citation-id="$1">[$1]</span>`
-        );
+        const textToParse = renderCitationMarkers(answer, citations);
         contentDiv.appendChild(parseMD(textToParse));
       } else {
         // Sub-case: Simple string content
