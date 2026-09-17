@@ -43,16 +43,6 @@ jobs:
           git add **/theme.json
           git diff --cached --quiet || git commit -m "chore: Update theme.json"
 
-      - name: Build BrowseBot
-        run: bun run build:browsebot
-
-      - name: Commit BrowseBot changes
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add dist/*.uc.mjs
-          git diff --cached --quiet || git commit -m "chore: Update browsebot build"
-
       - name: Combine Preferences
         run: bun run combine-preferences
 

@@ -8,9 +8,7 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist/*
-!dist/vercel-ai-sdk.uc.mjs
-!dist/browse-bot.uc.mjs
+dist/
 dist-ssr
 *.local
 

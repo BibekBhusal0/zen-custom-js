@@ -19,7 +19,7 @@ bun run build:sidebar
 bun run build:select
 bun run build:search
 
-bun run dev                # watch mode, only findbar-ai (browse-bot)
+bun run dev                # watch mode, all mods
 bun run dev:browsebot      # watch a specific mod
 
 bun run format             # prettier --write .
@@ -33,7 +33,7 @@ bun run lint               # eslint .
 - Mods are discovered by scanning subdirectories for `theme.json` + `index.js` + the `scripts` key in theme.json.
 - **Output filename = `theme.id`**, not the directory name. Example: `findbar-ai/` has `id: "browse-bot"` → produces `browse-bot.uc.mjs`.
 - Target matching normalizes both the `TARGET` env var and `theme.id` by removing hyphens, then does a substring check. So `TARGET=browsebot` matches `browse-bot`.
-- Most mods → IIFE bundle (`uc.js`). Browse-bot → ESM bundle (`uc.mjs`, 2 files: main + `vercel-ai-sdk.uc.mjs` vendor bundle).
+- Most mods → IIFE bundle (`uc.js`). Browse-bot → ESM bundle (`browse-bot.uc.mjs`, single file, zero npm dependencies).
 - CSS-only mods (e.g., `compact-settings/`) have no `scripts` key in theme.json and are skipped by the build.
 - Scripts in `others/` are not bundled — imported directly in `import.uc.mjs`.
 - `search-engine-icon/` has no `theme.json` at all — loaded directly as a raw import.
@@ -121,5 +121,5 @@ mod-name/           # each mod is a directory
 utils/              # shared utilities (pref.js, parse.js, etc.)
 css/                # shared CSS (userChrome.css, userContent.css)
 others/             # non-bundled scripts, loaded directly
-dist/               # build output (gitignored except browse-bot files)
+dist/               # build output (gitignored, rebuilt by CI/publish)
 ```

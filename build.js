@@ -76,6 +76,8 @@ const createBanner = (themePath) => {
 
 async function buildMod(themePath, entryFile, theme, isWatch = false) {
   const banner = createBanner(themePath);
+  const outName = Object.keys(theme.scripts)[0];
+  const format = outName.endsWith(".mjs") ? "esm" : "iife";
 
   const runBuild = async (options, label) => {
     try {
@@ -94,79 +96,27 @@ async function buildMod(themePath, entryFile, theme, isWatch = false) {
     }
   };
 
-  if (theme.id === "browse-bot") {
-    const externalPackages = [
-      "@ai-sdk/*",
-      "ai",
-      "zod",
-      "ollama-ai-provider-v2",
-      "*/vercel-ai-sdk.uc.mjs",
-    ];
-
-    await runBuild(
-      {
-        entrypoints: [entryFile],
-        outdir: "./dist",
-        format: "esm",
-        target: "browser",
-        naming: "browse-bot.uc.mjs",
-        banner,
-        minify: { syntax: true },
-        external: externalPackages,
-      },
-      "browse-bot.uc.mjs"
-    );
-
-    await runBuild(
-      {
-        entrypoints: ["./findbar-ai/vercel-ai-sdk.uc.mjs"],
-        outdir: "./dist",
-        format: "esm",
-        target: "browser",
-        naming: "vercel-ai-sdk.uc.mjs",
-        minify: { syntax: true },
-      },
-      "vercel-ai-sdk.uc.mjs"
-    );
-
-    if (isWatch) {
-      const mainWatch = $`bun build ${entryFile} --outdir ./dist --format esm --target browser --entry-naming browse-bot.uc.mjs --banner "${banner}" --minify-syntax --external "@ai-sdk/*" --external ai --external zod --external ollama-ai-provider-v2 --external "*/vercel-ai-sdk.uc.mjs" --watch`;
-      const vendorWatch = $`bun build ./findbar-ai/vercel-ai-sdk.uc.mjs --outdir ./dist --format esm --target browser --entry-naming vercel-ai-sdk.uc.mjs --minify-syntax --watch`;
-      await Promise.all([mainWatch, vendorWatch]);
-    }
-
-    return;
-  }
-
   await runBuild(
     {
       entrypoints: [entryFile],
       outdir: "./dist",
-      format: "iife",
+      format,
       target: "browser",
-      naming: `${theme.id}.uc.js`,
+      naming: outName,
       banner,
       minify: { syntax: true },
     },
-    `${theme.id}.uc.js`
+    outName
   );
 
   if (isWatch) {
-    await $`bun build ${entryFile} --outdir ./dist --format iife --target browser --entry-naming ${theme.id}.uc.js --banner "${banner}" --minify-syntax --watch`;
+    await $`bun build ${entryFile} --outdir ./dist --format ${format} --target browser --entry-naming ${outName} --banner "${banner}" --minify-syntax --watch`;
   }
 }
 
 async function build() {
   const target = process.env.TARGET;
   const isWatch = process.argv.includes("--watch");
-
-  if (isWatch && !target) {
-    const browseBotTheme = JSON.parse(await Bun.file("findbar-ai/theme.json").text());
-    const browseBotEntry = "findbar-ai/index.js";
-
-    await buildMod("findbar-ai/theme.json", browseBotEntry, browseBotTheme, true);
-    return;
-  }
 
   const mods = getSubdirectories(process.cwd());
   let modsToBuild = mods;
@@ -190,6 +140,7 @@ async function build() {
   }
 
   let built = 0;
+  const watchers = [];
   for (const dir of modsToBuild) {
     const themePath = path.join(dir, "theme.json");
     const entryFile = path.join(dir, "index.js");
@@ -204,9 +155,11 @@ async function build() {
       console.warn(`Skipped ${dir}: no scripts key in theme.json`);
       continue;
     }
-    await buildMod(themePath, entryFile, theme, isWatch);
+    if (isWatch) watchers.push(buildMod(themePath, entryFile, theme, true));
+    else await buildMod(themePath, entryFile, theme, false);
     built++;
   }
+  if (watchers.length) await Promise.all(watchers);
 
   if (target && built === 0) {
     throw new Error(`No mods matched TARGET="${target}"`);
