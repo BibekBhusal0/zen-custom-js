@@ -26,14 +26,6 @@ function sleep(ms, signal) {
   });
 }
 
-function friendlyError(status, statusText, bodyText) {
-  if (status === 401 || status === 403) return new Error("Invalid API key. Check your settings.");
-  if (status === 429) return new Error("Rate limit exceeded. Wait a moment and try again.");
-  if (status >= 500) return new Error("Service temporarily unavailable. Try again later.");
-  const extra = bodyText ? ` ${bodyText.slice(0, 200)}` : "";
-  return new Error(`API error: ${status} ${statusText}${extra}`);
-}
-
 function isNetworkError(err) {
   return err?.name === "TypeError" || /network|fetch|failed|timeout|connection|refused/i.test(err?.message || "");
 }
@@ -55,10 +47,11 @@ async function postChat(url, headers, body, signal, attempts = 3) {
         await sleep(Math.min(1000 * 2 ** attempt, 10000), signal);
         continue;
       }
-      throw friendlyError(res.status, res.statusText, await res.text().catch(() => ""));
+      const bodyText = await res.text().catch(() => "");
+      throw Object.assign(new Error(bodyText || res.statusText), { friendly: true });
     } catch (err) {
       if (err?.name === "AbortError") throw err;
-      if (err?.message?.startsWith("Invalid API key") || err?.message?.startsWith("API error: 4")) throw err;
+      if (err?.friendly) throw err;
       if (isNetworkError(err) && attempt < attempts - 1) {
         lastError = err;
         await sleep(Math.min(1000 * 2 ** attempt, 10000), signal);
@@ -70,10 +63,19 @@ async function postChat(url, headers, body, signal, attempts = 3) {
   throw lastError || new Error("Request failed after retries");
 }
 
+function cleanMessage(m) {
+  const out = { role: m.role, content: typeof m.content === "string" ? m.content : "" };
+  if (m.tool_calls) out.tool_calls = m.tool_calls;
+  if (m.tool_call_id) out.tool_call_id = m.tool_call_id;
+  if (m.name) out.name = m.name;
+  return out;
+}
+
 function openAIBody(provider, system, messages, tools, stream, sampling, jsonMode) {
+  const clean = messages.map(cleanMessage);
   const body = {
     model: provider.model,
-    messages: system ? [{ role: "system", content: system }, ...messages] : [...messages],
+    messages: system ? [{ role: "system", content: system }, ...clean] : clean,
     stream,
   };
   if (sampling.temperature !== undefined) body.temperature = sampling.temperature;
@@ -129,7 +131,7 @@ async function completeOpenAI(provider, system, messages, tools, sampling, jsonM
     signal
   );
   const json = await res.json();
-  if (json.error) throw friendlyError(400, "", json.error.message || JSON.stringify(json.error));
+  if (json.error) throw Object.assign(new Error(JSON.stringify(json.error)), { friendly: true });
   const choice = json.choices?.[0] || {};
   const msg = choice.message || {};
   const toolCalls = parseToolCalls(msg.tool_calls);
@@ -197,7 +199,7 @@ async function* streamStep(provider, system, messages, tools, sampling, signal, 
     } catch {
       continue;
     }
-    if (json.error) throw friendlyError(400, "", json.error.message || JSON.stringify(json.error));
+    if (json.error) throw Object.assign(new Error(JSON.stringify(json.error)), { friendly: true });
     const choice = json.choices?.[0] || {};
     const delta = choice.delta || {};
     if (typeof delta.content === "string" && delta.content) {
