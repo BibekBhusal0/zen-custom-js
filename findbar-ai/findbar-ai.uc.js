@@ -1000,6 +1000,7 @@ export const browseBotFindbar = {
       // Re-render history using the new message format
       const history = browseBotFindbarLLM.getHistory();
       for (const message of history) {
+        if (message.pageContext) continue;
         this.addChatMessage(message);
       }
 

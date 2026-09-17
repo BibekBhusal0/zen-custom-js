@@ -15,6 +15,7 @@ import {
 } from "./providers.js";
 import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
+import { getVideoContext, getYouTubeVideoId } from "./youtube.js";
 import PREFS from "../utils/prefs.js";
 
 /**
@@ -171,10 +172,79 @@ class LLM {
  * It manages application-specific states like agentic, streaming, citations,
  * and constructs the appropriate system prompts.
  */
+const pageCitationExamples = `### Citation Examples
+
+Here are some examples demonstrating the correct JSON output format.
+
+**Example 1: General Question with a List and Multiple Citations**
+-   **User Prompt:** "What are the main benefits of using this library?"
+-   **Your JSON Response:**
+    \`\`\`json
+    {
+      "answer": "This library offers several key benefits:\n\n*   **High Performance**: It is designed to be fast and efficient for large-scale data processing [1].\n*   **Flexibility**: You can integrate it with various frontend frameworks [2].\n*   **Ease of Use**: The API is well-documented and simple to get started with [3].",
+      "citations": [
+        {
+          "id": 1,
+          "source_quote": "The new architecture provides significant performance gains, especially for large-scale data processing."
+        },
+        {
+          "id": 2,
+          "source_quote": "It is framework-agnostic, offering adapters for React, Vue, and Svelte."
+        },
+        {
+          "id": 3,
+          "source_quote": "Our extensive documentation and simple API make getting started a breeze."
+        }
+      ]
+    }
+    \`\`\`
+
+**Example 2: A Sentence Supported by Two Different Sources**
+-   **User Prompt:** "Tell me about the project's history."
+-   **Your JSON Response:**
+    \`\`\`json
+    {
+      "answer": "The project was initially created in 2021 [1] and later became open-source in 2022 [2].",
+      "citations": [
+        {
+          "id": 1,
+          "source_quote": "Development began on the initial prototype in early 2021."
+        },
+        {
+          "id": 2,
+          "source_quote": "We are proud to announce that as of September 2022, the project is fully open-source."
+        }
+      ]
+    }
+    \`\`\`
+`;
+
+const videoCitationExample = `### Citation Example
+
+The provided content is a timestamped video transcript. Cite with the segment's time.
+
+-   **User Prompt:** "When does the speaker mention the launch date?"
+-   **Your JSON Response:**
+    \`\`\`json
+    {
+      "answer": "The speaker announces the launch for March [1].",
+      "citations": [
+        {
+          "id": 1,
+          "source_quote": "we are launching in March",
+          "timestamp": "4:30"
+        }
+      ]
+    }
+    \`\`\`
+`;
+
 class BrowseBotLLM extends LLM {
   constructor() {
     super();
     this.systemInstruction = "";
+    this.pageContextUrl = null;
+    this.pageContextIsVideo = false;
   }
 
   get agenticMode() {
@@ -339,10 +409,53 @@ Here is the initial info about the current page:
     return { answer, citations };
   }
 
+  async attachPageContext() {
+    const { url, title } = messageManagerAPI.getUrlAndTitle();
+    const first = this.history[0];
+    if (first?.pageContext && first?.contextUrl === url) {
+      this.pageContextIsVideo = !!first.isVideo;
+      return;
+    }
+
+    let content;
+    let isVideo = false;
+    const limit = PREFS.getPref(PREFS.MAX_CONTEXT_CHARS) || 0;
+    try {
+      const video = await getVideoContext(url, limit);
+      if (video) {
+        content = `Video transcript for ${url} (${title}). Each line starts with its [mm:ss] timestamp:\n\n${video.text}`;
+        isVideo = true;
+      }
+    } catch (e) {
+      PREFS.debugLog("Video transcript unavailable, falling back to page text.", e?.message);
+    }
+    if (!isVideo) {
+      const page = await messageManagerAPI.getPageTextContent(true).catch(() => null);
+      const raw = String(page?.textContent || "");
+      content =
+        `Webpage content for ${url} (${page?.title || title}):\n\n` +
+        (limit > 0 && raw.length > limit
+          ? raw.slice(0, limit) + "\n\n[Page content truncated.]"
+          : raw);
+    }
+    const contextMsg = {
+      role: "user",
+      content,
+      pageContext: true,
+      contextUrl: url,
+      ...(isVideo ? { isVideo: true } : {}),
+    };
+    if (first?.pageContext) this.history[0] = contextMsg;
+    else this.history.unshift(contextMsg);
+    this.pageContextUrl = url;
+    this.pageContextIsVideo = isVideo;
+  }
+
   async sendMessage(prompt, abortSignal) {
     PREFS.debugLog("Current history before sending:", this.history);
 
     if (this.citationsEnabled) {
+      await this.attachPageContext();
       const object = await super.generateTextWithCitations({
         prompt,
         abortSignal,
@@ -355,6 +468,7 @@ Here is the initial info about the current page:
     }
 
     if (!this.agenticMode) {
+      await this.attachPageContext();
       if (this.streamEnabled) {
         const self = this;
         const streamResult = await super.streamText({ prompt, abortSignal });
@@ -428,6 +542,8 @@ Here is the initial info about the current page:
   clearData() {
     super.clearData();
     this.systemInstruction = "";
+    this.pageContextUrl = null;
+    this.pageContextIsVideo = false;
   }
 }
 
