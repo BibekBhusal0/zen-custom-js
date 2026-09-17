@@ -7,7 +7,7 @@
 
 # Changes
 
-- The Vercel AI SDK and zod are gone. BrowseBot now ships a small dependency-free client, so installs are roughly ten times smaller and fully reviewable.
+- The mod is about 12x smaller now. No magic here, just removal: the Vercel AI SDK and zod were bloated, so they are gone, replaced by a small client written for this mod.
 - Page content is sent as a conversation message instead of being embedded in the system prompt, which cuts repeated token spend on every reply.
 - Model lists pruned to currently supported models, with updated defaults. Page and transcript size is now capped by a setting, unlimited by default.
 
