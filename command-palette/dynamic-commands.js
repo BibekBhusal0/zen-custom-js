@@ -910,9 +910,13 @@ export async function generateCustomCommands() {
  *
  * `site1 | site2` opens a side-by-side split, `site1 - site2` a
  * stacked split (mixing both uses a grid), and `+site` opens a
- * single site in glance. Keywords are managed in the Quick Split
- * settings tab and stored in the JSON settings file.
+ * single site in glance. A leading or trailing separator stands for
+ * the current tab (`| gh` splits github with this page). Keywords are
+ * managed in the Quick Split settings tab and stored in the JSON
+ * settings file.
  */
+
+const QUICK_SPLIT_CURRENT = "<current-tab>";
 
 // "|" may touch its neighbours ("a|b"), but "-" and "_" need spaces
 // so ordinary terms like "e-commerce" never split.
@@ -928,11 +932,29 @@ export function parseQuickSplit(input) {
     return { kind: "glance", term };
   }
 
+  let rest = trimmed;
+  let prefixCurrent = false;
+  let suffixCurrent = false;
+  const separators = [];
+  const leading = rest.match(/^(?:\|\s*|-\s+|_\s+)/);
+  if (leading) {
+    prefixCurrent = true;
+    separators.push(leading[0].trim());
+    rest = rest.slice(leading[0].length).trim();
+  }
+  const trailing = rest.match(/(?:\s*\|\s*|\s+[-_]\s*)$/);
+  if (trailing) {
+    suffixCurrent = true;
+    separators.push(trailing[0].trim());
+    rest = rest.slice(0, -trailing[0].length).trim();
+  }
+  if (prefixCurrent && suffixCurrent) return null;
+  if (!rest) return null;
+
   // split() with a capture group alternates parts and separators,
   // with parts always at even indices.
-  const tokens = trimmed.split(/(\s*\|\s*|\s+-\s+|\s+_\s+)/);
+  const tokens = rest.split(/(\s*\|\s*|\s+-\s+|\s+_\s+)/);
   const parts = [];
-  const separators = [];
   tokens.forEach((token, index) => {
     if (index % 2 === 0) {
       const part = token.trim();
@@ -941,6 +963,8 @@ export function parseQuickSplit(input) {
       separators.push(token.trim());
     }
   });
+  if (prefixCurrent) parts.unshift(QUICK_SPLIT_CURRENT);
+  if (suffixCurrent) parts.push(QUICK_SPLIT_CURRENT);
   if (parts.length < 2) return null;
 
   const hasVertical = separators.some((s) => s === "|");
@@ -955,7 +979,8 @@ export function describeQuickSplit(parsed) {
   if (parsed.kind === "invalid") return "Glance (+) supports a single site only";
   const layout =
     parsed.gridType === "vsep" ? "side-by-side" : parsed.gridType === "hsep" ? "stacked" : "grid";
-  let summary = `Open ${layout} split (${parsed.parts.length}): ${parsed.parts.join(", ")}`;
+  const names = parsed.parts.map((p) => (p === QUICK_SPLIT_CURRENT ? "current tab" : p));
+  let summary = `Open ${layout} split (${names.length}): ${names.join(", ")}`;
   if (summary.length > 100) summary = summary.slice(0, 97) + "...";
   return summary;
 }
@@ -1026,8 +1051,23 @@ export async function executeQuickSplit(parsed) {
     await openLink(url, "glance");
     return true;
   }
+  if (
+    parsed.parts.length === 2 &&
+    parsed.parts.includes(QUICK_SPLIT_CURRENT) &&
+    parsed.gridType !== "grid"
+  ) {
+    const other = parsed.parts.find((p) => p !== QUICK_SPLIT_CURRENT);
+    const url = await resolveQuickSplitPart(other);
+    if (!url) return false;
+    await openLink(url, parsed.gridType);
+    return true;
+  }
   const urls = [];
   for (const part of parsed.parts) {
+    if (part === QUICK_SPLIT_CURRENT) {
+      urls.push(null);
+      continue;
+    }
     const url = await resolveQuickSplitPart(part);
     if (url) urls.push(url);
   }
@@ -1036,8 +1076,13 @@ export async function executeQuickSplit(parsed) {
     return false;
   }
   try {
+    const currentTab = gBrowser.selectedTab;
     const tabs = [];
     for (const url of urls) {
+      if (url === null) {
+        tabs.push(currentTab);
+        continue;
+      }
       await openTrustedLinkIn(url, "tab");
       tabs.push(gBrowser.selectedTab);
     }
@@ -1063,9 +1108,17 @@ export function getQuickSplitCommand(query) {
   if (!PREFS.loadQuickSplit) return null;
   const parsed = parseQuickSplit(query);
   if (!parsed) return null;
+  let label = describeQuickSplit(parsed);
+  if (
+    parsed.kind === "split" &&
+    parsed.parts.includes(QUICK_SPLIT_CURRENT) &&
+    gBrowser?.selectedTab?.splitView
+  ) {
+    label = label.replace("side-by-side split", "grid split").replace("stacked split", "grid split");
+  }
   return {
     key: "quick-split:open",
-    label: describeQuickSplit(parsed),
+    label,
     command: async () => {
       await executeQuickSplit(parsed);
     },

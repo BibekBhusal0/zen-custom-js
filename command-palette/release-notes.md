@@ -5,7 +5,7 @@
 - Switch profiles from the palette.
 - Trigger extension buttons and run extension commands, with their shortcuts shown.
 - Both can be turned on/off in settings under Dynamic Commands.
-- Quick Split is built in: type `site1 | site2`, `site1 - site2`, or `+site` in the palette to open split views and glance. Keywords are managed in the palette settings, in the Quick Split section.
+- Quick Split is built in: type `site1 | site2`, `site1 - site2`, or `+site` in the palette to open split views and glance. Mixing `|` and `-` opens a grid. A leading/trailing separator splits with the current tab (e.g. `| gh`). Keywords are managed in the palette settings, in the Quick Split section.
 - Refreshed settings design that follows your Zen theme.
 - All dropdowns in settings (search engine picker, command pickers) are now searchable and show icons.
 

@@ -181,7 +181,7 @@
   },
   {
     "type": "text",
-    "label": "Type `site1 | site2` for side-by-side, `site1 - site2` for stacked, or `+site` for glance in the palette. `-` and `_` need spaces around them. Manage keywords in the palette settings, in the Quick Split section."
+    "label": "Type `site1 | site2` for side-by-side, `site1 - site2` for stacked, mixing both for grid, or `+site` for glance in the palette. A leading/trailing separator uses the current tab (e.g. `| gh`). `-` and `_` need spaces around them. Manage keywords in the palette settings, in the Quick Split section."
   },
   {
     "type": "string",
