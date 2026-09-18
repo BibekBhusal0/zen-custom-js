@@ -6,11 +6,11 @@ export function getYouTubeVideoId(url) {
   if (!url) return null;
   try {
     const u = new URL(String(url).trim());
-    const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+    const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "").replace(/^music\./, "");
     if (host === "youtu.be") return u.pathname.slice(1).split("/")[0] || null;
-    if (host === "youtube.com" || host === "music.youtube.com") {
+    if (host === "youtube.com" || host === "youtube-nocookie.com") {
       if (u.pathname === "/watch") return u.searchParams.get("v");
-      const m = u.pathname.match(/^\/(embed|shorts|live)\/([^/?]+)/);
+      const m = u.pathname.match(/^\/(embed|shorts|live|v)\/([^/?]+)/);
       if (m) return m[2];
     }
   } catch {
@@ -49,8 +49,11 @@ export function formatTimestamp(seconds) {
 }
 
 export function timestampToSeconds(stamp) {
-  const parts = String(stamp).split(":").map(Number);
-  if (parts.some(Number.isNaN)) return null;
+  const raw = String(stamp).trim();
+  if (!raw) return null;
+  if (/^\d+(\.\d+)?$/.test(raw)) return Math.floor(Number(raw));
+  const parts = raw.split(":").map(Number);
+  if (!parts.length || parts.some(Number.isNaN)) return null;
   return parts.reduce((acc, p) => acc * 60 + p, 0);
 }
 
@@ -111,8 +114,31 @@ export async function getVideoContext(url, limit = 0) {
   if (!videoId) return null;
   if (cache.url === url && cache.limit === limit && cache.context) return cache.context;
   PREFS.debugLog("Fetching YouTube transcript via InnerTube:", videoId);
-  const segments = await fetchTranscript(videoId);
+  let segments = null;
+  try {
+    segments = await fetchTranscript(videoId);
+  } catch (e) {
+    PREFS.debugLog("InnerTube transcript failed, trying page transcript.", e?.message);
+    segments = await getPageTranscriptSegments();
+  }
+  if (!segments?.length) throw new Error("Transcript unavailable (empty).");
   const context = { videoId, segments, text: formatTranscript(segments, limit) };
   cache = { url, limit, context };
   return context;
+}
+
+async function getPageTranscriptSegments() {
+  const { messageManagerAPI } = await import("../messageManager.js");
+  const result = await messageManagerAPI.getYoutubeTranscript().catch(() => null);
+  const lines = String(result?.transcript || "")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  return lines.map((line) => {
+    const m = line.match(/^\[([^\]]+)\]\s*(.*)$/);
+    if (m && timestampToSeconds(m[1]) !== null) {
+      return { start: timestampToSeconds(m[1]), text: m[2] };
+    }
+    return { start: 0, text: line };
+  });
 }

@@ -103,15 +103,19 @@ async function frameScript() {
 
     await waitForSelectorWithObserver("ytd-transcript-segment-renderer .segment-text", 5000);
 
-    const segments = Array.from(
-      doc.querySelectorAll("ytd-transcript-segment-renderer .segment-text")
-    );
-    if (!segments.length) throw new Error("Transcript segments found, but all are empty.");
+    const rows = Array.from(doc.querySelectorAll("ytd-transcript-segment-renderer"));
+    if (!rows.length) throw new Error("Transcript segments found, but all are empty.");
 
-    const transcript = segments
-      .map((el) => el.textContent.trim())
+    const transcript = rows
+      .map((row) => {
+        const text = row.querySelector(".segment-text")?.textContent.trim() || "";
+        const time = row.querySelector(".segment-timestamp")?.textContent.trim() || "";
+        if (!text) return "";
+        return time ? `[${time}] ${text}` : text;
+      })
       .filter(Boolean)
       .join("\n");
+    if (!transcript) throw new Error("Transcript segments found, but all are empty.");
     return transcript;
   }
 
