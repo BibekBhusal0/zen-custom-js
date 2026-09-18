@@ -6,8 +6,12 @@ export function isDynamicModelProvider(provider) {
   return typeof provider?.refreshModels === "function";
 }
 
+function displayId(id) {
+  return String(id || "").replace(/:free$/, "");
+}
+
 function dynamicModelLabel(provider, id) {
-  return `${provider.getModelLabel(id)}${provider.isFreeModel(id) ? " (Free)" : ""}`;
+  return `${provider.getModelLabel(displayId(id))}${provider.isFreeModel(id) ? " (Free)" : ""}`;
 }
 
 /**
@@ -56,7 +60,7 @@ export function createModelField(
   const current = value ?? ((provider.modelPref && PREFS.getPref(provider.modelPref)) || "");
   if (isDynamicModelProvider(provider)) {
     const seedItems = current
-      ? [{ value: current, label: provider.getModelLabel(current), image: "" }]
+      ? [{ value: current, label: provider.getModelLabel(displayId(current)), image: "" }]
       : [];
     const combo = createCombobox({ id, attrs, value: current, items: seedItems });
     loadDynamicModels(provider, combo, { getApiKey, isCurrent }).then((visible) => {
