@@ -132,7 +132,8 @@ browser {
 
     @media -moz-pref("extension.browse-bot.findbar-ai.position", "top-right") {
       top: 35px;
-      left: calc(100% - 15px - var(--findbar-width));
+      right: 15px;
+      left: auto;
 
       .findbar-resize-handle {
         left: 0;
@@ -143,6 +144,7 @@ browser {
     @media -moz-pref("extension.browse-bot.findbar-ai.position", "top-left") {
       top: 35px;
       left: 15px;
+      right: auto;
 
       .findbar-resize-handle {
         right: 0;
@@ -151,8 +153,10 @@ browser {
     }
 
     @media -moz-pref("extension.browse-bot.findbar-ai.position", "bottom-right") {
-      top: calc(100% - 15px - var(--findbar-height));
-      left: calc(100% - 15px - var(--findbar-width));
+      bottom: 15px;
+      right: 15px;
+      top: auto;
+      left: auto;
 
       .findbar-resize-handle {
         left: 0;
@@ -161,8 +165,10 @@ browser {
     }
 
     @media -moz-pref("extension.browse-bot.findbar-ai.position", "bottom-left") {
-      top: calc(100% - 15px - var(--findbar-height));
+      bottom: 15px;
       left: 15px;
+      top: auto;
+      right: auto;
 
       .findbar-resize-handle {
         right: 0;
