@@ -888,6 +888,13 @@ browser {
           display: none !important;
         }
 
+        /* Collapsed minimal is a single row: hide the whole chat UI,
+         * otherwise the prompt input renders as a second row. */
+        .browse-bot-chat,
+        .browse-bot-setup {
+          display: none !important;
+        }
+
         .findbar-closebutton {
           display: inline-flex !important;
           top: 1px !important;
@@ -896,6 +903,23 @@ browser {
 
         .findbar-container {
           padding: 0 35px 0 10px !important;
+          flex-wrap: nowrap !important;
+          align-items: center !important;
+
+          & > :first-child {
+            width: auto !important;
+            flex: 1 1 auto !important;
+            min-width: 0 !important;
+          }
+        }
+
+        #findbar-ask {
+          flex-shrink: 0 !important;
+          align-self: center !important;
+          font-size: 11px !important;
+          padding: 2px 10px !important;
+          margin: 0 0 0 8px !important;
+          min-width: 0 !important;
         }
       }
 
