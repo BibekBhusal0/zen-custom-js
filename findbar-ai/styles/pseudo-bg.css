@@ -65,7 +65,7 @@
     }
   }
 
-  #ai-settings-modal-overlay,
+  .zenux-settings-overlay:has(.browse-bot-settings-modal),
   .tool-confirmation-dialog {
     &::before {
       position: absolute !important;
@@ -75,7 +75,7 @@
       visibility: visible;
       transition: none !important;
       opacity: 1 !important;
-      border-radius: var(--zenux-radius-m) !important;
+      border-radius: var(--zenux-radius-l) !important;
     }
   }
 
@@ -85,11 +85,9 @@
     height: 100px;
   }
 
-  #ai-settings-modal-overlay::before {
-    width: 500px;
-    min-width: 500px;
-    max-width: 90vw;
+  .zenux-settings-overlay:has(.browse-bot-settings-modal)::before {
+    width: 620px;
+    max-width: 92vw;
     height: 80vh;
-    padding: 20px 0px 0px 20px;
   }
 }

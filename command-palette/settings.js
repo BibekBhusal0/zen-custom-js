@@ -6,12 +6,14 @@ import { createCombobox } from "../utils/combobox.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
 import { getSearchEngineFavicon } from "../utils/favicon.js";
-import {
-  checkShortcutConflicts,
-  eventToShortcutSignature,
-  getPrettyShortcut,
-} from "../utils/keyboard.js";
+import { checkShortcutConflicts, getPrettyShortcut } from "../utils/keyboard.js";
 import { bestFuzzyScore } from "../utils/fuzzy.js";
+import {
+  ZenuxSettings,
+  attachStandaloneShortcutRecorder,
+} from "../shared/settings-modal.js";
+
+const form = new ZenuxSettings(PREFS);
 
 const commandChainFunctions = {
   delay: {
@@ -53,15 +55,10 @@ const SettingsModal = {
   _mainModule: null,
   _currentSettings: {},
   _initialSettingsState: null,
-  _currentShortcutTarget: null,
-  _boundHandleShortcutKeyDown: null,
-  _boundCloseOnEscape: null,
   _boundEditorClickHandler: null,
 
   init(mainModule) {
     this._mainModule = mainModule;
-    this._boundHandleShortcutKeyDown = this._handleShortcutKeyDown.bind(this);
-    this._boundCloseOnEscape = this._closeOnEscape.bind(this);
   },
 
   async show(tabId = "commands") {
@@ -82,38 +79,19 @@ const SettingsModal = {
     this._populateHelpTab();
     this._attachEventListeners();
 
-    window.addEventListener("keydown", this._boundCloseOnEscape);
-
-    this.switchTab(tabId);
+    form.attachTabs(this._modalElement, tabId);
   },
 
   hide() {
+    form.close();
     if (this._modalElement) {
       this._modalElement.remove();
       this._modalElement = null;
     }
-    window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-    window.removeEventListener("keydown", this._boundCloseOnEscape);
-    this._currentShortcutTarget = null;
-  },
-
-  _closeOnEscape(event) {
-    if (event.key === "Escape") {
-      this.hide();
-    }
-  },
-
-  _sanitizeForId(str) {
-    return str.replace(/[^a-zA-Z0-9-_]/g, "-");
   },
 
   switchTab(tabId) {
-    const modal = this._modalElement;
-    modal.querySelectorAll(".cmd-settings-tab-content").forEach((el) => (el.hidden = true));
-    modal.querySelectorAll(".cmd-settings-tab").forEach((el) => el.classList.remove("active"));
-
-    modal.querySelector(`#${tabId}-tab-content`).hidden = false;
-    modal.querySelector(`[data-tab="${tabId}"]`).classList.add("active");
+    form.switchTab(this._modalElement, tabId);
   },
 
   async saveSettings() {
@@ -214,16 +192,14 @@ const SettingsModal = {
 
   _attachEventListeners() {
     const modal = this._modalElement;
-    modal.querySelector("#cmd-settings-close").addEventListener("click", () => this.hide());
+    form.attachDismiss(modal, () => this.hide());
+    form.attachAccordion(modal);
+    form.attachResetButtons(modal, (prefKey) => {
+      if (prefKey === PREFS.DYNAMIC_QUICK_SPLIT) {
+        this._updateQuickSplitSectionVisibility();
+      }
+    });
     modal.querySelector("#cmd-settings-save").addEventListener("click", () => this.saveSettings());
-    modal.addEventListener("click", (e) => {
-      if (e.target === modal) this.hide();
-    });
-
-    // Tab switching
-    modal.querySelectorAll(".cmd-settings-tab").forEach((tab) => {
-      tab.addEventListener("click", (e) => this.switchTab(e.target.dataset.tab));
-    });
 
     // Commands tab search
     modal
@@ -339,7 +315,7 @@ const SettingsModal = {
     const shortcutValue = customShortcut || nativeShortcut || "";
     const prettyShortcut = shortcutValue ? getPrettyShortcut(shortcutValue) : "";
     const shortcutInputHtml = `<div class="shortcut-input-wrapper">
-      <input type="text" class="shortcut-input zenux-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
+      <input type="text" class="shortcut-input zenux-input zenux-shortcut-input" placeholder="Set Shortcut" value="${escapeXmlAttribute(
         prettyShortcut
       )}" ${!allowShortcutChange ? "readonly" : ""} />
     </div>`;
@@ -363,7 +339,7 @@ const SettingsModal = {
             ${toolbarButtonHtml}
             ${visibilityToggleHtml}
         </div>
-        <span class="shortcut-conflict-warning" hidden title="Shortcut conflict"></span>
+        <span class="shortcut-conflict-warning zenux-settings-conflict-note" hidden title="Shortcut conflict"></span>
       </div>
     `;
     const item = parseElement(itemHtml);
@@ -405,27 +381,46 @@ const SettingsModal = {
       const shortcutInput = item.querySelector(".shortcut-input");
       const conflictWarning = item.querySelector(".shortcut-conflict-warning");
 
-      shortcutInput.addEventListener("focus", (e) => {
-        this._currentShortcutTarget = e.target;
-        e.target.placeholder = "Press keys...";
-        if (conflictWarning) conflictWarning.hidden = true;
-        window.addEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-      });
-      shortcutInput.addEventListener("blur", () => {
-        if (this._currentShortcutTarget) {
-          if (this._currentShortcutTarget.classList.contains("conflict")) {
-            this._currentShortcutTarget.value =
-              this._currentSettings.customShortcuts[cmd.key] || nativeShortcut || "";
-          }
-          this._currentShortcutTarget.classList.remove("conflict");
-          if (conflictWarning) conflictWarning.hidden = true;
-          this._currentShortcutTarget = null;
+      const showConflict = (conflicts) => {
+        shortcutInput.classList.add("is-conflict");
+        if (conflictWarning) {
+          const conflictDetails = conflicts
+            .map((c) => (c.source === "zen" ? `Zen: ${c.id}` : `Custom: ${c.id}`))
+            .join(", ");
+          conflictWarning.textContent = `Conflict: ${conflictDetails}`;
+          conflictWarning.title = `Conflicts with: ${conflictDetails}`;
+          conflictWarning.setAttribute("aria-label", `Conflicts with: ${conflictDetails}`);
+          conflictWarning.hidden = false;
+          shortcutInput.title = `Shortcut conflicts with: ${conflictDetails}`;
         }
-        window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-      });
-      shortcutInput.addEventListener("keydown", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
+      };
+
+      const clearConflict = () => {
+        shortcutInput.classList.remove("is-conflict");
+        if (conflictWarning) conflictWarning.hidden = true;
+        shortcutInput.title = "";
+      };
+
+      shortcutInput.addEventListener("focus", clearConflict);
+      attachStandaloneShortcutRecorder(shortcutInput, {
+        initialValue: customShortcut || nativeShortcut || "",
+        onCommit: (shortcutString) => {
+          this._currentSettings.customShortcuts[cmd.key] = shortcutString;
+          if (!shortcutString) {
+            clearConflict();
+            return;
+          }
+          const conflictCheck = checkShortcutConflicts(shortcutString, cmd.key);
+          if (conflictCheck.hasConflict) {
+            showConflict(conflictCheck.conflicts);
+            PREFS.debugLog(
+              `Shortcut conflict detected for "${cmd.key}" with shortcut "${shortcutString}":`,
+              conflictCheck.conflicts
+            );
+          } else {
+            clearConflict();
+          }
+        },
       });
     }
 
@@ -448,80 +443,6 @@ const SettingsModal = {
           button.title = "Remove from Toolbar";
         }
       });
-    }
-  },
-
-  _handleShortcutKeyDown(event) {
-    if (!this._currentShortcutTarget) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const key = event.key;
-    const targetInput = this._currentShortcutTarget;
-    const commandItem = targetInput.closest(".command-item");
-    const commandKey = commandItem?.dataset.key;
-    const conflictWarning = commandItem?.querySelector(".shortcut-conflict-warning");
-
-    const clearConflict = () => {
-      targetInput.classList.remove("conflict");
-      if (conflictWarning) conflictWarning.hidden = true;
-    };
-
-    if (key === "Escape") {
-      clearConflict();
-      targetInput.blur();
-      return;
-    }
-
-    if (key === "Backspace" || key === "Delete") {
-      targetInput.value = "";
-      if (commandKey) {
-        // Set to empty string to indicate "unbound" instead of deleting
-        this._currentSettings.customShortcuts[commandKey] = "";
-      }
-      clearConflict();
-      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-      this._currentShortcutTarget = null;
-      targetInput.blur();
-      return;
-    }
-
-    if (!commandKey) {
-      targetInput.blur();
-      return;
-    }
-
-    if (["Control", "Alt", "Shift", "Meta"].includes(key)) {
-      return;
-    }
-
-    const shortcutString = eventToShortcutSignature(event);
-    const conflictCheck = checkShortcutConflicts(shortcutString, commandKey);
-
-    targetInput.value = getPrettyShortcut(shortcutString);
-
-    if (conflictCheck.hasConflict) {
-      targetInput.classList.add("conflict");
-      if (conflictWarning) {
-        const conflictDetails = conflictCheck.conflicts
-          .map((c) => (c.source === "zen" ? `Zen: ${c.id}` : `Custom: ${c.id}`))
-          .join(", ");
-        conflictWarning.textContent = `Conflict: ${conflictDetails}`;
-        conflictWarning.title = `Conflicts with: ${conflictDetails}`;
-        conflictWarning.setAttribute("aria-label", `Conflicts with: ${conflictDetails}`);
-        conflictWarning.hidden = false;
-        targetInput.title = `Shortcut conflicts with: ${conflictDetails}`;
-      }
-      PREFS.debugLog(
-        `Shortcut conflict detected for "${commandKey}" with shortcut "${shortcutString}":`,
-        conflictCheck.conflicts
-      );
-      this._currentSettings.customShortcuts[commandKey] = shortcutString;
-    } else {
-      clearConflict();
-      this._currentSettings.customShortcuts[commandKey] = shortcutString;
-      targetInput.title = "";
     }
   },
 
@@ -623,10 +544,13 @@ const SettingsModal = {
     ) {
       this._currentSettings.quickSplitKeywords = {};
     }
-    const section = parseElement(`
-      <section class="settings-section zenux-section" id="quick-split-section">
-        <h4 class="zenux-section-title">Quick Split</h4>
-        <div class="setting-item">
+    const section = parseElement(
+      ZenuxSettings.accordionSection({
+        title: "Quick Split",
+        expanded: true,
+        id: "quick-split-section",
+        body: `
+        <div class="zenux-setting-item">
           <label for="quick-split-search-engine">Search Engine</label>
           <div id="quick-split-engine-picker"><span class="engine-picker-loading">Loading…</span></div>
         </div>
@@ -635,8 +559,9 @@ const SettingsModal = {
           <button id="add-quick-split-keyword" class="zenux-btn-ghost" type="button"><img src="chrome://browser/skin/zen-icons/plus.svg" />Add Keyword</button>
         </div>
         <div id="quick-split-keywords-list"></div>
-      </section>
-    `);
+      `,
+      })
+    );
     container.appendChild(section);
 
     this._renderQuickSplitKeywords();
@@ -833,11 +758,11 @@ const SettingsModal = {
 
     const baseEditorHtml = `
       <h3>${isEditing ? "Edit" : "Add"} ${cmd.type === "js" ? "JS Command" : "Command Chain"}</h3>
-      <div class="setting-item">
+      <div class="zenux-setting-item">
         <label for="custom-cmd-name">Name</label>
         <input type="text" id="custom-cmd-name" class="zenux-input" value="${escapeXmlAttribute(cmd.name)}"/>
       </div>
-      <div class="setting-item">
+      <div class="zenux-setting-item">
         <label for="custom-cmd-icon">Icon URL</label>
         <input type="text" id="custom-cmd-icon" class="zenux-input" placeholder="Leave empty for default" value="${escapeXmlAttribute(
           cmd.icon || ""
@@ -1179,123 +1104,69 @@ const SettingsModal = {
         type: "bool",
       }));
 
-    const prefs = [
-      {
-        section: "General",
-        items: [
-          {
-            key: PREFS.PREFIX,
-            label: "Command Prefix",
-            type: "char",
-          },
-          {
-            key: PREFS.PREFIX_REQUIRED,
-            label: "Require prefix to activate",
-            type: "bool",
-          },
-          {
-            key: PREFS.MIN_QUERY_LENGTH,
-            label: "Min query length (no prefix)",
-            type: "number",
-          },
-          { key: PREFS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
-          {
-            key: PREFS.MAX_COMMANDS_PREFIX,
-            label: "Max results (with prefix)",
-            type: "number",
-          },
-          { key: PREFS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
-          { key: PREFS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
-        ],
-      },
-      {
-        section: "Dynamic Commands",
-        items: dynamicCommandItems,
-      },
-    ];
+    container.appendChild(
+      parseElement(
+        form.prefAccordion({
+          title: "General",
+          expanded: true,
+          items: [
+            { key: PREFS.PREFIX, label: "Command Prefix", type: "char", maxlength: 1 },
+            { key: PREFS.PREFIX_REQUIRED, label: "Require prefix to activate", type: "bool" },
+            { key: PREFS.MIN_QUERY_LENGTH, label: "Min query length (no prefix)", type: "number" },
+            { key: PREFS.MAX_COMMANDS, label: "Max results (no prefix)", type: "number" },
+            { key: PREFS.MAX_COMMANDS_PREFIX, label: "Max results (with prefix)", type: "number" },
+            { key: PREFS.MIN_SCORE_THRESHOLD, label: "Min relevance score", type: "number" },
+            { key: PREFS.DEBUG_MODE, label: "Enable debug logging", type: "bool" },
+          ],
+        })
+      )
+    );
 
-    for (const prefSection of prefs) {
-      const sectionEl = document.createElement("section");
-      sectionEl.className = "settings-section zenux-section";
-      sectionEl.innerHTML = `<h4 class="zenux-section-title">${escapeXmlAttribute(prefSection.section)}</h4>`;
-      for (const item of prefSection.items) {
-        const currentValue = PREFS.getPref(item.key);
-        const safeId = this._sanitizeForId(`pref-${item.key}`);
-        let itemHtml;
-
-        if (item.type === "bool") {
-          itemHtml = `
-            <div class="setting-item">
-              <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
-              <input type="checkbox" id="${safeId}" data-pref="${item.key}" ${
-                currentValue ? "checked" : ""
-              } />
-            </div>
-          `;
-        } else if (item.type === "number") {
-          itemHtml = `
-            <div class="setting-item">
-              <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
-              <input type="number" class="zenux-input" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
-                currentValue
-              )}" />
-            </div>
-          `;
-        } else if (item.type === "char") {
-          itemHtml = `
-            <div class="setting-item">
-              <label for="${safeId}">${escapeXmlAttribute(item.label)}</label>
-              <input type="text" class="zenux-input" id="${safeId}" data-pref="${item.key}" value="${escapeXmlAttribute(
-                currentValue
-              )}" maxlength="1" />
-            </div>
-          `;
-        }
-        if (itemHtml) {
-          sectionEl.appendChild(parseElement(itemHtml));
-        }
-      }
-      container.appendChild(sectionEl);
+    if (dynamicCommandItems.length) {
+      container.appendChild(
+        parseElement(
+          form.prefAccordion({
+            title: "Dynamic Commands",
+            expanded: false,
+            items: dynamicCommandItems,
+          })
+        )
+      );
     }
   },
 
   _generateHtml() {
-    const html = `
-      <div id="zen-cmd-settings-modal-overlay">
-        <div class="command-palette-settings-modal">
-          <div class="cmd-settings-header">
-            <h3>Command Palette Settings</h3>
-            <div>
-              <button id="cmd-settings-close" class="settings-close-btn zenux-btn-ghost">Close</button>
-              <button id="cmd-settings-save" class="settings-save-btn zenux-btn-primary">Save</button>
-            </div>
-          </div>
-          <div class="cmd-settings-tabs">
-            <button class="cmd-settings-tab" data-tab="commands">Commands</button>
-            <button class="cmd-settings-tab" data-tab="settings">Settings</button>
-            <button class="cmd-settings-tab" data-tab="custom-commands">Custom Commands</button>
-            <button class="cmd-settings-tab" data-tab="help">Help</button>
-          </div>
-          <div class="cmd-settings-content">
-            <div id="commands-tab-content" class="cmd-settings-tab-content" hidden>
-              <div class="search-bar-wrapper">
-                <input type="text" id="command-search-input" class="zenux-input" placeholder="Search commands..." />
-              </div>
-              <div id="commands-list"></div>
-            </div>
-            <div id="settings-tab-content" class="cmd-settings-tab-content" hidden>
-              <!-- Content will be populated by _populateSettingsTab -->
-              </div>
-            <div id="custom-commands-tab-content" class="cmd-settings-tab-content" hidden>
-              <!-- Content will be populated by _populateCustomCommandsTab -->
-              </div>
-            <div id="help-tab-content" class="cmd-settings-tab-content" hidden>
-              <!-- Content will be populated by _populateHelpTab -->
-              </div>
-          </div>
+    const bodyHTML = `
+      <div id="commands-tab-content" data-tab-content="commands" hidden>
+        <div class="search-bar-wrapper">
+          <input type="text" id="command-search-input" class="zenux-input" placeholder="Search commands..." />
         </div>
+        <div id="commands-list"></div>
+      </div>
+      <div id="settings-tab-content" data-tab-content="settings" hidden>
+        <!-- Content will be populated by _populateSettingsTab -->
+      </div>
+      <div id="custom-commands-tab-content" data-tab-content="custom-commands" hidden>
+        <!-- Content will be populated by _populateCustomCommandsTab -->
+      </div>
+      <div id="help-tab-content" data-tab-content="help" hidden>
+        <!-- Content will be populated by _populateHelpTab -->
       </div>
     `;
+    const html = ZenuxSettings.shell({
+      title: "Command Palette Settings",
+      bodyHTML,
+      tabs: [
+        { id: "commands", label: "Commands" },
+        { id: "settings", label: "Settings" },
+        { id: "custom-commands", label: "Custom Commands" },
+        { id: "help", label: "Help" },
+      ],
+      closeId: "cmd-settings-close",
+      saveId: "cmd-settings-save",
+      overlayId: "zen-cmd-settings-modal-overlay",
+      modalClass: "command-palette-settings-modal",
+    });
     return parseElement(html);
   },
 };

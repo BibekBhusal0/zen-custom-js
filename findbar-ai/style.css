@@ -1,4 +1,5 @@
 @import "../shared/zen-design.css";
+@import "../shared/settings-modal.css";
 @import "styles/findbar.css";
 @import "styles/markdown.css";
 @import "styles/urlbar.css";

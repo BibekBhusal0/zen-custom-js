@@ -64,7 +64,6 @@
   background: var(--zenux-surface);
   border: 1px solid var(--zenux-border-soft);
   border-radius: var(--zenux-radius-m);
-  padding: 14px 16px;
 }
 
 .zenux-section-title {

@@ -1,82 +1,20 @@
-import { eventToShortcutSignature, getPrettyShortcut } from "../utils/keyboard.js";
 import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { createCombobox } from "../utils/combobox.js";
+import { ZenuxSettings } from "../shared/settings-modal.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
+
+const form = new ZenuxSettings(PREFS);
 
 export const SettingsModal = {
   _modalElement: null,
-  _currentPrefValues: {},
-  _currentShortcutTarget: null,
-  _boundHandleShortcutKeyDown: null,
 
   _getSafeIdForProvider(providerName) {
     return providerName.replace(/\./g, "-");
   },
 
-  _initShortcutHandler() {
-    this._boundHandleShortcutKeyDown = this._handleShortcutKeyDown.bind(this);
-  },
-
-  _handleShortcutKeyDown(event) {
-    if (!this._currentShortcutTarget) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const targetInput = this._currentShortcutTarget;
-    const prefKey = targetInput.dataset.pref;
-
-    if (event.key === "Escape") {
-      targetInput.value = getPrettyShortcut(PREFS.getPref(prefKey));
-      targetInput.classList.remove("recording");
-      targetInput.placeholder = "Click to set";
-      this._currentShortcutTarget = null;
-      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-      return;
-    }
-
-    if (event.key === "Backspace" || event.key === "Delete") {
-      targetInput.value = "";
-      this._currentPrefValues[prefKey] = "";
-      targetInput.classList.remove("recording");
-      targetInput.placeholder = "Click to set";
-      this._currentShortcutTarget = null;
-      window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-      return;
-    }
-
-    if (["Control", "Alt", "Shift", "Meta"].includes(event.key)) {
-      return;
-    }
-
-    const shortcutString = eventToShortcutSignature(event);
-    targetInput.value = getPrettyShortcut(shortcutString);
-    this._currentPrefValues[prefKey] = shortcutString;
-    PREFS.debugLog(`Shortcut for ${prefKey} set to: ${shortcutString}`);
-
-    targetInput.classList.remove("recording");
-    targetInput.placeholder = "Click to set";
-    this._currentShortcutTarget = null;
-    window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-  },
-
-  _generateShortcutInputHtml(prefConstant, label) {
-    const currentValue = getPrettyShortcut(PREFS.getPref(prefConstant));
-    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
-    return `
-      <div class="setting-item">
-        <label for="${prefId}">${label}</label>
-        <input type="text" id="${prefId}" data-pref="${prefConstant}" value="${escapeXmlAttribute(
-          currentValue
-        )}" readonly placeholder="Click to set" class="shortcut-input zenux-input" />
-      </div>
-    `;
-  },
-
   createModalElement() {
-    this._initShortcutHandler();
     const settingsHtml = this._generateSettingsHtml();
     const container = parseElement(settingsHtml);
     this._modalElement = container;
@@ -155,7 +93,7 @@ export const SettingsModal = {
     if (!combo) return;
     try {
       const fetched = await provider.refreshModels();
-      const key = this._currentPrefValues[provider.apiPref] || PREFS.getPref(provider.apiPref) || "";
+      const key = form.values[provider.apiPref] || PREFS.getPref(provider.apiPref) || "";
       let showAll = false;
       if (key && typeof provider.checkKey === "function") {
         try {
@@ -176,7 +114,7 @@ export const SettingsModal = {
       );
       if (!combo.value && visible.length) {
         combo.value = visible[0];
-        this._currentPrefValues[provider.modelPref] = visible[0];
+        form.values[provider.modelPref] = visible[0];
       }
       PREFS.debugLog(`Loaded ${visible.length} dynamic models for ${providerName}`);
     } catch (e) {
@@ -184,87 +122,30 @@ export const SettingsModal = {
     }
   },
 
+  _onPrefChange(prefKey) {
+    if (prefKey === PREFS.LLM_PROVIDER) {
+      this._updateProviderSpecificSettings(this._modalElement, form.values[prefKey]);
+    }
+  },
+
   _attachEventListeners() {
     if (!this._modalElement) return;
+    const root = this._modalElement;
 
-    // Close button
-    this._modalElement.querySelector("#close-settings").addEventListener("click", () => {
-      this.hide();
-    });
+    form.attachDismiss(root, () => this.hide());
+    form.attachAccordion(root);
+    form.attachResetButtons(root, (prefKey) => this._onPrefChange(prefKey));
+    form.attachPrefTracking(root, (prefKey) => this._onPrefChange(prefKey));
+    form.attachShortcutInputs(root);
 
-    // Save button
-    this._modalElement.querySelector("#save-settings").addEventListener("click", () => {
+    root.querySelector("#browse-bot-save-settings").addEventListener("click", () => {
       this.saveSettings();
       this.hide();
       if (browseBotFindbar.enabled) browseBotFindbar.show();
       else browseBotFindbar.destroy();
     });
 
-    this._modalElement.addEventListener("click", (e) => {
-      if (e.target === this._modalElement) {
-        this.hide();
-      }
-    });
-
-    this._modalElement.querySelectorAll(".accordion-header").forEach((header) => {
-      header.addEventListener("click", () => {
-        const section = header.closest(".settings-accordion");
-        const isExpanded = section.dataset.expanded === "true";
-        section.dataset.expanded = isExpanded ? "false" : "true";
-      });
-    });
-
-    // Initialize and listen to changes on controls (store in _currentPrefValues)
-    this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
-      const prefKey = control.dataset.pref;
-
-      // Initialize control value from PREFS
-      if (control.type === "checkbox") {
-        control.checked = PREFS.getPref(prefKey);
-      } else if (control.classList.contains("zenux-combobox")) {
-        control.value = PREFS.getPref(prefKey);
-      } else {
-        control.value = PREFS.getPref(prefKey);
-      }
-
-      this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
-
-      // Store changes in _currentPrefValues
-      if (control.classList.contains("zenux-combobox")) {
-        control.addEventListener("command", (e) => {
-          this._currentPrefValues[prefKey] = e.target.value;
-          PREFS.debugLog(
-            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
-          );
-          if (prefKey === PREFS.LLM_PROVIDER) {
-            this._updateProviderSpecificSettings(
-              this._modalElement,
-              this._currentPrefValues[prefKey]
-            );
-          }
-        });
-      } else {
-        control.addEventListener("change", (e) => {
-          if (control.type === "checkbox") {
-            this._currentPrefValues[prefKey] = e.target.checked;
-          } else if (control.type === "number") {
-            try {
-              this._currentPrefValues[prefKey] = Number(e.target.value);
-            } catch {
-              this._currentPrefValues[prefKey] = 0;
-            }
-          } else {
-            this._currentPrefValues[prefKey] = e.target.value;
-          }
-          PREFS.debugLog(
-            `Settings form value for ${prefKey} changed to: ${this._currentPrefValues[prefKey]}`
-          );
-        });
-      }
-    });
-
-    // Attach event listeners for API key links
-    this._modalElement.querySelectorAll(".get-api-key-link").forEach((link) => {
+    root.querySelectorAll(".get-api-key-link").forEach((link) => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
         const url = e.target.dataset.url;
@@ -275,59 +156,35 @@ export const SettingsModal = {
       });
     });
 
-    // Attach event listeners for shortcut inputs
-    this._modalElement.querySelectorAll(".shortcut-input").forEach((input) => {
-      input.addEventListener("focus", (e) => {
-        this._currentShortcutTarget = e.target;
-        e.target.classList.add("recording");
-        e.target.placeholder = "Press keys...";
-        window.addEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-      });
-
-      input.addEventListener("blur", () => {
-        if (this._currentShortcutTarget) {
-          this._currentShortcutTarget.classList.remove("recording");
-          this._currentShortcutTarget.placeholder = "Click to set";
-          this._currentShortcutTarget = null;
-          window.removeEventListener("keydown", this._boundHandleShortcutKeyDown, true);
-        }
-      });
-
-      input.addEventListener("keydown", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      });
-    });
-
-    const modelInput = this._modalElement.querySelector("#pref-custom-model");
+    const modelInput = root.querySelector("#pref-custom-model");
     if (modelInput) {
       modelInput.addEventListener("input", () => {
         modelInput.classList.remove("verify-success", "verify-error");
-        const statusEl = this._modalElement.querySelector('[data-verify-status="custom"]');
+        const statusEl = root.querySelector('[data-verify-status="custom"]');
         if (statusEl) {
-          statusEl.className = "verify-model-status";
+          statusEl.classList.remove("success", "error");
           statusEl.textContent = "";
         }
       });
     }
 
-    this._modalElement.querySelectorAll(".verify-model-btn").forEach((btn) => {
+    root.querySelectorAll(".verify-model-btn").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        const provider = btn.dataset.verifyModel;
-        const statusEl = this._modalElement.querySelector(`[data-verify-status="${provider}"]`);
-        const modelInput = this._modalElement.querySelector("#pref-custom-model");
+        const statusEl = root.querySelector('[data-verify-status="custom"]');
+        const customModelInput = root.querySelector("#pref-custom-model");
         if (!statusEl) return;
 
-        const baseUrl = this._currentPrefValues[PREFS.CUSTOM_BASE_URL] || "";
-        const model = this._currentPrefValues[PREFS.CUSTOM_MODEL] || "";
-        const apiKey = this._currentPrefValues[PREFS.CUSTOM_API_KEY] || "";
+        const baseUrl = form.values[PREFS.CUSTOM_BASE_URL] || "";
+        const model = form.values[PREFS.CUSTOM_MODEL] || "";
+        const apiKey = form.values[PREFS.CUSTOM_API_KEY] || "";
 
         const setError = (msg) => {
           statusEl.textContent = msg;
-          statusEl.className = "verify-model-status error";
-          if (modelInput) {
-            modelInput.classList.remove("verify-success");
-            modelInput.classList.add("verify-error");
+          statusEl.classList.remove("success");
+          statusEl.classList.add("error");
+          if (customModelInput) {
+            customModelInput.classList.remove("verify-success");
+            customModelInput.classList.add("verify-error");
           }
         };
 
@@ -341,9 +198,9 @@ export const SettingsModal = {
         }
 
         statusEl.textContent = "Verifying...";
-        statusEl.className = "verify-model-status";
-        if (modelInput) {
-          modelInput.classList.remove("verify-success", "verify-error");
+        statusEl.classList.remove("success", "error");
+        if (customModelInput) {
+          customModelInput.classList.remove("verify-success", "verify-error");
         }
         btn.disabled = true;
 
@@ -356,10 +213,11 @@ export const SettingsModal = {
           const response = await fetch(url, { headers });
           if (response.ok) {
             statusEl.textContent = `Model "${model}" exists`;
-            statusEl.className = "verify-model-status success";
-            if (modelInput) {
-              modelInput.classList.add("verify-success");
-              modelInput.classList.remove("verify-error");
+            statusEl.classList.remove("error");
+            statusEl.classList.add("success");
+            if (customModelInput) {
+              customModelInput.classList.add("verify-success");
+              customModelInput.classList.remove("verify-error");
             }
           } else if (response.status === 404) {
             setError(`Model "${model}" not found`);
@@ -374,61 +232,27 @@ export const SettingsModal = {
       });
     });
 
-    // Initial update for provider-specific settings display
-    this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
-
-    // Reset Button Listeners
-    this._modalElement.querySelectorAll(".reset-section-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation(); // Prevent accordion toggle
-        const prefsToReset = btn.dataset.resetPrefs.split(",");
-        prefsToReset.forEach((prefKey) => {
-          if (!prefKey) return; // skip empty
-          const defVal = PREFS.defaultValues[prefKey];
-
-          // Update internal state
-          this._currentPrefValues[prefKey] = defVal;
-
-          // Update UI
-          const control = this._modalElement.querySelector(`[data-pref="${prefKey}"]`);
-          if (control) {
-            if (control.type === "checkbox") {
-              control.checked = defVal;
-            } else if (control.classList.contains("zenux-combobox")) {
-              control.value = defVal;
-            } else {
-              control.value = defVal;
-            }
-
-            // Special logic for provider reset
-            if (prefKey === PREFS.LLM_PROVIDER) {
-              this._updateProviderSpecificSettings(this._modalElement, defVal);
-            }
-          }
-        });
-      });
-    });
+    this._updateProviderSpecificSettings(root, PREFS.llmProvider);
   },
 
   saveSettings() {
-    for (const prefKey in this._currentPrefValues) {
-      if (Object.prototype.hasOwnProperty.call(this._currentPrefValues, prefKey)) {
+    for (const prefKey in form.values) {
+      if (Object.prototype.hasOwnProperty.call(form.values, prefKey)) {
         if (prefKey.endsWith("api-key")) {
-          if (this._currentPrefValues[prefKey]) {
-            const maskedKey = "*".repeat(this._currentPrefValues[prefKey].length);
+          if (form.values[prefKey]) {
+            const maskedKey = "*".repeat(form.values[prefKey].length);
             PREFS.debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
           }
         } else {
-          PREFS.debugLog(`Saving pref ${prefKey} to: ${this._currentPrefValues[prefKey]}`);
+          PREFS.debugLog(`Saving pref ${prefKey} to: ${form.values[prefKey]}`);
         }
         try {
-          PREFS.setPref(prefKey, this._currentPrefValues[prefKey]);
+          PREFS.setPref(prefKey, form.values[prefKey]);
         } catch (e) {
           PREFS.debugError(`Error Saving pref for ${prefKey} ${e}`);
         }
       }
     }
-    // Special case: If API key is empty after saving, ensure findbar is collapsed
     if (!browseBotFindbarLLM.currentProvider.apiKey) {
       browseBotFindbar.expanded = false;
     }
@@ -436,137 +260,85 @@ export const SettingsModal = {
 
   show() {
     this.createModalElement();
-    this._modalElement.querySelectorAll("[data-pref]").forEach((control) => {
-      const prefKey = control.dataset.pref;
-      if (control.type === "checkbox") {
-        control.checked = PREFS.getPref(prefKey);
-      } else {
-        if (control.classList.contains("zenux-combobox")) {
-          control.value = PREFS.getPref(prefKey);
-        } else {
-          control.value = PREFS.getPref(prefKey);
-        }
-      }
-      this._currentPrefValues[prefKey] = PREFS.getPref(prefKey);
-    });
+    form.syncFromPrefs(this._modalElement);
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
 
     document.documentElement.appendChild(this._modalElement);
   },
 
   hide() {
+    form.close();
     if (this._modalElement && this._modalElement.parentNode) {
       this._modalElement.remove();
     }
   },
 
-  // Helper to show/hide provider-specific settings sections and update model dropdowns
   _updateProviderSpecificSettings(container, selectedProviderName) {
-    container.querySelectorAll(".provider-settings-group").forEach((group) => {
-      group.style.display = "none";
+    container.querySelectorAll(".zenux-settings-provider-group").forEach((group) => {
+      group.hidden = true;
     });
 
-    // Use the safe ID for the selector
     const activeGroup = container.querySelector(
       `#${this._getSafeIdForProvider(selectedProviderName)}-settings-group`
     );
     if (activeGroup) {
-      activeGroup.style.display = "block";
+      activeGroup.hidden = false;
 
-      // Dynamically update the model dropdown for the active provider
       const modelPrefKey = PREFS[`${selectedProviderName.toUpperCase()}_MODEL`];
       if (modelPrefKey) {
-        // Use the safe ID for the model selector as well
         const modelSelect = activeGroup.querySelector(
           `#pref-${this._getSafeIdForProvider(selectedProviderName)}-model`
         );
         if (modelSelect) {
-          modelSelect.value = this._currentPrefValues[modelPrefKey] || PREFS.getPref(modelPrefKey);
+          modelSelect.value = form.values[modelPrefKey] || PREFS.getPref(modelPrefKey);
         }
       }
-      // Update the "Get API Key" link's state for the active provider
       const provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[selectedProviderName];
       const getApiKeyLink = activeGroup.querySelector(".get-api-key-link");
       if (getApiKeyLink) {
         if (provider.apiKeyUrl) {
-          getApiKeyLink.style.display = "inline-block";
+          getApiKeyLink.hidden = false;
           getApiKeyLink.dataset.url = provider.apiKeyUrl;
         } else {
-          getApiKeyLink.style.display = "none";
+          getApiKeyLink.hidden = true;
           delete getApiKeyLink.dataset.url;
         }
       }
     }
   },
 
-  _generateCheckboxSettingHtml(label, prefConstant) {
-    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
-    return `
-      <div class="setting-item">
-        <label for="${prefId}">${label}</label>
-        <input type="checkbox" id="${prefId}" data-pref="${prefConstant}" />
-      </div>
-    `;
-  },
-
-  _generateNumberSettingHtml(label, prefConstant, min, max, step, tooltip) {
-    const prefId = `pref-${prefConstant.toLowerCase().replace(/_/g, "-")}`;
-    const infoIconHtml = tooltip
-      ? `<span class="info-icon-wrapper" data-tooltip="${escapeXmlAttribute(tooltip)}"><img class="info-icon" src="chrome://global/skin/icons/info.svg" /></span>`
-      : "";
-
-    return `
-      <div class="setting-item">
-        <label for="${prefId}" style="display: flex; align-items: center; gap: 6px;">
-          ${label}
-          ${infoIconHtml}
-        </label>
-        <input type="number" class="zenux-input" id="${prefId}" data-pref="${prefConstant}" min="${min}" max="${max}" step="${step}" />
-      </div>
-    `;
-  },
-
-  _createCheckboxSectionHtml(
+  _checkboxSection(
     title,
     settingsArray,
     expanded = true,
     contentBefore = "",
     contentAfter = "",
-    resetPrefs = []
+    resetPrefs = null
   ) {
-    const settingsHtml = settingsArray
+    const body = settingsArray
       .map((s) => {
         if (s.type === "number") {
-          return this._generateNumberSettingHtml(s.label, s.pref, s.min, s.max, s.step, s.tooltip);
+          return ZenuxSettings.numberRow(s.label, s.pref, {
+            min: s.min,
+            max: s.max,
+            step: s.step,
+            tooltip: s.tooltip,
+          });
         }
-        return this._generateCheckboxSettingHtml(s.label, s.pref);
+        return ZenuxSettings.checkboxRow(s.label, s.pref);
       })
       .join("");
-
-    // If no explicit resetPrefs passed, try to infer from settingsArray
-    const prefsToReset = (
-      resetPrefs.length > 0 ? resetPrefs : settingsArray.map((s) => s.pref)
-    ).join(",");
-
-    return `
-    <section class="settings-section settings-accordion zenux-section" data-expanded="${expanded}" >
-      <h4 class="accordion-header">
-        ${title}
-        <div class="reset-section-btn" data-reset-prefs="${prefsToReset}" title="Reset Section" role="button">
-            <img src="chrome://global/skin/icons/reload.svg" />
-        </div>
-      </h4>
-      <div class="accordion-content">
-        ${contentBefore}
-        ${settingsHtml}
-        ${contentAfter}
-      </div>
-    </section>
-  `;
+    return ZenuxSettings.accordionSection({
+      title,
+      expanded,
+      resetPrefs: resetPrefs ?? settingsArray.map((s) => s.pref),
+      before: contentBefore,
+      body,
+      after: contentAfter,
+    });
   },
 
   _generateSettingsHtml() {
-    // Section 1: Findbar
     const findbarSettings = [
       { label: "Enable AI Findbar", pref: PREFS.ENABLED },
       { label: "Minimal Mode (similar to arc)", pref: PREFS.MINIMAL },
@@ -574,95 +346,54 @@ export const SettingsModal = {
       { label: "Enable Drag and Drop", pref: PREFS.DND_ENABLED },
       { label: "Remember Dimensions", pref: PREFS.REMEMBER_DIMENSIONS },
     ];
-    const positionOptions = {
-      "top-left": "Top Left",
-      "top-right": "Top Right",
-      "bottom-left": "Bottom Left",
-      "bottom-right": "Bottom Right",
-    };
-    const positionOptionsHTML = Object.entries(positionOptions)
-      .map(([value, label]) => `<option value="${value}">${escapeXmlAttribute(label)}</option>`)
-      .join("");
-    const positionSelectorHtml = `
-      <div class="setting-item">
-        <label for="pref-position">Position</label>
-        <select id="pref-position" data-pref="${PREFS.POSITION}">
-          ${positionOptionsHTML}
-        </select>
-      </div>
-    `;
-
-    const backgroundStyleOptions = {
-      solid: "Solid",
-      acrylic: "Acrylic",
-      pseudo: "Pseudo",
-    };
-    const backgroundStyleOptionsHTML = Object.entries(backgroundStyleOptions)
-      .map(([value, label]) => `<option value="${value}">${escapeXmlAttribute(label)}</option>`)
-      .join("");
-    const backgroundStyleSelectorHtml = `
-      <div class="setting-item">
-        <label for="pref-background-style">Background Style</label>
-        <select id="pref-background-style" data-pref="${PREFS.BACKGROUND_STYLE}">
-          ${backgroundStyleOptionsHTML}
-        </select>
-      </div>
-    `;
-
-    const findbarResetPrefs = [
-      ...findbarSettings.map((s) => s.pref),
-      PREFS.POSITION,
-      PREFS.BACKGROUND_STYLE,
-    ];
-    const findbarSectionHtml = this._createCheckboxSectionHtml(
+    const findbarSectionHtml = this._checkboxSection(
       "Findbar AI",
       findbarSettings,
       true,
       "",
-      positionSelectorHtml + backgroundStyleSelectorHtml,
-      findbarResetPrefs
+      [
+        ZenuxSettings.selectRow(
+          "Position",
+          PREFS.POSITION,
+          {
+            "top-left": "Top Left",
+            "top-right": "Top Right",
+            "bottom-left": "Bottom Left",
+            "bottom-right": "Bottom Right",
+          },
+          { id: "pref-position" }
+        ),
+        ZenuxSettings.selectRow(
+          "Background Style",
+          PREFS.BACKGROUND_STYLE,
+          {
+            solid: "Solid",
+            acrylic: "Acrylic",
+            pseudo: "Pseudo",
+          },
+          { id: "pref-background-style" }
+        ),
+      ].join(""),
+      [...findbarSettings.map((s) => s.pref), PREFS.POSITION, PREFS.BACKGROUND_STYLE]
     );
 
-    // Section 2: URLBar AI
     const urlbarSettings = [
       { label: "Enable URLBar AI", pref: PREFS.URLBAR_AI_ENABLED },
       { label: "Enable Animations", pref: PREFS.URLBAR_AI_ANIMATIONS_ENABLED },
       { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
     ];
-    const urlbarSectionHtml = this._createCheckboxSectionHtml(
-      "URLBar AI",
-      urlbarSettings,
-      false,
-      "",
-      "",
-      urlbarSettings.map((s) => s.pref)
-    );
+    const urlbarSectionHtml = this._checkboxSection("URLBar AI", urlbarSettings, false);
 
-    // Section 3: Keyboard Shortcuts
-    const shortcutFindbarHtml = this._generateShortcutInputHtml(
-      PREFS.SHORTCUT_FINDBAR,
-      "Open Findbar AI"
-    );
-    const shortcutUrlbarHtml = this._generateShortcutInputHtml(
-      PREFS.SHORTCUT_URLBAR,
-      "Toggle URLBar AI"
-    );
-    const shortcutsSectionHtml = `
-      <section class="settings-section settings-accordion zenux-section" data-expanded="true">
-        <h4 class="accordion-header">
-          Keyboard Shortcuts
-          <div class="reset-section-btn" data-reset-prefs="${PREFS.SHORTCUT_FINDBAR},${PREFS.SHORTCUT_URLBAR}" title="Reset Section" role="button">
-            <img src="chrome://global/skin/icons/reload.svg" />
-          </div>
-        </h4>
-        <div class="accordion-content">
-          ${shortcutFindbarHtml}
-          ${shortcutUrlbarHtml}
-        </div>
-      </section>
-    `;
+    const shortcutsSectionHtml = ZenuxSettings.accordionSection({
+      title: "Keyboard Shortcuts",
+      expanded: true,
+      resetPrefs: [PREFS.SHORTCUT_FINDBAR, PREFS.SHORTCUT_URLBAR],
+      body: [
+        ZenuxSettings.shortcutRow("Open Findbar AI", PREFS.SHORTCUT_FINDBAR),
+        ZenuxSettings.shortcutRow("Toggle URLBar AI", PREFS.SHORTCUT_URLBAR),
+      ].join(""),
+    });
 
-    // Section 4: AI Behavior
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
@@ -678,39 +409,45 @@ export const SettingsModal = {
         tooltip: "Maximum page or transcript characters sent to the AI per message.",
       },
     ];
-    const aiBehaviorWarningHtml = `
-      <div id="citations-agentic-mode-warning" class="warning-message" >
-        Warning: Enabling both Citations and Agentic Mode may lead to unexpected behavior or errors.
-      </div>
-    `;
-    const maxToolCallsHtml = `
-   <div class="setting-item">
-     <label for="pref-max-tool-calls">Max Tool Calls (Maximum number of messages to send AI back to back)</label>
-      <input type="number" class="zenux-input" id="pref-max-tool-calls" data-pref="${PREFS.MAX_TOOL_CALLS}" />
-   </div>
- `;
-    const customSystemPromptHtml = `
-   <div class="setting-item">
-     <label for="pref-custom-system-prompt">Custom System Prompt</label>
-      <textarea class="zenux-input" id="pref-custom-system-prompt" data-pref="${PREFS.CUSTOM_SYSTEM_PROMPT}" rows="3" placeholder="Pretend like ...."></textarea>
-   </div>
- `;
-
-    const aiBehaviorResetPrefs = [
-      ...aiBehaviorSettings.map((s) => s.pref),
-      PREFS.MAX_TOOL_CALLS,
-      PREFS.CUSTOM_SYSTEM_PROMPT,
-    ];
-    const aiBehaviorSectionHtml = this._createCheckboxSectionHtml(
-      "AI Behavior",
-      aiBehaviorSettings,
-      true,
-      aiBehaviorWarningHtml,
-      maxToolCallsHtml + customSystemPromptHtml,
-      aiBehaviorResetPrefs
+    const aiBehaviorWarningHtml = ZenuxSettings.warning(
+      "Enabling both Citations and Agentic Mode may lead to unexpected behavior or errors.",
+      "citations-agentic-mode-warning"
     );
+    const maxToolCallsHtml = ZenuxSettings.numberRow(
+      "Max Tool Calls (Maximum number of messages to send AI back to back)",
+      PREFS.MAX_TOOL_CALLS,
+      { id: "pref-max-tool-calls" }
+    );
+    const customSystemPromptHtml = ZenuxSettings.textareaRow(
+      "Custom System Prompt",
+      PREFS.CUSTOM_SYSTEM_PROMPT,
+      { placeholder: "Pretend like ....", rows: 3 }
+    );
+    const aiBehaviorSectionHtml = ZenuxSettings.accordionSection({
+      title: "AI Behavior",
+      expanded: true,
+      resetPrefs: [
+        ...aiBehaviorSettings.map((s) => s.pref),
+        PREFS.MAX_TOOL_CALLS,
+        PREFS.CUSTOM_SYSTEM_PROMPT,
+      ],
+      before: aiBehaviorWarningHtml,
+      body: aiBehaviorSettings
+        .map((s) => {
+          if (s.type === "number") {
+            return ZenuxSettings.numberRow(s.label, s.pref, {
+              min: s.min,
+              max: s.max,
+              step: s.step,
+              tooltip: s.tooltip,
+            });
+          }
+          return ZenuxSettings.checkboxRow(s.label, s.pref);
+        })
+        .join(""),
+      after: maxToolCallsHtml + customSystemPromptHtml,
+    });
 
-    // Section 5: Context Menu
     const contextMenuSettings = [
       { label: "Enable Context Menu (right click menu)", pref: PREFS.CONTEXT_MENU_ENABLED },
       {
@@ -718,31 +455,30 @@ export const SettingsModal = {
         pref: PREFS.CONTEXT_MENU_AUTOSEND,
       },
     ];
-    const contextMenuCommandsHtml = `
-      <div class="setting-item">
-        <label for="pref-context-menu-command-no-selection">Command when no text is selected</label>
-        <textarea class="zenux-input" id="pref-context-menu-command-no-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION}" rows="3"></textarea>
-      </div>
-      <div class="setting-item">
-        <label for="pref-context-menu-command-with-selection">Command when text is selected. Use {selection} for the selected text.</label>
-        <textarea class="zenux-input" id="pref-context-menu-command-with-selection" data-pref="${PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION}" rows="3"></textarea>
-      </div>
-    `;
-    const contextMenuResetPrefs = [
-      ...contextMenuSettings.map((s) => s.pref),
-      PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION,
-      PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION,
-    ];
-    const contextMenuSectionHtml = this._createCheckboxSectionHtml(
-      "Context Menu",
-      contextMenuSettings,
-      false,
-      "",
-      contextMenuCommandsHtml,
-      contextMenuResetPrefs
-    );
+    const contextMenuCommandsHtml = [
+      ZenuxSettings.textareaRow(
+        "Command when no text is selected",
+        PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION,
+        { rows: 3, id: "pref-context-menu-command-no-selection" }
+      ),
+      ZenuxSettings.textareaRow(
+        "Command when text is selected. Use {selection} for the selected text.",
+        PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION,
+        { rows: 3, id: "pref-context-menu-command-with-selection" }
+      ),
+    ].join("");
+    const contextMenuSectionHtml = ZenuxSettings.accordionSection({
+      title: "Context Menu",
+      expanded: false,
+      resetPrefs: [
+        ...contextMenuSettings.map((s) => s.pref),
+        PREFS.CONTEXT_MENU_COMMAND_NO_SELECTION,
+        PREFS.CONTEXT_MENU_COMMAND_WITH_SELECTION,
+      ],
+      body: contextMenuSettings.map((s) => ZenuxSettings.checkboxRow(s.label, s.pref)).join(""),
+      after: contextMenuCommandsHtml,
+    });
 
-    // Section 6: LLM Providers
     let llmProviderSettingsHtml = "";
     for (const [name, provider] of Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       const modelPrefKey = provider.modelPref;
@@ -751,41 +487,36 @@ export const SettingsModal = {
       if (provider.baseUrlPref) {
         const baseUrlPrefKey = provider.baseUrlPref;
         const safeId = this._getSafeIdForProvider(name);
-        apiInputHtml = `
-        <div class="setting-item">
-          <label for="pref-${safeId}-base-url">Base URL</label>
-          <input type="text" class="zenux-input" id="pref-${safeId}-base-url" data-pref="${baseUrlPrefKey}" placeholder="http://localhost:11434/api" />
-        </div>
-      `;
+        apiInputHtml = ZenuxSettings.textRow("Base URL", baseUrlPrefKey, {
+          placeholder: "http://localhost:11434/api",
+          id: `pref-${safeId}-base-url`,
+        });
       } else if (name === "custom") {
-        const baseUrlPrefKey = PREFS.CUSTOM_BASE_URL;
-        const apiPrefKey = PREFS.CUSTOM_API_KEY;
-        apiInputHtml = `
-        <div class="setting-item">
-          <label for="pref-custom-base-url">Base URL</label>
-          <input type="text" class="zenux-input" id="pref-custom-base-url" data-pref="${baseUrlPrefKey}" placeholder="https://api.your-provider.com/v1" />
-        </div>
-        <div class="setting-item">
-          <label for="pref-custom-api-key">API Key</label>
-          <input type="password" class="zenux-input" id="pref-custom-api-key" data-pref="${apiPrefKey}" placeholder="Enter Custom API Key" />
-        </div>
-      `;
+        apiInputHtml = [
+          ZenuxSettings.textRow("Base URL", PREFS.CUSTOM_BASE_URL, {
+            placeholder: "https://api.your-provider.com/v1",
+            id: "pref-custom-base-url",
+          }),
+          ZenuxSettings.textRow("API Key", PREFS.CUSTOM_API_KEY, {
+            placeholder: "Enter Custom API Key",
+            password: true,
+            id: "pref-custom-api-key",
+          }),
+        ].join("");
       } else {
         const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
         apiInputHtml = apiPrefKey
-          ? `
-        <div class="setting-item">
-          <label for="pref-${this._getSafeIdForProvider(name)}-api-key">API Key</label>
-          <input type="password" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-api-key" data-pref="${apiPrefKey}" placeholder="Enter ${provider.label} API Key" />
-        </div>
-      `
+          ? ZenuxSettings.textRow("API Key", apiPrefKey, {
+              placeholder: `Enter ${provider.label} API Key`,
+              password: true,
+              id: `pref-${this._getSafeIdForProvider(name)}-api-key`,
+            })
           : "";
       }
 
-      // Placeholder for the combobox, which will be inserted dynamically in createModalElement
       const modelSelectPlaceholderHtml = modelPrefKey
         ? `
-        <div class="setting-item" data-provider-model="${name}">
+        <div class="zenux-setting-item" data-provider-model="${escapeXmlAttribute(name)}">
           <label for="pref-${this._getSafeIdForProvider(name)}-model">Model</label>
           <div class="model-input-row">
             <div id="llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}"></div>
@@ -796,16 +527,12 @@ export const SettingsModal = {
       `
         : "";
 
-      llmProviderSettingsHtml += `
-        <div id="${this._getSafeIdForProvider(name)}-settings-group" class="provider-settings-group">
-          <div class="provider-header-group">
-            <h5>${provider.label}</h5>
-            <button class="get-api-key-link zenux-btn-ghost" data-url="${provider.apiKeyUrl || ""}" style="display: ${provider.apiKeyUrl ? "inline-block" : "none"};">Get API Key</button>
-          </div>
-          ${apiInputHtml}
-          ${modelSelectPlaceholderHtml}
-        </div>
-      `;
+      llmProviderSettingsHtml += ZenuxSettings.providerGroup({
+        id: `${this._getSafeIdForProvider(name)}-settings-group`,
+        title: provider.label,
+        headerAfter: `<button class="get-api-key-link zenux-btn-ghost" data-url="${escapeXmlAttribute(provider.apiKeyUrl || "")}"${provider.apiKeyUrl ? "" : " hidden"}>Get API Key</button>`,
+        body: apiInputHtml + modelSelectPlaceholderHtml,
+      });
     }
 
     const llmProvidersResetPrefs = [
@@ -817,22 +544,19 @@ export const SettingsModal = {
         .filter(Boolean),
     ];
 
-    const llmProvidersSectionHtml = `
-      <section class="settings-section settings-accordion zenux-section" data-expanded="false">
-        <h4 class="accordion-header">
-            LLM Providers
-            <div class="reset-section-btn" data-reset-prefs="${llmProvidersResetPrefs.join(",")}" title="Reset Section" role="button">
-                <img src="chrome://global/skin/icons/reload.svg" />
-            </div>
-        </h4>
-        <div class="setting-item accordion-content" class="">
+    const llmProvidersSectionHtml = ZenuxSettings.accordionSection({
+      title: "LLM Providers",
+      expanded: false,
+      resetPrefs: llmProvidersResetPrefs,
+      body: `
+        <div class="zenux-setting-item">
           <label for="pref-llm-provider">Select Provider</label>
           <div id="llm-provider-selector-placeholder"></div>
         </div>
         ${llmProviderSettingsHtml}
-      </section>`;
+      `,
+    });
 
-    // Section 7: Advanced LLM
     const advancedLLMSettings = [
       {
         label: "Temperature",
@@ -891,19 +615,12 @@ export const SettingsModal = {
       },
     ];
 
-    // Preset removed as per user request
-    const advancedLLMResetPrefs = advancedLLMSettings.map((s) => s.pref);
-
-    const advancedLLMSectionHtml = this._createCheckboxSectionHtml(
+    const advancedLLMSectionHtml = this._checkboxSection(
       "Advanced LLM Settings",
       advancedLLMSettings,
-      false,
-      "", // No preset selector
-      "",
-      advancedLLMResetPrefs
+      false
     );
 
-    // Section 8: Browser Findbar
     const browserFindbarSettings = [
       { label: "Find as you Type", pref: "accessibility.typeaheadfind" },
       {
@@ -913,43 +630,34 @@ export const SettingsModal = {
       { label: "Entire Word", pref: "findbar.entireword" },
       { label: "Highlight All", pref: "findbar.highlightAll" },
     ];
-    const browserSettingsHtml = this._createCheckboxSectionHtml(
+    const browserSettingsHtml = this._checkboxSection(
       "Browser Findbar",
       browserFindbarSettings,
-      false,
-      "",
-      "",
-      browserFindbarSettings.map((s) => s.pref)
+      false
     );
 
-    // Section 9: Development
     const devSettings = [{ label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE }];
-    const devSectionHtml = this._createCheckboxSectionHtml("Development", devSettings, false);
+    const devSectionHtml = this._checkboxSection("Development", devSettings, false);
 
-    return `
-      <div id="ai-settings-modal-overlay">
-        <div class="browse-bot-settings-modal">
-          <div class="ai-settings-header">
-            <h3>Settings</h3>
-            <div>
-              <button id="close-settings" class="settings-close-btn zenux-btn-ghost">Close</button>
-              <button id="save-settings" class="settings-save-btn zenux-btn-primary">Save</button>
-            </div>
-          </div>
-          <div class="ai-settings-content">
-            ${findbarSectionHtml}
-            ${urlbarSectionHtml}
-            ${shortcutsSectionHtml}
-            ${aiBehaviorSectionHtml}
-            ${contextMenuSectionHtml}
-            ${llmProvidersSectionHtml}
-            ${advancedLLMSectionHtml}
-            ${browserSettingsHtml}
-            ${devSectionHtml}
-          </div>
-        </div>
-      </div>
-    `;
+    const bodyHtml = [
+      findbarSectionHtml,
+      urlbarSectionHtml,
+      shortcutsSectionHtml,
+      aiBehaviorSectionHtml,
+      contextMenuSectionHtml,
+      llmProvidersSectionHtml,
+      advancedLLMSectionHtml,
+      browserSettingsHtml,
+      devSectionHtml,
+    ].join("");
+
+    return ZenuxSettings.shell({
+      title: "BrowseBot Settings",
+      bodyHTML: bodyHtml,
+      closeId: "browse-bot-close-settings",
+      saveId: "browse-bot-save-settings",
+      modalClass: "browse-bot-settings-modal",
+    });
   },
 };
 

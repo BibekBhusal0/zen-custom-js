@@ -1,0 +1,409 @@
+.zenux-settings-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(3px) !important;
+  z-index: 10000 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  font-family: var(--zenux-font) !important;
+
+  .zenux-settings-modal {
+    width: 620px !important;
+    max-width: 92vw !important;
+    height: 80vh !important;
+    max-height: 860px !important;
+    background-color: var(--zenux-bg) !important;
+    color: var(--zenux-text) !important;
+    border-radius: var(--zenux-radius-l) !important;
+    border: 1px solid var(--zenux-border) !important;
+    box-shadow: var(--zenux-shadow-l) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+
+    .zenux-settings-header {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 12px !important;
+      padding: 12px 16px !important;
+      border-bottom: 1px solid var(--zenux-separator) !important;
+      flex-shrink: 0 !important;
+
+      .zenux-settings-title {
+        margin: 0 !important;
+        font-size: 15px !important;
+        font-weight: 650 !important;
+        letter-spacing: 0.01em !important;
+      }
+
+      .zenux-settings-actions {
+        display: flex !important;
+        gap: 8px !important;
+        align-items: center !important;
+      }
+    }
+
+    .zenux-settings-tabs {
+      display: flex !important;
+      gap: 4px !important;
+      padding: 8px 16px !important;
+      border-bottom: 1px solid var(--zenux-separator) !important;
+      background: var(--zenux-surface) !important;
+      flex-shrink: 0 !important;
+      overflow-x: auto !important;
+      scrollbar-width: none !important;
+
+      .zenux-settings-tab {
+        font-family: var(--zenux-font) !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        line-height: 1.2 !important;
+        color: var(--zenux-muted) !important;
+        background: transparent !important;
+        border: 1px solid transparent !important;
+        border-radius: var(--zenux-radius-s) !important;
+        padding: 7px 14px !important;
+        cursor: pointer !important;
+        appearance: none !important;
+        white-space: nowrap !important;
+        transition:
+          background-color 0.15s var(--zenux-ease),
+          color 0.15s var(--zenux-ease) !important;
+
+        &:hover {
+          background-color: var(--zenux-surface-hover) !important;
+          color: var(--zenux-text) !important;
+        }
+
+        &.is-active {
+          background-color: var(--zenux-accent-soft) !important;
+          border-color: var(--zenux-accent-border) !important;
+          color: var(--zenux-accent-text) !important;
+        }
+      }
+    }
+
+    .zenux-settings-content {
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      padding: 12px 16px 16px 16px !important;
+      scrollbar-width: thin !important;
+      scrollbar-color: rgba(127, 127, 127, 0.35) transparent !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+
+      > [data-tab-content] {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        min-height: 0 !important;
+        flex-shrink: 0 !important;
+
+        &[hidden] {
+          display: none !important;
+        }
+      }
+
+      .zenux-settings-section {
+        background: var(--zenux-surface) !important;
+        border: 1px solid var(--zenux-border-soft) !important;
+        border-radius: var(--zenux-radius-m) !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+
+        &[hidden] {
+          display: none !important;
+        }
+      }
+
+      .zenux-settings-section-head {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        margin: 0 0 10px 0 !important;
+        padding-bottom: 8px !important;
+        border-bottom: 1px solid var(--zenux-separator) !important;
+      }
+
+      .zenux-settings-section-title {
+        margin: 0 !important;
+        flex: 1 !important;
+        min-width: 0 !important;
+        font-size: 16px !important;
+        font-weight: 650 !important;
+        color: var(--zenux-accent-text) !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .zenux-settings-reset {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        flex-shrink: 0 !important;
+
+        &:hover {
+          opacity: 1 !important;
+          visibility: visible !important;
+        }
+      }
+
+      .zenux-settings-accordion[data-expanded="true"] {
+        .zenux-settings-section-head:hover .zenux-settings-reset,
+        .zenux-settings-section-head:focus-within .zenux-settings-reset {
+          opacity: 0.75 !important;
+          visibility: visible !important;
+        }
+      }
+
+      .zenux-settings-accordion {
+        padding: 0 16px 14px !important;
+        max-height: 5000px !important;
+        height: auto !important;
+        overflow: hidden !important;
+        transition: max-height 0.3s ease !important;
+
+        .zenux-settings-section-head {
+          cursor: pointer !important;
+          padding-top: 8px !important;
+        }
+
+        .zenux-settings-chevron {
+          width: 14px !important;
+          height: 14px !important;
+          flex-shrink: 0 !important;
+          -moz-context-properties: fill !important;
+          fill: var(--zenux-muted) !important;
+          transform: rotate(0deg) !important;
+          transition: transform 0.18s var(--zenux-ease) !important;
+        }
+
+        &[data-expanded="false"] {
+          max-height: 26px !important;
+          cursor: pointer !important;
+
+          .zenux-settings-chevron {
+            transform: rotate(-90deg) !important;
+          }
+        }
+      }
+
+      .zenux-setting-item {
+        display: flex !important;
+        position: relative !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 12px !important;
+        padding: 8px 0 !important;
+        border-bottom: 1px dotted rgba(127, 127, 127, 0.3) !important;
+
+        &:last-child {
+          border-bottom: none !important;
+        }
+
+        &[hidden] {
+          display: none !important;
+        }
+
+        > label {
+          font-size: 14px !important;
+          flex: 1 !important;
+          min-width: 0 !important;
+          display: flex !important;
+          align-items: center !important;
+          gap: 6px !important;
+          margin-right: 10px !important;
+        }
+
+        input[type="checkbox"] {
+          transform: scale(1.2) !important;
+          flex-shrink: 0 !important;
+          margin-right: 5px !important;
+        }
+
+        .zenux-input,
+        select,
+        textarea {
+          flex-shrink: 0 !important;
+        }
+
+        input[type="number"].zenux-input {
+          width: 76px !important;
+          text-align: right !important;
+        }
+
+        input[type="text"].zenux-input,
+        input[type="password"].zenux-input {
+          min-width: 0 !important;
+          max-width: 260px !important;
+          width: 100% !important;
+        }
+
+        textarea.zenux-input {
+          width: 100% !important;
+          max-width: none !important;
+          min-height: 64px !important;
+          resize: vertical !important;
+          box-sizing: border-box !important;
+        }
+
+        select {
+          font-family: var(--zenux-font) !important;
+          font-size: 13px !important;
+          color: var(--zenux-text) !important;
+          background-color: var(--zenux-input-bg) !important;
+          border: 1px solid var(--zenux-border) !important;
+          border-radius: var(--zenux-radius-s) !important;
+          padding: 7px 10px !important;
+          margin: 0 !important;
+          max-width: 260px !important;
+
+          &:focus {
+            outline: 2px solid var(--zenux-accent-border) !important;
+            outline-offset: 0 !important;
+            border-color: var(--zenux-accent-border) !important;
+          }
+        }
+      }
+
+      .zenux-setting-item-stacked {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 8px !important;
+
+        > label {
+          flex: none !important;
+        }
+      }
+
+      .zenux-shortcut-input {
+        font-family: var(--zenux-mono) !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        text-align: center !important;
+        width: 150px !important;
+        cursor: pointer !important;
+        user-select: none !important;
+
+        &.is-recording {
+          border-color: var(--zenux-accent-text) !important;
+          background-color: var(--zenux-accent-soft) !important;
+        }
+
+        &.is-conflict {
+          border-color: var(--zenux-danger) !important;
+          background-color: var(--zenux-danger-bg) !important;
+        }
+      }
+
+      .zenux-settings-conflict-note {
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        color: var(--zenux-danger) !important;
+
+        &[hidden] {
+          display: none !important;
+        }
+      }
+
+      .zenux-settings-warning {
+        font-size: 12.5px !important;
+        line-height: 1.5 !important;
+        padding: 8px 12px !important;
+        border-radius: var(--zenux-radius-s) !important;
+        color: var(--zenux-text) !important;
+        background-color: var(--zenux-warning-bg) !important;
+        border: 1px solid var(--zenux-warning) !important;
+        margin: 2px 0 6px 0 !important;
+
+        &[hidden] {
+          display: none !important;
+        }
+      }
+
+      .zenux-settings-info {
+        position: relative !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+
+        img {
+          width: 14px !important;
+          height: 14px !important;
+          opacity: 0.6 !important;
+          -moz-context-properties: fill !important;
+          fill: currentColor !important;
+        }
+
+        &:hover img {
+          opacity: 1 !important;
+        }
+
+        &[data-tooltip]::after {
+          content: attr(data-tooltip) !important;
+          position: absolute !important;
+          bottom: 130% !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          background-color: var(--zenux-bg) !important;
+          color: var(--zenux-text) !important;
+          border: 1px solid var(--zenux-border) !important;
+          padding: 6px 10px !important;
+          border-radius: var(--zenux-radius-s) !important;
+          font-size: 11px !important;
+          font-weight: 400 !important;
+          line-height: 1.4 !important;
+          white-space: normal !important;
+          max-width: 200px !important;
+          width: max-content !important;
+          text-align: center !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+          visibility: hidden !important;
+          transition:
+            opacity 0.2s ease,
+            visibility 0.2s !important;
+          z-index: 10001 !important;
+          box-shadow: var(--zenux-shadow-s) !important;
+        }
+
+        &:hover::after {
+          opacity: 1 !important;
+          visibility: visible !important;
+        }
+      }
+
+      .zenux-settings-provider-group {
+        margin-top: 15px !important;
+        padding-top: 10px !important;
+        border-top: 1px solid var(--zenux-separator) !important;
+
+        &[hidden] {
+          display: none !important;
+        }
+      }
+
+      .zenux-settings-provider-head {
+        display: flex !important;
+        gap: 10px !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding-bottom: 6px !important;
+
+        h5 {
+          margin: 0 !important;
+          font-size: 14px !important;
+          font-weight: 650 !important;
+        }
+      }
+    }
+  }
+}

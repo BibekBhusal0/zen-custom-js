@@ -206,8 +206,9 @@ async function buildMod(mod) {
   await run(command);
 }
 
-// Copies shared/zen-design.css into the child repo when any of its CSS files
-// references it, and rewrites those imports to the published location.
+// Copies every shared/*.css file referenced by the child repo's CSS into the
+// child repo (shared/<name>.css -> shared-<name>.css) and rewrites those
+// imports to the published location.
 async function wireSharedCss(workDir) {
   const cssFiles = [];
   const collect = (dir) => {
@@ -222,22 +223,23 @@ async function wireSharedCss(workDir) {
   };
   collect(workDir);
 
-  const importTest = /@import\s+["'][^"']*(shared\/zen-design\.css|shared-design\.css)["']\s*;/;
-  const importPattern = /@import\s+["'][^"']*(shared\/zen-design\.css|shared-design\.css)["']\s*;/g;
-  let referenced = false;
+  const importPattern = /@import\s+["']([^"']*shared\/([^"'/]+\.css))["']\s*;/g;
+  const referenced = new Set();
   for (const file of cssFiles) {
     const original = readFileSync(file, "utf-8");
-    if (!importTest.test(original)) continue;
-    referenced = true;
-    writeFileSync(
-      file,
-      original.replace(importPattern, '@import "shared-design.css";')
-    );
+    if (!original.includes("shared/")) continue;
+    const rewritten = original.replace(importPattern, (match, _full, name) => {
+      referenced.add(name);
+      return `@import "shared-${name}";`;
+    });
+    if (rewritten !== original) {
+      writeFileSync(file, rewritten);
+    }
   }
 
-  if (referenced) {
-    const sharedSrc = path.join(MODS_DIR, "shared", "zen-design.css");
-    await $`cp ${sharedSrc} ${path.join(workDir, "shared-design.css")}`;
+  for (const name of referenced) {
+    const sharedSrc = path.join(MODS_DIR, "shared", name);
+    await $`cp ${sharedSrc} ${path.join(workDir, `shared-${name}`)}`;
   }
 }
 

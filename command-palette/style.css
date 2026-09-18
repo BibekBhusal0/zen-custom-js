@@ -1,643 +1,472 @@
 @import "../shared/zen-design.css";
+@import "../shared/settings-modal.css";
 
-#zen-cmd-settings-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: var(--zenux-font);
-
-  .command-palette-settings-modal {
-    width: 600px;
-    max-width: 90vw;
-    height: 80vh;
-    background-color: var(--zenux-bg);
-    color: var(--zenux-text);
-    border-radius: var(--zenux-radius-l);
-    border: 1px solid var(--zenux-border);
-    box-shadow: var(--zenux-shadow-l);
-    display: flex;
-    flex-direction: column;
-
-    .cmd-settings-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--zenux-separator);
-
-      h3 {
-        margin: 0;
-        font-size: 15px;
-        font-weight: 600;
-      }
-
-      div {
-        display: flex;
-        gap: 8px;
-      }
-    }
-
-    button {
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: 600;
-      background-color: transparent;
-      border: 1px solid transparent;
-      border-radius: var(--zenux-radius-s);
-      padding: 6px 12px;
-      font-size: 13px;
-      appearance: none !important;
-      outline: none !important;
-      transition:
-        background-color 0.15s var(--zenux-ease),
-        border-color 0.15s var(--zenux-ease);
-
-      &:hover {
-        background-color: var(--zenux-surface-hover);
-        border-color: var(--zenux-border-soft);
-      }
-    }
-
-    .cmd-settings-tabs {
-      display: flex;
-      padding: 10px 20px;
-      border-bottom: 1px solid var(--zenux-separator);
-      gap: 4px;
-      background: var(--zenux-surface);
-      border-radius: 0;
-
-      .cmd-settings-tab {
-        border: 1px solid transparent;
-        border-radius: var(--zenux-radius-s);
-        padding: 7px 14px;
-        font-weight: 600;
-        font-size: 13px;
-        line-height: 1.2;
-        cursor: pointer;
-        color: var(--zenux-muted);
-        transition:
-          background-color 0.15s var(--zenux-ease),
-          color 0.15s var(--zenux-ease);
-
-        &:hover {
-          background-color: var(--zenux-surface-hover);
-          color: var(--zenux-text);
-        }
-
-        &.active {
-          background-color: var(--zenux-accent-soft);
-          border-color: var(--zenux-accent-border);
-          color: var(--zenux-accent-text);
-
-          &:hover {
-            background-color: var(--zenux-accent-soft);
-            color: var(--zenux-accent-text);
-          }
-        }
-      }
-    }
-
-    .cmd-settings-content {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 20px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(127, 127, 127, 0.3) transparent;
-
-      /*
+.command-palette-settings-modal {
+  /*
  * ╭─────────────────────────────────────────────────────────╮
  * │                      Commands Tab                       │
  * ╰─────────────────────────────────────────────────────────╯
 */
 
-      #commands-tab-content {
-        .search-bar-wrapper {
-          position: sticky;
-          top: -20px;
-          background: var(--zenux-bg);
-          padding: 20px 20px 12px 20px;
-          margin: -20px -20px 12px -20px;
-          z-index: 1;
-          border-bottom: 1px solid var(--zenux-border-soft);
+  #commands-tab-content {
+    .search-bar-wrapper {
+      position: sticky;
+      top: -12px;
+      background: var(--zenux-bg);
+      padding: 12px 16px 10px 16px;
+      margin: -12px -16px 10px -16px;
+      z-index: 1;
+      border-bottom: 1px solid var(--zenux-border-soft);
 
-          #command-search-input {
-            width: 100%;
-            box-sizing: border-box;
-            padding-left: 32px !important;
-            background-repeat: no-repeat !important;
-            background-position: 8px center !important;
-            background-size: 16px 16px !important;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="%239b9a9a" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21l-4.343-4.343m0 0A8 8 0 1 0 5.343 5.343a8 8 0 0 0 11.314 11.314"/></svg>') !important;
-          }
+      #command-search-input {
+        width: 100%;
+        box-sizing: border-box;
+        padding-left: 32px !important;
+        background-repeat: no-repeat !important;
+        background-position: 8px center !important;
+        background-size: 16px 16px !important;
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="%239b9a9a" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21l-4.343-4.343m0 0A8 8 0 1 0 5.343 5.343a8 8 0 0 0 11.314 11.314"/></svg>') !important;
+      }
+    }
+
+    #commands-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      .commands-group-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 14px 0 6px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--zenux-separator);
+
+        h4 {
+          margin: 0;
+          font-size: 13px;
+          font-weight: 600;
+          color: var(--zenux-muted);
         }
+      }
 
-          #commands-list {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            .commands-group-header {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin: 14px 0 6px;
-              padding-bottom: 6px;
-              border-bottom: 1px solid var(--zenux-separator);
+      .command-item {
+        display: grid;
+        grid-template-columns: 24px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 7px 8px;
+        border-radius: var(--zenux-radius-s);
+        border: 1px solid transparent;
+        transition: background-color 0.15s var(--zenux-ease);
 
-              h4 {
-                margin: 0;
-                font-size: 13px;
-                font-weight: 600;
-                color: var(--zenux-muted);
-              }
-            }
+        &:hover {
+          background-color: var(--zenux-surface-hover);
+        }
+      }
 
-            .command-item {
-              display: grid;
-              grid-template-columns: 24px 1fr auto;
-              gap: 12px;
-              align-items: center;
-              padding: 7px 8px;
-              border-radius: var(--zenux-radius-s);
-              border: 1px solid transparent;
-              transition: background-color 0.15s var(--zenux-ease);
+      .command-item:has(.shortcut-input.is-conflict) {
+        background-color: var(--zenux-danger-bg);
+        border-color: var(--zenux-danger);
+      }
 
-              &:hover {
-                background-color: var(--zenux-surface-hover);
-              }
-            }
+      .command-icon {
+        padding: 3px !important;
+        width: 20px !important;
+        height: 20px !important;
+        object-fit: contain !important;
+        justify-self: center;
+        fill: light-dark(black, white) !important;
+        stroke: light-dark(black, white) !important;
+        -moz-context-properties: fill, stroke !important;
 
-            .command-item:has(.shortcut-input.conflict) {
-              background-color: var(--zenux-danger-bg);
-              border-color: var(--zenux-danger);
-            }
+        &.editable {
+          cursor: pointer;
+          border-radius: 4px;
 
-          .command-icon {
-            padding: 3px !important;
-            width: 20px !important;
-            height: 20px !important;
-            object-fit: contain !important;
-            justify-self: center;
-            fill: light-dark(black, white) !important;
-            stroke: light-dark(black, white) !important;
-            -moz-context-properties: fill, stroke !important;
-
-            &.editable {
-              cursor: pointer;
-              border-radius: 4px;
-
-              &:hover {
-                background-color: rgba(127, 127, 127, 0.1);
-              }
-            }
-          }
-
-          .command-label {
-            font-size: 14px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-
-          .command-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-
-            .shortcut-input-wrapper {
-              display: flex;
-            }
-
-            .shortcut-input {
-              width: 120px;
-              font-size: 12px !important;
-              text-align: center !important;
-
-              &.conflict {
-                border-color: var(--zenux-danger) !important;
-                outline: 2px solid color-mix(in srgb, var(--zenux-danger) 35%, transparent) !important;
-                background-color: var(--zenux-danger-bg) !important;
-              }
-            }
-
-            .toolbar-button-toggle {
-              svg {
-                scale: 0.75;
-              }
-            }
-
-            .visibility-toggle {
-              transform: scale(1.2);
-            }
-          }
-
-          .shortcut-conflict-warning {
-            grid-column: 1 / -1;
-            font-size: 11px;
-            color: var(--zenux-danger);
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+          &:hover {
+            background-color: rgba(127, 127, 127, 0.1);
           }
         }
       }
 
-      /*
- * ╭─────────────────────────────────────────────────────────╮
- * │                      Settings Tab                       │
- * ╰─────────────────────────────────────────────────────────╯
-*/
-      #settings-tab-content {
-        .settings-section {
-          margin-bottom: 12px;
+      .command-label {
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-          .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid var(--zenux-border-soft);
+      .command-controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
 
-            &:last-child {
-              border-bottom: none;
-            }
+        .shortcut-input-wrapper {
+          display: flex;
+        }
 
-            label {
-              font-size: 14px;
-              flex-grow: 1;
-              margin-right: 10px;
-            }
-
-            input {
-              &[type="checkbox"] {
-                transform: scale(1.2);
-                margin-right: 5px;
-              }
-
-              &[type="number"] {
-                width: 30px !important;
-                text-align: right !important;
-                &::-moz-number-spin-box,
-                &::-moz-number-spin-up,
-                &::-moz-number-spin-down {
-                  display: none !important;
-                }
-              }
-            }
+        .shortcut-input {
+          &.is-conflict {
+            border-color: var(--zenux-danger) !important;
+            outline: 2px solid color-mix(in srgb, var(--zenux-danger) 35%, transparent) !important;
+            background-color: var(--zenux-danger-bg) !important;
           }
+        }
+
+        .toolbar-button-toggle {
+          svg {
+            scale: 0.75;
+          }
+        }
+
+        .visibility-toggle {
+          transform: scale(1.2);
         }
       }
 
-      /*
+      .shortcut-conflict-warning {
+        grid-column: 1 / -1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  /*
  * ╭─────────────────────────────────────────────────────────╮
  * │                  Custom Commaands Tab                   │
  * ╰─────────────────────────────────────────────────────────╯
 */
-      #custom-commands-tab-content {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+  #custom-commands-tab-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 
-        .custom-commands-toolbar {
-          padding: 10px;
-          margin-bottom: 10px;
-          background: var(--zenux-surface);
-          border-radius: var(--zenux-radius-s);
-          border: 1px solid var(--zenux-border-soft);
+    .custom-commands-toolbar {
+      padding: 10px;
+      margin-bottom: 10px;
+      background: var(--zenux-surface);
+      border-radius: var(--zenux-radius-s);
+      border: 1px solid var(--zenux-border-soft);
 
-          p {
-            margin: 0 0 10px 0;
-            font-size: 13px;
-            color: var(--zenux-muted);
-          }
+      p {
+        margin: 0 0 10px 0;
+        font-size: 13px;
+        color: var(--zenux-muted);
+      }
+    }
+
+    .custom-commands-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    #custom-commands-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .custom-command-item {
+        display: grid;
+        grid-template-columns: 24px 1fr auto auto;
+        gap: 12px;
+        align-items: center;
+        padding: 8px 12px;
+        border-radius: 6px;
+        background-color: rgba(127, 127, 127, 0.05);
+        border: 1px solid rgba(127, 127, 127, 0.1);
+
+        .custom-command-icon {
+          width: 16px !important;
+          height: 16px !important;
+          object-fit: contain !important;
+          justify-self: center;
+          fill: light-dark(black, white) !important;
+          stroke: light-dark(black, white) !important;
+          -moz-context-properties: fill, stroke !important;
         }
 
-        .custom-commands-actions {
-          display: flex;
-          gap: 10px;
+        .custom-command-name {
+          font-weight: 600;
         }
 
-        #custom-commands-list {
+        .custom-command-controls {
           display: flex;
-          flex-direction: column;
           gap: 8px;
-
-          .custom-command-item {
-            display: grid;
-            grid-template-columns: 24px 1fr auto auto;
-            gap: 12px;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 6px;
-            background-color: rgba(127, 127, 127, 0.05);
-            border: 1px solid rgba(127, 127, 127, 0.1);
-
-            .custom-command-icon {
-              width: 16px !important;
-              height: 16px !important;
-              object-fit: contain !important;
-              justify-self: center;
-              fill: light-dark(black, white) !important;
-              stroke: light-dark(black, white) !important;
-              -moz-context-properties: fill, stroke !important;
-            }
-
-            .custom-command-name {
-              font-weight: 600;
-            }
-
-            .custom-command-controls {
-              display: flex;
-              gap: 8px;
-            }
-          }
         }
+      }
+    }
 
-        #custom-command-editor {
-          display: flex;
-          flex-direction: column;
-          gap: 15px;
+    #custom-command-editor {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
 
-          h3 {
-            font-size: 16px !important;
-            margin: 0;
-            border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-            padding-bottom: 8px;
-            margin-bottom: 5px;
-          }
+      h3 {
+        font-size: 16px !important;
+        margin: 0;
+        border-bottom: 1px solid rgba(127, 127, 127, 0.3);
+        padding-bottom: 8px;
+        margin-bottom: 5px;
+      }
 
-          textarea {
-            width: calc(100% - 20px);
-            min-height: 150px;
-            font-family: var(--zenux-mono) !important;
-          }
+      textarea {
+        width: calc(100% - 20px);
+        min-height: 150px;
+        font-family: var(--zenux-mono) !important;
+      }
 
-          .setting-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-
-            label {
-              font-size: 15px;
-              padding-right: 20px;
-            }
-            input[type="text"] {
-              flex-grow: 1;
-            }
-          }
-
-          .js-warning {
-            font-size: 12px;
-            padding: 8px;
-            border-radius: var(--zenux-radius-s);
-            color: var(--zenux-text);
-            background-color: var(--zenux-warning-bg);
-            border: 1px solid var(--zenux-warning);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-
-            svg {
-              width: 16px;
-              height: 16px;
-              min-width: 16px;
-              min-height: 16px;
-              fill: var(--zenux-warning) !important;
-              -moz-context-properties: fill !important;
-            }
-          }
-        }
-
-        .setting-item-vertical {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-
-          > label {
-            font-weight: 600;
-            font-size: 16px !important;
-            padding-top: 2px;
-          }
-
-            #chain-builder {
-              display: flex;
-              flex-direction: column;
-              gap: 15px;
-              padding: 10px;
-              background: var(--zenux-surface);
-              border: 1px solid var(--zenux-border-soft);
-              border-radius: var(--zenux-radius-s);
-
-            #chain-command-selector-placeholder,
-            #chain-command-selector {
-              flex-grow: 1;
-              max-width: 450px;
-            }
-
-            #chain-command-selector-container {
-              display: flex;
-              align-content: center;
-              justify-content: space-around;
-              gap: 10px;
-
-              #chain-command-selector {
-                margin: 0 !important;
-              }
-            }
-
-            .function-actions {
-              display: flex;
-              gap: 10px;
-              align-items: center;
-              margin-top: 10px;
-              padding: 10px;
-              background: var(--zenux-surface);
-              border: 1px solid var(--zenux-border-soft);
-              border-radius: var(--zenux-radius-s);
-              label {
-                font-weight: 600;
-              }
-            }
-            .function-step {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 10px;
-              align-items: center;
-              background: var(--zenux-surface-hover);
-              padding: 8px;
-              border-radius: var(--zenux-radius-s);
-              flex-grow: 1;
-              .param-item {
-                display: contents;
-              }
-              .param-input {
-                min-width: 100px;
-                flex-grow: 1;
-              }
-            }
-
-            #current-chain-list {
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-              max-height: 250px;
-              overflow-y: auto;
-              padding: 10px;
-              border: 1px solid var(--zenux-border-soft);
-              border-radius: var(--zenux-radius-s);
-              .chain-item-container {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                .chain-item-selector {
-                  flex-grow: 1;
-                }
-                .chain-item-arrow-controls {
-                  display: flex;
-                  gap: 2px;
-                  opacity: 0;
-                  transition: opacity 0.2s ease;
-                  min-width: 48px;
-                  justify-content: center;
-                }
-                &:hover .chain-item-arrow-controls {
-                  opacity: 1;
-                }
-              }
-            }
-          }
-        }
-
-        .custom-command-editor-actions {
-          display: flex;
-          justify-content: flex-end;
-          gap: 10px;
-          margin-top: 10px;
+      .zenux-setting-item {
+        input[type="text"] {
+          flex-grow: 1;
         }
       }
 
-/*
+      .js-warning {
+        font-size: 12px;
+        padding: 8px;
+        border-radius: var(--zenux-radius-s);
+        color: var(--zenux-text);
+        background-color: var(--zenux-warning-bg);
+        border: 1px solid var(--zenux-warning);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        svg {
+          width: 16px;
+          height: 16px;
+          min-width: 16px;
+          min-height: 16px;
+          fill: var(--zenux-warning) !important;
+          -moz-context-properties: fill !important;
+        }
+      }
+    }
+
+    .setting-item-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      > label {
+        font-weight: 600;
+        font-size: 16px !important;
+        padding-top: 2px;
+      }
+
+      #chain-builder {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 10px;
+        background: var(--zenux-surface);
+        border: 1px solid var(--zenux-border-soft);
+        border-radius: var(--zenux-radius-s);
+
+        #chain-command-selector-placeholder,
+        #chain-command-selector {
+          flex-grow: 1;
+          max-width: 450px;
+        }
+
+        #chain-command-selector-container {
+          display: flex;
+          align-content: center;
+          justify-content: space-around;
+          gap: 10px;
+
+          #chain-command-selector {
+            margin: 0 !important;
+          }
+        }
+
+        .function-actions {
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          margin-top: 10px;
+          padding: 10px;
+          background: var(--zenux-surface);
+          border: 1px solid var(--zenux-border-soft);
+          border-radius: var(--zenux-radius-s);
+          label {
+            font-weight: 600;
+          }
+        }
+        .function-step {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          align-items: center;
+          background: var(--zenux-surface-hover);
+          padding: 8px;
+          border-radius: var(--zenux-radius-s);
+          flex-grow: 1;
+          .param-item {
+            display: contents;
+          }
+          .param-input {
+            min-width: 100px;
+            flex-grow: 1;
+          }
+        }
+
+        #current-chain-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          max-height: 250px;
+          overflow-y: auto;
+          padding: 10px;
+          border: 1px solid var(--zenux-border-soft);
+          border-radius: var(--zenux-radius-s);
+          .chain-item-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            .chain-item-selector {
+              flex-grow: 1;
+            }
+            .chain-item-arrow-controls {
+              display: flex;
+              gap: 2px;
+              opacity: 0;
+              transition: opacity 0.2s ease;
+              min-width: 48px;
+              justify-content: center;
+            }
+            &:hover .chain-item-arrow-controls {
+              opacity: 1;
+            }
+          }
+        }
+      }
+    }
+
+    .custom-command-editor-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+  }
+
+  /*
  * ╭─────────────────────────────────────────────────────────╮
  * │                  Quick Split Section                    │
  * ╰─────────────────────────────────────────────────────────╯
 */
-      #quick-split-section {
-        .quick-split-list-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin: 10px 0;
+  #quick-split-section {
+    .quick-split-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 10px 0;
 
-          #add-quick-split-keyword {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+      #add-quick-split-keyword {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
 
-            img {
-              width: 14px;
-              height: 14px;
-              fill: currentColor !important;
-              -moz-context-properties: fill !important;
-            }
-          }
-        }
-
-        #quick-split-engine-picker {
-          display: flex;
-          flex-grow: 1;
-          min-width: 0;
-          justify-content: flex-end;
-
-          .zenux-combobox {
-            flex-grow: 1;
-            max-width: 320px;
-          }
-        }
-
-        #quick-split-keywords-list {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          max-height: 260px;
-          overflow-y: auto;
-
-          .keyword-row {
-            display: grid;
-            grid-template-columns: 130px 1fr auto;
-            gap: 10px;
-            align-items: center;
-            padding: 4px 0;
-
-            input[type="text"] {
-              min-width: 0;
-            }
-          }
+        img {
+          width: 14px;
+          height: 14px;
+          fill: currentColor !important;
+          -moz-context-properties: fill !important;
         }
       }
+    }
 
-/*
+    #quick-split-engine-picker {
+      display: flex;
+      flex-grow: 1;
+      min-width: 0;
+      justify-content: flex-end;
+
+      .zenux-combobox {
+        flex-grow: 1;
+        max-width: 320px;
+      }
+    }
+
+    #quick-split-keywords-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 260px;
+      overflow-y: auto;
+
+      .keyword-row {
+        display: grid;
+        grid-template-columns: 130px 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 4px 0;
+
+        input[type="text"] {
+          min-width: 0;
+        }
+      }
+    }
+  }
+
+  /*
  * ╭─────────────────────────────────────────────────────────╮
  * │                        Help Tab                         │
  * ╰─────────────────────────────────────────────────────────╯
 */
-      #help-tab-content {
-        .help-buttons-container {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 15px;
-          padding: 10px;
+  #help-tab-content {
+    .help-buttons-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      padding: 10px;
 
-          .help-button {
-            display: grid;
-            grid-template-areas: "icon title" "icon description";
-            grid-template-columns: auto 1fr;
-            gap: 0 14px;
-            padding: 16px 18px;
-            text-align: left;
-            border: 1px solid var(--zenux-border-soft);
-            border-radius: var(--zenux-radius-m);
-            background-color: var(--zenux-surface);
-            transition:
-              background-color 0.15s var(--zenux-ease),
-              border-color 0.15s var(--zenux-ease);
-            appearance: none !important;
-            outline: none !important;
+      .help-button {
+        display: grid;
+        grid-template-areas: "icon title" "icon description";
+        grid-template-columns: auto 1fr;
+        gap: 0 14px;
+        padding: 16px 18px;
+        text-align: left;
+        font-family: var(--zenux-font);
+        border: 1px solid var(--zenux-border-soft);
+        border-radius: var(--zenux-radius-m);
+        background-color: var(--zenux-surface);
+        cursor: pointer;
+        transition:
+          background-color 0.15s var(--zenux-ease),
+          border-color 0.15s var(--zenux-ease);
+        appearance: none !important;
+        outline: none !important;
 
-            &:hover {
-              background-color: var(--zenux-surface-hover);
-              border-color: var(--zenux-accent-border);
-            }
-            img {
-              grid-area: icon;
-              width: 34px;
-              height: 34px;
-              align-self: center;
-              fill: currentColor;
-              -moz-context-properties: fill !important;
-            }
+        &:hover {
+          background-color: var(--zenux-surface-hover);
+          border-color: var(--zenux-accent-border);
+        }
+        img {
+          grid-area: icon;
+          width: 34px;
+          height: 34px;
+          align-self: center;
+          fill: currentColor;
+          -moz-context-properties: fill !important;
+        }
 
-            span {
-              grid-area: title;
-              font-size: 18px;
-              font-weight: 600;
-              color: var(--zenux-accent-text);
-            }
+        span {
+          grid-area: title;
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--zenux-accent-text);
+        }
 
-            p {
-              grid-area: description;
-              font-size: 13px;
-              opacity: 0.8;
-              margin: 0;
-            }
-          }
+        p {
+          grid-area: description;
+          font-size: 13px;
+          opacity: 0.8;
+          margin: 0;
         }
       }
     }

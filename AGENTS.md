@@ -57,10 +57,12 @@ Single source of truth: `shared/zen-design.css`. It defines `zenux-*` tokens (co
 
 Available classes: `zenux-input`, `zenux-btn-primary/ghost/danger/success/warning`, `zenux-icon-btn` with `zenux-icon-btn-danger` and `zenux-icon-btn-accent` (toggle with `is-active`, uses `outline` so enabling never shifts layout), `zenux-section` + `zenux-section-title`, `zenux-count` (+ `zenux-count-accent`, requires both classes), `zenux-empty`, `zenux-combobox` (searchable dropdown, popup uses `zenux-combobox-popup`/`zenux-combobox-item`).
 
+Settings modals share a second source of truth: `shared/settings-modal.js` (`ZenuxSettings` base class plus `attachStandaloneShortcutRecorder`) with visuals in `shared/settings-modal.css`. It provides the overlay shell, tabs, accordion sections with hover-reveal reset buttons, pref rows (checkbox/number/text/textarea/select/shortcut), `data-pref` binding, and shortcut recording. Descriptor-driven `prefRow()`/`prefAccordion()` bake current values into rows/sections so callers never touch controls afterwards. Visibility uses `hidden`, `data-expanded`, and state classes (`is-recording`, `is-conflict`, `is-active`); never set inline styles from settings JS. Mods import the CSS relatively (`@import "../shared/settings-modal.css";`) and build rows/shell via the base class, adding only mod-specific sections on top. `ZenuxSettings.shell()` accepts `overlayId`/`modalClass` so mods can keep scoped overrides (e.g. `.browse-bot-settings-modal` acrylic background).
+
 Rules:
 
 - Mods import it relatively: `@import "../shared/zen-design.css";` as the first line of `style.css`.
-- Publishing (`wireSharedCss` in `.github/scripts/publish.js`) copies it into each child repo as `shared-design.css` and rewrites the import. Never duplicate the file per mod.
+- Publishing (`wireSharedCss` in `.github/scripts/publish.js`) copies every referenced `shared/*.css` file into each child repo as `shared-<name>.css` (e.g. `shared-zen-design.css`, `shared-settings-modal.css`) and rewrites the import. Never duplicate shared files per mod.
 - Use classes for anything repeated. Prefer a variant over per-action styles.
 - Never alias variables (`--x: var(--zenux-y)`). Reference `zenux-*` directly. The only exception is behavioral variables like the browse-bot background-style switcher.
 - Interactive classes (`zenux-input`, `zenux-btn-*`, `zenux-icon-btn`) use `!important` throughout because Firefox native and XUL controls need it to lose. Structural classes do not.

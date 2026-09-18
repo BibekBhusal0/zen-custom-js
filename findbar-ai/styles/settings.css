@@ -1,4 +1,3 @@
-#ai-settings-modal-overlay,
 .tool-confirmation-dialog {
   position: fixed;
   top: 0;
@@ -15,239 +14,28 @@
 }
 
 .browse-bot-settings-modal {
-  position: relative;
-  width: 500px;
   min-width: 500px;
-  max-width: 90vw;
-  height: 80vh;
-  padding: 20px 0px 0px 20px;
-  border-radius: var(--zenux-radius-m) !important;
-  outline: 1px solid rgba(0, 0, 0, 1) !important;
-  border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
   background: var(--browse-bot-dialog-bg) !important;
   backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
-  flex-direction: column;
-  gap: 14px;
+  outline: 1px solid rgba(0, 0, 0, 1) !important;
+  border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
 
   input[type="text"] {
     min-width: 250px !important;
     margin: 0 !important;
   }
 
-  .ai-settings-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-    margin-right: 18px !important;
-    margin-bottom: 5px;
-
-    h3 {
-      margin: 0 !important;
-      font-size: 18px !important;
-      font-weight: 700 !important;
-    }
-
-    div {
-      display: flex;
-      gap: 10px;
-    }
+  /* Pushing them right so that tooltip will not overflow  */
+  .zenux-setting-item:has(label[for="pref-extension.browse-bot.llm.top-p"])
+    .zenux-settings-info,
+  .zenux-setting-item:has(label[for="pref-extension.browse-bot.llm.top-k"])
+    .zenux-settings-info {
+    margin-left: 50px;
   }
 
-  .ai-settings-content {
-    overflow-y: auto !important;
-    scrollbar-width: thin;
-    scrollbar-color: inherit transparent;
-    height: calc(100% - 40px) !important;
-    padding-right: 18px !important;
-
-    .settings-section {
-      margin: 10px 0px !important;
-
-      h4 {
-        margin: 0 0 10px 0 !important;
-        font-size: 16px !important;
-        color: var(--zenux-accent-text) !important;
-        border-bottom: 1px solid rgba(127, 127, 127, 0.3);
-        padding-bottom: 8px;
-      }
-
-      .setting-item {
-        display: flex;
-        position: relative;
-        justify-content: space-between;
-        align-items: center;
-        padding: 8px 0;
-        border-bottom: 1px dotted rgba(127, 127, 127, 0.3);
-
-        &:has(textarea) {
-          flex-direction: column !important;
-          align-items: start !important;
-          textarea {
-            width: calc(100% - 40px) !important;
-            margin: 8px 0 0 15px !important;
-          }
-        }
-
-        &:last-child {
-          border-bottom: none;
-        }
-
-        label {
-          font-size: 14px !important;
-          flex-grow: 1;
-          margin-right: 10px;
-        }
-
-        input[type="checkbox"] {
-          transform: scale(1.2);
-          margin-right: 5px;
-        }
-      }
-    }
-
-    .settings-accordion {
-      padding-top: 0 !important;
-      transition: max-height 0.3s ease !important;
-      max-height: 500px !important;
-      overflow: hidden;
-
-      .accordion-header {
-        cursor: pointer;
-        padding-top: 8px !important;
-        padding-right: 45px !important;
-        position: relative;
-
-        &::after {
-          content: url("chrome://global/skin/icons/arrow-up.svg") !important;
-          -moz-context-properties: fill !important;
-          fill: light-dark(black, white) !important;
-          position: absolute;
-          right: 0px;
-          top: 50%;
-          transform: translateY(-50%) rotate(180deg);
-          transition: transform 0.1s ease-in-out;
-        }
-      }
-
-      .reset-section-btn {
-        position: absolute;
-        right: 20px;
-        top: 50%;
-        transform: translateY(-50%) rotate(-90deg);
-        padding: 4px !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0.6;
-        cursor: pointer;
-        z-index: 10;
-        border-radius: 4px;
-
-        img {
-          width: 14px;
-          height: 14px;
-          -moz-context-properties: fill;
-          fill: light-dark(black, white);
-          pointer-events: none;
-          /* Ensure click hits the button div */
-        }
-
-        &:hover {
-          opacity: 1;
-          background-color: rgba(127, 127, 127, 0.1) !important;
-        }
-      }
-
-      &[data-expanded="false"] {
-        max-height: 20px !important;
-
-        .accordion-header::after {
-          transform: translateY(-50%) rotate(270deg);
-        }
-
-        .reset-section-btn {
-          display: none !important;
-        }
-      }
-    }
-  }
-
-  /* Info Icon Wrapper & Tooltip */
-  .info-icon-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-left: 4px;
-    height: 16px;
-    padding-left: 8px;
-    .info-icon {
-      width: 14px;
-      height: 14px;
-      opacity: 0.6;
-      cursor: help;
-      -moz-context-properties: fill;
-      fill: currentColor;
-    }
-    &:hover .info-icon {
-      opacity: 1;
-    }
-
-    &[data-tooltip]::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: 125%;
-      left: 50%;
-      transform: translateX(-50%);
-
-      background-color: var(--browser-themed-toolbar-bg, #2b2a33);
-      color: var(--text-color, white);
-      border: 1px solid rgba(127, 127, 127, 0.3);
-      padding: 6px 10px;
-      border-radius: 4px;
-      font-size: 11px;
-      line-height: 1.4;
-      white-space: normal;
-      max-width: 160px;
-      width: max-content;
-      text-align: center;
-
-      opacity: 0;
-      pointer-events: none;
-      visibility: hidden;
-      transition:
-        opacity 0.2s ease,
-        visibility 0.2s;
-      z-index: 10000;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-    &:hover::after {
-      opacity: 1;
-      visibility: visible;
-    }
-  }
-
-  /* HACK: Pushing them right so that tooltip will not overflow  */
-  .setting-item:has(label[for="pref-extension.browse-bot.llm.top-p"]) .info-icon-wrapper,
-  .setting-item:has(label[for="pref-extension.browse-bot.llm.top-k"]) .info-icon-wrapper {
-    margin-left: 40px;
-  }
-
-  .provider-settings-group {
-    margin-top: 15px;
-    padding-top: 10px;
-    border-top: 1px solid rgba(127, 127, 127, 0.3);
-
-    .provider-header-group {
-      display: flex !important;
-      gap: 10px !important;
-      justify-content: space-between !important;
-      padding-bottom: 6px !important;
-
+  .zenux-settings-provider-group {
+    .zenux-settings-provider-head {
       h5 {
-        margin: 0 0 10px 0 !important;
-        font-size: 15px !important;
         color: var(--tab-selected-textcolor) !important;
       }
     }
@@ -255,13 +43,11 @@
 
   #citations-agentic-mode-warning {
     display: none;
-    color: var(--zenux-danger);
-    margin-bottom: 10px;
   }
 
   /* When Citations enabled hiding stream option*/
   &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked) {
-    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
+    .zenux-setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
       display: none !important;
     }
 
@@ -282,12 +68,12 @@
   /* When Findbar AI is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.enabled:not(:checked)) {
     /* Hide other options Findbar section */
-    .settings-section:first-of-type .setting-item:not(:first-child) {
+    .zenux-settings-section:first-of-type .zenux-setting-item:not(:first-child) {
       display: none !important;
     }
 
     /* Hide findbar sections */
-    .settings-section {
+    .zenux-settings-section {
       &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode),
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled),
       &:has([data-pref="accessibility.typeaheadfind"]) {
@@ -299,7 +85,7 @@
   /* When URLBar AI is disabled */
   &:has(#pref-extension\.browse-bot\.urlbar-ai-enabled:not(:checked)) {
     /* Hide URLBar AI dependent settings */
-    .setting-item {
+    .zenux-setting-item {
       &:has([data-pref="extension.browse-bot.urlbar-ai.animations-enabled"]),
       &:has([data-pref="extension.browse-bot.urlbar-ai.hide-suggestions"]) {
         display: none !important;
@@ -309,7 +95,7 @@
 
   /* When agentic Mode is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:not(:checked)) {
-    .setting-item {
+    .zenux-setting-item {
       &:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
       &:has(#pref-max-tool-calls) {
         display: none !important;
@@ -320,7 +106,7 @@
   /* When Context Menu is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled:not(:checked)) {
     /* Hide Context Menu dependent settings */
-    .setting-item {
+    .zenux-setting-item {
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-autosend),
       &:has(#pref-context-menu-command-no-selection),
       &:has(#pref-context-menu-command-with-selection) {
@@ -331,7 +117,7 @@
 
   /* When Drag and Drop is disabled */
   &:has(#pref-extension\.browse-bot\.findbar-ai\.dnd-enabled:not(:checked))
-    .setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.remember-dimensions) {
+    .zenux-setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.remember-dimensions) {
     display: none !important;
   }
 }
@@ -341,7 +127,6 @@ findbar,
   .zenux-combobox,
   select {
     flex-grow: 1 !important;
-    padding: 8px 12px !important;
     font-size: 14px !important;
     transition: border-color 0.15s var(--zenux-ease) !important;
     margin: 0 !important;
@@ -363,41 +148,14 @@ findbar,
   input[type="number"] {
     padding: 4px 6px !important;
     max-width: 50px !important;
-    text-align: center !important;
     font-size: 16px !important;
     &#pref-extension\.browse-bot\.llm\.max-output-tokens {
       max-width: 90px !important;
     }
   }
 
-  select {
-    padding: 6px 8px !important;
-    max-width: 200px !important;
-    margin: 0 !important;
-  }
-
   .zenux-combobox {
     padding: 4px !important;
-  }
-
-  /* Shortcut input styles */
-  .shortcut-input {
-    text-align: start !important;
-    font-weight: 600 !important;
-    min-width: 120px !important;
-    cursor: pointer !important;
-    user-select: none !important;
-
-    &:focus,
-    &.recording {
-      border-color: var(--zenux-accent-text) !important;
-      background-color: color-mix(in srgb, var(--zenux-accent) 20%, transparent 80%) !important;
-    }
-
-    &::placeholder {
-      font-style: italic !important;
-      opacity: 0.7 !important;
-    }
   }
 
   .model-input-row {
@@ -405,7 +163,6 @@ findbar,
     align-items: center !important;
     gap: 6px !important;
     flex-grow: 1 !important;
-
     input {
       flex: 1 !important;
       min-width: 0 !important;
@@ -436,11 +193,11 @@ findbar,
     margin-top: 4px !important;
     text-align: right !important;
 
-    &.verify-model-status.success {
+    &.success {
       color: var(--zenux-success) !important;
     }
 
-    &.verify-model-status.error {
+    &.error {
       color: var(--zenux-danger) !important;
     }
   }
