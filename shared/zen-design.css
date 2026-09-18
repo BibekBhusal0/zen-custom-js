@@ -26,6 +26,14 @@
     color-mix(in srgb, var(--zenux-accent) 88%, white 12%),
     color-mix(in srgb, var(--zenux-accent) 72%, black 28%)
   );
+  /* Text on top of a solid accent fill. The accent comes from the Zen
+   * primary color, which the user can set to anything light or dark, so
+   * a fixed dark label is unreadable on dark accents. Darken the fill
+   * instead and always use white text. */
+  --zenux-accent-solid: light-dark(
+    color-mix(in srgb, var(--zenux-accent) 76%, black 24%),
+    color-mix(in srgb, var(--zenux-accent) 68%, black 32%)
+  );
   --zenux-accent-text: light-dark(
     color-mix(in srgb, var(--zenux-accent) 55%, black 45%),
     color-mix(in srgb, var(--zenux-accent) 55%, white 45%)
@@ -98,8 +106,8 @@
   font-family: var(--zenux-font) !important;
   font-size: 13px !important;
   font-weight: 600 !important;
-  color: light-dark(#10281f, #0c1512) !important;
-  background-color: var(--zenux-accent-strong) !important;
+  color: white !important;
+  background-color: var(--zenux-accent-solid) !important;
   border: 1px solid transparent !important;
   border-radius: var(--zenux-radius-s) !important;
   padding: 7px 14px !important;
@@ -271,11 +279,11 @@
 
   &.zenux-icon-btn-accent {
     &.is-active {
-      background-color: var(--zenux-accent-strong) !important;
+      background-color: var(--zenux-accent-solid) !important;
 
       & img,
       & svg {
-        fill: light-dark(#10281f, #0c1512) !important;
+        fill: white !important;
       }
     }
   }
