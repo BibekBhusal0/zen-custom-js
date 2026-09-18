@@ -1,0 +1,61 @@
+/**
+ * Generates commands for opening "about:" pages.
+ * @returns {Promise<Array<object>>} A promise that resolves to an array of about page commands.
+ */
+export async function generateAboutPageCommands() {
+  const aboutPages = [
+    { page: "preferences", icon: "chrome://browser/skin/zen-icons/settings.svg" },
+    { page: "config", icon: "chrome://browser/skin/zen-icons/settings.svg" },
+    { page: "newtab", icon: "chrome://browser/skin/zen-icons/home.svg" },
+    { page: "addons", icon: "chrome://browser/skin/zen-icons/extension.svg" },
+    { page: "downloads", icon: "chrome://browser/skin/zen-icons/downloads.svg" },
+    { page: "debugging" },
+    { page: "deleteprofile" },
+    { page: "logins" },
+    { page: "editprofile" },
+    { page: "memory" },
+    { page: "newprofile" },
+    { page: "processes" },
+    { page: "profiles" },
+    { page: "serviceworkers" },
+    { page: "about" },
+    { page: "buildconfig" },
+    { page: "cache" },
+    { page: "certificate" },
+    { page: "checkerboard" },
+    { page: "compat" },
+    { page: "credits" },
+    { page: "support", icon: "chrome://browser/skin/zen-icons/info.svg" },
+    { page: "home", icon: "chrome://browser/skin/zen-icons/home.svg" },
+    { page: "license" },
+    { page: "logging" },
+    { page: "loginsimportreport" },
+    { page: "logo" },
+    { page: "mozilla" },
+    { page: "networking" },
+    { page: "policies" },
+    { page: "privatebrowsing", icon: "chrome://browser/skin/zen-icons/private-window.svg" },
+    { page: "profiling" },
+    { page: "protections" },
+    { page: "rights" },
+    { page: "robots" },
+    { page: "studies" },
+    { page: "sync-log" },
+    { page: "telemetry" },
+    { page: "third-party" },
+    { page: "unloads" },
+    { page: "url-classifier" },
+    { page: "webrtc" },
+    { page: "welcome" },
+    { page: "windows-messages" },
+  ];
+
+  return aboutPages.map((aboutPage) => ({
+    key: `about:${aboutPage.page}`,
+    label: `Open about:${aboutPage.page}`,
+    command: () => switchToTabHavingURI(`about:${aboutPage.page}`, true),
+    condition: !!window.switchToTabHavingURI,
+    icon: aboutPage.icon || "chrome://browser/skin/zen-icons/tab.svg",
+    tags: ["about", "internal", aboutPage.page],
+  }));
+}

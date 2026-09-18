@@ -14,7 +14,7 @@ import {
   generateExtensionUninstallCommands,
   generateCustomCommands,
   getQuickSplitCommand,
-} from "./dynamic-commands.js";
+} from "./dynamic-commands/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { SettingsModal } from "./settings.js";
