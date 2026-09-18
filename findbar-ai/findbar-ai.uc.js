@@ -60,10 +60,12 @@ sidebarWidthUpdate();
 
 function renderCitationMarkers(answer, citations) {
   const byId = new Map((citations || []).map((c) => [String(c.id), c]));
-  return String(answer).replace(/\[(\d+)\]/g, (match, id) => {
-    const ts = byId.get(id)?.timestamp;
+  return String(answer).replace(/\[(\d+|\d{1,3}:\d{2}(?::\d{2})?)\]/g, (match, ref) => {
+    const cite = byId.get(ref);
+    const ts = cite?.timestamp ?? (/:/.test(ref) ? ref : null);
     const tsAttr = ts ? ` data-timestamp="${escapeXmlAttribute(String(ts))}"` : "";
-    return `<span class="citation-link" data-citation-id="${id}"${tsAttr}>[${id}]</span>`;
+    const label = ts ? `[${escapeXmlAttribute(String(ts))}]` : `[${ref}]`;
+    return `<span class="citation-link" data-citation-id="${ref}"${tsAttr}>${label}</span>`;
   });
 }
 
@@ -890,8 +892,8 @@ export const browseBotFindbar = {
     });
 
     chatMessages.addEventListener("click", async (e) => {
-      if (e.target.classList.contains("citation-link")) {
-        const button = e.target;
+      const button = e.target.closest?.(".citation-link");
+      if (button) {
         if (button.dataset.timestamp) {
           const seconds = timestampToSeconds(button.dataset.timestamp);
           if (seconds !== null) messageManagerAPI.seekVideo(seconds);

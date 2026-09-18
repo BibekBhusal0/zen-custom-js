@@ -308,7 +308,7 @@ You have access to browser functions. The user knows you have these abilities.
         isVideoPage = false;
       }
       const videoCitationLine = isVideoPage
-        ? `- **Video transcripts**: The provided content is a timestamped transcript where each line starts with its \`[mm:ss]\` time. Each citation object SHOULD also include a \`"timestamp"\` field with that segment's time (e.g. \`"4:30"\`). Keep the \`[id]\` markers in the answer unchanged; clicking them seeks the video to that moment.`
+        ? `- **Video transcripts**: The provided content is a timestamped transcript where each line starts with its \`[mm:ss]\` time. Each citation object SHOULD also include a \`"timestamp"\` field with that segment's time (e.g. \`"4:30"\`). Keep writing \`[id]\` markers in the answer; the interface shows each marker as its timestamp, and clicking it seeks the video to that moment.`
         : "";
       const citationExamples = isVideoPage ? videoCitationExample : pageCitationExamples;
       systemPrompt += `
