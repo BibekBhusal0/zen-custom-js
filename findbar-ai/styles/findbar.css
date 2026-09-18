@@ -622,21 +622,18 @@ browser {
     }
 
     .citation-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 1.6em !important;
-      height: 1.6em !important;
-      font-size: 0.72em !important;
+      display: inline;
+      padding: 0 0.25em !important;
+      font-size: 0.85em !important;
       font-weight: 600 !important;
+      line-height: inherit !important;
       cursor: pointer;
-      margin: 1px 3px;
+      margin: 0 1px;
       vertical-align: baseline;
-      padding: 0 0.45em !important;
       color: var(--zenux-accent-text) !important;
       background: var(--zenux-accent-soft) !important;
       border: 1px solid var(--zenux-accent-border) !important;
-      border-radius: var(--zenux-radius-pill) !important;
+      border-radius: 4px !important;
       text-decoration: none !important;
       transition: background-color 0.15s var(--zenux-ease);
 
