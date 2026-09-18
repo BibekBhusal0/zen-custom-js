@@ -122,6 +122,7 @@ export const browseBotFindbar = {
       return;
     }
     const rect = this.findbar.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
     const _findbarDimension = { width: rect.width, height: rect.height };
     const _findbarCoors = { x: rect.left, y: rect.top };
     document.documentElement.style.setProperty("--findbar-width", `${_findbarDimension.width}px`);
@@ -267,6 +268,9 @@ export const browseBotFindbar = {
     }
     gBrowser.getFindBar().then((findbar) => {
       this.findbar = findbar;
+      if (this._dimensionsObserver) this._dimensionsObserver.disconnect();
+      this._dimensionsObserver = new ResizeObserver(() => this._updateFindbarDimensions());
+      this._dimensionsObserver.observe(findbar);
       this._applyFindbarDimensions();
       this.addExpandButton();
       if (PREFS.persistChat) {
@@ -1075,6 +1079,8 @@ export const browseBotFindbar = {
   },
   destroy() {
     this.findbar = null;
+    this._dimensionsObserver?.disconnect();
+    this._dimensionsObserver = null;
     setTimeout(() => this._updateFindbarDimensions(), 10);
     this.expanded = false;
     try {
