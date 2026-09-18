@@ -2,6 +2,7 @@ import { browseBotFindbarLLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { createCombobox } from "../utils/combobox.js";
+import { createModelField } from "./utils/model-selector.js";
 import { ZenuxSettings } from "../shared/settings-modal.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
 
@@ -45,81 +46,23 @@ export const SettingsModal = {
         `#llm-model-selector-placeholder-${this._getSafeIdForProvider(name)}`
       );
       if (modelPlaceholder) {
-        let modelSelectorElement;
-        if (typeof provider.refreshModels === "function") {
-          const seedItems = currentModel
-            ? [{ value: currentModel, label: provider.getModelLabel(currentModel), image: "" }]
-            : [];
-          modelSelectorElement = createCombobox({
-            id: `pref-${this._getSafeIdForProvider(name)}-model`,
-            attrs: { "data-pref": modelPrefKey },
-            value: currentModel,
-            items: seedItems,
-          });
-          modelPlaceholder.replaceWith(modelSelectorElement);
-          this._loadDynamicModels(name, provider);
-        } else if (provider.customModel) {
-          const modelInputHtml = `
-            <input type="text" class="zenux-input" id="pref-${this._getSafeIdForProvider(name)}-model" data-pref="${modelPrefKey}" value="${escapeXmlAttribute(currentModel || "")}" placeholder="${escapeXmlAttribute(provider.modelPlaceholder || "")}" />
-          `;
-          modelSelectorElement = parseElement(modelInputHtml, "html");
-          modelPlaceholder.replaceWith(modelSelectorElement);
-        } else {
-          const modelCombo = createCombobox({
-            id: `pref-${this._getSafeIdForProvider(name)}-model`,
-            attrs: { "data-pref": modelPrefKey },
-            value: currentModel,
-            items: provider.AVAILABLE_MODELS.map((model) => ({
-              value: model,
-              label: provider.getModelLabel(model),
-              image: "",
-            })),
-          });
-          modelSelectorElement = modelCombo;
-          modelPlaceholder.replaceWith(modelSelectorElement);
-        }
+        const modelSelectorElement = createModelField(provider, {
+          id: `pref-${this._getSafeIdForProvider(name)}-model`,
+          value: currentModel,
+          attrs: { "data-pref": modelPrefKey },
+          getApiKey: () => form.values[provider.apiPref] || PREFS.getPref(provider.apiPref) || "",
+          onDynamicLoaded: (combo) => {
+            if (combo.value && !form.values[provider.modelPref]) {
+              form.values[provider.modelPref] = combo.value;
+            }
+          },
+        });
+        modelPlaceholder.replaceWith(modelSelectorElement);
       }
     }
 
     this._attachEventListeners();
     return container;
-  },
-
-  async _loadDynamicModels(providerName, provider) {
-    if (!this._modalElement || typeof provider?.refreshModels !== "function") return;
-    const combo = this._modalElement.querySelector(
-      `#pref-${this._getSafeIdForProvider(providerName)}-model`
-    );
-    if (!combo) return;
-    try {
-      const fetched = await provider.refreshModels();
-      const key = form.values[provider.apiPref] || PREFS.getPref(provider.apiPref) || "";
-      let showAll = false;
-      if (key && typeof provider.checkKey === "function") {
-        try {
-          const check = await provider.checkKey(key);
-          showAll = check.valid && check.paidAccess !== false;
-        } catch (e) {
-          PREFS.debugError(`Could not verify key for ${providerName}:`, e);
-          showAll = true;
-        }
-      }
-      const visible = showAll ? fetched : fetched.filter((id) => provider.isFreeModel(id));
-      combo.setItems(
-        visible.map((id) => ({
-          value: id,
-          label: `${provider.getModelLabel(id)}${provider.isFreeModel(id) ? " (Free)" : ""}`,
-          image: "",
-        }))
-      );
-      if (!combo.value && visible.length) {
-        combo.value = visible[0];
-        form.values[provider.modelPref] = visible[0];
-      }
-      PREFS.debugLog(`Loaded ${visible.length} dynamic models for ${providerName}`);
-    } catch (e) {
-      PREFS.debugError(`Could not load models for ${providerName}:`, e);
-    }
   },
 
   _onPrefChange(prefKey) {

@@ -418,23 +418,19 @@ browser {
       .provider-selection-group {
         padding: 16px 0px !important;
         display: flex !important;
-        align-content: center !important;
+        align-items: center !important;
         justify-content: center !important;
-        gap: 4px !important;
+        gap: 8px !important;
 
         > label {
           font-size: 15px !important;
-          padding-top: 14px !important;
+          flex-shrink: 0 !important;
         }
 
-          #provider-selector {
-            max-height: 40px !important;
-            flex-basis: 0 !important;
-            flex-grow: 1 !important;
-            min-width: 0 !important;
-            display: flex !important;
-            text-align: start !important;
-          }
+        #provider-selector {
+          flex: 1 !important;
+          min-width: 0 !important;
+        }
       }
 
       .api-key-input-group {
@@ -451,9 +447,23 @@ browser {
           display: flex;
           gap: 8px;
           width: 100%;
+        }
 
-          button {
-            font-size: 14px !important;
+        #model-selector-wrap {
+          width: 100%;
+
+          #model-selector {
+            width: 100% !important;
+          }
+        }
+
+        .setup-error {
+          min-height: 18px !important;
+          font-size: 13px !important;
+          color: var(--browse-bot-error, #e5534b) !important;
+
+          &:empty {
+            display: none !important;
           }
         }
 
@@ -468,6 +478,10 @@ browser {
         justify-content: center;
         align-items: center;
         gap: 8px;
+
+        button {
+          font-size: 14px !important;
+        }
       }
     }
 
