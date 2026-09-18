@@ -638,10 +638,16 @@ export const browseBotFindbar = {
           setTimeout(() => this._updateFindbarDimensions(), 0);
         }
       } else {
+        const loadingIndicator = this.createLoadingIndicator();
+        messagesContainer.appendChild(loadingIndicator);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
         const result = await resultPromise;
         let fullText = "";
-        for await (const delta of result.textStream) {
-          fullText += delta;
+        try {
+          for await (const delta of result.textStream) {
+            if (loadingIndicator.parentNode) loadingIndicator.remove();
+            fullText += delta;
           try {
             contentDiv.innerHTML = parseMD(fullText, false);
           } catch (e) {
@@ -657,6 +663,9 @@ export const browseBotFindbar = {
           contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
         } else if (fullText.trim() === "" && !aiMessageDiv.querySelector(".tool-calls-container")) {
           aiMessageDiv.remove();
+        }
+        } finally {
+          if (loadingIndicator.parentNode) loadingIndicator.remove();
         }
       }
     } catch (e) {
