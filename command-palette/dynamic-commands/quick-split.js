@@ -2,7 +2,7 @@ import { PREFS } from "../utils/prefs.js";
 import { textToSvgDataUrl, svgToUrl, icons } from "../../utils/icon.js";
 import { Storage } from "../utils/storage.js";
 import { showToast } from "../../utils/toast.js";
-import { getDefaultEngine, getEngineByName } from "../../utils/search-service.js";
+import { getEngineByName } from "../../utils/search-service.js";
 import { openLink } from "../../utils/open-link.js";
 
 /*
@@ -106,21 +106,12 @@ function quickSplitNormalizeUrl(value) {
   return `https://${value}`;
 }
 
-async function getQuickSplitEngine() {
-  const name = (PREFS.quickSplitSearchEngine || "").trim();
-  if (name) {
-    try {
-      const engine = await getEngineByName(name);
-      if (engine) return engine;
-      PREFS.debugError(`Search engine "${name}" not found, falling back to default.`);
-    } catch (e) {
-      PREFS.debugError(`Failed to load search engine "${name}".`, e);
-    }
-  }
-  return getDefaultEngine();
+function quickSplitLuckyUrl(query, engineName = "") {
+  if (/google/i.test(engineName))
+    return `https://www.google.com/search?q=${encodeURIComponent(query)}&btnI=1`;
+  return `https://duckduckgo.com/?q=!ducky+${encodeURIComponent(query)}`;
 }
 
-// Keyword match wins, then URL detection, then search engine fallback.
 async function resolveQuickSplitPart(part) {
   const trimmed = part.trim();
   if (!trimmed) return null;
@@ -128,14 +119,17 @@ async function resolveQuickSplitPart(part) {
   const keywordUrl = keywords[trimmed.toLowerCase()];
   if (keywordUrl) return quickSplitNormalizeUrl(keywordUrl);
   if (quickSplitLooksLikeUrl(trimmed)) return quickSplitNormalizeUrl(trimmed);
+  const saved = (PREFS.quickSplitSearchEngine || "").trim();
+  if (!saved || /^duckduckgo lucky$/i.test(saved)) return quickSplitLuckyUrl(trimmed, saved);
+  if (/^google lucky$/i.test(saved)) return quickSplitLuckyUrl(trimmed, saved);
   try {
-    const engine = await getQuickSplitEngine();
+    const engine = await getEngineByName(saved);
     const submission = engine.getSubmission(trimmed);
     if (submission?.uri?.spec) return submission.uri.spec;
   } catch (e) {
     PREFS.debugError(`Failed to build search URL for "${trimmed}".`, e);
   }
-  return null;
+  return quickSplitLuckyUrl(trimmed);
 }
 
 export async function executeQuickSplit(parsed) {

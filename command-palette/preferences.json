@@ -187,9 +187,9 @@
     "type": "string",
     "property": "zen-command-palette.quick-split.search-engine",
     "label": "Search Engine",
-    "placeholder": "Empty for browser default",
+    "placeholder": "Empty for DuckDuckGo Lucky",
     "defaultValue": "",
-    "description": "Name of the search engine used for plain terms (e.g. Google, DuckDuckGo). Empty means the browser default."
+    "description": "Empty means DuckDuckGo Lucky, Google Lucky means Google Lucky. Both jump to the first result."
   },
   {
     "type": "separator",

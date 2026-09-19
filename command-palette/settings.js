@@ -5,7 +5,7 @@ import { parseElement, escapeXmlAttribute, xulImage } from "../utils/parse.js";
 import { createCombobox } from "../utils/combobox.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
-import { getSearchEngineFavicon } from "../utils/favicon.js";
+import { getSearchEngineFavicon, googleFaviconAPI } from "../utils/favicon.js";
 import { checkShortcutConflicts, getPrettyShortcut } from "../utils/keyboard.js";
 import { bestFuzzyScore } from "../utils/fuzzy.js";
 import {
@@ -590,22 +590,33 @@ const SettingsModal = {
         PREFS.debugError("Failed to get default search engine for Quick Split picker.", e);
       }
       const saved = PREFS.getPref(PREFS.QUICK_SPLIT_SEARCH_ENGINE) || "";
-      const current = saved && engines.some((engine) => engine.name === saved) ? saved : "";
+      let current = "";
+      if (/^google lucky$/i.test(saved)) current = "Google Lucky";
+      else if (!saved || /^duckduckgo lucky$/i.test(saved)) current = "";
+      else if (engines.some((engine) => engine.name === saved)) current = saved;
       const combo = createCombobox({
         id: "quick-split-search-engine",
         attrs: { "data-pref": PREFS.QUICK_SPLIT_SEARCH_ENGINE },
         value: current,
         items: [
-          { value: "", label: "Browser default", image: "" },
-          ...engines.map((engine) => {
-            const label =
-              engine.name === defaultEngineName ? `${engine.name} (Default)` : engine.name;
-            return {
-              value: engine.name,
-              label,
-              image: getSearchEngineFavicon(engine),
-            };
-          }),
+          {
+            value: "",
+            label: "DuckDuckGo Lucky (Default)",
+            image: 
+               googleFaviconAPI("duckduckgo.com"),
+          },
+          {
+            value: "Google Lucky",
+            label: "Google Lucky",
+            image: 
+               googleFaviconAPI("google.com"),
+          },
+          ...engines.map((engine) => ({
+            value: engine.name,
+            label:
+              engine.name === defaultEngineName ? `${engine.name} (Browser Default)` : engine.name,
+            image: getSearchEngineFavicon(engine),
+          })),
         ],
       });
       picker.replaceChildren(combo);

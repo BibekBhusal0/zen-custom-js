@@ -77,7 +77,7 @@ Here are all Preferences which can be configured from `about:config` (also from 
 | `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |
 | `zen-command-palette.dynamic.profiles`                 | Boolean | `true`                              | Automatically generate commands for switching between profiles.              |
 | `zen-command-palette.dynamic.quick-split`              | Boolean | `true`                              | Open split views and glance from the palette with split syntax.              |
-| `zen-command-palette.quick-split.search-engine`        | String  | `""` (browser default)              | Search engine used for plain terms that are not keywords or URLs.            |
+| `zen-command-palette.quick-split.search-engine`        | String  | `""` (DuckDuckGo lucky)             | Search engine used for plain terms that are not keywords or URLs. Empty jumps to the first result via DuckDuckGo `!ducky`. |
 | `zen-command-palette.settings-file-path`               | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
 
 ## ⌨️ Default Keyboard Shortcuts
