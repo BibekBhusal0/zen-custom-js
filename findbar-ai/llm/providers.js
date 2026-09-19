@@ -369,7 +369,7 @@ const custom = Object.create(
   providerPrototype,
   Object.getOwnPropertyDescriptors({
     name: "custom",
-    label: "Custom Provider (OpenAI Compatible)",
+    label: "Custom Provider",
     faviconUrl: "chrome://global/skin/icons/settings.svg",
     apiKeyUrl: "",
     customModel: true,
