@@ -161,9 +161,8 @@ function checkZenConflict(shortcutStr, excludeId = null) {
  * @param {KeyboardEvent} event - The keyboard event.
  */
 function handleKeyDown(event) {
-  // Don't save if input is in focus
   const t = event.target;
-  if (t && (t.tagName === "input" || t.tagName === "textarea" || t.isContentEditable)) {
+  if (t?.closest?.(".zenux-shortcut-input, .zenCKSOption-input")) {
     return;
   }
 
