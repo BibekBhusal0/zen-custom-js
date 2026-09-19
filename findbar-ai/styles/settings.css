@@ -158,14 +158,30 @@ findbar,
     padding: 4px !important;
   }
 
+  .zenux-setting-item > .zenux-combobox,
+  .zenux-setting-item > select {
+    flex: 0 1 260px !important;
+    width: 100% !important;
+    max-width: 260px !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+  }
+
   .model-input-row {
     display: flex !important;
     align-items: center !important;
     gap: 6px !important;
-    flex-grow: 1 !important;
+    flex: 0 1 260px !important;
+    width: 100% !important;
+    max-width: 260px !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    .zenux-combobox,
     input {
       flex: 1 !important;
       min-width: 0 !important;
+      width: 100% !important;
+      max-width: none !important;
 
       &.verify-success {
         border-color: var(--zenux-success) !important;
