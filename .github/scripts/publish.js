@@ -432,13 +432,18 @@ async function processMod(modData) {
       });
       releaseCreated = true;
 
-      // Reset release notes in parent
-      const rawTemplate = (await Bun.file(releaseTemplatePath).exists())
-        ? await Bun.file(releaseTemplatePath).text()
-        : "";
-      await Bun.write(releaseNotesPath, rawTemplate);
-      await run(`git add ${releaseNotesPath}`, MODS_DIR);
-      await run(`git commit -m "Reset release notes for ${theme.name} v${version}"`, MODS_DIR);
+      // Keep release notes for beta releases so they accumulate until stable.
+      if (!isBeta) {
+        // Reset release notes in parent
+        const rawTemplate = (await Bun.file(releaseTemplatePath).exists())
+          ? await Bun.file(releaseTemplatePath).text()
+          : "";
+        await Bun.write(releaseNotesPath, rawTemplate);
+        await run(`git add ${releaseNotesPath}`, MODS_DIR);
+        await run(`git commit -m "chore(${theme.id}): reset release notes"`, MODS_DIR);
+      } else {
+        console.log("Skipping release notes reset for beta release.");
+      }
     } else {
       console.log("Release notes empty or match template. Skipping release creation.");
     }

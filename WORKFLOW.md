@@ -44,7 +44,7 @@ The publish workflow detects changes in mod versions and performs the following 
     - Edit the `release-notes.md` file in the mod's directory.
     - Add your release notes.
     - If this file exists and contains content, a GitHub Release will be created in the child repository.
-    - After publishing, the workflow will automatically clear this file in the main repository.
+    - After stable publishing, the workflow will automatically clear this file in the main repository. Beta releases keep the notes so they accumulate until stable.
 
 3.  **Commit and Push**:
     - Commit your changes (formatting will be auto-applied if needed).
