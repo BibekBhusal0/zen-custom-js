@@ -41,6 +41,10 @@
     }
   }
 
+  .zenux-setting-item:has(#pref-llm-provider) {
+    border-bottom: none !important;
+  }
+
   #citations-agentic-mode-warning {
     display: none;
   }
