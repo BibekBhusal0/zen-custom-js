@@ -211,7 +211,20 @@ export const SettingsModal = {
     }
   },
 
+  isOpen() {
+    return !!this._modalElement?.isConnected;
+  },
+
+  async toggle() {
+    if (this.isOpen()) {
+      this.hide();
+      return;
+    }
+    await this.show();
+  },
+
   async show() {
+    if (this.isOpen()) return;
     await ensureApiKeysLoaded();
     this.createModalElement();
     form.syncFromPrefs(this._modalElement);
@@ -232,6 +245,7 @@ export const SettingsModal = {
     if (this._modalElement && this._modalElement.parentNode) {
       this._modalElement.remove();
     }
+    this._modalElement = null;
   },
 
   _updateProviderSpecificSettings(container, selectedProviderName) {

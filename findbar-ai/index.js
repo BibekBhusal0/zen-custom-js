@@ -25,7 +25,7 @@ function setupCommandPaletteIntegration() {
     {
       key: "browsebot:settings",
       label: "Open BrowseBot Settings",
-      command: () => SettingsModal.show(),
+      command: () => SettingsModal.toggle(),
       icon: "chrome://global/skin/icons/settings.svg",
       tags: ["AI", "BrowseBot", "Settings"],
     },
