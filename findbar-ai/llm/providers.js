@@ -1,5 +1,10 @@
 import PREFS from "../utils/prefs.js";
 import { googleFaviconAPI } from "../../utils/favicon.js";
+import {
+  getCachedApiKey,
+  getSecureApiKey,
+  setSecureApiKey,
+} from "../utils/secure.js";
 
 // Every provider is a key plus an endpoint. Providers on the OpenAI Chat
 // Completions protocol share one code path in client.js; only the transport
@@ -7,10 +12,16 @@ import { googleFaviconAPI } from "../../utils/favicon.js";
 // translated via anthropic.js).
 const providerPrototype = {
   get apiKey() {
-    return PREFS.getPref(this.apiPref);
+    return getCachedApiKey(this.apiPref);
   },
   set apiKey(v) {
-    if (typeof v === "string" && this.apiPref) PREFS.setPref(this.apiPref, v);
+    if (typeof v === "string" && this.apiPref) void setSecureApiKey(this.apiPref, v);
+  },
+  getApiKeyAsync() {
+    return getSecureApiKey(this.apiPref);
+  },
+  setApiKeyAsync(v) {
+    return setSecureApiKey(this.apiPref, v);
   },
   get model() {
     return PREFS.getPref(this.modelPref);
@@ -27,6 +38,15 @@ const providerPrototype = {
       kind: this.kind || "openai",
       baseURL: this.baseURL,
       apiKey: this.apiKey,
+      model: this.model,
+      ...(this.extraHeaders ? { extraHeaders: this.extraHeaders } : {}),
+    };
+  },
+  async getModelAsync() {
+    return {
+      kind: this.kind || "openai",
+      baseURL: this.baseURL,
+      apiKey: await this.getApiKeyAsync(),
       model: this.model,
       ...(this.extraHeaders ? { extraHeaders: this.extraHeaders } : {}),
     };
@@ -334,6 +354,9 @@ const pollinations = Object.assign(Object.create(providerPrototype), {
     return "";
   },
   set apiKey(v) {},
+  getApiKeyAsync() {
+    return Promise.resolve("");
+  },
   baseURL: "https://text.pollinations.ai/openai",
 });
 
@@ -362,6 +385,9 @@ const ollama = Object.assign(Object.create(providerPrototype), {
   set apiKey(v) {
     return;
     // Not required at all
+  },
+  getApiKeyAsync() {
+    return Promise.resolve("not_required");
   },
 });
 

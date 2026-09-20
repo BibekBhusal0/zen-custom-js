@@ -86,7 +86,7 @@ class LLM {
     }
 
     const result = await generateText({
-      provider: this.currentProvider.getModel(),
+      provider: await this.currentProvider.getModelAsync(),
       system: await this.getSystemPrompt(),
       messages: messages || this.history,
       tools,
@@ -110,7 +110,7 @@ class LLM {
 
     const self = this;
     return streamText({
-      provider: this.currentProvider.getModel(),
+      provider: await this.currentProvider.getModelAsync(),
       system: await this.getSystemPrompt(),
       messages: messages || this.history,
       tools,
@@ -134,7 +134,7 @@ class LLM {
     }
 
     const result = await generateText({
-      provider: this.currentProvider.getModel(),
+      provider: await this.currentProvider.getModelAsync(),
       system: await this.getSystemPrompt(),
       messages: messages || this.history,
       sampling: this.getSampling(),

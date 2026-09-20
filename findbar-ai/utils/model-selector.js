@@ -23,7 +23,7 @@ export async function loadDynamicModels(provider, combo, { getApiKey, isCurrent 
   try {
     const fetched = await provider.refreshModels();
     if (isCurrent && !isCurrent()) return [];
-    const key = (typeof getApiKey === "function" ? getApiKey() : "") || "";
+    const key = (typeof getApiKey === "function" ? await getApiKey() : "") || "";
     let showAll = false;
     if (key && typeof provider.checkKey === "function") {
       try {
