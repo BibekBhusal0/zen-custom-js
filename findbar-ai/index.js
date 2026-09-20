@@ -6,6 +6,7 @@ import { SettingsModal } from "./settings.js";
 import { addPrefListener } from "../utils/pref.js";
 import { initShortcutRegistry, registerShortcut } from "../utils/keyboard.js";
 import { addCommands } from "../utils/command-palete.js";
+import { ensureApiKeysLoaded } from "./utils/secure.js";
 
 function setupCommandPaletteIntegration() {
   addCommands([
@@ -68,7 +69,14 @@ function setupShortcuts() {
   addPrefListener(PREFS.SHORTCUT_FINDBAR, (val) => registerFindbarShortcut(val.value));
 }
 
-function init() {
+async function init() {
+  // Decrypt cached API keys and migrate any legacy plaintext keys to
+  // OSKeyStore encryption before the UI reads them.
+  try {
+    await ensureApiKeysLoaded();
+  } catch (e) {
+    PREFS.debugError("Could not load encrypted API keys:", e);
+  }
   // Init findbar-AI
   browseBotFindbar.init();
   addPrefListener(PREFS.ENABLED, (val) => {
