@@ -2,6 +2,7 @@ import { LLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
 import { parseElement } from "../utils/parse.js";
+import { showToast } from "../utils/toast.js";
 
 const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
 
@@ -43,11 +44,30 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
 
     const urlBarToolSet = getTools(urlBarGroups, { shouldToolBeCalled });
 
-    await super.generateText({
+    const result = await super.generateText({
       prompt,
       tools: urlBarToolSet,
       maxSteps: PREFS.maxToolCalls,
     });
+
+    const provider = this.currentProvider;
+    if (
+      provider?.name === "pollinations" &&
+      typeof provider.isBalanceExhaustedText === "function" &&
+      provider.isBalanceExhaustedText(result?.text)
+    ) {
+      try {
+        showToast({
+          title: "Pollinations is out of free credits",
+          description:
+            "Add a free Pollinations API key in BrowseBot settings, then try again.",
+          timeout: 8000,
+        });
+      } catch (e) {
+        PREFS.debugError("Failed to show balance toast:", e);
+      }
+    }
+    return result;
   }
 }
 

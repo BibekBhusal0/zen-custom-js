@@ -547,6 +547,34 @@ browser {
         color: var(--zenux-danger);
       }
 
+      .pollinations-key-prompt {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        p {
+          margin: 0 !important;
+        }
+
+        .pollinations-key-row {
+          display: flex;
+          gap: 8px;
+
+          input {
+            flex-grow: 1 !important;
+            min-width: 0 !important;
+          }
+        }
+
+        .key-prompt-status {
+          font-size: 13px !important;
+
+          &:empty {
+            display: none !important;
+          }
+        }
+      }
+
       .ai-chat-input-group {
         display: flex;
         gap: 10px;

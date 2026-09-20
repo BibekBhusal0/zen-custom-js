@@ -323,7 +323,7 @@ const pollinations = Object.assign(Object.create(providerPrototype), {
   name: "pollinations",
   label: "Pollinations AI",
   faviconUrl: googleFaviconAPI("pollinations.ai"),
-  apiKeyUrl: "",
+  apiKeyUrl: "https://enter.pollinations.ai/keys",
   noApiKey: true,
   customModel: true,
   modelPlaceholder: "e.g. openai-fast",
@@ -336,7 +336,29 @@ const pollinations = Object.assign(Object.create(providerPrototype), {
   isFreeModel() {
     return true;
   },
+  isBalanceExhaustedText(text) {
+    const t = String(text || "");
+    if (!t) return false;
+    if (/doesn'?t have enough credits|budget exhausted|insufficient balance/i.test(t)) return true;
+    return (
+      /top[- ]?up/i.test(t) &&
+      /quest|pollen|pollinations|enter\.pollinations\.ai/i.test(t)
+    );
+  },
   async refreshModels() {
+    if (this.apiKey) {
+      try {
+        const res = await fetch("https://gen.pollinations.ai/v1/models", {
+          headers: { Authorization: `Bearer ${this.apiKey}` },
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const ids = [...new Set((json?.data || []).map((m) => m?.id).filter(Boolean))];
+        if (ids.length) return ids;
+      } catch (e) {
+        PREFS.debugError?.("Keyed Pollinations model list failed, falling back:", e);
+      }
+    }
     const json = await fetchJson("https://text.pollinations.ai/models");
     const ids = [];
     for (const m of Array.isArray(json) ? json : []) {
@@ -346,14 +368,12 @@ const pollinations = Object.assign(Object.create(providerPrototype), {
     return [...new Set(ids)];
   },
   modelPref: PREFS.POLLINATIONS_MODEL,
-  get apiKey() {
-    return "";
+  apiPref: PREFS.POLLINATIONS_API_KEY,
+  get baseURL() {
+    return this.apiKey
+      ? "https://gen.pollinations.ai/v1/chat/completions"
+      : "https://text.pollinations.ai/openai";
   },
-  set apiKey(v) {},
-  getApiKeyAsync() {
-    return Promise.resolve("");
-  },
-  baseURL: "https://text.pollinations.ai/openai",
 });
 
 const ollama = Object.assign(Object.create(providerPrototype), {

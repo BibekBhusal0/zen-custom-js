@@ -54,6 +54,7 @@ class BrowseBotPREFS extends BasePREFS {
   static DEEPSEEK_MODEL = "extension.browse-bot.deepseek-model";
   static OPENROUTER_API_KEY = "extension.browse-bot.openrouter-api-key";
   static OPENROUTER_MODEL = "extension.browse-bot.openrouter-model";
+  static POLLINATIONS_API_KEY = "extension.browse-bot.pollinations-api-key";
   static POLLINATIONS_MODEL = "extension.browse-bot.pollinations-model";
   static OLLAMA_MODEL = "extension.browse-bot.ollama-model";
   static OLLAMA_BASE_URL = "extension.browse-bot.ollama-base-url";
@@ -107,6 +108,7 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.DEEPSEEK_MODEL]: "deepseek-v4-flash",
     [BrowseBotPREFS.OPENROUTER_API_KEY]: "",
     [BrowseBotPREFS.OPENROUTER_MODEL]: "google/gemini-2.5-flash",
+    [BrowseBotPREFS.POLLINATIONS_API_KEY]: "",
     [BrowseBotPREFS.POLLINATIONS_MODEL]: "openai",
     [BrowseBotPREFS.OLLAMA_MODEL]: "qwen3:8b",
     [BrowseBotPREFS.OLLAMA_BASE_URL]: "http://localhost:11434/api",

@@ -205,7 +205,8 @@ export const SettingsModal = {
         }
       }
     }
-    if (!(await browseBotFindbarLLM.currentProvider.getApiKeyAsync())) {
+    const currentProvider = browseBotFindbarLLM.currentProvider;
+    if (!currentProvider.noApiKey && !(await currentProvider.getApiKeyAsync())) {
       browseBotFindbar.expanded = false;
     }
   },
@@ -465,9 +466,14 @@ export const SettingsModal = {
         ].join("");
       } else {
         const apiPrefKey = PREFS[`${name.toUpperCase()}_API_KEY`];
+        const keyLabel = name === "pollinations" ? "API Key (optional)" : "API Key";
+        const keyPlaceholder =
+          name === "pollinations"
+            ? "Optional, unlocks more models and tool use"
+            : `Enter ${provider.label} API Key`;
         apiInputHtml = apiPrefKey
-          ? ZenuxSettings.textRow("API Key", apiPrefKey, {
-              placeholder: `Enter ${provider.label} API Key`,
+          ? ZenuxSettings.textRow(keyLabel, apiPrefKey, {
+              placeholder: keyPlaceholder,
               password: true,
               id: `pref-${this._getSafeIdForProvider(name)}-api-key`,
             })

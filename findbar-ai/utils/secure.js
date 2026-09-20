@@ -26,6 +26,7 @@ export function getApiKeyPrefs() {
     PREFS.CEREBRAS_API_KEY,
     PREFS.DEEPSEEK_API_KEY,
     PREFS.OPENROUTER_API_KEY,
+    PREFS.POLLINATIONS_API_KEY,
     PREFS.CUSTOM_API_KEY,
   ].filter(Boolean);
 }

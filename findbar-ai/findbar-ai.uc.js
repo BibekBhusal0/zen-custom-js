@@ -700,13 +700,19 @@ export const browseBotFindbar = {
 
           if (PREFS.citationsEnabled) {
             const { answer, citations } = result;
-            if (citations && citations.length > 0) {
+            if (this._isPollinationsBalanceExhausted(answer)) {
+              this._flagPollinationsKeyPrompt();
+              this._renderPollinationsKeyPrompt(contentDiv);
+            } else if (citations && citations.length > 0) {
               aiMessageDiv.dataset.citations = JSON.stringify(citations);
             }
             const textToParse = renderCitationMarkers(answer, citations);
             contentDiv.appendChild(parseMD(textToParse));
           } else {
-            if (result.text.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+            if (this._isPollinationsBalanceExhausted(result.text)) {
+              this._flagPollinationsKeyPrompt();
+              this._renderPollinationsKeyPrompt(contentDiv);
+            } else if (result.text.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
               contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
             } else if (
               result.text.trim() === "" &&
@@ -757,7 +763,10 @@ export const browseBotFindbar = {
             PREFS.debugError("Failed to resolve final stream text:", e.message);
           }
           renderStream();
-          if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+          if (this._isPollinationsBalanceExhausted(fullText)) {
+            this._flagPollinationsKeyPrompt();
+            this._renderPollinationsKeyPrompt(contentDiv);
+          } else if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
             contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
           } else if (
             fullText.trim() === "" &&
@@ -778,7 +787,16 @@ export const browseBotFindbar = {
           const parsed = JSON.parse(e.message);
           errorText = parsed?.error?.message || parsed?.message || errorText;
         } catch {}
-        this.addChatMessage({ role: "error", content: errorText });
+        if (this._isPollinationsBalanceExhausted(errorText)) {
+          browseBotFindbarLLM.history.push({
+            role: "assistant",
+            content: "",
+            pollinationsKeyPrompt: true,
+          });
+          this.addChatMessage({ role: "assistant", content: "", pollinationsKeyPrompt: true });
+        } else {
+          this.addChatMessage({ role: "error", content: errorText });
+        }
       } else {
         PREFS.debugLog("Streaming aborted by user.");
         if (contentDiv && contentDiv.textContent.trim()) {
@@ -1068,12 +1086,91 @@ export const browseBotFindbar = {
     return messageDiv;
   },
 
+  _isPollinationsBalanceExhausted(text) {
+    const provider = browseBotFindbarLLM.currentProvider;
+    return (
+      provider?.name === "pollinations" &&
+      typeof provider.isBalanceExhaustedText === "function" &&
+      provider.isBalanceExhaustedText(text)
+    );
+  },
+
+  _flagPollinationsKeyPrompt() {
+    const history = browseBotFindbarLLM.history;
+    for (let i = history.length - 1; i >= 0; i--) {
+      if (history[i]?.role === "assistant") {
+        history[i].pollinationsKeyPrompt = true;
+        break;
+      }
+    }
+  },
+
+  _renderPollinationsKeyPrompt(contentDiv) {
+    contentDiv.replaceChildren();
+    const provider = browseBotFindbarLLM.currentProvider;
+    const keyUrl = provider?.apiKeyUrl || "https://enter.pollinations.ai/keys";
+    const promptEl = parseElement(`
+      <div class="pollinations-key-prompt">
+        <p>Pollinations ran out of free credits for this request (anonymous tier).
+          <a href="${escapeXmlAttribute(keyUrl)}">Get a free API key</a>,
+          paste it below, and send your message again. The key stays optional.</p>
+        <div class="pollinations-key-row">
+          <input type="password" class="zenux-input" placeholder="Paste Pollinations API key" />
+          <button class="zenux-btn-primary">Save</button>
+        </div>
+        <span class="key-prompt-status"></span>
+      </div>`);
+    const input = promptEl.querySelector("input");
+    const saveBtn = promptEl.querySelector("button");
+    const status = promptEl.querySelector(".key-prompt-status");
+    saveBtn.addEventListener("click", async () => {
+      const key = input.value.trim();
+      if (!key) {
+        status.textContent = "Paste your API key first.";
+        return;
+      }
+      saveBtn.disabled = true;
+      try {
+        await browseBotFindbarLLM.currentProvider.setApiKeyAsync(key);
+        input.value = "";
+        status.textContent = "Saved. Send your message again to retry with your key.";
+      } catch (e) {
+        PREFS.debugError("Could not save Pollinations API key:", e);
+        status.textContent = "Could not save the key, try again.";
+      } finally {
+        saveBtn.disabled = false;
+        setTimeout(() => this._updateFindbarDimensions(), 0);
+      }
+    });
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") saveBtn.click();
+    });
+    input.addEventListener("input", () => {
+      status.textContent = "";
+    });
+    contentDiv.appendChild(promptEl);
+    setTimeout(() => this._updateFindbarDimensions(), 0);
+  },
+
   addChatMessage(message) {
     const { role, content } = message;
     if (!this.chatContainer || content === undefined || content === null) return;
 
     const messagesContainer = this.chatContainer.querySelector("#chat-messages");
     if (!messagesContainer) return;
+
+    if (
+      message.pollinationsKeyPrompt &&
+      browseBotFindbarLLM.currentProvider?.name === "pollinations"
+    ) {
+      const promptDiv = parseElement(`<div class="chat-message chat-message-ai"></div>`);
+      const promptContent = parseElement(`<div class="message-content"></div>`);
+      promptDiv.appendChild(promptContent);
+      messagesContainer.appendChild(promptDiv);
+      this._renderPollinationsKeyPrompt(promptContent);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      return;
+    }
 
     let type;
     switch (role) {
