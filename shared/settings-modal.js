@@ -22,7 +22,16 @@ export class ZenuxSettings {
     this._onClose = null;
   }
 
-  static shell({ title, bodyHTML, tabs = null, closeId, saveId, overlayClass = "", overlayId = "", modalClass = "" }) {
+  static shell({
+    title,
+    bodyHTML,
+    tabs = null,
+    closeId,
+    saveId,
+    overlayClass = "",
+    overlayId = "",
+    modalClass = "",
+  }) {
     const tabsHTML = tabs
       ? `<div class="zenux-settings-tabs" role="tablist">${tabs
           .map(
@@ -50,7 +59,15 @@ export class ZenuxSettings {
     `;
   }
 
-  static accordionSection({ title, expanded = true, resetPrefs = [], before = "", body = "", after = "", id = "" }) {
+  static accordionSection({
+    title,
+    expanded = true,
+    resetPrefs = [],
+    before = "",
+    body = "",
+    after = "",
+    id = "",
+  }) {
     const reset = resetPrefs.filter(Boolean).join(",");
     return `
       <section class="zenux-settings-section zenux-settings-accordion" data-expanded="${expanded ? "true" : "false"}"${id ? ` id="${escapeXmlAttribute(id)}"` : ""}>
@@ -85,19 +102,13 @@ export class ZenuxSettings {
     `;
   }
 
-  static numberRow(
-    label,
-    prefKey,
-    { min, max, step, tooltip, value, id = prefId(prefKey) } = {}
-  ) {
+  static numberRow(label, prefKey, { min, max, step, tooltip, value, id = prefId(prefKey) } = {}) {
     const info = tooltip ? ZenuxSettings.infoIcon(tooltip) : "";
     const attrs = [
       min !== undefined ? `min="${escapeXmlAttribute(String(min))}"` : "",
       max !== undefined ? `max="${escapeXmlAttribute(String(max))}"` : "",
       step !== undefined ? `step="${escapeXmlAttribute(String(step))}"` : "",
-      value !== undefined && value !== null
-        ? `value="${escapeXmlAttribute(String(value))}"`
-        : "",
+      value !== undefined && value !== null ? `value="${escapeXmlAttribute(String(value))}"` : "",
     ]
       .filter(Boolean)
       .join(" ");
@@ -272,7 +283,10 @@ export class ZenuxSettings {
   applyValueToControl(control, value) {
     if (control.type === "checkbox") {
       control.checked = Boolean(value);
-    } else if (typeof control.setItems === "function" || control.classList.contains("zenux-combobox")) {
+    } else if (
+      typeof control.setItems === "function" ||
+      control.classList.contains("zenux-combobox")
+    ) {
       control.value = value ?? "";
     } else {
       control.value = value ?? "";

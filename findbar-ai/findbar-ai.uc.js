@@ -383,13 +383,11 @@ export const browseBotFindbar = {
     const providerCombo = createCombobox({
       id: "provider-selector",
       value: currentProviderName,
-      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(
-        ([name, provider]) => ({
-          value: name,
-          label: provider.label,
-          image: provider.faviconUrl || "",
-        })
-      ),
+      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(([name, provider]) => ({
+        value: name,
+        label: provider.label,
+        image: provider.faviconUrl || "",
+      })),
     });
 
     const providerSelectorXulElement = providerCombo;
@@ -759,11 +757,14 @@ export const browseBotFindbar = {
             PREFS.debugError("Failed to resolve final stream text:", e.message);
           }
           renderStream();
-        if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
-          contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
-        } else if (fullText.trim() === "" && !aiMessageDiv.querySelector(".tool-calls-container")) {
-          aiMessageDiv.remove();
-        }
+          if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+            contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
+          } else if (
+            fullText.trim() === "" &&
+            !aiMessageDiv.querySelector(".tool-calls-container")
+          ) {
+            aiMessageDiv.remove();
+          }
         } finally {
           if (loadingIndicator.parentNode) loadingIndicator.remove();
         }
@@ -1236,7 +1237,9 @@ export const browseBotFindbar = {
     if (this.minimal) {
       const container = this.findbar.querySelector(".findbar-container");
       if (container && !container.querySelector("#findbar-ask")) {
-        const askBtn = parseElement(`<button id="findbar-ask" class="zenux-btn-primary" anonid="findbar-ask">Ask</button>`);
+        const askBtn = parseElement(
+          `<button id="findbar-ask" class="zenux-btn-primary" anonid="findbar-ask">Ask</button>`
+        );
         askBtn.addEventListener("click", () => {
           const inpText = this.findbar._findField.value.trim();
           this.sendMessage(inpText);

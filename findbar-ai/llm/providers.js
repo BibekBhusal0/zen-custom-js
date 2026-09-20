@@ -1,10 +1,6 @@
 import PREFS from "../utils/prefs.js";
 import { googleFaviconAPI } from "../../utils/favicon.js";
-import {
-  getCachedApiKey,
-  getSecureApiKey,
-  setSecureApiKey,
-} from "../utils/secure.js";
+import { getCachedApiKey, getSecureApiKey, setSecureApiKey } from "../utils/secure.js";
 
 // Every provider is a key plus an endpoint. Providers on the OpenAI Chat
 // Completions protocol share one code path in client.js; only the transport

@@ -26,10 +26,8 @@
   }
 
   /* Pushing them right so that tooltip will not overflow  */
-  .zenux-setting-item:has(label[for="pref-extension.browse-bot.llm.top-p"])
-    .zenux-settings-info,
-  .zenux-setting-item:has(label[for="pref-extension.browse-bot.llm.top-k"])
-    .zenux-settings-info {
+  .zenux-setting-item:has(label[for="pref-extension.browse-bot.llm.top-p"]) .zenux-settings-info,
+  .zenux-setting-item:has(label[for="pref-extension.browse-bot.llm.top-k"]) .zenux-settings-info {
     margin-left: 50px;
   }
 

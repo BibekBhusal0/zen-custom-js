@@ -84,7 +84,7 @@ const DEFAULT_QUICK_SPLIT_KEYWORDS = {
   // Zen Browser
   zen: "https://zen-browser.app",
   "zen-mods": "https://zen-browser.app/mods",
-  "zen-reddit": "https://reddit.com/zen"
+  "zen-reddit": "https://reddit.com/zen",
 };
 
 const DEFAULTS = {

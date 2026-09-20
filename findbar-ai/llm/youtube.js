@@ -6,7 +6,10 @@ export function getYouTubeVideoId(url) {
   if (!url) return null;
   try {
     const u = new URL(String(url).trim());
-    const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "").replace(/^music\./, "");
+    const host = u.hostname
+      .replace(/^www\./, "")
+      .replace(/^m\./, "")
+      .replace(/^music\./, "");
     if (host === "youtu.be") return u.pathname.slice(1).split("/")[0] || null;
     if (host === "youtube.com" || host === "youtube-nocookie.com") {
       if (u.pathname === "/watch") return u.searchParams.get("v");

@@ -210,7 +210,9 @@ export function getQuickSplitCommand(query) {
     parsed.parts.includes(QUICK_SPLIT_CURRENT) &&
     gBrowser?.selectedTab?.splitView
   ) {
-    label = label.replace("side-by-side split", "grid split").replace("stacked split", "grid split");
+    label = label
+      .replace("side-by-side split", "grid split")
+      .replace("stacked split", "grid split");
   }
   return {
     key: "quick-split:open",

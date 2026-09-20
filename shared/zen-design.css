@@ -3,8 +3,8 @@
 
 :root {
   --zenux-font:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu,
-    Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+    "Open Sans", "Helvetica Neue", sans-serif;
   --zenux-mono: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
 
   --zenux-bg: light-dark(rgb(250, 250, 250), rgb(24, 24, 27));

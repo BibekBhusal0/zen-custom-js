@@ -163,7 +163,9 @@ const LANG_ALIASES = {
 };
 
 export function highlightCode(code, lang) {
-  const normalized = String(lang || "").trim().toLowerCase();
+  const normalized = String(lang || "")
+    .trim()
+    .toLowerCase();
   const kind = LANG_ALIASES[normalized] || (normalized ? "generic" : "js");
   if (kind === "js") return highlightJS(code);
   if (kind === "python") return highlightPython(code);
@@ -176,7 +178,9 @@ export function highlightCode(code, lang) {
 export function attachCodeEditor(textarea, { language = "javascript" } = {}) {
   if (!textarea?.parentNode) return () => {};
   const wrap = parseElement(`<div class="zenux-code-editor"></div>`);
-  const pre = parseElement(`<pre class="zenux-code-backdrop" aria-hidden="true"><code></code></pre>`);
+  const pre = parseElement(
+    `<pre class="zenux-code-backdrop" aria-hidden="true"><code></code></pre>`
+  );
   const codeEl = pre.querySelector("code");
   textarea.before(wrap);
   wrap.appendChild(pre);

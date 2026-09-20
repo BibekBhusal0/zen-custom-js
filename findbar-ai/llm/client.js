@@ -27,7 +27,10 @@ function sleep(ms, signal) {
 }
 
 function isNetworkError(err) {
-  return err?.name === "TypeError" || /network|fetch|failed|timeout|connection|refused/i.test(err?.message || "");
+  return (
+    err?.name === "TypeError" ||
+    /network|fetch|failed|timeout|connection|refused/i.test(err?.message || "")
+  );
 }
 
 // POST with retry. Returns the Response; throws friendly errors when !ok.
@@ -148,7 +151,13 @@ async function completeAnthropic(provider, system, messages, tools, sampling, si
   const res = await postChat(
     anthropicUrl(),
     anthropicHeaders(provider.apiKey),
-    buildAnthropicBody({ system, messages, tools, sampling: { ...sampling, model: provider.model }, stream: false }),
+    buildAnthropicBody({
+      system,
+      messages,
+      tools,
+      sampling: { ...sampling, model: provider.model },
+      stream: false,
+    }),
     signal
   );
   return parseAnthropicResponse(await res.json());
@@ -178,7 +187,13 @@ async function* streamStep(provider, system, messages, tools, sampling, signal, 
     const res = await postChat(
       anthropicUrl(),
       anthropicHeaders(provider.apiKey),
-      buildAnthropicBody({ system, messages, tools, sampling: { ...sampling, model: provider.model }, stream: true }),
+      buildAnthropicBody({
+        system,
+        messages,
+        tools,
+        sampling: { ...sampling, model: provider.model },
+        stream: true,
+      }),
       signal
     );
     yield* streamAnthropicEvents(sseDataLines(res), onDone);
@@ -210,7 +225,8 @@ async function* streamStep(provider, system, messages, tools, sampling, signal, 
     }
     for (const tc of delta.tool_calls || []) {
       const idx = tc.index ?? 0;
-      if (!callsByIndex.has(idx)) callsByIndex.set(idx, { id: tc.id, name: tc.function?.name, args: "" });
+      if (!callsByIndex.has(idx))
+        callsByIndex.set(idx, { id: tc.id, name: tc.function?.name, args: "" });
       const entry = callsByIndex.get(idx);
       if (tc.id) entry.id = tc.id;
       if (tc.function?.name) entry.name = tc.function.name;
@@ -249,7 +265,17 @@ async function executeToolCall(tools, call) {
 
 // Runs the agentic loop. Returns { text, response: { messages } } where messages
 // are the new history entries in plain OpenAI shape (string content throughout).
-async function runLoop({ provider, system, messages, tools, maxSteps, sampling = {}, jsonMode, abortSignal, onTextDelta }) {
+async function runLoop({
+  provider,
+  system,
+  messages,
+  tools,
+  maxSteps,
+  sampling = {},
+  jsonMode,
+  abortSignal,
+  onTextDelta,
+}) {
   if (jsonMode && tools) throw new Error("jsonMode and tools cannot be combined.");
   const convo = [...messages];
   const added = [];
@@ -274,7 +300,15 @@ async function runLoop({ provider, system, messages, tools, maxSteps, sampling =
     } else if (provider.kind === "anthropic") {
       stepResult = await completeAnthropic(provider, system, convo, tools, sampling, abortSignal);
     } else {
-      stepResult = await completeOpenAI(provider, system, convo, tools, sampling, jsonMode, abortSignal);
+      stepResult = await completeOpenAI(
+        provider,
+        system,
+        convo,
+        tools,
+        sampling,
+        jsonMode,
+        abortSignal
+      );
     }
     text = stepResult.text;
     if (!stepResult.toolCalls.length) {

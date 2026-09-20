@@ -30,13 +30,11 @@ export const SettingsModal = {
       id: "pref-llm-provider",
       attrs: { "data-pref": PREFS.LLM_PROVIDER },
       value: PREFS.llmProvider,
-      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(
-        ([name, provider]) => ({
-          value: name,
-          label: provider.label,
-          image: provider.faviconUrl || "",
-        })
-      ),
+      items: Object.entries(browseBotFindbarLLM.AVAILABLE_PROVIDERS).map(([name, provider]) => ({
+        value: name,
+        label: provider.label,
+        image: provider.faviconUrl || "",
+      })),
     });
 
     const placeholder = this._modalElement.querySelector("#llm-provider-selector-placeholder");

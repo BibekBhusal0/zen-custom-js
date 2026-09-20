@@ -55,30 +55,30 @@ https://github.com/user-attachments/assets/71dae23a-bb0c-4a04-add6-450d344751a0
 
 Here are all Preferences which can be configured from `about:config` (also from settings UI)
 
-| Preference Key                                         | Type    | Default                             | Description                                                                  |
-| ------------------------------------------------------ | ------- | ----------------------------------- | ---------------------------------------------------------------------------- |
-| `zen-command-palette.prefix`                           | string  | `:`                                 | Prefix after entering which commands will appear                             |
-| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Prefix.           |
-| `zen-command-palette.debug-mode`                       | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.         |
-| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without prefix).   |
-| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the prefix.            |
-| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the prefix).        |
-| `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.           |
-| `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                          |
-| `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.           |
-| `zen-command-palette.dynamic.extensions`               | Boolean | `true`                              | Trigger extension actions and run their commands.                            |
-| `zen-command-palette.dynamic.extension-uninstall`      | Boolean | `false`                             | Automatically generate commands for uninstalling extension                   |
-| `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.           |
-| `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.     |
-| `zen-command-palette.dynamic.folders`                  | Boolean | `true`                              | Automatically generate commands for managing Folders.                        |
-| `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for installing/uninstalling sine mods.       |
-| `zen-command-palette.dynamic.container-tabs`           | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.          |
-| `zen-command-palette.dynamic.active-tabs`              | Boolean | `false`                             | Automatically generate commands for switching between active tabs.           |
-| `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                   |
-| `zen-command-palette.dynamic.profiles`                 | Boolean | `true`                              | Automatically generate commands for switching between profiles.              |
-| `zen-command-palette.dynamic.quick-split`              | Boolean | `true`                              | Open split views and glance from the palette with split syntax.              |
+| Preference Key                                         | Type    | Default                             | Description                                                                                                                |
+| ------------------------------------------------------ | ------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `zen-command-palette.prefix`                           | string  | `:`                                 | Prefix after entering which commands will appear                                                                           |
+| `zen-command-palette.prefix-required`                  | Boolean | `false`                             | If `true`, commands only appear when the query starts with Prefix.                                                         |
+| `zen-command-palette.debug-mode`                       | Boolean | `false`                             | Enables detailed logging in the Browser Console for troubleshooting.                                                       |
+| `zen-command-palette.max-commands`                     | Integer | `3`                                 | The maximum number of command results to display at once (without prefix).                                                 |
+| `zen-command-palette.max-commands-prefix`              | Integer | `50`                                | The maximum number of command results to display with the prefix.                                                          |
+| `zen-command-palette.min-query-length`                 | Integer | `3`                                 | Minimum characters needed to show commands (unless using the prefix).                                                      |
+| `zen-command-palette.min-score-threshold`              | Integer | `150`                               | The minimum fuzzy-search score required for a command to be shown.                                                         |
+| `zen-command-palette.dynamic.about-pages`              | Boolean | `false`                             | Automatically generate commands for `about:` pages.                                                                        |
+| `zen-command-palette.dynamic.search-engines`           | Boolean | `true`                              | Automatically generate commands for your installed search engines.                                                         |
+| `zen-command-palette.dynamic.extensions`               | Boolean | `true`                              | Trigger extension actions and run their commands.                                                                          |
+| `zen-command-palette.dynamic.extension-uninstall`      | Boolean | `false`                             | Automatically generate commands for uninstalling extension                                                                 |
+| `zen-command-palette.dynamic.extension-enable-disable` | Boolean | `false`                             | Automatically generate commands for enabling/disabling extensions.                                                         |
+| `zen-command-palette.dynamic.workspaces`               | Boolean | `true`                              | Automatically generate commands for switching/moving tabs to Workspaces.                                                   |
+| `zen-command-palette.dynamic.folders`                  | Boolean | `true`                              | Automatically generate commands for managing Folders.                                                                      |
+| `zen-command-palette.dynamic.sine-mods`                | Boolean | `true`                              | Automatically generate commands for installing/uninstalling sine mods.                                                     |
+| `zen-command-palette.dynamic.container-tabs`           | Boolean | `false`                             | Automatically generate commands for moving tabs between containers.                                                        |
+| `zen-command-palette.dynamic.active-tabs`              | Boolean | `false`                             | Automatically generate commands for switching between active tabs.                                                         |
+| `zen-command-palette.dynamic.unload-tab`               | Boolean | `false`                             | Automatically generate commands for unloading active tabs.                                                                 |
+| `zen-command-palette.dynamic.profiles`                 | Boolean | `true`                              | Automatically generate commands for switching between profiles.                                                            |
+| `zen-command-palette.dynamic.quick-split`              | Boolean | `true`                              | Open split views and glance from the palette with split syntax.                                                            |
 | `zen-command-palette.quick-split.search-engine`        | String  | `""` (DuckDuckGo lucky)             | Search engine used for plain terms that are not keywords or URLs. Empty jumps to the first result via DuckDuckGo `!ducky`. |
-| `zen-command-palette.settings-file-path`               | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.). |
+| `zen-command-palette.settings-file-path`               | String  | `chrome/zen-commands-settings.json` | Path to the file storing user customizations (hidden commands, icons, etc.).                                               |
 
 ## ⌨️ Default Keyboard Shortcuts
 
@@ -140,6 +140,7 @@ The following commands are now native:
   - `+github`: open in glance
 
   Keywords open their website directly, URLs open as-is, anything else uses your search engine. Manage keywords in the palette settings, in the Quick Split section below (shown while Quick Split is enabled).
+
 - **Folders**:
   - Remove Tab from Folder
   - Rename Current Folder

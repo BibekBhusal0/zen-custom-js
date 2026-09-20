@@ -9,10 +9,7 @@ import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js"
 import { getSearchEngineFavicon, googleFaviconAPI } from "../utils/favicon.js";
 import { checkShortcutConflicts, getPrettyShortcut } from "../utils/keyboard.js";
 import { bestFuzzyScore } from "../utils/fuzzy.js";
-import {
-  ZenuxSettings,
-  attachStandaloneShortcutRecorder,
-} from "../shared/settings-modal.js";
+import { ZenuxSettings, attachStandaloneShortcutRecorder } from "../shared/settings-modal.js";
 
 const form = new ZenuxSettings(PREFS);
 
@@ -603,14 +600,12 @@ const SettingsModal = {
           {
             value: "",
             label: "DuckDuckGo Lucky (Default)",
-            image: 
-               googleFaviconAPI("duckduckgo.com"),
+            image: googleFaviconAPI("duckduckgo.com"),
           },
           {
             value: "Google Lucky",
             label: "Google Lucky",
-            image: 
-               googleFaviconAPI("google.com"),
+            image: googleFaviconAPI("google.com"),
           },
           ...engines.map((engine) => ({
             value: engine.name,
