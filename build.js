@@ -98,7 +98,9 @@ async function buildMod(themePath, entryFile, theme, isWatch = false) {
           const { code, stripped } = stripDeadMembers(original);
           if (stripped > 0) {
             await Bun.write(outPath, code);
-            console.log(`Stripped ${stripped} dead member(s) from ${label} (${original.length} -> ${code.length} bytes)`);
+            console.log(
+              `Stripped ${stripped} dead member(s) from ${label} (${original.length} -> ${code.length} bytes)`
+            );
           }
         }
       } catch (stripErr) {

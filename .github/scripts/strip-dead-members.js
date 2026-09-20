@@ -17,7 +17,10 @@ function parse(code) {
 
 function memberKey(node) {
   if (node.computed) {
-    if (node.key.type === "Literal" && (typeof node.key.value === "string" || typeof node.key.value === "number"))
+    if (
+      node.key.type === "Literal" &&
+      (typeof node.key.value === "string" || typeof node.key.value === "number")
+    )
       return String(node.key.value);
     return null;
   }
@@ -31,7 +34,9 @@ function collectIds(node, set) {
   if (node.type === "Identifier") set.add(node.name);
   else if (node.type === "ArrayPattern") node.elements.forEach((e) => collectIds(e, set));
   else if (node.type === "ObjectPattern")
-    node.properties.forEach((p) => (p.type === "RestElement" ? collectIds(p.argument, set) : collectIds(p.value, set)));
+    node.properties.forEach((p) =>
+      p.type === "RestElement" ? collectIds(p.argument, set) : collectIds(p.value, set)
+    );
   else if (node.type === "RestElement") collectIds(node.argument, set);
   else if (node.type === "AssignmentPattern") collectIds(node.left, set);
 }
@@ -40,7 +45,9 @@ export function stripDeadMembers(code) {
   try {
     return stripInner(code);
   } catch (err) {
-    console.warn(`strip-dead-members: analysis failed, keeping bundle as-is (${err?.message ?? err})`);
+    console.warn(
+      `strip-dead-members: analysis failed, keeping bundle as-is (${err?.message ?? err})`
+    );
     return { code, stripped: 0 };
   }
 }
@@ -49,7 +56,10 @@ function stripInner(code) {
   const ast = parse(code);
   if (!ast) return { code, stripped: 0 };
 
-  const unwrap = (s) => (s.type === "ExportNamedDeclaration" || s.type === "ExportDefaultDeclaration") && s.declaration ? s.declaration : s;
+  const unwrap = (s) =>
+    (s.type === "ExportNamedDeclaration" || s.type === "ExportDefaultDeclaration") && s.declaration
+      ? s.declaration
+      : s;
 
   // Bun wraps IIFE bundles in `(() => { ... })()`; analyze the wrapper body.
   let topBody = ast.body;
@@ -61,7 +71,8 @@ function stripInner(code) {
     const fn = expr.callee;
     if (
       (fn?.type === "FunctionExpression" || fn?.type === "ArrowFunctionExpression") &&
-      fn.body?.type === "BlockStatement" && (fn.params?.length ?? 0) === 0
+      fn.body?.type === "BlockStatement" &&
+      (fn.params?.length ?? 0) === 0
     ) {
       topBody = fn.body.body;
       aliasDepth++;
@@ -76,34 +87,62 @@ function stripInner(code) {
     if (stmt.type === "VariableDeclaration") {
       for (const d of stmt.declarations) {
         if (d.id.type !== "Identifier" || !d.init || d.init.type !== "ObjectExpression") continue;
-        if (containers.has(d.id.name)) { containers.get(d.id.name).bailed = true; continue; }
+        if (containers.has(d.id.name)) {
+          containers.get(d.id.name).bailed = true;
+          continue;
+        }
         const members = [];
         let bad = false;
         for (const prop of d.init.properties) {
-          if (prop.type !== "Property") { bad = true; break; }
+          if (prop.type !== "Property") {
+            bad = true;
+            break;
+          }
           const k = memberKey(prop);
-          if (k === null || k === "__proto__") { bad = true; break; }
+          if (k === null || k === "__proto__") {
+            bad = true;
+            break;
+          }
           members.push({ key: k, node: prop, isInstance: false, isCtor: false });
         }
         containers.set(d.id.name, { kind: "object", members, bailed: bad });
       }
     } else if (stmt.type === "ClassDeclaration" && stmt.id?.type === "Identifier") {
-      if (containers.has(stmt.id.name)) { containers.get(stmt.id.name).bailed = true; continue; }
+      if (containers.has(stmt.id.name)) {
+        containers.get(stmt.id.name).bailed = true;
+        continue;
+      }
       const members = [];
       let bad = false;
       for (const el of stmt.body.body) {
-        if (el.type === "StaticBlock") { bad = true; break; }
+        if (el.type === "StaticBlock") {
+          bad = true;
+          break;
+        }
         if (el.type !== "MethodDefinition") continue;
-        if (el.decorators?.length) { bad = true; break; }
+        if (el.decorators?.length) {
+          bad = true;
+          break;
+        }
         const k = memberKey(el);
-        if (k === null) { bad = true; break; }
-        members.push({ key: k, node: el, isInstance: !el.static, isCtor: el.kind === "constructor" });
+        if (k === null) {
+          bad = true;
+          break;
+        }
+        members.push({
+          key: k,
+          node: el,
+          isInstance: !el.static,
+          isCtor: el.kind === "constructor",
+        });
       }
       containers.set(stmt.id.name, { kind: "class", members, bailed: bad });
-      if (stmt.superClass?.type === "Identifier") extendsMap.set(stmt.id.name, stmt.superClass.name);
+      if (stmt.superClass?.type === "Identifier")
+        extendsMap.set(stmt.id.name, stmt.superClass.name);
     } else if (
-      (stmt.type === "FunctionDeclaration" || (stmt.type === "VariableDeclaration")) &&
-      stmt.id?.type === "Identifier" && containers.has(stmt.id.name)
+      (stmt.type === "FunctionDeclaration" || stmt.type === "VariableDeclaration") &&
+      stmt.id?.type === "Identifier" &&
+      containers.has(stmt.id.name)
     ) {
       containers.get(stmt.id.name).bailed = true;
     }
@@ -156,12 +195,17 @@ function stripInner(code) {
     if (stmt.type === "VariableDeclaration") {
       for (const d of stmt.declarations) {
         collectIds(d.id, topNames);
-        if (d.id.type === "Identifier" && d.init?.type === "NewExpression" && d.init.callee.type === "Identifier" && containers.has(d.init.callee.name)) {
+        if (
+          d.id.type === "Identifier" &&
+          d.init?.type === "NewExpression" &&
+          d.init.callee.type === "Identifier" &&
+          containers.has(d.init.callee.name)
+        ) {
           aliases.set(d.id.name, d.init.callee.name);
         }
       }
-    }
-    else if ((stmt.type === "FunctionDeclaration" || stmt.type === "ClassDeclaration") && stmt.id) topNames.add(stmt.id.name);
+    } else if ((stmt.type === "FunctionDeclaration" || stmt.type === "ClassDeclaration") && stmt.id)
+      topNames.add(stmt.id.name);
   }
   const scopes = [topNames];
   // Innermost enclosing container for `this` attribution (over-keeping on ambiguity is safe).
@@ -187,14 +231,20 @@ function stripInner(code) {
       case "FunctionExpression":
       case "ArrowFunctionExpression": {
         scopes.push(new Set());
-        if (node.type === "FunctionExpression" && node.id) scopes[scopes.length - 1].add(node.id.name);
+        if (node.type === "FunctionExpression" && node.id)
+          scopes[scopes.length - 1].add(node.id.name);
         for (const p of node.params) collectIds(p, scopes[scopes.length - 1]);
         if (node.body) visit(node.body, node);
         scopes.pop();
         return;
       }
       case "BlockStatement":
-        if (!(parent && (parent.type === "FunctionDeclaration" || parent.type === "FunctionExpression" || parent.type === "ArrowFunctionExpression"))) {
+        if (!(
+          parent &&
+          (parent.type === "FunctionDeclaration" ||
+            parent.type === "FunctionExpression" ||
+            parent.type === "ArrowFunctionExpression")
+        )) {
           scopes.push(new Set());
           for (const s of node.body) visit(s, node);
           scopes.pop();
@@ -225,11 +275,21 @@ function stripInner(code) {
         for (const d of node.declarations) {
           // topBody names are pre-scanned; re-adding them deeper would self-shadow.
           if (scopes.length !== aliasDepth) collectIds(d.id, scopes[scopes.length - 1]);
-          if (scopes.length === aliasDepth && d.init?.type === "NewExpression" && d.init.callee.type === "Identifier" && useName(d.init.callee.name) && d.id.type === "Identifier") {
+          if (
+            scopes.length === aliasDepth &&
+            d.init?.type === "NewExpression" &&
+            d.init.callee.type === "Identifier" &&
+            useName(d.init.callee.name) &&
+            d.id.type === "Identifier"
+          ) {
             aliases.set(d.id.name, d.init.callee.name);
           }
-          if (d.init?.type === "Identifier" && useName(d.init.name) && d.init.name !== d.id.name) bailTree(d.init.name);
-          const isObjInit = d.id.type === "Identifier" && containers.get(d.id.name)?.kind === "object" && d.init?.type === "ObjectExpression";
+          if (d.init?.type === "Identifier" && useName(d.init.name) && d.init.name !== d.id.name)
+            bailTree(d.init.name);
+          const isObjInit =
+            d.id.type === "Identifier" &&
+            containers.get(d.id.name)?.kind === "object" &&
+            d.init?.type === "ObjectExpression";
           if (d.init) {
             if (isObjInit) {
               ownerStack.push({ kind: "object", name: d.id.name });
@@ -243,13 +303,17 @@ function stripInner(code) {
         return;
       case "ClassDeclaration":
       case "ClassExpression":
-        ownerStack.push({ kind: "class", name: node.id?.type === "Identifier" ? node.id.name : null });
+        ownerStack.push({
+          kind: "class",
+          name: node.id?.type === "Identifier" ? node.id.name : null,
+        });
         if (node.superClass) visit(node.superClass, node);
         visit(node.body, node);
         ownerStack.pop();
         return;
       case "WithStatement":
-        if (node.object.type === "Identifier" && useName(node.object.name)) bailTree(node.object.name);
+        if (node.object.type === "Identifier" && useName(node.object.name))
+          bailTree(node.object.name);
         visit(node.object, node);
         visit(node.body, node);
         return;
@@ -257,9 +321,17 @@ function stripInner(code) {
 
     if (node.type === "MemberExpression") {
       const obj = node.object;
-      if (obj.type === "Identifier" && !shadowed(obj.name) && aliasVisible(obj.name) && !aliasBailed.has(obj.name)) {
+      if (
+        obj.type === "Identifier" &&
+        !shadowed(obj.name) &&
+        aliasVisible(obj.name) &&
+        !aliasBailed.has(obj.name)
+      ) {
         if (node.computed) {
-          if (node.property.type === "Literal" && (typeof node.property.value === "string" || typeof node.property.value === "number")) {
+          if (
+            node.property.type === "Literal" &&
+            (typeof node.property.value === "string" || typeof node.property.value === "number")
+          ) {
             recordInstanceRef(obj.name, String(node.property.value));
           } else bailInstance(aliases.get(obj.name));
         } else if (node.property.type === "Identifier") {
@@ -267,19 +339,28 @@ function stripInner(code) {
         } else bailInstance(aliases.get(obj.name));
       } else if (obj.type === "Identifier" && useName(obj.name)) {
         if (node.computed) {
-          if (node.property.type === "Literal" && (typeof node.property.value === "string" || typeof node.property.value === "number")) {
-            if (aliases.has(obj.name) && !aliasBailed.has(obj.name)) recordInstanceRef(obj.name, String(node.property.value));
+          if (
+            node.property.type === "Literal" &&
+            (typeof node.property.value === "string" || typeof node.property.value === "number")
+          ) {
+            if (aliases.has(obj.name) && !aliasBailed.has(obj.name))
+              recordInstanceRef(obj.name, String(node.property.value));
             else addRef(obj.name, String(node.property.value));
           } else bailTree(obj.name);
         } else if (node.property.type === "Identifier") {
-          if (aliases.has(obj.name) && !aliasBailed.has(obj.name)) recordInstanceRef(obj.name, node.property.name);
+          if (aliases.has(obj.name) && !aliasBailed.has(obj.name))
+            recordInstanceRef(obj.name, node.property.name);
           else addRef(obj.name, node.property.name);
         } else bailTree(obj.name);
       }
       introspectionCall(node, parent);
     } else if (node.type === "CallExpression") {
       const c = node.callee;
-      if (c.type === "Identifier" && (c.name === "eval" || c.name === "Function") && !shadowed(c.name)) {
+      if (
+        c.type === "Identifier" &&
+        (c.name === "eval" || c.name === "Function") &&
+        !shadowed(c.name)
+      ) {
         globalBail = true;
         return;
       }
@@ -288,7 +369,10 @@ function stripInner(code) {
         const c = containers.get(node.callee.name);
         if (c.kind !== "class") bailTree(node.callee.name);
         else {
-          const aliased = parent?.type === "VariableDeclarator" && parent.init === node && parent.id.type === "Identifier";
+          const aliased =
+            parent?.type === "VariableDeclarator" &&
+            parent.init === node &&
+            parent.id.type === "Identifier";
           if (!aliased) bailInstance(node.callee.name); // instance escapes or untracked: keep all instance
         }
       }
@@ -307,9 +391,13 @@ function stripInner(code) {
       const owner = ownerStack.length ? ownerStack[ownerStack.length - 1] : null;
       const ownerName = owner && owner.name && isTracked(owner.name) ? owner.name : null;
       if (
-        parent?.type === "MemberExpression" && parent.object === node &&
+        parent?.type === "MemberExpression" &&
+        parent.object === node &&
         ((!parent.computed && parent.property.type === "Identifier") ||
-          (parent.computed && parent.property.type === "Literal" && (typeof parent.property.value === "string" || typeof parent.property.value === "number")))
+          (parent.computed &&
+            parent.property.type === "Literal" &&
+            (typeof parent.property.value === "string" ||
+              typeof parent.property.value === "number")))
       ) {
         const key = !parent.computed ? parent.property.name : String(parent.property.value);
         if (ownerName) addRef(ownerName, key);
@@ -323,12 +411,18 @@ function stripInner(code) {
       const cls = owner && owner.kind === "class" ? owner.name : null;
       const base = cls ? extendsMap.get(cls) : null;
       if (base && isTracked(base)) {
-        if (parent?.type === "MemberExpression" && !parent.computed && parent.property.type === "Identifier") addRef(base, parent.property.name);
+        if (
+          parent?.type === "MemberExpression" &&
+          !parent.computed &&
+          parent.property.type === "Identifier"
+        )
+          addRef(base, parent.property.name);
         else bailTree(base);
       }
     } else if (node.type === "Identifier") {
       if (useName(node.name) && parent && !allowedBare(node, parent)) bailTree(node.name);
-      if (aliasVisible(node.name) && parent && !allowedAlias(node, parent)) aliasBailed.add(node.name);
+      if (aliasVisible(node.name) && parent && !allowedAlias(node, parent))
+        aliasBailed.add(node.name);
     }
 
     for (const k of Object.keys(node)) {
@@ -356,15 +450,35 @@ function stripInner(code) {
 
   function allowedBare(node, parent) {
     if (parent.type === "MemberExpression" && parent.object === node) return true;
-    if ((parent.type === "NewExpression" || parent.type === "CallExpression") && parent.callee === node) return true;
-    if ((parent.type === "ClassDeclaration" || parent.type === "ClassExpression") && (parent.superClass === node || parent.id === node)) return true;
-    if ((parent.type === "FunctionDeclaration" || parent.type === "FunctionExpression") && parent.id === node) return true;
+    if (
+      (parent.type === "NewExpression" || parent.type === "CallExpression") &&
+      parent.callee === node
+    )
+      return true;
+    if (
+      (parent.type === "ClassDeclaration" || parent.type === "ClassExpression") &&
+      (parent.superClass === node || parent.id === node)
+    )
+      return true;
+    if (
+      (parent.type === "FunctionDeclaration" || parent.type === "FunctionExpression") &&
+      parent.id === node
+    )
+      return true;
     if (parent.type === "VariableDeclarator" && parent.id === node) return true;
     if (parent.type === "Property" && parent.key === node && !parent.computed) return true;
-    if (parent.type === "MemberExpression" && parent.property === node && !parent.computed) return true;
-    if ((parent.type === "LabeledStatement" || parent.type === "BreakStatement" || parent.type === "ContinueStatement") && parent.label === node) return true;
+    if (parent.type === "MemberExpression" && parent.property === node && !parent.computed)
+      return true;
+    if (
+      (parent.type === "LabeledStatement" ||
+        parent.type === "BreakStatement" ||
+        parent.type === "ContinueStatement") &&
+      parent.label === node
+    )
+      return true;
     if (parent.type === "MethodDefinition" && parent.key === node && !parent.computed) return true;
-    if (parent.type === "PropertyDefinition" && parent.key === node && !parent.computed) return true;
+    if (parent.type === "PropertyDefinition" && parent.key === node && !parent.computed)
+      return true;
     return false; // everything else (args, returns, templates, operators...) -> bail
   }
 
@@ -376,7 +490,21 @@ function stripInner(code) {
     if (node.computed || node.property.type !== "Identifier") return;
     const m = node.property.name;
     const obj = node.object;
-    const isObj = obj.type === "Identifier" && obj.name === "Object" && ["keys", "values", "entries", "getOwnPropertyNames", "getOwnPropertyDescriptors", "assign", "freeze", "seal", "defineProperties", "create"].includes(m);
+    const isObj =
+      obj.type === "Identifier" &&
+      obj.name === "Object" &&
+      [
+        "keys",
+        "values",
+        "entries",
+        "getOwnPropertyNames",
+        "getOwnPropertyDescriptors",
+        "assign",
+        "freeze",
+        "seal",
+        "defineProperties",
+        "create",
+      ].includes(m);
     const isJson = obj.type === "Identifier" && obj.name === "JSON" && m === "stringify";
     if ((isObj || isJson) && parent?.type === "CallExpression" && parent.callee === node) {
       for (const a of parent.arguments) {
@@ -399,7 +527,8 @@ function stripInner(code) {
       const keepS = refs.get(name);
       const keepI = instanceRefs.get(name);
       const hasAlias = [...aliases.values()].includes(name);
-      const aliasOk = hasAlias && ![...aliases.keys()].some((a) => aliases.get(a) === name && aliasBailed.has(a));
+      const aliasOk =
+        hasAlias && ![...aliases.keys()].some((a) => aliases.get(a) === name && aliasBailed.has(a));
       for (const m of c.members) {
         if (m.isCtor) continue;
         if (m.isInstance) {
@@ -419,7 +548,8 @@ function stripInner(code) {
   removals.sort((a, b) => b[0] - a[0]);
   let out = code;
   for (const [s, e] of removals) {
-    let rs = s, re = e;
+    let rs = s,
+      re = e;
     const mAfter = out.slice(re).match(/^(\s*,)/);
     if (mAfter) {
       re += mAfter[0].length;
@@ -446,7 +576,9 @@ if (import.meta.main) {
     const { code, stripped } = stripDeadMembers(original);
     if (stripped > 0) {
       await Bun.write(file, code);
-      console.log(`Stripped ${stripped} dead member(s) from ${file} (${original.length} -> ${code.length} bytes)`);
+      console.log(
+        `Stripped ${stripped} dead member(s) from ${file} (${original.length} -> ${code.length} bytes)`
+      );
     } else {
       console.log(`No dead members in ${file}`);
     }

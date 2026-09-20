@@ -340,10 +340,7 @@ const pollinations = Object.assign(Object.create(providerPrototype), {
     const t = String(text || "");
     if (!t) return false;
     if (/doesn'?t have enough credits|budget exhausted|insufficient balance/i.test(t)) return true;
-    return (
-      /top[- ]?up/i.test(t) &&
-      /quest|pollen|pollinations|enter\.pollinations\.ai/i.test(t)
-    );
+    return /top[- ]?up/i.test(t) && /quest|pollen|pollinations|enter\.pollinations\.ai/i.test(t);
   },
   async refreshModels() {
     if (this.apiKey) {

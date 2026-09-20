@@ -59,8 +59,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
       try {
         showToast({
           title: "Pollinations is out of free credits",
-          description:
-            "Add a free Pollinations API key in BrowseBot settings, then try again.",
+          description: "Add a free Pollinations API key in BrowseBot settings, then try again.",
           timeout: 8000,
         });
       } catch (e) {

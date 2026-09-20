@@ -712,7 +712,10 @@ export const browseBotFindbar = {
             if (this._isPollinationsBalanceExhausted(result.text)) {
               this._flagPollinationsKeyPrompt();
               this._renderPollinationsKeyPrompt(contentDiv);
-            } else if (result.text.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+            } else if (
+              result.text.trim() === "" &&
+              aiMessageDiv.querySelector(".tool-calls-container")
+            ) {
               contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
             } else if (
               result.text.trim() === "" &&
@@ -766,7 +769,10 @@ export const browseBotFindbar = {
           if (this._isPollinationsBalanceExhausted(fullText)) {
             this._flagPollinationsKeyPrompt();
             this._renderPollinationsKeyPrompt(contentDiv);
-          } else if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
+          } else if (
+            fullText.trim() === "" &&
+            aiMessageDiv.querySelector(".tool-calls-container")
+          ) {
             contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
           } else if (
             fullText.trim() === "" &&
