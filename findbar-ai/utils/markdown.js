@@ -5,10 +5,11 @@
  * fenced code blocks. Citation spans are passed through untouched.
  */
 import { parseElement } from "../../utils/parse.js";
+import { highlightCode } from "../../shared/code-highlight.js";
 
 const CITE_RE = /<span class="citation-link"[^>]*>.*?<\/span>/g;
 const CLOSED_FENCE_RE = /^```(\w*)\n([\s\S]*?)\n```/gm;
-const OPEN_FENCE_RE = /^```(\w*)\n([\s\S]*)$/;
+const OPEN_FENCE_RE = /^```(\w*)\n([\s\S]*)$/m;
 
 function escapeHtml(text) {
   return String(text)
@@ -65,19 +66,22 @@ function renderTable(header, rows) {
   );
 }
 
-function renderCodeBlock(lang, code) {
-  const cls = lang ? ` class="language-${escapeHtml(lang)}"` : "";
-  return `<pre><code${cls}>${escapeHtml(String(code).replace(/\n$/, ""))}</code></pre>`;
+function renderCodeBlock(lang, code, complete = true) {
+  const normalizedLang = String(lang || "").trim();
+  const label = escapeHtml(normalizedLang || "code");
+  const highlighted = highlightCode(String(code).replace(/\n$/, ""), normalizedLang);
+  const streaming = complete ? "" : " is-streaming";
+  return `<div class="zh-codeblock${streaming}"><div class="zh-codeblock-head"><span>${label}</span><span class="zh-codeblock-copy" role="button" tabindex="0">Copy</span></div><pre><code>${highlighted}</code></pre></div>`;
 }
 
 function renderBlocks(text) {
   const codeBlocks = [];
-  const stashCode = (lang, code) => {
-    codeBlocks.push({ lang, code });
+  const stashCode = (lang, code, complete) => {
+    codeBlocks.push({ lang, code, complete });
     return `%%CODEBLOCK${codeBlocks.length - 1}%%`;
   };
-  text = String(text).replace(CLOSED_FENCE_RE, (_m, lang, code) => stashCode(lang, code));
-  text = text.replace(OPEN_FENCE_RE, (_m, lang, code) => stashCode(lang, code));
+  text = String(text).replace(CLOSED_FENCE_RE, (_m, lang, code) => stashCode(lang, code, true));
+  text = text.replace(OPEN_FENCE_RE, (_m, lang, code) => stashCode(lang, code, false));
   const lines = String(text).split("\n");
   const html = [];
   let para = [];
@@ -105,7 +109,7 @@ function renderBlocks(text) {
       flushPara();
       flushList();
       const block = codeBlocks[Number(codeMatch[1])];
-      html.push(renderCodeBlock(block.lang, block.code));
+      html.push(renderCodeBlock(block.lang, block.code, block.complete));
       continue;
     }
     const heading = trimmed.match(/^(#{1,6})\s+(.*)/);

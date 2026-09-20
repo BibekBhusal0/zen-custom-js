@@ -5,6 +5,7 @@
 @import "styles/urlbar.css";
 @import "styles/settings.css";
 @import "styles/pseudo-bg.css";
+@import "../shared/code-highlight.css";
 
 :root {
   --browser-themed-toolbar-bg: var(--zen-themed-toolbar-bg, #333333);

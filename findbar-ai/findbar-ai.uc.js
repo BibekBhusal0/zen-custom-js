@@ -732,20 +732,33 @@ export const browseBotFindbar = {
         const result = await resultPromise;
         let fullText = "";
         try {
+          const renderStream = () => {
+            try {
+              contentDiv.innerHTML = parseMD(fullText, false);
+            } catch (e) {
+              PREFS.debugError("innerHTML assignment failed:", e.message);
+              contentDiv.textContent = fullText + "\n\n[Error rendering markdown]";
+            }
+            setTimeout(() => this._updateFindbarDimensions(), 0);
+            if (messagesContainer) {
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+          };
           for await (const delta of result.textStream) {
             if (loadingIndicator.parentNode) loadingIndicator.remove();
             fullText += delta;
+            renderStream();
+          }
+          // The last delta can leave an intermediate state behind (e.g. a
+          // fence that only looks unclosed). Settle on the final text so the
+          // first view matches the history re-render.
           try {
-            contentDiv.innerHTML = parseMD(fullText, false);
+            const finalText = await result.text;
+            if (typeof finalText === "string") fullText = finalText;
           } catch (e) {
-            PREFS.debugError("innerHTML assignment failed:", e.message);
-            contentDiv.textContent = fullText + "\n\n[Error rendering markdown]";
+            PREFS.debugError("Failed to resolve final stream text:", e.message);
           }
-          setTimeout(() => this._updateFindbarDimensions(), 0);
-          if (messagesContainer) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-          }
-        }
+          renderStream();
         if (fullText.trim() === "" && aiMessageDiv.querySelector(".tool-calls-container")) {
           contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
         } else if (fullText.trim() === "" && !aiMessageDiv.querySelector(".tool-calls-container")) {
@@ -987,7 +1000,25 @@ export const browseBotFindbar = {
       this.expanded = false;
     });
 
+    const copyBlockCode = async (copyButton) => {
+      const codeEl = copyButton.closest(".zh-codeblock")?.querySelector("pre code");
+      if (!codeEl) return;
+      try {
+        await navigator.clipboard.writeText(codeEl.textContent);
+        copyButton.textContent = "Copied!";
+      } catch {
+        copyButton.textContent = "Copy failed";
+      }
+      setTimeout(() => {
+        copyButton.textContent = "Copy";
+      }, 1500);
+    };
     chatMessages.addEventListener("click", async (e) => {
+      const copyButton = e.target.closest?.(".zh-codeblock-copy");
+      if (copyButton) {
+        copyBlockCode(copyButton);
+        return;
+      }
       const button = e.target.closest?.(".citation-link");
       if (button) {
         if (button.dataset.timestamp) {
@@ -1014,6 +1045,15 @@ export const browseBotFindbar = {
         try {
           openTrustedLinkIn(e.target.href, "tab");
         } catch {}
+      }
+    });
+
+    chatMessages.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      const copyButton = e.target.closest?.(".zh-codeblock-copy");
+      if (copyButton) {
+        e.preventDefault();
+        copyBlockCode(copyButton);
       }
     });
 

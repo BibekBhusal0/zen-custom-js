@@ -1,5 +1,6 @@
 # New Features
 
+- Code blocks in chat answers now have syntax highlighting, a language label, and a Copy button.
 - Provider and model dropdowns now use fuzzy matching, same as the command palette.
 - All dropdowns now always show the search box, no matter how short the list is.
 - DeepSeek models updated to V4 Flash, V4 Pro, and V4 Flash Vision (Experimental). The retired `deepseek-chat` / `deepseek-reasoner` names migrate to V4 Flash automatically.
