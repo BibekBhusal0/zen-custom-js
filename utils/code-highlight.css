@@ -172,7 +172,7 @@
     width: 18px;
     height: 18px;
     flex-shrink: 0;
-    color: var(--zenux-warning);
+    fill: var(--zenux-warning);
   }
 
   h3 {
@@ -216,7 +216,7 @@
     height: 16px;
     min-width: 16px;
     min-height: 16px;
-    color: var(--zenux-warning);
+    fill: var(--zenux-warning);
   }
 }
 

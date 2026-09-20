@@ -1,5 +1,6 @@
 /* Tiny dependency-free syntax highlighter. Emits `pl-*` classes themed by markdown.css. */
 import { parseElement, escapeXmlAttribute } from "./parse.js";
+import { icons } from "./icon.js";
 
 const JS_KEYWORDS = new Set(
   "break case catch class const continue debugger default delete do else export extends finally for function if import in instanceof let new return static super switch throw try typeof var void while with yield async await of from as get set constructor".split(
@@ -209,8 +210,6 @@ export function attachCodeEditor(textarea, { language = "javascript" } = {}) {
   };
 }
 
-const WARNING_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21.73 18l-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4m0 4h.01"/></svg>`;
-
 /* Confirm dialog showing the full highlighted code. Resolves true on confirm. */
 export function confirmCodeExecution({ name = "", code = "", language = "javascript" } = {}) {
   return new Promise((resolve) => {
@@ -218,10 +217,10 @@ export function confirmCodeExecution({ name = "", code = "", language = "javascr
     const overlay = parseElement(`
       <div class="zenux-code-confirm-overlay">
         <div class="zenux-code-confirm-modal" role="dialog" aria-modal="true">
-          <div class="zenux-code-confirm-head">${WARNING_SVG}<h3>${escapeXmlAttribute(title)}</h3></div>
+          <div class="zenux-code-confirm-head">${icons.warning}<h3>${escapeXmlAttribute(title)}</h3></div>
           <div class="zenux-code-confirm-body">
             <p>This will execute the following JavaScript in the browser chrome context.</p>
-            <div class="zenux-code-confirm-warning">${WARNING_SVG}<span>Only proceed if you trust the source of this command. Malicious code can compromise your browser.</span></div>
+            <div class="zenux-code-confirm-warning">${icons.warning}<span>Only proceed if you trust the source of this command. Malicious code can compromise your browser.</span></div>
             <pre class="zenux-code-confirm-code"><code>${highlightCode(code, language)}</code></pre>
           </div>
           <div class="zenux-code-confirm-actions">
