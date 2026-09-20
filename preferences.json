@@ -859,6 +859,22 @@
     ]
   },
   {
+    "property": "extension.browse-bot.pollinations-api-key",
+    "label": "Pollinations API Key (optional)",
+    "type": "string",
+    "placeholder": "Optional, unlocks more models and tool use",
+    "defaultValue": "",
+    "description": "Optional personal key from enter.pollinations.ai. Without it BrowseBot uses the free anonymous tier, which can run out of credits for tool use.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.llm-provider",
+          "value": "pollinations"
+        }
+      }
+    ]
+  },
+  {
     "property": "extension.browse-bot.pollinations-model",
     "label": "Pollinations Model",
     "type": "string",
