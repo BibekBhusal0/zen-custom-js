@@ -1,5 +1,7 @@
 # New Features
 
+- Custom JS commands now get syntax highlighting right inside the code editor.
+- Running a custom JS command for the first time now shows a proper confirmation dialog with the full highlighted code.
 - Settings commands search now uses the same fuzzy matching as the palette, with results sorted by relevance.
 - All dropdowns in settings (search engine picker, command pickers) now use fuzzy matching and stay sorted by relevance.
 - Switch profiles from the palette.

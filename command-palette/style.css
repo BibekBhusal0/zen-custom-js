@@ -1,5 +1,6 @@
 @import "../shared/zen-design.css";
 @import "../shared/settings-modal.css";
+@import "../shared/code-highlight.css";
 
 .command-palette-settings-modal {
   /*
@@ -213,7 +214,7 @@
 
       textarea {
         width: calc(100% - 20px);
-        min-height: 150px;
+        min-height: 300px;
         font-family: var(--zenux-mono) !important;
       }
 

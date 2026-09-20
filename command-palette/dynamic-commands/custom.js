@@ -3,6 +3,7 @@ import { Storage } from "../utils/storage.js";
 import { ZenCommandPalette } from "../index.js";
 import { showToast } from "../../utils/toast.js";
 import { hmacCode, loadApprovedHashes, trustHash } from "../utils/trust.js";
+import { confirmCodeExecution } from "../../shared/code-highlight.js";
 import { openLink } from "../../utils/open-link.js";
 
 export const commandChainUtils = {
@@ -48,14 +49,7 @@ export async function generateCustomCommands() {
           const codeHash = await hmacCode(cmd.code);
 
           if (!approvedHashes[codeHash]) {
-            const preview = cmd.code.length > 200 ? cmd.code.slice(0, 200) + "…" : cmd.code;
-            const approved = window.confirm(
-              `Run custom JS command "${cmd.name}"?\n\n` +
-                `This will execute the following JavaScript in the browser:\n\n` +
-                `${preview}\n\n` +
-                `Only proceed if you trust the source of this command. ` +
-                `You will not be asked again unless the code changes.`
-            );
+            const approved = await confirmCodeExecution({ name: cmd.name, code: cmd.code });
             if (!approved) return;
             await trustHash(codeHash);
           }

@@ -2,6 +2,7 @@ import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { hmacCode, trustHash } from "./utils/trust.js";
 import { parseElement, escapeXmlAttribute, xulImage } from "../utils/parse.js";
+import { attachCodeEditor } from "../shared/code-highlight.js";
 import { createCombobox } from "../utils/combobox.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
@@ -828,6 +829,11 @@ const SettingsModal = {
 
     const fullEditorHtml = `<div>${baseEditorHtml}${typeSpecificHtml}${actionsHtml}</div>`;
     editorContainer.replaceChildren(parseElement(fullEditorHtml));
+
+    if (cmd.type === "js") {
+      const codeInput = editorContainer.querySelector("#custom-cmd-code");
+      if (codeInput) attachCodeEditor(codeInput);
+    }
 
     const renderChainList = async () => {
       PREFS.debugLog("renderChainList called");
