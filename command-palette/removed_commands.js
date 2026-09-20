@@ -61,7 +61,7 @@ export const renoved_commands = [
   {
     key: "cmd_zenSplitViewVertical",
     label: "Split Vertical",
-    icon: svgToUrl(icons["splitVz"]),
+    icon: "chrome://browser/skin/zen-icons/split.svg",
     condition: () => gBrowser.visibleTabs.length >= 2 && !gZenViewSplitter?.splitViewActive,
     tags: ["split", "view", "vertical", "layout", "multitask"],
   },

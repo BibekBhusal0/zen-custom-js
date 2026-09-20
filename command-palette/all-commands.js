@@ -162,7 +162,7 @@ export const commands = [
     key: "cmd_zenGlanceSplit",
     label: "Split Glance",
     tags: ["glance", "split", "multitask", "peak", "horizontal", "vertical"],
-    icon: svgToUrl(icons["splitVz"]),
+    icon: "chrome://browser/skin/zen-icons/split.svg",
     condition: inGlance,
   },
 

@@ -1,5 +1,5 @@
 import { PREFS } from "../utils/prefs.js";
-import { textToSvgDataUrl, svgToUrl, icons } from "../../utils/icon.js";
+import { textToSvgDataUrl } from "../../utils/icon.js";
 import { Storage } from "../utils/storage.js";
 import { showToast } from "../../utils/toast.js";
 import { getEngineByName } from "../../utils/search-service.js";
@@ -220,7 +220,8 @@ export function getQuickSplitCommand(query) {
     command: async () => {
       await executeQuickSplit(parsed);
     },
-    icon: parsed.kind === "glance" ? textToSvgDataUrl("+") : svgToUrl(icons.splitVz),
+    icon:
+      parsed.kind === "glance" ? textToSvgDataUrl("+") : "chrome://browser/skin/zen-icons/split.svg",
     tags: ["quick", "split", "glance", "side-by-side", "stacked", "grid"],
     // Synthetic result for this exact query: not re-discoverable by
     // key lookup, so keep it out of recent commands (repeat-last).

@@ -1064,7 +1064,7 @@ const SettingsModal = {
       },
       {
         url: "https://github.com/Vertex-Mods/Zen-Command-Palette/tree/main/command-palette",
-        icon: svgToUrl(icons["splitVz"]),
+        icon: "chrome://browser/skin/zen-icons/split.svg",
         title: "Quick Split Guide",
         description: "Split views and glance from the palette.",
       },
