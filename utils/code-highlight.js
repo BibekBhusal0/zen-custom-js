@@ -1,5 +1,5 @@
 /* Tiny dependency-free syntax highlighter. Emits `pl-*` classes themed by markdown.css. */
-import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { parseElement, escapeXmlAttribute } from "./parse.js";
 
 const JS_KEYWORDS = new Set(
   "break case catch class const continue debugger default delete do else export extends finally for function if import in instanceof let new return static super switch throw try typeof var void while with yield async await of from as get set constructor".split(

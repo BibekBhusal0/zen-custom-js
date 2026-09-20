@@ -5,7 +5,7 @@
  * fenced code blocks. Citation spans are passed through untouched.
  */
 import { parseElement } from "../../utils/parse.js";
-import { highlightCode } from "../../shared/code-highlight.js";
+import { highlightCode } from "../../utils/code-highlight.js";
 
 const CITE_RE = /<span class="citation-link"[^>]*>.*?<\/span>/g;
 const CLOSED_FENCE_RE = /^```(\w*)\n([\s\S]*?)\n```/gm;

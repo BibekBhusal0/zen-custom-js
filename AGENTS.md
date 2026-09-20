@@ -53,21 +53,21 @@ Styles loaded via `userChrome.css`:
 
 ## Shared design system
 
-Single source of truth: `shared/zen-design.css`. It defines `zenux-*` tokens (colors sourced from `--zen-primary-color`, radii, shadows, easing) and reusable classes, all written with nesting.
+Single source of truth: `utils/zen-design.css`. It defines `zenux-*` tokens (colors sourced from `--zen-primary-color`, radii, shadows, easing) and reusable classes, all written with nesting.
 
 Available classes: `zenux-input`, `zenux-btn-primary/ghost/danger/success/warning`, `zenux-icon-btn` with `zenux-icon-btn-danger` and `zenux-icon-btn-accent` (toggle with `is-active`, uses `outline` so enabling never shifts layout), `zenux-section` + `zenux-section-title`, `zenux-count` (+ `zenux-count-accent`, requires both classes), `zenux-empty`, `zenux-combobox` (searchable dropdown, popup uses `zenux-combobox-popup`/`zenux-combobox-item`).
 
-Settings modals share a second source of truth: `shared/settings-modal.js` (`ZenuxSettings` base class plus `attachStandaloneShortcutRecorder`) with visuals in `shared/settings-modal.css`. It provides the overlay shell, tabs, accordion sections with hover-reveal reset buttons, pref rows (checkbox/number/text/textarea/select/shortcut), `data-pref` binding, and shortcut recording. Descriptor-driven `prefRow()`/`prefAccordion()` bake current values into rows/sections so callers never touch controls afterwards. Visibility uses `hidden`, `data-expanded`, and state classes (`is-recording`, `is-conflict`, `is-active`); never set inline styles from settings JS. Mods import the CSS relatively (`@import "../shared/settings-modal.css";`) and build rows/shell via the base class, adding only mod-specific sections on top. `ZenuxSettings.shell()` accepts `overlayId`/`modalClass` so mods can keep scoped overrides (e.g. `.browse-bot-settings-modal` acrylic background).
+Settings modals share a second source of truth: `utils/settings-modal.js` (`ZenuxSettings` base class plus `attachStandaloneShortcutRecorder`) with visuals in `utils/settings-modal.css`. It provides the overlay shell, tabs, accordion sections with hover-reveal reset buttons, pref rows (checkbox/number/text/textarea/select/shortcut), `data-pref` binding, and shortcut recording. Descriptor-driven `prefRow()`/`prefAccordion()` bake current values into rows/sections so callers never touch controls afterwards. Visibility uses `hidden`, `data-expanded`, and state classes (`is-recording`, `is-conflict`, `is-active`); never set inline styles from settings JS. Mods import the CSS relatively (`@import "../utils/settings-modal.css";`) and build rows/shell via the base class, adding only mod-specific sections on top. `ZenuxSettings.shell()` accepts `overlayId`/`modalClass` so mods can keep scoped overrides (e.g. `.browse-bot-settings-modal` acrylic background).
 
 Rules:
 
-- Mods import it relatively: `@import "../shared/zen-design.css";` as the first line of `style.css`.
-- Publishing (`wireSharedCss` in `.github/scripts/publish.js`) copies every referenced `shared/*.css` file into each child repo as `shared-<name>.css` (e.g. `shared-zen-design.css`, `shared-settings-modal.css`) and rewrites the import. Never duplicate shared files per mod.
+- Mods import it relatively: `@import "../utils/zen-design.css";` as the first line of `style.css`.
+- Publishing (`wireUtilsCss` in `.github/scripts/publish.js`) copies every referenced `utils/*.css` file into each child repo as `utils-<name>.css` (e.g. `utils-zen-design.css`, `utils-settings-modal.css`) and rewrites the import. Never duplicate shared files per mod.
 - Use classes for anything repeated. Prefer a variant over per-action styles.
 - Never alias variables (`--x: var(--zenux-y)`). Reference `zenux-*` directly. The only exception is behavioral variables like the browse-bot background-style switcher.
 - Interactive classes (`zenux-input`, `zenux-btn-*`, `zenux-icon-btn`) use `!important` throughout because Firefox native and XUL controls need it to lose. Structural classes do not.
-- Browser-made elements (XUL `image`, `toolbarbutton`, `menulist`, findbar/URL bar internals) cannot take classes reliably, or shared selectors do not match them (shared icon rules target HTML `img`/`svg`, never XUL `image`). Style those with local CSS mirroring shared values.
-- `display` toggles for show-on-hover elements stay local (e.g. reopen tab close button), since shared classes force their own display.
+- Browser-made elements (XUL `image`, `toolbarbutton`, `menulist`, findbar/URL bar internals) cannot take classes reliably, or utils selectors do not match them (utils icon rules target HTML `img`/`svg`, never XUL `image`). Style those with local CSS mirroring utils values.
+- `display` toggles for show-on-hover elements stay local (e.g. reopen tab close button), since utils classes force their own display.
 - Icons that can be `jar:`/extension URLs must be XUL `image` via `xulImage()` from `utils/parse.js`. HTML `img` throws a Security Error on those in chrome UI. Recolor context icons with `-moz-context-properties: fill, stroke` plus `fill`/`stroke`.
 - Dropdowns use `createCombobox()` from `utils/combobox.js`, never XUL `menulist`. It exposes `.value`, fires `command`, and works with the `data-pref` flow.
 
@@ -120,7 +120,7 @@ mod-name/           # each mod is a directory
   theme.json        # metadata + id for build output naming
   preferences.json  # optional, Sine preferences
   release-notes.md  # optional, for publishing
-utils/              # shared utilities (pref.js, parse.js, etc.)
+utils/              # shared utilities (pref.js, parse.js, zen-design.css, settings-modal.js/css, etc.)
 css/                # shared CSS (userChrome.css, userContent.css)
 others/             # non-bundled scripts, loaded directly
 dist/               # build output (gitignored, rebuilt by CI/publish)

@@ -2,14 +2,14 @@ import { PREFS } from "./utils/prefs.js";
 import { Storage } from "./utils/storage.js";
 import { hmacCode, trustHash } from "./utils/trust.js";
 import { parseElement, escapeXmlAttribute, xulImage } from "../utils/parse.js";
-import { attachCodeEditor } from "../shared/code-highlight.js";
+import { attachCodeEditor } from "../utils/code-highlight.js";
 import { createCombobox } from "../utils/combobox.js";
 import { icons, svgToUrl } from "../utils/icon.js";
 import { getVisibleEngines, getDefaultEngine } from "../utils/search-service.js";
 import { getSearchEngineFavicon, googleFaviconAPI } from "../utils/favicon.js";
 import { checkShortcutConflicts, getPrettyShortcut } from "../utils/keyboard.js";
 import { bestFuzzyScore } from "../utils/fuzzy.js";
-import { ZenuxSettings, attachStandaloneShortcutRecorder } from "../shared/settings-modal.js";
+import { ZenuxSettings, attachStandaloneShortcutRecorder } from "../utils/settings-modal.js";
 
 const form = new ZenuxSettings(PREFS);
 

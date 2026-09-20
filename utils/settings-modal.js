@@ -1,5 +1,5 @@
-import { escapeXmlAttribute } from "../utils/parse.js";
-import { eventToShortcutSignature, getPrettyShortcut } from "../utils/keyboard.js";
+import { escapeXmlAttribute } from "./parse.js";
+import { eventToShortcutSignature, getPrettyShortcut } from "./keyboard.js";
 
 const MODIFIER_KEYS = ["Control", "Alt", "Shift", "Meta"];
 
@@ -9,7 +9,7 @@ export const prefId = (prefKey) => `pref-${String(prefKey).toLowerCase().replace
 
 /**
  * Shared settings shell for Zen mods. Renders markup only; all visuals
- * live in shared/settings-modal.css. Visibility is toggled with `hidden`,
+ * live in utils/settings-modal.css. Visibility is toggled with `hidden`,
  * `data-expanded` and state classes, never inline styles.
  */
 export class ZenuxSettings {

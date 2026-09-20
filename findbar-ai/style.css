@@ -1,11 +1,11 @@
-@import "../shared/zen-design.css";
-@import "../shared/settings-modal.css";
+@import "../utils/zen-design.css";
+@import "../utils/settings-modal.css";
 @import "styles/findbar.css";
 @import "styles/markdown.css";
 @import "styles/urlbar.css";
 @import "styles/settings.css";
 @import "styles/pseudo-bg.css";
-@import "../shared/code-highlight.css";
+@import "../utils/code-highlight.css";
 
 :root {
   --browser-themed-toolbar-bg: var(--zen-themed-toolbar-bg, #333333);

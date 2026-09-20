@@ -1,6 +1,6 @@
-@import "../shared/zen-design.css";
-@import "../shared/settings-modal.css";
-@import "../shared/code-highlight.css";
+@import "../utils/zen-design.css";
+@import "../utils/settings-modal.css";
+@import "../utils/code-highlight.css";
 
 .command-palette-settings-modal {
   /*

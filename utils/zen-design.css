@@ -1,4 +1,4 @@
-/* Source of truth: shared/zen-design.css. Mods import it relatively;
+/* Source of truth: utils/zen-design.css. Mods import it relatively;
  * publish.js copies it into each child repo and rewrites the import. */
 
 :root {

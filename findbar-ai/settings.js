@@ -3,7 +3,7 @@ import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { createCombobox } from "../utils/combobox.js";
 import { createModelField } from "./utils/model-selector.js";
-import { ZenuxSettings } from "../shared/settings-modal.js";
+import { ZenuxSettings } from "../utils/settings-modal.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
 import {
   ensureApiKeysLoaded,

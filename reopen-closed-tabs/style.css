@@ -1,4 +1,4 @@
-@import "../shared/zen-design.css";
+@import "../utils/zen-design.css";
 
 #reopen-closed-tabs-panel {
   --panel-padding: 0 3px 0 3px !important;

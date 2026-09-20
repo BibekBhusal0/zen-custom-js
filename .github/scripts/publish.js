@@ -206,10 +206,10 @@ async function buildMod(mod) {
   await run(command);
 }
 
-// Copies every shared/*.css file referenced by the child repo's CSS into the
-// child repo (shared/<name>.css -> shared-<name>.css) and rewrites those
+// Copies every utils/*.css file referenced by the child repo's CSS into the
+// child repo (utils/<name>.css -> utils-<name>.css) and rewrites those
 // imports to the published location.
-async function wireSharedCss(workDir) {
+async function wireUtilsCss(workDir) {
   const cssFiles = [];
   const collect = (dir) => {
     for (const entry of readdirSync(dir)) {
@@ -223,14 +223,14 @@ async function wireSharedCss(workDir) {
   };
   collect(workDir);
 
-  const importPattern = /@import\s+["']([^"']*shared\/([^"'/]+\.css))["']\s*;/g;
+  const importPattern = /@import\s+["']([^"']*utils\/([^"'/]+\.css))["']\s*;/g;
   const referenced = new Set();
   for (const file of cssFiles) {
     const original = readFileSync(file, "utf-8");
-    if (!original.includes("shared/")) continue;
+    if (!original.includes("utils/")) continue;
     const rewritten = original.replace(importPattern, (match, _full, name) => {
       referenced.add(name);
-      return `@import "shared-${name}";`;
+      return `@import "utils-${name}";`;
     });
     if (rewritten !== original) {
       writeFileSync(file, rewritten);
@@ -238,8 +238,8 @@ async function wireSharedCss(workDir) {
   }
 
   for (const name of referenced) {
-    const sharedSrc = path.join(MODS_DIR, "shared", name);
-    await $`cp ${sharedSrc} ${path.join(workDir, `shared-${name}`)}`;
+    const utilsSrc = path.join(MODS_DIR, "utils", name);
+    await $`cp ${utilsSrc} ${path.join(workDir, `utils-${name}`)}`;
   }
 }
 
@@ -278,7 +278,7 @@ async function processMod(modData) {
   }
 
   // Copy bundled JS
-  await wireSharedCss(workDir);
+  await wireUtilsCss(workDir);
   if (theme.scripts) {
     const distDir = path.join(MODS_DIR, "dist");
     if (existsSync(distDir)) {

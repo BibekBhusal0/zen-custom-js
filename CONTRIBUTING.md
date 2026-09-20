@@ -111,7 +111,10 @@ This step is required because while installation sine will not include `.git` di
 │   └── release-notes.md
 ├── utils/
 │   ├── parse.js
-│   └── favicon.js
+│   ├── favicon.js
+│   ├── zen-design.css
+│   ├── settings-modal.js
+│   └── settings-modal.css
 ├── templates/
 │   ├── CONTRIBUTING.template.md
 │   ├── config.template.yml

@@ -3,7 +3,7 @@ import { Storage } from "../utils/storage.js";
 import { ZenCommandPalette } from "../index.js";
 import { showToast } from "../../utils/toast.js";
 import { hmacCode, loadApprovedHashes, trustHash } from "../utils/trust.js";
-import { confirmCodeExecution } from "../../shared/code-highlight.js";
+import { confirmCodeExecution } from "../../utils/code-highlight.js";
 import { openLink } from "../../utils/open-link.js";
 
 export const commandChainUtils = {
