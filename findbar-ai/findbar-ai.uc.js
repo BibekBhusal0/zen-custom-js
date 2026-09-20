@@ -9,6 +9,7 @@ import { createModelField } from "./utils/model-selector.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
 import { addPrefListener, removePrefListener } from "../utils/pref.js";
+import { getSecureApiKey } from "./utils/secure.js";
 
 const icons = {
   loading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
@@ -461,9 +462,9 @@ export const browseBotFindbar = {
       wrap.classList.remove("hidden");
       const field = createModelField(provider, {
         id: "model-selector",
-        getApiKey: () =>
+        getApiKey: async () =>
           container.querySelector("#api-key")?.value.trim() ||
-          PREFS.getPref(provider.apiPref) ||
+          (await getSecureApiKey(provider.apiPref)) ||
           "",
         isCurrent: () => modelCombo === field,
       });
@@ -471,7 +472,7 @@ export const browseBotFindbar = {
       wrap.appendChild(modelCombo);
     };
 
-    const updateUIForProvider = (providerName) => {
+    const updateUIForProvider = async (providerName) => {
       const provider = browseBotFindbarLLM.AVAILABLE_PROVIDERS[providerName];
       if (!provider) return;
       const baseUrlInput = container.querySelector("#base-url");
@@ -500,7 +501,7 @@ export const browseBotFindbar = {
 
       if (needsApiKey) {
         apiKeyRow?.classList.remove("hidden");
-        input.value = provider.apiKey || "";
+        input.value = (await provider.getApiKeyAsync?.()) ?? provider.apiKey ?? "";
         input.placeholder = `Enter your ${provider.label} API key`;
       } else {
         apiKeyRow?.classList.add("hidden");
@@ -541,7 +542,7 @@ export const browseBotFindbar = {
       openTrustedLinkIn(browseBotFindbarLLM.currentProvider.apiKeyUrl, "tab");
     });
 
-    saveBtn.addEventListener("click", () => {
+    saveBtn.addEventListener("click", async () => {
       const provider = browseBotFindbarLLM.currentProvider;
       if (!provider) return;
       const providerName = provider.name;
@@ -591,7 +592,7 @@ export const browseBotFindbar = {
         PREFS.setPref(provider.modelPref, dropdownModel);
       }
       if (needsApiKey && apiKey) {
-        provider.apiKey = apiKey;
+        await provider.setApiKeyAsync(apiKey);
       }
 
       this.showAIInterface(); // Refresh UI after saving; stays on setup if still incomplete
