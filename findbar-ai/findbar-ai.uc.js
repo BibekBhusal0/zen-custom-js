@@ -1032,6 +1032,14 @@ export const browseBotFindbar = {
         copyButton.textContent = "Copy";
       }, 1500);
     };
+    const openChatLink = (e) => {
+      const anchor = e.target?.closest?.("a[href]");
+      if (!anchor) return;
+      e.preventDefault();
+      try {
+        openTrustedLinkIn(anchor.href, "tab");
+      } catch {}
+    };
     chatMessages.addEventListener("click", async (e) => {
       const copyButton = e.target.closest?.(".zh-codeblock-copy");
       if (copyButton) {
@@ -1059,12 +1067,13 @@ export const browseBotFindbar = {
             this.highlight(citation.source_quote);
           }
         }
-      } else if (e.target?.href) {
-        e.preventDefault();
-        try {
-          openTrustedLinkIn(e.target.href, "tab");
-        } catch {}
+      } else {
+        openChatLink(e);
       }
+    });
+
+    chatMessages.addEventListener("auxclick", (e) => {
+      if (e.button === 1) openChatLink(e);
     });
 
     chatMessages.addEventListener("keydown", (e) => {
