@@ -5,6 +5,12 @@ import { createCombobox } from "../utils/combobox.js";
 import { createModelField } from "./utils/model-selector.js";
 import { ZenuxSettings } from "../shared/settings-modal.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
+import {
+  ensureApiKeysLoaded,
+  getSecureApiKey,
+  isApiKeyPref,
+  setSecureApiKey,
+} from "./utils/secure.js";
 
 const form = new ZenuxSettings(PREFS);
 
@@ -50,7 +56,8 @@ export const SettingsModal = {
           id: `pref-${this._getSafeIdForProvider(name)}-model`,
           value: currentModel,
           attrs: { "data-pref": modelPrefKey },
-          getApiKey: () => form.values[provider.apiPref] || PREFS.getPref(provider.apiPref) || "",
+          getApiKey: async () =>
+            form.values[provider.apiPref] || (await getSecureApiKey(provider.apiPref)) || "",
           onDynamicLoaded: (combo) => {
             if (combo.value && !form.values[provider.modelPref]) {
               form.values[provider.modelPref] = combo.value;
@@ -81,8 +88,8 @@ export const SettingsModal = {
     form.attachPrefTracking(root, (prefKey) => this._onPrefChange(prefKey));
     form.attachShortcutInputs(root);
 
-    root.querySelector("#browse-bot-save-settings").addEventListener("click", () => {
-      this.saveSettings();
+    root.querySelector("#browse-bot-save-settings").addEventListener("click", async () => {
+      await this.saveSettings();
       this.hide();
       if (browseBotFindbar.enabled) browseBotFindbar.show();
       else browseBotFindbar.destroy();
@@ -178,32 +185,44 @@ export const SettingsModal = {
     this._updateProviderSpecificSettings(root, PREFS.llmProvider);
   },
 
-  saveSettings() {
+  async saveSettings() {
     for (const prefKey in form.values) {
       if (Object.prototype.hasOwnProperty.call(form.values, prefKey)) {
-        if (prefKey.endsWith("api-key")) {
+        if (isApiKeyPref(prefKey)) {
           if (form.values[prefKey]) {
-            const maskedKey = "*".repeat(form.values[prefKey].length);
+            const maskedKey = "*".repeat(String(form.values[prefKey]).length);
             PREFS.debugLog(`Saving pref ${prefKey} to: ${maskedKey}`);
           }
         } else {
           PREFS.debugLog(`Saving pref ${prefKey} to: ${form.values[prefKey]}`);
         }
         try {
-          PREFS.setPref(prefKey, form.values[prefKey]);
+          if (isApiKeyPref(prefKey)) {
+            await setSecureApiKey(prefKey, form.values[prefKey] || "");
+          } else {
+            PREFS.setPref(prefKey, form.values[prefKey]);
+          }
         } catch (e) {
           PREFS.debugError(`Error Saving pref for ${prefKey} ${e}`);
         }
       }
     }
-    if (!browseBotFindbarLLM.currentProvider.apiKey) {
+    if (!(await browseBotFindbarLLM.currentProvider.getApiKeyAsync())) {
       browseBotFindbar.expanded = false;
     }
   },
 
-  show() {
+  async show() {
+    await ensureApiKeysLoaded();
     this.createModalElement();
     form.syncFromPrefs(this._modalElement);
+    for (const provider of Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
+      if (!provider.apiPref) continue;
+      const decrypted = await getSecureApiKey(provider.apiPref);
+      form.values[provider.apiPref] = decrypted;
+      const input = this._modalElement.querySelector(`[data-pref="${provider.apiPref}"]`);
+      if (input) input.value = decrypted || "";
+    }
     this._updateProviderSpecificSettings(this._modalElement, PREFS.llmProvider);
 
     document.documentElement.appendChild(this._modalElement);
