@@ -37,6 +37,7 @@ bun run lint               # eslint .
 - CSS-only mods (e.g., `compact-settings/`) have no `scripts` key in theme.json and are skipped by the build.
 - Scripts in `others/` are not bundled — imported directly in `import.uc.mjs`.
 - `search-engine-icon/` has no `theme.json` at all — loaded directly as a raw import.
+- Post-build, `stripDeadMembers` (`.github/scripts/strip-dead-members.js`) removes unreferenced object/class members per bundle (Bun only tree-shakes top-level exports). It rewrites `dist/` output only, never sources, and keeps everything on any uncertain pattern.
 
 ## Active mods
 

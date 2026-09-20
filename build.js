@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { $ } from "bun";
+import { stripDeadMembers } from "./.github/scripts/strip-dead-members.js";
 
 const getSubdirectories = (dir) => {
   return fs.readdirSync(dir).filter((file) => {
@@ -87,6 +88,22 @@ async function buildMod(themePath, entryFile, theme, isWatch = false) {
         throw new Error(`Build failed: ${label}`);
       }
       console.log(`Built ${label}`);
+      // Bun only shakes top-level exports; strip dead object/class members
+      // from the emitted bundle (dist only, never sources).
+      try {
+        const outPath = `./dist/${options.naming}`;
+        const file = Bun.file(outPath);
+        if (await file.exists()) {
+          const original = await file.text();
+          const { code, stripped } = stripDeadMembers(original);
+          if (stripped > 0) {
+            await Bun.write(outPath, code);
+            console.log(`Stripped ${stripped} dead member(s) from ${label} (${original.length} -> ${code.length} bytes)`);
+          }
+        }
+      } catch (stripErr) {
+        console.warn(`[${label}] member stripping skipped: ${stripErr?.message ?? stripErr}`);
+      }
     } catch (err) {
       if (err instanceof AggregateError) {
         for (const sub of err.errors) console.error(`[${label}]`, sub?.message ?? sub);
@@ -110,6 +127,7 @@ async function buildMod(themePath, entryFile, theme, isWatch = false) {
   );
 
   if (isWatch) {
+    // Watch rebuilds skip dead-member stripping (CLI has no hook for it).
     await $`bun build ${entryFile} --outdir ./dist --format ${format} --target browser --entry-naming ${outName} --banner "${banner}" --minify-syntax --watch`;
   }
 }
