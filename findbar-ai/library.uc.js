@@ -18,10 +18,6 @@ import { SettingsModal } from "./settings.js";
 import { showToast } from "../utils/toast.js";
 import { addPrefListener } from "../utils/pref.js";
 import { fuzzyFilterSort } from "../utils/fuzzy.js";
-import { parseStringToShortcut } from "../utils/keyboard.js";
-
-// Unsent composer state, restored when the section remounts.
-const draft = { text: "", refs: [] };
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = MODES.map((mode) => ({
@@ -126,7 +122,6 @@ function mountPanel(host) {
   };
   host._bbCleanup = () => {
     state.destroyed = true;
-    saveDraft();
     clearLibraryWidth(host);
     state.abortController?.abort();
   };
@@ -211,31 +206,6 @@ function mountPanel(host) {
     for (const ref of state.pendingRefs) refsBar.appendChild(refChip(ref, true));
   }
 
-  function saveDraft() {
-    draft.text = input.value;
-    draft.refs = state.pendingRefs.map(({ title, url, icon }) => ({ title, url, icon }));
-  }
-
-  function restoreDraft() {
-    input.value = draft.text || "";
-    state.pendingRefs = [];
-    if (draft.refs.length > 0) {
-      const open = listTabs();
-      for (const saved of draft.refs) {
-        const match =
-          open.find((t) => t.url && t.url === saved.url) ||
-          open.find((t) => t.title === saved.title);
-        if (match) {
-          state.pendingRefs.push({ tab: match.tab, title: match.title, url: match.url, icon: match.icon });
-        }
-      }
-      draft.refs = draft.refs.filter((saved) =>
-        state.pendingRefs.some((r) => r.title === saved.title)
-      );
-    }
-    renderChips();
-  }
-
   function syncPendingRefs() {
     const before = state.pendingRefs.length;
     state.pendingRefs = state.pendingRefs.filter((r) => input.value.includes(`@${r.title}`));
@@ -274,8 +244,6 @@ function mountPanel(host) {
     if (state.streaming) state.abortController?.abort();
     browseBotLibraryLLM.clearData();
     state.pendingRefs = [];
-    draft.text = "";
-    draft.refs = [];
     renderChips();
     renderHistory();
     input.focus();
@@ -383,7 +351,6 @@ function mountPanel(host) {
   }
 
   input.addEventListener("input", () => {
-    saveDraft();
     syncPendingRefs();
     refreshPopup();
   });
