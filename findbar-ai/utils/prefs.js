@@ -156,14 +156,6 @@ class BrowseBotPREFS extends BasePREFS {
 
   static migratePrefs() {
     try {
-      if (this.getPref(this.SHORTCUT_LIBRARY) === "shift+alt+a") {
-        this.debugLog("Migrating library shortcut to canonical modifier order.");
-        this.setPref(this.SHORTCUT_LIBRARY, "alt+shift+a");
-      }
-    } catch (e) {
-      this.debugError("Could not migrate library shortcut:", e);
-    }
-    try {
       const legacy = this.getPref("extension.browse-bot.custom-system-prompt");
       if (typeof legacy === "string" && legacy.trim() && !this.getPref(this.FINDBAR_SYSTEM_PROMPT)) {
         this.debugLog("Migrating legacy custom system prompt to the findbar prompt.");
