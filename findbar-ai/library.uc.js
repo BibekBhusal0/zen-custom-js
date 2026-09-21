@@ -132,6 +132,7 @@ function mountPanel(host) {
   const stopBtn = ui.querySelector(".bb-stop-btn");
   const popup = ui.querySelector(".bb-library-popup");
   const refsBar = ui.querySelector(".bb-refs-bar");
+  const clearBtn = ui.querySelector('[data-action="clear"]');
   const modeButtons = [...ui.querySelectorAll(".bb-mode")];
 
   const scrollDown = () => {
@@ -215,6 +216,7 @@ function mountPanel(host) {
   function renderHistory() {
     messagesEl.innerHTML = "";
     const history = browseBotLibraryLLM.getHistory();
+    clearBtn.hidden = history.length === 0;
     if (history.length === 0) {
       const empty = parseElement(
         `<div class="zenux-empty">Ask anything. Type <b>/</b> to switch modes, <b>@</b> to reference tabs.</div>`
@@ -240,7 +242,7 @@ function mountPanel(host) {
 
   modeButtons.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
 
-  ui.querySelector('[data-action="clear"]').addEventListener("click", () => {
+  clearBtn.addEventListener("click", () => {
     if (state.streaming) state.abortController?.abort();
     browseBotLibraryLLM.clearData();
     state.pendingRefs = [];
@@ -441,6 +443,7 @@ function mountPanel(host) {
     }
 
     addMessage("user", text, refs);
+    clearBtn.hidden = false;
     input.value = "";
     state.pendingRefs = [];
     renderChips();

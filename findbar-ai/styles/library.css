@@ -64,6 +64,10 @@ zen-library-browsebot-section {
         display: flex !important;
         gap: 2px !important;
         margin-left: auto !important;
+
+        [hidden] {
+          display: none !important;
+        }
       }
     }
 
