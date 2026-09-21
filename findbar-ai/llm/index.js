@@ -171,7 +171,7 @@ class LLM {
 
 /**
  * An extended LLM class specifically for the BrowseBot Findbar.
- * It manages application-specific states like agentic, streaming, citations,
+ * It manages application-specific states like streaming and citations,
  * and constructs the appropriate system prompts.
  */
 const pageCitationExamples = `### Citation Examples

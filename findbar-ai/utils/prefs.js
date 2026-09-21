@@ -12,7 +12,6 @@ class BrowseBotPREFS extends BasePREFS {
   static REMEMBER_DIMENSIONS = "extension.browse-bot.findbar-ai.remember-dimensions";
   static WIDTH = "extension.browse-bot.findbar-ai.width";
   static STREAM_ENABLED = "extension.browse-bot.findbar-ai.stream-enabled";
-  static AGENTIC_MODE = "extension.browse-bot.findbar-ai.agentic-mode";
   static CITATIONS_ENABLED = "extension.browse-bot.findbar-ai.citations-enabled";
   static MAX_TOOL_CALLS = "extension.browse-bot.findbar-ai.max-tool-calls";
   static MAX_CONTEXT_CHARS = "extension.browse-bot.findbar-ai.max-context-chars";
@@ -40,8 +39,6 @@ class BrowseBotPREFS extends BasePREFS {
   static URLBAR_AI_ENABLED = "extension.browse-bot.urlbar-ai-enabled";
   static URLBAR_AI_HIDE_SUGGESTIONS = "extension.browse-bot.urlbar-ai.hide-suggestions";
   static URLBAR_AI_ANIMATIONS_ENABLED = "extension.browse-bot.urlbar-ai.animations-enabled";
-
-  static SOLID_BG = "extension.browse-bot.solid-bg";
 
   static LLM_PROVIDER = "extension.browse-bot.llm-provider";
   static MISTRAL_API_KEY = "extension.browse-bot.mistral-api-key";
@@ -77,17 +74,12 @@ class BrowseBotPREFS extends BasePREFS {
   static LLM_PRESENCE_PENALTY = "extension.browse-bot.llm.presence-penalty";
   static LLM_MAX_OUTPUT_TOKENS = "extension.browse-bot.llm.max-output-tokens";
 
-  // static COPY_BTN_ENABLED = "extension.browse-bot.findbar-ai.copy-btn-enabled";
-  // static MARKDOWN_ENABLED = "extension.browse-bot.findbar-ai.markdown-enabled";
-  // static SHOW_TOOL_CALL = "extension.browse-bot.findbar-ai.show-tool-call";
-
   static defaultValues = {
     [BrowseBotPREFS.ENABLED]: true,
     [BrowseBotPREFS.URLBAR_AI_ENABLED]: true,
     [BrowseBotPREFS.URLBAR_AI_HIDE_SUGGESTIONS]: true,
     [BrowseBotPREFS.URLBAR_AI_ANIMATIONS_ENABLED]: true,
     [BrowseBotPREFS.MINIMAL]: true,
-    [BrowseBotPREFS.AGENTIC_MODE]: false,
     [BrowseBotPREFS.DEBUG_MODE]: false,
     [BrowseBotPREFS.PERSIST]: false,
     [BrowseBotPREFS.STREAM_ENABLED]: true,
@@ -191,14 +183,6 @@ class BrowseBotPREFS extends BasePREFS {
     this.setPref(this.STREAM_ENABLED, value);
   }
 
-  static set agenticMode(value) {
-    this.setPref(this.AGENTIC_MODE, value);
-  }
-
-  static get agenticMode() {
-    return this.getPref(this.AGENTIC_MODE);
-  }
-
   static get citationsEnabled() {
     return this.getPref(this.CITATIONS_ENABLED);
   }
@@ -294,14 +278,6 @@ class BrowseBotPREFS extends BasePREFS {
   static set conformation(value) {
     this.setPref(this.CONFORMATION, value);
   }
-
-  // static get showToolCall() {
-  //   return this.getPref(this.SHOW_TOOL_CALL);
-  // }
-  //
-  // static set showToolCall(value) {
-  //   this.setPref(this.SHOW_TOOL_CALL, value);
-  // }
 
   static get dndEnabled() {
     return this.getPref(this.DND_ENABLED);

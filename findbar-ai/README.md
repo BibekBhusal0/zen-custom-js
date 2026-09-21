@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 https://github.com/user-attachments/assets/78e37797-0e6a-4176-8eb2-e5e03f868db3
 
-### Agentic mode (with new tool calls)
+### Agent mode (with tool calls)
 
 https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
 
@@ -182,7 +182,6 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.findbar-ai.context-menu-autosend`               | Boolean | `true`                                                      | If true, clicking the context menu item sends the request to the AI immediately.                                                                                            |
 | `extension.browse-bot.findbar-ai.context-menu-command-no-selection`   | String  | `"Summarize current page"`                                  | The command to send when no text is selected.                                                                                                                               |
 | `extension.browse-bot.findbar-ai.context-menu-command-with-selection` | String  | `"Explain this in context of current page:\n\n{selection}"` | The command to send when text is selected. `{selection}` is the placeholder.                                                                                                |
-| `extension.browse-bot.findbar-ai.agentic-mode`                        | Boolean | `false`                                                     | If true, allows the AI to use tools to interact with the browser.                                                                                                           |
 | `extension.browse-bot.findbar-ai.max-tool-calls`                      | Number  | `5`                                                         | The maximum number of consecutive tool calls the AI can make in one turn.                                                                                                   |
 | `extension.browse-bot.findbar-ai.max-context-chars`                   | Number  | `0`                                                         | Maximum page or transcript characters sent per message. `0` means unlimited.                                                                                                |
 | `extension.browse-bot.findbar-ai.system-prompt`                           | String  | _(empty)_                                                   | Custom system prompt for the findbar AI.                                                                                                                                  |
@@ -205,9 +204,6 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.library-ai.enabled`                             | Boolean | `true`                                                      | Adds the BrowseBot section to the Zen Library (needs a Zen build with the Library feature).                                                                                 |
 | `extension.browse-bot.library-ai.mode`                                | String  | `"chat"`                                                    | Library AI mode. Options: `chat`, `agent`, `build` (coming soon).                                                                                                           |
 | `extension.browse-bot.debug-mode`                                     | Boolean | `false`                                                     | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                                                                                         |
-
-> [!WARNING]
-> Don't turn on both Agentic Mode Citations at the same time. The AI might not function properly.
 
 </details>
 

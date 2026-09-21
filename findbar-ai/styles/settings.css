@@ -43,21 +43,10 @@
     border-bottom: none !important;
   }
 
-  #citations-agentic-mode-warning {
-    display: none;
-  }
-
   /* When Citations enabled hiding stream option*/
   &:has(#pref-extension\.browse-bot\.findbar-ai\.citations-enabled:checked) {
     .zenux-setting-item:has(#pref-extension\.browse-bot\.findbar-ai\.stream-enabled) {
       display: none !important;
-    }
-
-    /* When citations and agentic mode enabled showing warning*/
-    :has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:checked) {
-      #citations-agentic-mode-warning {
-        display: block !important;
-      }
     }
   }
 
@@ -76,7 +65,6 @@
 
     /* Hide findbar sections */
     .zenux-settings-section {
-      &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode),
       &:has(#pref-extension\.browse-bot\.findbar-ai\.context-menu-enabled),
       &:has([data-pref="accessibility.typeaheadfind"]) {
         display: none !important;
@@ -90,16 +78,6 @@
     .zenux-setting-item {
       &:has([data-pref="extension.browse-bot.urlbar-ai.animations-enabled"]),
       &:has([data-pref="extension.browse-bot.urlbar-ai.hide-suggestions"]) {
-        display: none !important;
-      }
-    }
-  }
-
-  /* When agentic Mode is disabled */
-  &:has(#pref-extension\.browse-bot\.findbar-ai\.agentic-mode:not(:checked)) {
-    .zenux-setting-item {
-      &:has(#pref-extension\.browse-bot\.findbar-ai\.conform-before-tool-call),
-      &:has(#pref-max-tool-calls) {
         display: none !important;
       }
     }

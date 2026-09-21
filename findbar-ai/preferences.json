@@ -860,21 +860,6 @@
     ]
   },
   {
-    "property": "extension.browse-bot.findbar-ai.agentic-mode",
-    "label": "Agentic Mode (Legacy)",
-    "type": "checkbox",
-    "defaultValue": false,
-    "description": "Legacy: tool calls now live in the Library AI agent mode. The findbar is page Q&A only.",
-    "conditions": [
-      {
-        "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
-          "value": true
-        }
-      }
-    ]
-  },
-  {
     "property": "extension.browse-bot.findbar-ai.system-prompt",
     "label": "Findbar AI System Prompt",
     "type": "textarea",
@@ -926,15 +911,8 @@
           "property": "extension.browse-bot.findbar-ai.enabled",
           "value": true
         }
-      },
-      {
-        "if": {
-          "property": "extension.browse-bot.findbar-ai.agentic-mode",
-          "value": true
-        }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "property": "extension.browse-bot.findbar-ai.max-context-chars",
@@ -1011,15 +989,8 @@
           "property": "extension.browse-bot.findbar-ai.enabled",
           "value": true
         }
-      },
-      {
-        "if": {
-          "property": "extension.browse-bot.findbar-ai.agentic-mode",
-          "value": true
-        }
       }
-    ],
-    "operator": "AND"
+    ]
   },
   {
     "type": "separator",

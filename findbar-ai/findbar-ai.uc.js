@@ -85,7 +85,6 @@ export const browseBotFindbar = {
   _handleFindbarCloseEvent: null,
   _isExpanded: false,
   _updateContextMenuText: null,
-  _agenticModeListener: null,
   _backgroundStylesListener: null,
   _citationsListener: null,
   _contextMenuEnabledListener: null,
@@ -368,11 +367,9 @@ export const browseBotFindbar = {
 
   aiStatus: {
     citationsEnabled: PREFS.citationsEnabled,
-    agenticMode: PREFS.agenticMode,
   },
   updateFindbarStatus() {
     this.aiStatus = {
-      agenticMode: PREFS.agenticMode,
       citationsEnabled: PREFS.citationsEnabled,
     };
     if (this.findbar) this.findbar.aiStatus = this.aiStatus;
@@ -1669,7 +1666,6 @@ export const browseBotFindbar = {
     this._handleFindbarCloseEvent = this.handleFindbarCloseEvent.bind(this);
     window.addEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.addEventListener("findbarclose", this._handleFindbarCloseEvent);
-    this._agenticModeListener = addPrefListener(PREFS.AGENTIC_MODE, _clearLLMData);
     this._backgroundStylesListener = addPrefListener(
       PREFS.BACKGROUND_STYLE,
       _handleBackgroundStyleChange
@@ -1705,7 +1701,6 @@ export const browseBotFindbar = {
     document.removeEventListener("keydown", this._addKeymaps);
     window.removeEventListener("findbaropen", this._handleFindbarOpenEvent);
     window.removeEventListener("findbarclose", this._handleFindbarCloseEvent);
-    removePrefListener(this._agenticModeListener);
     removePrefListener(this._backgroundStylesListener);
     removePrefListener(this._citationsListener);
     removePrefListener(this._contextMenuEnabledListener);
@@ -1717,7 +1712,6 @@ export const browseBotFindbar = {
     this._handleInputKeyPress = null;
     this._updateFindbar = null;
     this._addKeymaps = null;
-    this._agenticModeListener = null;
     this._citationsListener = null;
     this._contextMenuEnabledListener = null;
     this._minimalListener = null;
