@@ -14,7 +14,6 @@ import {
   openrouter,
   custom,
 } from "./providers.js";
-import { getTools, getToolSystemPrompt, toolNameMapping, toolGroups } from "./tools.js";
 import { messageManagerAPI } from "../messageManager.js";
 import { getVideoContext, getYouTubeVideoId } from "./youtube.js";
 import PREFS from "../utils/prefs.js";
@@ -250,9 +249,6 @@ class BrowseBotLLM extends LLM {
     this.pageContextIsVideo = false;
   }
 
-  get agenticMode() {
-    return PREFS.agenticMode;
-  }
   get streamEnabled() {
     return PREFS.streamEnabled;
   }
@@ -271,34 +267,14 @@ class BrowseBotLLM extends LLM {
   async getSystemPrompt() {
     let systemPrompt = "";
 
-    if (PREFS.customSystemPrompt) {
-      systemPrompt = PREFS.customSystemPrompt + "\n\n";
+    if (PREFS.findbarSystemPrompt) {
+      systemPrompt = PREFS.findbarSystemPrompt + "\n\n";
     }
 
     systemPrompt += `You are a helpful AI assistant integrated into Zen Browser, a minimal and modern fork of Firefox. Your primary purpose is to answer user questions based on the content of the current webpage.
 
 ## Your Instructions:
 - Be concise, accurate, and helpful.`;
-
-    if (this.agenticMode) {
-      systemPrompt += `
-
-## AGENTIC MODE ENABLED - TOOL USAGE:
-You have access to browser functions. The user knows you have these abilities.
-- **CRITICAL**: When you decide to call a tool, give short summary of what tool are you calling and why?
-- Use tools when the user explicitly asks, or when it is the only logical way to fulfill their request (e.g., "search for...").
-- When asked about your own abilities, describe the functions you can perform based on the tools listed below.
-`;
-      systemPrompt += await getToolSystemPrompt();
-      systemPrompt += `
-## More instructions for Running tools
-- While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
-- User will provide URL and title of current of webpage. If you need more context, use the \`getPageTextContent\` or \`getHTMLContent\` tools.
-- When the user asks you to "read the current page", use the \`getPageTextContent()\` or \`getHTMLContent\` tool.
-- Don't use search tool unless user explicitely asks.
-- When user asks you to manage tabs (close/group/move tabs) do it smartly first read tabs and take action don't ask too many question for confirmation.
-- If the user asks you to open a link by its text (e.g., "click the 'About Us' link"), you must first use \`getHTMLContent()\` to find the link's full URL, then use \`openLink()\` to open it.`;
-    }
 
     if (this.citationsEnabled) {
       let isVideoPage = false;
@@ -333,14 +309,13 @@ ${citationExamples}
 `;
     }
 
-    if (!this.agenticMode) {
-      const { url, title } = messageManagerAPI.getUrlAndTitle();
-      systemPrompt += `
+    const { url, title } = messageManagerAPI.getUrlAndTitle();
+    systemPrompt += `
 - Strictly base all your answers on the webpage content provided as a separate message in this conversation.
 - If the user's question cannot be answered from the content, state that the information is not available on the page.
 - Current page: "${title}" (${url})
+- For browser actions like managing tabs, workspaces, bookmarks, or web searches, tell the user to use the BrowseBot Library instead.
 `;
-    }
     return systemPrompt;
   }
 
@@ -435,71 +410,19 @@ ${citationExamples}
       return object;
     }
 
-    if (!this.agenticMode) {
-      await this.attachPageContext();
-      if (this.streamEnabled) {
-        const self = this;
-        const streamResult = await super.streamText({ prompt, abortSignal });
-        (async () => {
-          await streamResult.text;
-          if (browseBotFindbar?.findbar) {
-            browseBotFindbar.findbar.history = self.getHistory();
-          }
-        })();
-        return streamResult;
-      } else {
-        const result = await super.generateText({ prompt, abortSignal });
-        if (browseBotFindbar?.findbar) {
-          browseBotFindbar.findbar.history = this.getHistory();
-        }
-        return result;
-      }
-    }
-
-    const shouldToolBeCalled = async (toolName) => {
-      browseBotFindbar._createOrUpdateToolCallUI(toolName, "loading");
-      if (PREFS.conformation) {
-        const friendlyName = toolNameMapping[toolName] || toolName;
-        const confirmed = await browseBotFindbar.createToolConfirmationDialog([friendlyName]);
-        if (!confirmed) {
-          PREFS.debugLog(`Tool execution for '${toolName}' cancelled by user.`);
-          browseBotFindbar._createOrUpdateToolCallUI(toolName, "declined");
-          return false;
-        }
-      }
-      return true;
-    };
-
-    const afterToolCall = (toolName, result) => {
-      const status = result.error ? "error" : "success";
-      browseBotFindbar._createOrUpdateToolCallUI(toolName, status, result.error);
-    };
-
-    // NOTE: Not using bookmarks group because AI always made bookmark folder when asked to make tab folder
-    const findbarToolGroups = Object.keys(toolGroups).filter(
-      (group) => group !== "bookmarks" && group !== "misc"
-    );
-    const tools = getTools(findbarToolGroups, { shouldToolBeCalled, afterToolCall });
-
-    const commonConfig = {
-      prompt,
-      tools,
-      maxSteps: this.maxToolCalls,
-      abortSignal,
-    };
-
+    await this.attachPageContext();
     if (this.streamEnabled) {
       const self = this;
-      return super.streamText({
-        ...commonConfig,
-        onFinish: () => {
-          if (browseBotFindbar?.findbar) {
-            browseBotFindbar.findbar.history = self.getHistory();
-          }
-        },
-      });
+      const streamResult = await super.streamText({ prompt, abortSignal });
+      (async () => {
+        await streamResult.text;
+        if (browseBotFindbar?.findbar) {
+          browseBotFindbar.findbar.history = self.getHistory();
+        }
+      })();
+      return streamResult;
     } else {
-      const result = await super.generateText(commonConfig);
+      const result = await super.generateText({ prompt, abortSignal });
       if (browseBotFindbar?.findbar) {
         browseBotFindbar.findbar.history = this.getHistory();
       }

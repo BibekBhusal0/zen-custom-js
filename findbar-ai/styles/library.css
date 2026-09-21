@@ -1,0 +1,367 @@
+zen-library-browsebot-section {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-height: 0 !important;
+
+  .bb-library {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    gap: 10px !important;
+    padding: 14px 6px 14px 16px !important;
+    box-sizing: border-box !important;
+    color: var(--zenux-text) !important;
+    font-family: var(--zenux-font) !important;
+    -moz-window-dragging: no-drag !important;
+
+    .bb-library-header {
+      display: flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      flex-shrink: 0 !important;
+      padding-right: 10px !important;
+
+      .bb-mode-switch {
+        display: flex !important;
+        flex: 1 !important;
+        gap: 2px !important;
+        padding: 3px !important;
+        border-radius: var(--zenux-radius-m) !important;
+        background: var(--zenux-surface) !important;
+        border: 1px solid var(--zenux-border) !important;
+
+        .bb-mode {
+          flex: 1 !important;
+          border: 1px solid transparent !important;
+          background: transparent !important;
+          color: var(--zenux-muted) !important;
+          font: inherit !important;
+          font-size: 12px !important;
+          font-weight: 600 !important;
+          padding: 5px 4px !important;
+          border-radius: var(--zenux-radius-s) !important;
+          cursor: pointer !important;
+          text-align: center !important;
+
+          &:hover {
+            color: var(--zenux-text) !important;
+            background: var(--zenux-surface-hover) !important;
+          }
+
+          &.is-active {
+            background-color: var(--zenux-accent-solid) !important;
+            border-color: transparent !important;
+            color: white !important;
+          }
+        }
+      }
+
+      .bb-header-actions {
+        display: flex !important;
+        gap: 2px !important;
+        margin-left: auto !important;
+      }
+    }
+
+    .bb-library-messages {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+      flex: 1 !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      scrollbar-width: thin !important;
+      padding: 10px 8px 0 2px !important;
+
+      .chat-message {
+        max-width: 85% !important;
+        padding: 1px 5px !important;
+        border-radius: 10px !important;
+        word-wrap: break-word !important;
+        font-size: 14px !important;
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        user-select: text !important;
+      }
+
+      .chat-message-user {
+        align-self: flex-end !important;
+        background: var(--zenux-accent-soft) !important;
+        border: 1px solid var(--zenux-accent-border) !important;
+        color: var(--zenux-text) !important;
+        border-bottom-right-radius: 4px !important;
+        padding: 6px 10px !important;
+        font-weight: 500 !important;
+        white-space: pre-wrap !important;
+      }
+
+      .chat-message-ai {
+        max-width: 100% !important;
+        align-self: stretch !important;
+        padding: 1px 0 !important;
+
+        .message-content {
+          user-select: text !important;
+        }
+      }
+
+      .chat-message-error {
+        align-self: flex-start !important;
+        max-width: 100% !important;
+        background: var(--zenux-danger-bg) !important;
+        color: var(--zenux-danger) !important;
+        padding: 6px 10px !important;
+        white-space: pre-wrap !important;
+      }
+
+      .chat-message-loading {
+        align-self: flex-start !important;
+        width: 60% !important;
+
+        .message-content {
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          color: var(--zenux-muted) !important;
+          font-size: 13px !important;
+          animation: pulse 1.6s var(--zenux-ease) infinite !important;
+
+          &::before {
+            content: "" !important;
+            width: 14px !important;
+            height: 14px !important;
+            border-radius: 50% !important;
+            border: 2px solid var(--zenux-accent-border) !important;
+            border-top-color: var(--zenux-accent-text) !important;
+            animation: spin 0.8s linear infinite !important;
+            flex-shrink: 0 !important;
+          }
+        }
+      }
+
+      .tool-calls-container {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 3px !important;
+        padding: 2px !important;
+
+        &:empty {
+          display: none !important;
+        }
+
+        .tool-call-status {
+          display: inline-flex !important;
+          align-items: center !important;
+          gap: 3px !important;
+          padding: 4px 8px !important;
+          border-radius: 6px !important;
+          font-size: 14px !important;
+          font-weight: 500 !important;
+
+          &[data-status="loading"] {
+            background-color: color-mix(in srgb, var(--zenux-muted-bg) 60%, transparent 40%) !important;
+            color: var(--zenux-muted) !important;
+            opacity: 0.8 !important;
+
+            .tool-call-icon {
+              animation: spin 0.7s linear infinite !important;
+            }
+          }
+
+          &[data-status="success"] {
+            background-color: var(--zenux-success-bg) !important;
+            color: var(--zenux-success) !important;
+          }
+
+          &[data-status="error"] {
+            background-color: var(--zenux-danger-bg) !important;
+            color: var(--zenux-danger) !important;
+          }
+
+          &[data-status="declined"] {
+            background-color: var(--zenux-warning-bg) !important;
+            color: var(--zenux-warning) !important;
+            opacity: 0.7 !important;
+          }
+
+          .tool-call-icon {
+            width: 16px !important;
+            height: 16px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+
+          .tool-call-error {
+            display: block !important;
+            font-size: 12px !important;
+            font-weight: 400 !important;
+            opacity: 0.85 !important;
+            margin-top: 2px !important;
+            word-break: break-word !important;
+          }
+        }
+      }
+    }
+
+    .bb-refs-bar {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 4px !important;
+      flex-shrink: 0 !important;
+      padding-right: 10px !important;
+
+      &:empty {
+        display: none !important;
+      }
+    }
+
+    .bb-ref-chip {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 5px !important;
+      max-width: 220px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      color: var(--zenux-text) !important;
+      background: var(--zenux-accent-soft) !important;
+      border: 1px solid var(--zenux-accent-border) !important;
+      border-radius: var(--zenux-radius-pill) !important;
+      padding: 2px 8px !important;
+
+      img {
+        width: 14px !important;
+        height: 14px !important;
+        flex-shrink: 0 !important;
+      }
+
+      span {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+
+      .bb-ref-remove {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        color: inherit !important;
+        opacity: 0.55 !important;
+        padding: 0 0 0 2px !important;
+        line-height: 1 !important;
+
+        img {
+          width: 12px !important;
+          height: 12px !important;
+          display: block !important;
+        }
+
+        &:hover {
+          color: var(--zenux-danger) !important;
+          opacity: 1 !important;
+        }
+      }
+    }
+
+    .bb-library-composer {
+      position: relative !important;
+      display: flex !important;
+      gap: 10px !important;
+      align-items: end !important;
+      flex-shrink: 0 !important;
+      padding-right: 10px !important;
+
+      textarea {
+        flex-grow: 1 !important;
+        resize: none !important;
+        min-height: 20px !important;
+        max-height: 160px !important;
+        font-size: 14px !important;
+      }
+
+      .send-btn,
+      .stop-btn {
+        margin-left: auto !important;
+        padding: 3px !important;
+        align-self: end !important;
+        min-width: 30px !important;
+        min-height: 30px !important;
+        max-width: 30px !important;
+        max-height: 30px !important;
+        display: flex;
+      }
+    }
+
+    .bb-library-popup {
+      position: absolute !important;
+      left: 0 !important;
+      right: 10px !important;
+      bottom: calc(100% + 6px) !important;
+      max-height: 180px !important;
+      overflow-y: auto !important;
+      background: var(--zenux-bg) !important;
+      border: 1px solid var(--zenux-border) !important;
+      border-radius: var(--zenux-radius-m) !important;
+      box-shadow: var(--zenux-shadow-l) !important;
+      padding: 3px !important;
+      z-index: 10 !important;
+
+      &[hidden] {
+        display: none !important;
+      }
+
+      .bb-popup-item {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        padding: 5px 8px !important;
+        border-radius: var(--zenux-radius-s) !important;
+        cursor: pointer !important;
+        min-width: 0 !important;
+
+        &.is-active,
+        &:hover {
+          background: var(--zenux-surface-hover) !important;
+        }
+
+        .bb-popup-icon {
+          width: 16px !important;
+          height: 16px !important;
+          flex-shrink: 0 !important;
+        }
+
+        .bb-popup-title {
+          font-size: 13px !important;
+          font-weight: 600 !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          flex-shrink: 1 !important;
+          min-width: 0 !important;
+        }
+
+        .bb-popup-desc {
+          font-size: 12px !important;
+          color: var(--zenux-muted) !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          margin-left: auto !important;
+          padding-left: 8px !important;
+          flex-shrink: 10 !important;
+          min-width: 0 !important;
+        }
+      }
+    }
+  }
+}
+
+#zen-library-content .zen-library-section[data-section="browsebot"] {
+  max-width: none !important;
+}

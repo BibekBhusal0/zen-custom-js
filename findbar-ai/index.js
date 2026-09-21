@@ -1,5 +1,6 @@
 import { urlbarAI } from "./urlbar.uc.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
+import { browseBotLibrary, initBrowseBotLibrary } from "./library.uc.js";
 import { PREFS } from "./utils/prefs.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { SettingsModal } from "./settings.js";
@@ -44,6 +45,14 @@ function setupCommandPaletteIntegration() {
       condition: () => PREFS.enabled,
       icon: "chrome://global/skin/icons/highlights.svg",
       tags: ["AI", "BrowseBot", "findbar"],
+    },
+    {
+      key: "browsebot:open-library",
+      label: "Open BrowseBot Library",
+      command: () => browseBotLibrary.open(),
+      condition: () => PREFS.libraryEnabled,
+      icon: "chrome://global/skin/icons/highlights.svg",
+      tags: ["AI", "BrowseBot", "Library"],
     },
   ]);
 }
@@ -91,6 +100,11 @@ async function init() {
     urlbarAI.handlePrefChange();
     registerUrlBarShortcut(val);
   });
+
+  // Init Library AI (no-op on Zen builds without the Library feature).
+  // Its shortcut is a direct keydown listener (see library.uc.js), not the
+  // shared registry, so it works like the native library shortcuts.
+  initBrowseBotLibrary();
 
   setupShortcuts();
   setupCommandPaletteIntegration();

@@ -1,32 +1,34 @@
 import { LLM } from "./llm/index.js";
 import { PREFS } from "./utils/prefs.js";
 import { getToolSystemPrompt, getTools, toolNameMapping } from "./llm/tools.js";
+import { isProviderBalanceExhausted } from "./utils/chat.js";
 import { parseElement } from "../utils/parse.js";
 import { showToast } from "../utils/toast.js";
 
-const urlBarGroups = ["search", "navigation", "tabs", "workspaces", "uiFeedback"];
+const urlBarGroups = ["search", "navigation", "uiFeedback"];
 
 export class UrlBarLLM extends LLM {
   async getSystemPrompt() {
     let systemPrompt = "";
 
-    if (PREFS.customSystemPrompt) {
-      systemPrompt = PREFS.customSystemPrompt + "\n\n";
+    if (PREFS.urlbarSystemPrompt) {
+      systemPrompt = PREFS.urlbarSystemPrompt + "\n\n";
     }
 
-    systemPrompt += `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively and organizing their workspace in a better way.
+    systemPrompt += `You are an AI integrated with Zen Browser URL bar, designed to assist users in browsing the web effectively.
 
 Your primary responsibilities include:
 1. Making tool calls in each response based on user input.
 2. If the user does not provide specific commands, perform a search using the provided terms. You are permitted to correct any grammar or spelling mistakes and refine user queries for better accuracy.
 3. If a URL is provided, open it directly.
 4. Update the user about your action with a Toast Notification.
-5. Managing tabs, if a user asks you to manage the tabs (grouping, closing, splitting) you will do it with tools you have access to.
 
 When to use Toast:
 - When you perform a non-default action, like searching or opening a URL, or if you fix a spelling mistake in the search term.
 - When you can't fulfill a user's requirement (show a short and clear toast why the user's requirement can't be fulfilled).
 - When a long and complicated task is completed.
+
+For anything beyond search, navigation, and opening links (like managing tabs, workspaces, bookmarks, or reading page content), tell the user to use the BrowseBot Library instead.
 
 Your goal is to ensure a seamless and user-friendly browsing experience.`;
     systemPrompt += await getToolSystemPrompt(urlBarGroups);
@@ -51,11 +53,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
     });
 
     const provider = this.currentProvider;
-    if (
-      provider?.name === "pollinations" &&
-      typeof provider.isBalanceExhaustedText === "function" &&
-      provider.isBalanceExhaustedText(result?.text)
-    ) {
+    if (isProviderBalanceExhausted(provider, result?.text)) {
       try {
         showToast({
           title: "Pollinations is out of free credits",

@@ -230,47 +230,58 @@ async function frameScript() {
   });
 }
 
-let currentMessageManager = null;
+const frameScriptText = `(${frameScript})();`;
+const frameScriptURL = "data:application/javascript;charset=utf-8," + encodeURIComponent(frameScriptText);
 
-const updateMessageManager = () => {
-  if (gBrowser && gBrowser.selectedBrowser) {
-    const mm = gBrowser.selectedBrowser.messageManager;
-    if (mm !== currentMessageManager) {
-      currentMessageManager = mm;
-      if (!gBrowser.selectedBrowser._findbarAIInjected) {
-        const scriptText = `(${frameScript})();`;
-        mm.loadFrameScript(
-          "data:application/javascript;charset=utf-8," + encodeURIComponent(scriptText),
-          false
-        );
-        gBrowser.selectedBrowser._findbarAIInjected = true;
+const ensureFrameScript = (browser) => {
+  if (!browser?.messageManager || browser._findbarAIInjected) return;
+  browser.messageManager.loadFrameScript(frameScriptURL, false);
+  browser._findbarAIInjected = true;
+};
+
+const sendToBrowser = (browser, cmd, data = {}) => {
+  ensureFrameScript(browser);
+  const mm = browser.messageManager;
+  if (!mm) return Promise.reject(new Error("No message manager available."));
+  return new Promise((resolve, reject) => {
+    const listener = (msg) => {
+      if (msg.data.command === cmd) {
+        mm.removeMessageListener("FindbarAI:Result", listener);
+        if (msg.data.result && msg.data.result.error) {
+          reject(new Error(msg.data.result.error));
+        } else {
+          resolve(msg.data.result);
+        }
       }
-    }
-  }
+    };
+    mm.addMessageListener("FindbarAI:Result", listener);
+    mm.sendAsyncMessage("FindbarAI:Command", { command: cmd, data });
+  });
 };
 
 export const messageManagerAPI = {
   send(cmd, data = {}) {
-    updateMessageManager();
-    if (!currentMessageManager) {
+    if (!gBrowser || !gBrowser.selectedBrowser) {
       PREFS.debugError("No message manager available.");
       return Promise.reject(new Error("No message manager available."));
     }
+    return sendToBrowser(gBrowser.selectedBrowser, cmd, data);
+  },
 
-    return new Promise((resolve, reject) => {
-      const listener = (msg) => {
-        if (msg.data.command === cmd) {
-          currentMessageManager.removeMessageListener("FindbarAI:Result", listener);
-          if (msg.data.result && msg.data.result.error) {
-            reject(new Error(msg.data.result.error));
-          } else {
-            resolve(msg.data.result);
-          }
-        }
+  async getPageTextContentForTab(tab, trimWhiteSpace = true) {
+    const browser = tab?.linkedBrowser;
+    if (!browser?.messageManager) return null;
+    try {
+      const result = await sendToBrowser(browser, "GetPageTextContent", { trimWhiteSpace });
+      return {
+        textContent: result?.textContent || "",
+        url: result?.url || browser.currentURI?.spec || "",
+        title: result?.title || tab.label || "",
       };
-      currentMessageManager.addMessageListener("FindbarAI:Result", listener);
-      currentMessageManager.sendAsyncMessage("FindbarAI:Command", { command: cmd, data });
-    });
+    } catch (error) {
+      PREFS.debugError("Failed to get page text content for tab:", error);
+      return null;
+    }
   },
 
   getUrlAndTitle() {

@@ -4,19 +4,19 @@ import { timestampToSeconds } from "./llm/youtube.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { parseMD } from "./utils/markdown.js";
+import {
+  toolStatusIcons,
+  renderStreamText,
+  extractErrorText,
+  isProviderBalanceExhausted,
+  setStreamingControls,
+} from "./utils/chat.js";
 import { createCombobox } from "../utils/combobox.js";
 import { createModelField } from "./utils/model-selector.js";
 import { SettingsModal } from "./settings.js";
 import { toolNameMapping } from "./llm/tools.js";
 import { addPrefListener, removePrefListener } from "../utils/pref.js";
 import { getSecureApiKey } from "./utils/secure.js";
-
-const icons = {
-  loading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`,
-  success: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
-  error: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-error)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
-  declined: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="var(--browse-bot-warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>`,
-};
 
 const getSidebarWidth = () => {
   if (
@@ -638,7 +638,7 @@ export const browseBotFindbar = {
 
     let toolDiv = parseElement(`
 <div class="tool-call-status" data-tool-name="${toolName}" data-status="${status}">
-  <span class="tool-call-icon">${icons[status] || ""}</span>
+  <span class="tool-call-icon">${toolStatusIcons[status] || ""}</span>
   <span class="tool-call-name">${friendlyName}</span>
   ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(errorMsg)}</span>` : ""}
   ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}
@@ -740,12 +740,7 @@ export const browseBotFindbar = {
         let fullText = "";
         try {
           const renderStream = () => {
-            try {
-              contentDiv.innerHTML = parseMD(fullText, false);
-            } catch (e) {
-              PREFS.debugError("innerHTML assignment failed:", e.message);
-              contentDiv.textContent = fullText + "\n\n[Error rendering markdown]";
-            }
+            renderStreamText(contentDiv, fullText);
             setTimeout(() => this._updateFindbarDimensions(), 0);
             if (messagesContainer) {
               messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -788,11 +783,7 @@ export const browseBotFindbar = {
       if (e.name !== "AbortError") {
         PREFS.debugError("Error sending message:", e);
         if (aiMessageDiv) aiMessageDiv.remove();
-        let errorText = e.message;
-        try {
-          const parsed = JSON.parse(e.message);
-          errorText = parsed?.error?.message || parsed?.message || errorText;
-        } catch {}
+        const errorText = extractErrorText(e);
         if (this._isPollinationsBalanceExhausted(errorText)) {
           browseBotFindbarLLM.history.push({
             role: "assistant",
@@ -827,16 +818,9 @@ export const browseBotFindbar = {
     const stopBtn = this.chatContainer.querySelector("#stop-generation");
     const promptInput = this.chatContainer.querySelector("#ai-prompt");
 
-    if (isStreaming) {
-      sendBtn.style.display = "none";
-      stopBtn.style.display = "flex";
-      promptInput.disabled = true;
-    } else {
-      sendBtn.style.display = "flex";
-      stopBtn.style.display = "none";
-      promptInput.disabled = false;
-      this.focusPrompt();
-    }
+    setStreamingControls({ sendBtn, stopBtn, input: promptInput }, isStreaming, () =>
+      this.focusPrompt()
+    );
   },
 
   // The following _overrideFindbarMatchesDisplay function is adapted from
@@ -1102,12 +1086,7 @@ export const browseBotFindbar = {
   },
 
   _isPollinationsBalanceExhausted(text) {
-    const provider = browseBotFindbarLLM.currentProvider;
-    return (
-      provider?.name === "pollinations" &&
-      typeof provider.isBalanceExhaustedText === "function" &&
-      provider.isBalanceExhaustedText(text)
-    );
+    return isProviderBalanceExhausted(browseBotFindbarLLM.currentProvider, text);
   },
 
   _flagPollinationsKeyPrompt() {

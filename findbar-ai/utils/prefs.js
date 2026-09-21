@@ -24,10 +24,18 @@ class BrowseBotPREFS extends BasePREFS {
   static CONTEXT_MENU_COMMAND_NO_SELECTION =
     "extension.browse-bot.findbar-ai.context-menu-command-no-selection";
   static BACKGROUND_STYLE = "extension.browse-bot.findbar-ai.background-style";
-  static CUSTOM_SYSTEM_PROMPT = "extension.browse-bot.custom-system-prompt";
+  static FINDBAR_SYSTEM_PROMPT = "extension.browse-bot.findbar-ai.system-prompt";
+  static URLBAR_SYSTEM_PROMPT = "extension.browse-bot.urlbar-ai.system-prompt";
+  static LIBRARY_CHAT_SYSTEM_PROMPT = "extension.browse-bot.library-ai.chat-system-prompt";
+  static LIBRARY_AGENT_SYSTEM_PROMPT = "extension.browse-bot.library-ai.agent-system-prompt";
+  static LIBRARY_BUILD_SYSTEM_PROMPT = "extension.browse-bot.library-ai.build-system-prompt";
 
   static SHORTCUT_FINDBAR = "extension.browse-bot.findbar-ai.shortcut-findbar";
   static SHORTCUT_URLBAR = "extension.browse-bot.urlbar-ai.shortcut-urlbar";
+  static SHORTCUT_LIBRARY = "extension.browse-bot.library-ai.shortcut-library";
+
+  static LIBRARY_ENABLED = "extension.browse-bot.library-ai.enabled";
+  static LIBRARY_MODE = "extension.browse-bot.library-ai.mode";
 
   static URLBAR_AI_ENABLED = "extension.browse-bot.urlbar-ai-enabled";
   static URLBAR_AI_HIDE_SUGGESTIONS = "extension.browse-bot.urlbar-ai.hide-suggestions";
@@ -125,7 +133,14 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.BACKGROUND_STYLE]: "solid",
     [BrowseBotPREFS.SHORTCUT_FINDBAR]: "ctrl+shift+f",
     [BrowseBotPREFS.SHORTCUT_URLBAR]: "ctrl+space",
-    [BrowseBotPREFS.CUSTOM_SYSTEM_PROMPT]: "",
+    [BrowseBotPREFS.SHORTCUT_LIBRARY]: "alt+shift+a",
+    [BrowseBotPREFS.LIBRARY_ENABLED]: true,
+    [BrowseBotPREFS.LIBRARY_MODE]: "chat",
+    [BrowseBotPREFS.FINDBAR_SYSTEM_PROMPT]: "",
+    [BrowseBotPREFS.URLBAR_SYSTEM_PROMPT]: "",
+    [BrowseBotPREFS.LIBRARY_CHAT_SYSTEM_PROMPT]: "",
+    [BrowseBotPREFS.LIBRARY_AGENT_SYSTEM_PROMPT]: "",
+    [BrowseBotPREFS.LIBRARY_BUILD_SYSTEM_PROMPT]: "",
     [BrowseBotPREFS.LLM_TEMPERATURE]: 0.7,
     [BrowseBotPREFS.LLM_TOP_P]: 1.0,
     [BrowseBotPREFS.LLM_TOP_K]: 40,
@@ -140,56 +155,23 @@ class BrowseBotPREFS extends BasePREFS {
   }
 
   static migratePrefs() {
-    const valueMigrations = {
-      [this.DEEPSEEK_MODEL]: {
-        "deepseek-chat": "deepseek-v4-flash",
-        "deepseek-reasoner": "deepseek-v4-flash",
-      },
-      [this.CEREBRAS_MODEL]: {
-        "gemma-4-31b": "gpt-oss-120b",
-      },
-    };
-
-    for (const [prefKey, mapping] of Object.entries(valueMigrations)) {
-      try {
-        const current = this.getPref(prefKey);
-        if (current != undefined && mapping[current] != undefined) {
-          this.debugLog(`Migrating retired model ${current} to ${mapping[current]}`);
-          this.setPref(prefKey, mapping[current]);
-        }
-      } catch (e) {
-        this.debugError(`Could not migrate model value for ${prefKey}:`, e);
+    try {
+      if (this.getPref(this.SHORTCUT_LIBRARY) === "shift+alt+a") {
+        this.debugLog("Migrating library shortcut to canonical modifier order.");
+        this.setPref(this.SHORTCUT_LIBRARY, "alt+shift+a");
       }
+    } catch (e) {
+      this.debugError("Could not migrate library shortcut:", e);
     }
-
-    const migrationMap = {
-      "extension.browse-bot.enabled": this.ENABLED,
-      "extension.browse-bot.minimal": this.MINIMAL,
-      "extension.browse-bot.persist-chat": this.PERSIST,
-      "extension.browse-bot.dnd-enabled": this.DND_ENABLED,
-      "extension.browse-bot.position": this.POSITION,
-      "extension.browse-bot.stream-enabled": this.STREAM_ENABLED,
-      "extension.browse-bot.god-mode": this.AGENTIC_MODE,
-      "extension.browse-bot.findbar-god-mode": this.AGENTIC_MODE,
-      "extension.browse-bot.citations-enabled": this.CITATIONS_ENABLED,
-      "extension.browse-bot.max-tool-calls": this.MAX_TOOL_CALLS,
-      "extension.browse-bot.conform-before-tool-call": this.CONFORMATION,
-      "extension.browse-bot.context-menu-enabled": this.CONTEXT_MENU_ENABLED,
-      "extension.browse-bot.context-menu-autosend": this.CONTEXT_MENU_AUTOSEND,
-    };
-
-    for (const [oldKey, newKey] of Object.entries(migrationMap)) {
-      try {
-        const oldPref = this.getPref(oldKey);
-        if (oldPref != undefined) {
-          const value = oldPref;
-          this.debugLog(`Migrating pref ${oldKey} to ${newKey} with value: ${value}`);
-          this.setPref(newKey, value);
-          resetPref(oldPref);
-        }
-      } catch (e) {
-        this.debugError(`Could not migrate pref ${oldKey}:`, e);
+    try {
+      const legacy = this.getPref("extension.browse-bot.custom-system-prompt");
+      if (typeof legacy === "string" && legacy.trim() && !this.getPref(this.FINDBAR_SYSTEM_PROMPT)) {
+        this.debugLog("Migrating legacy custom system prompt to the findbar prompt.");
+        this.setPref(this.FINDBAR_SYSTEM_PROMPT, legacy);
       }
+      resetPref("extension.browse-bot.custom-system-prompt");
+    } catch (e) {
+      this.debugError("Could not migrate legacy custom system prompt:", e);
     }
   }
 
@@ -433,12 +415,76 @@ class BrowseBotPREFS extends BasePREFS {
     this.setPref(this.SHORTCUT_URLBAR, value);
   }
 
-  static get customSystemPrompt() {
-    return this.getPref(this.CUSTOM_SYSTEM_PROMPT);
+  static get libraryEnabled() {
+    return this.getPref(this.LIBRARY_ENABLED);
   }
 
-  static set customSystemPrompt(value) {
-    this.setPref(this.CUSTOM_SYSTEM_PROMPT, value);
+  static set libraryEnabled(value) {
+    this.setPref(this.LIBRARY_ENABLED, value);
+  }
+
+  static get libraryMode() {
+    const mode = this.getPref(this.LIBRARY_MODE);
+    return mode === "agent" || mode === "build" ? mode : "chat";
+  }
+
+  static set libraryMode(value) {
+    if (value === "agent" || value === "build") this.setPref(this.LIBRARY_MODE, value);
+    else this.setPref(this.LIBRARY_MODE, "chat");
+  }
+
+  static get shortcutLibrary() {
+    return this.getPref(this.SHORTCUT_LIBRARY);
+  }
+
+  static set shortcutLibrary(value) {
+    this.setPref(this.SHORTCUT_LIBRARY, value);
+  }
+
+  static get findbarSystemPrompt() {
+    return this.getPref(this.FINDBAR_SYSTEM_PROMPT);
+  }
+
+  static set findbarSystemPrompt(value) {
+    this.setPref(this.FINDBAR_SYSTEM_PROMPT, value);
+  }
+
+  static get urlbarSystemPrompt() {
+    return this.getPref(this.URLBAR_SYSTEM_PROMPT);
+  }
+
+  static set urlbarSystemPrompt(value) {
+    this.setPref(this.URLBAR_SYSTEM_PROMPT, value);
+  }
+
+  static get libraryChatSystemPrompt() {
+    return this.getPref(this.LIBRARY_CHAT_SYSTEM_PROMPT);
+  }
+
+  static set libraryChatSystemPrompt(value) {
+    this.setPref(this.LIBRARY_CHAT_SYSTEM_PROMPT, value);
+  }
+
+  static get libraryAgentSystemPrompt() {
+    return this.getPref(this.LIBRARY_AGENT_SYSTEM_PROMPT);
+  }
+
+  static set libraryAgentSystemPrompt(value) {
+    this.setPref(this.LIBRARY_AGENT_SYSTEM_PROMPT, value);
+  }
+
+  static get libraryBuildSystemPrompt() {
+    return this.getPref(this.LIBRARY_BUILD_SYSTEM_PROMPT);
+  }
+
+  static set libraryBuildSystemPrompt(value) {
+    this.setPref(this.LIBRARY_BUILD_SYSTEM_PROMPT, value);
+  }
+
+  static librarySystemPromptFor(mode) {
+    if (mode === "agent") return this.libraryAgentSystemPrompt;
+    if (mode === "build") return this.libraryBuildSystemPrompt;
+    return this.libraryChatSystemPrompt;
   }
 }
 

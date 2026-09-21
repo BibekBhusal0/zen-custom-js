@@ -44,6 +44,42 @@
     ]
   },
   {
+    "property": "extension.browse-bot.library-ai.enabled",
+    "label": "Enable Library AI",
+    "type": "checkbox",
+    "defaultValue": true,
+    "description": "Adds a BrowseBot section to the Zen Library with chat, agent, and build modes."
+  },
+  {
+    "property": "extension.browse-bot.library-ai.mode",
+    "label": "Library AI Mode",
+    "type": "dropdown",
+    "defaultValue": "chat",
+    "description": "Chat has no tools or page context. Agent has the full browser tool-belt. Build is coming soon.",
+    "options": [
+      {
+        "value": "chat",
+        "label": "Chat"
+      },
+      {
+        "value": "agent",
+        "label": "Agent"
+      },
+      {
+        "value": "build",
+        "label": "Build (coming soon)"
+      }
+    ],
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.browse-bot.library-ai.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
     "type": "separator",
     "id": "browse-bot-api-separator",
     "label": "API Configuration"
@@ -825,10 +861,10 @@
   },
   {
     "property": "extension.browse-bot.findbar-ai.agentic-mode",
-    "label": "Agentic Mode (Enable Tools)",
+    "label": "Agentic Mode (Legacy)",
     "type": "checkbox",
     "defaultValue": false,
-    "description": "Allows the AI to use tools, such as performing searches or opening links.",
+    "description": "Legacy: tool calls now live in the Library AI agent mode. The findbar is page Q&A only.",
     "conditions": [
       {
         "if": {
@@ -839,12 +875,44 @@
     ]
   },
   {
-    "property": "extension.browse-bot.custom-system-prompt",
-    "label": "Custom System Prompt",
+    "property": "extension.browse-bot.findbar-ai.system-prompt",
+    "label": "Findbar AI System Prompt",
     "type": "textarea",
     "defaultValue": "",
     "rows": 6,
-    "description": "Custom system prompt."
+    "description": "Custom system prompt for the findbar AI."
+  },
+  {
+    "property": "extension.browse-bot.urlbar-ai.system-prompt",
+    "label": "URL Bar AI System Prompt",
+    "type": "textarea",
+    "defaultValue": "",
+    "rows": 6,
+    "description": "Custom system prompt for the URL bar AI."
+  },
+  {
+    "property": "extension.browse-bot.library-ai.chat-system-prompt",
+    "label": "Library Chat Mode System Prompt",
+    "type": "textarea",
+    "defaultValue": "",
+    "rows": 6,
+    "description": "Custom system prompt for the Library AI chat mode."
+  },
+  {
+    "property": "extension.browse-bot.library-ai.agent-system-prompt",
+    "label": "Library Agent Mode System Prompt",
+    "type": "textarea",
+    "defaultValue": "",
+    "rows": 6,
+    "description": "Custom system prompt for the Library AI agent mode."
+  },
+  {
+    "property": "extension.browse-bot.library-ai.build-system-prompt",
+    "label": "Library Build Mode System Prompt",
+    "type": "textarea",
+    "defaultValue": "",
+    "rows": 6,
+    "description": "Custom system prompt for the Library AI build mode."
   },
   {
     "property": "extension.browse-bot.findbar-ai.conform-before-tool-call",

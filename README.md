@@ -17,7 +17,7 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 
 ### [Findbar AI/BrowseBot](/findbar-ai)
 
-Advanced AI functionality inside browser builtin findbar and URL bar.
+Advanced AI functionality inside browser builtin findbar and URL bar, plus a persistent AI section in the Zen Library with chat/agent modes, slash commands, and @ tab mentions.
 
 https://github.com/user-attachments/assets/258d2643-6135-4b2b-accc-c1d59f3f76fc
 

@@ -5,17 +5,18 @@
     </a>
 </div>
 
-Inspired by Arc Browser, this script transforms the standard findbar and URL bar in **Zen Browser** into modern, AI-powered command interfaces. The findbar becomes a floating chat panel for deep interaction with page content, while the URL bar offers quick AI-powered actions and searches.
+Inspired by Arc Browser, this script transforms the standard findbar and URL bar in **Zen Browser** into modern, AI-powered command interfaces. The findbar becomes a floating chat panel for deep interaction with page content, while the URL bar offers quick AI-powered actions and searches. Heavy-duty agentic work lives in a dedicated **BrowseBot section inside the Zen Library**, which stays open across tab and workspace switches.
 
 https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## 🌟 Features
 
 - 🎨 **Floating Chat UI**: A sleek, draggable, and resizable findbar that transforms into an AI chat panel.
-- 🚀 **URL Bar AI Commands**: Activate an AI command mode directly in your URL bar for quick actions.
+- 📚 **Library AI**: A persistent BrowseBot section inside the Zen Library with **chat**, **agent**, and **build** (coming soon) modes, slash commands (`/chat`, `/agent`, `/build`), and `@` tab mentions that hand the AI the full page content. Unlike the findbar and URL bar, it never closes when you switch tabs or workspaces.
+- 🚀 **URL Bar AI Commands**: Activate an AI command mode directly in your URL bar for quick searches and navigation.
 - 🤖 **Multi-Provider Support**: Works out of the box with Pollinations AI (free, no API key needed). Also integrates with Google Gemini, Mistral AI, OpenAI, Anthropic Claude, xAI Grok, Perplexity AI, Cerebras, DeepSeek, OpenRouter, any OpenAI-compatible endpoint, and local models via Ollama.
 - 🧠 **Page Content Awareness**: Lets the AI read the current page's text, HTML, and even YouTube transcripts to provide context-aware answers.
-- 👑 **Powerful AI Tool-belt**: Empowers the AI to control the browser: manage tabs, workspaces, bookmarks, perform searches, and interact with page elements.
+- 👑 **Powerful AI Tool-belt**: In Library agent mode, the AI controls the browser: manages tabs, workspaces, bookmarks, performs searches, and interacts with page elements.
 - 🖱️ **Context Menu Integration**: Right-click to quickly ask the AI about selected text or summarize the current page.
 - 📚 **Citation Support**: Get direct quotes from the page text that support the AI's answer.
 - 🔧 **Highly Customizable**: Fine-tune every aspect through an sine settings or `about:config`.
@@ -105,8 +106,24 @@ For advanced users or those not using Sine or who are willing to contribute:
 ### URL Bar AI Commands
 
 1.  Press `Ctrl+Space` to activate AI mode in the URL bar (this shortcut will not work if has been changed).
-2.  Type your command directly (e.g., "search for red pandas", "open github", "close all youtube tabs").
+2.  Type your command directly (e.g., "search for red pandas", "open github").
 3.  Press `Enter` to execute the command. The AI will perform the action, often providing feedback via a small toast notification.
+
+> [!NOTE]
+> The URL bar AI is intentionally scoped to search, navigation, and opening links. For tab, workspace, and bookmark management, use the Library AI agent mode instead.
+
+### Library AI
+
+> [!NOTE]
+> The Library section needs a Zen build with the Library feature (currently Twilight). On builds without it, the section stays hidden and the findbar/URL bar keep working as before.
+
+1.  Press `Alt+Shift+A` (customizable) to toggle the Library AI, or run **Open BrowseBot Library** from the command palette. The section appears in the Library sidebar as **AI**.
+2.  Pick a mode with the header buttons or a slash command:
+    - **Chat** (`/chat`): plain Q&A. No tools, no automatic page context.
+    - **Agent** (`/agent`): the full browser tool-belt (tabs, workspaces, bookmarks, search, navigation, page interaction, YouTube). Tool calls ask for confirmation first unless you disable that.
+    - **Build** (`/build`): coming soon. Switches the mode; behaves like chat for now.
+3.  Type `@` to reference any open tab. Picking one hands its full page content to the AI with your message.
+4.  Slash commands accept a trailing message: `/agent close all youtube tabs` switches to agent mode and sends the rest immediately.
 
 ### Command Palette Integration
 
@@ -168,7 +185,11 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.findbar-ai.agentic-mode`                        | Boolean | `false`                                                     | If true, allows the AI to use tools to interact with the browser.                                                                                                           |
 | `extension.browse-bot.findbar-ai.max-tool-calls`                      | Number  | `5`                                                         | The maximum number of consecutive tool calls the AI can make in one turn.                                                                                                   |
 | `extension.browse-bot.findbar-ai.max-context-chars`                   | Number  | `0`                                                         | Maximum page or transcript characters sent per message. `0` means unlimited.                                                                                                |
-| `extension.browse-bot.custom-system-prompt`                           | String  | _(empty)_                                                   | Custom system prompt to override the default AI behavior.                                                                                                                   |
+| `extension.browse-bot.findbar-ai.system-prompt`                           | String  | _(empty)_                                                   | Custom system prompt for the findbar AI.                                                                                                                                  |
+| `extension.browse-bot.urlbar-ai.system-prompt`                            | String  | _(empty)_                                                   | Custom system prompt for the URL bar AI.                                                                                                                                  |
+| `extension.browse-bot.library-ai.chat-system-prompt`                      | String  | _(empty)_                                                   | Custom system prompt for the Library chat mode.                                                                                                                           |
+| `extension.browse-bot.library-ai.agent-system-prompt`                     | String  | _(empty)_                                                   | Custom system prompt for the Library agent mode.                                                                                                                          |
+| `extension.browse-bot.library-ai.build-system-prompt`                     | String  | _(empty)_                                                   | Custom system prompt for the Library build mode.                                                                                                                          |
 | `extension.browse-bot.findbar-ai.conform-before-tool-call`            | Boolean | `true`                                                      | If true, prompts you for confirmation before the AI executes any tools.                                                                                                     |
 | `extension.browse-bot.findbar-ai.stream-enabled`                      | Boolean | `true`                                                      | AI response will be streamed in chunks.                                                                                                                                     |
 | `extension.browse-bot.findbar-ai.citations-enabled`                   | Boolean | `false`                                                     | If true, the AI will try to cite its sources from the page content.                                                                                                         |
@@ -180,6 +201,9 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.llm.max-output-tokens`                          | Number  | `2048`                                                      | Maximum number of tokens to generate.                                                                                                                                       |
 | `extension.browse-bot.findbar-ai.shortcut-findbar`                    | String  | `"ctrl+shift+f"`                                            | Keyboard shortcut to open findbar AI. Format: `ctrl+shift+f` (press keys to record in settings).                                                                            |
 | `extension.browse-bot.urlbar-ai.shortcut-urlbar`                      | String  | `"ctrl+space"`                                              | Keyboard shortcut to toggle URL bar AI mode. Format: `ctrl+space` (press keys to record in settings).                                                                       |
+| `extension.browse-bot.library-ai.shortcut-library`                    | String  | `"alt+shift+a"`                                             | Keyboard shortcut to open the BrowseBot Library section.                                                                                                                    |
+| `extension.browse-bot.library-ai.enabled`                             | Boolean | `true`                                                      | Adds the BrowseBot section to the Zen Library (needs a Zen build with the Library feature).                                                                                 |
+| `extension.browse-bot.library-ai.mode`                                | String  | `"chat"`                                                    | Library AI mode. Options: `chat`, `agent`, `build` (coming soon).                                                                                                           |
 | `extension.browse-bot.debug-mode`                                     | Boolean | `false`                                                     | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                                                                                         |
 
 > [!WARNING]
@@ -203,19 +227,19 @@ Default keyboard shortcuts:
 
 ## 🔨 Tool-calls
 
-AI can also make tool calls to perform actions within the browser. To enable this, go to `about:config` or the settings and set `extension.browse-bot.findbar-ai.agentic-mode` to `true`.
+Tool calls live in the **Library AI agent mode**, which stays open across tab and workspace switches, so long multi-step runs are never aborted by navigation.
 
 > [!NOTE]
-> The **Findbar AI** has access to all tools listed below in Agentic Mode (except for bookmarks). The **URL Bar AI** uses a focused subset for quick actions: `Search`, `Navigation`, `Tab Management`, `Workspace Management`, and `UI Feedback`.
+> The **Findbar AI** is page Q&A only and makes no tool calls. The **URL Bar AI** uses a focused subset for quick actions: `Search`, `Navigation`, and `UI Feedback` (toast notifications).
 
-Currently available tool calls are:
+Currently available tool calls are (full set in Library agent mode):
 
 - **Search**: Searches a term on your default or a specified search engine.
 - **Navigation**: `openLink` in various locations (current/new tab, window, private, glance, splits), `newSplit` with multiple URLs, and `splitExistingTabs`.
 - **Tab Management**: A full suite of tools to `getAllTabs`, `searchTabs`, `closeTabs`, `reorderTab`, `addTabsToFolder`, `removeTabsFromFolder`, `createTabFolder`, `addTabsToEssentials`, and `removeTabsFromEssentials`.
 - **Page Interaction**: `getPageTextContent` to read text, `getHTMLContent` for the full source, `clickElement` using a CSS selector, and `fillForm` inputs.
 - **YouTube**: `getYoutubeTranscript`, `getYoutubeDescription`, and `getYoutubeComments` for the current video.
-- **Bookmark Management**: A full suite of tools to `searchBookmarks`, `getAllBookmarks`, `createBookmark`, `addBookmarkFolder`, `updateBookmark`, and `deleteBookmark`. Bookmark management tools are disabled due to confustion with tab folder and bookmark fodler.
+- **Bookmark Management**: A full suite of tools to `searchBookmarks`, `getAllBookmarks`, `createBookmark`, `addBookmarkFolder`, `updateBookmark`, and `deleteBookmark`.
 - **Workspace Management**: Tools to `getAllWorkspaces`, `createWorkspace`, `updateWorkspace`, `deleteWorkspace`, `moveTabsToWorkspace`, and `reorderWorkspace`.
 - **UI Feedback**: `showToast` to display temporary notifications to the user.
 
@@ -229,17 +253,17 @@ Currently available tool calls are:
 - [x] Add Settings.
 - [ ] Copy Button
 - [ ] Markdown Formatting toggle
-- [ ] Slash Command and variables
+- [x] Slash Command and variables (library chat: `/chat`, `/agent`, `/build`)
 - [x] Adding more tools (tab groups, workspaces, background search)
 - [x] Giving AI YouTube transcript
-- [ ] Tagging multiple tabs
+- [x] Tagging multiple tabs (`@` tab mentions in library chat)
 - [x] Advanced LLM parameters (temperature, top-k, etc.)
 - [x] Keyboard shortcut customization
 - [x] Add more models (GPT-5, Gemini 2.5, DeepSeek R1, etc.)
+- [ ] Build mode (library third mode, spec pending)
 
 ## 🐛 Bugs and potential issues (I am working on fixing them)
 
-- If AI makes tool call to open tab or change workspace, history might not persist correctly.
 - In settings text encoding is broken (for chinese text).
 - Styles in glance
 
@@ -250,6 +274,7 @@ Currently available tool calls are:
 - **[Arc-2.0](https://github.com/YashjitPal/Arc-2.0)**: For inspiration for animation for URL bar.
 - **[Arcline](https://github.com/ferrocyante/arcline)**: For implementation of pseudo background.
 - **[aminomancer/uc.css.js](https://github.com/aminomancer/uc.css.js)**: The `_overrideFindbarMatchesDisplay` function in `findbar-ai.uc.js` is adapted from `JS/findbarMods.uc.js` under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
+- **[12th-devs/library-tweaks](https://github.com/12th-devs/library-tweaks)**: The BrowseBot Library section follows the native Library section contract (section classes, `zenLibrarySections` registration, `gZenLibrary.openTab`) demonstrated by this mod.
 - **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement, styling, and design.
 
 ## 📜 License

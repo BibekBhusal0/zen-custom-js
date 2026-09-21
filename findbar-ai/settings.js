@@ -359,20 +359,39 @@ export const SettingsModal = {
     ];
     const urlbarSectionHtml = this._checkboxSection("URLBar AI", urlbarSettings, false);
 
+    const librarySettings = [{ label: "Enable Library AI", pref: PREFS.LIBRARY_ENABLED }];
+    const librarySectionHtml = this._checkboxSection(
+      "Library AI",
+      librarySettings,
+      true,
+      "",
+      ZenuxSettings.selectRow(
+        "Mode",
+        PREFS.LIBRARY_MODE,
+        {
+          chat: "Chat (no tools, no page context)",
+          agent: "Agent (full browser tool-belt)",
+          build: "Build (coming soon)",
+        },
+        { id: "pref-library-mode" }
+      ),
+      [...librarySettings.map((s) => s.pref), PREFS.LIBRARY_MODE]
+    );
+
     const shortcutsSectionHtml = ZenuxSettings.accordionSection({
       title: "Keyboard Shortcuts",
       expanded: true,
-      resetPrefs: [PREFS.SHORTCUT_FINDBAR, PREFS.SHORTCUT_URLBAR],
+      resetPrefs: [PREFS.SHORTCUT_FINDBAR, PREFS.SHORTCUT_URLBAR, PREFS.SHORTCUT_LIBRARY],
       body: [
         ZenuxSettings.shortcutRow("Open Findbar AI", PREFS.SHORTCUT_FINDBAR),
         ZenuxSettings.shortcutRow("Toggle URLBar AI", PREFS.SHORTCUT_URLBAR),
+        ZenuxSettings.shortcutRow("Open BrowseBot Library", PREFS.SHORTCUT_LIBRARY),
       ].join(""),
     });
 
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
-      { label: "Agentic Mode (AI can use tool calls)", pref: PREFS.AGENTIC_MODE },
       { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
       {
         label: "Max Context Chars (0 = unlimited)",
@@ -384,29 +403,15 @@ export const SettingsModal = {
         tooltip: "Maximum page or transcript characters sent to the AI per message.",
       },
     ];
-    const aiBehaviorWarningHtml = ZenuxSettings.warning(
-      "Enabling both Citations and Agentic Mode may lead to unexpected behavior or errors.",
-      "citations-agentic-mode-warning"
-    );
     const maxToolCallsHtml = ZenuxSettings.numberRow(
       "Max Tool Calls (Maximum number of messages to send AI back to back)",
       PREFS.MAX_TOOL_CALLS,
       { id: "pref-max-tool-calls" }
     );
-    const customSystemPromptHtml = ZenuxSettings.textareaRow(
-      "Custom System Prompt",
-      PREFS.CUSTOM_SYSTEM_PROMPT,
-      { placeholder: "Pretend like ....", rows: 3 }
-    );
     const aiBehaviorSectionHtml = ZenuxSettings.accordionSection({
       title: "AI Behavior",
       expanded: true,
-      resetPrefs: [
-        ...aiBehaviorSettings.map((s) => s.pref),
-        PREFS.MAX_TOOL_CALLS,
-        PREFS.CUSTOM_SYSTEM_PROMPT,
-      ],
-      before: aiBehaviorWarningHtml,
+      resetPrefs: [...aiBehaviorSettings.map((s) => s.pref), PREFS.MAX_TOOL_CALLS],
       body: aiBehaviorSettings
         .map((s) => {
           if (s.type === "number") {
@@ -420,7 +425,25 @@ export const SettingsModal = {
           return ZenuxSettings.checkboxRow(s.label, s.pref);
         })
         .join(""),
-      after: maxToolCallsHtml + customSystemPromptHtml,
+      after: maxToolCallsHtml,
+    });
+
+    const systemPromptRows = [
+      ["Findbar AI", PREFS.FINDBAR_SYSTEM_PROMPT],
+      ["URL Bar AI", PREFS.URLBAR_SYSTEM_PROMPT],
+      ["Library Chat Mode", PREFS.LIBRARY_CHAT_SYSTEM_PROMPT],
+      ["Library Agent Mode", PREFS.LIBRARY_AGENT_SYSTEM_PROMPT],
+      ["Library Build Mode", PREFS.LIBRARY_BUILD_SYSTEM_PROMPT],
+    ];
+    const systemPromptsSectionHtml = ZenuxSettings.accordionSection({
+      title: "System Prompts",
+      expanded: false,
+      resetPrefs: systemPromptRows.map(([, pref]) => pref),
+      body: systemPromptRows
+        .map(([label, pref]) =>
+          ZenuxSettings.textareaRow(label, pref, { placeholder: "Pretend like ....", rows: 3 })
+        )
+        .join(""),
     });
 
     const contextMenuSettings = [
@@ -622,8 +645,10 @@ export const SettingsModal = {
     const bodyHtml = [
       findbarSectionHtml,
       urlbarSectionHtml,
+      librarySectionHtml,
       shortcutsSectionHtml,
       aiBehaviorSectionHtml,
+      systemPromptsSectionHtml,
       contextMenuSectionHtml,
       llmProvidersSectionHtml,
       advancedLLMSectionHtml,
