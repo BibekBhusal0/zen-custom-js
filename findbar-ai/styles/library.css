@@ -261,6 +261,9 @@ zen-library-browsebot-section {
           width: 12px !important;
           height: 12px !important;
           display: block !important;
+          -moz-context-properties: fill, stroke !important;
+          fill: currentColor !important;
+          stroke: currentColor !important;
         }
 
         &:hover {
