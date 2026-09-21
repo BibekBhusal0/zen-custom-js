@@ -443,8 +443,6 @@ function mountPanel(host) {
     addMessage("user", text, refs);
     input.value = "";
     state.pendingRefs = [];
-    draft.text = "";
-    draft.refs = [];
     renderChips();
     hidePopup();
 
@@ -776,48 +774,6 @@ function hasLibraryFeature() {
   } catch {
     return false;
   }
-}
-
-function libraryShortcutHit(e) {
-  if (e.defaultPrevented) return false;
-  const target = e.composedPath ? e.composedPath()[0] : e.target;
-  const name = target?.localName?.toLowerCase?.() || "";
-  if (name === "input" || name === "textarea" || target?.isContentEditable) return false;
-  let pref = null;
-  try {
-    pref = parseStringToShortcut(PREFS.shortcutLibrary || "");
-  } catch {
-    return false;
-  }
-  if (!pref?.key) return false;
-  if (!!(pref.ctrl || pref.meta) !== !!(e.ctrlKey || e.metaKey)) return false;
-  if (!!pref.alt !== !!e.altKey) return false;
-  if (!!pref.shift !== !!e.shiftKey) return false;
-  const key = (e.key || "").toLowerCase();
-  if (key && key === pref.key) return true;
-  if (pref.key.length === 1) {
-    const upper = pref.key.toUpperCase();
-    return e.code === `Key${upper}` || e.code === `Digit${upper}`;
-  }
-  return false;
-}
-
-function watchLibraryShortcut() {
-  if (watchLibraryShortcut.done) return;
-  watchLibraryShortcut.done = true;
-  window.addEventListener(
-    "keydown",
-    (e) => {
-      if (!PREFS.libraryEnabled) return;
-      if (!libraryShortcutHit(e)) return;
-      e.preventDefault();
-      e.stopPropagation();
-      if (typeof e.stopImmediatePropagation === "function") e.stopImmediatePropagation();
-      PREFS.debugLog("Library shortcut hit, toggling.");
-      browseBotLibrary.toggle();
-    },
-    true
-  );
 }
 
 function libraryCtor() {
