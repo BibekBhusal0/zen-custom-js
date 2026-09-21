@@ -48,18 +48,24 @@ function normalizeKeyName(key) {
 
 /**
  * Creates a unique signature for a shortcut string.
+ * Modifiers are canonicalized to ctrl, alt, shift, meta order so stored
+ * strings match regardless of the order they were written in.
  * @param {string} shortcutStr - The shortcut string (e.g., "Ctrl+K").
  * @returns {string} A unique signature string.
  */
 export function shortcutStringToSignature(shortcutStr) {
   if (!shortcutStr) return "";
-  return shortcutStr
+  const parts = shortcutStr
     .toLowerCase()
     .replace(/control/g, "ctrl")
     .replace(/option/g, "alt")
     .split("+")
-    .map((s) => normalizeKeyName(s.trim()))
-    .join("+");
+    .map((s) => normalizeKeyName(s.trim()));
+  const rank = (p) =>
+    p === "ctrl" ? 0 : p === "alt" ? 1 : p === "shift" ? 2 : p === "meta" ? 3 : 99;
+  const mods = parts.filter((p) => rank(p) !== 99).sort((a, b) => rank(a) - rank(b));
+  const keys = parts.filter((p) => rank(p) === 99);
+  return [...mods, ...keys].join("+");
 }
 
 /**
