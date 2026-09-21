@@ -26,7 +26,8 @@ zen-library-browsebot-section {
 
       .bb-mode-switch {
         display: flex !important;
-        flex: 1 !important;
+        flex: none !important;
+        width: 200px !important;
         gap: 2px !important;
         padding: 3px !important;
         border-radius: var(--zenux-radius-m) !important;
