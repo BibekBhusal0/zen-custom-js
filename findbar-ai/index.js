@@ -48,8 +48,8 @@ function setupCommandPaletteIntegration() {
     },
     {
       key: "browsebot:open-library",
-      label: "Open BrowseBot Library",
-      command: () => browseBotLibrary.open(),
+      label: "Toggle BrowseBot Library",
+      command: () => browseBotLibrary.toggle(),
       condition: () => PREFS.libraryEnabled,
       icon: "chrome://global/skin/icons/highlights.svg",
       tags: ["AI", "BrowseBot", "Library"],
@@ -70,12 +70,21 @@ function registerFindbarShortcut(value = PREFS.shortcutFindbar) {
   });
   initShortcutRegistry();
 }
+function registerLibraryShortcut(value = PREFS.shortcutLibrary) {
+  if (!PREFS.libraryEnabled) return;
+  registerShortcut(value, "toggle-browsebot-library", () => {
+    browseBotLibrary.toggle();
+  });
+  initShortcutRegistry();
+}
 
 function setupShortcuts() {
   registerFindbarShortcut();
   registerUrlBarShortcut();
+  registerLibraryShortcut();
   addPrefListener(PREFS.SHORTCUT_URLBAR, (val) => registerUrlBarShortcut(val.value));
   addPrefListener(PREFS.SHORTCUT_FINDBAR, (val) => registerFindbarShortcut(val.value));
+  addPrefListener(PREFS.SHORTCUT_LIBRARY, (val) => registerLibraryShortcut(val.value));
 }
 
 async function init() {
@@ -102,9 +111,10 @@ async function init() {
   });
 
   // Init Library AI (no-op on Zen builds without the Library feature).
-  // Its shortcut is a direct keydown listener (see library.uc.js), not the
-  // shared registry, so it works like the native library shortcuts.
   initBrowseBotLibrary();
+  addPrefListener(PREFS.LIBRARY_ENABLED, (val) => {
+    if (val.value) registerLibraryShortcut();
+  });
 
   setupShortcuts();
   setupCommandPaletteIntegration();
