@@ -84,6 +84,28 @@ function clearLibraryWidth(sectionEl) {
   } catch {}
 }
 
+let widthGuardTimer = null;
+
+function startWidthGuard() {
+  stopWidthGuard();
+  widthGuardTimer = setInterval(() => {
+    try {
+      const host = document.querySelector("zen-library");
+      if (!host || host.activeTab !== "browsebot" || !PREFS.libraryEnabled) return;
+      if (host.style.getPropertyValue("--zen-library-content-width") !== "640px") {
+        host.style.setProperty("--zen-library-content-width", "640px");
+      }
+    } catch {}
+  }, 500);
+}
+
+function stopWidthGuard() {
+  try {
+    clearInterval(widthGuardTimer);
+  } catch {}
+  widthGuardTimer = null;
+}
+
 function mountPanel(host) {
   const ui = parseElement(`
     <div class="bb-library">
@@ -122,6 +144,7 @@ function mountPanel(host) {
   };
   host._bbCleanup = () => {
     state.destroyed = true;
+    stopWidthGuard();
     clearLibraryWidth(host);
     state.abortController?.abort();
   };
@@ -569,6 +592,7 @@ function mountPanel(host) {
 
   renderHistory();
   setLibraryWidth(host);
+  startWidthGuard();
   try {
     const libHost = libraryHostOf(host);
     if (libHost) ensureTabPatched(libHost);
