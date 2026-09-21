@@ -1,3 +1,26 @@
+/* Sidebar tab glyph, colored like the native sections: stroke only when
+   idle, filled when selected. */
+.zen-library-tab[data-section="browsebot"] {
+  .bb-library-tab-icon {
+    width: 24px !important;
+    height: 24px !important;
+    display: block !important;
+    color: light-dark(var(--zen-colors-primary), var(--zen-accent-button-color)) !important;
+
+    .bb-library-tab-icon-shape {
+      fill: transparent !important;
+    }
+  }
+
+  &[active] {
+    .bb-library-tab-icon {
+      .bb-library-tab-icon-shape {
+        fill: color-mix(in srgb, currentColor, light-dark(white, black) 60%) !important;
+      }
+    }
+  }
+}
+
 zen-library-browsebot-section {
   display: flex !important;
   flex-direction: column !important;

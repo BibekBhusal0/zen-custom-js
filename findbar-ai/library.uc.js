@@ -568,7 +568,6 @@ function mountPanel(host) {
   }
 
   renderHistory();
-  restoreDraft();
   setLibraryWidth(host);
   try {
     const libHost = libraryHostOf(host);
@@ -646,10 +645,29 @@ window.ZenLibraryBrowseBotSection = BrowseBotLibrarySection;
 const observedHosts = new WeakSet();
 let libraryObserver = null;
 
+
+function aiIconNode() {
+  try {
+    const node = new DOMParser().parseFromString(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+	<path d="M0 0h24v24H0z" fill="none" />
+	<path class="bb-library-tab-icon-shape" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.427 8.084C12.801 5.843 12.323 4 11 4S9.2 5.843 8.573 8.084c-.254.91-.382 1.366-.753 1.737c-.37.37-.826.498-1.736.752C3.843 11.2 2 11.677 2 13s1.843 1.8 4.084 2.427c.91.254 1.366.381 1.736.752c.371.371.499.826.753 1.737C9.2 20.157 9.678 22 11 22s1.8-1.843 2.427-4.084c.255-.91.382-1.366.753-1.737c.37-.37.826-.498 1.736-.752C18.157 14.8 20 14.323 20 13s-1.843-1.8-4.084-2.427c-.91-.254-1.366-.382-1.736-.752c-.371-.371-.498-.826-.753-1.737M19.5 2.938V4.5m0 0v1.563m0-1.563h-1.25m1.25 0h1.25m1.25 0l-.452-.15c-.698-.233-1.047-.35-1.298-.6c-.25-.25-.367-.6-.6-1.298L19.5 2l-.15.452c-.233.698-.35 1.047-.6 1.298c-.25.25-.6.367-1.298.6L17 4.5l.452.15c.698.233 1.047.35 1.298.6c.25.25.367.6.6 1.298L19.5 7l.15-.452c.233-.698.35-1.047.6-1.298c.25-.25.6-.367 1.298-.6z" />
+</svg>`,
+      "image/svg+xml"
+    ).documentElement;
+    if (!node || node.localName !== "svg") return null;
+    node.removeAttribute("xmlns");
+    node.setAttribute("class", "bb-library-tab-icon");
+    return node;
+  } catch {
+    return null;
+  }
+}
+
 function findSectionTab(host) {
   try {
     const root = host.shadowRoot || host;
-    return root?.querySelector?.(`.zen-library-tab[data-section="${"browsebot"}"]`) || null;
+    return root?.querySelector?.(`.zen-library-tab[data-section="browsebot"]`) || null;
   } catch {
     return null;
   }
@@ -664,9 +682,17 @@ function patchTab(host) {
       label.textContent = "AI";
       label.removeAttribute("data-l10n-id");
     }
+    const iconBox = tab.querySelector?.(".zen-library-tab-icon");
+    if (iconBox && !iconBox.querySelector(".bb-library-tab-icon")) {
+      const icon = aiIconNode();
+      if (icon) iconBox.replaceChildren(icon);
+    }
     const labelDone =
       !tab.querySelector?.("label") || tab.querySelector("label").textContent === "AI";
-    return !!labelDone;
+    const iconDone =
+      !tab.querySelector?.(".zen-library-tab-icon") ||
+      !!tab.querySelector(".zen-library-tab-icon").querySelector(".bb-library-tab-icon");
+    return !!(labelDone && iconDone);
   } catch {
     return false;
   }
@@ -706,6 +732,13 @@ function ensureSection(host) {
     sections["browsebot"] = BrowseBotLibrarySection;
     changed = true;
   }
+  try {
+    if (host.activeTab === "browsebot" && PREFS.libraryEnabled) {
+      if (host.style.getPropertyValue("--zen-library-content-width") !== "640px") {
+        host.style.setProperty("--zen-library-content-width", "640px");
+      }
+    }
+  } catch {}
   ensureTabPatched(host);
   if (changed) {
     try {
@@ -828,7 +861,11 @@ function setSectionTabSoon() {
   let attempts = 15;
   const tick = () => {
     if (setSectionTab()) return;
-    if (--attempts > 0) setTimeout(tick, 100);
+    if (--attempts > 0) {
+      setTimeout(tick, 100);
+    } else {
+      PREFS.debugLog("Library: gave up setting section tab, host or section missing.");
+    }
   };
   tick();
 }
@@ -854,6 +891,7 @@ function showLibraryMissing() {
 }
 
 export function initBrowseBotLibrary() {
+  PREFS.debugLog("Library: init.");
   if (!customElements.get("zen-library")) {
     try {
       customElements
@@ -864,7 +902,6 @@ export function initBrowseBotLibrary() {
   } else {
     watchForHosts();
   }
-  watchLibraryShortcut();
   addPrefListener(PREFS.LIBRARY_ENABLED, () => connectExistingHosts());
 }
 
@@ -885,7 +922,12 @@ export const browseBotLibrary = {
     } catch {}
     try {
       const host = document.querySelector("zen-library");
-      if (isLibraryOpen() && host?.activeTab === "browsebot") return closeLibrary();
+      const open = isLibraryOpen();
+      PREFS.debugLog(`Library: toggle, open=${open}, tab=${host?.activeTab}.`);
+      if (open && host?.activeTab === "browsebot") {
+        PREFS.debugLog("Library: toggle closing.");
+        return closeLibrary();
+      }
       return this.open();
     } catch (e) {
       PREFS.debugError("Could not toggle Zen Library:", e);
@@ -899,9 +941,11 @@ export const browseBotLibrary = {
     } catch {}
     try {
       const host = document.querySelector("zen-library");
-      if (isLibraryOpen() && host?.activeTab === "browsebot") return true;
-      if (!isLibraryOpen() && !hasLibraryFeature()) return showLibraryMissing();
-      if (!isLibraryOpen()) clickLibraryButton();
+      const open = isLibraryOpen();
+      PREFS.debugLog(`Library: open, open=${open}, tab=${host?.activeTab}.`);
+      if (open && host?.activeTab === "browsebot") return true;
+      if (!open && !hasLibraryFeature()) return showLibraryMissing();
+      if (!open) clickLibraryButton();
       setSectionTabSoon();
       return true;
     } catch (e) {
