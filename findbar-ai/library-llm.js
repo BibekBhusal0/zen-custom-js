@@ -118,7 +118,7 @@ You have access to browser functions. The user knows you have these abilities.
     const commonConfig = {
       prompt,
       tools,
-      maxSteps: PREFS.maxToolCalls,
+      maxSteps: PREFS.conformation ? Infinity : PREFS.maxToolCalls,
       abortSignal,
     };
 
