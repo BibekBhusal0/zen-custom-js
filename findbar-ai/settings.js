@@ -359,12 +359,20 @@ export const SettingsModal = {
     ];
     const urlbarSectionHtml = this._checkboxSection("URLBar AI", urlbarSettings, false);
 
-    const librarySettings = [{ label: "Enable Library AI", pref: PREFS.LIBRARY_ENABLED }];
+    const librarySettings = [
+      { label: "Enable Library AI", pref: PREFS.LIBRARY_ENABLED },
+      { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
+      {
+        label: "Max Tool Calls (0 = unlimited)",
+        pref: PREFS.MAX_TOOL_CALLS,
+        type: "number",
+        min: 0,
+      },
+    ];
     const librarySectionHtml = this._checkboxSection(
       "Library AI",
       librarySettings,
       true,
-      "",
       ZenuxSettings.selectRow(
         "Mode",
         PREFS.LIBRARY_MODE,
@@ -375,6 +383,7 @@ export const SettingsModal = {
         },
         { id: "pref-library-mode" }
       ),
+      "",
       [...librarySettings.map((s) => s.pref), PREFS.LIBRARY_MODE]
     );
 
@@ -392,7 +401,6 @@ export const SettingsModal = {
     const aiBehaviorSettings = [
       { label: "Enable Citations", pref: PREFS.CITATIONS_ENABLED },
       { label: "Stream Response", pref: PREFS.STREAM_ENABLED },
-      { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
       {
         label: "Max Context Chars (0 = unlimited)",
         pref: PREFS.MAX_CONTEXT_CHARS,
@@ -403,15 +411,10 @@ export const SettingsModal = {
         tooltip: "Maximum page or transcript characters sent to the AI per message.",
       },
     ];
-    const maxToolCallsHtml = ZenuxSettings.numberRow(
-      "Max Tool Calls (Maximum number of messages to send AI back to back)",
-      PREFS.MAX_TOOL_CALLS,
-      { id: "pref-max-tool-calls" }
-    );
     const aiBehaviorSectionHtml = ZenuxSettings.accordionSection({
       title: "AI Behavior",
       expanded: true,
-      resetPrefs: [...aiBehaviorSettings.map((s) => s.pref), PREFS.MAX_TOOL_CALLS],
+      resetPrefs: aiBehaviorSettings.map((s) => s.pref),
       body: aiBehaviorSettings
         .map((s) => {
           if (s.type === "number") {
@@ -425,7 +428,6 @@ export const SettingsModal = {
           return ZenuxSettings.checkboxRow(s.label, s.pref);
         })
         .join(""),
-      after: maxToolCallsHtml,
     });
 
     const systemPromptRows = [
