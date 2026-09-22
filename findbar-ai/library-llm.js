@@ -12,11 +12,6 @@ function truncate(text, limit) {
 }
 
 class BrowseBotLibraryLLM extends LLM {
-  constructor() {
-    super();
-    this.pageContextUrl = null;
-  }
-
   get mode() {
     return PREFS.libraryMode;
   }
@@ -87,27 +82,6 @@ You have access to browser functions. The user knows you have these abilities.
     });
   }
 
-  async attachAgentPageContext() {
-    const { url, title } = messageManagerAPI.getUrlAndTitle();
-    const first = this.history[0];
-    if (first?.pageContext && first?.contextUrl === url) return;
-
-    const limit = PREFS.getPref(PREFS.MAX_CONTEXT_CHARS) || 0;
-    const page = await messageManagerAPI.getPageTextContent(true).catch(() => null);
-    const raw = String(page?.textContent || "");
-    const contextMsg = {
-      role: "user",
-      content:
-        `Webpage content for ${url} (${page?.title || title}):\n\n` +
-        (limit > 0 && raw.length > limit ? raw.slice(0, limit) + "\n\n[Page content truncated.]" : raw),
-      pageContext: true,
-      contextUrl: url,
-    };
-    if (first?.pageContext) this.history[0] = contextMsg;
-    else this.history.unshift(contextMsg);
-    this.pageContextUrl = url;
-  }
-
   async sendMessage(prompt, { refs = [], abortSignal, confirmTool, onToolStatus } = {}) {
     PREFS.debugLog(`libraryLLM (${this.mode}): Sending prompt: "${prompt}"`);
     this.attachTabRefs(refs);
@@ -118,8 +92,6 @@ You have access to browser functions. The user knows you have these abilities.
       }
       return super.generateText({ prompt, abortSignal });
     }
-
-    await this.attachAgentPageContext();
 
     const shouldToolBeCalled = async (toolName) => {
       if (onToolStatus) onToolStatus(toolName, "loading");
@@ -154,11 +126,6 @@ You have access to browser functions. The user knows you have these abilities.
       return super.streamText(commonConfig);
     }
     return super.generateText(commonConfig);
-  }
-
-  clearData() {
-    super.clearData();
-    this.pageContextUrl = null;
   }
 }
 
