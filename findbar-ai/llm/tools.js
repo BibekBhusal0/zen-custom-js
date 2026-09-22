@@ -1298,7 +1298,7 @@ If tab is essential which means does not belong to any specific workspace.
 -   **Your Second Tool Call:**(based on all tabs) \`{"functionCall": {"name": "createTabFolder", "args": {"name": "..."}}}\`
 -   **Your Third Tool Call (based on all tabs):** \`{"functionCall": {"name": "addTabsToFolder", "args": {"tabIds": ["x", "y", ...] }}}\`
 -   **Your Fourth Tool Call (based on all tabs):** \`{"functionCall": {"name": "moveTabsToWorkspace", "args": {"tabIds": ["x", "y", ...], "workspaceId": "e1f2a3b4-c5d6..."}}}\`
--   Go on keep making tool calls until tabs are managed (note here you should not ask any question to user for conformation).
+-   Go on keep making tool calls until tabs are managed (note here you should not ask any question to user for confirmation).
 
 `;
       }

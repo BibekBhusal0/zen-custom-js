@@ -103,7 +103,7 @@ You have access to browser functions. The user knows you have these abilities.
 
     const shouldToolBeCalled = async (toolName, args) => {
       if (onToolStatus) onToolStatus(toolName, "loading", null, args);
-      if (PREFS.conformation) {
+      if (PREFS.confirmation) {
         const friendlyName = toolNameMapping[toolName] || toolName;
         const confirmed = confirmTool
           ? await confirmTool([friendlyName], { toolName, args })
@@ -147,7 +147,7 @@ You have access to browser functions. The user knows you have these abilities.
           if (isBrowseBotAuthor(mods?.[args.modId]?.author)) return true;
         } catch {}
       }
-      if (!PREFS.conformation) return true;
+      if (!PREFS.confirmation) return true;
       const friendlyName = toolNameMapping[toolName] || toolName;
       const confirmed = confirmTool ? await confirmTool([friendlyName], { toolName, args }) : true;
       if (!confirmed) {

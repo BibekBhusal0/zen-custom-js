@@ -15,7 +15,7 @@ class BrowseBotPREFS extends BasePREFS {
   static CITATIONS_ENABLED = "extension.browse-bot.findbar-ai.citations-enabled";
   static MAX_TOOL_CALLS = "extension.browse-bot.library-ai.max-tool-calls";
   static MAX_CONTEXT_CHARS = "extension.browse-bot.findbar-ai.max-context-chars";
-  static CONFORMATION = "extension.browse-bot.library-ai.conform-before-tool-call";
+  static CONFIRMATION = "extension.browse-bot.library-ai.confirm-before-tool-call";
   static CONTEXT_MENU_ENABLED = "extension.browse-bot.findbar-ai.context-menu-enabled";
   static CONTEXT_MENU_AUTOSEND = "extension.browse-bot.findbar-ai.context-menu-autosend";
   static CONTEXT_MENU_COMMAND_WITH_SELECTION =
@@ -121,7 +121,7 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.WIDTH]: 500,
     [BrowseBotPREFS.MAX_TOOL_CALLS]: 0,
     [BrowseBotPREFS.MAX_CONTEXT_CHARS]: 0,
-    [BrowseBotPREFS.CONFORMATION]: true,
+    [BrowseBotPREFS.CONFIRMATION]: true,
     [BrowseBotPREFS.BACKGROUND_STYLE]: "solid",
     [BrowseBotPREFS.SHORTCUT_FINDBAR]: "ctrl+shift+f",
     [BrowseBotPREFS.SHORTCUT_URLBAR]: "ctrl+space",
@@ -275,12 +275,12 @@ class BrowseBotPREFS extends BasePREFS {
   //   this.setPref(this.MARKDOWN_ENABLED, value);
   // }
 
-  static get conformation() {
-    return this.getPref(this.CONFORMATION);
+  static get confirmation() {
+    return this.getPref(this.CONFIRMATION);
   }
 
-  static set conformation(value) {
-    this.setPref(this.CONFORMATION, value);
+  static set confirmation(value) {
+    this.setPref(this.CONFIRMATION, value);
   }
 
   static get dndEnabled() {
@@ -482,7 +482,12 @@ class BrowseBotPREFS extends BasePREFS {
       5
     );
     this.migratePref(
-      this.CONFORMATION,
+      this.CONFIRMATION,
+      "extension.browse-bot.library-ai.conform-before-tool-call",
+      true
+    );
+    this.migratePref(
+      this.CONFIRMATION,
       "extension.browse-bot.findbar-ai.conform-before-tool-call",
       true
     );

@@ -900,7 +900,7 @@
     "description": "Custom system prompt for the Library AI build mode."
   },
   {
-    "property": "extension.browse-bot.library-ai.conform-before-tool-call",
+    "property": "extension.browse-bot.library-ai.confirm-before-tool-call",
     "label": "Ask before tool call",
     "type": "checkbox",
     "defaultValue": true,

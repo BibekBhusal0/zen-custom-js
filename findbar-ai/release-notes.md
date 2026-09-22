@@ -31,7 +31,7 @@
 
 - Findbar agentic mode is removed. The findbar is page Q&A only; all tool calls moved to the Library agent mode. The `extension.browse-bot.findbar-ai.agentic-mode` preference is deleted.
 - The shared `extension.browse-bot.custom-system-prompt` preference is replaced by per-surface prompts (findbar, URL bar, library chat/agent/build). Existing values migrate to the findbar prompt.
-- The `extension.browse-bot.findbar-ai.max-tool-calls` and `extension.browse-bot.findbar-ai.conform-before-tool-call` preferences moved to `extension.browse-bot.library-ai.*`. Existing values migrate automatically.
+- The `extension.browse-bot.findbar-ai.max-tool-calls` and `extension.browse-bot.findbar-ai.conform-before-tool-call` preferences moved to `extension.browse-bot.library-ai.max-tool-calls` and `extension.browse-bot.library-ai.confirm-before-tool-call` (spelling fixed). Existing values migrate automatically.
 
 # Fixes
 

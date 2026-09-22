@@ -361,7 +361,7 @@ export const SettingsModal = {
 
     const librarySettings = [
       { label: "Enable Library AI", pref: PREFS.LIBRARY_ENABLED },
-      { label: "Conformation before tool call", pref: PREFS.CONFORMATION },
+      { label: "Ask before tool call", pref: PREFS.CONFIRMATION },
       {
         label: "Max Tool Calls (0 = unlimited)",
         pref: PREFS.MAX_TOOL_CALLS,

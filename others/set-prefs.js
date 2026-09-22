@@ -85,7 +85,7 @@ const prefs = [
     value: true,
   },
   {
-    name: "extension.browse-bot.library-ai.conform-before-tool-call",
+    name: "extension.browse-bot.library-ai.confirm-before-tool-call",
     value: false,
   },
   {

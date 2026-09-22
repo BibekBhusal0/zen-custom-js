@@ -352,7 +352,7 @@ function mountPanel(host) {
 
       dialog.querySelector(".not-again").addEventListener("click", () => {
         removeDialog();
-        PREFS.conformation = false;
+        PREFS.confirmation = false;
         resolve(true);
       });
 
