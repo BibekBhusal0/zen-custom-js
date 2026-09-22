@@ -179,7 +179,11 @@ zen-library-browsebot-section {
         font-weight: 500 !important;
 
         &[data-status="loading"] {
-          background-color: color-mix(in srgb, var(--zenux-muted-bg) 60%, transparent 40%) !important;
+          background-color: color-mix(
+            in srgb,
+            var(--zenux-muted-bg) 60%,
+            transparent 40%
+          ) !important;
           color: var(--zenux-muted) !important;
           opacity: 0.8 !important;
 

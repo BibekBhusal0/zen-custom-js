@@ -54,5 +54,9 @@ export function clearStagedJS() {
 }
 
 export function getPreviewState() {
-  return { cssChars: getPreviewCSS().length, jsChars: getStagedJS().length, hasPreview: !!getPreviewCSS() || !!getStagedJS() };
+  return {
+    cssChars: getPreviewCSS().length,
+    jsChars: getStagedJS().length,
+    hasPreview: !!getPreviewCSS() || !!getStagedJS(),
+  };
 }

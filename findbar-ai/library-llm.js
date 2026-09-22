@@ -118,7 +118,8 @@ You have access to browser functions. The user knows you have these abilities.
     };
 
     const afterToolCall = (toolName, result, args) => {
-      if (onToolStatus) onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
+      if (onToolStatus)
+        onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
     };
 
     const tools = getTools(null, { shouldToolBeCalled, afterToolCall });
@@ -148,9 +149,7 @@ You have access to browser functions. The user knows you have these abilities.
       }
       if (!PREFS.conformation) return true;
       const friendlyName = toolNameMapping[toolName] || toolName;
-      const confirmed = confirmTool
-        ? await confirmTool([friendlyName], { toolName, args })
-        : true;
+      const confirmed = confirmTool ? await confirmTool([friendlyName], { toolName, args }) : true;
       if (!confirmed) {
         PREFS.debugLog(`Build tool '${toolName}' declined by user.`);
         if (onToolStatus) onToolStatus(toolName, "declined", null, args);
@@ -160,7 +159,8 @@ You have access to browser functions. The user knows you have these abilities.
     };
 
     const afterToolCall = (toolName, result, args) => {
-      if (onToolStatus) onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
+      if (onToolStatus)
+        onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
     };
 
     const tools = getTools(["build"], { shouldToolBeCalled, afterToolCall });

@@ -231,7 +231,8 @@ async function frameScript() {
 }
 
 const frameScriptText = `(${frameScript})();`;
-const frameScriptURL = "data:application/javascript;charset=utf-8," + encodeURIComponent(frameScriptText);
+const frameScriptURL =
+  "data:application/javascript;charset=utf-8," + encodeURIComponent(frameScriptText);
 
 const ensureFrameScript = (browser) => {
   if (!browser?.messageManager || browser._findbarAIInjected) return;

@@ -149,7 +149,11 @@ class BrowseBotPREFS extends BasePREFS {
   static migratePrefs() {
     try {
       const legacy = this.getPref("extension.browse-bot.custom-system-prompt");
-      if (typeof legacy === "string" && legacy.trim() && !this.getPref(this.FINDBAR_SYSTEM_PROMPT)) {
+      if (
+        typeof legacy === "string" &&
+        legacy.trim() &&
+        !this.getPref(this.FINDBAR_SYSTEM_PROMPT)
+      ) {
         this.debugLog("Migrating legacy custom system prompt to the findbar prompt.");
         this.setPref(this.FINDBAR_SYSTEM_PROMPT, legacy);
       }

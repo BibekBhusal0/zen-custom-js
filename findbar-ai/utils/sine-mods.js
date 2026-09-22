@@ -16,7 +16,9 @@ export function browseBotAuthor(modelName) {
 }
 
 export function isBrowseBotAuthor(author) {
-  return String(author || "").toLowerCase().includes("browsebot");
+  return String(author || "")
+    .toLowerCase()
+    .includes("browsebot");
 }
 
 function profileFile(...parts) {
@@ -144,7 +146,14 @@ export async function resolveModDir(modId) {
   return direct;
 }
 
-const READABLE_FILES = ["theme.json", "index.js", "style.css", "README.md", "AGENTS.md", "preferences.json"];
+const READABLE_FILES = [
+  "theme.json",
+  "index.js",
+  "style.css",
+  "README.md",
+  "AGENTS.md",
+  "preferences.json",
+];
 
 export async function readModFiles(modId, files = ["theme.json"]) {
   const dir = await resolveModDir(modId);
@@ -176,8 +185,7 @@ export async function readModFiles(modId, files = ["theme.json"]) {
         try {
           if (!(await IOUtils.exists(`${dir}/${file}`))) continue;
           const text = await readText(`${dir}/${file}`);
-          out.files[file] =
-            text.length > 12000 ? text.slice(0, 12000) + "\n\n[Truncated.]" : text;
+          out.files[file] = text.length > 12000 ? text.slice(0, 12000) + "\n\n[Truncated.]" : text;
         } catch {}
       }
     }
@@ -187,7 +195,8 @@ export async function readModFiles(modId, files = ["theme.json"]) {
       const agentsPath = `${dir}/AGENTS.md`;
       if (await IOUtils.exists(agentsPath)) {
         const text = await readText(agentsPath);
-        out.files["AGENTS.md"] = text.length > 8000 ? text.slice(0, 8000) + "\n\n[Truncated.]" : text;
+        out.files["AGENTS.md"] =
+          text.length > 8000 ? text.slice(0, 8000) + "\n\n[Truncated.]" : text;
       }
     } catch {}
   }
@@ -327,7 +336,9 @@ export async function createSineMod({ name, description, css = "", js = "", id, 
       if (await IOUtils.exists(`${dir}/${file}`)) verified.push(file);
     } catch {}
   }
-  PREFS.debugLog(`Build: verified ${verified.length}/${Object.keys(payload).length} files on disk.`);
+  PREFS.debugLog(
+    `Build: verified ${verified.length}/${Object.keys(payload).length} files on disk.`
+  );
   if (verified.length !== Object.keys(payload).length) {
     throw new Error(
       `Wrote ${verified.length}/${Object.keys(payload).length} files to ${dir}. Directory may not be writable.`
@@ -347,11 +358,15 @@ export async function writeModFile(modId, file, content, mode = "replace") {
     file.includes("\\") ||
     !/\.(js|mjs|css|json|md)$/.test(file)
   ) {
-    return { error: `Refusing to write "${file}". Must be a single .js/.mjs/.css/.json/.md filename.` };
+    return {
+      error: `Refusing to write "${file}". Must be a single .js/.mjs/.css/.json/.md filename.`,
+    };
   }
   const dir = await resolveModDir(modId);
   const path = `${dir}/${file}`;
-  PREFS.debugLog(`Build: writing ${path} (${String(content ?? "").length} chars, mode: ${mode === "append" ? "append" : "replace"}).`);
+  PREFS.debugLog(
+    `Build: writing ${path} (${String(content ?? "").length} chars, mode: ${mode === "append" ? "append" : "replace"}).`
+  );
   try {
     let text = String(content ?? "");
     if (mode === "append") {
@@ -362,7 +377,10 @@ export async function writeModFile(modId, file, content, mode = "replace") {
     await writeText(path, text);
     const ok = await IOUtils.exists(path).catch(() => false);
     PREFS.debugLog(`Build: verify ${path}: ${ok ? "on disk" : "MISSING"}.`);
-    if (!ok) return { error: `Write reported success but ${file} is missing at ${dir}. Directory may not be writable.` };
+    if (!ok)
+      return {
+        error: `Write reported success but ${file} is missing at ${dir}. Directory may not be writable.`,
+      };
     if (file === "theme.json") {
       try {
         await registerModInSine(JSON.parse(text));

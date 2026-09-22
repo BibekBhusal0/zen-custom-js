@@ -99,7 +99,9 @@ async function applyPreviewCSSExec(args) {
   const { css } = args;
   if (!css || !String(css).trim()) return { error: "applyPreviewCSS requires css." };
   const { appliedChars } = applyPreviewCSS(String(css));
-  return { result: `Preview CSS applied (${appliedChars} chars). Ask the user to look at the browser chrome, then iterate or offer to save it as a mod.` };
+  return {
+    result: `Preview CSS applied (${appliedChars} chars). Ask the user to look at the browser chrome, then iterate or offer to save it as a mod.`,
+  };
 }
 
 async function inspectChrome(args) {
@@ -153,7 +155,10 @@ async function inspectChrome(args) {
     return {
       tag: el.tagName.toLowerCase(),
       id: el.id || null,
-      classes: typeof el.className === "string" ? el.className.split(/\s+/).filter(Boolean).slice(0, 10) : [],
+      classes:
+        typeof el.className === "string"
+          ? el.className.split(/\s+/).filter(Boolean).slice(0, 10)
+          : [],
       attributes: attrs,
       computed,
       parents,
@@ -191,7 +196,9 @@ async function createMod(args) {
   const finalCss = css ?? getPreviewCSS();
   const finalJs = js ?? getStagedJS();
   if (!finalCss && !finalJs) {
-    return { error: "Nothing to save yet. Apply preview CSS or run JS first, or pass css/js explicitly." };
+    return {
+      error: "Nothing to save yet. Apply preview CSS or run JS first, or pass css/js explicitly.",
+    };
   }
   try {
     const created = await createSineMod({
@@ -254,10 +261,18 @@ export const buildTools = {
   ),
   runChromeJS: createTool(
     "Executes JavaScript in browser-chrome context with chrome privileges. Console output is captured and returned. Requires user permission every time.",
-    { code: str("JavaScript to execute. Can use document, window, gBrowser, SineAPI. Async allowed. Keep it short.") },
+    {
+      code: str(
+        "JavaScript to execute. Can use document, window, gBrowser, SineAPI. Async allowed. Keep it short."
+      ),
+    },
     runChromeJS
   ),
-  listMods: createTool("Lists installed Sine mods with id, name, author, and version.", {}, listMods),
+  listMods: createTool(
+    "Lists installed Sine mods with id, name, author, and version.",
+    {},
+    listMods
+  ),
   readMod: createTool(
     "Reads files from an installed Sine mod. Always read theme.json first; AGENTS.md is auto-included when present and MUST be followed.",
     {
@@ -272,10 +287,16 @@ export const buildTools = {
   createMod: createTool(
     "Creates a new Sine mod from staged preview CSS/JS (or explicit css/js). Author is set to BrowseBot/model automatically. Only call when the user asks for a mod, or after they confirm your offer.",
     {
-      name: str("Mod name, e.g. 'Cyberpunk UI'. Omit only if the user said 'just make it' — then invent a good name.", true),
+      name: str(
+        "Mod name, e.g. 'Cyberpunk UI'. Omit only if the user said 'just make it' — then invent a good name.",
+        true
+      ),
       description: str("One-line description of what the mod does.", true),
       css: str("CSS for style.css. Omit to reuse the staged preview CSS.", true),
-      js: str("JS for the mod's .uc.js script. Omit to reuse staged JS (or a minimal template).", true),
+      js: str(
+        "JS for the mod's .uc.js script. Omit to reuse staged JS (or a minimal template).",
+        true
+      ),
       id: str("Custom mod id slug. Omit to auto-generate from the name.", true),
     },
     createMod
@@ -284,7 +305,9 @@ export const buildTools = {
     "Edits one file in an existing Sine mod. BrowseBot-owned mods apply directly; other authors require user permission (handled before this runs).",
     {
       modId: str("The mod id."),
-      file: str("File to write: the mod's .uc.js script, style.css, theme.json, README.md, AGENTS.md, preferences.json."),
+      file: str(
+        "File to write: the mod's .uc.js script, style.css, theme.json, README.md, AGENTS.md, preferences.json."
+      ),
       content: str("Full new content of the file (or content to append)."),
       mode: str("`replace` (default) or `append`.", true),
     },
@@ -295,7 +318,11 @@ export const buildTools = {
     {},
     getPreviewStateTool
   ),
-  clearPreview: createTool("Removes the staged preview CSS and JS from the browser.", {}, clearPreview),
+  clearPreview: createTool(
+    "Removes the staged preview CSS and JS from the browser.",
+    {},
+    clearPreview
+  ),
 };
 
 export async function getBuildSystemPrompt() {

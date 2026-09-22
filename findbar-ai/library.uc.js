@@ -191,7 +191,10 @@ function mountPanel(host) {
   function openCreateModModal() {
     const { cssChars, jsChars } = getPreviewState();
     if (cssChars === 0 && jsChars === 0) {
-      showToast({ title: "Nothing staged", description: "Ask Build mode to preview CSS or JS first." });
+      showToast({
+        title: "Nothing staged",
+        description: "Ask Build mode to preview CSS or JS first.",
+      });
       return;
     }
     const overlay = parseElement(`
@@ -230,8 +233,14 @@ function mountPanel(host) {
           author: buildAuthor(),
         });
         close();
-        addMessage("ai", `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine — reopen Settings → Sine Mods to see it. Your live preview is still applied; restart the browser if the script doesn't take effect.`);
-        showToast({ title: "Mod created", description: `${created.name} — see Sine Mods settings` });
+        addMessage(
+          "ai",
+          `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine — reopen Settings → Sine Mods to see it. Your live preview is still applied; restart the browser if the script doesn't take effect.`
+        );
+        showToast({
+          title: "Mod created",
+          description: `${created.name} — see Sine Mods settings`,
+        });
         refreshBuildBar();
       } catch (e) {
         PREFS.debugError("Create mod from UI failed:", e);
@@ -422,7 +431,9 @@ function mountPanel(host) {
     input.focus();
   });
 
-  ui.querySelector('[data-action="settings"]').addEventListener("click", () => SettingsModal.show());
+  ui.querySelector('[data-action="settings"]').addEventListener("click", () =>
+    SettingsModal.show()
+  );
 
   attachChatMessageHandlers(messagesEl);
 
@@ -439,7 +450,8 @@ function mountPanel(host) {
     const caret = input.selectionStart ?? input.value.length;
     const before = input.value.slice(0, caret);
     const slash = before.match(/(^|\s)\/(\w*)$/);
-    if (slash) return { kind: "slash", filter: slash[2].toLowerCase(), start: caret - slash[2].length - 1 };
+    if (slash)
+      return { kind: "slash", filter: slash[2].toLowerCase(), start: caret - slash[2].length - 1 };
     const at = before.match(/(^|\s)@([^@\n]*)$/);
     if (at) return { kind: "at", filter: at[2].toLowerCase(), start: caret - at[2].length - 1 };
     return null;
@@ -584,7 +596,9 @@ function mountPanel(host) {
         title: pending.title,
         url: page?.url || pending.url,
         icon: pending.icon || "",
-        text: page?.textContent?.trim() ? page.textContent : `(No readable text extracted from this tab.)`,
+        text: page?.textContent?.trim()
+          ? page.textContent
+          : `(No readable text extracted from this tab.)`,
       });
     }
     return refs;
@@ -831,7 +845,10 @@ class BrowseBotLibrarySection {
     try {
       const html = getLitHtml();
       if (html) {
-        return html`<zen-library-browsebot-section class="zen-library-section" data-section="browsebot" .library=${library}></zen-library-browsebot-section>`;
+        return html`<zen-library-browsebot-section
+          class="zen-library-section"
+          data-section="browsebot"
+          .library=${library}></zen-library-browsebot-section>`;
       }
     } catch {}
     const el = document.createElement("zen-library-browsebot-section");
@@ -847,7 +864,6 @@ window.ZenLibraryBrowseBotSection = BrowseBotLibrarySection;
 
 const observedHosts = new WeakSet();
 let libraryObserver = null;
-
 
 function aiIconNode() {
   try {
