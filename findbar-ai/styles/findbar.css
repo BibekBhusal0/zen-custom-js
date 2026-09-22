@@ -98,6 +98,7 @@ browser {
     width: 500px;
     max-width: 800px !important;
     min-width: 300px !important;
+    min-height: unset !important;
     height: unset !important;
     border-radius: var(--zenux-radius-m) !important;
     outline: 1px solid rgba(0, 0, 0, 1) !important;

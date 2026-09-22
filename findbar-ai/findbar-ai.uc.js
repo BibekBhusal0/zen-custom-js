@@ -130,6 +130,8 @@ export const browseBotFindbar = {
     document.documentElement.style.setProperty("--findbar-height", `${_findbarDimension.height}px`);
     document.documentElement.style.setProperty("--findbar-x", `${_findbarCoors.x}px`);
     document.documentElement.style.setProperty("--findbar-y", `${_findbarCoors.y}px`);
+    this.findbar.style.setProperty("--findbar-width", `${_findbarDimension.width}px`);
+    this.findbar.style.setProperty("--findbar-height", `${_findbarDimension.height}px`);
   },
 
   /**
@@ -1299,6 +1301,8 @@ export const browseBotFindbar = {
     this._overrideFindbarMatchesDisplay();
   },
   destroy() {
+    this.findbar?.style.removeProperty("--findbar-width");
+    this.findbar?.style.removeProperty("--findbar-height");
     this.findbar = null;
     this._dimensionsObserver?.disconnect();
     this._dimensionsObserver = null;
