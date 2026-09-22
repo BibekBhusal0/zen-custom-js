@@ -647,11 +647,13 @@ function mountPanel(host) {
     scrollDown();
 
     const toolEntries = [];
+    const toolRows = new Map();
     let toolGen = 0;
     let shownGen = 0;
     let segmentText = "";
     const clearToolEntries = () => {
       for (const el of toolEntries.splice(0)) el.remove();
+      toolRows.clear();
     };
     const startSegment = () => {
       aiWrap = parseElement(
@@ -664,33 +666,34 @@ function mountPanel(host) {
       shownGen = toolGen;
       segmentText = "";
     };
-    const updateToolCallUI = (toolName, status, errorMsg = null, args = null) => {
+    const updateToolCallUI = (toolName, status) => {
       toolGen++;
-      for (let i = toolEntries.length - 1; i >= 0; i--) {
-        if (toolEntries[i].dataset.status === "loading") {
-          toolEntries[i].remove();
-          toolEntries.splice(i, 1);
-        }
+      let row = toolRows.get(toolName);
+      if (!row) {
+        const el = parseElement(`
+          <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
+            <span class="tool-call-icon"></span>
+            <span class="tool-call-name">${escapeXmlAttribute(toolName)}</span>
+            <span class="tool-call-count" hidden></span>
+            <span class="tool-call-declined" hidden>Declined</span>
+          </div>`);
+        row = { el, count: 0 };
+        toolRows.set(toolName, row);
+        toolEntries.push(el);
+        messagesEl.appendChild(el);
       }
-      let codeHtml = "";
-      if (toolName === "runChromeJS" && args?.code) {
-        codeHtml = `<details class="tool-call-code"><summary>View script</summary><pre>${escapeXmlAttribute(String(args.code).slice(0, 2000))}</pre></details>`;
-      } else if (toolName === "applyPreviewCSS" && args?.css) {
-        codeHtml = `<details class="tool-call-code"><summary>View CSS</summary><pre>${escapeXmlAttribute(String(args.css).slice(0, 2000))}</pre></details>`;
+      row.el.dataset.status = status;
+      row.el.querySelector(".tool-call-icon").innerHTML =
+        icons["tool" + status[0].toUpperCase() + status.slice(1)] || "";
+      if (status !== "loading") row.count++;
+      row.el.querySelector(".tool-call-declined").hidden = status !== "declined";
+      const countEl = row.el.querySelector(".tool-call-count");
+      if (row.count > 1) {
+        countEl.textContent = `x ${row.count}`;
+        countEl.hidden = false;
       }
-      const toolDiv = parseElement(`
-        <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
-          <span class="tool-call-icon">${icons["tool" + status[0].toUpperCase() + status.slice(1)] || ""}</span>
-          <span class="tool-call-name">${escapeXmlAttribute(toolName)}</span>
-          ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(String(errorMsg))}</span>` : ""}
-          ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}
-          ${codeHtml}
-        </div>`);
-      toolEntries.push(toolDiv);
-      messagesEl.appendChild(toolDiv);
       scrollDown();
     };
-
     try {
       const resultPromise = browseBotLibraryLLM.sendMessage(prompt, {
         refs,

@@ -267,27 +267,10 @@ zen-library-browsebot-section {
     }
 
     .tool-call-status {
-      .tool-call-code,
-      & + .tool-call-code {
-        flex-basis: 100% !important;
-        margin: 4px 0 0 !important;
+      .tool-call-count {
         font-size: 12px !important;
-
-        summary {
-          cursor: pointer !important;
-          color: inherit !important;
-          opacity: 0.8 !important;
-        }
-
-        pre {
-          max-height: 160px !important;
-          overflow: auto !important;
-          white-space: pre-wrap !important;
-          word-break: break-word !important;
-          font-size: 11px !important;
-          font-weight: 400 !important;
-          opacity: 0.9 !important;
-        }
+        font-weight: 700 !important;
+        opacity: 0.85 !important;
       }
     }
 
