@@ -159,7 +159,8 @@ function mountPanel(host) {
     state.destroyed = true;
     stopWidthGuard();
     clearLibraryWidth(host);
-    state.abortController?.abort();
+    state.confirmResolver?.(false);
+    state.confirmResolver = null;
     state.toolConfirmationDialog?.remove();
     state.toolConfirmationDialog = null;
   };
@@ -304,10 +305,12 @@ function mountPanel(host) {
         </div>
       `);
       state.toolConfirmationDialog = dialog;
+      state.confirmResolver = resolve;
 
       const removeDialog = () => {
         dialog.remove();
         state.toolConfirmationDialog = null;
+        state.confirmResolver = null;
       };
 
       dialog.querySelector(".confirm-tool").addEventListener("click", () => {
@@ -709,6 +712,7 @@ function mountPanel(host) {
         confirmTool: (names, detail) => createToolConfirmationDialog(names, detail),
         onToolStatus: updateToolCallUI,
       });
+      let notifyText = "BrowseBot finished responding.";
 
       if (!PREFS.streamEnabled) {
         const loadingIndicator = createLoadingIndicator();
@@ -774,6 +778,7 @@ function mountPanel(host) {
     } catch (e) {
       if (e?.name === "AbortError") {
         PREFS.debugLog("Streaming aborted by user.");
+        notifyText = "BrowseBot stopped.";
         if (contentDiv.textContent.trim()) {
           contentDiv.appendChild(parseMD("_Stopped_"));
         } else {
@@ -781,11 +786,18 @@ function mountPanel(host) {
         }
       } else {
         PREFS.debugError("Library send failed:", e);
+        notifyText = `BrowseBot failed: ${extractErrorText(e).slice(0, 160)}`;
         aiWrap.remove();
         addMessage("error", extractErrorText(e));
       }
     } finally {
-      if (!state.destroyed) setStreaming(false);
+      if (state.destroyed && notifyText) {
+        try {
+          showToast({ title: notifyText, description: prompt.slice(0, 120) });
+        } catch {}
+      } else {
+        setStreaming(false);
+      }
       state.abortController = null;
       clearToolEntries();
       refreshBuildBar();
