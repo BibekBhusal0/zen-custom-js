@@ -520,18 +520,35 @@ function mountPanel(host) {
     state.abortController = new AbortController();
     setStreaming(true);
 
-    const aiWrap = parseElement(
+    let aiWrap = parseElement(
       `<div class="chat-message chat-message-ai">
         <div class="message-content"><div class="markdown-body"></div></div>
       </div>`
     );
-    const contentDiv = aiWrap.querySelector(".markdown-body");
+    let contentDiv = aiWrap.querySelector(".markdown-body");
     messagesEl.appendChild(aiWrap);
     scrollDown();
 
     const toolEntries = [];
-    const hasToolCalls = () => toolEntries.length > 0;
+    let toolGen = 0;
+    let shownGen = 0;
+    let segmentText = "";
+    const clearToolEntries = () => {
+      for (const el of toolEntries.splice(0)) el.remove();
+    };
+    const startSegment = () => {
+      aiWrap = parseElement(
+        `<div class="chat-message chat-message-ai">
+          <div class="message-content"><div class="markdown-body"></div></div>
+        </div>`
+      );
+      contentDiv = aiWrap.querySelector(".markdown-body");
+      messagesEl.appendChild(aiWrap);
+      shownGen = toolGen;
+      segmentText = "";
+    };
     const updateToolCallUI = (toolName, status, errorMsg = null) => {
+      toolGen++;
       for (let i = toolEntries.length - 1; i >= 0; i--) {
         if (toolEntries[i].dataset.status === "loading") {
           toolEntries[i].remove();
@@ -546,8 +563,7 @@ function mountPanel(host) {
           ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}
         </div>`);
       toolEntries.push(toolDiv);
-      if (aiWrap.isConnected) aiWrap.before(toolDiv);
-      else messagesEl.appendChild(toolDiv);
+      messagesEl.appendChild(toolDiv);
       scrollDown();
     };
 
@@ -572,9 +588,9 @@ function mountPanel(host) {
                 `${result.text}\n\n*Pollinations ran out of free credits. Add a free API key in BrowseBot settings, then try again.*`
               )
             );
-          } else if (result.text.trim() === "" && hasToolCalls()) {
+          } else if (result.text.trim() === "" && toolGen > 0) {
             contentDiv.appendChild(parseMD("*(Tool actions performed)*"));
-          } else if (result.text.trim() === "" && !hasToolCalls()) {
+          } else if (result.text.trim() === "" && toolGen === 0) {
             aiWrap.remove();
           } else {
             contentDiv.appendChild(parseMD(result.text));
@@ -589,31 +605,31 @@ function mountPanel(host) {
         scrollDown();
 
         const result = await resultPromise;
-        let fullText = "";
         try {
           for await (const delta of result.textStream) {
             if (loadingIndicator.parentNode) loadingIndicator.remove();
-            fullText += delta;
-            renderStreamText(contentDiv, fullText);
+            if (toolGen !== shownGen) startSegment();
+            segmentText += delta;
+            renderStreamText(contentDiv, segmentText);
             scrollDown();
           }
           try {
             const finalText = await result.text;
-            if (typeof finalText === "string") fullText = finalText;
+            if (typeof finalText === "string") segmentText = finalText;
           } catch (e) {
             PREFS.debugError("Failed to resolve final stream text:", e.message);
           }
-          renderStreamText(contentDiv, fullText);
-          if (isProviderBalanceExhausted(browseBotLibraryLLM.currentProvider, fullText)) {
+          renderStreamText(contentDiv, segmentText);
+          if (isProviderBalanceExhausted(browseBotLibraryLLM.currentProvider, segmentText)) {
             contentDiv.appendChild(
               parseMD(
                 "\n\n*Pollinations ran out of free credits. Add a free API key in BrowseBot settings, then try again.*"
               )
             );
-          } else if (fullText.trim() === "" && hasToolCalls()) {
+          } else if (segmentText.trim() === "" && toolGen > 0) {
             contentDiv.innerHTML = "";
             contentDiv.appendChild(parseMD("*(Tool actions performed)*"));
-          } else if (fullText.trim() === "" && !hasToolCalls()) {
+          } else if (segmentText.trim() === "" && toolGen === 0) {
             aiWrap.remove();
           }
         } finally {
@@ -636,7 +652,7 @@ function mountPanel(host) {
     } finally {
       if (!state.destroyed) setStreaming(false);
       state.abortController = null;
-      for (const el of toolEntries.splice(0)) el.remove();
+      clearToolEntries();
       scrollDown();
     }
   }
