@@ -694,9 +694,8 @@ export const browseBotFindbar = {
 
     const sendBtn = this.chatContainer.querySelector("#send-prompt");
     const stopBtn = this.chatContainer.querySelector("#stop-generation");
-    const promptInput = this.chatContainer.querySelector("#ai-prompt");
 
-    setStreamingControls({ sendBtn, stopBtn, input: promptInput }, isStreaming, () =>
+    setStreamingControls({ sendBtn, stopBtn }, isStreaming, () =>
       this.focusPrompt()
     );
   },

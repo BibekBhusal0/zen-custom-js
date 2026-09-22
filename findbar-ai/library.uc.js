@@ -627,7 +627,7 @@ function mountPanel(host) {
 
   function setStreaming(streaming) {
     state.streaming = streaming;
-    setStreamingControls({ sendBtn, stopBtn, input }, streaming, focusPrompt);
+    setStreamingControls({ sendBtn, stopBtn }, streaming, focusPrompt);
   }
 
   const onRunEnd = () => {

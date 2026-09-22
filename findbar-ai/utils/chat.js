@@ -26,10 +26,9 @@ function isProviderBalanceExhausted(provider, text) {
   );
 }
 
-function setStreamingControls({ sendBtn, stopBtn, input }, streaming, onIdle) {
+function setStreamingControls({ sendBtn, stopBtn }, streaming, onIdle) {
   if (sendBtn) sendBtn.style.display = streaming ? "none" : "flex";
   if (stopBtn) stopBtn.style.display = streaming ? "flex" : "none";
-  if (input) input.disabled = streaming;
   if (!streaming && onIdle) onIdle();
 }
 
