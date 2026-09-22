@@ -27,16 +27,17 @@ import { createSineMod } from "./utils/sine-mods.js";
 import { highlightCode } from "../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
-const SLASH_ITEMS = MODES.map((mode) => ({
-  mode,
-  title: `/${mode}`,
-  description:
-    mode === "chat"
-      ? "Ask, no tools or page context"
-      : mode === "agent"
-        ? "Full browser tool-belt"
-        : "Style the browser, preview live, ship Sine mods",
-}));
+const SLASH_ITEMS = [
+  { mode: "chat", title: "/chat", description: "Ask, no tools or page context" },
+  { mode: "agent", title: "/agent", description: "Full browser tool-belt" },
+  {
+    mode: "build",
+    title: "/build",
+    description: "Style the browser, preview live, ship Sine mods",
+  },
+  { command: "clear", title: "/clear", description: "Stop the run and start a new chat" },
+  { command: "close", title: "/close", description: "Close the library, run continues" },
+];
 
 function listTabs() {
   try {
@@ -459,12 +460,18 @@ function mountPanel(host) {
 
   modeButtons.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
 
-  clearBtn.addEventListener("click", () => {
-    if (state.streaming) state.abortController?.abort();
+  function clearChat() {
+    state.toolConfirmationDialog?.querySelector(".cancel-tool")?.click();
+    state.abortController?.abort();
+    libraryRunController?.abort();
     browseBotLibraryLLM.clearData();
     state.pendingRefs = [];
     renderChips();
     renderHistory();
+  }
+
+  clearBtn.addEventListener("click", () => {
+    clearChat();
     input.focus();
   });
 
@@ -509,7 +516,7 @@ function mountPanel(host) {
     }
     let items;
     if (token.kind === "slash") {
-      items = SLASH_ITEMS.filter((item) => item.mode.startsWith(token.filter));
+      items = SLASH_ITEMS.filter((item) => (item.mode || item.command).startsWith(token.filter));
     } else {
       items = fuzzyFilterSort(listTabs(), token.filter, (t) => [t.title, t.url]).slice(0, 8);
     }
@@ -559,8 +566,18 @@ function mountPanel(host) {
     const head = input.value.slice(0, token.start);
     const after = input.value.slice(caret);
     if (state.popupKind === "slash") {
-      setMode(item.mode);
-      input.value = "";
+      if (item.command === "clear") {
+        input.value = "";
+        hidePopup();
+        clearChat();
+      } else if (item.command === "close") {
+        input.value = "";
+        hidePopup();
+        closeLibrary();
+      } else {
+        setMode(item.mode);
+        input.value = "";
+      }
     } else {
       state.pendingRefs = state.pendingRefs.filter((r) => r.tab !== item.tab);
       state.pendingRefs.push({ tab: item.tab, title: item.title, url: item.url, icon: item.icon });
@@ -652,6 +669,20 @@ function mountPanel(host) {
 
   async function handleSend() {
     let text = input.value.trim();
+
+    const command = text.match(/^\/(clear|close)\s*$/i);
+    if (command) {
+      input.value = "";
+      hidePopup();
+      if (command[1].toLowerCase() === "clear") {
+        clearChat();
+        focusPrompt();
+      } else {
+        closeLibrary();
+      }
+      return;
+    }
+
     if (!text || state.streaming || libraryRunController) return;
 
     const slash = text.match(/^\/(\w+)\s*([\s\S]*)$/);
