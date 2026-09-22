@@ -511,11 +511,9 @@ zen-library-browsebot-section {
     font-size: 12px !important;
   }
 
-  .tool-confirm-preview pre {
-    max-height: 180px !important;
-    overflow: auto !important;
-    white-space: pre-wrap !important;
-    word-break: break-word !important;
+  .zenux-code-confirm-code {
+    text-align: left !important;
+    margin: 0 0 12px !important;
   }
 
   .buttons {

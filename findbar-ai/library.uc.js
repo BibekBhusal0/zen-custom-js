@@ -24,6 +24,7 @@ import {
 } from "./utils/build-preview.js";
 import { buildAuthor } from "./llm/build-tools.js";
 import { createSineMod } from "./utils/sine-mods.js";
+import { highlightCode } from "../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = MODES.map((mode) => ({
@@ -272,8 +273,12 @@ function mountPanel(host) {
       const { toolName, args } = detail;
       let previewHtml = "";
       if (toolName === "runChromeJS" && args?.code) {
-        const code = String(args.code).slice(0, 1200);
-        previewHtml = `<details class="tool-confirm-preview"><summary>View script</summary><pre>${escapeXmlAttribute(code)}</pre></details>`;
+        const codeEl = parseElement(`<pre class="zenux-code-confirm-code"><code></code></pre>`);
+        codeEl.querySelector("code").innerHTML = highlightCode(
+          String(args.code).slice(0, 4000),
+          "javascript"
+        );
+        previewHtml = codeEl.outerHTML;
       } else if (toolName === "createMod") {
         const label = [args?.name, args?.description].filter(Boolean).join(" — ").slice(0, 200);
         if (label) previewHtml = `<p class="tool-confirm-detail">${escapeXmlAttribute(label)}</p>`;
