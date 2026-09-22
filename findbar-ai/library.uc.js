@@ -205,6 +205,7 @@ function mountPanel(host) {
           <p class="bb-create-mod-hint">Staged: ${cssChars} chars CSS${jsChars ? `, ${jsChars} chars JS` : ""}. Saved with the staged preview.</p>
           <label>Name<input class="zenux-input" data-field="name" placeholder="e.g. Cyberpunk UI" /></label>
           <label>Description<input class="zenux-input" data-field="description" placeholder="What does this mod do?" /></label>
+          <label>Author (optional)<input class="zenux-input" data-field="author" placeholder="${escapeXmlAttribute(buildAuthor())}" /></label>
           <span class="bb-create-mod-error"></span>
           <div class="bb-create-mod-actions">
             <button class="zenux-btn-ghost" data-action="cancel">Cancel</button>
@@ -214,6 +215,7 @@ function mountPanel(host) {
       </div>`);
     const nameInput = overlay.querySelector('[data-field="name"]');
     const descInput = overlay.querySelector('[data-field="description"]');
+    const authorInput = overlay.querySelector('[data-field="author"]');
     const errorEl = overlay.querySelector(".bb-create-mod-error");
     const close = () => overlay.remove();
     overlay.addEventListener("click", (e) => {
@@ -223,6 +225,7 @@ function mountPanel(host) {
     overlay.querySelector('[data-action="save"]').addEventListener("click", async () => {
       const name = nameInput.value.trim() || "BrowseBot Mod";
       const description = descInput.value.trim();
+      const author = authorInput.value.trim() || buildAuthor();
       const saveBtn = overlay.querySelector('[data-action="save"]');
       saveBtn.disabled = true;
       try {
@@ -231,7 +234,7 @@ function mountPanel(host) {
           description,
           css: getPreviewCSS(),
           js: getStagedJS(),
-          author: buildAuthor(),
+          author,
         });
         close();
         addMessage(
