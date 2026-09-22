@@ -65,33 +65,33 @@ async function runChromeJS(args) {
   if (!code || !String(code).trim()) return { error: "runChromeJS requires code." };
   const logs = [];
   const methods = ["log", "info", "warn", "error", "debug"];
-  const originals = {};
-  for (const m of methods) {
-    originals[m] = console[m]?.bind?.(console);
-    console[m] = (...a) => {
-      try {
-        logs.push(`[${m}] ${a.map((x) => previewValue(x, 500)).join(" ")}`.slice(0, 1000));
-      } catch {}
-      try {
-        originals[m]?.(...a);
-      } catch {}
-    };
-  }
+  const realConsole = {};
+  for (const m of methods) realConsole[m] = console[m]?.bind?.(console);
+  const capture = (m) => (...a) => {
+    try {
+      logs.push(`[${m}] ${a.map((x) => previewValue(x, 500)).join(" ")}`.slice(0, 1000));
+    } catch {}
+    try {
+      realConsole[m]?.(...a);
+    } catch {}
+  };
   try {
-    const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-    const fn = new AsyncFunction(String(code));
-    const result = await fn();
+    const Cu = Components.utils;
+    const sandbox = Cu.Sandbox(window, { sandboxPrototype: window, wantXrays: true });
+    sandbox.console = {
+      log: capture("log"),
+      info: capture("info"),
+      warn: capture("warn"),
+      error: capture("error"),
+      debug: capture("debug"),
+    };
+    let result = Cu.evalInSandbox(`;(async () => {\n${String(code)}\n})()`, sandbox);
+    if (result && typeof result.then === "function") result = await result;
     setStagedJS(String(code));
     return { result: previewValue(result), logs: logs.slice(0, 50) };
   } catch (e) {
     PREFS.debugError("runChromeJS failed:", e);
     return { error: `${e?.name || "Error"}: ${e?.message || e}`, logs: logs.slice(0, 50) };
-  } finally {
-    for (const m of methods) {
-      try {
-        if (originals[m]) console[m] = originals[m];
-      } catch {}
-    }
   }
 }
 
