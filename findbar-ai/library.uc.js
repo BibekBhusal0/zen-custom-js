@@ -13,7 +13,6 @@ import {
   setStreamingControls,
   attachChatMessageHandlers,
 } from "./utils/chat.js";
-import { browseBotFindbar } from "./findbar-ai.uc.js";
 import { SettingsModal } from "./settings.js";
 import { showToast } from "../utils/toast.js";
 import { addPrefListener } from "../utils/pref.js";
@@ -136,6 +135,7 @@ function mountPanel(host) {
     pendingRefs: [],
     abortController: null,
     streaming: false,
+    toolConfirmationDialog: null,
     popupIndex: 0,
     popupKind: null,
     popupItems: [],
@@ -147,6 +147,8 @@ function mountPanel(host) {
     stopWidthGuard();
     clearLibraryWidth(host);
     state.abortController?.abort();
+    state.toolConfirmationDialog?.remove();
+    state.toolConfirmationDialog = null;
   };
 
   const messagesEl = ui.querySelector(".bb-library-messages");
@@ -165,6 +167,49 @@ function mountPanel(host) {
   const focusPrompt = () => {
     if (!state.destroyed) setTimeout(() => input.focus(), 10);
   };
+
+  function createToolConfirmationDialog(toolNames) {
+    return new Promise((resolve) => {
+      const dialog = parseElement(`
+        <div class="tool-confirmation-dialog">
+          <div class="tool-confirmation-content">
+            <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
+            <div class="buttons">
+              <button class="not-again zenux-btn-ghost">Don't ask again</button>
+              <div class="right-side-buttons">
+                <button class="confirm-tool zenux-btn-success">Yes</button>
+                <button class="cancel-tool zenux-btn-danger">No</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `);
+      state.toolConfirmationDialog = dialog;
+
+      const removeDialog = () => {
+        dialog.remove();
+        state.toolConfirmationDialog = null;
+      };
+
+      dialog.querySelector(".confirm-tool").addEventListener("click", () => {
+        removeDialog();
+        resolve(true);
+      });
+
+      dialog.querySelector(".cancel-tool").addEventListener("click", () => {
+        removeDialog();
+        resolve(false);
+      });
+
+      dialog.querySelector(".not-again").addEventListener("click", () => {
+        removeDialog();
+        PREFS.conformation = false;
+        resolve(true);
+      });
+
+      document.body.appendChild(dialog);
+    });
+  }
 
   function addMessage(role, content, refs = []) {
     const type = role === "user" ? "user" : role === "error" ? "error" : "ai";
@@ -477,19 +522,22 @@ function mountPanel(host) {
 
     const aiWrap = parseElement(
       `<div class="chat-message chat-message-ai">
-        <div class="tool-calls-container"></div>
         <div class="message-content"><div class="markdown-body"></div></div>
       </div>`
     );
-    const toolBox = aiWrap.querySelector(".tool-calls-container");
     const contentDiv = aiWrap.querySelector(".markdown-body");
     messagesEl.appendChild(aiWrap);
     scrollDown();
 
+    const toolEntries = [];
+    const hasToolCalls = () => toolEntries.length > 0;
     const updateToolCallUI = (toolName, status, errorMsg = null) => {
-      toolBox
-        .querySelectorAll('.tool-call-status[data-status="loading"]')
-        .forEach((item) => item.remove());
+      for (let i = toolEntries.length - 1; i >= 0; i--) {
+        if (toolEntries[i].dataset.status === "loading") {
+          toolEntries[i].remove();
+          toolEntries.splice(i, 1);
+        }
+      }
       const toolDiv = parseElement(`
         <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
           <span class="tool-call-icon">${toolStatusIcons[status] || ""}</span>
@@ -497,7 +545,9 @@ function mountPanel(host) {
           ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(String(errorMsg))}</span>` : ""}
           ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}
         </div>`);
-      toolBox.appendChild(toolDiv);
+      toolEntries.push(toolDiv);
+      if (aiWrap.isConnected) aiWrap.before(toolDiv);
+      else messagesEl.appendChild(toolDiv);
       scrollDown();
     };
 
@@ -505,7 +555,7 @@ function mountPanel(host) {
       const resultPromise = browseBotLibraryLLM.sendMessage(prompt, {
         refs,
         abortSignal: state.abortController.signal,
-        confirmTool: (names) => browseBotFindbar.createToolConfirmationDialog(names),
+        confirmTool: (names) => createToolConfirmationDialog(names),
         onToolStatus: updateToolCallUI,
       });
 
@@ -522,9 +572,9 @@ function mountPanel(host) {
                 `${result.text}\n\n*Pollinations ran out of free credits. Add a free API key in BrowseBot settings, then try again.*`
               )
             );
-          } else if (result.text.trim() === "" && toolBox.querySelector(".tool-call-status")) {
+          } else if (result.text.trim() === "" && hasToolCalls()) {
             contentDiv.appendChild(parseMD("*(Tool actions performed)*"));
-          } else if (result.text.trim() === "" && !toolBox.querySelector(".tool-call-status")) {
+          } else if (result.text.trim() === "" && !hasToolCalls()) {
             aiWrap.remove();
           } else {
             contentDiv.appendChild(parseMD(result.text));
@@ -560,10 +610,10 @@ function mountPanel(host) {
                 "\n\n*Pollinations ran out of free credits. Add a free API key in BrowseBot settings, then try again.*"
               )
             );
-          } else if (fullText.trim() === "" && toolBox.querySelector(".tool-call-status")) {
+          } else if (fullText.trim() === "" && hasToolCalls()) {
             contentDiv.innerHTML = "";
             contentDiv.appendChild(parseMD("*(Tool actions performed)*"));
-          } else if (fullText.trim() === "" && !toolBox.querySelector(".tool-call-status")) {
+          } else if (fullText.trim() === "" && !hasToolCalls()) {
             aiWrap.remove();
           }
         } finally {
@@ -586,6 +636,7 @@ function mountPanel(host) {
     } finally {
       if (!state.destroyed) setStreaming(false);
       state.abortController = null;
+      for (const el of toolEntries.splice(0)) el.remove();
       scrollDown();
     }
   }
