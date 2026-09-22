@@ -1,7 +1,8 @@
 # New Features
 
 - BrowseBot Library section (needs a Zen build with the Library feature): a persistent AI panel that stays open across tab and workspace switches, with Chat, Agent, and Build (working on it) modes.
-- Slash commands with autocomplete in library chat: `/chat`, `/agent`, `/build`. They switch modes, or switch and send the rest of the line.
+- Slash commands with autocomplete in library chat: `/chat`, `/agent`, `/build`. They switch modes, or switch and send the rest of the line. `/clear` stops the run and starts a new chat, `/close` closes the library while the run continues in the background.
+- Library runs keep going after you close the panel: closing declines any pending tool confirmation instead of stranding it, and a toast reports the outcome when the run finishes.
 - `@` tab mentions in library chat: reference any open tab and the AI gets its full page content, shown as chips with favicons.
 - Per-surface system prompts: separate prompts for findbar, URL bar, and each library mode. Your old custom prompt moves to the findbar automatically.
 - Code blocks in chat answers now have syntax highlighting, a language label, and a Copy button.
@@ -23,11 +24,14 @@
 - The mod is about 12x smaller now. No magic here, just removal: the Vercel AI SDK and zod were bloated, so they are gone, replaced by a small client written for this mod.
 - Page content is sent as a conversation message instead of being embedded in the system prompt, which cuts repeated token spend on every reply.
 - Model lists pruned to currently supported models, with updated defaults. Page and transcript size is now capped by a setting, unlimited by default.
+- Tool-call settings (ask before tool call, max tool calls) moved into the Library AI settings section. Max tool calls is unlimited by default and the library no longer truncates tab context.
+- The library input stays usable while a run is in flight, so `/clear` and `/close` work mid-run.
 
 # Breaking Changes
 
 - Findbar agentic mode is removed. The findbar is page Q&A only; all tool calls moved to the Library agent mode. The `extension.browse-bot.findbar-ai.agentic-mode` preference is deleted.
 - The shared `extension.browse-bot.custom-system-prompt` preference is replaced by per-surface prompts (findbar, URL bar, library chat/agent/build). Existing values migrate to the findbar prompt.
+- The `extension.browse-bot.findbar-ai.max-tool-calls` and `extension.browse-bot.findbar-ai.conform-before-tool-call` preferences moved to `extension.browse-bot.library-ai.*`. Existing values migrate automatically.
 
 # Fixes
 
@@ -35,3 +39,4 @@
 - Dropdowns no longer leave empty space when the selected item has no icon.
 - Shortcut fields now show readable key symbols.
 - Chat markdown rendering no longer depends on the Sine runtime.
+- Repeat tool calls only collapse into one counted row when consecutive. A different tool in between starts a new row, so the order stays truthful.
