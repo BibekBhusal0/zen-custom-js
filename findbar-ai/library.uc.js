@@ -2,11 +2,9 @@ import { PREFS } from "./utils/prefs.js";
 import { browseBotLibraryLLM, MODES } from "./library-llm.js";
 import { messageManagerAPI } from "./messageManager.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { icons } from "../utils/icon.js";
 import { parseMD } from "./utils/markdown.js";
 import {
-  toolStatusIcons,
-  SEND_SVG,
-  STOP_SVG,
   renderStreamText,
   extractErrorText,
   isProviderBalanceExhausted,
@@ -125,8 +123,8 @@ function mountPanel(host) {
       <div class="bb-library-composer ai-chat-input-group">
         <div class="bb-library-popup" hidden></div>
         <textarea class="bb-library-input zenux-input" placeholder="Ask anything…  ( / for modes, @ for tabs )" rows="2"></textarea>
-        <button class="bb-send-btn send-btn zenux-btn-primary">${SEND_SVG}</button>
-        <button class="bb-stop-btn stop-btn zenux-btn-primary" style="display: none;">${STOP_SVG}</button>
+        <button class="bb-send-btn send-btn zenux-btn-primary">${icons.send}</button>
+        <button class="bb-stop-btn stop-btn zenux-btn-primary" style="display: none;">${icons.stop}</button>
       </div>
     </div>`);
 
@@ -557,7 +555,7 @@ function mountPanel(host) {
       }
       const toolDiv = parseElement(`
         <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
-          <span class="tool-call-icon">${toolStatusIcons[status] || ""}</span>
+          <span class="tool-call-icon">${icons["tool" + status[0].toUpperCase() + status.slice(1)] || ""}</span>
           <span class="tool-call-name">${escapeXmlAttribute(toolName)}</span>
           ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(String(errorMsg))}</span>` : ""}
           ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}

@@ -1,15 +1,4 @@
 import { parseMD } from "./markdown.js";
-import { icons } from "../../utils/icon.js";
-
-const toolStatusIcons = {
-  loading: icons.toolLoading,
-  success: icons.toolSuccess,
-  error: icons.toolError,
-  declined: icons.toolDeclined,
-};
-
-const SEND_SVG = icons.send;
-const STOP_SVG = icons.stop;
 
 // parseMD with convertHTML=false returns a string, not an element.
 function renderStreamText(contentDiv, fullText) {
@@ -104,9 +93,6 @@ function attachChatMessageHandlers(container, { onCitation } = {}) {
 }
 
 export {
-  toolStatusIcons,
-  SEND_SVG,
-  STOP_SVG,
   renderStreamText,
   extractErrorText,
   isProviderBalanceExhausted,
