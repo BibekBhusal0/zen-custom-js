@@ -702,12 +702,14 @@ function mountPanel(host) {
 
     const toolEntries = [];
     const toolRows = new Map();
+    let lastToolRow = null;
     let toolGen = 0;
     let shownGen = 0;
     let segmentText = "";
     const clearToolEntries = () => {
       for (const el of toolEntries.splice(0)) el.remove();
       toolRows.clear();
+      lastToolRow = null;
     };
     const startSegment = () => {
       aiWrap = parseElement(
@@ -722,19 +724,30 @@ function mountPanel(host) {
     };
     const updateToolCallUI = (toolName, status) => {
       toolGen++;
-      let row = toolRows.get(toolName);
-      if (!row) {
-        const el = parseElement(`
+      let row = null;
+      if (status === "loading") {
+        if (!lastToolRow || lastToolRow.name !== toolName) {
+          const el = parseElement(`
           <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
             <span class="tool-call-icon"></span>
             <span class="tool-call-name">${escapeXmlAttribute(toolName)}</span>
             <span class="tool-call-count" hidden></span>
             <span class="tool-call-declined" hidden>Declined</span>
           </div>`);
-        row = { el, count: 0 };
-        toolRows.set(toolName, row);
-        toolEntries.push(el);
-        libraryRunHost.appendChild(el);
+          row = { name: toolName, el, count: 0 };
+          if (!toolRows.has(toolName)) toolRows.set(toolName, []);
+          toolRows.get(toolName).push(row);
+          toolEntries.push(el);
+          libraryRunHost.appendChild(el);
+          lastToolRow = row;
+        } else {
+          row = lastToolRow;
+        }
+      } else {
+        const list = toolRows.get(toolName) || [];
+        row = lastToolRow?.name === toolName ? lastToolRow : list[list.length - 1];
+        if (!row) return;
+        row.count++;
       }
       row.el.dataset.status = status;
       row.el.querySelector(".tool-call-icon").innerHTML =
