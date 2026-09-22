@@ -211,7 +211,9 @@ function themeTemplate({ id, name, description, author, hasJS }) {
     description: description || `${name} — created with BrowseBot.`,
     homepage: BROWSEBOT_REPO_URL,
     style: { chrome: "style.css" },
-    ...(hasJS ? { scripts: { [`${id}.uc.js`]: { include: ["chrome://browser/content/browser.xhtml"] } } } : {}),
+    ...(hasJS
+      ? { scripts: { [`${id}.uc.js`]: { include: ["chrome://browser/content/browser.xhtml"] } } }
+      : {}),
     author,
     version: "1.0.0",
     tags: ["browsebot"],
@@ -225,7 +227,9 @@ function readmeTemplate({ name, description, author, hasJS, scriptFile }) {
   const files = [
     "- `theme.json` — mod metadata (id, version, author)",
     ...(hasJS
-      ? [`- \`${scriptFile}\` — browser-chrome JavaScript (filename must match the \`scripts\` key in theme.json)`]
+      ? [
+          `- \`${scriptFile}\` — browser-chrome JavaScript (filename must match the \`scripts\` key in theme.json)`,
+        ]
       : []),
     "- `style.css` — browser-chrome CSS",
   ].join("\n");

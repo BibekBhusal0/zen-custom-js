@@ -67,14 +67,16 @@ async function runChromeJS(args) {
   const methods = ["log", "info", "warn", "error", "debug"];
   const realConsole = {};
   for (const m of methods) realConsole[m] = console[m]?.bind?.(console);
-  const capture = (m) => (...a) => {
-    try {
-      logs.push(`[${m}] ${a.map((x) => previewValue(x, 500)).join(" ")}`.slice(0, 1000));
-    } catch {}
-    try {
-      realConsole[m]?.(...a);
-    } catch {}
-  };
+  const capture =
+    (m) =>
+    (...a) => {
+      try {
+        logs.push(`[${m}] ${a.map((x) => previewValue(x, 500)).join(" ")}`.slice(0, 1000));
+      } catch {}
+      try {
+        realConsole[m]?.(...a);
+      } catch {}
+    };
   try {
     const Cu = Components.utils;
     const sandbox = Cu.Sandbox(window, { sandboxPrototype: window, wantXrays: true });
