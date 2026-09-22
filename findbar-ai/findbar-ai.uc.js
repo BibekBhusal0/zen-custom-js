@@ -5,7 +5,6 @@ import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
 import { parseMD } from "./utils/markdown.js";
 import {
-  toolStatusIcons,
   renderStreamText,
   extractErrorText,
   isProviderBalanceExhausted,
@@ -14,7 +13,6 @@ import {
 import { createCombobox } from "../utils/combobox.js";
 import { createModelField } from "./utils/model-selector.js";
 import { SettingsModal } from "./settings.js";
-import { toolNameMapping } from "./llm/tools.js";
 import { addPrefListener, removePrefListener } from "../utils/pref.js";
 import { getSecureApiKey } from "./utils/secure.js";
 
@@ -106,10 +104,8 @@ export const browseBotFindbar = {
   _stopResize: null,
   _handleResize: null,
   _handleResizeEnd: null,
-  _toolConfirmationDialog: null,
   _highlightTimeout: null,
   _originalOnMatchesCountResult: null,
-  _currentAIMessageDiv: null,
 
   /**
    * Save findbar dimensions in css variables
@@ -211,52 +207,6 @@ export const browseBotFindbar = {
     this.addExpandButton();
     this.removeAIInterface();
     this.showAIInterface();
-  },
-
-  createToolConfirmationDialog(toolNames) {
-    return new Promise((resolve) => {
-      const dialog = parseElement(`
-        <div class="tool-confirmation-dialog">
-          <div class="tool-confirmation-content">
-            <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
-            <div class="buttons">
-              <button class="not-again zenux-btn-ghost">Don't ask again</button>
-              <div class="right-side-buttons">
-                <button class="confirm-tool zenux-btn-success">Yes</button>
-                <button class="cancel-tool zenux-btn-danger">No</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `);
-      this._toolConfirmationDialog = dialog;
-
-      const removeDilog = () => {
-        dialog.remove();
-        this._toolConfirmationDialog = null;
-      };
-
-      const confirmButton = dialog.querySelector(".confirm-tool");
-      confirmButton.addEventListener("click", () => {
-        removeDilog();
-        resolve(true);
-      });
-
-      const cancelButton = dialog.querySelector(".cancel-tool");
-      cancelButton.addEventListener("click", () => {
-        removeDilog();
-        resolve(false);
-      });
-
-      const notAgainButton = dialog.querySelector(".not-again");
-      notAgainButton.addEventListener("click", () => {
-        removeDilog();
-        PREFS.conformation = false;
-        resolve(true);
-      });
-
-      document.body.appendChild(dialog);
-    });
   },
 
   updateFindbar() {
@@ -605,59 +555,6 @@ export const browseBotFindbar = {
     return container;
   },
 
-  _removeToolCallUI() {
-    if (!this._currentAIMessageDiv) return;
-    const container = this._currentAIMessageDiv.querySelector(".tool-calls-container");
-    if (container) {
-      container.remove();
-      setTimeout(() => this._updateFindbarDimensions(), 0);
-    }
-  },
-
-  _createOrUpdateToolCallUI(toolName, status, errorMsg = null) {
-    const messageDiv = this._currentAIMessageDiv;
-    if (!messageDiv) return;
-
-    let container = messageDiv.querySelector(".tool-calls-container");
-    const messageContent = messageDiv.querySelector(".message-content");
-    if (!container) {
-      container = parseElement(`<div class="tool-calls-container"></div>`);
-      if (messageContent) {
-        messageDiv.insertBefore(container, messageContent);
-      } else {
-        messageDiv.appendChild(container);
-      }
-    }
-
-    const friendlyName = toolNameMapping[toolName] || toolName;
-    const existingLoadingItems = container.querySelectorAll(
-      '.tool-call-status[data-status="loading"]'
-    );
-    existingLoadingItems.forEach((item) => item.remove());
-
-    let toolDiv = parseElement(`
-<div class="tool-call-status" data-tool-name="${toolName}" data-status="${status}">
-  <span class="tool-call-icon">${toolStatusIcons[status] || ""}</span>
-  <span class="tool-call-name">${friendlyName}</span>
-  ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(errorMsg)}</span>` : ""}
-  ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}
-</div>
-`);
-
-    container.appendChild(toolDiv);
-
-    let title = friendlyName;
-    if (status === "error" && errorMsg) {
-      title += `\nError: ${errorMsg}`;
-    } else if (status === "declined") {
-      title += `\nDeclined by user.`;
-    }
-    toolDiv.setAttribute("tooltiptext", title);
-
-    messageDiv.scrollTop = messageDiv.scrollHeight;
-    setTimeout(() => this._updateFindbarDimensions(), 0);
-  },
-
   async sendMessage(prompt) {
     if (!prompt || this._isStreaming) return;
 
@@ -683,7 +580,6 @@ export const browseBotFindbar = {
       messagesContainer.appendChild(aiMessageDiv);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-    this._currentAIMessageDiv = aiMessageDiv;
 
     try {
       const resultPromise = browseBotFindbarLLM.sendMessage(prompt, this._abortController.signal);
@@ -711,15 +607,7 @@ export const browseBotFindbar = {
             if (this._isPollinationsBalanceExhausted(result.text)) {
               this._flagPollinationsKeyPrompt();
               this._renderPollinationsKeyPrompt(contentDiv);
-            } else if (
-              result.text.trim() === "" &&
-              aiMessageDiv.querySelector(".tool-calls-container")
-            ) {
-              contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
-            } else if (
-              result.text.trim() === "" &&
-              !aiMessageDiv.querySelector(".tool-calls-container")
-            ) {
+            } else if (result.text.trim() === "") {
               aiMessageDiv.remove();
             } else {
               contentDiv.appendChild(parseMD(result.text));
@@ -763,15 +651,7 @@ export const browseBotFindbar = {
           if (this._isPollinationsBalanceExhausted(fullText)) {
             this._flagPollinationsKeyPrompt();
             this._renderPollinationsKeyPrompt(contentDiv);
-          } else if (
-            fullText.trim() === "" &&
-            aiMessageDiv.querySelector(".tool-calls-container")
-          ) {
-            contentDiv.innerHTML = parseMD("*(Tool actions performed)*", false);
-          } else if (
-            fullText.trim() === "" &&
-            !aiMessageDiv.querySelector(".tool-calls-container")
-          ) {
+          } else if (fullText.trim() === "") {
             aiMessageDiv.remove();
           }
         } finally {
@@ -804,8 +684,6 @@ export const browseBotFindbar = {
     } finally {
       this._toggleStreamingControls(false);
       this._abortController = null;
-      this._removeToolCallUI();
-      this._currentAIMessageDiv = null;
     }
   },
 
@@ -1314,8 +1192,6 @@ export const browseBotFindbar = {
     this.removeExpandButton();
     this.removeContextMenuItem();
     this.removeAIInterface();
-    this._toolConfirmationDialog?.remove();
-    this._toolConfirmationDialog = null;
     SettingsModal.hide();
     this._restoreFindbarMatchesDisplay();
   },
@@ -1638,9 +1514,6 @@ export const browseBotFindbar = {
         e.preventDefault();
         e.stopPropagation();
         SettingsModal.hide();
-      } else if (this._toolConfirmationDialog) {
-        const cancelButton = this._toolConfirmationDialog.querySelector(".cancel-tool");
-        cancelButton?.click();
       } else if (this.expanded) {
         e.preventDefault();
         e.stopPropagation();
