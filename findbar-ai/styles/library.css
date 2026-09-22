@@ -105,6 +105,10 @@ zen-library-browsebot-section {
       scrollbar-width: thin !important;
       padding: 10px 8px 0 2px !important;
 
+      .bb-run-view {
+        display: contents !important;
+      }
+
       .chat-message {
         max-width: 85% !important;
         padding: 1px 5px !important;

@@ -113,6 +113,19 @@ function stopWidthGuard() {
   widthGuardTimer = null;
 }
 
+let libraryRunController = null;
+let libraryRunHost = null;
+const libraryRunEndListeners = new Set();
+
+function broadcastRunEnd(except) {
+  for (const fn of [...libraryRunEndListeners]) {
+    if (fn === except) continue;
+    try {
+      fn();
+    } catch {}
+  }
+}
+
 function mountPanel(host) {
   const ui = parseElement(`
     <div class="bb-library">
@@ -159,6 +172,7 @@ function mountPanel(host) {
     state.destroyed = true;
     stopWidthGuard();
     clearLibraryWidth(host);
+    libraryRunEndListeners.delete(onRunEnd);
     state.confirmResolver?.(false);
     state.confirmResolver = null;
     state.toolConfirmationDialog?.remove();
@@ -266,6 +280,18 @@ function mountPanel(host) {
 
   const scrollDown = () => {
     messagesEl.scrollTop = messagesEl.scrollHeight;
+    try {
+      const hostParent = libraryRunHost?.parentElement;
+      if (hostParent && hostParent !== messagesEl) {
+        hostParent.scrollTop = hostParent.scrollHeight;
+      }
+    } catch {}
+  };
+
+  const attachRunHost = () => {
+    if (libraryRunHost && libraryRunHost.parentElement !== messagesEl) {
+      messagesEl.appendChild(libraryRunHost);
+    }
   };
 
   const focusPrompt = () => {
@@ -587,9 +613,18 @@ function mountPanel(host) {
     setStreamingControls({ sendBtn, stopBtn, input }, streaming, focusPrompt);
   }
 
+  const onRunEnd = () => {
+    setStreaming(false);
+    renderHistory();
+    refreshBuildBar();
+    scrollDown();
+  };
+  libraryRunEndListeners.add(onRunEnd);
+
   sendBtn.addEventListener("click", handleSend);
   stopBtn.addEventListener("click", () => {
     state.abortController?.abort();
+    libraryRunController?.abort();
   });
 
   function createLoadingIndicator() {
@@ -617,7 +652,7 @@ function mountPanel(host) {
 
   async function handleSend() {
     let text = input.value.trim();
-    if (!text || state.streaming) return;
+    if (!text || state.streaming || libraryRunController) return;
 
     const slash = text.match(/^\/(\w+)\s*([\s\S]*)$/);
     if (slash && MODES.includes(slash[1].toLowerCase())) {
@@ -632,7 +667,17 @@ function mountPanel(host) {
       text = rest;
     }
 
-    const refs = await resolveRefs(text);
+    state.abortController = new AbortController();
+    libraryRunController = state.abortController;
+    libraryRunHost = parseElement(`<div class="bb-run-view"></div>`);
+    setStreaming(true);
+
+    let refs = [];
+    try {
+      refs = await resolveRefs(text);
+    } catch (e) {
+      PREFS.debugError("Failed to resolve tab refs:", e);
+    }
     let prompt = text;
     for (const ref of refs) {
       prompt = prompt.split(`@${ref.title}`).join(ref.title);
@@ -645,16 +690,14 @@ function mountPanel(host) {
     renderChips();
     hidePopup();
 
-    state.abortController = new AbortController();
-    setStreaming(true);
-
+    messagesEl.appendChild(libraryRunHost);
     let aiWrap = parseElement(
       `<div class="chat-message chat-message-ai">
         <div class="message-content"><div class="markdown-body"></div></div>
       </div>`
     );
     let contentDiv = aiWrap.querySelector(".markdown-body");
-    messagesEl.appendChild(aiWrap);
+    libraryRunHost.appendChild(aiWrap);
     scrollDown();
 
     const toolEntries = [];
@@ -673,7 +716,7 @@ function mountPanel(host) {
         </div>`
       );
       contentDiv = aiWrap.querySelector(".markdown-body");
-      messagesEl.appendChild(aiWrap);
+      libraryRunHost.appendChild(aiWrap);
       shownGen = toolGen;
       segmentText = "";
     };
@@ -691,7 +734,7 @@ function mountPanel(host) {
         row = { el, count: 0 };
         toolRows.set(toolName, row);
         toolEntries.push(el);
-        messagesEl.appendChild(el);
+        libraryRunHost.appendChild(el);
       }
       row.el.dataset.status = status;
       row.el.querySelector(".tool-call-icon").innerHTML =
@@ -705,6 +748,7 @@ function mountPanel(host) {
       }
       scrollDown();
     };
+    let notifyText = "BrowseBot finished responding.";
     try {
       const resultPromise = browseBotLibraryLLM.sendMessage(prompt, {
         refs,
@@ -712,11 +756,10 @@ function mountPanel(host) {
         confirmTool: (names, detail) => createToolConfirmationDialog(names, detail),
         onToolStatus: updateToolCallUI,
       });
-      let notifyText = "BrowseBot finished responding.";
 
       if (!PREFS.streamEnabled) {
         const loadingIndicator = createLoadingIndicator();
-        messagesEl.appendChild(loadingIndicator);
+        libraryRunHost.appendChild(loadingIndicator);
         scrollDown();
         try {
           const result = await resultPromise;
@@ -740,7 +783,7 @@ function mountPanel(host) {
         }
       } else {
         const loadingIndicator = createLoadingIndicator();
-        messagesEl.appendChild(loadingIndicator);
+        libraryRunHost.appendChild(loadingIndicator);
         scrollDown();
 
         const result = await resultPromise;
@@ -791,12 +834,19 @@ function mountPanel(host) {
         addMessage("error", extractErrorText(e));
       }
     } finally {
+      if (libraryRunController === state.abortController) libraryRunController = null;
+      const finishedHost = libraryRunHost;
+      libraryRunHost = null;
+      broadcastRunEnd(onRunEnd);
       if (state.destroyed && notifyText) {
         try {
           showToast({ title: notifyText, description: prompt.slice(0, 120) });
         } catch {}
       } else {
         setStreaming(false);
+        if (finishedHost?.parentElement === messagesEl) {
+          finishedHost.replaceWith(...finishedHost.childNodes);
+        }
       }
       state.abortController = null;
       clearToolEntries();
@@ -806,7 +856,12 @@ function mountPanel(host) {
   }
 
   renderHistory();
+  attachRunHost();
   refreshBuildBar();
+  if (libraryRunController) {
+    state.abortController = libraryRunController;
+    setStreaming(true);
+  }
   setLibraryWidth(host);
   startWidthGuard();
   try {
@@ -819,6 +874,21 @@ function mountPanel(host) {
     try {
       if (host.isConnected && !ui.contains(document.activeElement)) input.focus();
     } catch {}
+  };
+  host._bbReactivate = () => {
+    if (!host.isConnected) return;
+    state.destroyed = false;
+    libraryRunEndListeners.add(onRunEnd);
+    renderHistory();
+    attachRunHost();
+    refreshBuildBar();
+    if (libraryRunController) {
+      state.abortController = libraryRunController;
+      setStreaming(true);
+    }
+    setLibraryWidth(host);
+    startWidthGuard();
+    settle();
   };
   requestAnimationFrame(() => {
     settle();
@@ -840,7 +910,12 @@ class BrowseBotLibrarySectionElement extends HTMLElement {
     return this._library;
   }
   connectedCallback() {
-    if (this._mounted) return;
+    if (this._mounted) {
+      try {
+        this._bbReactivate?.();
+      } catch {}
+      return;
+    }
     this._mounted = true;
     try {
       this.classList.add("zen-library-section");
