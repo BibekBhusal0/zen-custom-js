@@ -467,8 +467,7 @@ class BrowseBotPREFS extends BasePREFS {
       let value = null;
       if (type === Services.prefs.PREF_BOOL) value = Services.prefs.getBoolPref(oldKey);
       else if (type === Services.prefs.PREF_INT) value = Services.prefs.getIntPref(oldKey);
-      else if (type === Services.prefs.PREF_STRING)
-        value = Services.prefs.getStringPref(oldKey);
+      else if (type === Services.prefs.PREF_STRING) value = Services.prefs.getStringPref(oldKey);
       else return;
       if (value !== oldDefault) this.setPref(newKey, value);
       Services.prefs.clearUserPref(oldKey);
@@ -476,11 +475,7 @@ class BrowseBotPREFS extends BasePREFS {
   }
 
   static setInitialPrefs() {
-    this.migratePref(
-      this.MAX_TOOL_CALLS,
-      "extension.browse-bot.findbar-ai.max-tool-calls",
-      5
-    );
+    this.migratePref(this.MAX_TOOL_CALLS, "extension.browse-bot.findbar-ai.max-tool-calls", 5);
     this.migratePref(
       this.CONFIRMATION,
       "extension.browse-bot.library-ai.conform-before-tool-call",

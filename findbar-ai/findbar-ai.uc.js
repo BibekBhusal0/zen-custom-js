@@ -695,9 +695,7 @@ export const browseBotFindbar = {
     const sendBtn = this.chatContainer.querySelector("#send-prompt");
     const stopBtn = this.chatContainer.querySelector("#stop-generation");
 
-    setStreamingControls({ sendBtn, stopBtn }, isStreaming, () =>
-      this.focusPrompt()
-    );
+    setStreamingControls({ sendBtn, stopBtn }, isStreaming, () => this.focusPrompt());
   },
 
   // The following _overrideFindbarMatchesDisplay function is adapted from
