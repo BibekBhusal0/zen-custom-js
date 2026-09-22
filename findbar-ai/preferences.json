@@ -55,7 +55,7 @@
     "label": "Library AI Mode",
     "type": "dropdown",
     "defaultValue": "chat",
-    "description": "Chat has no tools or page context. Agent has the full browser tool-belt. Build is coming soon.",
+    "description": "Chat has no tools or page context. Agent has the full browser tool-belt. Build styles the browser chrome live and ships Sine mods.",
     "options": [
       {
         "value": "chat",
@@ -67,7 +67,7 @@
       },
       {
         "value": "build",
-        "label": "Build (coming soon)"
+        "label": "Build (browser mods)"
       }
     ],
     "conditions": [

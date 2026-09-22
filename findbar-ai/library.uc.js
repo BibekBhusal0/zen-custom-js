@@ -15,6 +15,15 @@ import { SettingsModal } from "./settings.js";
 import { showToast } from "../utils/toast.js";
 import { addPrefListener } from "../utils/pref.js";
 import { fuzzyFilterSort } from "../utils/fuzzy.js";
+import {
+  clearPreviewCSS,
+  clearStagedJS,
+  getPreviewCSS,
+  getPreviewState,
+  getStagedJS,
+} from "./utils/build-preview.js";
+import { buildAuthor } from "./llm/build-tools.js";
+import { createSineMod } from "./utils/sine-mods.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = MODES.map((mode) => ({
@@ -25,7 +34,7 @@ const SLASH_ITEMS = MODES.map((mode) => ({
       ? "Ask, no tools or page context"
       : mode === "agent"
         ? "Full browser tool-belt"
-        : "Coming soon",
+        : "Style the browser, preview live, ship Sine mods",
 }));
 
 function listTabs() {
@@ -120,6 +129,11 @@ function mountPanel(host) {
       </div>
       <div class="bb-library-messages ai-chat-messages"></div>
       <div class="bb-refs-bar"></div>
+      <div class="bb-build-bar" hidden>
+        <span class="bb-build-status"></span>
+        <button class="bb-build-create zenux-btn-primary">Create Mod</button>
+        <button class="bb-build-clear zenux-btn-ghost">Clear</button>
+      </div>
       <div class="bb-library-composer ai-chat-input-group">
         <div class="bb-library-popup" hidden></div>
         <textarea class="bb-library-input zenux-input" placeholder="Ask anything…  ( / for modes, @ for tabs )" rows="2"></textarea>
@@ -157,6 +171,84 @@ function mountPanel(host) {
   const refsBar = ui.querySelector(".bb-refs-bar");
   const clearBtn = ui.querySelector('[data-action="clear"]');
   const modeButtons = [...ui.querySelectorAll(".bb-mode")];
+  const buildBar = ui.querySelector(".bb-build-bar");
+  const buildStatus = ui.querySelector(".bb-build-status");
+
+  function refreshBuildBar() {
+    if (!buildBar) return;
+    const isBuild = PREFS.libraryMode === "build";
+    const { cssChars, jsChars } = getPreviewState();
+    const hasPreview = cssChars > 0 || jsChars > 0;
+    buildBar.hidden = !(isBuild && hasPreview);
+    if (buildStatus) {
+      const parts = [];
+      if (cssChars > 0) parts.push(`${cssChars} chars CSS`);
+      if (jsChars > 0) parts.push(`${jsChars} chars JS`);
+      buildStatus.textContent = parts.length ? `Staged: ${parts.join(" + ")}` : "";
+    }
+  }
+
+  function openCreateModModal() {
+    const { cssChars, jsChars } = getPreviewState();
+    if (cssChars === 0 && jsChars === 0) {
+      showToast({ title: "Nothing staged", description: "Ask Build mode to preview CSS or JS first." });
+      return;
+    }
+    const overlay = parseElement(`
+      <div class="bb-create-mod-overlay">
+        <div class="bb-create-mod-modal">
+          <h3>Create Sine Mod</h3>
+          <p class="bb-create-mod-hint">Staged: ${cssChars} chars CSS${jsChars ? `, ${jsChars} chars JS` : ""}. Saved with the staged preview.</p>
+          <label>Name<input class="zenux-input" data-field="name" placeholder="e.g. Cyberpunk UI" /></label>
+          <label>Description<input class="zenux-input" data-field="description" placeholder="What does this mod do?" /></label>
+          <span class="bb-create-mod-error"></span>
+          <div class="bb-create-mod-actions">
+            <button class="zenux-btn-ghost" data-action="cancel">Cancel</button>
+            <button class="zenux-btn-primary" data-action="save">Create Mod</button>
+          </div>
+        </div>
+      </div>`);
+    const nameInput = overlay.querySelector('[data-field="name"]');
+    const descInput = overlay.querySelector('[data-field="description"]');
+    const errorEl = overlay.querySelector(".bb-create-mod-error");
+    const close = () => overlay.remove();
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) close();
+    });
+    overlay.querySelector('[data-action="cancel"]').addEventListener("click", close);
+    overlay.querySelector('[data-action="save"]').addEventListener("click", async () => {
+      const name = nameInput.value.trim() || "BrowseBot Mod";
+      const description = descInput.value.trim();
+      const saveBtn = overlay.querySelector('[data-action="save"]');
+      saveBtn.disabled = true;
+      try {
+        const created = await createSineMod({
+          name,
+          description,
+          css: getPreviewCSS(),
+          js: getStagedJS(),
+          author: buildAuthor(),
+        });
+        close();
+        addMessage("ai", `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine — reopen Settings → Sine Mods to see it. Your live preview is still applied; restart the browser if the script doesn't take effect.`);
+        showToast({ title: "Mod created", description: `${created.name} — see Sine Mods settings` });
+        refreshBuildBar();
+      } catch (e) {
+        PREFS.debugError("Create mod from UI failed:", e);
+        if (errorEl) errorEl.textContent = `Failed: ${e?.message || e}`;
+        saveBtn.disabled = false;
+      }
+    });
+    document.body.appendChild(overlay);
+    setTimeout(() => nameInput.focus(), 20);
+  }
+
+  ui.querySelector(".bb-build-create")?.addEventListener("click", openCreateModModal);
+  ui.querySelector(".bb-build-clear")?.addEventListener("click", () => {
+    clearPreviewCSS();
+    clearStagedJS();
+    refreshBuildBar();
+  });
 
   const scrollDown = () => {
     messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -166,12 +258,24 @@ function mountPanel(host) {
     if (!state.destroyed) setTimeout(() => input.focus(), 10);
   };
 
-  function createToolConfirmationDialog(toolNames) {
+  function createToolConfirmationDialog(toolNames, detail = {}) {
     return new Promise((resolve) => {
+      const { toolName, args } = detail;
+      let previewHtml = "";
+      if (toolName === "runChromeJS" && args?.code) {
+        const code = String(args.code).slice(0, 1200);
+        previewHtml = `<details class="tool-confirm-preview"><summary>View script</summary><pre>${escapeXmlAttribute(code)}</pre></details>`;
+      } else if (toolName === "createMod") {
+        const label = [args?.name, args?.description].filter(Boolean).join(" — ").slice(0, 200);
+        if (label) previewHtml = `<p class="tool-confirm-detail">${escapeXmlAttribute(label)}</p>`;
+      } else if (toolName === "updateModFile" && args?.modId) {
+        previewHtml = `<p class="tool-confirm-detail">${escapeXmlAttribute(`${args.modId} / ${args.file || ""}`)}</p>`;
+      }
       const dialog = parseElement(`
         <div class="tool-confirmation-dialog">
           <div class="tool-confirmation-content">
             <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
+            ${previewHtml}
             <div class="buttons">
               <button class="not-again zenux-btn-ghost">Don't ask again</button>
               <div class="right-side-buttons">
@@ -304,6 +408,7 @@ function mountPanel(host) {
     PREFS.libraryMode = mode;
     modeButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.mode === mode));
     hidePopup();
+    refreshBuildBar();
   }
 
   modeButtons.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
@@ -545,7 +650,7 @@ function mountPanel(host) {
       shownGen = toolGen;
       segmentText = "";
     };
-    const updateToolCallUI = (toolName, status, errorMsg = null) => {
+    const updateToolCallUI = (toolName, status, errorMsg = null, args = null) => {
       toolGen++;
       for (let i = toolEntries.length - 1; i >= 0; i--) {
         if (toolEntries[i].dataset.status === "loading") {
@@ -553,12 +658,19 @@ function mountPanel(host) {
           toolEntries.splice(i, 1);
         }
       }
+      let codeHtml = "";
+      if (toolName === "runChromeJS" && args?.code) {
+        codeHtml = `<details class="tool-call-code"><summary>View script</summary><pre>${escapeXmlAttribute(String(args.code).slice(0, 2000))}</pre></details>`;
+      } else if (toolName === "applyPreviewCSS" && args?.css) {
+        codeHtml = `<details class="tool-call-code"><summary>View CSS</summary><pre>${escapeXmlAttribute(String(args.css).slice(0, 2000))}</pre></details>`;
+      }
       const toolDiv = parseElement(`
         <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
           <span class="tool-call-icon">${icons["tool" + status[0].toUpperCase() + status.slice(1)] || ""}</span>
           <span class="tool-call-name">${escapeXmlAttribute(toolName)}</span>
           ${status === "error" && errorMsg ? `<span class="tool-call-error">${escapeXmlAttribute(String(errorMsg))}</span>` : ""}
           ${status === "declined" ? `<span class="tool-call-error">Declined by user</span>` : ""}
+          ${codeHtml}
         </div>`);
       toolEntries.push(toolDiv);
       messagesEl.appendChild(toolDiv);
@@ -569,7 +681,7 @@ function mountPanel(host) {
       const resultPromise = browseBotLibraryLLM.sendMessage(prompt, {
         refs,
         abortSignal: state.abortController.signal,
-        confirmTool: (names) => createToolConfirmationDialog(names),
+        confirmTool: (names, detail) => createToolConfirmationDialog(names, detail),
         onToolStatus: updateToolCallUI,
       });
 
@@ -651,11 +763,13 @@ function mountPanel(host) {
       if (!state.destroyed) setStreaming(false);
       state.abortController = null;
       clearToolEntries();
+      refreshBuildBar();
       scrollDown();
     }
   }
 
   renderHistory();
+  refreshBuildBar();
   setLibraryWidth(host);
   startWidthGuard();
   try {

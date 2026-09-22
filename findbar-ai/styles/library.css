@@ -235,6 +235,58 @@ zen-library-browsebot-section {
       }
     }
 
+    .bb-build-bar {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      flex-shrink: 0 !important;
+      margin-right: 10px !important;
+      padding: 8px 10px !important;
+      border-radius: var(--zenux-radius-m) !important;
+      background: var(--zenux-accent-soft) !important;
+      border: 1px solid var(--zenux-accent-border) !important;
+
+      &[hidden] {
+        display: none !important;
+      }
+
+      .bb-build-status {
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: var(--zenux-text) !important;
+        margin-right: auto !important;
+      }
+
+      button {
+        margin: 0 !important;
+      }
+    }
+
+    .tool-call-status {
+      .tool-call-code,
+      & + .tool-call-code {
+        flex-basis: 100% !important;
+        margin: 4px 0 0 !important;
+        font-size: 12px !important;
+
+        summary {
+          cursor: pointer !important;
+          color: inherit !important;
+          opacity: 0.8 !important;
+        }
+
+        pre {
+          max-height: 160px !important;
+          overflow: auto !important;
+          white-space: pre-wrap !important;
+          word-break: break-word !important;
+          font-size: 11px !important;
+          font-weight: 400 !important;
+          opacity: 0.9 !important;
+        }
+      }
+    }
+
     .bb-ref-chip {
       display: inline-flex !important;
       align-items: center !important;
@@ -383,14 +435,77 @@ zen-library-browsebot-section {
   max-width: none !important;
 }
 
+.bb-create-mod-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+
+  .bb-create-mod-modal {
+    width: 360px !important;
+    max-width: 90vw !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 18px !important;
+    border-radius: var(--zenux-radius-m) !important;
+    background: var(--zenux-bg) !important;
+    border: 1px solid var(--zenux-border) !important;
+    box-shadow: var(--zenux-shadow-l) !important;
+    color: var(--zenux-text) !important;
+
+    h3 {
+      margin: 0 !important;
+      font-size: 16px !important;
+    }
+
+    .bb-create-mod-hint {
+      margin: 0 !important;
+      font-size: 12px !important;
+      color: var(--zenux-muted) !important;
+    }
+
+    label {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 4px !important;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+    }
+
+    .bb-create-mod-error {
+      font-size: 12px !important;
+      color: var(--zenux-danger) !important;
+
+      &:empty {
+        display: none !important;
+      }
+    }
+
+    .bb-create-mod-actions {
+      display: flex !important;
+      justify-content: flex-end !important;
+      gap: 8px !important;
+
+      button {
+        margin: 0 !important;
+      }
+    }
+  }
+}
+
 .tool-confirmation-content {
   padding: 20px;
   text-align: center;
   position: relative;
-  width: 300px;
-  height: 100px;
+  width: 340px;
   min-width: 200px;
   max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
   border-radius: var(--zenux-radius-m) !important;
   outline: 1px solid rgba(0, 0, 0, 1) !important;
   border: 1px solid light-dark(rgba(20, 20, 20, 0.2), rgba(235, 235, 235, 0.3)) !important;
@@ -400,6 +515,20 @@ zen-library-browsebot-section {
   p {
     margin-bottom: 15px;
     font-size: 16px;
+  }
+
+  .tool-confirm-preview,
+  .tool-confirm-detail {
+    text-align: left !important;
+    margin: 0 0 12px !important;
+    font-size: 12px !important;
+  }
+
+  .tool-confirm-preview pre {
+    max-height: 180px !important;
+    overflow: auto !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
   }
 
   .buttons {

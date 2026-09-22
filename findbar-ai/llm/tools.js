@@ -9,6 +9,7 @@ import {
 } from "../../utils/search-service.js";
 import { openLink } from "../../utils/open-link.js";
 import { bestFuzzyScore } from "../../utils/fuzzy.js";
+import { buildTools } from "./build-tools.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │
@@ -884,6 +885,15 @@ const toolNameMapping = {
   moveTabsToWorkspace: "Moving tabs to a workspace",
   reorderWorkspace: "Reordering a workspace",
   showToast: "Showing a notification",
+  inspectChrome: "Inspecting browser UI",
+  applyPreviewCSS: "Previewing CSS",
+  runChromeJS: "Running browser script",
+  listMods: "Listing Sine mods",
+  readMod: "Reading mod files",
+  createMod: "Creating a Sine mod",
+  updateModFile: "Editing mod files",
+  getPreviewState: "Checking staged preview",
+  clearPreview: "Clearing preview",
 };
 
 const tabsInstructions = `If you open tab in glace it will create new small popup window to show the tab, vsplit and hsplit means it will open new tab in vertical and horizontal split with current tab respectively.`;
@@ -1259,6 +1269,19 @@ If tab is essential which means does not belong to any specific workspace.
 -   **User Prompt:** "let me know when the download is complete"
 -   **Your Tool Call (after a long-running task):** \`{"functionCall": {"name": "showToast", "args": {"title": "Download Complete", "description": "The file has been saved to your downloads folder."}}}\``,
   },
+  build: {
+    moreInstructions: `Build tools act on the BROWSER CHROME (Firefox UI), not web content. inspectChrome and applyPreviewCSS never need permission; runChromeJS, createMod, and updateModFile (non-BrowseBot authors) ask first. Console output from runChromeJS is returned as the tool result.`,
+    tools: buildTools,
+    example: async () => `#### Styling the browser UI:
+-   **User Prompt:** "make the browser UI look like cyberpunk"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "inspectChrome", "args": {}}}\`
+-   **Your Second Tool Call:** \`{"functionCall": {"name": "applyPreviewCSS", "args": {"css": ":root { --zen-primary-color: #00fff9 !important; }"}}}\`
+-   Then verify with \`inspectChrome\` and end with: "Do you want to turn this into a mod?"
+
+#### Creating a mod when asked:
+-   **User Prompt:** "turn this into a mod called Neon Tabs"
+-   **Your Tool Call:** \`{"functionCall": {"name": "createMod", "args": {"name": "Neon Tabs", "description": "Neon cyberpunk tab styling"}}}\``,
+  },
   misc: {
     example: async (activeGroups) => {
       let example = "";
@@ -1287,9 +1310,10 @@ If tab is essential which means does not belong to any specific workspace.
 const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
   const selectedTools = (() => {
     if (!groups || !Array.isArray(groups) || groups.length === 0) {
-      // get all tools from all groups except 'misc'
+      // get all tools from all groups except 'misc' and 'build'
+      // (build tools only run in build mode via getTools(["build"])).
       return Object.entries(toolGroups).reduce((acc, [name, group]) => {
-        if (name !== "misc" && group.tools) {
+        if (name !== "misc" && name !== "build" && group.tools) {
           return { ...acc, ...group.tools };
         }
         return acc;
@@ -1314,12 +1338,12 @@ const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
 
     const originalExecute = originalTool.execute;
     newTool.execute = async (args) => {
-      if (shouldToolBeCalled && !(await shouldToolBeCalled(toolName))) {
+      if (shouldToolBeCalled && !(await shouldToolBeCalled(toolName, args))) {
         PREFS.debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
         return { error: `Tool execution for '${toolName}' was denied by user.` };
       }
       const result = await originalExecute(args);
-      if (afterToolCall) afterToolCall(toolName, result);
+      if (afterToolCall) afterToolCall(toolName, result, args);
       return result;
     };
     wrappedTools[toolName] = newTool;

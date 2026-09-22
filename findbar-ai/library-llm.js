@@ -1,5 +1,7 @@
 import { LLM } from "./llm/index.js";
 import { getTools, getToolSystemPrompt, toolNameMapping } from "./llm/tools.js";
+import { BUILD_NO_CONFIRM, getBuildSystemPrompt } from "./llm/build-tools.js";
+import { getInstalledMods, isBrowseBotAuthor } from "./utils/sine-mods.js";
 import { messageManagerAPI } from "./messageManager.js";
 import PREFS from "./utils/prefs.js";
 
@@ -20,6 +22,10 @@ class BrowseBotLibraryLLM extends LLM {
     return this.mode === "agent";
   }
 
+  get isBuild() {
+    return this.mode === "build";
+  }
+
   async getSystemPrompt() {
     let systemPrompt = "";
 
@@ -31,12 +37,10 @@ class BrowseBotLibraryLLM extends LLM {
     systemPrompt += `You are a helpful AI assistant integrated into the Zen Browser Library (BrowseBot).
 Be concise, accurate, and helpful.`;
 
-    if (this.mode === "build") {
-      systemPrompt += `
-
-## Build Mode (preview):
-Build mode is not fully implemented yet. Answer conversationally like in chat mode.
-Do not claim you can edit files or write code into the browser.`;
+    if (this.isBuild) {
+      systemPrompt += "\n\n" + (await getBuildSystemPrompt());
+      systemPrompt += await getToolSystemPrompt(["build"]);
+      return systemPrompt;
     }
 
     if (this.isAgent) {
@@ -86,34 +90,80 @@ You have access to browser functions. The user knows you have these abilities.
     PREFS.debugLog(`libraryLLM (${this.mode}): Sending prompt: "${prompt}"`);
     this.attachTabRefs(refs);
 
-    if (!this.isAgent) {
+    if (!this.isAgent && !this.isBuild) {
       if (PREFS.streamEnabled) {
         return super.streamText({ prompt, abortSignal });
       }
       return super.generateText({ prompt, abortSignal });
     }
 
-    const shouldToolBeCalled = async (toolName) => {
-      if (onToolStatus) onToolStatus(toolName, "loading");
+    if (this.isBuild) {
+      return this.sendBuildMessage(prompt, { abortSignal, confirmTool, onToolStatus });
+    }
+
+    const shouldToolBeCalled = async (toolName, args) => {
+      if (onToolStatus) onToolStatus(toolName, "loading", null, args);
       if (PREFS.conformation) {
         const friendlyName = toolNameMapping[toolName] || toolName;
         const confirmed = confirmTool
-          ? await confirmTool([friendlyName])
+          ? await confirmTool([friendlyName], { toolName, args })
           : true;
         if (!confirmed) {
           PREFS.debugLog(`Tool execution for '${toolName}' cancelled by user.`);
-          if (onToolStatus) onToolStatus(toolName, "declined");
+          if (onToolStatus) onToolStatus(toolName, "declined", null, args);
           return false;
         }
       }
       return true;
     };
 
-    const afterToolCall = (toolName, result) => {
-      if (onToolStatus) onToolStatus(toolName, result?.error ? "error" : "success", result?.error);
+    const afterToolCall = (toolName, result, args) => {
+      if (onToolStatus) onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
     };
 
     const tools = getTools(null, { shouldToolBeCalled, afterToolCall });
+
+    const commonConfig = {
+      prompt,
+      tools,
+      maxSteps: PREFS.conformation ? Infinity : PREFS.maxToolCalls,
+      abortSignal,
+    };
+
+    if (PREFS.streamEnabled) {
+      return super.streamText(commonConfig);
+    }
+    return super.generateText(commonConfig);
+  }
+
+  async sendBuildMessage(prompt, { abortSignal, confirmTool, onToolStatus } = {}) {
+    const shouldToolBeCalled = async (toolName, args) => {
+      if (onToolStatus) onToolStatus(toolName, "loading", null, args);
+      if (BUILD_NO_CONFIRM.has(toolName)) return true;
+      if (toolName === "updateModFile" && args?.modId) {
+        try {
+          const mods = await getInstalledMods();
+          if (isBrowseBotAuthor(mods?.[args.modId]?.author)) return true;
+        } catch {}
+      }
+      if (!PREFS.conformation) return true;
+      const friendlyName = toolNameMapping[toolName] || toolName;
+      const confirmed = confirmTool
+        ? await confirmTool([friendlyName], { toolName, args })
+        : true;
+      if (!confirmed) {
+        PREFS.debugLog(`Build tool '${toolName}' declined by user.`);
+        if (onToolStatus) onToolStatus(toolName, "declined", null, args);
+        return false;
+      }
+      return true;
+    };
+
+    const afterToolCall = (toolName, result, args) => {
+      if (onToolStatus) onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
+    };
+
+    const tools = getTools(["build"], { shouldToolBeCalled, afterToolCall });
 
     const commonConfig = {
       prompt,
