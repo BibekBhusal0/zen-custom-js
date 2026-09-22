@@ -85,11 +85,11 @@ const prefs = [
     value: true,
   },
   {
-    name: "extension.browse-bot.findbar-ai.conform-before-tool-call",
+    name: "extension.browse-bot.library-ai.conform-before-tool-call",
     value: false,
   },
   {
-    name: "extension.browse-bot.findbar-ai.max-tool-calls",
+    name: "extension.browse-bot.library-ai.max-tool-calls",
     value: 50,
   },
   {

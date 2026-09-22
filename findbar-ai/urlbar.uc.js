@@ -49,7 +49,7 @@ Your goal is to ensure a seamless and user-friendly browsing experience.`;
     const result = await super.generateText({
       prompt,
       tools: urlBarToolSet,
-      maxSteps: PREFS.maxToolCalls,
+      maxSteps: PREFS.maxToolCalls > 0 ? PREFS.maxToolCalls : 5,
     });
 
     const provider = this.currentProvider;

@@ -13,9 +13,9 @@ class BrowseBotPREFS extends BasePREFS {
   static WIDTH = "extension.browse-bot.findbar-ai.width";
   static STREAM_ENABLED = "extension.browse-bot.findbar-ai.stream-enabled";
   static CITATIONS_ENABLED = "extension.browse-bot.findbar-ai.citations-enabled";
-  static MAX_TOOL_CALLS = "extension.browse-bot.findbar-ai.max-tool-calls";
+  static MAX_TOOL_CALLS = "extension.browse-bot.library-ai.max-tool-calls";
   static MAX_CONTEXT_CHARS = "extension.browse-bot.findbar-ai.max-context-chars";
-  static CONFORMATION = "extension.browse-bot.findbar-ai.conform-before-tool-call";
+  static CONFORMATION = "extension.browse-bot.library-ai.conform-before-tool-call";
   static CONTEXT_MENU_ENABLED = "extension.browse-bot.findbar-ai.context-menu-enabled";
   static CONTEXT_MENU_AUTOSEND = "extension.browse-bot.findbar-ai.context-menu-autosend";
   static CONTEXT_MENU_COMMAND_WITH_SELECTION =
@@ -119,7 +119,7 @@ class BrowseBotPREFS extends BasePREFS {
     [BrowseBotPREFS.POSITION]: "top-right",
     [BrowseBotPREFS.REMEMBER_DIMENSIONS]: true,
     [BrowseBotPREFS.WIDTH]: 500,
-    [BrowseBotPREFS.MAX_TOOL_CALLS]: 5,
+    [BrowseBotPREFS.MAX_TOOL_CALLS]: 0,
     [BrowseBotPREFS.MAX_CONTEXT_CHARS]: 0,
     [BrowseBotPREFS.CONFORMATION]: true,
     [BrowseBotPREFS.BACKGROUND_STYLE]: "solid",
@@ -457,6 +457,36 @@ class BrowseBotPREFS extends BasePREFS {
     if (mode === "agent") return this.libraryAgentSystemPrompt;
     if (mode === "build") return this.libraryBuildSystemPrompt;
     return this.libraryChatSystemPrompt;
+  }
+
+  static migratePref(newKey, oldKey, oldDefault) {
+    try {
+      if (Services.prefs.getPrefType(newKey) !== 0) return;
+      if (Services.prefs.getPrefType(oldKey) === 0) return;
+      const type = Services.prefs.getPrefType(oldKey);
+      let value = null;
+      if (type === Services.prefs.PREF_BOOL) value = Services.prefs.getBoolPref(oldKey);
+      else if (type === Services.prefs.PREF_INT) value = Services.prefs.getIntPref(oldKey);
+      else if (type === Services.prefs.PREF_STRING)
+        value = Services.prefs.getStringPref(oldKey);
+      else return;
+      if (value !== oldDefault) this.setPref(newKey, value);
+      Services.prefs.clearUserPref(oldKey);
+    } catch {}
+  }
+
+  static setInitialPrefs() {
+    this.migratePref(
+      this.MAX_TOOL_CALLS,
+      "extension.browse-bot.findbar-ai.max-tool-calls",
+      5
+    );
+    this.migratePref(
+      this.CONFORMATION,
+      "extension.browse-bot.findbar-ai.conform-before-tool-call",
+      true
+    );
+    super.setInitialPrefs();
   }
 }
 

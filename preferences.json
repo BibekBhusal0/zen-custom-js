@@ -1236,7 +1236,7 @@
     "description": "Custom system prompt for the Library AI build mode."
   },
   {
-    "property": "extension.browse-bot.findbar-ai.conform-before-tool-call",
+    "property": "extension.browse-bot.library-ai.conform-before-tool-call",
     "label": "Ask before tool call",
     "type": "checkbox",
     "defaultValue": true,
@@ -1244,7 +1244,7 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
+          "property": "extension.browse-bot.library-ai.enabled",
           "value": true
         }
       }
@@ -1288,12 +1288,16 @@
     ]
   },
   {
-    "property": "extension.browse-bot.findbar-ai.max-tool-calls",
+    "property": "extension.browse-bot.library-ai.max-tool-calls",
     "label": "Max Tool Calls",
     "type": "dropdown",
-    "defaultValue": 5,
-    "description": "The maximum number of consecutive tool calls the AI can make in one turn.",
+    "defaultValue": 0,
+    "description": "The maximum number of consecutive tool calls the AI can make in one turn. 0 means unlimited.",
     "options": [
+      {
+        "value": 0,
+        "label": "Unlimited"
+      },
       {
         "value": 1,
         "label": "1"
@@ -1322,7 +1326,7 @@
     "conditions": [
       {
         "if": {
-          "property": "extension.browse-bot.findbar-ai.enabled",
+          "property": "extension.browse-bot.library-ai.enabled",
           "value": true
         }
       }

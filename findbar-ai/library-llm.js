@@ -76,7 +76,7 @@ You have access to browser functions. The user knows you have these abilities.
 
   attachTabRefs(refs) {
     if (!refs || refs.length === 0) return;
-    const limit = PREFS.getPref(PREFS.MAX_CONTEXT_CHARS) || 0;
+    const limit = 0; // Library never truncates tab context.
     const blocks = refs.map(
       (ref) => `=== ${ref.title} (${ref.url}) ===\n${truncate(ref.text, limit)}`
     );
@@ -127,7 +127,7 @@ You have access to browser functions. The user knows you have these abilities.
     const commonConfig = {
       prompt,
       tools,
-      maxSteps: PREFS.conformation ? Infinity : PREFS.maxToolCalls,
+      maxSteps: PREFS.maxToolCalls > 0 ? PREFS.maxToolCalls : Infinity,
       abortSignal,
     };
 
@@ -168,7 +168,7 @@ You have access to browser functions. The user knows you have these abilities.
     const commonConfig = {
       prompt,
       tools,
-      maxSteps: PREFS.conformation ? Infinity : PREFS.maxToolCalls,
+      maxSteps: PREFS.maxToolCalls > 0 ? PREFS.maxToolCalls : Infinity,
       abortSignal,
     };
 
