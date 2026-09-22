@@ -3,6 +3,7 @@ import { browseBotFindbarLLM } from "./llm/index.js";
 import { timestampToSeconds } from "./llm/youtube.js";
 import { PREFS } from "./utils/prefs.js";
 import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
+import { icons } from "../utils/icon.js";
 import { parseMD } from "./utils/markdown.js";
 import {
   renderStreamText,
@@ -957,7 +958,7 @@ export const browseBotFindbar = {
 
   createLoadingIndicator() {
     const messageDiv = parseElement(
-      `<div class="chat-message chat-message-loading"><div class="message-content">Loading...</div></div>`
+      `<div class="chat-message chat-message-loading"><div class="message-content">${icons.toolLoading}Loading...</div></div>`
     );
     return messageDiv;
   },

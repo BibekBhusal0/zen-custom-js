@@ -644,15 +644,11 @@ browser {
           font-size: 13px;
           animation: pulse 1.6s var(--zenux-ease) infinite;
 
-          &::before {
-            content: "";
+          svg {
             width: 14px;
             height: 14px;
-            border-radius: 50%;
-            border: 2px solid var(--zenux-accent-border);
-            border-top-color: var(--zenux-accent-text);
-            animation: spin 0.8s linear infinite;
             flex-shrink: 0;
+            animation: spin 0.8s linear infinite;
           }
         }
       }

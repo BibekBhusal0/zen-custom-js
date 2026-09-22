@@ -159,15 +159,11 @@ zen-library-browsebot-section {
           font-size: 13px !important;
           animation: pulse 1.6s var(--zenux-ease) infinite !important;
 
-          &::before {
-            content: "" !important;
+          svg {
             width: 14px !important;
             height: 14px !important;
-            border-radius: 50% !important;
-            border: 2px solid var(--zenux-accent-border) !important;
-            border-top-color: var(--zenux-accent-text) !important;
-            animation: spin 0.8s linear infinite !important;
             flex-shrink: 0 !important;
+            animation: spin 0.8s linear infinite !important;
           }
         }
       }

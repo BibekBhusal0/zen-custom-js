@@ -466,7 +466,7 @@ function mountPanel(host) {
 
   function createLoadingIndicator() {
     return parseElement(
-      `<div class="chat-message chat-message-loading"><div class="message-content">Loading...</div></div>`
+      `<div class="chat-message chat-message-loading"><div class="message-content">${icons.toolLoading}Loading...</div></div>`
     );
   }
 
