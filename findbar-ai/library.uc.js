@@ -807,7 +807,6 @@ function mountPanel(host) {
 
   renderHistory();
   refreshBuildBar();
-  scrollDown();
   setLibraryWidth(host);
   startWidthGuard();
   try {
@@ -815,11 +814,17 @@ function mountPanel(host) {
     if (libHost) ensureTabPatched(libHost);
   } catch {}
   host.appendChild(ui);
-  setTimeout(() => {
+  const settle = () => {
+    scrollDown();
     try {
-      if (host.isConnected) input.focus();
+      if (host.isConnected && !ui.contains(document.activeElement)) input.focus();
     } catch {}
-  }, 50);
+  };
+  requestAnimationFrame(() => {
+    settle();
+    setTimeout(settle, 150);
+    setTimeout(settle, 400);
+  });
 }
 
 class BrowseBotLibrarySectionElement extends HTMLElement {
