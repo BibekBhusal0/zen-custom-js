@@ -64,6 +64,10 @@ All scripts are also available through [Sine](https://github.com/CosmoCreeper/Si
 
 If you want to install everything(all mods in this reop + some extra scripts) you can paste the repo link:
 
+> [!WARNING]
+> Don't install this directly if you don't understand JavaScript, I would recommend installing it from child repos published in Vertex Mods (most of them available in sine market place as well), to install individual mods.
+> Installing from here will include all the mods, and some of them might still be in development, so bugs and incomplete features are expected.
+
 ```md
 https://github.com/BibekBhusal0/zen-custom-js
 ```
