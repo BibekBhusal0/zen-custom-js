@@ -203,7 +203,7 @@ export async function readModFiles(modId, files = ["theme.json"]) {
   return out;
 }
 
-function themeTemplate({ id, name, description, author }) {
+function themeTemplate({ id, name, description, author, hasJS }) {
   const today = new Date().toISOString().slice(0, 10);
   return {
     id,
@@ -211,7 +211,7 @@ function themeTemplate({ id, name, description, author }) {
     description: description || `${name} — created with BrowseBot.`,
     homepage: BROWSEBOT_REPO_URL,
     style: { chrome: "style.css" },
-    scripts: { [`${id}.uc.js`]: { include: ["chrome://browser/content/browser.xhtml"] } },
+    ...(hasJS ? { scripts: { [`${id}.uc.js`]: { include: ["chrome://browser/content/browser.xhtml"] } } } : {}),
     author,
     version: "1.0.0",
     tags: ["browsebot"],
@@ -221,12 +221,15 @@ function themeTemplate({ id, name, description, author }) {
   };
 }
 
-function indexTemplate(name) {
-  return `// ${name} — created with BrowseBot (${BROWSEBOT_REPO_URL})\n// Entry point runs in browser chrome (userChrome) context.\n// Globals available: document, window, gBrowser, SineAPI, Services, IOUtils.\n\n(function () {\n  "use strict";\n  // Add your browser-chrome JS here.\n})();\n`;
-}
-
-function readmeTemplate({ name, description, author }) {
-  return `# ${name}\n\n${description || "A Zen Browser mod created with BrowseBot."}\n\n> Made with [BrowseBot](${BROWSEBOT_REPO_URL}) (${author}).\n\n## Files\n\n- \`theme.json\` — mod metadata (id, version, author)\n- \`<id>.uc.js\` — browser-chrome JavaScript (filename must match the \`scripts\` key in theme.json)\n- \`style.css\` — browser-chrome CSS\n\n## Development\n\nEdit the files, then rebuild/reload Sine mods to apply changes.\n`;
+function readmeTemplate({ name, description, author, hasJS, scriptFile }) {
+  const files = [
+    "- `theme.json` — mod metadata (id, version, author)",
+    ...(hasJS
+      ? [`- \`${scriptFile}\` — browser-chrome JavaScript (filename must match the \`scripts\` key in theme.json)`]
+      : []),
+    "- `style.css` — browser-chrome CSS",
+  ].join("\n");
+  return `# ${name}\n\n${description || "A Zen Browser mod created with BrowseBot."}\n\n> Made with [BrowseBot](${BROWSEBOT_REPO_URL}) (${author}).\n\n## Files\n\n${files}\n\n## Development\n\nEdit the files, then rebuild/reload Sine mods to apply changes.\n`;
 }
 
 async function writeJSON(path, obj) {
@@ -317,14 +320,15 @@ export async function createSineMod({ name, description, css = "", js = "", id, 
   }
   PREFS.debugLog(`Build: ensuring dir ${dir}.`);
   await ensureDir(dir);
-  const theme = themeTemplate({ id: modId, name: modName, description, author });
-  const scriptFile = Object.keys(theme.scripts)[0];
+  const hasJS = !!String(js || "").trim();
+  const theme = themeTemplate({ id: modId, name: modName, description, author, hasJS });
+  const scriptFile = hasJS ? Object.keys(theme.scripts)[0] : null;
   const styleFile = theme.style?.chrome || "style.css";
   const payload = {
     "theme.json": JSON.stringify(theme, null, 2) + "\n",
     [styleFile]: String(css || `/* ${modName} */\n`) + "\n",
-    [scriptFile]: String(js || indexTemplate(modName)) + "\n",
-    "README.md": readmeTemplate({ name: modName, description, author }) + "\n",
+    ...(hasJS ? { [scriptFile]: String(js) + "\n" } : {}),
+    "README.md": readmeTemplate({ name: modName, description, author, hasJS, scriptFile }) + "\n",
   };
   for (const [file, text] of Object.entries(payload)) {
     PREFS.debugLog(`Build: writing ${dir}/${file} (${text.length} chars).`);

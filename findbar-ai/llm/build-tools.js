@@ -294,7 +294,7 @@ export const buildTools = {
       description: str("One-line description of what the mod does.", true),
       css: str("CSS for style.css. Omit to reuse the staged preview CSS.", true),
       js: str(
-        "JS for the mod's .uc.js script. Omit to reuse staged JS (or a minimal template).",
+        "JS for the mod's .uc.js script. Omit to reuse staged JS, or for a CSS-only mod.",
         true
       ),
       id: str("Custom mod id slug. Omit to auto-generate from the name.", true),
@@ -347,7 +347,7 @@ You have live tools: inspect elements, preview CSS instantly, run privileged JS,
 5. MOD EDITS: \`listMods\` → \`readMod\` (theme.json first). If the mod has AGENTS.md it is auto-included — follow it. BrowseBot-authored mods edit freely; other authors' mods pop a permission dialog first.
 
 ### Mod conventions (Sine)
-- New mods get: theme.json (id slug, name, description, author BrowseBot/<model>, version 1.0.0), <id>.uc.js (browser-chrome JS, filename must match the scripts key), style.css (browser-chrome CSS), README.md starting with the mod name and a "> Made with [BrowseBot](${BROWSEBOT_REPO_URL})" credit line. Sine rebuilds automatically; a restart may still be needed for scripts.
+- New mods get: theme.json (id slug, name, description, author BrowseBot/<model>, version 1.0.0), style.css (browser-chrome CSS), plus <id>.uc.js only when there is JS to save (CSS-only mods ship no script at all), README.md starting with the mod name and a "> Made with [BrowseBot](${BROWSEBOT_REPO_URL})" credit line. Sine rebuilds automatically; a restart may still be needed for scripts.
 - When editing: write full file content via \`updateModFile\` (or mode append for small additions). Never touch files outside the mod dir. Keep diffs minimal.
 - Installed mods (subset): ${modIds || "(could not list mods)"}
 
