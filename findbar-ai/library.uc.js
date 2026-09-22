@@ -807,6 +807,7 @@ function mountPanel(host) {
 
   renderHistory();
   refreshBuildBar();
+  scrollDown();
   setLibraryWidth(host);
   startWidthGuard();
   try {
