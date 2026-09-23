@@ -238,8 +238,8 @@ async function createMod(args) {
       id,
       author: buildAuthor(),
     });
-    if (css === undefined || css === null) clearPreviewCSS();
-    if (js === undefined || js === null) clearStagedJS();
+    clearPreviewCSS();
+    clearStagedJS();
     return {
       result:
         `Created mod "${created.name}" (id: ${created.id}) with ${created.files.length} files verified on disk at ${created.dir} and registered in Sine's mods.json. Staged preview was cleared. Tell the user to reopen Settings → Sine Mods to see it; restart only if the script doesn't take effect.` +
