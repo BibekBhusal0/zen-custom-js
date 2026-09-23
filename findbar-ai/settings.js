@@ -379,7 +379,7 @@ export const SettingsModal = {
         {
           chat: "Chat (no tools, no page context)",
           agent: "Agent (full browser tool-belt)",
-          build: "Build (live browser styling + Sine mods)",
+          build: "Build (Create mods)",
         },
         { id: "pref-library-mode" }
       ),
