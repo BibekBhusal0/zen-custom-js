@@ -176,7 +176,7 @@ export async function readModFiles(modId, files = ["theme.json"]) {
         continue;
       }
       const text = await readText(path);
-      out.files[file] = text.length > 12000 ? text.slice(0, 12000) + "\n\n[Truncated.]" : text;
+      out.files[file] = text;
     } catch (e) {
       out.files[file] = `[Read error: ${e?.message || e}]`;
     }
@@ -194,7 +194,7 @@ export async function readModFiles(modId, files = ["theme.json"]) {
         try {
           if (!(await IOUtils.exists(`${dir}/${file}`))) continue;
           const text = await readText(`${dir}/${file}`);
-          out.files[file] = text.length > 12000 ? text.slice(0, 12000) + "\n\n[Truncated.]" : text;
+          out.files[file] = text;
         } catch {}
       }
     }
@@ -206,7 +206,7 @@ export async function readModFiles(modId, files = ["theme.json"]) {
         const docPath = `${dir}/${doc}`;
         if (await IOUtils.exists(docPath)) {
           const text = await readText(docPath);
-          out.files[doc] = text.length > 8000 ? text.slice(0, 8000) + "\n\n[Truncated.]" : text;
+          out.files[doc] = text;
           break;
         }
       } catch {}
