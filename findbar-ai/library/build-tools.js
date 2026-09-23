@@ -434,7 +434,7 @@ You have live tools: inspect elements, preview CSS instantly, run privileged JS,
   \`\`\`
   CSS use: checkbox/dropdown via -moz-pref, string via var() with dots changed to hyphens:
   @media (-moz-pref("mod.mymod.round-tabs")) { .tabbrowser-tab { border-radius: 12px !important; } }
-  @media (-moz-pref("mod.mymod.accent", "green")) { :root { --zen-primary-color: green !important; } }
+  @media (-moz-pref("mod.mymod.accent", "green")) { .my-btn { background: green !important; } }
   .tabbrowser-tab { padding: var(--mod-mymod-tab-padding); }
   JS use: same property name via Services.prefs, observe for live updates:
   const round = Services.prefs.getBoolPref("mod.mymod.round-tabs", true);
@@ -443,6 +443,7 @@ You have live tools: inspect elements, preview CSS instantly, run privileged JS,
 - style.chrome vs style.content: theme.json "style": {"chrome": "style.css"} targets browser UI; adding "content": "content.css" targets page content (sites and internal pages). Content CSS never sees XUL/chrome elements and chrome CSS never applies inside pages. A mod can ship both files. Example content.css for a site plus an internal page:
   @-moz-document domain("github.com") { body { font-size: 15px !important; } }
   @-moz-document url("about:newtab") { body { background: #111 !important; } }
+- Browser colors by default: match the user's theme with variables instead of hardcoded colors, unless the user names specific colors. You can read what is available with \`inspectChrome\` (computed block) or getComputedStyle in \`runChromeJS\`. Useful natives: var(--zen-primary-color) and var(--lwt-accent-color) for accents, var(--toolbar-bgcolor) and var(--toolbar-color) for toolbars, var(--lwt-text-color) for text, var(--toolbarbutton-icon-fill) for icons.
 - When editing: write full file content via \`updateModFile\` (or mode append for small additions). Never touch files outside the mod dir. Keep diffs minimal.
 - Installed mods (subset): ${modIds || "(could not list mods)"}
 
