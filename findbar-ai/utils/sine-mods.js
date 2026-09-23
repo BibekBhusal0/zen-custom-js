@@ -146,12 +146,21 @@ export async function resolveModDir(modId) {
   return direct;
 }
 
+const AGENT_DOCS = [
+  "AGENTS.override.md",
+  "AGENTS.md",
+  "AGENT.md",
+  "CLAUDE.md",
+  "GEMINI.md",
+  "CODEX.md",
+];
+
 const READABLE_FILES = [
   "theme.json",
   "index.js",
   "style.css",
   "README.md",
-  "AGENTS.md",
+  ...AGENT_DOCS,
   "preferences.json",
 ];
 
@@ -190,15 +199,18 @@ export async function readModFiles(modId, files = ["theme.json"]) {
       }
     }
   } catch {}
-  if (out.files["theme.json"] && !("AGENTS.md" in out.files)) {
-    try {
-      const agentsPath = `${dir}/AGENTS.md`;
-      if (await IOUtils.exists(agentsPath)) {
-        const text = await readText(agentsPath);
-        out.files["AGENTS.md"] =
-          text.length > 8000 ? text.slice(0, 8000) + "\n\n[Truncated.]" : text;
-      }
-    } catch {}
+  if (out.files["theme.json"]) {
+    for (const doc of AGENT_DOCS) {
+      if (doc in out.files) continue;
+      try {
+        const docPath = `${dir}/${doc}`;
+        if (await IOUtils.exists(docPath)) {
+          const text = await readText(docPath);
+          out.files[doc] = text.length > 8000 ? text.slice(0, 8000) + "\n\n[Truncated.]" : text;
+          break;
+        }
+      } catch {}
+    }
   }
   return out;
 }
