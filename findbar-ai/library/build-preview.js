@@ -1,9 +1,32 @@
 import { PREFS } from "../utils/prefs.js";
 
 const STYLE_ID = "browsebot-build-preview";
-const JS_ID = "browsebot-build-script";
 
 let stagedJS = "";
+
+const cleanups = [];
+
+export function addCleanup(fn) {
+  if (typeof fn === "function") cleanups.push(fn);
+}
+
+export function revertStagedJS() {
+  let ran = 0;
+  for (const fn of cleanups.splice(0)) {
+    try {
+      fn();
+      ran++;
+    } catch {}
+  }
+  let nodes = 0;
+  try {
+    const tagged = document.querySelectorAll("[data-browsebot-js]");
+    nodes = tagged.length;
+    for (const el of tagged) el.remove();
+  } catch {}
+  stagedJS = "";
+  return { cleanups: ran, nodes };
+}
 
 function ensureStyleEl() {
   let el = document.getElementById(STYLE_ID);
@@ -48,9 +71,6 @@ export function getStagedJS() {
 
 export function clearStagedJS() {
   stagedJS = "";
-  try {
-    document.getElementById(JS_ID)?.remove();
-  } catch {}
 }
 
 export function getPreviewState() {
