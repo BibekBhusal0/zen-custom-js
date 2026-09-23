@@ -8,6 +8,8 @@ import {
   getPreviewState,
   getStagedJS,
   setStagedJS,
+  addCleanup,
+  revertStagedJS,
 } from "./build-preview.js";
 import {
   browseBotAuthor,
@@ -87,6 +89,7 @@ async function runChromeJS(args) {
       error: capture("error"),
       debug: capture("debug"),
     };
+    sandbox.__browsebotCleanup = (fn) => addCleanup(fn);
     let result = Cu.evalInSandbox(`;(async () => {\n${String(code)}\n})()`, sandbox);
     if (result && typeof result.then === "function") result = await result;
     setStagedJS(String(code));
@@ -98,12 +101,36 @@ async function runChromeJS(args) {
 }
 
 async function applyPreviewCSSExec(args) {
-  const { css } = args;
+  const { css, verifySelector } = args;
   if (!css || !String(css).trim()) return { error: "applyPreviewCSS requires css." };
   const { appliedChars } = applyPreviewCSS(String(css));
-  return {
+  const out = {
     result: `Preview CSS applied (${appliedChars} chars). Ask the user to look at the browser chrome, then iterate or offer to save it as a mod.`,
   };
+  if (verifySelector && String(verifySelector).trim()) {
+    try {
+      const el = document.querySelector(String(verifySelector));
+      if (!el) {
+        out.verify = {
+          selector: verifySelector,
+          matched: false,
+          hint: "No element matches. Try '#navigator-toolbox', '#tabbrowser-tabs', or '.toolbarbutton-1'.",
+        };
+      } else {
+        let computed = {};
+        try {
+          const cs = getComputedStyle(el);
+          for (const prop of ["display", "color", "background-color", "border-radius", "opacity"]) {
+            computed[prop] = cs.getPropertyValue(prop);
+          }
+        } catch {}
+        out.verify = { selector: verifySelector, matched: true, computed };
+      }
+    } catch (e) {
+      out.verify = { selector: verifySelector, matched: false, hint: `${e?.message || e}` };
+    }
+  }
+  return out;
 }
 
 async function inspectChrome(args) {
@@ -211,8 +238,10 @@ async function createMod(args) {
       id,
       author: buildAuthor(),
     });
+    if (css === undefined || css === null) clearPreviewCSS();
+    if (js === undefined || js === null) clearStagedJS();
     return {
-      result: `Created mod "${created.name}" (id: ${created.id}) with ${created.files.length} files verified on disk at ${created.dir} and registered in Sine's mods.json. Tell the user to reopen Settings → Sine Mods to see it; the live preview is still applied meanwhile, restart only if the script doesn't take effect.`,
+      result: `Created mod "${created.name}" (id: ${created.id}) with ${created.files.length} files verified on disk at ${created.dir} and registered in Sine's mods.json. Staged preview was cleared. Tell the user to reopen Settings → Sine Mods to see it; restart only if the script doesn't take effect.`,
       modId: created.id,
       dir: created.dir,
       files: created.files,
@@ -241,8 +270,15 @@ async function getPreviewStateTool() {
 
 async function clearPreview() {
   clearPreviewCSS();
-  clearStagedJS();
-  return { result: "Cleared staged preview CSS and JS." };
+  const hadJS = getStagedJS().length > 0;
+  const reverted = revertStagedJS();
+  return {
+    result:
+      "Cleared staged preview CSS from the browser chrome." +
+      (hadJS
+        ? ` Reverted staged JS (ran ${reverted.cleanups} cleanup(s), removed ${reverted.nodes} tagged node(s)). Mutations without a registered cleanup cannot be undone; restart the browser if effects persist.`
+        : " No staged JS was stored."),
+  };
 }
 
 export const buildTools = {
@@ -257,15 +293,21 @@ export const buildTools = {
     inspectChrome
   ),
   applyPreviewCSS: createTool(
-    "Applies CSS to the browser chrome as a live preview (no restart, reversible). Use for all styling iterations. No permission needed.",
-    { css: str("Full CSS text to preview in browser chrome.") },
+    "Applies CSS to the browser chrome as a live preview (no restart, reversible). Use for all styling iterations. No permission needed. Pass verifySelector to confirm the match and get computed styles back in the same call.",
+    {
+      css: str("Full CSS text to preview in browser chrome."),
+      verifySelector: str(
+        "Optional chrome selector to verify in the same call, e.g. '#navigator-toolbox'. Returns whether it matched plus a few computed styles.",
+        true
+      ),
+    },
     applyPreviewCSSExec
   ),
   runChromeJS: createTool(
-    "Executes JavaScript in browser-chrome context with chrome privileges. Console output is captured and returned. Requires user permission every time.",
+    "Executes JavaScript in browser-chrome context with chrome privileges. Console output is captured and returned. Requires user permission every time. Every snippet MUST be revertable: tag created nodes with data-browsebot-js and register teardown with __browsebotCleanup(fn) for listeners, observers, timers, and DOM mutations.",
     {
       code: str(
-        "JavaScript to execute. Can use document, window, gBrowser, SineAPI. Async allowed. Keep it short."
+        "JavaScript to execute. Can use document, window, gBrowser, SineAPI. Async allowed. Keep it short. Tag created elements with data-browsebot-js and call __browsebotCleanup(() => {...}) to undo listeners and mutations."
       ),
     },
     runChromeJS
@@ -276,11 +318,11 @@ export const buildTools = {
     listMods
   ),
   readMod: createTool(
-    "Reads files from an installed Sine mod. Always read theme.json first; AGENTS.md is auto-included when present and MUST be followed.",
+    "Reads files from an installed Sine mod. Always read theme.json first; the agent docs file is auto-included when present and MUST be followed.",
     {
       modId: str("The mod id from listMods."),
       files: strArr(
-        "Files to read: theme.json, style.css, README.md, AGENTS.md, preferences.json, the mod's .uc.js script, or 'all'. The real script/style filenames from theme.json are auto-included.",
+        "Files to read: theme.json, style.css, README.md, agent docs (AGENTS.md, CLAUDE.md), preferences.json, the mod's .uc.js script, or 'all'. The real script/style filenames from theme.json are auto-included.",
         true
       ),
     },
@@ -308,7 +350,7 @@ export const buildTools = {
     {
       modId: str("The mod id."),
       file: str(
-        "File to write: the mod's .uc.js script, style.css, theme.json, README.md, AGENTS.md, preferences.json."
+        "File to write: the mod's .uc.js script, style.css, theme.json, README.md, agent docs, preferences.json."
       ),
       content: str("Full new content of the file (or content to append)."),
       mode: str("`replace` (default) or `append`.", true),
@@ -321,7 +363,7 @@ export const buildTools = {
     getPreviewStateTool
   ),
   clearPreview: createTool(
-    "Removes the staged preview CSS and JS from the browser.",
+    "Removes the staged preview CSS and reverts staged JS (runs registered cleanups, removes tagged nodes). Untracked JS mutations cannot be undone.",
     {},
     clearPreview
   ),
