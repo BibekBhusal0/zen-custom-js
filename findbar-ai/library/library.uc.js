@@ -24,16 +24,31 @@ import {
 } from "./build-preview.js";
 import { buildAuthor } from "./build-tools.js";
 import { createSineMod, isUnsafeJSAllowed, setUnsafeJSAllowed } from "../utils/sine-mods.js";
+import { loadSessions, newSession, sessionTitle, upsertSession } from "./sessions.js";
 import { highlightCode } from "../../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = [
-  { mode: "chat", title: "/chat", description: "Ask, no tools or page context" },
-  { mode: "agent", title: "/agent", description: "Full browser tool-belt" },
-  { mode: "build", title: "/build", description: "Style the browser, build Sine mods" },
-  { command: "clear", title: "/clear", description: "Stop the run and start a new chat" },
-  { command: "close", title: "/close", description: "Close the library, run continues" },
+  { mode: "chat", title: "/chat", description: "Ask, no tools or page context", keywords: ["talk", "ask", "question"] },
+  { mode: "agent", title: "/agent", description: "Full browser tool-belt", keywords: ["tabs", "search", "browser", "bookmarks", "workspace"] },
+  { mode: "build", title: "/build", description: "Style the browser, build Sine mods", keywords: ["mod", "css", "style", "theme", "script", "mods"] },
+  { command: "clear", title: "/clear", description: "Stop the run and start a new chat", keywords: ["new", "fresh", "reset", "restart", "start over", "delete"] },
+  { command: "close", title: "/close", description: "Close the library, run continues", keywords: ["exit", "hide", "dismiss"] },
+  { command: "continue", openSessions: true, title: "/continue", description: "Resume a saved chat", keywords: ["resume", "restore", "history", "previous", "chats", "sessions", "reopen", "old"] },
 ];
+
+// Session identity must outlive panel remounts like the history does,
+// or a remount saves the same conversation twice under a new id.
+let activeSession = null;
+let activeSavedLength = 0;
+
+function getActiveSession() {
+  if (!activeSession) {
+    activeSession = newSession(PREFS.libraryMode);
+    activeSavedLength = 0;
+  }
+  return activeSession;
+}
 
 function listTabs() {
   try {
@@ -165,6 +180,7 @@ function mountPanel(host) {
     popupToken: null,
     destroyed: false,
   };
+  let fullSessionList = [];
   host._bbCleanup = () => {
     state.destroyed = true;
     stopWidthGuard();
@@ -199,6 +215,96 @@ function mountPanel(host) {
       if (jsChars > 0) parts.push(`${jsChars} chars JS`);
       buildStatus.textContent = parts.length ? `Staged: ${parts.join(" + ")}` : "";
     }
+  }
+
+  function persistSession() {
+    const messages = browseBotLibraryLLM.getHistory();
+    if (messages.length === 0 || messages.length === activeSavedLength) return;
+    const session = getActiveSession();
+    session.messages = messages;
+    if (!session.title) session.title = sessionTitle(messages);
+    session.mode = PREFS.libraryMode;
+    activeSavedLength = messages.length;
+    upsertSession(session).catch((e) =>
+      PREFS.debugError("Failed to save chat session:", e)
+    );
+  }
+
+  function abortRun() {
+    state.toolConfirmationDialog?.querySelector(".cancel-tool")?.click();
+    state.abortController?.abort();
+    libraryRunController?.abort();
+  }
+
+  function loadSession(s) {
+    abortRun();
+    activeSession = { ...s, messages: s.messages.map((m) => ({ ...m })) };
+    browseBotLibraryLLM.setHistory(activeSession.messages);
+    activeSavedLength = activeSession.messages.length;
+    setMode(s.mode, { fork: false });
+    renderHistory();
+    refreshBuildBar();
+    scrollDown();
+  }
+
+  function timeAgo(ts) {
+    const s = Math.max(1, Math.floor((Date.now() - ts) / 1000));
+    if (s < 60) return "just now";
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    const d = Math.floor(h / 24);
+    return d < 30 ? `${d}d ago` : new Date(ts).toLocaleDateString();
+  }
+
+  function openSessionsPopup() {
+    loadSessions()
+      .then((sessions) => {
+        if (state.destroyed) return;
+        if (sessions.length === 0) {
+          hidePopup();
+          showToast({
+            title: "No saved chats",
+            description: "Send a message first, then /continue to resume it.",
+          });
+          return;
+        }
+        fullSessionList = sessions;
+        state.popupKind = "sessions";
+        paintSessionRows(sessionQuery());
+      })
+      .catch((e) => PREFS.debugError("Failed to list chat sessions:", e));
+  }
+
+  function sessionQuery() {
+    const m = input.value.match(/^\/continue\s*([\s\S]*)$/i);
+    return m ? m[1].trim() : "";
+  }
+
+  function paintSessionRows(query) {
+    const sessions = fuzzyFilterSort(fullSessionList, query, (s) => [s.title || ""]);
+    state.popupItems = sessions;
+    state.popupIndex = 0;
+    popup.innerHTML = "";
+    if (sessions.length === 0) {
+      popup.hidden = true;
+      return;
+    }
+    sessions.forEach((s, i) => {
+      const el = parseElement(
+        `<div class="bb-popup-item${i === 0 ? " is-active" : ""}" data-index="${i}">
+          <span class="bb-popup-title">${escapeXmlAttribute(s.title || "Untitled chat")}</span>
+          <span class="bb-popup-desc">${escapeXmlAttribute(`${MODE_LABELS[s.mode] || s.mode} - ${timeAgo(s.updatedAt)}`)}</span>
+        </div>`
+      );
+      el.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        applyPopupItem(i);
+      });
+      popup.appendChild(el);
+    });
+    popup.hidden = false;
   }
 
   function openCreateModModal() {
@@ -485,8 +591,18 @@ function mountPanel(host) {
     }
   }
 
-  function setMode(mode) {
+  function setMode(mode, { fork = true } = {}) {
     if (!MODES.includes(mode)) return;
+    if (fork && browseBotLibraryLLM.getHistory().length > 0 && getActiveSession().mode !== mode) {
+      abortRun();
+      persistSession();
+      activeSession = newSession(mode);
+      activeSavedLength = 0;
+      browseBotLibraryLLM.clearData();
+      renderHistory();
+    } else {
+      getActiveSession().mode = mode;
+    }
     PREFS.libraryMode = mode;
     modeButtons.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.mode === mode));
     hidePopup();
@@ -496,10 +612,10 @@ function mountPanel(host) {
   modeButtons.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
 
   function clearChat() {
-    state.toolConfirmationDialog?.querySelector(".cancel-tool")?.click();
-    state.abortController?.abort();
-    libraryRunController?.abort();
+    abortRun();
     browseBotLibraryLLM.clearData();
+    activeSession = newSession(PREFS.libraryMode);
+    activeSavedLength = 0;
     state.pendingRefs = [];
     renderChips();
     renderHistory();
@@ -544,6 +660,13 @@ function mountPanel(host) {
   }
 
   function refreshPopup() {
+    if (state.popupKind === "sessions") {
+      if (/^\/continue/i.test(input.value)) {
+        paintSessionRows(sessionQuery());
+        return;
+      }
+      state.popupKind = null;
+    }
     const token = tokenBeforeCaret();
     if (!token) {
       hidePopup();
@@ -551,7 +674,11 @@ function mountPanel(host) {
     }
     let items;
     if (token.kind === "slash") {
-      items = SLASH_ITEMS.filter((item) => (item.mode || item.command).startsWith(token.filter));
+      items = fuzzyFilterSort(SLASH_ITEMS, token.filter, (item) => [
+        item.title,
+        item.description,
+        ...(item.keywords || []),
+      ]);
     } else {
       items = fuzzyFilterSort(listTabs(), token.filter, (t) => [t.title, t.url]).slice(0, 8);
     }
@@ -594,6 +721,14 @@ function mountPanel(host) {
   }
 
   function applyPopupItem(index = state.popupIndex) {
+    if (state.popupKind === "sessions") {
+      const picked = state.popupItems[index];
+      input.value = "";
+      hidePopup();
+      if (picked) loadSession(picked);
+      input.focus();
+      return true;
+    }
     const token = state.popupToken || tokenBeforeCaret();
     const item = state.popupItems[index];
     if (!token || !item) return false;
@@ -609,6 +744,13 @@ function mountPanel(host) {
         input.value = "";
         hidePopup();
         closeLibrary();
+      } else if (item.openSessions) {
+        input.value = "/continue ";
+        try {
+          input.setSelectionRange(input.value.length, input.value.length);
+        } catch {}
+        openSessionsPopup();
+        return true;
       } else {
         setMode(item.mode);
         input.value = "";
@@ -715,6 +857,13 @@ function mountPanel(host) {
       } else {
         closeLibrary();
       }
+      return;
+    }
+
+    if (/^\/continue\s*$/i.test(text)) {
+      input.value = "";
+      hidePopup();
+      openSessionsPopup();
       return;
     }
 
@@ -935,6 +1084,7 @@ function mountPanel(host) {
       }
       state.abortController = null;
       clearToolEntries();
+      persistSession();
       refreshBuildBar();
       scrollDown();
     }

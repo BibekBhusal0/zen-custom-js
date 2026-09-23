@@ -159,6 +159,17 @@ class LLM {
     return [...this.history];
   }
 
+  setHistory(messages) {
+    if (!Array.isArray(messages)) return;
+    this.history = messages.filter(
+      (m) =>
+        m &&
+        (m.role === "user" || m.role === "assistant") &&
+        m.content !== undefined &&
+        m.content !== null
+    );
+  }
+
   clearData() {
     PREFS.debugLog("Clearing LLM history and system prompt.");
     this.history = [];
