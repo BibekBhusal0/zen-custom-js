@@ -30,11 +30,7 @@ const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = [
   { mode: "chat", title: "/chat", description: "Ask, no tools or page context" },
   { mode: "agent", title: "/agent", description: "Full browser tool-belt" },
-  {
-    mode: "build",
-    title: "/build",
-    description: "Style the browser, preview live, ship Sine mods",
-  },
+  { mode: "build", title: "/build", description: "Style the browser, build Sine mods" },
   { command: "clear", title: "/clear", description: "Stop the run and start a new chat" },
   { command: "close", title: "/close", description: "Close the library, run continues" },
 ];
