@@ -1,6 +1,6 @@
 import { urlbarAI } from "./urlbar.uc.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
-import { browseBotLibrary, initBrowseBotLibrary } from "./library.uc.js";
+import { browseBotLibrary, initBrowseBotLibrary } from "./library/library.uc.js";
 import { PREFS } from "./utils/prefs.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { SettingsModal } from "./settings.js";

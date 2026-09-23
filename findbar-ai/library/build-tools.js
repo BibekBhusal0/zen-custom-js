@@ -1,4 +1,4 @@
-import { str, strArr, obj, paramNames } from "./schema.js";
+import { str, strArr, obj, paramNames } from "../llm/schema.js";
 import { PREFS } from "../utils/prefs.js";
 import {
   applyPreviewCSS,
@@ -8,7 +8,7 @@ import {
   getPreviewState,
   getStagedJS,
   setStagedJS,
-} from "../utils/build-preview.js";
+} from "./build-preview.js";
 import {
   browseBotAuthor,
   BROWSEBOT_REPO_URL,

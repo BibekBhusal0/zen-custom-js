@@ -9,7 +9,7 @@ import {
 } from "../../utils/search-service.js";
 import { openLink } from "../../utils/open-link.js";
 import { bestFuzzyScore } from "../../utils/fuzzy.js";
-import { buildTools } from "./build-tools.js";
+import { buildTools } from "../library/build-tools.js";
 
 // ╭─────────────────────────────────────────────────────────╮
 // │                 TAB ID MANAGEMENT                       │

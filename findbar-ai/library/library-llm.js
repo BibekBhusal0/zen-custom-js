@@ -1,9 +1,9 @@
-import { LLM } from "./llm/index.js";
-import { getTools, getToolSystemPrompt, toolNameMapping } from "./llm/tools.js";
-import { BUILD_NO_CONFIRM, getBuildSystemPrompt } from "./llm/build-tools.js";
-import { getInstalledMods, isBrowseBotAuthor } from "./utils/sine-mods.js";
-import { messageManagerAPI } from "./messageManager.js";
-import PREFS from "./utils/prefs.js";
+import { LLM } from "../llm/index.js";
+import { getTools, getToolSystemPrompt, toolNameMapping } from "../llm/tools.js";
+import { BUILD_NO_CONFIRM, getBuildSystemPrompt } from "./build-tools.js";
+import { getInstalledMods, isBrowseBotAuthor } from "../utils/sine-mods.js";
+import { messageManagerAPI } from "../messageManager.js";
+import PREFS from "../utils/prefs.js";
 
 const MODES = ["chat", "agent", "build"];
 

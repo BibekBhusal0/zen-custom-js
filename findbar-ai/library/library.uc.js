@@ -1,30 +1,30 @@
-import { PREFS } from "./utils/prefs.js";
+import { PREFS } from "../utils/prefs.js";
 import { browseBotLibraryLLM, MODES } from "./library-llm.js";
-import { messageManagerAPI } from "./messageManager.js";
-import { parseElement, escapeXmlAttribute } from "../utils/parse.js";
-import { icons } from "../utils/icon.js";
-import { parseMD } from "./utils/markdown.js";
+import { messageManagerAPI } from "../messageManager.js";
+import { parseElement, escapeXmlAttribute } from "../../utils/parse.js";
+import { icons } from "../../utils/icon.js";
+import { parseMD } from "../utils/markdown.js";
 import {
   renderStreamText,
   extractErrorText,
   isProviderBalanceExhausted,
   setStreamingControls,
   attachChatMessageHandlers,
-} from "./utils/chat.js";
-import { SettingsModal } from "./settings.js";
-import { showToast } from "../utils/toast.js";
-import { addPrefListener } from "../utils/pref.js";
-import { fuzzyFilterSort } from "../utils/fuzzy.js";
+} from "../utils/chat.js";
+import { SettingsModal } from "../settings.js";
+import { showToast } from "../../utils/toast.js";
+import { addPrefListener } from "../../utils/pref.js";
+import { fuzzyFilterSort } from "../../utils/fuzzy.js";
 import {
   clearPreviewCSS,
   clearStagedJS,
   getPreviewCSS,
   getPreviewState,
   getStagedJS,
-} from "./utils/build-preview.js";
-import { buildAuthor } from "./llm/build-tools.js";
-import { createSineMod } from "./utils/sine-mods.js";
-import { highlightCode } from "../utils/code-highlight.js";
+} from "./build-preview.js";
+import { buildAuthor } from "./build-tools.js";
+import { createSineMod } from "../utils/sine-mods.js";
+import { highlightCode } from "../../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = [

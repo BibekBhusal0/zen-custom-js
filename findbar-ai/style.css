@@ -4,7 +4,7 @@
 @import "styles/markdown.css";
 @import "styles/urlbar.css";
 @import "styles/settings.css";
-@import "styles/library.css";
+@import "library/library.css";
 @import "styles/pseudo-bg.css";
 @import "../utils/code-highlight.css";
 

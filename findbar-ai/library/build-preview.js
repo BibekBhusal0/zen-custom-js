@@ -1,4 +1,4 @@
-import { PREFS } from "./prefs.js";
+import { PREFS } from "../utils/prefs.js";
 
 const STYLE_ID = "browsebot-build-preview";
 const JS_ID = "browsebot-build-script";
