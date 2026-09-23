@@ -29,12 +29,43 @@ import { highlightCode } from "../../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = [
-  { mode: "chat", title: "/chat", description: "Ask, no tools or page context", keywords: ["talk", "ask", "question"] },
-  { mode: "agent", title: "/agent", description: "Full browser tool-belt", keywords: ["tabs", "search", "browser", "bookmarks", "workspace"] },
-  { mode: "build", title: "/build", description: "Style the browser, build Sine mods", keywords: ["mod", "css", "style", "theme", "script", "mods"] },
-  { command: "clear", title: "/clear", description: "Stop the run and start a new chat", keywords: ["new", "fresh", "reset", "restart", "start over", "delete"] },
-  { command: "close", title: "/close", description: "Close the library, run continues", keywords: ["exit", "hide", "dismiss"] },
-  { command: "continue", openSessions: true, title: "/continue", description: "Resume a saved chat", keywords: ["resume", "restore", "history", "previous", "chats", "sessions", "reopen", "old"] },
+  {
+    mode: "chat",
+    title: "/chat",
+    description: "Ask, no tools or page context",
+    keywords: ["talk", "ask", "question"],
+  },
+  {
+    mode: "agent",
+    title: "/agent",
+    description: "Full browser tool-belt",
+    keywords: ["tabs", "search", "browser", "bookmarks", "workspace"],
+  },
+  {
+    mode: "build",
+    title: "/build",
+    description: "Style the browser, build Sine mods",
+    keywords: ["mod", "css", "style", "theme", "script", "mods"],
+  },
+  {
+    command: "clear",
+    title: "/clear",
+    description: "Stop the run and start a new chat",
+    keywords: ["new", "fresh", "reset", "restart", "start over", "delete"],
+  },
+  {
+    command: "close",
+    title: "/close",
+    description: "Close the library, run continues",
+    keywords: ["exit", "hide", "dismiss"],
+  },
+  {
+    command: "continue",
+    openSessions: true,
+    title: "/continue",
+    description: "Resume a saved chat",
+    keywords: ["resume", "restore", "history", "previous", "chats", "sessions", "reopen", "old"],
+  },
 ];
 
 // Session identity must outlive panel remounts like the history does,
@@ -225,9 +256,7 @@ function mountPanel(host) {
     if (!session.title) session.title = sessionTitle(messages);
     session.mode = PREFS.libraryMode;
     activeSavedLength = messages.length;
-    upsertSession(session).catch((e) =>
-      PREFS.debugError("Failed to save chat session:", e)
-    );
+    upsertSession(session).catch((e) => PREFS.debugError("Failed to save chat session:", e));
   }
 
   function abortRun() {
