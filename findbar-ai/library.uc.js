@@ -255,11 +255,11 @@ function mountPanel(host) {
         close();
         addMessage(
           "ai",
-          `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine — reopen Settings → Sine Mods to see it. Your live preview is still applied; restart the browser if the script doesn't take effect.`
+          `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine - reopen Settings → Sine Mods to see it. Your live preview is still applied; restart the browser if the script doesn't take effect.`
         );
         showToast({
           title: "Mod created",
-          description: `${created.name} — see Sine Mods settings`,
+          description: `${created.name} - see Sine Mods settings`,
         });
         refreshBuildBar();
       } catch (e) {
@@ -311,7 +311,7 @@ function mountPanel(host) {
         );
         previewHtml = codeEl.outerHTML;
       } else if (toolName === "createMod") {
-        const label = [args?.name, args?.description].filter(Boolean).join(" — ").slice(0, 200);
+        const label = [args?.name, args?.description].filter(Boolean).join(" - ").slice(0, 200);
         if (label) previewHtml = `<p class="tool-confirm-detail">${escapeXmlAttribute(label)}</p>`;
       } else if (toolName === "updateModFile" && args?.modId) {
         previewHtml = `<p class="tool-confirm-detail">${escapeXmlAttribute(`${args.modId} / ${args.file || ""}`)}</p>`;

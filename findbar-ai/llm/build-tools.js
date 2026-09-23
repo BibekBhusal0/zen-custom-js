@@ -290,7 +290,7 @@ export const buildTools = {
     "Creates a new Sine mod from staged preview CSS/JS (or explicit css/js). Author is set to BrowseBot/model automatically. Only call when the user asks for a mod, or after they confirm your offer.",
     {
       name: str(
-        "Mod name, e.g. 'Cyberpunk UI'. Omit only if the user said 'just make it' — then invent a good name.",
+        "Mod name, e.g. 'Cyberpunk UI'. Omit only if the user said 'just make it' - then invent a good name.",
         true
       ),
       description: str("One-line description of what the mod does.", true),
@@ -336,7 +336,7 @@ export async function getBuildSystemPrompt() {
       .map((m) => `${m.id} (${m.name}, by ${m.author})`)
       .join("; ");
   } catch {}
-  return `## Build Mode — Zen Browser mod builder
+  return `## Build Mode - Zen Browser mod builder
 
 You customize the BROWSER CHROME (Firefox UI: toolbars, tabs, sidebar, URL bar), never web-page content.
 You have live tools: inspect elements, preview CSS instantly, run privileged JS, and scaffold real Sine mods.
@@ -344,9 +344,9 @@ You have live tools: inspect elements, preview CSS instantly, run privileged JS,
 ### Golden workflow
 1. UNDERSTAND FIRST: call \`inspectChrome\` (no selector, then targeted selectors like \`#navigator-toolbox\`, \`#tabbrowser-tabs\`) before writing any CSS/JS. Verify your selector matches and check computed styles.
 2. CSS IS FREE: use \`applyPreviewCSS\` liberally to iterate (no permission needed, reversible). After each apply, use \`inspectChrome\` to verify computed styles changed, then describe what the user should see and ask them to confirm visually.
-3. JS NEEDS PERMISSION: \`runChromeJS\` always asks the user first and its console output + return value come back to you as the tool result — read the logs, fix errors, never guess blindly. Keep snippets short and show what each snippet does in one sentence before/after.
-4. OFFER TO KEEP: once the preview looks right, end with exactly: "Do you want to turn this into a mod?" The UI shows a Create Mod button that saves the staged preview (name/description prompt included). If the user instead says "make it a mod" directly, call \`createMod\` yourself — invent a good name/description, never interrogate for details, author is set automatically.
-5. MOD EDITS: \`listMods\` → \`readMod\` (theme.json first). If the mod has AGENTS.md it is auto-included — follow it. BrowseBot-authored mods edit freely; other authors' mods pop a permission dialog first.
+3. JS NEEDS PERMISSION: \`runChromeJS\` always asks the user first and its console output + return value come back to you as the tool result - read the logs, fix errors, never guess blindly. Keep snippets short and show what each snippet does in one sentence before/after.
+4. OFFER TO KEEP: once the preview looks right, end with exactly: "Do you want to turn this into a mod?" The UI shows a Create Mod button that saves the staged preview (name/description prompt included). If the user instead says "make it a mod" directly, call \`createMod\` yourself - invent a good name/description, never interrogate for details, author is set automatically.
+5. MOD EDITS: \`listMods\` → \`readMod\` (theme.json first). If the mod has AGENTS.md it is auto-included - follow it. BrowseBot-authored mods edit freely; other authors' mods pop a permission dialog first.
 
 ### Mod conventions (Sine)
 - New mods get: theme.json (id slug, name, description, author BrowseBot/<model>, version 1.0.0), style.css (browser-chrome CSS), plus <id>.uc.js only when there is JS to save (CSS-only mods ship no script at all), README.md starting with the mod name and a "> Made with [BrowseBot](${BROWSEBOT_REPO_URL})" credit line. Sine rebuilds automatically; a restart may still be needed for scripts.

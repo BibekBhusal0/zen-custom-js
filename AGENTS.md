@@ -26,7 +26,7 @@ bun run format             # prettier --write .
 bun run lint               # eslint .
 ```
 
-**No test framework** — manual testing in the browser. Bundled output goes to `dist/`.
+**No test framework** - manual testing in the browser. Bundled output goes to `dist/`.
 
 ## Build system quirks
 
@@ -35,8 +35,8 @@ bun run lint               # eslint .
 - Target matching normalizes both the `TARGET` env var and `theme.id` by removing hyphens, then does a substring check. So `TARGET=browsebot` matches `browse-bot`.
 - Most mods → IIFE bundle (`uc.js`). Browse-bot → ESM bundle (`browse-bot.uc.mjs`, single file, zero npm dependencies).
 - CSS-only mods (e.g., `compact-settings/`) have no `scripts` key in theme.json and are skipped by the build.
-- Scripts in `others/` are not bundled — imported directly in `import.uc.mjs`.
-- `search-engine-icon/` has no `theme.json` at all — loaded directly as a raw import.
+- Scripts in `others/` are not bundled - imported directly in `import.uc.mjs`.
+- `search-engine-icon/` has no `theme.json` at all - loaded directly as a raw import.
 - Post-build, `stripDeadMembers` (`.github/scripts/strip-dead-members.js`) removes unreferenced object/class members per bundle (Bun only tree-shakes top-level exports). It rewrites `dist/` output only, never sources, and keeps everything on any uncertain pattern.
 
 ## Active mods
@@ -80,9 +80,9 @@ Every mod that uses prefs extends a base `PREFS` class from `utils/pref.js`:
 import { PREFS as BasePREFS, addPrefListener, removePrefListener } from "../../utils/pref.js";
 ```
 
-- `getPref(key, default)` / `setPref(key, value)` / `resetPref(key)` — all handle errors internally.
-- `setInitialPrefs()` — call to initialize defaults at startup.
-- `debugLog(...)` / `debugError(...)` — gated behind `PREFS.DEBUG_MODE`.
+- `getPref(key, default)` / `setPref(key, value)` / `resetPref(key)` - all handle errors internally.
+- `setInitialPrefs()` - call to initialize defaults at startup.
+- `debugLog(...)` / `debugError(...)` - gated behind `PREFS.DEBUG_MODE`.
 - Listeners: `addPrefListener(key, callback)` returns `{name, callback}`; remove with `removePrefListener(ref)`.
 - Pref keys use dotted convention: `mod-name.property` (e.g., `browse-bot.debug-mode`).
 

@@ -38,7 +38,7 @@ async function updateThemeFiles() {
       const originalData = JSON.parse(await Bun.file(filePath).text());
 
       if (originalData.updatedAt === trimmedGitDate) {
-        console.log(`Unchanged ${file} — updatedAt already set to ${trimmedGitDate}`);
+        console.log(`Unchanged ${file} - updatedAt already set to ${trimmedGitDate}`);
         continue;
       }
 

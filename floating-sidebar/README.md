@@ -32,7 +32,7 @@ You can customize the script's behavior via `about:config` or the settings UI.
 3. Open settings and go to the `Sine` tab.
 4. Search for Floating Sidebar.
 5. Click Install.
-6. A toast for restart should appear — click on that to restart Zen.
+6. A toast for restart should appear - click on that to restart Zen.
 
 ## 🙏 Credits and Acknowledgements
 

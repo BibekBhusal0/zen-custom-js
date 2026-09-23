@@ -26,7 +26,7 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 3. Open settings and go to the `Sine` tab.
 4. Search for Zen Command Palette.
 5. Click Install.
-6. A toast for restart should appear — click on that to restart Zen.
+6. A toast for restart should appear - click on that to restart Zen.
 7. Feel productive!
 
 > [!NOTE]

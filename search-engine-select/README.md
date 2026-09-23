@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/52a6b810-77ee-4a04-b239-8d59e01478ef
 3. Open settings and go to the `Sine` tab.
 4. Search for Search Engine Select.
 5. Click Install.
-6. A toast for restart should appear — click on that to restart Zen.
+6. A toast for restart should appear - click on that to restart Zen.
 
 ## 🎨 Customization & Preferences
 

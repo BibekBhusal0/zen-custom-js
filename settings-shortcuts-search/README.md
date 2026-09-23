@@ -23,9 +23,9 @@ https://github.com/user-attachments/assets/01b14b7b-04a7-49d8-a719-83ad7fc8c603
 3. Open settings and go to the `Sine` tab.
 4. Search for Keyboard Shortcuts Search.
 5. Click Install.
-6. A toast for restart should appear — click on that to restart Zen.
+6. A toast for restart should appear - click on that to restart Zen.
 
-## 🙏 Credits and Acknowledgements
+## 🙏 Credits and Acknowledgments
 
 This mod is released through [Vertex Mods](https://github.com/Vertex-Mods/), and I, [Bibek Bhusal](https://github.com/BibekBhusal0), am the creator of this mod.
 

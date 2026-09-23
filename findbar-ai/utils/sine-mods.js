@@ -208,7 +208,7 @@ function themeTemplate({ id, name, description, author, hasJS }) {
   return {
     id,
     name,
-    description: description || `${name} — created with BrowseBot.`,
+    description: description || `${name} - created with BrowseBot.`,
     homepage: BROWSEBOT_REPO_URL,
     style: { chrome: "style.css" },
     ...(hasJS
@@ -225,13 +225,13 @@ function themeTemplate({ id, name, description, author, hasJS }) {
 
 function readmeTemplate({ name, description, author, hasJS, scriptFile }) {
   const files = [
-    "- `theme.json` — mod metadata (id, version, author)",
+    "- `theme.json` - mod metadata (id, version, author)",
     ...(hasJS
       ? [
-          `- \`${scriptFile}\` — browser-chrome JavaScript (filename must match the \`scripts\` key in theme.json)`,
+          `- \`${scriptFile}\` - browser-chrome JavaScript (filename must match the \`scripts\` key in theme.json)`,
         ]
       : []),
-    "- `style.css` — browser-chrome CSS",
+    "- `style.css` - browser-chrome CSS",
   ].join("\n");
   return `# ${name}\n\n${description || "A Zen Browser mod created with BrowseBot."}\n\n> Made with [BrowseBot](${BROWSEBOT_REPO_URL}) (${author}).\n\n## Files\n\n${files}\n\n## Development\n\nEdit the files, then rebuild/reload Sine mods to apply changes.\n`;
 }
