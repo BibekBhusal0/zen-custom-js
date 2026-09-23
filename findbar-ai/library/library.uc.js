@@ -249,9 +249,11 @@ function mountPanel(host) {
           author,
         });
         close();
+        clearPreviewCSS();
+        clearStagedJS();
         addMessage(
           "ai",
-          `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine - reopen Settings → Sine Mods to see it. Your live preview is still applied; restart the browser if the script doesn't take effect.`
+          `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine - reopen Settings → Sine Mods to see it. Staged preview was cleared; restart the browser if the script doesn't take effect.`
         );
         showToast({
           title: "Mod created",
@@ -878,11 +880,17 @@ function mountPanel(host) {
       const finishedHost = libraryRunHost;
       libraryRunHost = null;
       broadcastRunEnd(onRunEnd);
-      if (state.destroyed && notifyText) {
+      let browseBotVisible = false;
+      try {
+        const h = document.querySelector("zen-library");
+        browseBotVisible = !!h && isLibraryOpen() && h.activeTab === "browsebot";
+      } catch {}
+      if (notifyText && !browseBotVisible) {
         try {
           showToast({ title: notifyText, description: prompt.slice(0, 120) });
         } catch {}
-      } else {
+      }
+      if (!state.destroyed) {
         setStreaming(false);
         if (finishedHost?.parentElement === messagesEl) {
           finishedHost.replaceWith(...finishedHost.childNodes);
