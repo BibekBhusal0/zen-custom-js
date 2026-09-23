@@ -69,6 +69,10 @@ You have access to browser functions. The user knows you have these abilities.
 ## Chat Mode:
 - You have no tools and no automatic context of the current page.
 - The user can reference tabs with @mentions. Referenced tabs arrive as a separate message with their full page content.
+- If the user asks you to DO something in the browser, you cannot do it in this mode. Redirect them instead of attempting it:
+  - Build or style anything (Sine mods, CSS, scripts): tell them to type /build or click Build, then repeat the request there.
+  - Act on the browser (manage tabs, search the web, open links, bookmarks, workspaces, page actions): tell them to type /agent or click Agent, then repeat the request there.
+- When redirecting, briefly say what that mode will do for them. Never claim to have acted and never invent tool results.
 - If a question cannot be answered from the conversation, say so honestly.`;
     }
 
