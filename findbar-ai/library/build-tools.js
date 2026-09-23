@@ -241,10 +241,15 @@ async function createMod(args) {
     if (css === undefined || css === null) clearPreviewCSS();
     if (js === undefined || js === null) clearStagedJS();
     return {
-      result: `Created mod "${created.name}" (id: ${created.id}) with ${created.files.length} files verified on disk at ${created.dir} and registered in Sine's mods.json. Staged preview was cleared. Tell the user to reopen Settings → Sine Mods to see it; restart only if the script doesn't take effect.`,
+      result:
+        `Created mod "${created.name}" (id: ${created.id}) with ${created.files.length} files verified on disk at ${created.dir} and registered in Sine's mods.json. Staged preview was cleared. Tell the user to reopen Settings → Sine Mods to see it; restart only if the script doesn't take effect.` +
+        (created.jsBlocked
+          ? ` IMPORTANT: this mod contains JS but Sine is blocking scripts from unofficial sources, so its script will NOT run until the user turns on "Enable installing JS from unofficial sources" in Sine settings themselves. Tell them exactly that; never offer to change the setting for them.`
+          : ""),
       modId: created.id,
       dir: created.dir,
       files: created.files,
+      jsBlocked: created.jsBlocked,
     };
   } catch (e) {
     return { error: `Failed to create mod: ${e?.message || e}` };
@@ -329,7 +334,7 @@ export const buildTools = {
     readMod
   ),
   createMod: createTool(
-    "Creates a new Sine mod from staged preview CSS/JS (or explicit css/js). Author is set to BrowseBot/model automatically. Only call when the user asks for a mod, or after they confirm your offer.",
+    "Creates a new Sine mod from staged preview CSS/JS (or explicit css/js). Author is set to BrowseBot/model automatically. Only call when the user asks for a mod, or after they confirm your offer. If the mod contains JS while Sine blocks scripts from unofficial sources, the user gets a confirmation popup first and must enable the Sine setting themselves.",
     {
       name: str(
         "Mod name, e.g. 'Cyberpunk UI'. Omit only if the user said 'just make it' - then invent a good name.",
@@ -449,6 +454,7 @@ You have live tools: inspect elements, preview CSS instantly, run privileged JS,
 
 ### Safety
 - Prefer CSS over JS. Never exfiltrate data, never touch passwords/keys, never disable security UI, never run destructive commands. If a request looks harmful, refuse and suggest a safe alternative.
+- A mod's script only runs if Sine's "JS from unofficial sources" is on. Always ask first; only the user's own checkbox opt-in turns it on, never anything automatic.
 - Quote selectors and short code in your replies so the user sees what ran. Tool calls already render a status row; JS rows expand to show the executed code.
 - Be concise. Act with tools instead of asking clarifying questions when the intent is clear (e.g. "cyberpunk UI" → inspect once, preview once with verifySelector, offer the mod).`;
 }

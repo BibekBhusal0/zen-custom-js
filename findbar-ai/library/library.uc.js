@@ -23,7 +23,7 @@ import {
   getStagedJS,
 } from "./build-preview.js";
 import { buildAuthor } from "./build-tools.js";
-import { createSineMod } from "../utils/sine-mods.js";
+import { createSineMod, isUnsafeJSAllowed, setUnsafeJSAllowed } from "../utils/sine-mods.js";
 import { highlightCode } from "../../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
@@ -210,11 +210,13 @@ function mountPanel(host) {
       });
       return;
     }
+    const jsBlocked = jsChars > 0 && !isUnsafeJSAllowed();
     const overlay = parseElement(`
       <div class="bb-create-mod-overlay">
         <div class="bb-create-mod-modal">
           <h3>Create Sine Mod</h3>
           <p class="bb-create-mod-hint">Staged: ${cssChars} chars CSS${jsChars ? `, ${jsChars} chars JS` : ""}. Saved with the staged preview.</p>
+          ${jsBlocked ? `<label class="bb-create-mod-allow"><input type="checkbox" data-field="allow-js" /> Allow JS from unofficial sources so this script runs</label>` : ""}
           <label>Name<input class="zenux-input" data-field="name" placeholder="e.g. Cyberpunk UI" /></label>
           <label>Description<input class="zenux-input" data-field="description" placeholder="What does this mod do?" /></label>
           <label>Author (optional)<input class="zenux-input" data-field="author" placeholder="${escapeXmlAttribute(buildAuthor())}" /></label>
@@ -235,12 +237,26 @@ function mountPanel(host) {
     });
     overlay.querySelector('[data-action="cancel"]').addEventListener("click", close);
     overlay.querySelector('[data-action="save"]').addEventListener("click", async () => {
+      if (errorEl) errorEl.textContent = "";
+      const needsAllow = getStagedJS().length > 0 && !isUnsafeJSAllowed();
+      const allowInput = overlay.querySelector('[data-field="allow-js"]');
+      if (needsAllow && !allowInput) {
+        if (errorEl) errorEl.textContent = "Reopen this dialog to allow the script.";
+        return;
+      }
+      if (needsAllow && !allowInput.checked) {
+        if (errorEl)
+          errorEl.textContent =
+            "Tick the checkbox to allow the script, or turn on the Sine setting yourself.";
+        return;
+      }
       const name = nameInput.value.trim() || "BrowseBot Mod";
       const description = descInput.value.trim();
       const author = authorInput.value.trim() || buildAuthor();
       const saveBtn = overlay.querySelector('[data-action="save"]');
       saveBtn.disabled = true;
       try {
+        if (needsAllow) setUnsafeJSAllowed();
         const created = await createSineMod({
           name,
           description,
@@ -253,7 +269,10 @@ function mountPanel(host) {
         clearStagedJS();
         addMessage(
           "ai",
-          `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine - reopen Settings → Sine Mods to see it. Staged preview was cleared; restart the browser if the script doesn't take effect.`
+          `Created mod **${created.name}** (id: \`${created.id}\`, ${created.files.length} files verified at \`${created.dir}\`) and registered it with Sine - reopen Settings → Sine Mods to see it. Staged preview was cleared; restart the browser if the script doesn't take effect.` +
+            (created.jsBlocked
+              ? ` Its script will NOT run until you turn on "Enable installing JS from unofficial sources" in Sine settings.`
+              : "")
         );
         showToast({
           title: "Mod created",
@@ -314,15 +333,27 @@ function mountPanel(host) {
       } else if (toolName === "updateModFile" && args?.modId) {
         previewHtml = `<p class="tool-confirm-detail">${escapeXmlAttribute(`${args.modId} / ${args.file || ""}`)}</p>`;
       }
+      const warningHtml = detail.unsafeJSBlocked
+        ? `<p class="tool-confirm-warning">Sine blocks scripts from unofficial sources, so this mod's script won't run until you enable that Sine setting.</p>`
+        : "";
+      const confirmLabel = detail.unsafeJSBlocked ? "Create anyway" : "Yes";
+      const enableHtml = detail.unsafeJSBlocked
+        ? `<button class="enable-create zenux-btn-primary">Enable &amp; create</button>`
+        : "";
+      const notAgainHtml = detail.unsafeJSBlocked
+        ? ""
+        : `<button class="not-again zenux-btn-ghost">Don't ask again</button>`;
       const dialog = parseElement(`
         <div class="tool-confirmation-dialog">
           <div class="tool-confirmation-content">
             <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
             ${previewHtml}
+            ${warningHtml}
             <div class="buttons">
-              <button class="not-again zenux-btn-ghost">Don't ask again</button>
+              ${notAgainHtml}
               <div class="right-side-buttons">
-                <button class="confirm-tool zenux-btn-success">Yes</button>
+                ${enableHtml}
+                <button class="confirm-tool zenux-btn-success">${confirmLabel}</button>
                 <button class="cancel-tool zenux-btn-danger">No</button>
               </div>
             </div>
@@ -338,6 +369,12 @@ function mountPanel(host) {
         state.confirmResolver = null;
       };
 
+      dialog.querySelector(".enable-create")?.addEventListener("click", () => {
+        setUnsafeJSAllowed();
+        removeDialog();
+        resolve(true);
+      });
+
       dialog.querySelector(".confirm-tool").addEventListener("click", () => {
         removeDialog();
         resolve(true);
@@ -348,7 +385,7 @@ function mountPanel(host) {
         resolve(false);
       });
 
-      dialog.querySelector(".not-again").addEventListener("click", () => {
+      dialog.querySelector(".not-again")?.addEventListener("click", () => {
         removeDialog();
         PREFS.confirmation = false;
         resolve(true);

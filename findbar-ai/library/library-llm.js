@@ -1,7 +1,8 @@
 import { LLM } from "../llm/index.js";
 import { getTools, getToolSystemPrompt, toolNameMapping } from "../llm/tools.js";
 import { BUILD_NO_CONFIRM, getBuildSystemPrompt } from "./build-tools.js";
-import { getInstalledMods, isBrowseBotAuthor } from "../utils/sine-mods.js";
+import { getStagedJS } from "./build-preview.js";
+import { getInstalledMods, isBrowseBotAuthor, isUnsafeJSAllowed } from "../utils/sine-mods.js";
 import { messageManagerAPI } from "../messageManager.js";
 import PREFS from "../utils/prefs.js";
 
@@ -147,9 +148,19 @@ You have access to browser functions. The user knows you have these abilities.
           if (isBrowseBotAuthor(mods?.[args.modId]?.author)) return true;
         } catch {}
       }
-      if (!PREFS.confirmation) return true;
+      // Blocked JS still needs confirmation even with confirmations off.
+      let unsafeJSBlocked = false;
+      if (toolName === "createMod") {
+        try {
+          unsafeJSBlocked =
+            String(args?.js ?? getStagedJS() ?? "").trim().length > 0 && !isUnsafeJSAllowed();
+        } catch {}
+      }
+      if (!PREFS.confirmation && !unsafeJSBlocked) return true;
       const friendlyName = toolNameMapping[toolName] || toolName;
-      const confirmed = confirmTool ? await confirmTool([friendlyName], { toolName, args }) : true;
+      const confirmed = confirmTool
+        ? await confirmTool([friendlyName], { toolName, args, unsafeJSBlocked })
+        : true;
       if (!confirmed) {
         PREFS.debugLog(`Build tool '${toolName}' declined by user.`);
         if (onToolStatus) onToolStatus(toolName, "declined", null, args);

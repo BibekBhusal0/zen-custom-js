@@ -476,6 +476,17 @@ zen-library-browsebot-section {
       }
     }
 
+    .bb-create-mod-allow {
+      flex-direction: row !important;
+      align-items: center !important;
+      font-weight: 400 !important;
+      font-size: 12px !important;
+      padding: 8px 10px !important;
+      border-radius: var(--zenux-radius-s) !important;
+      color: var(--zenux-warning) !important;
+      background: var(--zenux-warning-bg) !important;
+    }
+
     .bb-create-mod-actions {
       display: flex !important;
       justify-content: flex-end !important;
@@ -515,6 +526,16 @@ zen-library-browsebot-section {
     font-size: 12px !important;
   }
 
+  .tool-confirm-warning {
+    text-align: left !important;
+    margin: 0 0 12px !important;
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    border-radius: var(--zenux-radius-s) !important;
+    color: var(--zenux-warning) !important;
+    background: var(--zenux-warning-bg) !important;
+  }
+
   .zenux-code-confirm-code {
     text-align: left !important;
     margin: 0 0 12px !important;
@@ -527,6 +548,10 @@ zen-library-browsebot-section {
     .right-side-buttons {
       display: flex !important;
       gap: 10px !important;
+
+      &:only-child {
+        margin-left: auto !important;
+      }
     }
 
     button {

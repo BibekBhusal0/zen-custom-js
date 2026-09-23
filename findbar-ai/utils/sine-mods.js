@@ -21,6 +21,21 @@ export function isBrowseBotAuthor(author) {
     .includes("browsebot");
 }
 
+export const UNSAFE_JS_PREF = "sine.allow-unsafe-js";
+
+export function isUnsafeJSAllowed() {
+  try {
+    return Services.prefs.getBoolPref(UNSAFE_JS_PREF, false);
+  } catch {
+    return false;
+  }
+}
+
+// Only from the user's own opt-in checkbox, never automatically.
+export function setUnsafeJSAllowed() {
+  Services.prefs.setBoolPref(UNSAFE_JS_PREF, true);
+}
+
 function profileFile(...parts) {
   const dir = Services.dirsvc.get("ProfD", Ci.nsIFile);
   const file = dir.clone();
@@ -367,7 +382,11 @@ export async function createSineMod({ name, description, css = "", js = "", id, 
   await registerModInSine(theme);
   reloadSineMods();
   PREFS.debugLog(`Build: created mod "${modId}" at ${dir}.`);
-  return { id: modId, dir, name: modName, files: verified };
+  const jsBlocked = hasJS && !isUnsafeJSAllowed();
+  if (jsBlocked) {
+    PREFS.debugLog(`Build: mod "${modId}" has JS but ${UNSAFE_JS_PREF} is off.`);
+  }
+  return { id: modId, dir, name: modName, files: verified, jsBlocked };
 }
 
 export async function writeModFile(modId, file, content, mode = "replace") {
