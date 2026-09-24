@@ -132,28 +132,9 @@ function clearLibraryWidth(sectionEl) {
   try {
     libraryHostOf(sectionEl)?.style.removeProperty("--zen-library-content-width");
   } catch {}
-}
-
-let widthGuardTimer = null;
-
-function startWidthGuard() {
-  stopWidthGuard();
-  widthGuardTimer = setInterval(() => {
-    try {
-      const host = document.querySelector("zen-library");
-      if (!host || host.activeTab !== "browsebot" || !PREFS.libraryEnabled) return;
-      if (host.style.getPropertyValue("--zen-library-content-width") !== "640px") {
-        host.style.setProperty("--zen-library-content-width", "640px");
-      }
-    } catch {}
-  }, 500);
-}
-
-function stopWidthGuard() {
   try {
-    clearInterval(widthGuardTimer);
+    document.querySelector("zen-library")?.style.removeProperty("--zen-library-content-width");
   } catch {}
-  widthGuardTimer = null;
 }
 
 let libraryRunController = null;
@@ -214,7 +195,6 @@ function mountPanel(host) {
   let fullSessionList = [];
   host._bbCleanup = () => {
     state.destroyed = true;
-    stopWidthGuard();
     clearLibraryWidth(host);
     libraryRunEndListeners.delete(onRunEnd);
     state.confirmResolver?.(false);
@@ -1126,14 +1106,16 @@ function mountPanel(host) {
     state.abortController = libraryRunController;
     setStreaming(true);
   }
-  setLibraryWidth(host);
-  startWidthGuard();
+  if (!host.hidden) {
+    setLibraryWidth(host);
+  }
   try {
     const libHost = libraryHostOf(host);
     if (libHost) ensureTabPatched(libHost);
   } catch {}
   host.appendChild(ui);
   const settle = () => {
+    if (host.hidden) return;
     scrollDown();
     try {
       if (host.isConnected && !ui.contains(document.activeElement)) input.focus();
@@ -1151,8 +1133,24 @@ function mountPanel(host) {
       setStreaming(true);
     }
     setLibraryWidth(host);
-    startWidthGuard();
     settle();
+  };
+  host._bbShow = () => {
+    if (!host.isConnected) return;
+    state.destroyed = false;
+    libraryRunEndListeners.add(onRunEnd);
+    renderHistory();
+    attachRunHost();
+    refreshBuildBar();
+    if (libraryRunController) {
+      state.abortController = libraryRunController;
+      setStreaming(true);
+    }
+    setLibraryWidth(host);
+    settle();
+  };
+  host._bbHide = () => {
+    clearLibraryWidth(host);
   };
   requestAnimationFrame(() => {
     settle();
@@ -1172,6 +1170,29 @@ class BrowseBotLibrarySectionElement extends HTMLElement {
   }
   get library() {
     return this._library;
+  }
+  static get observedAttributes() {
+    return ["hidden"];
+  }
+  attributeChangedCallback(name) {
+    if (name !== "hidden") return;
+    try {
+      if (this.hasAttribute("hidden")) {
+        this._bbHide?.();
+      } else {
+        this._bbShow?.();
+      }
+    } catch {}
+  }
+  onShown() {
+    try {
+      this._bbShow?.();
+    } catch {}
+  }
+  onHidden() {
+    try {
+      this._bbHide?.();
+    } catch {}
   }
   connectedCallback() {
     if (this._mounted) {
@@ -1319,13 +1340,6 @@ function ensureSection(host) {
     sections["browsebot"] = BrowseBotLibrarySection;
     changed = true;
   }
-  try {
-    if (host.activeTab === "browsebot" && PREFS.libraryEnabled) {
-      if (host.style.getPropertyValue("--zen-library-content-width") !== "640px") {
-        host.style.setProperty("--zen-library-content-width", "640px");
-      }
-    }
-  } catch {}
   ensureTabPatched(host);
   if (changed) {
     try {

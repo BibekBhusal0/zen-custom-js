@@ -22,7 +22,7 @@
 }
 
 zen-library-browsebot-section {
-  display: flex !important;
+  display: flex ;
   flex-direction: column !important;
   flex: 1 1 auto !important;
   width: 100% !important;
