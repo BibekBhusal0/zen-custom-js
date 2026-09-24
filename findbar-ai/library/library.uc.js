@@ -215,7 +215,7 @@ function mountPanel(host) {
   const stopBtn = ui.querySelector(".bb-stop-btn");
   const popup = ui.querySelector(".bb-library-popup");
   const refsBar = ui.querySelector(".bb-refs-bar");
-  const clearBtn = ui.querySelector('[data-action="clear"]');
+  const deleteBtn = ui.querySelector('[data-action="delete"]');
   const modeButtons = [...ui.querySelectorAll(".bb-mode")];
   const buildBar = ui.querySelector(".bb-build-bar");
   const buildStatus = ui.querySelector(".bb-build-status");
@@ -589,7 +589,7 @@ function mountPanel(host) {
   function renderHistory() {
     messagesEl.innerHTML = "";
     const history = browseBotLibraryLLM.getHistory();
-    clearBtn.hidden = history.length === 0;
+    deleteBtn.hidden = history.length === 0;
     if (history.length === 0) {
       const empty = parseElement(
         `<div class="zenux-empty">Ask anything. Type <b>/</b> to switch modes, <b>@</b> to reference tabs.</div>`
@@ -626,7 +626,7 @@ function mountPanel(host) {
 
   modeButtons.forEach((btn) => btn.addEventListener("click", () => setMode(btn.dataset.mode)));
 
-  function clearChat() {
+  function deleteChat() {
     abortRun();
     const oldId = activeSession?.id;
     browseBotLibraryLLM.clearData();
@@ -635,7 +635,8 @@ function mountPanel(host) {
     state.pendingRefs = [];
     renderChips();
     renderHistory();
-    if (oldId) deleteSession(oldId).catch((e) => PREFS.debugError("Failed to delete chat session:", e));
+    if (oldId)
+      deleteSession(oldId).catch((e) => PREFS.debugError("Failed to delete chat session:", e));
   }
 
   function newChat() {
@@ -649,8 +650,8 @@ function mountPanel(host) {
     renderHistory();
   }
 
-  clearBtn.addEventListener("click", () => {
-    clearChat();
+  deleteBtn.addEventListener("click", () => {
+    deleteChat();
     input.focus();
   });
 
@@ -764,10 +765,14 @@ function mountPanel(host) {
     const head = input.value.slice(0, token.start);
     const after = input.value.slice(caret);
     if (state.popupKind === "slash") {
-      if (item.command === "clear") {
+      if (item.command === "delete" || item.command === "clear") {
         input.value = "";
         hidePopup();
-        clearChat();
+        deleteChat();
+      } else if (item.command === "new") {
+        input.value = "";
+        hidePopup();
+        newChat();
       } else if (item.command === "close") {
         input.value = "";
         hidePopup();
@@ -875,12 +880,16 @@ function mountPanel(host) {
   async function handleSend() {
     let text = input.value.trim();
 
-    const command = text.match(/^\/(clear|close)\s*$/i);
+    const command = text.match(/^\/(clear|delete|new|close)\s*$/i);
     if (command) {
       input.value = "";
       hidePopup();
-      if (command[1].toLowerCase() === "clear") {
-        clearChat();
+      const name = command[1].toLowerCase();
+      if (name === "clear" || name === "delete") {
+        deleteChat();
+        focusPrompt();
+      } else if (name === "new") {
+        newChat();
         focusPrompt();
       } else {
         closeLibrary();
@@ -927,7 +936,7 @@ function mountPanel(host) {
     }
 
     addMessage("user", text, refs);
-    clearBtn.hidden = false;
+    deleteBtn.hidden = false;
     input.value = "";
     state.pendingRefs = [];
     renderChips();
