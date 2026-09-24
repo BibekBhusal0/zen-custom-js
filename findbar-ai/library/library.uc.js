@@ -48,10 +48,16 @@ const SLASH_ITEMS = [
     keywords: ["mod", "css", "style", "theme", "script", "mods"],
   },
   {
-    command: "clear",
-    title: "/clear",
-    description: "Stop the run and start a new chat",
+    command: "new",
+    title: "/new",
+    description: "Save this chat and start a new one",
     keywords: ["new", "fresh", "reset", "restart", "start over", "delete"],
+  },
+  {
+    command: "delete",
+    title: "/delete",
+    description: "Delete this chat and start a new one",
+    keywords: ["delete", "remove", "clear", "trash", "forget", "erase"],
   },
   {
     command: "close",
@@ -630,6 +636,17 @@ function mountPanel(host) {
     renderChips();
     renderHistory();
     if (oldId) deleteSession(oldId).catch((e) => PREFS.debugError("Failed to delete chat session:", e));
+  }
+
+  function newChat() {
+    abortRun();
+    persistSession();
+    browseBotLibraryLLM.clearData();
+    activeSession = newSession(PREFS.libraryMode);
+    activeSavedLength = 0;
+    state.pendingRefs = [];
+    renderChips();
+    renderHistory();
   }
 
   clearBtn.addEventListener("click", () => {
