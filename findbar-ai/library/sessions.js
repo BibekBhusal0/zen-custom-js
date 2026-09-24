@@ -96,3 +96,12 @@ export async function upsertSession(session) {
     updatedAt: Date.now(),
   });
 }
+
+export async function deleteSession(id) {
+  if (!id) return;
+  try {
+    await IOUtils.remove(sessionPath(id));
+  } catch (e) {
+    PREFS.debugLog("Failed to delete chat session:", e);
+  }
+}

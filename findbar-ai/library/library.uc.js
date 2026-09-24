@@ -24,7 +24,7 @@ import {
 } from "./build-preview.js";
 import { buildAuthor } from "./build-tools.js";
 import { createSineMod, isUnsafeJSAllowed, setUnsafeJSAllowed } from "../utils/sine-mods.js";
-import { loadSessions, newSession, sessionTitle, upsertSession } from "./sessions.js";
+import { loadSessions, newSession, sessionTitle, upsertSession, deleteSession } from "./sessions.js";
 import { highlightCode } from "../../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
@@ -622,12 +622,14 @@ function mountPanel(host) {
 
   function clearChat() {
     abortRun();
+    const oldId = activeSession?.id;
     browseBotLibraryLLM.clearData();
     activeSession = newSession(PREFS.libraryMode);
     activeSavedLength = 0;
     state.pendingRefs = [];
     renderChips();
     renderHistory();
+    if (oldId) deleteSession(oldId).catch((e) => PREFS.debugError("Failed to delete chat session:", e));
   }
 
   clearBtn.addEventListener("click", () => {
