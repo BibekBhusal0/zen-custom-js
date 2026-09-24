@@ -24,7 +24,13 @@ import {
 } from "./build-preview.js";
 import { buildAuthor } from "./build-tools.js";
 import { createSineMod, isUnsafeJSAllowed, setUnsafeJSAllowed } from "../utils/sine-mods.js";
-import { loadSessions, newSession, sessionTitle, upsertSession, deleteSession } from "./sessions.js";
+import {
+  loadSessions,
+  newSession,
+  sessionTitle,
+  upsertSession,
+  deleteSession,
+} from "./sessions.js";
 import { highlightCode } from "../../utils/code-highlight.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
