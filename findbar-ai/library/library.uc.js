@@ -161,7 +161,7 @@ function mountPanel(host) {
           ).join("")}
         </div>
         <div class="bb-header-actions">
-          <button class="zenux-icon-btn" data-action="clear" tooltiptext="Clear chat"><img src="chrome://global/skin/icons/delete.svg" /></button>
+          <button class="zenux-icon-btn" data-action="delete" tooltiptext="Delete chat"><img src="chrome://global/skin/icons/delete.svg" /></button>
           <button class="zenux-icon-btn" data-action="settings" tooltiptext="BrowseBot settings"><img src="chrome://global/skin/icons/settings.svg" /></button>
         </div>
       </div>
