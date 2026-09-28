@@ -68,7 +68,7 @@ const SLASH_ITEMS = [
   {
     command: "close",
     title: "/close",
-    description: "Close the library, run continues",
+    description: "Close the library, reply continues in background",
     keywords: ["exit", "hide", "dismiss"],
   },
   {
@@ -167,6 +167,10 @@ function shortText(text, limit = 44) {
   return t.length > limit ? `${t.slice(0, limit - 1)}…` : t;
 }
 
+function fmtChars(n) {
+  return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`;
+}
+
 function toolStatusIcon(status) {
   try {
     return icons[`tool${status[0].toUpperCase()}${status.slice(1)}`] || "";
@@ -222,7 +226,7 @@ function mountPanel(host) {
       </div>
       <div class="bb-library-composer ai-chat-input-group">
         <div class="bb-library-popup" hidden></div>
-        <textarea class="bb-library-input zenux-input" placeholder="Ask anything…  ( / for modes, @ for tabs )" rows="2"></textarea>
+        <textarea class="bb-library-input zenux-input" placeholder="Ask anything…  ( / for commands, @ for tabs )" rows="3"></textarea>
         <button class="bb-send-btn send-btn zenux-btn-primary">${icons.send}</button>
         <button class="bb-stop-btn stop-btn zenux-btn-primary" style="display: none;">${icons.stop}</button>
       </div>
@@ -266,9 +270,9 @@ function mountPanel(host) {
     buildBar.hidden = !(isBuild && hasPreview);
     if (buildStatus) {
       const parts = [];
-      if (cssChars > 0) parts.push(`${cssChars} chars CSS`);
-      if (jsChars > 0) parts.push(`${jsChars} chars JS`);
-      buildStatus.textContent = parts.length ? `Staged: ${parts.join(" + ")}` : "";
+      if (cssChars > 0) parts.push(`${fmtChars(cssChars)} CSS`);
+      if (jsChars > 0) parts.push(`${fmtChars(jsChars)} JS`);
+      buildStatus.textContent = parts.length ? `Preview: ${parts.join(" + ")}` : "";
     }
   }
 
@@ -374,7 +378,7 @@ function mountPanel(host) {
       <div class="bb-create-mod-overlay">
         <div class="bb-create-mod-modal">
           <h3>Create Sine Mod</h3>
-          <p class="bb-create-mod-hint">Staged: ${cssChars} chars CSS${jsChars ? `, ${jsChars} chars JS` : ""}. Saved with the staged preview.</p>
+          <p class="bb-create-mod-hint">Preview: ${fmtChars(cssChars)} CSS${jsChars ? ` + ${fmtChars(jsChars)} JS` : ""}. Saved with the staged preview.</p>
           ${jsBlocked ? `<label class="bb-create-mod-allow"><input type="checkbox" data-field="allow-js" /> Allow JS from unofficial sources so this script runs</label>` : ""}
           <label>Name<input class="zenux-input" data-field="name" placeholder="e.g. Cyberpunk UI" /></label>
           <label>Description<input class="zenux-input" data-field="description" placeholder="What does this mod do?" /></label>
@@ -926,7 +930,7 @@ function mountPanel(host) {
 
   function createLoadingIndicator() {
     return parseElement(
-      `<div class="chat-message chat-message-loading"><div class="message-content">${icons.toolLoading}Loading...</div></div>`
+      `<div class="chat-message chat-message-loading"><div class="message-content">${icons.toolLoading}Thinking…</div></div>`
     );
   }
 
