@@ -545,7 +545,8 @@ const SettingsModal = {
     const section = parseElement(
       ZenuxSettings.accordionSection({
         title: "Quick Split",
-        expanded: true,
+        icon: "chrome://browser/skin/zen-icons/split.svg",
+        expanded: false,
         id: "quick-split-section",
         body: `
         <div class="zenux-setting-item">
@@ -1120,6 +1121,7 @@ const SettingsModal = {
       parseElement(
         form.prefAccordion({
           title: "General",
+          icon: "chrome://browser/skin/zen-icons/settings.svg",
           expanded: true,
           items: [
             { key: PREFS.PREFIX, label: "Command Prefix", type: "char", maxlength: 1 },
@@ -1139,7 +1141,8 @@ const SettingsModal = {
         parseElement(
           form.prefAccordion({
             title: "Dynamic Commands",
-            expanded: false,
+            icon: "chrome://browser/skin/zen-icons/bolt.svg",
+            expanded: true,
             items: dynamicCommandItems,
           })
         )
@@ -1169,10 +1172,10 @@ const SettingsModal = {
       title: "Command Palette Settings",
       bodyHTML,
       tabs: [
-        { id: "commands", label: "Commands" },
-        { id: "settings", label: "Settings" },
-        { id: "custom-commands", label: "Custom Commands" },
-        { id: "help", label: "Help" },
+        { id: "commands", label: "Commands", icon: "chrome://browser/skin/zen-icons/selectable/terminal.svg" },
+        { id: "settings", label: "Settings", icon: "chrome://browser/skin/zen-icons/settings.svg" },
+        { id: "custom-commands", label: "Custom Commands", icon: "chrome://browser/skin/zen-icons/selectable/code.svg" },
+        { id: "help", label: "Help", icon: "chrome://browser/skin/zen-icons/help.svg" },
       ],
       closeId: "cmd-settings-close",
       saveId: "cmd-settings-save",
