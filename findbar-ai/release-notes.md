@@ -1,5 +1,7 @@
 # New Features
 
+- Settings are now organized into tabs (General, Surfaces, Models, Prompts) with icons on every tab and section.
+- Each settings tab has its own command palette entry (`Open BrowseBot Settings: General/Surfaces/Models/Prompts`) that jumps straight to that tab.
 - BrowseBot Library section (needs a Zen build with the Library feature): a persistent AI panel that stays open across tab and workspace switches, with Chat, Agent, and Build (working on it) modes.
 - Slash commands with autocomplete in library chat: `/chat`, `/agent`, `/build`. They switch modes, or switch and send the rest of the line. `/clear` stops the run and starts a new chat, `/close` closes the library while the run continues in the background.
 - Library runs keep going after you close the panel: closing declines any pending tool confirmation instead of stranding it, and a toast reports the outcome when the run finishes.

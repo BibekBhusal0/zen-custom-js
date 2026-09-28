@@ -133,6 +133,7 @@ BrowseBot integrates with Zen Command Palette to provide quick access to common 
 2.  Available BrowseBot commands:
     - **Summarize Page**: Opens the findbar AI and prompts to summarize the current page.
     - **Open BrowseBot Settings**: Opens the BrowseBot settings modal.
+    - **Open BrowseBot Settings: General/Surfaces/Models/Prompts**: Opens the settings modal directly on that tab.
     - **Toggle URL bar AI mode**: Activates AI mode in the URL bar.
     - **Expand findbar AI**: Opens the findbar directly in AI chat mode.
 

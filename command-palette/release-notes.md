@@ -1,5 +1,6 @@
 # New Features
 
+- Settings tabs and sections now have native icons.
 - Custom JS commands now get syntax highlighting right inside the code editor.
 - Running a custom JS command for the first time now shows a proper confirmation dialog with the full highlighted code.
 - Settings commands search now uses the same fuzzy matching as the palette, with results sorted by relevance.
@@ -13,6 +14,7 @@
 
 # Fixes
 
+- Fallback command icons use the native Zen bolt icon now that the old trending icon path no longer ships.
 - Dropdowns no longer leave empty space when the selected item has no icon.
 - Command icons, including extension icons, now always render at the right size and follow your theme colors.
 
