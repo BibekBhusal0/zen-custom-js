@@ -484,7 +484,7 @@ export const ZenCommandPalette = {
         label: cmd.label,
         tooltiptext: cmd.label,
         class: "toolbarbutton-1 chromeclass-toolbar-additional zen-command-widget",
-        icon: cmd.icon || "chrome://browser/skin/trending.svg",
+        icon: cmd.icon || "chrome://browser/skin/zen-icons/bolt.svg",
         onClick: () => this.executeCommand(key),
       });
       PREFS.debugLog(`Successfully created widget "${widgetId}" for command: ${key}`);
@@ -884,7 +884,7 @@ export const ZenCommandPalette = {
                   title: cmd.label,
                   query: input,
                   keywords: cmd?.tags,
-                  icon: cmd.icon || "chrome://browser/skin/trending.svg",
+                  icon: cmd.icon || "chrome://browser/skin/zen-icons/bolt.svg",
                   shortcutContent: shortcut,
                   dynamicType: DYNAMIC_TYPE_NAME,
                 },

@@ -79,7 +79,7 @@ browser {
 @media -moz-pref("extension.browse-bot.findbar-ai.enabled") {
   @media -moz-pref("extension.browse-bot.findbar-ai.context-menu-enabled") {
     #browse-bot-context-menu-item {
-      --menu-image: url("chrome://browser/skin/trending.svg");
+      --menu-image: url("chrome://browser/skin/zen-icons/bolt.svg");
     }
   }
 

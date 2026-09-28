@@ -344,7 +344,7 @@ const SettingsModal = {
     container.appendChild(item);
 
     const iconEl = xulImage(
-      customIcon || cmd.icon || "chrome://browser/skin/trending.svg",
+      customIcon || cmd.icon || "chrome://browser/skin/zen-icons/bolt.svg",
       `command-icon${allowIconChange ? " editable" : ""}`
     );
     item.insertBefore(iconEl, item.querySelector(".command-label"));
@@ -352,7 +352,7 @@ const SettingsModal = {
     iconEl.addEventListener(
       "error",
       () => {
-        iconEl.setAttribute("src", "chrome://browser/skin/trending.svg");
+        iconEl.setAttribute("src", "chrome://browser/skin/zen-icons/bolt.svg");
       },
       { once: true }
     );
@@ -495,7 +495,7 @@ const SettingsModal = {
     }
 
     customCommands.forEach((cmd) => {
-      const defaultIcon = "chrome://browser/skin/trending.svg";
+      const defaultIcon = "chrome://browser/skin/zen-icons/bolt.svg";
       const icon = cmd.icon || defaultIcon;
 
       const item = parseElement(`
@@ -690,7 +690,7 @@ const SettingsModal = {
       .map((c) => ({
         value: c.key,
         label: c.label,
-        image: c.icon || "chrome://browser/skin/trending.svg",
+        image: c.icon || "chrome://browser/skin/zen-icons/bolt.svg",
       }));
   },
 
@@ -1083,7 +1083,7 @@ const SettingsModal = {
       },
       {
         url: "https://github.com/BibekBhusal0/zen-custom-js/issues/22",
-        icon: "chrome://browser/skin/trending.svg",
+        icon: "chrome://browser/skin/zen-icons/bolt.svg",
         title: "More Commands",
         description: "Want more commands? Share your ideas here.",
       },
