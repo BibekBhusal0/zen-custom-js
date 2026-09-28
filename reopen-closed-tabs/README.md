@@ -13,7 +13,7 @@ https://github.com/user-attachments/assets/be2880c6-21e5-42ce-b8ed-ed45dc1942ad
 
 - ⚡ **Quick Access**: Open the menu with a toolbar button or a keyboard shortcut.
 - 🔍 **Search**: Instantly find the tab you're looking for by searching title, URL, workspace, or folder.
-- ⌨️ **Keyboard Navigation**: Fully navigable with arrow keys and Enter.
+- ⌨️ **Keyboard Navigation**: Fully navigable with arrow keys and Enter. Press Tab / Shift+Tab to jump between sections (Recently Closed, Open Tabs, Synced Tabs).
 - 📖 **View Open Tabs**: Optionally include currently open tabs in the list for a unified tab search experience.
 - 🛠️ **Customizable**: Change the keyboard shortcut to fit your workflow.
 
@@ -35,6 +35,7 @@ The Reopen Closed Tabs Menu can be configured from `about:config`.
 | ---------------------------------------------- | ------- | ------- | ------------------------------------------ |
 | `extensions.reopen-closed-tabs.shortcut-key`   | String  | `Alt+A` | The keyboard shortcut to open the menu.    |
 | `extensions.reopen-closed-tabs.show-open-tabs` | Boolean | `false` | Also show currently open tabs in the list. |
+| `extensions.reopen-closed-tabs.show-sync-tabs` | Boolean | `true` | Also show synced tabs from other devices. |
 | `extensions.reopen-closed-tabs.debug-mode`     | Boolean | `false` | Enable debug logging for troubleshooting.  |
 
 ## 🙏 Credits and Acknowledgements
