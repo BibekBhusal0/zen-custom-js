@@ -473,6 +473,16 @@ function mountPanel(host) {
     if (!state.destroyed) setTimeout(() => input.focus(), 10);
   };
 
+  function autogrow() {
+    input.style.height = "auto";
+    input.style.height = `${Math.min(input.scrollHeight, 160)}px`;
+  }
+
+  function clearInput() {
+    input.value = "";
+    input.style.height = "";
+  }
+
   function createToolConfirmationDialog(toolNames, detail = {}) {
     return new Promise((resolve) => {
       const { toolName, args } = detail;
@@ -795,7 +805,7 @@ function mountPanel(host) {
   function applyPopupItem(index = state.popupIndex) {
     if (state.popupKind === "sessions") {
       const picked = state.popupItems[index];
-      input.value = "";
+      clearInput();
       hidePopup();
       if (picked) loadSession(picked);
       input.focus();
@@ -809,15 +819,15 @@ function mountPanel(host) {
     const after = input.value.slice(caret);
     if (state.popupKind === "slash") {
       if (item.command === "delete" || item.command === "clear") {
-        input.value = "";
+        clearInput();
         hidePopup();
         deleteChat();
       } else if (item.command === "new") {
-        input.value = "";
+        clearInput();
         hidePopup();
         newChat();
       } else if (item.command === "close") {
-        input.value = "";
+        clearInput();
         hidePopup();
         closeLibrary();
       } else if (item.openSessions) {
@@ -829,13 +839,14 @@ function mountPanel(host) {
         return true;
       } else {
         setMode(item.mode);
-        input.value = "";
+        clearInput();
       }
     } else {
       state.pendingRefs = state.pendingRefs.filter((r) => r.tab !== item.tab);
       state.pendingRefs.push({ tab: item.tab, title: item.title, url: item.url, icon: item.icon });
       input.value = `${head}@${item.title} ${after}`;
       renderChips();
+      autogrow();
     }
     hidePopup();
     input.focus();
@@ -844,6 +855,7 @@ function mountPanel(host) {
 
   input.addEventListener("input", () => {
     syncPendingRefs();
+    autogrow();
     refreshPopup();
   });
   input.addEventListener("click", refreshPopup);
@@ -925,7 +937,7 @@ function mountPanel(host) {
 
     const command = text.match(/^\/(clear|delete|new|close)\s*$/i);
     if (command) {
-      input.value = "";
+      clearInput();
       hidePopup();
       const name = command[1].toLowerCase();
       if (name === "clear" || name === "delete") {
@@ -941,7 +953,7 @@ function mountPanel(host) {
     }
 
     if (/^\/continue\s*$/i.test(text)) {
-      input.value = "";
+      clearInput();
       hidePopup();
       openSessionsPopup();
       return;
@@ -953,7 +965,7 @@ function mountPanel(host) {
     if (slash && MODES.includes(slash[1].toLowerCase())) {
       setMode(slash[1].toLowerCase());
       const rest = slash[2].trim();
-      input.value = "";
+      clearInput();
       hidePopup();
       if (!rest) {
         focusPrompt();
@@ -980,7 +992,7 @@ function mountPanel(host) {
 
     addMessage("user", text, refs);
     deleteBtn.hidden = false;
-    input.value = "";
+    clearInput();
     state.pendingRefs = [];
     renderChips();
     hidePopup();
