@@ -208,6 +208,7 @@ function mountPanel(host) {
           ).join("")}
         </div>
         <div class="bb-header-actions">
+          <button class="zenux-icon-btn" data-action="sessions" tooltiptext="Saved chats"><img src="chrome://browser/skin/zen-icons/history.svg" /></button>
           <button class="zenux-icon-btn" data-action="delete" tooltiptext="Delete chat"><img src="chrome://global/skin/icons/delete.svg" /></button>
           <button class="zenux-icon-btn" data-action="settings" tooltiptext="BrowseBot settings"><img src="chrome://global/skin/icons/settings.svg" /></button>
         </div>
@@ -252,6 +253,7 @@ function mountPanel(host) {
   const popup = ui.querySelector(".bb-library-popup");
   const refsBar = ui.querySelector(".bb-refs-bar");
   const deleteBtn = ui.querySelector('[data-action="delete"]');
+  const sessionsBtn = ui.querySelector('[data-action="sessions"]');
   const modeButtons = [...ui.querySelectorAll(".bb-mode")];
   const buildBar = ui.querySelector(".bb-build-bar");
   const buildStatus = ui.querySelector(".bb-build-status");
@@ -570,6 +572,7 @@ function mountPanel(host) {
   }
 
   function addMessage(role, content, refs = []) {
+    messagesEl.querySelector(".zenux-empty")?.remove();
     const type = role === "user" ? "user" : role === "error" ? "error" : "ai";
     const wrap = parseElement(`<div class="chat-message chat-message-${type}"></div>`);
     const contentDiv = parseElement(`<div class="message-content"></div>`);
@@ -708,6 +711,13 @@ function mountPanel(host) {
     input.focus();
   });
 
+  // mousedown keeps input focus so the blur handler doesn't close the popup.
+  sessionsBtn.addEventListener("mousedown", (e) => e.preventDefault());
+  sessionsBtn.addEventListener("click", () => {
+    input.focus();
+    openSessionsPopup();
+  });
+
   ui.querySelector('[data-action="settings"]').addEventListener("click", () =>
     SettingsModal.show()
   );
@@ -756,11 +766,16 @@ function mountPanel(host) {
     }
     let items;
     if (token.kind === "slash") {
-      items = fuzzyFilterSort(SLASH_ITEMS, token.filter, (item) => [
-        item.title,
-        item.description,
-        ...(item.keywords || []),
-      ]);
+      const isFresh = browseBotLibraryLLM.getHistory().length === 0;
+      items = fuzzyFilterSort(
+        SLASH_ITEMS.filter((item) => {
+          if (item.mode && item.mode === PREFS.libraryMode) return false;
+          if ((item.command === "new" || item.command === "delete") && isFresh) return false;
+          return true;
+        }),
+        token.filter,
+        (item) => [item.title, item.description, ...(item.keywords || [])]
+      );
     } else {
       items = fuzzyFilterSort(listTabs(), token.filter, (t) => [t.title, t.url]).slice(0, 8);
     }

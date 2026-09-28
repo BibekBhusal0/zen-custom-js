@@ -478,6 +478,10 @@ zen-library-browsebot-section .bb-library-messages .tool-confirmation-content {
   }
 }
 
+zen-library-browsebot-section .bb-library-messages .zenux-empty {
+  margin: auto !important;
+}
+
 .bb-create-mod-overlay {
   position: fixed !important;
   inset: 0 !important;
