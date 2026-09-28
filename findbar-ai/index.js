@@ -3,11 +3,13 @@ import { browseBotFindbar } from "./findbar-ai.uc.js";
 import { browseBotLibrary, initBrowseBotLibrary } from "./library/library.uc.js";
 import { PREFS } from "./utils/prefs.js";
 import { startupFinish } from "../utils/startup-finish.js";
-import { SettingsModal } from "./settings.js";
+import { SettingsModal, SETTINGS_TABS } from "./settings.js";
 import { addPrefListener } from "../utils/pref.js";
 import { initShortcutRegistry, registerShortcut } from "../utils/keyboard.js";
 import { addCommands } from "../utils/command-palete.js";
 import { ensureApiKeysLoaded } from "./utils/secure.js";
+
+const settingsTabById = (id) => SETTINGS_TABS.find((tab) => tab.id === id);
 
 function setupCommandPaletteIntegration() {
   addCommands([
@@ -26,10 +28,17 @@ function setupCommandPaletteIntegration() {
     {
       key: "browsebot:settings",
       label: "Open BrowseBot Settings",
-      command: () => SettingsModal.toggle(),
-      icon: "chrome://global/skin/icons/settings.svg",
+      command: () => SettingsModal.show("general"),
+      icon: settingsTabById("general")?.icon || "chrome://global/skin/icons/settings.svg",
       tags: ["AI", "BrowseBot", "Settings"],
     },
+    ...SETTINGS_TABS.map((tab) => ({
+      key: `browsebot:settings-${tab.id}`,
+      label: `Open BrowseBot Settings: ${tab.label}`,
+      command: () => SettingsModal.show(tab.id),
+      icon: tab.icon,
+      tags: ["AI", "BrowseBot", "Settings", tab.label, tab.id],
+    })),
     {
       key: "browsebot:urlbarAi",
       label: "Toggle URL bar AI mode",

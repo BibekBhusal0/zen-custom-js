@@ -5,12 +5,36 @@ import { createCombobox } from "../utils/combobox.js";
 import { createModelField } from "./utils/model-selector.js";
 import { ZenuxSettings } from "../utils/settings-modal.js";
 import { browseBotFindbar } from "./findbar-ai.uc.js";
+import { icons, svgToUrl } from "../utils/icon.js";
 import {
   ensureApiKeysLoaded,
   getSecureApiKey,
   isApiKeyPref,
   setSecureApiKey,
 } from "./utils/secure.js";
+
+export const SETTINGS_TABS = [
+  {
+    id: "general",
+    label: "General",
+    icon: "chrome://browser/skin/zen-icons/settings.svg",
+  },
+  {
+    id: "surfaces",
+    label: "Surfaces",
+    icon: "chrome://browser/skin/zen-icons/sidebar.svg",
+  },
+  {
+    id: "models",
+    label: "Models",
+    icon: "chrome://browser/skin/zen-icons/passwords.svg",
+  },
+  {
+    id: "prompts",
+    label: "Prompts",
+    icon: "chrome://browser/skin/zen-icons/wand-sparkle.svg",
+  },
+];
 
 const form = new ZenuxSettings(PREFS);
 
@@ -21,10 +45,19 @@ export const SettingsModal = {
     return providerName.replace(/\./g, "-");
   },
 
-  createModalElement() {
-    const settingsHtml = this._generateSettingsHtml();
+  createModalElement(initialTab = "general") {
+    const { bodyHTML, tabs } = this._generateSettingsHtml();
+    const settingsHtml = ZenuxSettings.shell({
+      title: "BrowseBot Settings",
+      bodyHTML,
+      tabs,
+      closeId: "browse-bot-close-settings",
+      saveId: "browse-bot-save-settings",
+      modalClass: "browse-bot-settings-modal",
+    });
     const container = parseElement(settingsHtml);
     this._modalElement = container;
+    this._initialTab = initialTab;
 
     const providerCombo = createCombobox({
       id: "pref-llm-provider",
@@ -82,6 +115,7 @@ export const SettingsModal = {
 
     form.attachDismiss(root, () => this.hide());
     form.attachAccordion(root);
+    form.attachTabs(root, this._initialTab || "general");
     form.attachResetButtons(root, (prefKey) => this._onPrefChange(prefKey));
     form.attachPrefTracking(root, (prefKey) => this._onPrefChange(prefKey));
     form.attachShortcutInputs(root);
@@ -215,18 +249,27 @@ export const SettingsModal = {
     return !!this._modalElement?.isConnected;
   },
 
-  async toggle() {
+  async toggle(tabId) {
     if (this.isOpen()) {
-      this.hide();
+      if (tabId) this.switchTab(tabId);
+      else this.hide();
       return;
     }
-    await this.show();
+    await this.show(tabId);
   },
 
-  async show() {
-    if (this.isOpen()) return;
+  switchTab(tabId) {
+    if (!this._modalElement) return;
+    form.switchTab(this._modalElement, tabId);
+  },
+
+  async show(tabId = "general") {
+    if (this.isOpen()) {
+      this.switchTab(tabId);
+      return;
+    }
     await ensureApiKeysLoaded();
-    this.createModalElement();
+    this.createModalElement(tabId);
     form.syncFromPrefs(this._modalElement);
     for (const provider of Object.values(browseBotFindbarLLM.AVAILABLE_PROVIDERS)) {
       if (!provider.apiPref) continue;
@@ -246,6 +289,7 @@ export const SettingsModal = {
       this._modalElement.remove();
     }
     this._modalElement = null;
+    this._initialTab = null;
   },
 
   _updateProviderSpecificSettings(container, selectedProviderName) {
@@ -288,7 +332,8 @@ export const SettingsModal = {
     expanded = true,
     contentBefore = "",
     contentAfter = "",
-    resetPrefs = null
+    resetPrefs = null,
+    icon = ""
   ) {
     const body = settingsArray
       .map((s) => {
@@ -305,6 +350,7 @@ export const SettingsModal = {
       .join("");
     return ZenuxSettings.accordionSection({
       title,
+      icon,
       expanded,
       resetPrefs: resetPrefs ?? settingsArray.map((s) => s.pref),
       before: contentBefore,
@@ -349,7 +395,8 @@ export const SettingsModal = {
           { id: "pref-background-style" }
         ),
       ].join(""),
-      [...findbarSettings.map((s) => s.pref), PREFS.POSITION, PREFS.BACKGROUND_STYLE]
+      [...findbarSettings.map((s) => s.pref), PREFS.POSITION, PREFS.BACKGROUND_STYLE],
+      "chrome://browser/skin/zen-icons/search-glass.svg"
     );
 
     const urlbarSettings = [
@@ -357,7 +404,15 @@ export const SettingsModal = {
       { label: "Enable Animations", pref: PREFS.URLBAR_AI_ANIMATIONS_ENABLED },
       { label: "Hide Suggestions", pref: PREFS.URLBAR_AI_HIDE_SUGGESTIONS },
     ];
-    const urlbarSectionHtml = this._checkboxSection("URLBar AI", urlbarSettings, false);
+    const urlbarSectionHtml = this._checkboxSection(
+      "URLBar AI",
+      urlbarSettings,
+      false,
+      "",
+      "",
+      null,
+      "chrome://browser/skin/zen-icons/link.svg"
+    );
 
     const librarySettings = [
       { label: "Enable Library AI", pref: PREFS.LIBRARY_ENABLED },
@@ -384,11 +439,13 @@ export const SettingsModal = {
         { id: "pref-library-mode" }
       ),
       "",
-      [...librarySettings.map((s) => s.pref), PREFS.LIBRARY_MODE]
+      [...librarySettings.map((s) => s.pref), PREFS.LIBRARY_MODE],
+      "chrome://browser/skin/zen-icons/library.svg"
     );
 
     const shortcutsSectionHtml = ZenuxSettings.accordionSection({
       title: "Keyboard Shortcuts",
+      icon: svgToUrl(icons.keyboard),
       expanded: true,
       resetPrefs: [PREFS.SHORTCUT_FINDBAR, PREFS.SHORTCUT_URLBAR, PREFS.SHORTCUT_LIBRARY],
       body: [
@@ -413,6 +470,7 @@ export const SettingsModal = {
     ];
     const aiBehaviorSectionHtml = ZenuxSettings.accordionSection({
       title: "AI Behavior",
+      icon: "chrome://browser/skin/zen-icons/sparkles.svg",
       expanded: true,
       resetPrefs: aiBehaviorSettings.map((s) => s.pref),
       body: aiBehaviorSettings
@@ -439,7 +497,8 @@ export const SettingsModal = {
     ];
     const systemPromptsSectionHtml = ZenuxSettings.accordionSection({
       title: "System Prompts",
-      expanded: false,
+      icon: "chrome://browser/skin/zen-icons/wand-sparkle.svg",
+      expanded: true,
       resetPrefs: systemPromptRows.map(([, pref]) => pref),
       body: systemPromptRows
         .map(([label, pref]) =>
@@ -469,6 +528,7 @@ export const SettingsModal = {
     ].join("");
     const contextMenuSectionHtml = ZenuxSettings.accordionSection({
       title: "Context Menu",
+      icon: "chrome://global/skin/icons/cursor-arrow.svg",
       expanded: false,
       resetPrefs: [
         ...contextMenuSettings.map((s) => s.pref),
@@ -551,7 +611,8 @@ export const SettingsModal = {
 
     const llmProvidersSectionHtml = ZenuxSettings.accordionSection({
       title: "LLM Providers",
-      expanded: false,
+      icon: "chrome://browser/skin/zen-icons/passwords.svg",
+      expanded: true,
       resetPrefs: llmProvidersResetPrefs,
       body: `
         <div class="zenux-setting-item">
@@ -623,7 +684,11 @@ export const SettingsModal = {
     const advancedLLMSectionHtml = this._checkboxSection(
       "Advanced LLM Settings",
       advancedLLMSettings,
-      false
+      true,
+      "",
+      "",
+      null,
+      "chrome://browser/skin/zen-icons/sliders.svg"
     );
 
     const browserFindbarSettings = [
@@ -638,33 +703,40 @@ export const SettingsModal = {
     const browserSettingsHtml = this._checkboxSection(
       "Browser Findbar",
       browserFindbarSettings,
-      false
+      false,
+      "",
+      "",
+      null,
+      "chrome://global/skin/icons/search-glass.svg"
     );
 
     const devSettings = [{ label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE }];
-    const devSectionHtml = this._checkboxSection("Development", devSettings, false);
+    const devSectionHtml = this._checkboxSection(
+      "Development",
+      devSettings,
+      false,
+      "",
+      "",
+      null,
+      "chrome://browser/skin/zen-icons/developer.svg"
+    );
 
-    const bodyHtml = [
-      findbarSectionHtml,
-      urlbarSectionHtml,
-      librarySectionHtml,
-      shortcutsSectionHtml,
-      aiBehaviorSectionHtml,
-      systemPromptsSectionHtml,
-      contextMenuSectionHtml,
-      llmProvidersSectionHtml,
-      advancedLLMSectionHtml,
-      browserSettingsHtml,
-      devSectionHtml,
+    const tabContent = (id, sections) =>
+      `<div data-tab-content="${id}" hidden>${sections.join("")}</div>`;
+    const bodyHTML = [
+      tabContent("general", [shortcutsSectionHtml, aiBehaviorSectionHtml, devSectionHtml]),
+      tabContent("surfaces", [
+        findbarSectionHtml,
+        urlbarSectionHtml,
+        librarySectionHtml,
+        contextMenuSectionHtml,
+        browserSettingsHtml,
+      ]),
+      tabContent("models", [llmProvidersSectionHtml, advancedLLMSectionHtml]),
+      tabContent("prompts", [systemPromptsSectionHtml]),
     ].join("");
 
-    return ZenuxSettings.shell({
-      title: "BrowseBot Settings",
-      bodyHTML: bodyHtml,
-      closeId: "browse-bot-close-settings",
-      saveId: "browse-bot-save-settings",
-      modalClass: "browse-bot-settings-modal",
-    });
+    return { bodyHTML, tabs: SETTINGS_TABS };
   },
 };
 
