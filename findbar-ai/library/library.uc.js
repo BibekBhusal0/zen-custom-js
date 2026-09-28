@@ -153,6 +153,15 @@ let libraryRunController = null;
 let libraryRunHost = null;
 const libraryRunEndListeners = new Set();
 
+// Pending approval survives remounts: the dialog lives in the run view, runs stall until confirmed.
+let pendingConfirmEl = null;
+
+function cancelPendingConfirm() {
+  try {
+    pendingConfirmEl?.querySelector(".decline-tool")?.click();
+  } catch {}
+}
+
 function broadcastRunEnd(except) {
   for (const fn of [...libraryRunEndListeners]) {
     if (fn === except) continue;
@@ -197,7 +206,6 @@ function mountPanel(host) {
     pendingRefs: [],
     abortController: null,
     streaming: false,
-    toolConfirmationDialog: null,
     popupIndex: 0,
     popupKind: null,
     popupItems: [],
@@ -209,10 +217,6 @@ function mountPanel(host) {
     state.destroyed = true;
     clearLibraryWidth(host);
     libraryRunEndListeners.delete(onRunEnd);
-    state.confirmResolver?.(false);
-    state.confirmResolver = null;
-    state.toolConfirmationDialog?.remove();
-    state.toolConfirmationDialog = null;
   };
 
   const messagesEl = ui.querySelector(".bb-library-messages");
@@ -252,7 +256,7 @@ function mountPanel(host) {
   }
 
   function abortRun() {
-    state.toolConfirmationDialog?.querySelector(".cancel-tool")?.click();
+    cancelPendingConfirm();
     state.abortController?.abort();
     libraryRunController?.abort();
   }
@@ -450,7 +454,7 @@ function mountPanel(host) {
       if (toolName === "runChromeJS" && args?.code) {
         const codeEl = parseElement(`<pre class="zenux-code-confirm-code"><code></code></pre>`);
         codeEl.querySelector("code").innerHTML = highlightCode(
-          String(args.code).slice(0, 4000),
+          `${String(args.code).slice(0, 800)}${String(args.code).length > 800 ? "\n// …preview truncated" : ""}`,
           "javascript"
         );
         previewHtml = codeEl.outerHTML;
@@ -463,7 +467,7 @@ function mountPanel(host) {
       const warningHtml = detail.unsafeJSBlocked
         ? `<p class="tool-confirm-warning">Sine blocks scripts from unofficial sources, so this mod's script won't run until you enable that Sine setting.</p>`
         : "";
-      const confirmLabel = detail.unsafeJSBlocked ? "Create anyway" : "Yes";
+      const confirmLabel = detail.unsafeJSBlocked ? "Create anyway" : "Allow";
       const enableHtml = detail.unsafeJSBlocked
         ? `<button class="enable-create zenux-btn-primary">Enable &amp; create</button>`
         : "";
@@ -473,52 +477,59 @@ function mountPanel(host) {
       const dialog = parseElement(`
         <div class="tool-confirmation-dialog">
           <div class="tool-confirmation-content">
-            <p>Allow AI to do following tasks: ${toolNames?.join(", ")}?</p>
+            <p class="tool-confirm-title">Allow AI to do the following: ${toolNames?.join(", ")}?</p>
             ${previewHtml}
             ${warningHtml}
             <div class="buttons">
               ${notAgainHtml}
               <div class="right-side-buttons">
                 ${enableHtml}
-                <button class="confirm-tool zenux-btn-success">${confirmLabel}</button>
-                <button class="cancel-tool zenux-btn-danger">No</button>
+                <button class="decline-tool zenux-btn-ghost">Decline</button>
+                <button class="confirm-tool zenux-btn-primary">${confirmLabel}</button>
               </div>
             </div>
           </div>
         </div>
       `);
-      state.toolConfirmationDialog = dialog;
-      state.confirmResolver = resolve;
-
-      const removeDialog = () => {
+      const done = (value) => {
         dialog.remove();
-        state.toolConfirmationDialog = null;
-        state.confirmResolver = null;
+        if (pendingConfirmEl === dialog) pendingConfirmEl = null;
+        resolve(value);
       };
+      pendingConfirmEl = dialog;
 
       dialog.querySelector(".enable-create")?.addEventListener("click", () => {
         setUnsafeJSAllowed();
-        removeDialog();
-        resolve(true);
+        done(true);
       });
 
       dialog.querySelector(".confirm-tool").addEventListener("click", () => {
-        removeDialog();
-        resolve(true);
+        done(true);
       });
 
-      dialog.querySelector(".cancel-tool").addEventListener("click", () => {
-        removeDialog();
-        resolve(false);
+      dialog.querySelector(".decline-tool").addEventListener("click", () => {
+        done(false);
       });
 
       dialog.querySelector(".not-again")?.addEventListener("click", () => {
-        removeDialog();
         PREFS.confirmation = false;
-        resolve(true);
+        done(true);
       });
 
-      document.body.appendChild(dialog);
+      (libraryRunHost ?? messagesEl).appendChild(dialog);
+      scrollDown();
+      if (!isBrowseBotVisible()) {
+        try {
+          showToast({
+            title: "BrowseBot needs approval",
+            description: toolNames?.join(", "),
+            preset: 2,
+            buttonText: "Review",
+            timeout: 15000,
+            onClick: () => browseBotLibrary.open(),
+          });
+        } catch {}
+      }
     });
   }
 
@@ -1043,7 +1054,7 @@ function mountPanel(host) {
             );
           } else if (result.text.trim() === "" && toolGen > 0) {
             contentDiv.appendChild(parseMD("*(Tool actions performed)*"));
-          } else if (result.text.trim() === "" && toolGen === 0) {
+          } else if (result.text.trim() === "") {
             aiWrap.remove();
           } else {
             contentDiv.appendChild(parseMD(result.text));
@@ -1082,7 +1093,7 @@ function mountPanel(host) {
           } else if (segmentText.trim() === "" && toolGen > 0) {
             contentDiv.innerHTML = "";
             contentDiv.appendChild(parseMD("*(Tool actions performed)*"));
-          } else if (segmentText.trim() === "" && toolGen === 0) {
+          } else if (segmentText.trim() === "") {
             aiWrap.remove();
           }
         } finally {
@@ -1108,15 +1119,18 @@ function mountPanel(host) {
       if (libraryRunController === state.abortController) libraryRunController = null;
       const finishedHost = libraryRunHost;
       libraryRunHost = null;
-      broadcastRunEnd(onRunEnd);
-      let browseBotVisible = false;
-      try {
-        const h = document.querySelector("zen-library");
-        browseBotVisible = !!h && isLibraryOpen() && h.activeTab === "browsebot";
-      } catch {}
+      broadcastRunEnd();
+      const browseBotVisible = isBrowseBotVisible();
       if (notifyText && !browseBotVisible) {
         try {
-          showToast({ title: notifyText, description: prompt.slice(0, 120) });
+          showToast({
+            title: notifyText,
+            description: prompt.slice(0, 120),
+            preset: 2,
+            buttonText: "Open",
+            timeout: 8000,
+            onClick: () => browseBotLibrary.open(),
+          });
         } catch {}
       }
       if (!state.destroyed) {
@@ -1467,6 +1481,15 @@ function isLibraryOpen() {
     }
   } catch {}
   return false;
+}
+
+function isBrowseBotVisible() {
+  try {
+    const h = document.querySelector("zen-library");
+    return !!h && isLibraryOpen() && h.activeTab === "browsebot";
+  } catch {
+    return false;
+  }
 }
 
 function clickLibraryButton() {

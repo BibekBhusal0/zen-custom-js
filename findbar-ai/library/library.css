@@ -426,6 +426,47 @@ zen-library-browsebot-section {
   max-width: none !important;
 }
 
+/* Inline approval card; overrides the fixed modal styling from settings.css. */
+zen-library-browsebot-section .bb-library-messages .tool-confirmation-dialog {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  background: none !important;
+  backdrop-filter: none !important;
+  display: block !important;
+  z-index: auto !important;
+  align-self: stretch !important;
+}
+
+zen-library-browsebot-section .bb-library-messages .tool-confirmation-content {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  padding: 12px !important;
+  text-align: left !important;
+  background: var(--zenux-surface) !important;
+  border: 1px solid var(--zenux-accent-border) !important;
+  outline: none !important;
+  backdrop-filter: none !important;
+  border-radius: var(--zenux-radius-m) !important;
+
+  .tool-confirm-title {
+    margin: 0 0 10px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+
+  .buttons {
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .not-again {
+    font-size: 12px !important;
+  }
+}
+
 .bb-create-mod-overlay {
   position: fixed !important;
   inset: 0 !important;
