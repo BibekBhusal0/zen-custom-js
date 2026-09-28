@@ -36,7 +36,7 @@ export class ZenuxSettings {
       ? `<div class="zenux-settings-tabs" role="tablist">${tabs
           .map(
             (tab) =>
-              `<button class="zenux-settings-tab" role="tab" data-tab="${escapeXmlAttribute(tab.id)}">${escapeXmlAttribute(tab.label)}</button>`
+              `<button class="zenux-settings-tab" role="tab" data-tab="${escapeXmlAttribute(tab.id)}">${tab.icon ? `<img class="zenux-settings-tab-icon" src="${escapeXmlAttribute(tab.icon)}" />` : ""}${escapeXmlAttribute(tab.label)}</button>`
           )
           .join("")}</div>`
       : "";
@@ -61,6 +61,7 @@ export class ZenuxSettings {
 
   static accordionSection({
     title,
+    icon = "",
     expanded = true,
     resetPrefs = [],
     before = "",
@@ -72,6 +73,7 @@ export class ZenuxSettings {
     return `
       <section class="zenux-settings-section zenux-settings-accordion" data-expanded="${expanded ? "true" : "false"}"${id ? ` id="${escapeXmlAttribute(id)}"` : ""}>
         <h4 class="zenux-settings-section-head" data-accordion-head>
+          ${icon ? `<img class="zenux-settings-section-icon" src="${escapeXmlAttribute(icon)}" />` : ""}
           <span class="zenux-settings-section-title">${escapeXmlAttribute(title)}</span>
           ${
             reset
@@ -260,9 +262,10 @@ export class ZenuxSettings {
    * Build an accordion section from row descriptors. Reset prefs default to
    * the item keys; pass `resetPrefs` explicitly to override (or [] for none).
    */
-  prefAccordion({ title, items, expanded = true, resetPrefs, before = "", after = "" }) {
+  prefAccordion({ title, icon = "", items, expanded = true, resetPrefs, before = "", after = "" }) {
     return ZenuxSettings.accordionSection({
       title,
+      icon,
       expanded,
       resetPrefs: resetPrefs ?? items.map((item) => item.key),
       before,

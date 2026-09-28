@@ -72,9 +72,21 @@
         cursor: pointer !important;
         appearance: none !important;
         white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 7px !important;
         transition:
           background-color 0.15s var(--zenux-ease),
           color 0.15s var(--zenux-ease) !important;
+
+        .zenux-settings-tab-icon {
+          width: 15px !important;
+          height: 15px !important;
+          flex-shrink: 0 !important;
+          -moz-context-properties: fill, stroke !important;
+          fill: currentColor !important;
+          stroke: currentColor !important;
+        }
 
         &:hover {
           background-color: var(--zenux-surface-hover) !important;
@@ -143,6 +155,16 @@
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
+      }
+
+      .zenux-settings-section-icon {
+        width: 17px !important;
+        height: 17px !important;
+        flex-shrink: 0 !important;
+        -moz-context-properties: fill, stroke !important;
+        fill: var(--zenux-accent-text) !important;
+        stroke: var(--zenux-accent-text) !important;
+        opacity: 0.9 !important;
       }
 
       .zenux-settings-reset {
