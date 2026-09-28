@@ -276,6 +276,17 @@ zen-library-browsebot-section {
         font-weight: 700 !important;
         opacity: 0.85 !important;
       }
+
+      .tool-call-detail {
+        font-size: 12px !important;
+        font-weight: 400 !important;
+        opacity: 0.75 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 220px !important;
+        min-width: 0 !important;
+      }
     }
 
     .bb-ref-chip {

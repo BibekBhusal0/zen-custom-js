@@ -162,6 +162,32 @@ function cancelPendingConfirm() {
   } catch {}
 }
 
+function shortText(text, limit = 44) {
+  const t = String(text ?? "").replace(/\s+/g, " ").trim();
+  return t.length > limit ? `${t.slice(0, limit - 1)}…` : t;
+}
+
+function toolStatusIcon(status) {
+  try {
+    return icons[`tool${status[0].toUpperCase()}${status.slice(1)}`] || "";
+  } catch {
+    return "";
+  }
+}
+
+function toolDetail(toolName, args) {
+  if (!args || typeof args !== "object") return "";
+  if (toolName === "readMod" && args.modId) {
+    const files = Array.isArray(args.files) && args.files.length ? args.files : ["theme.json"];
+    return shortText(`${args.modId} / ${files[0]}${files.length > 1 ? ` +${files.length - 1}` : ""}`);
+  }
+  if (toolName === "updateModFile" && args.modId && args.file) {
+    return shortText(`${args.modId} / ${args.file}`);
+  }
+  if (toolName === "createMod" && args.name) return shortText(args.name);
+  return "";
+}
+
 function broadcastRunEnd(except) {
   for (const fn of [...libraryRunEndListeners]) {
     if (fn === except) continue;
@@ -991,15 +1017,17 @@ function mountPanel(host) {
       shownGen = toolGen;
       segmentText = "";
     };
-    const updateToolCallUI = (toolName, status) => {
+    const updateToolCallUI = (toolName, status, error = null, args = null) => {
       toolGen++;
       let row = null;
       if (status === "loading") {
         if (!lastToolRow || lastToolRow.name !== toolName) {
+          const detail = toolDetail(toolName, args);
           const el = parseElement(`
           <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
             <span class="tool-call-icon"></span>
             <span class="tool-call-name">${escapeXmlAttribute(toolName)}</span>
+            ${detail ? `<span class="tool-call-detail">${escapeXmlAttribute(detail)}</span>` : ""}
             <span class="tool-call-count" hidden></span>
             <span class="tool-call-declined" hidden>Declined</span>
           </div>`);
@@ -1019,8 +1047,7 @@ function mountPanel(host) {
         row.count++;
       }
       row.el.dataset.status = status;
-      row.el.querySelector(".tool-call-icon").innerHTML =
-        icons["tool" + status[0].toUpperCase() + status.slice(1)] || "";
+      row.el.querySelector(".tool-call-icon").innerHTML = toolStatusIcon(status);
       if (status !== "loading") row.count++;
       row.el.querySelector(".tool-call-declined").hidden = status !== "declined";
       const countEl = row.el.querySelector(".tool-call-count");
