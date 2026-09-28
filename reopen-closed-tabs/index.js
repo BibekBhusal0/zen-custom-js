@@ -364,6 +364,44 @@ const ReopenClosedTabs = {
     }
   },
 
+  _getSectionItems(tabItemsContainer) {
+    const sections = [];
+    let currentSection = null;
+    for (const child of tabItemsContainer.children) {
+      if (child.classList.contains("reopen-closed-tabs-group-header")) {
+        currentSection = { header: child, items: [] };
+        sections.push(currentSection);
+      } else if (
+        currentSection &&
+        child.classList.contains("reopen-closed-tab-item")
+      ) {
+        currentSection.items.push(child);
+      }
+    }
+    return sections.filter((section) => section.items.length > 0);
+  },
+
+  _selectTabItem(tabItemsContainer, currentSelected, nextSelected) {
+    if (!nextSelected) return;
+    if (currentSelected) {
+      currentSelected.removeAttribute("selected");
+    }
+    nextSelected.setAttribute("selected", "true");
+    nextSelected.scrollIntoView({ block: "nearest" });
+
+    // Adjust scroll position to prevent selected item from being hidden behind sticky group label
+    const stickyHeader = tabItemsContainer.querySelector(".reopen-closed-tabs-group-header");
+    if (stickyHeader) {
+      const stickyHeaderHeight = stickyHeader.offsetHeight;
+      const selectedItemRect = nextSelected.getBoundingClientRect();
+      const containerRect = tabItemsContainer.getBoundingClientRect();
+      if (selectedItemRect.top < containerRect.top + stickyHeaderHeight) {
+        tabItemsContainer.scrollTop -=
+          containerRect.top + stickyHeaderHeight - selectedItemRect.top;
+      }
+    }
+  },
+
   _handleSearchKeydown(event, panel) {
     event.stopPropagation();
     const tabItemsContainer = panel.querySelector("#reopen-closed-tabs-list-container");
@@ -394,27 +432,28 @@ const ReopenClosedTabs = {
       if (currentSelected) {
         currentSelected.click();
       }
-    }
-
-    if (currentSelected) {
-      currentSelected.removeAttribute("selected");
-    }
-    if (nextSelected) {
-      nextSelected.setAttribute("selected", "true");
-      nextSelected.scrollIntoView({ block: "nearest" });
-
-      // Adjust scroll position to prevent selected item from being hidden behind sticky group label
-      const stickyHeader = tabItemsContainer.querySelector(".reopen-closed-tabs-group-header");
-      if (stickyHeader) {
-        const stickyHeaderHeight = stickyHeader.offsetHeight;
-        const selectedItemRect = nextSelected.getBoundingClientRect();
-        const containerRect = tabItemsContainer.getBoundingClientRect();
-        if (selectedItemRect.top < containerRect.top + stickyHeaderHeight) {
-          tabItemsContainer.scrollTop -=
-            containerRect.top + stickyHeaderHeight - selectedItemRect.top;
-        }
+    } else if (event.key === "Tab") {
+      event.preventDefault();
+      const sections = this._getSectionItems(tabItemsContainer);
+      if (sections.length <= 1) return;
+      const forward = !event.shiftKey;
+      let currentSectionIndex = sections.findIndex((section) =>
+        currentSelected ? section.items.includes(currentSelected) : false
+      );
+      if (currentSectionIndex === -1) {
+        nextSelected = forward
+          ? sections[0].items[0]
+          : sections[sections.length - 1].items[0];
+      } else {
+        nextSelected =
+          sections[
+            (currentSectionIndex + (forward ? 1 : -1) + sections.length) %
+              sections.length
+          ].items[0];
       }
     }
+
+    this._selectTabItem(tabItemsContainer, currentSelected, nextSelected);
   },
 
   _handleItemClick(event) {
