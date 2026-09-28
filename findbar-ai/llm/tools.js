@@ -1308,24 +1308,12 @@ If tab is essential which means does not belong to any specific workspace.
 };
 
 const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
-  const selectedTools = (() => {
-    if (!groups || !Array.isArray(groups) || groups.length === 0) {
-      // get all tools from all groups except 'misc' and 'build'
-      // (build tools only run in build mode via getTools(["build"])).
-      return Object.entries(toolGroups).reduce((acc, [name, group]) => {
-        if (name !== "misc" && name !== "build" && group.tools) {
-          return { ...acc, ...group.tools };
-        }
-        return acc;
-      }, {});
+  const selectedTools = groups.reduce((acc, groupName) => {
+    if (toolGroups[groupName] && toolGroups[groupName].tools) {
+      return { ...acc, ...toolGroups[groupName].tools };
     }
-    return groups.reduce((acc, groupName) => {
-      if (toolGroups[groupName] && toolGroups[groupName].tools) {
-        return { ...acc, ...toolGroups[groupName].tools };
-      }
-      return acc;
-    }, {});
-  })();
+    return acc;
+  }, {});
 
   if (!shouldToolBeCalled && !afterToolCall) {
     return selectedTools;
@@ -1354,10 +1342,7 @@ const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
 
 const getToolSystemPrompt = async (groups, includeExamples = true) => {
   try {
-    const activeGroupNames =
-      groups && Array.isArray(groups) && groups.length > 0
-        ? groups
-        : Object.keys(toolGroups).filter((g) => g !== "misc");
+    const activeGroupNames = groups;
     const activeGroups = new Set(activeGroupNames);
 
     let availableTools = [];

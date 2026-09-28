@@ -8,6 +8,17 @@ import PREFS from "../utils/prefs.js";
 
 const MODES = ["chat", "agent", "build"];
 
+const agentGroups = [
+  "search",
+  "navigation",
+  "tabs",
+  "pageInteraction",
+  "youtube",
+  "bookmarks",
+  "workspaces",
+  "uiFeedback",
+];
+
 function truncate(text, limit) {
   if (!limit || limit <= 0) return text;
   if (text.length <= limit) return text;
@@ -56,7 +67,7 @@ You have access to browser functions. The user knows you have these abilities.
 - Current page: "${title}" (${url})
 - If the user references tabs with @mentions, their full page content is provided as a separate message. Base answers about those tabs on that content.
 `;
-      systemPrompt += await getToolSystemPrompt();
+      systemPrompt += await getToolSystemPrompt(agentGroups);
       systemPrompt += `
 ## More instructions for Running tools
 - While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
@@ -127,7 +138,7 @@ You have access to browser functions. The user knows you have these abilities.
         onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
     };
 
-    const tools = getTools(null, { shouldToolBeCalled, afterToolCall });
+    const tools = getTools(agentGroups, { shouldToolBeCalled, afterToolCall });
 
     const commonConfig = {
       prompt,
