@@ -123,8 +123,7 @@ export const SettingsModal = {
     root.querySelector("#browse-bot-save-settings").addEventListener("click", async () => {
       await this.saveSettings();
       this.hide();
-      if (browseBotFindbar.enabled) browseBotFindbar.show();
-      else browseBotFindbar.destroy();
+      if (!browseBotFindbar.enabled) browseBotFindbar.destroy();
     });
 
     root.querySelectorAll(".get-api-key-link").forEach((link) => {
