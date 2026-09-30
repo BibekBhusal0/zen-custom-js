@@ -163,7 +163,9 @@ function cancelPendingConfirm() {
 }
 
 function shortText(text, limit = 44) {
-  const t = String(text ?? "").replace(/\s+/g, " ").trim();
+  const t = String(text ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
   return t.length > limit ? `${t.slice(0, limit - 1)}…` : t;
 }
 
@@ -183,7 +185,9 @@ function toolDetail(toolName, args) {
   if (!args || typeof args !== "object") return "";
   if (toolName === "readMod" && args.modId) {
     const files = Array.isArray(args.files) && args.files.length ? args.files : ["theme.json"];
-    return shortText(`${args.modId} / ${files[0]}${files.length > 1 ? ` +${files.length - 1}` : ""}`);
+    return shortText(
+      `${args.modId} / ${files[0]}${files.length > 1 ? ` +${files.length - 1}` : ""}`
+    );
   }
   if (toolName === "updateModFile" && args.modId && args.file) {
     return shortText(`${args.modId} / ${args.file}`);

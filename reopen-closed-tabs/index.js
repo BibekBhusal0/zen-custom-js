@@ -371,10 +371,7 @@ const ReopenClosedTabs = {
       if (child.classList.contains("reopen-closed-tabs-group-header")) {
         currentSection = { header: child, items: [] };
         sections.push(currentSection);
-      } else if (
-        currentSection &&
-        child.classList.contains("reopen-closed-tab-item")
-      ) {
+      } else if (currentSection && child.classList.contains("reopen-closed-tab-item")) {
         currentSection.items.push(child);
       }
     }
@@ -441,15 +438,11 @@ const ReopenClosedTabs = {
         currentSelected ? section.items.includes(currentSelected) : false
       );
       if (currentSectionIndex === -1) {
-        nextSelected = forward
-          ? sections[0].items[0]
-          : sections[sections.length - 1].items[0];
+        nextSelected = forward ? sections[0].items[0] : sections[sections.length - 1].items[0];
       } else {
         nextSelected =
-          sections[
-            (currentSectionIndex + (forward ? 1 : -1) + sections.length) %
-              sections.length
-          ].items[0];
+          sections[(currentSectionIndex + (forward ? 1 : -1) + sections.length) % sections.length]
+            .items[0];
       }
     }
 

@@ -1172,9 +1172,17 @@ const SettingsModal = {
       title: "Command Palette Settings",
       bodyHTML,
       tabs: [
-        { id: "commands", label: "Commands", icon: "chrome://browser/skin/zen-icons/selectable/terminal.svg" },
+        {
+          id: "commands",
+          label: "Commands",
+          icon: "chrome://browser/skin/zen-icons/selectable/terminal.svg",
+        },
         { id: "settings", label: "Settings", icon: "chrome://browser/skin/zen-icons/settings.svg" },
-        { id: "custom-commands", label: "Custom Commands", icon: "chrome://browser/skin/zen-icons/selectable/code.svg" },
+        {
+          id: "custom-commands",
+          label: "Custom Commands",
+          icon: "chrome://browser/skin/zen-icons/selectable/code.svg",
+        },
         { id: "help", label: "Help", icon: "chrome://browser/skin/zen-icons/help.svg" },
       ],
       closeId: "cmd-settings-close",
