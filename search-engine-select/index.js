@@ -11,6 +11,8 @@ const SearchEngineSwitcher = {
   _engineSelect: null,
   _engineOptions: null,
   _dragHandle: null,
+  _closeBtn: null,
+  _dismissedBrowsers: new WeakSet(),
   _engineCache: [],
   _currentSearchInfo: null,
   _isDragging: false,
@@ -39,6 +41,7 @@ const SearchEngineSwitcher = {
     this._engineSelect = null;
     this._engineOptions = null;
     this._dragHandle = null;
+    this._closeBtn = null;
     PREFS.debugLog("Destroyed successfully.");
   },
 
@@ -129,6 +132,10 @@ const SearchEngineSwitcher = {
 
     if (newSearchInfo) {
       this._currentSearchInfo = newSearchInfo;
+      if (this._dismissedBrowsers.has(gBrowser.selectedBrowser)) {
+        this._hide();
+        return;
+      }
       this._show();
     } else {
       this._currentSearchInfo = null;
@@ -138,6 +145,7 @@ const SearchEngineSwitcher = {
 
   _show() {
     if (!this._container) return;
+    if (this._dismissedBrowsers.has(gBrowser.selectedBrowser)) return;
     this._container.style.display = "flex";
     this.updateSelectedEngineDisplay();
     this.handleSplitOrGlance();
@@ -328,17 +336,27 @@ const SearchEngineSwitcher = {
     this._container.classList.remove("options-visible");
   },
 
+  handleClose(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this._dismissedBrowsers.add(gBrowser.selectedBrowser);
+    this._hide();
+    PREFS.debugLog("Switcher dismissed for this tab.");
+  },
+
   createUI() {
     const container = parseElement(`
       <div id="search-engine-switcher-container" style="top: ${PREFS.yCoor};">
         <div id="ses-engine-select"></div>
         <div id="ses-drag-handle"></div>
+        <div id="ses-close-btn" title="Hide switcher for this tab"><img src="chrome://browser/skin/zen-icons/close.svg"></div>
         <div id="ses-engine-options"></div>
       </div>
     `);
     this._container = container;
     this._engineSelect = container.querySelector("#ses-engine-select");
     this._dragHandle = container.querySelector("#ses-drag-handle");
+    this._closeBtn = container.querySelector("#ses-close-btn");
     this._engineOptions = container.querySelector("#ses-engine-options");
     document.documentElement.append(this._container);
     this.populateEngineList();
@@ -408,6 +426,7 @@ const SearchEngineSwitcher = {
     this._boundListeners.handleURLBarKey = this.handleURLBarKey.bind(this);
     this._boundListeners.toggleOptions = this.toggleOptions.bind(this);
     this._boundListeners.hideOptionsOnClickOutside = this.hideOptionsOnClickOutside.bind(this);
+    this._boundListeners.handleClose = this.handleClose.bind(this);
     this._boundListeners.startDrag = this.startDrag.bind(this);
     this._boundListeners.doDrag = this.doDrag.bind(this);
     this._boundListeners.stopDrag = this.stopDrag.bind(this);
@@ -426,6 +445,7 @@ const SearchEngineSwitcher = {
     gBrowser.addTabsProgressListener(this._progressListener);
     gURLBar.inputField.addEventListener("keydown", this._boundListeners.handleURLBarKey);
     this._engineSelect.addEventListener("click", this._boundListeners.toggleOptions);
+    this._closeBtn.addEventListener("click", this._boundListeners.handleClose);
     document.addEventListener("click", this._boundListeners.hideOptionsOnClickOutside);
     this._dragHandle.addEventListener("mousedown", this._boundListeners.startDrag);
     gBrowser.tabContainer.addEventListener("TabClose", this._boundListeners.onTabClose);
@@ -450,6 +470,7 @@ const SearchEngineSwitcher = {
     }
     gURLBar.inputField.removeEventListener("keydown", this._boundListeners.handleURLBarKey);
     this._engineSelect?.removeEventListener("click", this._boundListeners.toggleOptions);
+    this._closeBtn?.removeEventListener("click", this._boundListeners.handleClose);
     document.removeEventListener("click", this._boundListeners.hideOptionsOnClickOutside);
     this._dragHandle?.removeEventListener("mousedown", this._boundListeners.startDrag);
     document.removeEventListener("mousemove", this._boundListeners.doDrag);

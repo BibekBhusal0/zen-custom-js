@@ -96,6 +96,14 @@
       width: 14px;
       margin-left: 5px;
     }
+
+    #ses-close-btn {
+      opacity: 1;
+      width: 16px;
+      transition:
+        opacity 0.15s var(--zenux-ease) 0.12s,
+        width 0.15s var(--zenux-ease) 0.12s;
+    }
   }
 
   #ses-engine-select {
@@ -148,6 +156,37 @@
     transition:
       opacity 0.15s var(--zenux-ease),
       width 0.18s var(--zenux-ease);
+  }
+
+  #ses-close-btn {
+    position: absolute;
+    top: -8px;
+    left: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 16px;
+    width: 0px;
+    overflow: hidden;
+    cursor: pointer;
+    z-index: 1;
+    opacity: 0;
+    background-color: var(--zenux-danger);
+    border-radius: 50%;
+    transition:
+      opacity 0.15s var(--zenux-ease),
+      width 0.15s var(--zenux-ease);
+
+    img {
+      width: 10px;
+      height: 10px;
+      fill: white !important;
+      -moz-context-properties: fill;
+    }
+
+    &:hover {
+      filter: brightness(1.15);
+    }
   }
 
   #ses-engine-options {
@@ -239,6 +278,11 @@
     #ses-drag-handle {
       margin-left: 0 !important;
       margin-right: 5px !important;
+    }
+
+    #ses-close-btn {
+      right: 4px !important;
+      left: unset !important;
     }
   }
 }
