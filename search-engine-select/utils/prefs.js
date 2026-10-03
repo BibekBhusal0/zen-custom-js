@@ -5,12 +5,14 @@ class SearchEngineSelectPREFS extends BasePREFS {
   static DEBUG_MODE = "extension.search-engine-select.debug-mode";
   static ENABLED = "extension.search-engine-select.enabled";
   static REMEMBER_POSITION = "extension.search-engine-select.remember-position";
+  static AUTOHIDE = "extension.search-engine-select.autohide";
   static Y_COOR = "extension.search-engine-select.y-coor";
 
   static defaultValues = {
     [SearchEngineSelectPREFS.DEBUG_MODE]: false,
     [SearchEngineSelectPREFS.ENABLED]: true,
     [SearchEngineSelectPREFS.REMEMBER_POSITION]: true,
+    [SearchEngineSelectPREFS.AUTOHIDE]: "off",
     [SearchEngineSelectPREFS.Y_COOR]: "60%",
   };
 
@@ -28,6 +30,14 @@ class SearchEngineSelectPREFS extends BasePREFS {
 
   static set rememberPosition(value) {
     this.setPref(this.REMEMBER_POSITION, value);
+  }
+
+  static get autohide() {
+    return this.getPref(this.AUTOHIDE);
+  }
+
+  static set autohide(value) {
+    this.setPref(this.AUTOHIDE, value);
   }
 
   static get yCoor() {

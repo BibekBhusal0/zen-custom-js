@@ -48,6 +48,18 @@
     "description": "Choose a visual style for the switcher."
   },
   {
+    "property": "extension.search-engine-select.autohide",
+    "label": "Auto-hide UI",
+    "type": "dropdown",
+    "defaultValue": "off",
+    "options": [
+      { "label": "Off", "value": "off" },
+      { "label": "Translucent until hover", "value": "translucent" },
+      { "label": "Fully hidden until hover", "value": "hidden" }
+    ],
+    "description": "Hide the switcher until hovered. Translucent leaves a faint edge visible; Fully hidden is invisible until hovered."
+  },
+  {
     "property": "extension.search-engine-select.debug-mode",
     "label": "Enable Debug Mode",
     "type": "checkbox",

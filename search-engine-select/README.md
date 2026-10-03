@@ -39,6 +39,7 @@ You can customize the script's behavior via `about:config`.
 | `extension.search-engine-select.remember-position` | Boolean | `true`     | Saves the vertical position of the UI.                            |
 | `extension.search-engine-select.size`              | String  | `"normal"` | UI Scale (`small`, `normal`, `large`).                            |
 | `extension.search-engine-select.theme`             | String  | `"dark"`   | Visual style (`dark`, `light`, `amoled`).                         |
+| `extension.search-engine-select.autohide`          | String  | `"off"`    | Hide until hover (`off`, `translucent`, `hidden`). The switcher is always hidden in fullscreen. |
 | `extension.search-engine-select.debug-mode`        | Boolean | `false`    | Enables detailed logging in the Browser Console (`Ctrl+Shift+J`). |
 
 ## 🙏 Credits and Acknowledgements
