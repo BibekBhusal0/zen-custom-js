@@ -130,6 +130,9 @@ const SearchEngineSwitcher = {
     if (newSearchInfo) {
       this._currentSearchInfo = newSearchInfo;
       this._show();
+    } else {
+      this._currentSearchInfo = null;
+      this._hide();
     }
   },
 
