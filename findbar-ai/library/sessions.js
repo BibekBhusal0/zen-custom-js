@@ -51,6 +51,7 @@ export function newSession(mode) {
     createdAt: now,
     updatedAt: now,
     messages: [],
+    toolRuns: [],
   };
 }
 

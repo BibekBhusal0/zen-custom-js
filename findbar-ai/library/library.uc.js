@@ -1,7 +1,7 @@
 import { PREFS } from "../utils/prefs.js";
 import { browseBotLibraryLLM, MODES } from "./library-llm.js";
 import { messageManagerAPI } from "../messageManager.js";
-import { parseElement, escapeXmlAttribute } from "../../utils/parse.js";
+import { parseElement, escapeXmlAttribute, xulImage } from "../../utils/parse.js";
 import { icons } from "../../utils/icon.js";
 import { parseMD } from "../utils/markdown.js";
 import {
@@ -32,6 +32,7 @@ import {
   deleteSession,
 } from "./sessions.js";
 import { highlightCode } from "../../utils/code-highlight.js";
+import { toolVerbs } from "../llm/tools.js";
 
 const MODE_LABELS = { chat: "Chat", agent: "Agent", build: "Build" };
 const SLASH_ITEMS = [
@@ -174,26 +175,136 @@ function fmtChars(n) {
 }
 
 function toolStatusIcon(status) {
-  try {
-    return icons[`tool${status[0].toUpperCase()}${status.slice(1)}`] || "";
-  } catch {
+  const urls = {
+    loading: "chrome://global/skin/icons/loading.svg",
+    success: "chrome://global/skin/icons/check.svg",
+    error: "chrome://global/skin/icons/error.svg",
+    declined: "chrome://global/skin/icons/blocked.svg",
+  };
+  return urls[status] || "";
+}
+
+function setStatusIcon(wrap, status) {
+  if (!wrap) return;
+  if (status === "loading") {
+    wrap.innerHTML = icons.toolLoading;
+    return;
+  }
+  let img = wrap.querySelector("image");
+  if (!img) {
+    img = xulImage("");
+    wrap.replaceChildren(img);
+  }
+  img.setAttribute("src", toolStatusIcon(status));
+}
+
+function visibleSessionMessages(history) {
+  return (history || []).filter(
+    (msg) =>
+      !msg.pageContext &&
+      !(msg.role === "user" && String(msg.content).startsWith("Referenced tabs")) &&
+      (msg.role === "user" || msg.role === "assistant") &&
+      !(msg.role === "assistant" && !String(msg.content).trim())
+  );
+}
+
+function buildToolRunBox() {
+  const box = parseElement(`
+    <div class="bb-tool-run is-collapsed" data-state="working">
+      <div class="bb-tool-run-header">
+        <span class="bb-tool-run-status"></span>
+        <span class="bb-tool-run-title">Working…</span>
+        <img class="bb-tool-run-chevron" src="chrome://global/skin/icons/arrow-down-12.svg" alt="">
+      </div>
+      <div class="bb-tool-run-rows"></div>
+    </div>`);
+  box.querySelector(".bb-tool-run-header").addEventListener("click", () => {
+    box.classList.toggle("is-collapsed");
+  });
+  return {
+    box,
+    rows: box.querySelector(".bb-tool-run-rows"),
+    title: box.querySelector(".bb-tool-run-title"),
+  };
+}
+
+function buildToolRow({ status, label, argsText = "", resultText = "", secs = "" }) {
+  const row = parseElement(`
+    <div class="bb-tool-row" data-status="${status}">
+      <span class="bb-tool-row-icon"></span>
+      <div class="bb-tool-row-label"></div>
+      <span class="bb-tool-row-time"></span>
+    </div>`);
+  row.querySelector(".bb-tool-row-label").textContent = label;
+  row.querySelector(".bb-tool-row-time").textContent = secs;
+  const detail = parseElement(`<div class="bb-tool-row-detail" hidden></div>`);
+  const body = [argsText, resultText].filter(Boolean).join("\n");
+  if (body) detail.textContent = body;
+  row.querySelector(".bb-tool-row-label").addEventListener("click", () => {
+    if (!detail.textContent) return;
+    detail.hidden = !detail.hidden;
+  });
+  return { row, detail };
+}
+
+function toolTarget(toolName, args) {
+  if (!args || typeof args !== "object") return "";
+  const pick = (...keys) => {
+    for (const k of keys) {
+      const v = args[k];
+      if (typeof v === "string" && v.trim()) return v.trim();
+    }
     return "";
+  };
+  switch (toolName) {
+    case "search":
+      return shortText(pick("searchTerm"), 40);
+    case "openLink":
+      return shortText(pick("link"), 40);
+    case "searchTabs":
+    case "searchBookmarks":
+      return shortText(pick("query"), 40);
+    case "clickElement":
+    case "fillForm":
+    case "inspectChrome":
+      return shortText(pick("selector"), 40);
+    case "readMod":
+      if (!args.modId) return "";
+      return shortText(args.modId, 40);
+    case "updateModFile":
+      if (!args.modId) return "";
+      return shortText(args.file ? `${args.modId} / ${args.file}` : args.modId, 40);
+    case "createMod":
+    case "createTabFolder":
+    case "createWorkspace":
+      return shortText(pick("name", "title"), 40);
+    case "createBookmark":
+      return shortText(pick("title", "url"), 40);
+    default:
+      return shortText(
+        pick("searchTerm", "query", "link", "url", "selector", "name", "title", "modId"),
+        40
+      );
   }
 }
 
-function toolDetail(toolName, args) {
+function toolVerb(toolName, status, args) {
+  const [loading, done] = toolVerbs[toolName] || [toolName, toolName];
+  if (status === "declined")
+    return `Declined - ${loading.charAt(0).toLowerCase() + loading.slice(1)}`;
+  const base = status === "loading" ? loading : done;
+  const target = toolTarget(toolName, args);
+  return target ? `${base} · ${target}` : base;
+}
+
+function toolArgsPreview(args) {
   if (!args || typeof args !== "object") return "";
-  if (toolName === "readMod" && args.modId) {
-    const files = Array.isArray(args.files) && args.files.length ? args.files : ["theme.json"];
-    return shortText(
-      `${args.modId} / ${files[0]}${files.length > 1 ? ` +${files.length - 1}` : ""}`
-    );
+  try {
+    const text = JSON.stringify(args);
+    return text.length > 300 ? `${text.slice(0, 300)}…` : text;
+  } catch {
+    return "";
   }
-  if (toolName === "updateModFile" && args.modId && args.file) {
-    return shortText(`${args.modId} / ${args.file}`);
-  }
-  if (toolName === "createMod" && args.name) return shortText(args.name);
-  return "";
 }
 
 function broadcastRunEnd(except) {
@@ -300,6 +411,7 @@ function mountPanel(host) {
   function loadSession(s) {
     abortRun();
     activeSession = { ...s, messages: s.messages.map((m) => ({ ...m })) };
+    if (!Array.isArray(activeSession.toolRuns)) activeSession.toolRuns = [];
     browseBotLibraryLLM.setHistory(activeSession.messages);
     activeSavedLength = activeSession.messages.length;
     setMode(s.mode, { fork: false });
@@ -650,24 +762,65 @@ function mountPanel(host) {
     if (state.pendingRefs.length !== before) renderChips();
   }
 
+  function appendToolRunBox(run) {
+    if (!run || !Array.isArray(run.tools) || run.tools.length === 0) return;
+    const built = buildToolRunBox();
+    let totalSecs = 0;
+    for (const entry of run.tools) {
+      totalSecs += parseFloat(entry.secs) || 0;
+    }
+    built.title.textContent =
+      `Used ${run.tools.length} tool${run.tools.length === 1 ? "" : "s"}` +
+      (totalSecs > 0 ? ` · ${totalSecs.toFixed(1)}s` : "");
+    for (const entry of run.tools) {
+      const builtRow = buildToolRow(entry);
+      built.rows.appendChild(builtRow.row);
+      built.rows.appendChild(builtRow.detail);
+    }
+    built.box.classList.add("is-collapsed");
+    built.box.dataset.state = "done";
+    setStatusIcon(built.box.querySelector(".bb-tool-run-status"), "success");
+    messagesEl.appendChild(built.box);
+  }
+
+  function appendMergedRunBox(runs) {
+    const tools = runs.flatMap((r) => (Array.isArray(r.tools) ? r.tools : []));
+    if (tools.length === 0) return;
+    appendToolRunBox({ tools });
+  }
+
+  let shownSessionId = null;
+
   function renderHistory() {
-    messagesEl.innerHTML = "";
+    const session = getActiveSession();
     const history = browseBotLibraryLLM.getHistory();
     deleteBtn.hidden = history.length === 0;
+    if (session.id === shownSessionId && messagesEl.children.length > 0) return;
+    messagesEl.innerHTML = "";
     if (history.length === 0) {
       const empty = parseElement(
         `<div class="zenux-empty">Ask anything. Type <b>/</b> to switch modes, <b>@</b> to reference tabs.</div>`
       );
       messagesEl.appendChild(empty);
+      shownSessionId = session.id;
       return;
     }
-    for (const msg of history) {
-      if (msg.pageContext) continue;
-      if (msg.role === "user" && String(msg.content).startsWith("Referenced tabs")) continue;
-      if (msg.role !== "user" && msg.role !== "assistant") continue;
-      if (msg.role === "assistant" && !String(msg.content).trim()) continue;
+    const visible = visibleSessionMessages(history);
+    const anchorOf = (r) => (r.afterUser !== undefined ? r.afterUser : r.after);
+    const runs = (getActiveSession().toolRuns || [])
+      .slice()
+      .sort((a, b) => anchorOf(a) - anchorOf(b) || (a.burst || 0) - (b.burst || 0));
+    visible.forEach((msg, i) => {
       addMessage(msg.role, String(msg.content));
-    }
+      const group = runs.filter((r) => anchorOf(r) === i);
+      if (group.length > 0) appendMergedRunBox(group);
+    });
+    const leftovers = runs.filter((r) => {
+      const a = anchorOf(r);
+      return a === undefined || a < 0 || a >= visible.length;
+    });
+    if (leftovers.length > 0) appendMergedRunBox(leftovers);
+    shownSessionId = session.id;
   }
 
   function setMode(mode, { fork = true } = {}) {
@@ -920,7 +1073,6 @@ function mountPanel(host) {
 
   const onRunEnd = () => {
     setStreaming(false);
-    renderHistory();
     refreshBuildBar();
     scrollDown();
   };
@@ -1030,18 +1182,56 @@ function mountPanel(host) {
     libraryRunHost.appendChild(aiWrap);
     scrollDown();
 
-    const toolEntries = [];
-    const toolRows = new Map();
-    let lastToolRow = null;
+    const bursts = [];
+    let burst = null;
     let toolGen = 0;
     let shownGen = 0;
     let segmentText = "";
-    const clearToolEntries = () => {
-      for (const el of toolEntries.splice(0)) el.remove();
-      toolRows.clear();
-      lastToolRow = null;
+    const fmtSecs = (ms) => `${(ms / 1000).toFixed(1)}s`;
+    const ensureBurst = () => {
+      if (!burst) {
+        const built = buildToolRunBox();
+        burst = { ...built, count: 0, done: 0, start: Date.now(), activeRow: null, log: [] };
+        libraryRunHost.appendChild(burst.box);
+      }
+      return burst;
+    };
+    const burstTitle = (b) =>
+      `Used ${b.count} tool${b.count === 1 ? "" : "s"}` +
+      (b.start ? ` · ${fmtSecs(Date.now() - b.start)}` : "");
+    const refreshBurstTitle = (b) => {
+      if (!b || !b.title) return;
+      const pending = b.count - b.done;
+      b.box.dataset.state = pending > 0 ? "working" : "done";
+      setStatusIcon(
+        b.box.querySelector(".bb-tool-run-status"),
+        pending > 0 ? "loading" : "success"
+      );
+      if (pending > 0) {
+        let current = b.activeRow?.dataset.label;
+        if (!current && b.rows) {
+          const loading = b.rows.querySelectorAll('.bb-tool-row[data-status="loading"]');
+          current = loading.length ? loading[loading.length - 1].dataset.label : null;
+        }
+        b.title.textContent = `${current || "Working"}…${b.start ? ` · ${fmtSecs(Date.now() - b.start)}` : ""}`;
+      } else {
+        b.title.textContent = burstTitle(b);
+      }
+    };
+    const finalizeBurst = () => {
+      if (!burst) return;
+      if (burst.count > 0) {
+        burst.elapsed = fmtSecs(Date.now() - burst.start);
+        burst.title.textContent =
+          `Used ${burst.count} tool${burst.count === 1 ? "" : "s"} · ${burst.elapsed}`;
+        bursts.push(burst);
+      } else {
+        burst.box.remove();
+      }
+      burst = null;
     };
     const startSegment = () => {
+      finalizeBurst();
       aiWrap = parseElement(
         `<div class="chat-message chat-message-ai">
           <div class="message-content"><div class="markdown-body"></div></div>
@@ -1054,42 +1244,69 @@ function mountPanel(host) {
     };
     const updateToolCallUI = (toolName, status, error = null, args = null) => {
       toolGen++;
-      let row = null;
+      const b = ensureBurst();
+      let row;
+      let resultText = "";
       if (status === "loading") {
-        if (!lastToolRow || lastToolRow.name !== toolName) {
-          const detail = toolDetail(toolName, args);
-          const el = parseElement(`
-          <div class="tool-call-status" data-tool-name="${escapeXmlAttribute(toolName)}" data-status="${status}">
-            <span class="tool-call-icon"></span>
-            <span class="tool-call-name">${escapeXmlAttribute(toolName)}</span>
-            ${detail ? `<span class="tool-call-detail">${escapeXmlAttribute(detail)}</span>` : ""}
-            <span class="tool-call-count" hidden></span>
-            <span class="tool-call-declined" hidden>Declined</span>
-          </div>`);
-          row = { name: toolName, el, count: 0 };
-          if (!toolRows.has(toolName)) toolRows.set(toolName, []);
-          toolRows.get(toolName).push(row);
-          toolEntries.push(el);
-          libraryRunHost.appendChild(el);
-          lastToolRow = row;
-        } else {
-          row = lastToolRow;
+        b.count++;
+        try {
+          const built = buildToolRow({
+            status,
+            label: toolVerb(toolName, status, args),
+            argsText: toolArgsPreview(args),
+          });
+          row = built.row;
+          row.dataset.tool = toolName;
+          row.dataset.label = toolVerb(toolName, "loading", args);
+          row._startedAt = Date.now();
+          row._argsText = toolArgsPreview(args);
+          row._detail = built.detail;
+          b.rows.appendChild(row);
+          b.rows.appendChild(built.detail);
+          b.activeRow = row;
+        } catch (e) {
+          PREFS.debugError(`tool-run: loading row failed for '${toolName}':`, e);
+          return;
         }
       } else {
-        const list = toolRows.get(toolName) || [];
-        row = lastToolRow?.name === toolName ? lastToolRow : list[list.length - 1];
-        if (!row) return;
-        row.count++;
+        row =
+          b.activeRow?.dataset.tool === toolName
+            ? b.activeRow
+            : [...b.rows.querySelectorAll(".bb-tool-row")]
+                .reverse()
+                .find((el) => el.dataset.tool === toolName && el.dataset.status === "loading") ||
+              b.activeRow;
+        if (!row) {
+          PREFS.debugError(`tool-run: no row for '${toolName}' -> ${status}`);
+          return;
+        }
+        b.done++;
+        const secs = fmtSecs(Date.now() - (row._startedAt || Date.now()));
+        row.querySelector(".bb-tool-row-time").textContent = secs;
+        resultText = error
+          ? `Error: ${typeof error === "string" ? error : error?.message || "failed"}`
+          : "";
+        if (resultText) {
+          row._detail.textContent = [row._argsText, resultText].filter(Boolean).join("\n");
+        }
+        row._secs = secs;
+        b.activeRow = null;
       }
-      row.el.dataset.status = status;
-      row.el.querySelector(".tool-call-icon").innerHTML = toolStatusIcon(status);
-      if (status !== "loading") row.count++;
-      row.el.querySelector(".tool-call-declined").hidden = status !== "declined";
-      const countEl = row.el.querySelector(".tool-call-count");
-      if (row.count > 1) {
-        countEl.textContent = `x ${row.count}`;
-        countEl.hidden = false;
+      row.dataset.tool = toolName;
+      row.dataset.status = status;
+      row.dataset.label = toolVerb(toolName, "loading", args);
+      row.querySelector(".bb-tool-row-label").textContent = toolVerb(toolName, status, args);
+      setStatusIcon(row.querySelector(".bb-tool-row-icon"), status);
+      if (status !== "loading") {
+        b.log.push({
+          status,
+          label: row.querySelector(".bb-tool-row-label").textContent,
+          argsText: row._argsText || "",
+          resultText,
+          secs: row._secs || "",
+        });
       }
+      refreshBurstTitle(b);
       scrollDown();
     };
     let notifyText = "BrowseBot finished responding.";
@@ -1181,7 +1398,6 @@ function mountPanel(host) {
       if (libraryRunController === state.abortController) libraryRunController = null;
       const finishedHost = libraryRunHost;
       libraryRunHost = null;
-      broadcastRunEnd();
       const browseBotVisible = isBrowseBotVisible();
       if (notifyText && !browseBotVisible) {
         try {
@@ -1202,8 +1418,22 @@ function mountPanel(host) {
         }
       }
       state.abortController = null;
-      clearToolEntries();
+      finalizeBurst();
+      if (bursts.length > 0) {
+        const session = getActiveSession();
+        if (!Array.isArray(session.toolRuns)) session.toolRuns = [];
+        const seen = visibleSessionMessages(browseBotLibraryLLM.getHistory());
+        let afterUser = -1;
+        seen.forEach((m, i) => {
+          if (m.role === "user") afterUser = i;
+        });
+        bursts.forEach((b, i) => {
+          b.box.classList.add("is-collapsed");
+          session.toolRuns.push({ afterUser, burst: i, elapsed: b.elapsed, tools: b.log });
+        });
+      }
       persistSession();
+      broadcastRunEnd();
       refreshBuildBar();
       scrollDown();
     }

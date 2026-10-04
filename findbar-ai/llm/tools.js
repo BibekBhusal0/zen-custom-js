@@ -851,50 +851,54 @@ async function getYoutubeComments(args) {
   return messageManagerAPI.getYoutubeComments(args.count);
 }
 
-const toolNameMapping = {
-  search: "Searching the web",
-  openLink: "Opening a link",
-  newSplit: "Creating a split view",
-  splitExistingTabs: "Splitting existing tabs",
-  getAllTabs: "Reading tabs",
-  searchTabs: "Searching tabs",
-  closeTabs: "Closing tabs",
-  reorderTab: "Reordering a tab",
-  addTabsToFolder: "Adding tabs to a folder",
-  removeTabsFromFolder: "Removing tabs from a folder",
-  createTabFolder: "Creating a tab folder",
-  addTabsToEssentials: "Adding tabs to Essentials",
-  removeTabsFromEssentials: "Removing tabs from Essentials",
-  getPageTextContent: "Reading page content",
-  getHTMLContent: "Reading page source code",
-  clickElement: "Clicking an element",
-  fillForm: "Filling a form",
-  getYoutubeTranscript: "Getting YouTube transcript",
-  getYoutubeDescription: "Getting YouTube description",
-  getYoutubeComments: "Getting YouTube comments",
-  searchBookmarks: "Searching bookmarks",
-  getAllBookmarks: "Reading bookmarks",
-  createBookmark: "Creating a bookmark",
-  addBookmarkFolder: "Creating a bookmark folder",
-  updateBookmark: "Updating a bookmark",
-  deleteBookmark: "Deleting a bookmark",
-  getAllWorkspaces: "Reading workspaces",
-  createWorkspace: "Creating a workspace",
-  updateWorkspace: "Updating a workspace",
-  deleteWorkspace: "Deleting a workspace",
-  moveTabsToWorkspace: "Moving tabs to a workspace",
-  reorderWorkspace: "Reordering a workspace",
-  showToast: "Showing a notification",
-  inspectChrome: "Inspecting browser UI",
-  applyPreviewCSS: "Previewing CSS",
-  runChromeJS: "Running browser script",
-  listMods: "Listing Sine mods",
-  readMod: "Reading mod files",
-  createMod: "Creating a Sine mod",
-  updateModFile: "Editing mod files",
-  getPreviewState: "Checking staged preview",
-  clearPreview: "Clearing preview",
+const toolVerbs = {
+  search: ["Searching the web", "Searched the web"],
+  openLink: ["Opening a link", "Opened link"],
+  newSplit: ["Creating a split view", "Created split view"],
+  splitExistingTabs: ["Splitting existing tabs", "Split tabs"],
+  getAllTabs: ["Reading tabs", "Read tabs"],
+  searchTabs: ["Searching tabs", "Searched tabs"],
+  closeTabs: ["Closing tabs", "Closed tabs"],
+  reorderTab: ["Reordering a tab", "Reordered tab"],
+  addTabsToFolder: ["Adding tabs to a folder", "Added tabs to folder"],
+  removeTabsFromFolder: ["Removing tabs from a folder", "Removed tabs from folder"],
+  createTabFolder: ["Creating a tab folder", "Created tab folder"],
+  addTabsToEssentials: ["Adding tabs to Essentials", "Added to Essentials"],
+  removeTabsFromEssentials: ["Removing tabs from Essentials", "Removed from Essentials"],
+  getPageTextContent: ["Reading page content", "Read page"],
+  getHTMLContent: ["Reading page source code", "Read page source"],
+  clickElement: ["Clicking an element", "Clicked element"],
+  fillForm: ["Filling a form", "Filled form"],
+  getYoutubeTranscript: ["Getting YouTube transcript", "Got transcript"],
+  getYoutubeDescription: ["Getting YouTube description", "Got description"],
+  getYoutubeComments: ["Getting YouTube comments", "Got comments"],
+  searchBookmarks: ["Searching bookmarks", "Searched bookmarks"],
+  getAllBookmarks: ["Reading bookmarks", "Read bookmarks"],
+  createBookmark: ["Creating a bookmark", "Created bookmark"],
+  addBookmarkFolder: ["Creating a bookmark folder", "Created bookmark folder"],
+  updateBookmark: ["Updating a bookmark", "Updated bookmark"],
+  deleteBookmark: ["Deleting a bookmark", "Deleted bookmark"],
+  getAllWorkspaces: ["Reading workspaces", "Read workspaces"],
+  createWorkspace: ["Creating a workspace", "Created workspace"],
+  updateWorkspace: ["Updating a workspace", "Updated workspace"],
+  deleteWorkspace: ["Deleting a workspace", "Deleted workspace"],
+  moveTabsToWorkspace: ["Moving tabs to a workspace", "Moved tabs"],
+  reorderWorkspace: ["Reordering a workspace", "Reordered workspace"],
+  showToast: ["Showing a notification", "Showed notification"],
+  inspectChrome: ["Inspecting browser UI", "Inspected UI"],
+  applyPreviewCSS: ["Previewing CSS", "Previewed CSS"],
+  runChromeJS: ["Running browser script", "Ran script"],
+  listMods: ["Listing Sine mods", "Listed mods"],
+  readMod: ["Reading mod files", "Read mod"],
+  createMod: ["Creating a Sine mod", "Created mod"],
+  updateModFile: ["Editing mod files", "Edited mod"],
+  getPreviewState: ["Checking staged preview", "Checked preview"],
+  clearPreview: ["Clearing preview", "Cleared preview"],
 };
+
+const toolNameMapping = Object.fromEntries(
+  Object.entries(toolVerbs).map(([name, [loading]]) => [name, loading])
+);
 
 const tabsInstructions = `If you open tab in glace it will create new small popup window to show the tab, vsplit and hsplit means it will open new tab in vertical and horizontal split with current tab respectively.`;
 const toolGroups = {
@@ -1397,4 +1401,4 @@ ${toolExamples.join("\n\n")}
   }
 };
 
-export { getToolSystemPrompt, getTools, toolNameMapping, toolGroups };
+export { getToolSystemPrompt, getTools, toolNameMapping, toolVerbs, toolGroups };
