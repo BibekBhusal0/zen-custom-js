@@ -336,6 +336,7 @@ zen-library-browsebot-section {
           white-space: pre-wrap !important;
           word-break: break-all !important;
           max-height: 120px !important;
+          min-height: 0 !important;
           overflow-y: auto !important;
 
           &[hidden] {

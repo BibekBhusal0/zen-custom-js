@@ -228,7 +228,7 @@ function buildToolRunBox() {
   };
 }
 
-function buildToolRow({ status, label, argsText = "", resultText = "", secs = "" }) {
+function buildToolRow({ status, label, tool = "", argsText = "", resultText = "", secs = "" }) {
   const row = parseElement(`
     <div class="bb-tool-row" data-status="${status}">
       <span class="bb-tool-row-icon"></span>
@@ -238,13 +238,54 @@ function buildToolRow({ status, label, argsText = "", resultText = "", secs = ""
   row.querySelector(".bb-tool-row-label").textContent = label;
   row.querySelector(".bb-tool-row-time").textContent = secs;
   const detail = parseElement(`<div class="bb-tool-row-detail" hidden></div>`);
-  const body = [argsText, resultText].filter(Boolean).join("\n");
-  if (body) detail.textContent = body;
+  const body = highlightResult(tool, argsText, resultText);
+  if (body) detail.innerHTML = body;
   row.querySelector(".bb-tool-row-label").addEventListener("click", () => {
     if (!detail.textContent) return;
     detail.hidden = !detail.hidden;
   });
   return { row, detail };
+}
+
+function highlightResult(tool, argsText, resultText) {
+  const tool_lang_mapping = {
+    applyPreviewCSS: "css",
+    getHTMLContent: "markup",
+    runChromeJS: "javascript",
+  };
+
+  const lang = tool_lang_mapping[tool] || "json";
+  if (lang === "css" || lang === "javascript") {
+    const code = extractCode(argsText);
+    return [
+      highlightCode(code || argsText, lang),
+      resultText ? highlightCode(resultText, "generic") : "",
+    ]
+      .filter(Boolean)
+      .join("\n");
+  }
+  return [
+    argsText ? highlightCode(argsText, lang) : "",
+    resultText ? highlightCode(resultText, lang) : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function extractCode(argsText) {
+  try {
+    const parsed = JSON.parse(argsText);
+    if (typeof parsed?.css === "string") return parsed.css;
+    if (typeof parsed?.code === "string") return parsed.code;
+  } catch {}
+  const m = /^\{"(?:css|code)":"([\s\S]*?)"?\}?…?$/.exec(String(argsText));
+  if (m) {
+    const fixed = m[1].replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t");
+    try {
+      return JSON.parse(`"${fixed}"`);
+    } catch {}
+  }
+  return "";
 }
 
 function toolTarget(toolName, args) {
@@ -301,6 +342,7 @@ function toolArgsPreview(args) {
   if (!args || typeof args !== "object") return "";
   try {
     const text = JSON.stringify(args);
+    if (typeof args.css === "string" || typeof args.code === "string") return text;
     return text.length > 300 ? `${text.slice(0, 300)}…` : text;
   } catch {
     return "";
@@ -1252,6 +1294,7 @@ function mountPanel(host) {
         try {
           const built = buildToolRow({
             status,
+            tool: toolName,
             label: toolVerb(toolName, status, args),
             argsText: toolArgsPreview(args),
           });
@@ -1287,7 +1330,11 @@ function mountPanel(host) {
           ? `Error: ${typeof error === "string" ? error : error?.message || "failed"}`
           : "";
         if (resultText) {
-          row._detail.textContent = [row._argsText, resultText].filter(Boolean).join("\n");
+          row._detail.innerHTML = highlightResult(
+            toolName,
+            row._argsText,
+            resultText
+          );
         }
         row._secs = secs;
         b.activeRow = null;
@@ -1300,6 +1347,7 @@ function mountPanel(host) {
       if (status !== "loading") {
         b.log.push({
           status,
+          tool: toolName,
           label: row.querySelector(".bb-tool-row-label").textContent,
           argsText: row._argsText || "",
           resultText,
