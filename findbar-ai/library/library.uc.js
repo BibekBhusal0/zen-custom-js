@@ -774,10 +774,10 @@ function mountPanel(host) {
       (totalSecs > 0 ? ` · ${totalSecs.toFixed(1)}s` : "");
     for (const entry of run.tools) {
       const builtRow = buildToolRow(entry);
+      setStatusIcon(builtRow.row.querySelector(".bb-tool-row-icon"), entry.status);
       built.rows.appendChild(builtRow.row);
       built.rows.appendChild(builtRow.detail);
     }
-    built.box.classList.add("is-collapsed");
     built.box.dataset.state = "done";
     setStatusIcon(built.box.querySelector(".bb-tool-run-status"), "success");
     messagesEl.appendChild(built.box);
@@ -1428,7 +1428,6 @@ function mountPanel(host) {
           if (m.role === "user") afterUser = i;
         });
         bursts.forEach((b, i) => {
-          b.box.classList.add("is-collapsed");
           session.toolRuns.push({ afterUser, burst: i, elapsed: b.elapsed, tools: b.log });
         });
       }

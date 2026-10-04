@@ -174,15 +174,20 @@ zen-library-browsebot-section {
 
       .bb-tool-run {
         align-self: stretch !important;
+        flex-shrink: 0 !important;
         border: 1px solid var(--zenux-border) !important;
         border-radius: var(--zenux-radius-m) !important;
         background: var(--zenux-surface) !important;
         overflow: hidden !important;
+        max-height: 5000px !important;
+        transition: max-height 0.3s ease !important;
 
         .bb-tool-run-header {
           display: flex !important;
           align-items: center !important;
           gap: 6px !important;
+          height: 28px !important;
+          box-sizing: border-box !important;
           padding: 6px 10px !important;
           cursor: pointer !important;
 
@@ -226,6 +231,8 @@ zen-library-browsebot-section {
             flex-shrink: 0 !important;
             -moz-context-properties: fill !important;
             fill: var(--zenux-muted) !important;
+            transform: rotate(0deg) !important;
+            transition: transform 0.18s var(--zenux-ease) !important;
           }
         }
 
@@ -336,8 +343,9 @@ zen-library-browsebot-section {
           }
         }
 
-        &.is-collapsed .bb-tool-run-rows {
-          display: none !important;
+        &.is-collapsed {
+          max-height: 28px !important;
+          cursor: pointer !important;
         }
 
         &.is-collapsed .bb-tool-run-chevron {
