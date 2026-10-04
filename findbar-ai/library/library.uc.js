@@ -1267,8 +1267,7 @@ function mountPanel(host) {
       if (!burst) return;
       if (burst.count > 0) {
         burst.elapsed = fmtSecs(Date.now() - burst.start);
-        burst.title.textContent =
-          `Used ${burst.count} tool${burst.count === 1 ? "" : "s"} · ${burst.elapsed}`;
+        burst.title.textContent = `Used ${burst.count} tool${burst.count === 1 ? "" : "s"} · ${burst.elapsed}`;
         bursts.push(burst);
       } else {
         burst.box.remove();
@@ -1333,11 +1332,7 @@ function mountPanel(host) {
           ? `Error: ${typeof error === "string" ? error : error?.message || "failed"}`
           : "";
         if (resultText) {
-          row._detail.innerHTML = highlightResult(
-            toolName,
-            row._argsText,
-            resultText
-          );
+          row._detail.innerHTML = highlightResult(toolName, row._argsText, resultText);
         }
         row._secs = secs;
         b.activeRow = null;
