@@ -1227,6 +1227,7 @@ function mountPanel(host) {
     const bursts = [];
     let burst = null;
     let toolGen = 0;
+    let runLoadingIndicator = null;
     let shownGen = 0;
     let segmentText = "";
     const fmtSecs = (ms) => `${(ms / 1000).toFixed(1)}s`;
@@ -1235,6 +1236,8 @@ function mountPanel(host) {
         const built = buildToolRunBox();
         burst = { ...built, count: 0, done: 0, start: Date.now(), activeRow: null, log: [] };
         libraryRunHost.appendChild(burst.box);
+        if (runLoadingIndicator?.parentNode) runLoadingIndicator.remove();
+        runLoadingIndicator = null;
       }
       return burst;
     };
@@ -1368,6 +1371,7 @@ function mountPanel(host) {
 
       if (!PREFS.streamEnabled) {
         const loadingIndicator = createLoadingIndicator();
+        runLoadingIndicator = loadingIndicator;
         libraryRunHost.appendChild(loadingIndicator);
         scrollDown();
         try {
@@ -1392,6 +1396,7 @@ function mountPanel(host) {
         }
       } else {
         const loadingIndicator = createLoadingIndicator();
+        runLoadingIndicator = loadingIndicator;
         libraryRunHost.appendChild(loadingIndicator);
         scrollDown();
 
