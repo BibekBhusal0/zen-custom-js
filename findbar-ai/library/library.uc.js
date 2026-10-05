@@ -1080,6 +1080,20 @@ function mountPanel(host) {
   input.addEventListener("blur", () => setTimeout(hidePopup, 150));
 
   input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!popup.hidden) {
+        hidePopup();
+      } else if (input.value) {
+        clearInput();
+        state.pendingRefs = [];
+        renderChips();
+      } else {
+        closeLibrary();
+      }
+      return;
+    }
     if (!popup.hidden) {
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -1094,11 +1108,6 @@ function mountPanel(host) {
       if (e.key === "Enter" || e.key === "Tab") {
         e.preventDefault();
         applyPopupItem();
-        return;
-      }
-      if (e.key === "Escape") {
-        e.preventDefault();
-        hidePopup();
         return;
       }
     }
