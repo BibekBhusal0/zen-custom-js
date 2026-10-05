@@ -1,44 +1,32 @@
 # New Features
 
-- Settings are now organized into tabs (General, Surfaces, Models, Prompts) with icons on every tab and section.
-- Each settings tab has its own command palette entry (`Open BrowseBot Settings: General/Surfaces/Models/Prompts`) that jumps straight to that tab.
-- BrowseBot Library section (needs a Zen build with the Library feature): a persistent AI panel that stays open across tab and workspace switches, with Chat, Agent, and Build (working on it) modes.
-- Slash commands with autocomplete in library chat: `/chat`, `/agent`, `/build`. They switch modes, or switch and send the rest of the line. `/clear` stops the run and starts a new chat, `/close` closes the library while the run continues in the background.
-- Library runs keep going after you close the panel: closing declines any pending tool confirmation instead of stranding it, and a toast reports the outcome when the run finishes.
-- `@` tab mentions in library chat: reference any open tab and the AI gets its full page content, shown as chips with favicons.
-- Per-surface system prompts: separate prompts for findbar, URL bar, and each library mode. Your old custom prompt moves to the findbar automatically.
-- Code blocks in chat answers now have syntax highlighting, a language label, and a Copy button.
-- Provider and model dropdowns now use fuzzy matching, same as the command palette.
-- All dropdowns now always show the search box, no matter how short the list is.
-- DeepSeek models updated to V4 Flash, V4 Pro, and V4 Flash Vision (Experimental). The retired `deepseek-chat` / `deepseek-reasoner` names migrate to V4 Flash automatically.
-- Cerebras models updated: added Qwen 3.8 27B, removed Gemma 4 31B (no longer on Cerebras public endpoints).
-- Settings pages refreshed to match your Zen theme.
-- Provider and model dropdowns are now searchable, show provider logos, and stay a consistent size. The AI setup screen's provider picker got the same treatment.
-- New providers: DeepSeek and OpenRouter.
-- YouTube videos now use a timestamped transcript. Citations on videos link to moments, click one to seek the video there.
+- Updated UI of the settings pages, now organized into tabs for `General`, `Surfaces`, `Models`, and `Prompts` with icons on every tab and section.
+- Library panel for Zen builds with the Library feature. The panel stays open across tab and workspace switches. Press Alt+Shift+A to toggle it, same as the command palette entry.
+  - `Chat` answers questions with no tools and no automatic page context.
+  - `Agent` runs the full browser tool belt. It reads and organizes tabs, searches the web, manages bookmarks and workspaces, clicks and fills page elements, and reads YouTube transcripts.
+  - `Build` styles the browser and builds Sine mods. Describe the look you want and it stages a live preview, then saves it as a mod.
+  - Switch modes from the header buttons or with /chat, /agent and /build. Type text after the command to switch and send in one step.
+  - Manage chats with /new, /delete, /close and /continue, or open saved chats from the history button in the header.
+  - Type @ to pull any open tab into the conversation. The AI reads the full page.
+- Provider and model pickers are searchable, show provider logos, keep a steady size, and match on partial text. All pickers always show the search box.
+- Works out of the box with Pollinations, no API key needed. Also new are DeepSeek and OpenRouter. DeepSeek now offers V4 Flash, V4 Pro, and V4 Flash Vision Experimental. Old DeepSeek names move to V4 Flash on their own. Cerebras adds Qwen 3.8 27B and drops Gemma 4 31B. Perplexity, local models through Ollama, and any OpenAI compatible endpoint through Custom were already there and keep working.
+- YouTube answers link to moments in the video. Click a citation to seek there.
 
 # Changes
 
-- All browser tool calls now live in the Library agent mode; the findbar is page Q&A only and the URL bar handles search and navigation.
-- New Library shortcut `Alt+Shift+A` toggles the panel, same as the command palette entry.
-- Retired model and old key migrations removed.
-- API keys are now encrypted with your OS credential store instead of being stored as plain text. Existing keys migrate automatically, no action needed.
-- The mod is about 12x smaller now. No magic here, just removal: the Vercel AI SDK and zod were bloated, so they are gone, replaced by a small client written for this mod.
-- Page content is sent as a conversation message instead of being embedded in the system prompt, which cuts repeated token spend on every reply.
-- Model lists pruned to currently supported models, with updated defaults. Page and transcript size is now capped by a setting, unlimited by default.
-- Tool-call settings (ask before tool call, max tool calls) moved into the Library AI settings section. Max tool calls is unlimited by default and the library no longer truncates tab context.
-- The library input stays usable while a run is in flight, so `/clear` and `/close` work mid-run.
+- The findbar answers questions about the page. The URL bar handles search and navigation. All browser tools live in the Library Agent mode.
+- API keys are now stored encrypted with your OS credential store. Existing keys move over on their own.
+- The download is about 12x smaller and loads faster. The Vercel AI SDK and zod are gone, replaced by a small client written for this mod.
 
 # Breaking Changes
 
-- Findbar agentic mode is removed. The findbar is page Q&A only; all tool calls moved to the Library agent mode. The `extension.browse-bot.findbar-ai.agentic-mode` preference is deleted.
-- The shared `extension.browse-bot.custom-system-prompt` preference is replaced by per-surface prompts (findbar, URL bar, library chat/agent/build). Existing values migrate to the findbar prompt.
-- The `extension.browse-bot.findbar-ai.max-tool-calls` and `extension.browse-bot.findbar-ai.conform-before-tool-call` preferences moved to `extension.browse-bot.library-ai.max-tool-calls` and `extension.browse-bot.library-ai.confirm-before-tool-call` (spelling fixed). Existing values migrate automatically.
+- Findbar agentic mode is gone. Use Library Agent mode for anything that touches the browser.
+- The `extension.browse-bot.custom-system-prompt` pref is now split into separate prompts per surface: `extension.browse-bot.findbar-ai.system-prompt`, `extension.browse-bot.urlbar-ai.system-prompt`, and `extension.browse-bot.library-ai.chat-system-prompt`, `agent-system-prompt` and `build-system-prompt`. Your old prompt stays with the findbar.
+- The `extension.browse-bot.findbar-ai.max-tool-calls` pref moved to `extension.browse-bot.library-ai.max-tool-calls`, now unlimited by default. The `extension.browse-bot.findbar-ai.conform-before-tool-call` pref moved to `extension.browse-bot.library-ai.confirm-before-tool-call` with the spelling fixed. Saved values move with them.
 
 # Fixes
 
-- Claude and Grok provider icons now use the model icons (claude.ai, grok.com) instead of the company logos.
-- Dropdowns no longer leave empty space when the selected item has no icon.
-- Shortcut fields now show readable key symbols.
-- Chat markdown rendering no longer depends on the Sine runtime.
-- Repeat tool calls only collapse into one counted row when consecutive. A different tool in between starts a new row, so the order stays truthful.
+- Claude and Grok entries now show the right icons.
+- Shortcut fields show readable key symbols.
+- Chat markdown renders without the Sine runtime.
+- Saving settings no longer pops the findbar open when you work in the library.

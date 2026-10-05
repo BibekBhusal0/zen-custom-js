@@ -1,22 +1,28 @@
 # New Features
 
 - Settings tabs and sections now have native icons.
-- Custom JS commands now get syntax highlighting right inside the code editor.
-- Running a custom JS command for the first time now shows a proper confirmation dialog with the full highlighted code.
+- Custom JS commands get syntax highlighting, plus a confirmation dialog showing the full code on first run.
 - Settings commands search now uses the same fuzzy matching as the palette, with results sorted by relevance.
-- All dropdowns in settings (search engine picker, command pickers) now use fuzzy matching and stay sorted by relevance.
-- Switch profiles from the palette.
-- Trigger extension buttons and run extension commands, with their shortcuts shown.
-- Both can be turned on/off in settings under Dynamic Commands.
-- Quick Split is built in: type `site1 | site2`, `site1 - site2`, or `+site` in the palette to open split views and glance. Mixing `|` and `-` opens a grid. A leading/trailing separator splits with the current tab (e.g. `| gh`). Keywords are managed in the palette settings, in the Quick Split section.
-- Refreshed settings design that follows your Zen theme.
-- All dropdowns in settings (search engine picker, command pickers) are now searchable and show icons.
+- All dropdowns in settings are now searchable, show icons, match on partial text, and stay sorted by relevance.
+- Updated UI of the settings pages.
+
+# New Commands
+
+- Switch profiles without leaving the palette, for example `Switch to Profile: Work`.
+- Trigger extension buttons and run extension commands, for example `Trigger Extension: uBlock Origin` or `uBlock Origin: Open dashboard`. Both live under Dynamic Commands in settings and can be turned off there.
+- Quick Split opens split views and glance previews from the palette. Type site names with a separator between them and pick the result.
+  - `github | youtube` opens the two sites side by side.
+  - `github - youtube` stacks them top to bottom. `_` works the same as `-`.
+  - `github | youtube - reddit` mixes both into a grid.
+  - `+github` opens the site in a glance overlay instead of a split.
+  - `| github` splits GitHub with the tab you are on. A separator at the start or end pulls in the current tab.
+  - Each part can be a keyword, a link, or a plain search term. Keywords open their fixed site, links open as typed, and anything else searches through your Quick Split search engine.
+  - Pick the search engine and manage keywords in the palette settings, in the Quick Split section. `-` and `_` need spaces around them.
 
 # Fixes
 
-- Fallback command icons use the native Zen bolt icon now that the old trending icon path no longer ships.
-- Dropdowns no longer leave empty space when the selected item has no icon.
-- Command icons, including extension icons, now always render at the right size and follow your theme colors.
+- Fallback command icons now use the native Zen bolt icon.
+- Updated UI of command icons. Extension icons now always render at the right size and match the theme.
 
 # Breaking Changes
 

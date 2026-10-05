@@ -12,7 +12,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 ## 🌟 Features
 
 - 🎨 **Floating Chat UI**: A sleek, draggable, and resizable findbar that transforms into an AI chat panel.
-- 📚 **Library AI**: A persistent BrowseBot section inside the Zen Library with **chat**, **agent**, and **build** (coming soon) modes, slash commands (`/chat`, `/agent`, `/build`), and `@` tab mentions that hand the AI the full page content. Unlike the findbar and URL bar, it never closes when you switch tabs or workspaces.
+- 📚 **Library AI**: A persistent BrowseBot section inside the Zen Library with **chat**, **agent**, and **build** modes, slash commands (`/chat`, `/agent`, `/build`, `/new`, `/delete`, `/close`, `/continue`), and `@` tab mentions that hand the AI the full page content. Unlike the findbar and URL bar, it never closes when you switch tabs or workspaces.
 - 🚀 **URL Bar AI Commands**: Activate an AI command mode directly in your URL bar for quick searches and navigation.
 - 🤖 **Multi-Provider Support**: Works out of the box with Pollinations AI (free, no API key needed). Also integrates with Google Gemini, Mistral AI, OpenAI, Anthropic Claude, xAI Grok, Perplexity AI, Cerebras, DeepSeek, OpenRouter, any OpenAI-compatible endpoint, and local models via Ollama.
 - 🧠 **Page Content Awareness**: Lets the AI read the current page's text, HTML, and even YouTube transcripts to provide context-aware answers.
@@ -115,15 +115,16 @@ For advanced users or those not using Sine or who are willing to contribute:
 ### Library AI
 
 > [!NOTE]
-> The Library section needs a Zen build with the Library feature (currently Twilight). On builds without it, the section stays hidden and the findbar/URL bar keep working as before.
+> The Library section needs a Zen build with the Library feature. On builds without it, the section stays hidden and the findbar/URL bar keep working as before.
 
 1.  Press `Alt+Shift+A` (customizable) to toggle the Library AI, or run **Open BrowseBot Library** from the command palette. The section appears in the Library sidebar as **AI**.
 2.  Pick a mode with the header buttons or a slash command:
     - **Chat** (`/chat`): plain Q&A. No tools, no automatic page context.
-    - **Agent** (`/agent`): the full browser tool-belt (tabs, workspaces, bookmarks, search, navigation, page interaction, YouTube). Tool calls ask for confirmation first unless you disable that.
-    - **Build** (`/build`): coming soon. Switches the mode; behaves like chat for now.
+    - **Agent** (`/agent`): the full browser tool-belt. It reads and organizes tabs, searches the web, manages bookmarks and workspaces, clicks and fills page elements, and reads YouTube transcripts.
+    - **Build** (`/build`): styles the browser and builds Sine mods. Describe the look you want and it stages a live CSS and JS preview, then saves it as a mod.
 3.  Type `@` to reference any open tab. Picking one hands its full page content to the AI with your message.
 4.  Slash commands accept a trailing message: `/agent close all youtube tabs` switches to agent mode and sends the rest immediately.
+5.  Manage chats with `/new`, `/delete`, `/close` and `/continue`, or open saved chats from the history button in the header.
 
 ### Command Palette Integration
 
@@ -203,7 +204,7 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.urlbar-ai.shortcut-urlbar`                      | String  | `"ctrl+space"`                                              | Keyboard shortcut to toggle URL bar AI mode. Format: `ctrl+space` (press keys to record in settings).                                                                       |
 | `extension.browse-bot.library-ai.shortcut-library`                    | String  | `"alt+shift+a"`                                             | Keyboard shortcut to open the BrowseBot Library section.                                                                                                                    |
 | `extension.browse-bot.library-ai.enabled`                             | Boolean | `true`                                                      | Adds the BrowseBot section to the Zen Library (needs a Zen build with the Library feature).                                                                                 |
-| `extension.browse-bot.library-ai.mode`                                | String  | `"chat"`                                                    | Library AI mode. Options: `chat`, `agent`, `build` (coming soon).                                                                                                           |
+| `extension.browse-bot.library-ai.mode`                                | String  | `"chat"`                                                    | Library AI mode. Options: `chat`, `agent`, `build`.                                                                                                                 |
 | `extension.browse-bot.debug-mode`                                     | Boolean | `false`                                                     | Set to `true` to enable verbose logging in the Browser Console for troubleshooting.                                                                                         |
 
 </details>
@@ -257,12 +258,7 @@ Currently available tool calls are (full set in Library agent mode):
 - [x] Advanced LLM parameters (temperature, top-k, etc.)
 - [x] Keyboard shortcut customization
 - [x] Add more models (GPT-5, Gemini 2.5, DeepSeek R1, etc.)
-- [ ] Build mode (library third mode, spec pending)
-
-## 🐛 Bugs and potential issues (I am working on fixing them)
-
-- In settings text encoding is broken (for chinese text).
-- Styles in glance
+- [x] Build mode (styles the browser and builds Sine mods)
 
 ## 🙏 Credits and Acknowledgements
 

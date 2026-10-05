@@ -132,14 +132,14 @@ The following commands are now native:
   - Close Glance
   - Expand Glance
   - Split Glance
-- **Quick Split** (type the syntax directly in the palette, with or without the prefix):
+- **Quick Split** (type the syntax directly in the palette):
   - `github | youtube`: open side-by-side split
-  - `github - youtube`: open stacked split
+  - `github - youtube`: open stacked split (`_` works the same, with spaces around it)
   - `github | youtube - reddit`: mix `|` and `-` for a grid split
-  - `| github`: split github with the current tab (`_` works the same for a stacked split)
+  - `| github`: split github with the current tab
   - `+github`: open in glance
 
-  Keywords open their website directly, URLs open as-is, anything else uses your search engine. Manage keywords in the palette settings, in the Quick Split section below (shown while Quick Split is enabled).
+  Each part can be a keyword, a link, or a plain search term. Keywords open their fixed site, links open as typed, and anything else searches through your Quick Split search engine. Pick the engine and manage keywords in the palette settings, in the Quick Split section. Turn the whole thing off with Enable Quick Split. `-` and `_` need spaces around them so words like e-commerce never split.
 
 - **Folders**:
   - Remove Tab from Folder
