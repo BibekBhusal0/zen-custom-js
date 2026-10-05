@@ -497,12 +497,20 @@
     "property": "extension.browse-bot.claude-model",
     "label": "Claude Model",
     "type": "dropdown",
-    "defaultValue": "claude-sonnet-5",
+    "defaultValue": "claude-sonnet-5-5",
     "description": "Select the Claude model to use.",
     "options": [
       {
         "value": "claude-fable-5-1",
         "label": "Claude Fable 5.1"
+      },
+      {
+        "value": "claude-opus-5-5",
+        "label": "Claude Opus 5.5"
+      },
+      {
+        "value": "claude-sonnet-5-5",
+        "label": "Claude Sonnet 5.5"
       },
       {
         "value": "claude-opus-5",
@@ -574,7 +582,7 @@
     "property": "extension.browse-bot.gemini-model",
     "label": "Gemini Model",
     "type": "dropdown",
-    "defaultValue": "gemini-2.5-flash",
+    "defaultValue": "gemini-3.8-flash",
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
       {
@@ -608,18 +616,6 @@
       {
         "value": "gemini-3-flash-preview",
         "label": "Gemini 3 Flash Preview"
-      },
-      {
-        "value": "gemini-2.5-pro",
-        "label": "Gemini 2.5 Pro"
-      },
-      {
-        "value": "gemini-2.5-flash",
-        "label": "Gemini 2.5 Flash"
-      },
-      {
-        "value": "gemini-2.5-flash-lite",
-        "label": "Gemini 2.5 Flash Lite"
       }
     ],
     "conditions": [
@@ -651,9 +647,13 @@
     "property": "extension.browse-bot.grok-model",
     "label": "Grok Model",
     "type": "dropdown",
-    "defaultValue": "grok-4.6",
+    "defaultValue": "grok-4.7",
     "description": "Select the Grok model to use.",
     "options": [
+      {
+        "value": "grok-4.7",
+        "label": "Grok 4.7"
+      },
       {
         "value": "grok-4.6",
         "label": "Grok 4.6"
@@ -665,10 +665,6 @@
       {
         "value": "grok-4.3",
         "label": "Grok 4.3"
-      },
-      {
-        "value": "grok-4.1-fast",
-        "label": "Grok 4.1 Fast"
       },
       {
         "value": "grok-code-fast-1",
@@ -732,16 +728,8 @@
         "label": "Mistral Small (Latest)"
       },
       {
-        "value": "magistral-medium-latest",
-        "label": "Magistral Medium (Latest)"
-      },
-      {
         "value": "codestral-latest",
         "label": "Codestral (Latest)"
-      },
-      {
-        "value": "pixtral-large-latest",
-        "label": "Pixtral Large (Latest)"
       },
       {
         "value": "ministral-8b-latest",
@@ -813,12 +801,24 @@
     "property": "extension.browse-bot.openai-model",
     "label": "OpenAI Model",
     "type": "dropdown",
-    "defaultValue": "gpt-5.6-terra",
+    "defaultValue": "gpt-6.1-sol",
     "description": "Select the OpenAI model to use.",
     "options": [
       {
         "value": "gpt-6-astra",
         "label": "GPT 6 Astra"
+      },
+      {
+        "value": "gpt-6.1-sol",
+        "label": "GPT 6.1 Sol"
+      },
+      {
+        "value": "gpt-6-sol",
+        "label": "GPT 6 Sol"
+      },
+      {
+        "value": "gpt-6-luna",
+        "label": "GPT 6 Luna"
       },
       {
         "value": "gpt-5.6",
@@ -950,22 +950,6 @@
     "description": "Select the Perplexity model to use.",
     "options": [
       {
-        "value": "sonar-deep-research",
-        "label": "Sonar Deep Research"
-      },
-      {
-        "value": "sonar-reasoning-pro",
-        "label": "Sonar Reasoning Pro"
-      },
-      {
-        "value": "sonar-reasoning",
-        "label": "Sonar Reasoning"
-      },
-      {
-        "value": "sonar-pro",
-        "label": "Sonar Pro"
-      },
-      {
         "value": "sonar",
         "label": "Sonar"
       }
@@ -1088,9 +1072,13 @@
     "property": "extension.browse-bot.deepseek-model",
     "label": "DeepSeek Model",
     "type": "dropdown",
-    "defaultValue": "deepseek-v4-flash",
+    "defaultValue": "deepseek-flash",
     "description": "Select the DeepSeek model to use.",
     "options": [
+      {
+        "value": "deepseek-flash",
+        "label": "DeepSeek V4.1 Flash"
+      },
       {
         "value": "deepseek-v4-flash",
         "label": "DeepSeek V4 Flash"
@@ -1134,7 +1122,7 @@
     "label": "OpenRouter Model",
     "type": "string",
     "placeholder": "e.g. anthropic/claude-opus-4-8",
-    "defaultValue": "google/gemini-2.5-flash",
+    "defaultValue": "google/gemini-3.8-flash",
     "description": "The OpenRouter model ID to use.",
     "conditions": [
       {

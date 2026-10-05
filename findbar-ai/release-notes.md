@@ -9,7 +9,13 @@
   - Manage chats with /new, /delete, /close and /continue, or open saved chats from the history button in the header.
   - Type @ to pull any open tab into the conversation. The AI reads the full page.
 - Provider and model pickers are searchable, show provider logos, keep a steady size, and match on partial text. All pickers always show the search box.
-- Works out of the box with Pollinations, no API key needed. Also new are DeepSeek and OpenRouter. DeepSeek now offers V4 Flash, V4 Pro, and V4 Flash Vision Experimental. Old DeepSeek names move to V4 Flash on their own. Cerebras adds Qwen 3.8 27B and drops Gemma 4 31B. Perplexity, local models through Ollama, and any OpenAI compatible endpoint through Custom were already there and keep working.
+- New providers and models.
+  - New provider: `Pollinations`, works out of the box with no API key.
+  - New provider: `DeepSeek`.
+  - New provider: `OpenRouter`.
+  - New models from `OpenAI`: `GPT-6.1 Sol`, `GPT-6 Sol` and `GPT-6 Luna`.
+  - New models from `Claude`: `Opus 5.5` and `Sonnet 5.5`.
+  - New model from `xAI`: `Grok 4.7`.
 - YouTube answers link to moments in the video. Click a citation to seek there.
 
 # Changes
@@ -17,6 +23,7 @@
 - The findbar answers questions about the page. The URL bar handles search and navigation. All browser tools live in the Library Agent mode.
 - API keys are now stored encrypted with your OS credential store. Existing keys move over on their own.
 - The download is about 12x smaller and loads faster. The Vercel AI SDK and zod are gone, replaced by a small client written for this mod.
+- Dropped models that stopped working: the `Gemini 2.5` set, `Grok 4.1`, the old `Magistral` and `Pixtral` entries, and every `Perplexity` model except `sonar`. Fresh installs default to the new models.
 
 # Breaking Changes
 
