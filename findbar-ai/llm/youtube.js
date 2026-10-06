@@ -70,6 +70,19 @@ function pickTrack(tracks, locale) {
   );
 }
 
+async function fetchWithTimeout(url, options = {}, ms = 15000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (e) {
+    if (e?.name === "AbortError") throw new Error("Transcript unavailable (request timed out).");
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchTranscript(videoId) {
   let locale = "en";
   try {
@@ -77,20 +90,23 @@ async function fetchTranscript(videoId) {
   } catch {
     locale = "en";
   }
-  const playerRes = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      context: { client: { clientName: "ANDROID", clientVersion: "20.10.38" } },
-      videoId,
-    }),
-  });
+  const playerRes = await fetchWithTimeout(
+    "https://www.youtube.com/youtubei/v1/player?prettyPrint=false",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        context: { client: { clientName: "ANDROID", clientVersion: "20.10.38" } },
+        videoId,
+      }),
+    }
+  );
   if (!playerRes.ok) throw new Error(`Transcript unavailable (player: ${playerRes.status}).`);
   const player = await playerRes.json();
   const tracks = player?.captions?.playerCaptionsTracklistRenderer?.captionTracks || [];
   if (!tracks.length) throw new Error("Transcript unavailable (no captions).");
   const track = pickTrack(tracks, locale);
-  const capRes = await fetch(track.baseUrl);
+  const capRes = await fetchWithTimeout(track.baseUrl);
   if (!capRes.ok) throw new Error(`Transcript unavailable (captions: ${capRes.status}).`);
   const segments = parseTimedXml(await capRes.text());
   if (!segments.length) throw new Error("Transcript unavailable (empty).");

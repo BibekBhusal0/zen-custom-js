@@ -275,14 +275,40 @@ async function* streamStep(provider, system, messages, tools, sampling, signal, 
   onDone({ text, toolCalls, finishReason: normalizeFinish(finishReason, toolCalls) });
 }
 
-async function executeToolCall(tools, call) {
+async function executeToolCall(tools, call, { signal, timeoutMs = 30000 } = {}) {
   const tool = tools[call.name];
   if (!tool) return JSON.stringify({ error: `Unknown tool "${call.name}".` });
+  if (signal?.aborted)
+    return JSON.stringify({ error: `Tool "${call.name}" was stopped before it started.` });
+  let timer = null;
+  let onAbort = null;
   try {
-    const result = await tool.execute(call.arguments || {});
+    const result = await Promise.race([
+      tool.execute(call.arguments || {}, { signal }),
+      new Promise((_, reject) => {
+        timer = setTimeout(
+          () =>
+            reject(
+              new Error(
+                `Tool "${call.name}" timed out after ${Math.round(timeoutMs / 1000)}s without responding.`
+              )
+            ),
+          timeoutMs
+        );
+        if (signal) {
+          onAbort = () => reject(new DOMException("Aborted", "AbortError"));
+          signal.addEventListener("abort", onAbort, { once: true });
+        }
+      }),
+    ]);
     return typeof result === "string" ? result : JSON.stringify(result ?? {});
   } catch (err) {
+    if (err?.name === "AbortError")
+      return JSON.stringify({ error: `Tool "${call.name}" was stopped.` });
     return JSON.stringify({ error: err?.message || String(err) });
+  } finally {
+    if (timer) clearTimeout(timer);
+    if (signal && onAbort) signal.removeEventListener("abort", onAbort);
   }
 }
 
@@ -351,12 +377,16 @@ async function runLoop({
     convo.push(assistantMsg);
     added.push(assistantMsg);
     for (const call of stepResult.toolCalls) {
-      const result = await executeToolCall(tools, call);
+      const result = await executeToolCall(tools, call, { signal: abortSignal });
       const toolMsg = { role: "tool", tool_call_id: call.id, content: String(result) };
       convo.push(toolMsg);
       added.push(toolMsg);
     }
-    if (step === steps - 1) text = "";
+    if (step === steps - 1 && stepResult.toolCalls.length) {
+      text = text
+        ? `${text}\n\n[Stopped after ${steps} tool steps.]`
+        : `[Stopped after ${steps} tool steps with no final answer. Try a narrower request.]`;
+    }
   }
   return { text, response: { messages: added } };
 }

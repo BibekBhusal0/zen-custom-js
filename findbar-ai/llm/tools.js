@@ -791,10 +791,10 @@ async function reorderWorkspace(args) {
  * @param {string} args.selector - The CSS selector of the element to click.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
-async function clickElement(args) {
-  const { selector } = args;
+async function clickElement(args, opts) {
+  const { selector } = args || {};
   if (!selector) return { error: "clickElement requires a selector." };
-  return messageManagerAPI.clickElement(selector);
+  return messageManagerAPI.clickElement(selector, opts);
 }
 
 /**
@@ -804,11 +804,11 @@ async function clickElement(args) {
  * @param {string} args.value - The value to fill the input with.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
-async function fillForm(args) {
-  const { selector, value } = args;
+async function fillForm(args, opts) {
+  const { selector, value } = args || {};
   if (!selector) return { error: "fillForm requires a selector." };
   if (value === undefined) return { error: "fillForm requires a value." };
-  return messageManagerAPI.fillForm(selector, value);
+  return messageManagerAPI.fillForm(selector, value, opts);
 }
 
 // ╭─────────────────────────────────────────────────────────╮
@@ -847,8 +847,8 @@ async function showCustomToast(args) {
  * @param {number} [args.count] - The number of comments to retrieve.
  * @returns {Promise<object>} A promise that resolves with the comments.
  */
-async function getYoutubeComments(args) {
-  return messageManagerAPI.getYoutubeComments(args.count);
+async function getYoutubeComments(args, opts) {
+  return messageManagerAPI.getYoutubeComments(args?.count, opts);
 }
 
 const toolVerbs = {
@@ -1124,17 +1124,17 @@ Note: you must run tool getHTMLContent before clicking button or filling form to
   youtube: {
     tools: {
       getYoutubeTranscript: createTool(
-        "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video.",
+        "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video; on any other page it fails fast with an error.",
         {},
         messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
       ),
       getYoutubeDescription: createTool(
-        "Retrieves the description of the current YouTube video. Only use if the current page is a YouTube video.",
+        "Retrieves the description of the current YouTube video. Only use if the current page is a YouTube video; on any other page it fails fast with an error.",
         {},
         messageManagerAPI.getYoutubeDescription.bind(messageManagerAPI)
       ),
       getYoutubeComments: createTool(
-        "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video.",
+        "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video; on any other page it fails fast with an error.",
         {
           count: num("The maximum number of comments to retrieve. Defaults to 10.", true),
         },
@@ -1329,12 +1329,12 @@ const getTools = (groups, { shouldToolBeCalled, afterToolCall } = {}) => {
     const newTool = { ...originalTool };
 
     const originalExecute = originalTool.execute;
-    newTool.execute = async (args) => {
+    newTool.execute = async (args, opts) => {
       if (shouldToolBeCalled && !(await shouldToolBeCalled(toolName, args))) {
         PREFS.debugLog(`Tool execution for '${toolName}' was denied by shouldToolBeCalled.`);
         return { error: `Tool execution for '${toolName}' was denied by user.` };
       }
-      const result = await originalExecute(args);
+      const result = await originalExecute(args, opts);
       if (afterToolCall) afterToolCall(toolName, result, args);
       return result;
     };

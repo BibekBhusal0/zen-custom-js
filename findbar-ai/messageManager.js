@@ -136,14 +136,24 @@ async function frameScript() {
     const desc = content.document.querySelector(
       "#description-inline-expander .yt-core-attributed-string, #description .content, .ytd-expandable-video-description-body-renderer .yt-core-attributed-string"
     );
-    return desc ? desc.textContent.trim() : "Description not found.";
+    const text = desc ? desc.textContent.trim() : "";
+    if (!text) {
+      throw new Error(
+        "No YouTube description found. This page may not be a YouTube video, or the description is empty."
+      );
+    }
+    return text;
   };
 
   const getYoutubeComments = (count = 10) => {
     const comments = Array.from(
       content.document.querySelectorAll("ytd-comment-thread-renderer #content-text")
     ).slice(0, count);
-    if (comments.length === 0) return ["No comments found or they are not loaded yet."];
+    if (comments.length === 0) {
+      throw new Error(
+        "No YouTube comments found. They may be disabled, not loaded yet, or this page may not be a YouTube video."
+      );
+    }
     return comments.map((c) => c.textContent.trim());
   };
 
@@ -186,8 +196,17 @@ async function frameScript() {
       if (!element) {
         throw new Error(`Element with selector "${selector}" not found.`);
       }
+      if (!("value" in element)) {
+        throw new Error(
+          `Element with selector "${selector}" is not an input element (<${element.tagName.toLowerCase()}>). Use a selector for an input, textarea, or select element.`
+        );
+      }
+      try {
+        element.focus();
+      } catch {}
       element.value = value;
       element.dispatchEvent(new Event("input", { bubbles: true }));
+      element.dispatchEvent(new Event("change", { bubbles: true }));
       return {
         result: `Filled element with selector "${selector}" with value "${value}".`,
       };
@@ -221,11 +240,16 @@ async function frameScript() {
   addMessageListener("FindbarAI:Command", async function (msg) {
     const cmd = msg.data.command;
     const data = msg.data.data || {};
+    const requestId = msg.data.requestId;
     try {
       const result = await handlers[cmd](data);
-      sendAsyncMessage("FindbarAI:Result", { command: cmd, result });
+      sendAsyncMessage("FindbarAI:Result", { command: cmd, requestId, result });
     } catch (e) {
-      sendAsyncMessage("FindbarAI:Result", { command: cmd, result: { error: e.message } });
+      sendAsyncMessage("FindbarAI:Result", {
+        command: cmd,
+        requestId,
+        result: { error: e.message },
+      });
     }
   });
 }
@@ -240,33 +264,92 @@ const ensureFrameScript = (browser) => {
   browser._findbarAIInjected = true;
 };
 
-const sendToBrowser = (browser, cmd, data = {}) => {
+let requestCounter = 0;
+
+function isYouTubeWatchUrl(url) {
+  if (!url) return false;
+  try {
+    const u = new URL(String(url).trim());
+    const host = u.hostname
+      .replace(/^www\./, "")
+      .replace(/^m\./, "")
+      .replace(/^music\./, "");
+    if (host === "youtu.be") return u.pathname.slice(1).split("/")[0].length > 0;
+    if (host === "youtube.com" || host === "youtube-nocookie.com") {
+      if (u.pathname === "/watch") return !!u.searchParams.get("v");
+      return /^\/(embed|shorts|live|v)\/[^/?]+/.test(u.pathname);
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
+
+// Tool executors prepend the LLM's args object, so find opts by shape instead of position.
+function pickOpts(...args) {
+  for (const a of args) {
+    if (a && typeof a === "object" && ("signal" in a || "timeout" in a)) return a;
+  }
+  return undefined;
+}
+
+const sendToBrowser = (browser, cmd, data = {}, opts = {}) => {
+  const { timeout = 15000, signal } = opts || {};
   ensureFrameScript(browser);
   const mm = browser.messageManager;
   if (!mm) return Promise.reject(new Error("No message manager available."));
+  if (signal?.aborted) return Promise.reject(new DOMException("Aborted", "AbortError"));
+  const requestId = `${Date.now().toString(36)}-${requestCounter++}`;
   return new Promise((resolve, reject) => {
+    let settled = false;
+    const cleanup = () => {
+      mm.removeMessageListener("FindbarAI:Result", listener);
+      clearTimeout(timer);
+      signal?.removeEventListener("abort", onAbort);
+    };
+    const settle = (fn, val) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      fn(val);
+    };
+    const onAbort = () => settle(reject, new DOMException("Aborted", "AbortError"));
+    const timer = setTimeout(() => {
+      settle(
+        reject,
+        new Error(
+          `Timed out waiting for a page response (${cmd}, ${timeout}ms). The tab may be unloaded, still loading, or on a page that blocks content scripts.`
+        )
+      );
+    }, timeout);
     const listener = (msg) => {
-      if (msg.data.command === cmd) {
-        mm.removeMessageListener("FindbarAI:Result", listener);
-        if (msg.data.result && msg.data.result.error) {
-          reject(new Error(msg.data.result.error));
-        } else {
-          resolve(msg.data.result);
-        }
+      const d = msg.data || {};
+      // Older injected scripts omit requestId; accept those by command.
+      if (d.requestId !== undefined && d.requestId !== requestId) return;
+      if (d.command !== cmd) return;
+      if (d.result && d.result.error) {
+        settle(reject, new Error(d.result.error));
+      } else {
+        settle(resolve, d.result);
       }
     };
     mm.addMessageListener("FindbarAI:Result", listener);
-    mm.sendAsyncMessage("FindbarAI:Command", { command: cmd, data });
+    signal?.addEventListener("abort", onAbort, { once: true });
+    try {
+      mm.sendAsyncMessage("FindbarAI:Command", { command: cmd, data, requestId });
+    } catch (e) {
+      settle(reject, e);
+    }
   });
 };
 
 export const messageManagerAPI = {
-  send(cmd, data = {}) {
+  send(cmd, data = {}, opts) {
     if (!gBrowser || !gBrowser.selectedBrowser) {
       PREFS.debugError("No message manager available.");
       return Promise.reject(new Error("No message manager available."));
     }
-    return sendToBrowser(gBrowser.selectedBrowser, cmd, data);
+    return sendToBrowser(gBrowser.selectedBrowser, cmd, data, opts);
   },
 
   async getPageTextContentForTab(tab, trimWhiteSpace = true) {
@@ -292,15 +375,15 @@ export const messageManagerAPI = {
     };
   },
 
-  async getHTMLContent() {
-    return this.send("GetPageHTMLContent").catch((error) => {
+  async getHTMLContent(...rest) {
+    return this.send("GetPageHTMLContent", {}, pickOpts(...rest)).catch((error) => {
       PREFS.debugError("Failed to get page HTML content:", error);
       return {};
     });
   },
 
-  async getSelectedText() {
-    return this.send("GetSelectedText")
+  async getSelectedText(...rest) {
+    return this.send("GetSelectedText", {}, pickOpts(...rest))
       .then((result) => {
         if (!result || !result.hasSelection) {
           return this.getUrlAndTitle();
@@ -313,25 +396,29 @@ export const messageManagerAPI = {
       });
   },
 
-  async getPageTextContent(trimWhiteSpace = true) {
-    return this.send("GetPageTextContent", { trimWhiteSpace }).catch((error) => {
-      PREFS.debugError("Failed to get page text content:", error);
-      return this.getUrlAndTitle();
-    });
+  async getPageTextContent(trimWhiteSpace = true, ...rest) {
+    return this.send("GetPageTextContent", { trimWhiteSpace }, pickOpts(trimWhiteSpace, ...rest)).catch(
+      (error) => {
+        PREFS.debugError("Failed to get page text content:", error);
+        return this.getUrlAndTitle();
+      }
+    );
   },
 
-  async clickElement(selector) {
-    return this.send("ClickElement", { selector }).catch((error) => {
+  async clickElement(selector, ...rest) {
+    return this.send("ClickElement", { selector }, pickOpts(selector, ...rest)).catch((error) => {
       PREFS.debugError(`Failed to click element with selector "${selector}":`, error);
       return { error: `Failed to click element with selector "${selector}".` };
     });
   },
 
-  async fillForm(selector, value) {
-    return this.send("FillForm", { selector, value }).catch((error) => {
-      PREFS.debugError(`Failed to fill form with selector "${selector}":`, error);
-      return { error: `Failed to fill form with selector "${selector}".` };
-    });
+  async fillForm(selector, value, ...rest) {
+    return this.send("FillForm", { selector, value }, pickOpts(selector, value, ...rest)).catch(
+      (error) => {
+        PREFS.debugError(`Failed to fill form with selector "${selector}":`, error);
+        return { error: `Failed to fill form with selector "${selector}".` };
+      }
+    );
   },
 
   async seekVideo(seconds) {
@@ -341,22 +428,49 @@ export const messageManagerAPI = {
     });
   },
 
-  async getYoutubeTranscript() {
-    return this.send("GetYoutubeTranscript").catch((error) => {
-      PREFS.debugError("Failed to get youtube transcript:", error);
-      return { error: `Failed to get youtube transcript: ${error.message}` };
-    });
+  currentUrlIsYouTubeVideo() {
+    try {
+      return isYouTubeWatchUrl(this.getUrlAndTitle().url);
+    } catch {
+      return false;
+    }
   },
 
-  async getYoutubeDescription() {
-    return this.send("GetYoutubeDescription").catch((error) => {
+  async getYoutubeTranscript(...rest) {
+    if (!this.currentUrlIsYouTubeVideo()) {
+      return {
+        error: "Current page is not a YouTube video. Only use this tool on youtube.com/watch pages.",
+      };
+    }
+    return this.send("GetYoutubeTranscript", {}, { timeout: 25000, ...pickOpts(...rest) }).catch(
+      (error) => {
+        PREFS.debugError("Failed to get youtube transcript:", error);
+        return { error: `Failed to get youtube transcript: ${error.message}` };
+      }
+    );
+  },
+
+  async getYoutubeDescription(...rest) {
+    if (!this.currentUrlIsYouTubeVideo()) {
+      return {
+        error:
+          "Current page is not a YouTube video. Only use this tool on youtube.com/watch pages.",
+      };
+    }
+    return this.send("GetYoutubeDescription", {}, pickOpts(...rest)).catch((error) => {
       PREFS.debugError("Failed to get youtube description:", error);
       return { error: `Failed to get youtube description: ${error.message}` };
     });
   },
 
-  async getYoutubeComments(count) {
-    return this.send("GetYoutubeComments", { count }).catch((error) => {
+  async getYoutubeComments(count = 10, ...rest) {
+    if (typeof count !== "number") count = 10;
+    if (!this.currentUrlIsYouTubeVideo()) {
+      return {
+        error: "Current page is not a YouTube video. Only use this tool on youtube.com/watch pages.",
+      };
+    }
+    return this.send("GetYoutubeComments", { count }, pickOpts(count, ...rest)).catch((error) => {
       PREFS.debugError("Failed to get youtube comments:", error);
       return { error: `Failed to get youtube comments: ${error.message}` };
     });
