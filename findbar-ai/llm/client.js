@@ -76,16 +76,17 @@ function cleanMessage(m) {
 
 function openAIBody(provider, system, messages, tools, stream, sampling, jsonMode) {
   const clean = messages.map(cleanMessage);
-  const model = String(provider.model || "");
-  const baseURL = String(provider.baseURL || "");
+  const model = String(provider.model || "").toLowerCase();
+  const baseURL = String(provider.baseURL || "").toLowerCase();
   const isAzureOrOpenAI =
     baseURL.includes("openai.azure.com") || baseURL.includes("api.openai.com");
-  const isOpenAIModel = /^o\d+/i.test(model) || /^gpt-/i.test(model) || model.includes("chatgpt");
+  const isOpenAIModel =
+    /^o\d+/i.test(model) || /^gpt-(?!oss)/i.test(model) || model.includes("chatgpt");
   const isReasoningModel =
     /^o\d+/i.test(model) ||
     /^gpt-[5-9]/i.test(model) ||
     model.includes("reasoning") ||
-    model.includes("r1");
+    /(^|[^a-z0-9])r1([^a-z0-9]|$)/.test(model);
   const isOSeries = /^o\d+/i.test(model);
 
   const systemRole = isOSeries ? "developer" : "system";

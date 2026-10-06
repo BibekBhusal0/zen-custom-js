@@ -431,8 +431,8 @@ ${citationExamples}
           if (browseBotFindbar?.findbar) {
             browseBotFindbar.findbar.history = self.getHistory();
           }
-        } catch {
-          // Handled by consumer stream
+        } catch (e) {
+          PREFS.debugLog("Stream history sync skipped:", e?.message || e);
         }
       })();
       return streamResult;
