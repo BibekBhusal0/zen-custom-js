@@ -33,6 +33,7 @@
 
 # Fixes
 
+- OpenAI reasoning models (`o1`, `o3`, `gpt-5` and later) and Azure OpenAI endpoints no longer fail with unsupported parameter errors. Thanks to @realSilasYang for the contribution!
 - Claude and Grok entries now show the right icons.
 - Shortcut fields show readable key symbols.
 - Chat markdown renders without the Sine runtime.
