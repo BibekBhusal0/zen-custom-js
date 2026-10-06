@@ -426,9 +426,13 @@ ${citationExamples}
       const self = this;
       const streamResult = await super.streamText({ prompt, abortSignal });
       (async () => {
-        await streamResult.text;
-        if (browseBotFindbar?.findbar) {
-          browseBotFindbar.findbar.history = self.getHistory();
+        try {
+          await streamResult.text;
+          if (browseBotFindbar?.findbar) {
+            browseBotFindbar.findbar.history = self.getHistory();
+          }
+        } catch {
+          // Handled by consumer stream
         }
       })();
       return streamResult;

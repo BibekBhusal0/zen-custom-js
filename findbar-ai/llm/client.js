@@ -76,17 +76,39 @@ function cleanMessage(m) {
 
 function openAIBody(provider, system, messages, tools, stream, sampling, jsonMode) {
   const clean = messages.map(cleanMessage);
+  const model = String(provider.model || "");
+  const baseURL = String(provider.baseURL || "");
+  const isAzureOrOpenAI =
+    baseURL.includes("openai.azure.com") || baseURL.includes("api.openai.com");
+  const isOpenAIModel = /^o\d+/i.test(model) || /^gpt-/i.test(model) || model.includes("chatgpt");
+  const isReasoningModel =
+    /^o\d+/i.test(model) ||
+    /^gpt-[5-9]/i.test(model) ||
+    model.includes("reasoning") ||
+    model.includes("r1");
+  const isOSeries = /^o\d+/i.test(model);
+
+  const systemRole = isOSeries ? "developer" : "system";
   const body = {
     model: provider.model,
-    messages: system ? [{ role: "system", content: system }, ...clean] : clean,
+    messages: system ? [{ role: systemRole, content: system }, ...clean] : clean,
     stream,
   };
-  if (sampling.temperature !== undefined) body.temperature = sampling.temperature;
-  if (sampling.topP !== undefined) body.top_p = sampling.topP;
-  if (sampling.maxTokens !== undefined) body.max_tokens = sampling.maxTokens;
-  if (provider.kind !== "gemini") {
-    if (sampling.frequencyPenalty !== undefined) body.frequency_penalty = sampling.frequencyPenalty;
-    if (sampling.presencePenalty !== undefined) body.presence_penalty = sampling.presencePenalty;
+  if (!isReasoningModel) {
+    if (sampling.temperature !== undefined) body.temperature = sampling.temperature;
+    if (sampling.topP !== undefined) body.top_p = sampling.topP;
+    if (provider.kind !== "gemini") {
+      if (sampling.frequencyPenalty !== undefined)
+        body.frequency_penalty = sampling.frequencyPenalty;
+      if (sampling.presencePenalty !== undefined) body.presence_penalty = sampling.presencePenalty;
+    }
+  }
+  if (sampling.maxTokens !== undefined) {
+    if (isAzureOrOpenAI || isOpenAIModel || isReasoningModel) {
+      body.max_completion_tokens = sampling.maxTokens;
+    } else {
+      body.max_tokens = sampling.maxTokens;
+    }
   }
   if (tools) {
     body.tools = Object.entries(tools).map(([name, t]) => ({
