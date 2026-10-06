@@ -103,7 +103,7 @@ zen-library-browsebot-section {
       overflow-y: auto !important;
       overflow-x: hidden !important;
       scrollbar-width: thin !important;
-      padding: 10px 8px 0 2px !important;
+      padding: 10px 8px 14px 2px !important;
 
       .bb-run-view {
         display: contents !important;
@@ -170,6 +170,85 @@ zen-library-browsebot-section {
             animation: spin 0.8s linear infinite !important;
           }
         }
+      }
+
+      .bb-msg-actions {
+        position: absolute !important;
+        bottom: -12px !important;
+        right: 10px !important;
+        display: flex !important;
+        gap: 2px !important;
+        padding: 1px !important;
+        background: var(--zenux-surface) !important;
+        border: 1px solid var(--zenux-border) !important;
+        border-radius: var(--zenux-radius-pill) !important;
+        box-shadow: var(--zenux-shadow-s) !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        transition: opacity 0.15s var(--zenux-ease) !important;
+        z-index: 2 !important;
+
+        .zenux-icon-btn {
+          min-width: 20px !important;
+          min-height: 20px !important;
+          padding: 1px !important;
+
+          img {
+            width: 14px !important;
+            height: 14px !important;
+          }
+        }
+      }
+
+      .chat-message:hover > .bb-msg-actions,
+      .chat-message:focus-within > .bb-msg-actions {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+      }
+
+      /* Inline approval card; overrides the fixed modal styling from settings.css. */
+      .tool-confirmation-dialog {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        background: none !important;
+        backdrop-filter: none !important;
+        display: block !important;
+        z-index: auto !important;
+        align-self: stretch !important;
+      }
+
+      .tool-confirmation-content {
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        max-height: none !important;
+        padding: 12px !important;
+        text-align: left !important;
+        background: var(--zenux-surface) !important;
+        border: 1px solid var(--zenux-accent-border) !important;
+        outline: none !important;
+        backdrop-filter: none !important;
+        border-radius: var(--zenux-radius-m) !important;
+
+        .tool-confirm-title {
+          margin: 0 0 10px !important;
+          font-size: 13px !important;
+          font-weight: 600 !important;
+        }
+
+        .buttons {
+          gap: 8px !important;
+          align-items: center !important;
+        }
+
+        .not-again {
+          font-size: 12px !important;
+        }
+      }
+
+      .zenux-empty {
+        margin: auto !important;
       }
 
       .bb-tool-run {
@@ -540,51 +619,6 @@ zen-library-browsebot-section {
 
 #zen-library-content .zen-library-section[data-section="browsebot"] {
   max-width: none !important;
-}
-
-/* Inline approval card; overrides the fixed modal styling from settings.css. */
-zen-library-browsebot-section .bb-library-messages .tool-confirmation-dialog {
-  position: static !important;
-  width: auto !important;
-  height: auto !important;
-  background: none !important;
-  backdrop-filter: none !important;
-  display: block !important;
-  z-index: auto !important;
-  align-self: stretch !important;
-}
-
-zen-library-browsebot-section .bb-library-messages .tool-confirmation-content {
-  width: auto !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  max-height: none !important;
-  padding: 12px !important;
-  text-align: left !important;
-  background: var(--zenux-surface) !important;
-  border: 1px solid var(--zenux-accent-border) !important;
-  outline: none !important;
-  backdrop-filter: none !important;
-  border-radius: var(--zenux-radius-m) !important;
-
-  .tool-confirm-title {
-    margin: 0 0 10px !important;
-    font-size: 13px !important;
-    font-weight: 600 !important;
-  }
-
-  .buttons {
-    gap: 8px !important;
-    align-items: center !important;
-  }
-
-  .not-again {
-    font-size: 12px !important;
-  }
-}
-
-zen-library-browsebot-section .bb-library-messages .zenux-empty {
-  margin: auto !important;
 }
 
 .bb-create-mod-overlay {

@@ -10,6 +10,7 @@ import {
   isProviderBalanceExhausted,
   setStreamingControls,
   attachChatMessageHandlers,
+  attachMessageActions,
 } from "../utils/chat.js";
 import { SettingsModal } from "../settings.js";
 import { showToast } from "../../utils/toast.js";
@@ -741,9 +742,72 @@ function mountPanel(host) {
     contentDiv.appendChild(parseMD(content || ""));
     wrap.appendChild(contentDiv);
     insertRefChips(contentDiv, refs);
+    attachMessageActions(wrap, { onRegenerate: handleRegenerate });
     messagesEl.appendChild(wrap);
     scrollDown();
     return wrap;
+  }
+
+  function visibleHistoryIndices(history) {
+    const indices = [];
+    (history || []).forEach((msg, hi) => {
+      if (
+        !msg.pageContext &&
+        !(msg.role === "user" && String(msg.content).startsWith("Referenced tabs")) &&
+        (msg.role === "user" || msg.role === "assistant") &&
+        !(msg.role === "assistant" && !String(msg.content).trim())
+      ) {
+        indices.push(hi);
+      }
+    });
+    return indices;
+  }
+
+  function handleRegenerate(wrap) {
+    if (!wrap?.isConnected || state.streaming || libraryRunController) return;
+    const userWraps = [...messagesEl.querySelectorAll(".chat-message-user")];
+    let userWrap = null;
+    if (wrap.classList.contains("chat-message-user")) {
+      userWrap = wrap;
+    } else {
+      let prev = wrap.previousElementSibling;
+      while (prev) {
+        if (prev.classList?.contains("chat-message-user")) {
+          userWrap = prev;
+          break;
+        }
+        prev = prev.previousElementSibling;
+      }
+    }
+    if (!userWrap) return;
+    const ordinal = userWraps.indexOf(userWrap);
+    if (ordinal < 0) return;
+    const history = browseBotLibraryLLM.getHistory();
+    const indices = visibleHistoryIndices(history);
+    const userVisiblePositions = indices.filter((hi) => history[hi]?.role === "user");
+    if (ordinal >= userVisiblePositions.length) return;
+    const userVisiblePos = indices.indexOf(userVisiblePositions[ordinal]);
+    const userHistoryIndex = userVisiblePositions[ordinal];
+    const prompt = String(history[userHistoryIndex]?.content || "").trim();
+    if (!prompt) return;
+    browseBotLibraryLLM.setHistory(history.slice(0, userHistoryIndex));
+    activeSavedLength = userHistoryIndex;
+    const session = getActiveSession();
+    if (Array.isArray(session.toolRuns)) {
+      session.toolRuns = session.toolRuns.filter((r) => {
+        const anchor = r.afterUser !== undefined ? r.afterUser : r.after;
+        return anchor === undefined || anchor < userVisiblePos;
+      });
+    }
+    let node = userWrap;
+    while (node) {
+      const next = node.nextSibling;
+      node.remove();
+      node = next;
+    }
+    deleteBtn.hidden = browseBotLibraryLLM.getHistory().length === 0;
+    input.value = prompt;
+    handleSend();
   }
 
   function insertRefChips(contentDiv, refs) {
@@ -1230,6 +1294,7 @@ function mountPanel(host) {
       </div>`
     );
     let contentDiv = aiWrap.querySelector(".markdown-body");
+    attachMessageActions(aiWrap, { onRegenerate: handleRegenerate });
     libraryRunHost.appendChild(aiWrap);
     scrollDown();
 
@@ -1291,6 +1356,7 @@ function mountPanel(host) {
         </div>`
       );
       contentDiv = aiWrap.querySelector(".markdown-body");
+      attachMessageActions(aiWrap, { onRegenerate: handleRegenerate });
       libraryRunHost.appendChild(aiWrap);
       shownGen = toolGen;
       segmentText = "";

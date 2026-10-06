@@ -1,4 +1,59 @@
 import { parseMD } from "./markdown.js";
+import { parseElement } from "../../utils/parse.js";
+
+function messageCopyText(wrap) {
+  return (wrap?.querySelector(".message-content")?.textContent || "").trim();
+}
+
+function flashActionIcon(btn, src, ms = 1200) {
+  const img = btn?.querySelector("img");
+  if (!img) return;
+  const prev = img.getAttribute("src");
+  img.setAttribute("src", src);
+  setTimeout(() => {
+    if (btn.isConnected) img.setAttribute("src", prev);
+  }, ms);
+}
+
+async function copyChatMessage(wrap, btn) {
+  const text = messageCopyText(wrap);
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    if (btn) flashActionIcon(btn, "chrome://global/skin/icons/check.svg");
+  } catch {}
+}
+
+function buildMessageActions({ regenerate = true } = {}) {
+  const actions = parseElement(`<div class="bb-msg-actions"></div>`);
+  const copyBtn = parseElement(
+    `<button class="bb-msg-copy zenux-icon-btn" tooltiptext="Copy message"><img src="chrome://global/skin/icons/edit-copy.svg" width="14" height="14" alt="" /></button>`
+  );
+  actions.appendChild(copyBtn);
+  if (regenerate) {
+    const regenBtn = parseElement(
+      `<button class="bb-msg-regen zenux-icon-btn" tooltiptext="Regenerate response"><img src="chrome://global/skin/icons/reload.svg" width="14" height="14" alt="" /></button>`
+    );
+    actions.appendChild(regenBtn);
+  }
+  return actions;
+}
+
+function attachMessageActions(wrap, { regenerate = true, onRegenerate } = {}) {
+  if (!wrap || wrap.querySelector(":scope > .bb-msg-actions")) return;
+  const actions = buildMessageActions({ regenerate });
+  actions.querySelector(".bb-msg-copy")?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    copyChatMessage(wrap, e.currentTarget);
+  });
+  if (regenerate) {
+    actions.querySelector(".bb-msg-regen")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      onRegenerate?.(wrap, e.currentTarget);
+    });
+  }
+  wrap.appendChild(actions);
+}
 
 // parseMD with convertHTML=false returns a string, not an element.
 function renderStreamText(contentDiv, fullText) {
@@ -99,4 +154,8 @@ export {
   openChatLink,
   copyChatCode,
   attachChatMessageHandlers,
+  messageCopyText,
+  copyChatMessage,
+  buildMessageActions,
+  attachMessageActions,
 };

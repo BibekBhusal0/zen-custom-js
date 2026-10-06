@@ -10,6 +10,7 @@ import {
   extractErrorText,
   isProviderBalanceExhausted,
   setStreamingControls,
+  attachMessageActions,
 } from "./utils/chat.js";
 import { createCombobox } from "../utils/combobox.js";
 import { createModelField } from "./utils/model-selector.js";
@@ -685,9 +686,51 @@ export const browseBotFindbar = {
         }
       }
     } finally {
+      if (aiMessageDiv.isConnected) {
+        attachMessageActions(aiMessageDiv, {
+          onRegenerate: (wrap) => this.regenerateFrom(wrap),
+        });
+      }
       this._toggleStreamingControls(false);
       this._abortController = null;
     }
+  },
+
+  regenerateFrom(wrap) {
+    if (!wrap?.isConnected || this._isStreaming) return;
+    const messagesContainer = this.chatContainer?.querySelector("#chat-messages");
+    if (!messagesContainer) return;
+    const userWraps = [...messagesContainer.querySelectorAll(".chat-message-user")];
+    let userWrap = null;
+    if (wrap.classList.contains("chat-message-user")) {
+      userWrap = wrap;
+    } else {
+      let prev = wrap.previousElementSibling;
+      while (prev) {
+        if (prev.classList?.contains("chat-message-user")) {
+          userWrap = prev;
+          break;
+        }
+        prev = prev.previousElementSibling;
+      }
+    }
+    if (!userWrap) return;
+    const ordinal = userWraps.indexOf(userWrap);
+    if (ordinal < 0) return;
+    const history = browseBotFindbarLLM.getHistory();
+    const userEntries = history.filter((m) => !m.pageContext && m.role === "user");
+    if (ordinal >= userEntries.length) return;
+    const target = userEntries[ordinal];
+    const prompt = String(target.content || "").trim();
+    if (!prompt) return;
+    browseBotFindbarLLM.setHistory(history.slice(0, history.indexOf(target)));
+    let node = userWrap;
+    while (node) {
+      const next = node.nextSibling;
+      node.remove();
+      node = next;
+    }
+    this.sendMessage(prompt);
   },
 
   _toggleStreamingControls(isStreaming) {
@@ -1089,6 +1132,9 @@ export const browseBotFindbar = {
     }
 
     messageDiv.appendChild(contentDiv);
+    attachMessageActions(messageDiv, {
+      onRegenerate: (wrap) => this.regenerateFrom(wrap),
+    });
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
     setTimeout(() => this._updateFindbarDimensions(), 10);

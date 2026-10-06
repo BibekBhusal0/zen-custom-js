@@ -489,7 +489,7 @@ browser {
     .browse-bot-chat {
       .ai-chat-messages {
         max-height: 320px;
-        padding: 10px 2px 0 2px !important;
+        padding: 10px 2px 14px 2px !important;
         overflow-y: auto;
         display: flex;
         flex-direction: column;
@@ -546,6 +546,40 @@ browser {
         align-self: flex-start;
         background: var(--zenux-danger-bg);
         color: var(--zenux-danger);
+      }
+
+      .bb-msg-actions {
+        position: absolute;
+        bottom: -12px;
+        right: 10px;
+        display: flex;
+        gap: 2px;
+        padding: 1px;
+        background: var(--zenux-surface);
+        border: 1px solid var(--zenux-border);
+        border-radius: var(--zenux-radius-pill);
+        box-shadow: var(--zenux-shadow-s);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s var(--zenux-ease);
+        z-index: 2;
+
+        .zenux-icon-btn {
+          min-width: 20px !important;
+          min-height: 20px !important;
+          padding: 1px !important;
+
+          img {
+            width: 14px !important;
+            height: 14px !important;
+          }
+        }
+      }
+
+      .chat-message:hover > .bb-msg-actions,
+      .chat-message:focus-within > .bb-msg-actions {
+        opacity: 1;
+        pointer-events: auto;
       }
 
       .pollinations-key-prompt {
@@ -634,7 +668,8 @@ browser {
 
       .chat-message-loading {
         align-self: flex-start;
-        width: 60% !important;
+        width: auto !important;
+        max-width: 60% !important;
 
         .message-content {
           display: flex;
