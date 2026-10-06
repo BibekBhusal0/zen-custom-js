@@ -1526,7 +1526,7 @@ function mountPanel(host) {
         try {
           showToast({
             title: notifyText,
-            description: prompt.slice(0, 120),
+            description: prompt.slice(0, 50),
             preset: 2,
             buttonText: "Open",
             timeout: 8000,
