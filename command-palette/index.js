@@ -590,6 +590,31 @@ export const ZenCommandPalette = {
 
     gURLBar.inputField.addEventListener("blur", onUrlbarClose);
     gURLBar.view.panel.addEventListener("popuphiding", onUrlbarClose);
+
+    window.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key !== "Tab" ||
+          event.defaultPrevented ||
+          event.ctrlKey ||
+          event.altKey ||
+          event.shiftKey
+        ) {
+          return;
+        }
+        if (!PREFS.prefix || document.activeElement !== gURLBar.inputField) return;
+        if (!gURLBar.hasAttribute("breakout-extend") || gURLBar.value || gURLBar.searchMode) {
+          return;
+        }
+        if (this.provider?._isInPrefixMode) return;
+        event.preventDefault();
+        event.stopPropagation();
+        gURLBar.value = PREFS.prefix;
+        gURLBar.startQuery();
+      },
+      true
+    );
     PREFS.debugLog("URL bar close listeners attached.");
   },
 
@@ -849,8 +874,6 @@ export const ZenCommandPalette = {
               const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
               const gURLBar = browserWindow.gURLBar;
               gURLBar.setAttribute("zen-cmd-palette-prefix-mode", "true");
-              // Insert indicator inside .urlbar-input-box before the <input>,
-              // matching where #urlbar-search-mode-indicator lives natively
               if (!browserWindow.document.getElementById("zen-cmd-palette-mode-indicator")) {
                 const indicator = browserWindow.document.createElement("label");
                 indicator.id = "zen-cmd-palette-mode-indicator";
@@ -858,6 +881,13 @@ export const ZenCommandPalette = {
                 const inputBox = gURLBar.querySelector(".urlbar-input-box");
                 const inputEl = inputBox?.querySelector("input");
                 if (inputBox && inputEl) inputBox.insertBefore(indicator, inputEl);
+              }
+              try {
+                window.gZenUIManager?.onUrlbarSearchModeChanged?.({
+                  detail: { searchMode: true },
+                });
+              } catch (e) {
+                PREFS.debugLog("Native entry animation unavailable.", e);
               }
               query = input.substring(PREFS.prefix.length).trim();
               gURLBar.value = query;
