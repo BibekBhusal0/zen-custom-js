@@ -234,7 +234,7 @@ Currently available tool calls are (full set in Library agent mode):
 
 - **Search**: Searches a term on your default or a specified search engine.
 - **Navigation**: `openLink` in various locations (current/new tab, window, private, glance, splits), `newSplit` with multiple URLs, and `splitExistingTabs`.
-- **Tab Management**: A full suite of tools to `getAllTabs`, `searchTabs`, `closeTabs`, `reorderTab`, `addTabsToFolder`, `removeTabsFromFolder`, `createTabFolder`, `addTabsToEssentials`, and `removeTabsFromEssentials`.
+- **Tab Management**: A full suite of tools to `getAllTabs` (also lists tab folders, including empty ones), `searchTabs`, `closeTabs`, `reorderTab`, `addTabsToFolder`, `removeTabsFromFolder`, `createTabFolder`, `deleteTabFolder`, `addTabsToEssentials`, and `removeTabsFromEssentials`.
 - **Page Interaction**: `getPageTextContent` to read text, `getHTMLContent` for the full source, `clickElement` using a CSS selector, and `fillForm` inputs.
 - **YouTube**: `getYoutubeTranscript`, `getYoutubeDescription`, and `getYoutubeComments` for the current video.
 - **Bookmark Management**: A full suite of tools to `searchBookmarks`, `getAllBookmarks`, `createBookmark`, `addBookmarkFolder`, `updateBookmark`, and `deleteBookmark`.
