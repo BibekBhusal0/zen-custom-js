@@ -91,6 +91,8 @@ export const browseBotFindbar = {
   _minimalListener: null,
   _dndListener: null,
   contextMenuItem: null,
+  _contextMenuRetryTimer: null,
+  _handleContextMenuClick: null,
   _matchesObserver: null,
   _isDragging: false,
   _startDrag: null,
@@ -1250,8 +1252,20 @@ export const browseBotFindbar = {
     }
   },
 
+  _ensureContextMenuListener(contextMenu) {
+    if (!contextMenu) return;
+    if (!this._updateContextMenuText) {
+      this._updateContextMenuText = this.updateContextMenuText.bind(this);
+    }
+    contextMenu.removeEventListener("popupshowing", this._updateContextMenuText);
+    contextMenu.addEventListener("popupshowing", this._updateContextMenuText);
+  },
+
   addContextMenuItem(retryCount = 0) {
-    if (this.contextMenuItem) return; // Already added
+    if (this._contextMenuRetryTimer) {
+      clearTimeout(this._contextMenuRetryTimer);
+      this._contextMenuRetryTimer = null;
+    }
     if (!PREFS.contextMenuEnabled) return;
 
     const contextMenu = document.getElementById("contentAreaContextMenu");
@@ -1259,12 +1273,31 @@ export const browseBotFindbar = {
     if (!contextMenu) {
       if (retryCount < 5) {
         PREFS.debugLog(`Context menu not found, retrying... (attempt ${retryCount + 1}/5)`);
-        setTimeout(() => this.addContextMenuItem(retryCount + 1), 200);
+        this._contextMenuRetryTimer = setTimeout(() => {
+          this._contextMenuRetryTimer = null;
+          this.addContextMenuItem(retryCount + 1);
+        }, 200);
       } else {
         PREFS.debugError(
           "Failed to add context menu item after 5 attempts: Context menu not found."
         );
       }
+      return;
+    }
+
+    if (!this._handleContextMenuClick) {
+      this._handleContextMenuClick = this.handleContextMenuClick.bind(this);
+    }
+
+    const existingItems = contextMenu.querySelectorAll("#browse-bot-context-menu-item");
+    if (existingItems.length > 0) {
+      this.contextMenuItem = existingItems[0];
+      for (let i = 1; i < existingItems.length; i++) {
+        existingItems[i].remove();
+      }
+      this.contextMenuItem.removeEventListener("command", this._handleContextMenuClick);
+      this.contextMenuItem.addEventListener("command", this._handleContextMenuClick);
+      this._ensureContextMenuListener(contextMenu);
       return;
     }
 
@@ -1277,7 +1310,7 @@ export const browseBotFindbar = {
       "xul"
     );
 
-    menuItem.addEventListener("command", this.handleContextMenuClick.bind(this));
+    menuItem.addEventListener("command", this._handleContextMenuClick);
     this.contextMenuItem = menuItem;
 
     const searchSelectItem = contextMenu.querySelector("#context-searchselect");
@@ -1304,16 +1337,23 @@ export const browseBotFindbar = {
       }
     }
 
-    this._updateContextMenuText = this.updateContextMenuText.bind(this);
-    contextMenu.addEventListener("popupshowing", this._updateContextMenuText);
+    this._ensureContextMenuListener(contextMenu);
   },
 
   removeContextMenuItem: function () {
-    this?.contextMenuItem?.remove();
+    if (this._contextMenuRetryTimer) {
+      clearTimeout(this._contextMenuRetryTimer);
+      this._contextMenuRetryTimer = null;
+    }
+    const contextMenu = document.getElementById("contentAreaContextMenu");
+    if (contextMenu && this._updateContextMenuText) {
+      contextMenu.removeEventListener("popupshowing", this._updateContextMenuText);
+    }
+    if (this._handleContextMenuClick && this.contextMenuItem) {
+      this.contextMenuItem.removeEventListener("command", this._handleContextMenuClick);
+    }
+    document.querySelectorAll("#browse-bot-context-menu-item").forEach((item) => item.remove());
     this.contextMenuItem = null;
-    document
-      ?.getElementById("contentAreaContextMenu")
-      ?.removeEventListener("popupshowing", this._updateContextMenuText);
   },
   handleContextMenuClick: async function () {
     const selection = await messageManagerAPI.getSelectedText();
@@ -1340,7 +1380,17 @@ export const browseBotFindbar = {
     else this.removeContextMenuItem();
   },
   updateContextMenuText() {
-    if (!PREFS.contextMenuEnabled || !this.contextMenuItem) return;
+    if (!PREFS.contextMenuEnabled) return;
+    const items = document.querySelectorAll("#browse-bot-context-menu-item");
+    if (items.length > 1) {
+      for (let i = 1; i < items.length; i++) {
+        items[i].remove();
+      }
+      this.contextMenuItem = items[0];
+    } else if (items.length === 1) {
+      this.contextMenuItem = items[0];
+    }
+    if (!this.contextMenuItem) return;
     const hasSelection = gContextMenu?.isTextSelected === true;
     this.contextMenuItem.label = hasSelection ? "Ask AI" : "Summarize with AI";
   },
