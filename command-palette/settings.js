@@ -331,7 +331,7 @@ const SettingsModal = {
 
     const itemHtml = `
       <div class="command-item" data-key="${escapeXmlAttribute(cmd.key)}">
-        <span class="command-label">${escapeXmlAttribute(cmd.label)}</span>
+        <span class="command-label">${escapeXmlAttribute(cmd.label)}${cmd.prettyName ? ` <span class="zenux-count">${escapeXmlAttribute(cmd.prettyName)}</span>` : ""}</span>
         <div class="command-controls">
             ${shortcutInputHtml}
             ${toolbarButtonHtml}

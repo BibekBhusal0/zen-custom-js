@@ -1,5 +1,24 @@
-import { textToSvgDataUrl } from "../../utils/icon.js";
 import { isNotEmptyTab } from "../utils/notEmptyTab.js";
+
+/**
+ * Pretty fields mirroring Zen's native workspace actions
+ * (ZenUBActionsProvider), rendered as the prettyName chip.
+ */
+function workspacePretty(workspace) {
+  let accentColor;
+  try {
+    accentColor =
+      window.gZenWorkspaces
+        .workspaceElement(workspace.uuid)
+        ?.style.getPropertyValue("--zen-primary-color") || undefined;
+  } catch {}
+  return {
+    prettyName: workspace.name,
+    prettyIcon: workspace.icon || undefined,
+    accentColor,
+  };
+}
+
 
 /**
  * Generates commands for switching between Zen Workspaces.
@@ -11,23 +30,14 @@ export function generateWorkspaceCommands() {
   if (!workspacesData) return [];
 
   return workspacesData.map((workspace) => {
-    const icon = workspace.icon;
-    let iconUrl = "chrome://browser/skin/zen-icons/workspace.svg"; // Default icon
-
-    if (icon) {
-      if (icon.endsWith(".svg")) {
-        iconUrl = icon;
-      } else {
-        iconUrl = textToSvgDataUrl(icon);
-      }
-    }
     return {
       key: `workspace:${workspace.uuid}`,
-      label: `Switch to workspace: ${workspace.name}`,
+      label: "Focus on",
+      ...workspacePretty(workspace),
       command: () => window.gZenWorkspaces.changeWorkspaceWithID(workspace.uuid),
       condition: () => workspace.uuid !== window.gZenWorkspaces.activeWorkspace,
-      icon: iconUrl,
-      tags: ["workspace", "switch", workspace.name.toLowerCase()],
+      icon: "chrome://browser/skin/zen-icons/forward.svg",
+      tags: ["workspace", "switch", "focus", workspace.name.toLowerCase()],
     };
   });
 }
@@ -53,7 +63,8 @@ export function generateWorkspaceMoveCommands() {
 
       commands.push({
         key: `workspace-move-active-to:${workspace.uuid}`,
-        label: `Move Tab to Workspace: ${workspace.name}`,
+        label: "Move Tab to Workspace",
+        ...workspacePretty(workspace),
         command: () => {
           const tabToMove = gBrowser.selectedTab;
           if (tabToMove) {

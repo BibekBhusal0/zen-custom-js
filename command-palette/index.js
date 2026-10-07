@@ -6,6 +6,7 @@ import {
   generateSearchEngineCommands,
   generateSineCommands,
   generateFolderCommands,
+  generateWorkspaceCommands,
   generateWorkspaceMoveCommands,
   generateContainerTabCommands,
   generateActiveTabCommands,
@@ -74,6 +75,12 @@ export const ZenCommandPalette = {
       pref: PREFS.DYNAMIC_SINE_MODS,
       allowIcons: false,
       allowShortcuts: false,
+    },
+    {
+      func: generateWorkspaceCommands,
+      pref: PREFS.DYNAMIC_WORKSPACES,
+      allowIcons: true,
+      allowShortcuts: true,
     },
     {
       func: generateWorkspaceMoveCommands,
@@ -384,7 +391,7 @@ export const ZenCommandPalette = {
       .map((cmd) => {
         const label = cmd.label || "";
         const key = cmd.key || "";
-        const tags = (cmd.tags || []).join(" ");
+        const tags = [...(cmd.tags || []), cmd.prettyName].filter(Boolean).join(" ");
         const labelScore = this.calculateFuzzyScore(label, lowerQuery);
         const keyScore = this.calculateFuzzyScore(key, lowerQuery);
         const tagsScore = this.calculateFuzzyScore(tags, lowerQuery);

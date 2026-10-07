@@ -13,7 +13,8 @@ export async function generateExtensionEnableDisableCommands() {
     if (addon.isActive) {
       commands.push({
         key: `addon:disable:${addon.id}`,
-        label: `Disable Extension: ${addon.name}`,
+        label: "Disable Extension",
+        prettyName: addon.name,
         command: () => addon.disable(),
         icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
         tags: ["extension", "addon", "disable", addon.name.toLowerCase()],
@@ -21,7 +22,8 @@ export async function generateExtensionEnableDisableCommands() {
     } else {
       commands.push({
         key: `addon:enable:${addon.id}`,
-        label: `Enable Extension: ${addon.name}`,
+        label: "Enable Extension",
+        prettyName: addon.name,
         command: () => addon.enable(),
         icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
         tags: ["extension", "addon", "enable", addon.name.toLowerCase()],
@@ -41,10 +43,11 @@ export async function generateExtensionUninstallCommands() {
   for (const addon of addons) {
     if (addon.isSystem) continue;
 
-    commands.push({
-      key: `addon:uninstall:${addon.id}`,
-      label: `Uninstall Extension: ${addon.name}`,
-      command: () => {
+      commands.push({
+        key: `addon:uninstall:${addon.id}`,
+        label: "Uninstall Extension",
+        prettyName: addon.name,
+        command: () => {
         if (confirm(`Are you sure you want to uninstall "${addon.name}"?`)) {
           addon.uninstall();
         }
@@ -127,7 +130,8 @@ export async function generateExtensionCommands() {
     if (hasAction) {
       commands.push({
         key: `extension-action:${addon.id}`,
-        label: `Trigger Extension: ${addon.name}`,
+        label: "Trigger Extension",
+        prettyName: addon.name,
         command: () => triggerExtensionAction(addon.id),
         icon: addon.iconURL || "chrome://mozapps/skin/extensions/extension.svg",
         tags: ["extension", "addon", "trigger", "action", addon.name.toLowerCase()],
