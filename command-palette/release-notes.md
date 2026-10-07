@@ -5,6 +5,7 @@
 - Settings commands search now uses the same fuzzy matching as the palette, with results sorted by relevance.
 - All dropdowns in settings are now searchable, show icons, match on partial text, and stay sorted by relevance.
 - Updated UI of the settings pages.
+- Pressing Tab now shows command palette commands.
 
 # New Commands
 
@@ -23,6 +24,7 @@
 
 - Fallback command icons now use the native Zen bolt icon.
 - Updated UI of command icons. Extension icons now always render at the right size and match the theme.
+- Prefix mode style similar to animation.
 
 # Breaking Changes
 
