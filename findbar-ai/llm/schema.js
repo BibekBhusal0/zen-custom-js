@@ -19,6 +19,10 @@ export function strArr(description, optional = false) {
   return field({ type: "array", items: { type: "string" } }, description, optional);
 }
 
+export function arrOf(items, description, optional = false) {
+  return field({ type: "array", items }, description, optional);
+}
+
 export function obj(properties) {
   const required = [];
   const clean = {};

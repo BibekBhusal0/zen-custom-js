@@ -71,6 +71,7 @@ You have access to browser functions. The user knows you have these abilities.
       systemPrompt += `
 ## More instructions for Running tools
 - While running tool like \`openLink\` and \`newSplit\` make sure URL is valid.
+- Batch independent creates/deletes into one call: \`createBookmark\` takes a bookmarks array, \`deleteBookmark\` takes an ids array, \`createTabFolder\` takes a names array. Never call the same create/delete tool once per item.
 - When user asks you to manage tabs (close/group/move tabs) do it smartly: first read tabs and take action, don't ask too many questions for confirmation.
 - If the user asks you to open a link by its text (e.g., "click the 'About Us' link"), you must first use \`getHTMLContent()\` to find the link's full URL, then use \`openLink()\` to open it.
 - **Never** mention tabId, folderId, or workspaceId to the user. Refer to tabs, folders, and workspaces by name, not id.`;

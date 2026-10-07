@@ -93,28 +93,44 @@ async function frameScript() {
       });
     }
 
-    if (!doc.querySelector("ytd-transcript-renderer")) {
-      const button = doc.querySelector('button[aria-label="Show transcript"]');
-      if (!button)
-        throw new Error('"Show transcript" button not found. Transcript may not be available.');
-      button.click();
-      await waitForSelectorWithObserver("ytd-transcript-renderer", 5000);
+    const segmentSelector =
+      "transcript-segment-view-model, ytd-transcript-segment-renderer .segment-text";
+    const buttons = Array.from(doc.querySelectorAll('button[aria-label="Show transcript"]'));
+    const button = buttons.find((b) => b.offsetParent !== null) || buttons[0];
+    if (button) {
+      try {
+        button.click();
+      } catch {}
+    } else if (!doc.querySelector("ytd-transcript-renderer") && !doc.querySelector(segmentSelector)) {
+      throw new Error('"Show transcript" button not found. Transcript may not be available.');
     }
 
-    await waitForSelectorWithObserver("ytd-transcript-segment-renderer .segment-text", 5000);
+    await waitForSelectorWithObserver(segmentSelector, 8000);
 
-    const rows = Array.from(doc.querySelectorAll("ytd-transcript-segment-renderer"));
-    if (!rows.length) throw new Error("Transcript segments found, but all are empty.");
-
-    const transcript = rows
-      .map((row) => {
-        const text = row.querySelector(".segment-text")?.textContent.trim() || "";
-        const time = row.querySelector(".segment-timestamp")?.textContent.trim() || "";
-        if (!text) return "";
-        return time ? `[${time}] ${text}` : text;
-      })
-      .filter(Boolean)
-      .join("\n");
+    const parseTranscriptSegments = () => {
+      const modern = Array.from(doc.querySelectorAll("transcript-segment-view-model"))
+        .map((seg) => {
+          const time =
+            seg.querySelector(".ytwTranscriptSegmentViewModelTimestamp")?.textContent.trim() || "";
+          const text =
+            seg.querySelector('span[role="text"]')?.textContent.trim().replace(/\s+/g, " ") || "";
+          if (!text) return "";
+          return time ? `[${time}] ${text}` : text;
+        })
+        .filter(Boolean)
+        .join("\n");
+      if (modern) return modern;
+      return Array.from(doc.querySelectorAll("ytd-transcript-segment-renderer"))
+        .map((row) => {
+          const text = row.querySelector(".segment-text")?.textContent.trim() || "";
+          const time = row.querySelector(".segment-timestamp")?.textContent.trim() || "";
+          if (!text) return "";
+          return time ? `[${time}] ${text}` : text;
+        })
+        .filter(Boolean)
+        .join("\n");
+    };
+    const transcript = parseTranscriptSegments();
     if (!transcript) throw new Error("Transcript segments found, but all are empty.");
     return transcript;
   }
@@ -129,32 +145,26 @@ async function frameScript() {
       // Check if button is visible, as it's hidden when expanded
       if (expandButton && expandButton.offsetParent !== null) {
         expandButton.click();
-        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => content.setTimeout(resolve, 0));
       }
     }
 
-    const desc = content.document.querySelector(
-      "#description-inline-expander .yt-core-attributed-string, #description .content, .ytd-expandable-video-description-body-renderer .yt-core-attributed-string"
+    const selectors = [
+      "#description-inline-expander .yt-core-attributed-string",
+      "#description-inline-expander yt-attributed-string",
+      "#description-item .yt-core-attributed-string",
+      "#description-item yt-attributed-string",
+      "#description .content",
+      ".ytd-expandable-video-description-body-renderer .yt-core-attributed-string",
+      "ytd-expander#description yt-attributed-string",
+    ];
+    for (const selector of selectors) {
+      const text = content.document.querySelector(selector)?.textContent.trim();
+      if (text) return text;
+    }
+    throw new Error(
+      "No YouTube description found. This page may not be a YouTube video, or the description is empty."
     );
-    const text = desc ? desc.textContent.trim() : "";
-    if (!text) {
-      throw new Error(
-        "No YouTube description found. This page may not be a YouTube video, or the description is empty."
-      );
-    }
-    return text;
-  };
-
-  const getYoutubeComments = (count = 10) => {
-    const comments = Array.from(
-      content.document.querySelectorAll("ytd-comment-thread-renderer #content-text")
-    ).slice(0, count);
-    if (comments.length === 0) {
-      throw new Error(
-        "No YouTube comments found. They may be disabled, not loaded yet, or this page may not be a YouTube video."
-      );
-    }
-    return comments.map((c) => c.textContent.trim());
   };
 
   const handlers = {
@@ -230,10 +240,6 @@ async function frameScript() {
     GetYoutubeDescription: async () => {
       const description = await getYoutubeDescription();
       return { description };
-    },
-
-    GetYoutubeComments: ({ count }) => {
-      return { comments: getYoutubeComments(count) };
     },
   };
 
@@ -460,19 +466,6 @@ export const messageManagerAPI = {
     return this.send("GetYoutubeDescription", {}, pickOpts(...rest)).catch((error) => {
       PREFS.debugError("Failed to get youtube description:", error);
       return { error: `Failed to get youtube description: ${error.message}` };
-    });
-  },
-
-  async getYoutubeComments(count = 10, ...rest) {
-    if (typeof count !== "number") count = 10;
-    if (!this.currentUrlIsYouTubeVideo()) {
-      return {
-        error: "Current page is not a YouTube video. Only use this tool on youtube.com/watch pages.",
-      };
-    }
-    return this.send("GetYoutubeComments", { count }, pickOpts(count, ...rest)).catch((error) => {
-      PREFS.debugError("Failed to get youtube comments:", error);
-      return { error: `Failed to get youtube comments: ${error.message}` };
     });
   },
 };

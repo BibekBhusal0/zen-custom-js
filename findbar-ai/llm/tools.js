@@ -1,4 +1,5 @@
-import { str, num, strArr, obj, paramNames } from "./schema.js";
+import { str, num, strArr, arrOf, obj, paramNames } from "./schema.js";
+import { getVideoContext } from "./youtube.js";
 import { messageManagerAPI } from "../messageManager.js";
 import { PREFS } from "../utils/prefs.js";
 import { showToast } from "../../utils/toast.js";
@@ -25,24 +26,47 @@ const TabIdManager = new (class {
   #nextId = 1;
 
   _getOrCreateId(tab) {
-    if (!this.#tabIdMap.has(tab)) {
-      const id = this.#nextId++;
-      this.#tabIdMap.set(tab, id);
-      this.#idTabMap.set(id, tab);
+    const existing = this.#tabIdMap.get(tab);
+    if (existing !== undefined && this.#idTabMap.get(existing) === tab) {
+      return existing;
     }
-    return this.#tabIdMap.get(tab);
+    // WeakMap still knows the tab but the id map lost it (a miss deletes
+    // there): issue a fresh id so getAllTabs output always resolves.
+    const id = this.#nextId++;
+    this.#tabIdMap.set(tab, id);
+    this.#idTabMap.set(id, tab);
+    return id;
   }
 
   getTabById(id) {
     const numericId = Number(id);
-    const tab = this.#idTabMap.get(numericId);
-    // Ensure the tab still exists in the browser before returning it.
-    if (tab && tab.ownerGlobal && !tab.ownerGlobal.closed && gBrowser.tabs.includes(tab)) {
-      return tab;
+    if (Number.isInteger(numericId)) {
+      const tab = this.#idTabMap.get(numericId);
+      // gBrowser.tabs only covers the active strip in Zen (tabs live in
+      // per-workspace sections), so validate DOM presence directly instead.
+      // No ownerGlobal check: if our own window were closed, no code here
+      // would be running to ask.
+      if (tab && tab.isConnected && !tab.closing) {
+        return tab;
+      }
+      this.#idTabMap.delete(numericId);
     }
-    // Clean up the map if the tab is gone.
-    this.#idTabMap.delete(numericId);
+    // Fall back to the tab element's own id (Zen assigns stable unique ids).
+    if (typeof id === "string" && id) {
+      try {
+        const el = document.getElementById(id);
+        if (el && el.tagName === "tab" && el.isConnected && !el.closing) return el;
+      } catch {}
+    }
     return null;
+  }
+
+  knownIds() {
+    const ids = [];
+    for (const [id, tab] of this.#idTabMap) {
+      if (tab && tab.isConnected) ids.push(id);
+    }
+    return ids.sort((a, b) => a - b);
   }
 
   mapTab(tab) {
@@ -78,17 +102,24 @@ const TabIdManager = new (class {
   }
 })();
 
-// Helper function to create string parameters
+// Zen marks its own folder/workspace placeholder tabs with zen-empty-tab
+// (user-opened blank tabs never carry it), and filters them the same way.
+function isPlaceholderTab(tab) {
+  try {
+    return tab.hasAttribute("zen-empty-tab");
+  } catch {
+    return false;
+  }
+}
+
 const createStringParameter = (description, isOptional = false) => {
   return str(description, isOptional);
 };
 
-// Helper function for array of strings parameter
 const createStringArrayParameter = (description, isOptional = false) => {
   return strArr(description, isOptional);
 };
 
-// Helper function to create tools with consistent structure
 const createTool = (description, parameters, executeFn) => {
   return {
     description,
@@ -108,6 +139,23 @@ const createTool = (description, parameters, executeFn) => {
 function getTabsByIds(tabIds) {
   if (!Array.isArray(tabIds)) tabIds = [tabIds];
   return tabIds.map((id) => TabIdManager.getTabById(id)).filter(Boolean);
+}
+
+function missingTabIds(tabIds) {
+  if (!Array.isArray(tabIds)) tabIds = [tabIds];
+  return tabIds.filter((id) => !TabIdManager.getTabById(id)).map((id) => String(id));
+}
+
+function unknownTabsError(missing) {
+  let known = "";
+  try {
+    const ids = TabIdManager.knownIds();
+    if (ids.length) known = ` Known tab ids right now: ${ids.join(", ")}.`;
+  } catch {}
+  return (
+    `No tabs found for ids: ${missing.join(", ")}.${known} ` +
+    `Copy the exact "id" values from getAllTabs or searchTabs output; never invent, prefix, or derive them.`
+  );
 }
 
 /**
@@ -202,7 +250,6 @@ async function newSplit(args) {
     } else if (lowerType === "horizontal") {
       gridType = "hsep";
     } else {
-      // "vertical" or default
       gridType = "vsep";
     }
 
@@ -222,7 +269,10 @@ async function newSplit(args) {
  */
 async function getAllTabs() {
   try {
-    const allTabs = gZenWorkspaces.allStoredTabs.map(mapTabToObject).filter(Boolean);
+    const allTabs = gZenWorkspaces.allStoredTabs
+      .filter((tab) => !isPlaceholderTab(tab))
+      .map(mapTabToObject)
+      .filter(Boolean);
     return { tabs: allTabs };
   } catch (e) {
     PREFS.debugError("Failed to get all tabs:", e);
@@ -241,7 +291,8 @@ async function closeTabs(args) {
   if (!tabIds || tabIds.length === 0) return { error: "closeTabs requires an array of tabIds." };
   try {
     const tabsToClose = getTabsByIds(tabIds);
-    if (tabsToClose.length === 0) return { error: "No matching tabs found to close." };
+    if (tabsToClose.length === 0)
+      return { error: unknownTabsError(missingTabIds(tabIds)) };
 
     gBrowser.removeTabs(tabsToClose);
     return { result: `Successfully closed ${tabsToClose.length} tab(s).` };
@@ -266,7 +317,8 @@ async function splitExistingTabs(args) {
 
   try {
     const tabs = getTabsByIds(tabIds);
-    if (tabs.length < 2) return { error: "Could not find at least two tabs to split." };
+    if (tabs.length < 2)
+      return { error: unknownTabsError(missingTabIds(tabIds)) };
 
     let gridType;
     const lowerType = type.toLowerCase();
@@ -275,7 +327,6 @@ async function splitExistingTabs(args) {
     } else if (lowerType === "horizontal") {
       gridType = "hsep";
     } else {
-      // "vertical" or default
       gridType = "vsep";
     }
 
@@ -294,11 +345,11 @@ async function splitExistingTabs(args) {
  * @returns {Promise<object>} A promise that resolves with an object containing an array of tab results or an error.
  */
 async function searchTabs(args) {
-  const { query } = args;
+  const { query } = args || {};
   if (!query) return { error: "searchTabs requires a query." };
 
   try {
-    const allTabs = gZenWorkspaces.allStoredTabs;
+    const allTabs = gZenWorkspaces.allStoredTabs.filter((tab) => !isPlaceholderTab(tab));
     const results = allTabs
       .map((tab) => {
         const title = tab.label || "";
@@ -333,9 +384,11 @@ async function addTabsToFolder(args) {
     const folder = document.getElementById(folderId);
 
     if (!folder || !folder.isZenFolder) {
-      return { error: `Folder with ID "${folderId}" not found or is not a valid folder.` };
+      return {
+        error: `Folder with ID "${folderId}" not found. Use the folder "id" from createTabFolder's result, not its name.`,
+      };
     }
-    if (tabs.length === 0) return { error: "No valid tabs found to add to the folder." };
+    if (tabs.length === 0) return { error: unknownTabsError(missingTabIds(tabIds)) };
 
     for (const tab of tabs) {
       if (!tab.pinned) gBrowser.pinTab(tab);
@@ -361,7 +414,7 @@ async function removeTabsFromFolder(args) {
 
   try {
     const tabs = getTabsByIds(tabIds);
-    if (tabs.length === 0) return { error: "No valid tabs found." };
+    if (tabs.length === 0) return { error: unknownTabsError(missingTabIds(tabIds)) };
 
     let ungroupedCount = 0;
     tabs.forEach((tab) => {
@@ -378,23 +431,28 @@ async function removeTabsFromFolder(args) {
 }
 
 /**
- * Creates a new, empty tab folder.
+ * Creates new, empty tab folders (one per name, or many via args.names).
  * @param {object} args - The arguments object.
- * @param {string} args.name - The name for the new folder.
+ * @param {string} [args.name] - The name for the new folder.
+ * @param {string[]} [args.names] - Folder names to create in one call.
  * @returns {Promise<object>} A promise that resolves with the new folder's information or an error.
  */
 async function createTabFolder(args) {
-  const { name } = args;
-  if (!name) return { error: "createTabFolder requires a name." };
+  const { name, names } = args || {};
+  const targets = Array.isArray(names) && names.length ? names : name ? [name] : [];
+  if (!targets.length) return { error: "createTabFolder requires a name, or a names array." };
   try {
-    const folder = gZenFolders.createFolder([], { label: name, renameFolder: false });
-    return {
-      result: `Successfully created folder "${folder.label}".`,
-      folder: {
-        id: folder.id,
-        name: folder.label,
-      },
-    };
+    const folders = targets.map((label) => {
+      const folder = gZenFolders.createFolder([], { label, renameFolder: false });
+      return { id: folder.id, name: folder.label };
+    });
+    if (targets.length === 1) {
+      return {
+        result: `Successfully created folder "${folders[0].name}".`,
+        folder: folders[0],
+      };
+    }
+    return { result: `Successfully created ${folders.length} folders.`, folders };
   } catch (e) {
     PREFS.debugError("Failed to create tab folder:", e);
     return { error: "Failed to create tab folder." };
@@ -415,7 +473,7 @@ async function reorderTab(args) {
   }
   try {
     const tab = TabIdManager.getTabById(tabId);
-    if (!tab) return { error: `Tab with id ${tabId} not found.` };
+    if (!tab) return { error: unknownTabsError([tabId]) };
     gBrowser.moveTabTo(tab, { tabIndex: newIndex });
     return { result: `Successfully moved tab to index ${newIndex}.` };
   } catch (e) {
@@ -436,7 +494,7 @@ async function addTabsToEssentials(args) {
     return { error: "addTabsToEssentials requires at least one tabId." };
   try {
     const tabs = getTabsByIds(tabIds);
-    if (tabs.length === 0) return { error: "No matching tabs found." };
+    if (tabs.length === 0) return { error: unknownTabsError(missingTabIds(tabIds)) };
     if (window.gZenPinnedTabManager) {
       gZenPinnedTabManager.addToEssentials(tabs);
       return { result: `Successfully added ${tabs.length} tab(s) to essentials.` };
@@ -461,9 +519,9 @@ async function removeTabsFromEssentials(args) {
     return { error: "removeTabsFromEssentials requires at least one tabId." };
   try {
     const tabs = getTabsByIds(tabIds);
-    if (tabs.length === 0) return { error: "No matching tabs found." };
+    if (tabs.length === 0) return { error: unknownTabsError(missingTabIds(tabIds)) };
     if (window.gZenPinnedTabManager) {
-      tabs.forEach((tab) => gZenPinnedTabManager.removeFromEssentials(tab));
+      tabs.forEach((tab) => gZenPinnedTabManager.removeEssentials(tab));
       return { result: `Successfully removed ${tabs.length} tab(s) from essentials.` };
     } else {
       return { error: "Essentials manager is not available." };
@@ -533,28 +591,51 @@ async function getAllBookmarks() {
 }
 
 /**
- * Creates a new bookmark.
+ * Creates a new bookmark, or many at once via args.bookmarks.
  * @param {object} args - The arguments object.
- * @param {string} args.url - The URL to bookmark.
+ * @param {string} [args.url] - The URL to bookmark (single mode).
  * @param {string} [args.title] - The title for the bookmark. If not provided, the URL is used.
- * @param {string} [args.parentID] - The GUID of the parent folder. Defaults to the "Other Bookmarks" folder.
+ * @param {string} [args.parentID] - The GUID of the parent folder.
+ * @param {Array} [args.bookmarks] - Items with {url, title?, parentID?} for batch mode.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
+async function insertBookmark({ url, title, parentID }) {
+  const bm = await PlacesUtils.bookmarks.insert({
+    parentGuid: parentID || PlacesUtils.bookmarks.toolbarGuid,
+    url: new URL(url),
+    title: title || url,
+  });
+  return { id: bm.guid, title: bm.title, url };
+}
+
 async function createBookmark(args) {
-  const { url, title, parentID } = args;
-  if (!url) return { error: "createBookmark requires a URL." };
+  const { url, title, parentID, bookmarks } = args || {};
+  if (Array.isArray(bookmarks) && bookmarks.length) {
+    const created = [];
+    for (const item of bookmarks) {
+      if (!item || !item.url) {
+        created.push({ error: "Each bookmark needs a url." });
+        continue;
+      }
+      try {
+        created.push({
+          result: `Bookmarked "${item.title || item.url}".`,
+          ...(await insertBookmark({ ...item, parentID: item.parentID || parentID })),
+        });
+      } catch (e) {
+        PREFS.debugError(`Error creating bookmark for URL "${item.url}":`, e);
+        created.push({ error: `Failed to bookmark "${item.url}".` });
+      }
+    }
+    const ok = created.filter((r) => !r.error).length;
+    return { result: `Created ${ok}/${created.length} bookmarks.`, bookmarks: created };
+  }
+  if (!url) return { error: "createBookmark requires a URL, or a bookmarks array." };
 
   try {
-    const bookmarkInfo = {
-      parentGuid: parentID || PlacesUtils.bookmarks.toolbarGuid,
-      url: new URL(url),
-      title: title || url,
-    };
-
-    const bm = await PlacesUtils.bookmarks.insert(bookmarkInfo);
-
+    const bm = await insertBookmark({ url, title, parentID });
     PREFS.debugLog(`Bookmark created successfully:`, JSON.stringify(bm));
-    return { result: `Successfully bookmarked "${bm.title}".` };
+    return { result: `Successfully bookmarked "${bm.title}".`, id: bm.id };
   } catch (e) {
     PREFS.debugError(`Error creating bookmark for URL "${url}":`, e);
     return { error: `Failed to create bookmark.` };
@@ -600,11 +681,11 @@ async function addBookmarkFolder(args) {
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
 async function updateBookmark(args) {
-  const { id, url, title, parentID } = args;
+  const { id, url, title, parentID } = args || {};
   if (!id) return { error: "updateBookmark requires a bookmark id (guid)." };
-  if (!url && !title && !parentID)
+  if (url === undefined && title === undefined && !parentID)
     return {
-      error: "updateBookmark requires either a new url, title, or parentID.",
+      error: "updateBookmark requires a new url, title, or parentID.",
     };
 
   try {
@@ -612,13 +693,28 @@ async function updateBookmark(args) {
     if (!oldBookmark) {
       return { error: `No bookmark found with id "${id}".` };
     }
+    if (url !== undefined && oldBookmark.type !== PlacesUtils.bookmarks.TYPE_BOOKMARK) {
+      return { error: "Only URL bookmarks have a URL to update." };
+    }
+    let newUrl = oldBookmark.url;
+    if (url !== undefined) {
+      try {
+        newUrl = new URL(url);
+      } catch {
+        return { error: `"${url}" is not a valid URL.` };
+      }
+    }
 
-    const bm = await PlacesUtils.bookmarks.update({
+    const info = {
       guid: id,
-      url: url ? new URL(url) : oldBookmark.url,
-      title: title || oldBookmark.title,
-      parentGuid: parentID || oldBookmark.parentGuid,
-    });
+      url: newUrl,
+      title: title !== undefined ? title : oldBookmark.title,
+    };
+    if (parentID) {
+      info.parentGuid = parentID;
+      info.index = PlacesUtils.bookmarks.DEFAULT_INDEX;
+    }
+    const bm = await PlacesUtils.bookmarks.update(info);
 
     PREFS.debugLog(`Bookmark updated successfully:`, JSON.stringify(bm));
     return { result: `Successfully updated bookmark to "${bm.title}".` };
@@ -629,21 +725,38 @@ async function updateBookmark(args) {
 }
 
 /**
- * Deletes a bookmark.
+ * Deletes a bookmark, or many at once via args.ids.
  * @param {object} args - The arguments object.
- * @param {string} args.id - The GUID of the bookmark to delete.
+ * @param {string} [args.id] - The GUID of the bookmark to delete.
+ * @param {string[]} [args.ids] - GUIDs of bookmarks to delete in one call.
  * @returns {Promise<object>} A promise that resolves with a success message or an error.
  */
 
 async function deleteBookmark(args) {
-  const { id } = args;
-  if (!id) return { error: "deleteBookmark requires a bookmark id (guid)." };
+  const { id, ids } = args || {};
+  const targets = Array.isArray(ids) && ids.length ? ids : id ? [id] : [];
+  if (!targets.length)
+    return { error: "deleteBookmark requires a bookmark id (guid), or an ids array." };
   try {
-    await PlacesUtils.bookmarks.remove(id);
-    PREFS.debugLog(`Bookmark with id "${id}" deleted successfully.`);
-    return { result: `Successfully deleted bookmark.` };
+    const deleted = [];
+    const failed = [];
+    for (const guid of targets) {
+      try {
+        await PlacesUtils.bookmarks.remove(guid);
+        deleted.push(guid);
+      } catch (e) {
+        PREFS.debugError(`Error deleting bookmark with id "${guid}":`, e);
+        failed.push(guid);
+      }
+    }
+    if (targets.length === 1) {
+      return failed.length
+        ? { error: `Failed to delete bookmark.` }
+        : { result: `Successfully deleted bookmark.` };
+    }
+    return { result: `Deleted ${deleted.length}/${targets.length} bookmarks.`, deleted, failed };
   } catch (e) {
-    PREFS.debugError(`Error deleting bookmark with id "${id}":`, e);
+    PREFS.debugError(`Error deleting bookmarks:`, e);
     return { error: `Failed to delete bookmark.` };
   }
 }
@@ -657,7 +770,14 @@ async function deleteBookmark(args) {
  */
 async function getAllWorkspaces() {
   try {
-    const { workspaces } = await gZenWorkspaces._workspaces();
+    let workspaces = null;
+    if (typeof gZenWorkspaces?.getWorkspaces === "function") {
+      workspaces = await gZenWorkspaces.getWorkspaces();
+    } else if (typeof gZenWorkspaces?._workspaces === "function") {
+      const res = await gZenWorkspaces._workspaces();
+      workspaces = Array.isArray(res) ? res : res?.workspaces;
+    }
+    if (!Array.isArray(workspaces)) throw new Error("Workspace list unavailable.");
     const activeWorkspaceId = gZenWorkspaces.activeWorkspace;
     const result = workspaces.map((ws) => ({
       id: ws.uuid,
@@ -751,7 +871,7 @@ async function moveTabsToWorkspace(args) {
     return { error: "moveTabsToWorkspace requires tabIds and a workspaceId." };
   try {
     const tabs = getTabsByIds(tabIds);
-    if (tabs.length === 0) return { error: "No valid tabs found to move." };
+    if (tabs.length === 0) return { error: unknownTabsError(missingTabIds(tabIds)) };
     gZenWorkspaces.moveTabsToWorkspace(tabs, workspaceId);
     return { result: `Successfully moved ${tabs.length} tab(s) to workspace.` };
   } catch (e) {
@@ -841,14 +961,19 @@ async function showCustomToast(args) {
 // ╭─────────────────────────────────────────────────────────╮
 // │                         YOUTUBE                         │
 // ╰─────────────────────────────────────────────────────────╯
-/**
- * Wrapper for messageManagerAPI.getYoutubeComments to handle arguments.
- * @param {object} args - The arguments object.
- * @param {number} [args.count] - The number of comments to retrieve.
- * @returns {Promise<object>} A promise that resolves with the comments.
- */
-async function getYoutubeComments(args, opts) {
-  return messageManagerAPI.getYoutubeComments(args?.count, opts);
+async function getYoutubeTranscript(args, opts) {
+  if (!messageManagerAPI.currentUrlIsYouTubeVideo()) {
+    return {
+      error: "Current page is not a YouTube video. Only use this tool on youtube.com/watch pages.",
+    };
+  }
+  try {
+    const video = await getVideoContext(messageManagerAPI.getUrlAndTitle().url, 0);
+    if (video && video.text) return { transcript: video.text };
+  } catch (e) {
+    PREFS.debugLog("Captions API transcript failed, falling back to page transcript.", e?.message);
+  }
+  return messageManagerAPI.getYoutubeTranscript(opts);
 }
 
 const toolVerbs = {
@@ -871,7 +996,6 @@ const toolVerbs = {
   fillForm: ["Filling a form", "Filled form"],
   getYoutubeTranscript: ["Getting YouTube transcript", "Got transcript"],
   getYoutubeDescription: ["Getting YouTube description", "Got description"],
-  getYoutubeComments: ["Getting YouTube comments", "Got comments"],
   searchBookmarks: ["Searching bookmarks", "Searched bookmarks"],
   getAllBookmarks: ["Reading bookmarks", "Read bookmarks"],
   createBookmark: ["Creating a bookmark", "Created bookmark"],
@@ -997,10 +1121,12 @@ Note: Only second search is open in split (vertial by default), this will make i
 The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management. Don't ask conformative questions to user like when user's input is clear. Like when user asks you to close tabs don't ask them "Do you really want to close those tabs ... ".
 More importantly, please don't use IDs of folder/tabs/workspace while talking to user, refere them by name not id. User might not know the ids of tabs.
 **Never** mention tabId or groupId with the user. Don't ask for Id if you need Id to filfill user's request you have to read it yourself.
+Tab IDs are short numeric strings valid for this session only: always call getAllTabs or searchTabs first and copy the "id" values exactly. Never invent IDs, add prefixes like "tab-", use indexes, or pass URLs/names where an ID is expected. Folder operations need the folder "id" from createTabFolder's result, not the folder name.
+Batch independent work into single calls: close/move/group many tabs with one call's tabIds array, create several folders with one createTabFolder names array.
 `,
     tools: {
       getAllTabs: createTool(
-        "Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId.",
+        "Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId. Zen's own blank placeholder tabs are excluded.",
         {},
         getAllTabs
       ),
@@ -1040,9 +1166,13 @@ More importantly, please don't use IDs of folder/tabs/workspace while talking to
         removeTabsFromFolder
       ),
       createTabFolder: createTool(
-        "Creates a new, empty tab folder.",
+        "Creates new, empty tab folders. Pass names to create several at once.",
         {
-          name: createStringParameter("The name for the new folder."),
+          name: createStringParameter("The name for the new folder.", true),
+          names: createStringArrayParameter(
+            "Multiple folder names to create in one call. Either this or name is required.",
+            true
+          ),
         },
         createTabFolder
       ),
@@ -1126,30 +1256,18 @@ Note: you must run tool getHTMLContent before clicking button or filling form to
       getYoutubeTranscript: createTool(
         "Retrieves the transcript of the current YouTube video. Only use if the current page is a YouTube video; on any other page it fails fast with an error.",
         {},
-        messageManagerAPI.getYoutubeTranscript.bind(messageManagerAPI)
+        getYoutubeTranscript
       ),
       getYoutubeDescription: createTool(
         "Retrieves the description of the current YouTube video. Only use if the current page is a YouTube video; on any other page it fails fast with an error.",
         {},
         messageManagerAPI.getYoutubeDescription.bind(messageManagerAPI)
       ),
-      getYoutubeComments: createTool(
-        "Retrieves top-level comments from the current YouTube video. Only use if the current page is a YouTube video; on any other page it fails fast with an error.",
-        {
-          count: num("The maximum number of comments to retrieve. Defaults to 10.", true),
-        },
-        getYoutubeComments
-      ),
     },
     example: async () => `#### Getting YouTube Video Details:
 -   **User Prompt:** "Summarize this Youtube Video in 5 bullet points"
 -   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeTranscript"}}\`
 -   And you summarize the video as per user's requirements.
-
-#### Reading Youtube Comments:
--   **User Prompt:** "What are the user's feedback on this video"
--   **Your Tool Call:** \`{"functionCall": {"name": "getYoutubeComments", count: 20}}\`
--   And Based on comments you tell user about the user's feedback on video.
 `,
   },
   bookmarks: {
@@ -1163,11 +1281,20 @@ Note: you must run tool getHTMLContent before clicking button or filling form to
       ),
       getAllBookmarks: createTool("Retrieves all bookmarks.", {}, getAllBookmarks),
       createBookmark: createTool(
-        "Creates a new bookmark.",
+        "Creates one bookmark, or many at once via bookmarks (preferred for multiples). Returns each bookmark's id so you can update or delete without searching.",
         {
-          url: createStringParameter("The URL to bookmark."),
+          url: createStringParameter("The URL to bookmark.", true),
           title: createStringParameter("The title for the bookmark.", true),
           parentID: createStringParameter("The GUID of the parent folder.", true),
+          bookmarks: arrOf(
+            obj({
+              url: str("The URL to bookmark."),
+              title: str("The title for the bookmark.", true),
+              parentID: str("The GUID of the parent folder.", true),
+            }),
+            "Multiple bookmarks to create in one call. Either this or url is required.",
+            true
+          ),
         },
         createBookmark
       ),
@@ -1190,9 +1317,13 @@ Note: you must run tool getHTMLContent before clicking button or filling form to
         updateBookmark
       ),
       deleteBookmark: createTool(
-        "Deletes a bookmark.",
+        "Deletes one bookmark by id, or many at once via ids.",
         {
-          id: createStringParameter("The GUID of the bookmark to delete."),
+          id: createStringParameter("The GUID of the bookmark to delete.", true),
+          ids: createStringArrayParameter(
+            "Multiple bookmark GUIDs to delete in one call. Either this or id is required.",
+            true
+          ),
         },
         deleteBookmark
       ),
@@ -1202,7 +1333,13 @@ Note: you must run tool getHTMLContent before clicking button or filling form to
 -   **Your First Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "Example"}}}\`
 -   **Your Second Tool Call:** \`{"functionCall": {"name": "searchBookmarks", "args": {"query": "MyFolder"}}}\`
 -   **Your Third Tool Call (after receiving the bookmark and folder ids):** \`{"functionCall": {"name": "updateBookmark", "args": {"id": "xxxxxxxxxxxx", "parentID": "yyyyyyyyyyyy"}}}\`
-Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.`,
+Note that first and second tool clls can be made in parallel, but the third tool call needs output from the first and second tool calls so it must be made after first and second.
+
+#### Saving several bookmarks at once:
+-   **User Prompt:** "Bookmark these three pages in folder 'Reading'"
+-   **Your First Tool Call:** \`{"functionCall": {"name": "addBookmarkFolder", "args": {"title": "Reading"}}}\`
+-   **Your Second Tool Call (after getting the folder id):** \`{"functionCall": {"name": "createBookmark", "args": {"bookmarks": [{"url": "https://a.com", "title": "A", "parentID": "zzzzzzzzzzzz"}, {"url": "https://b.com", "title": "B", "parentID": "zzzzzzzzzzzz"}, {"url": "https://c.com", "title": "C", "parentID": "zzzzzzzzzzzz"}]}}}\`
+Note: one createBookmark call with the bookmarks array, not one call per bookmark. The result includes each bookmark's id for later update/delete.`,
   },
   workspaces: {
     moreInstructions: `Zen browser has advanced tab management features and one of them is workspace.
@@ -1256,7 +1393,6 @@ If tab is essential which means does not belong to any specific workspace.
         reorderWorkspace
       ),
     },
-    // example: async () =>
   },
   uiFeedback: {
     tools: {
