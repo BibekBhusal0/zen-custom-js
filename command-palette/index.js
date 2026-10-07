@@ -917,6 +917,9 @@ export const ZenCommandPalette = {
                   icon: cmd.icon || "chrome://browser/skin/zen-icons/bolt.svg",
                   shortcutContent: shortcut,
                   dynamicType: DYNAMIC_TYPE_NAME,
+                  prettyName: cmd.prettyName,
+                  prettyIcon: cmd.prettyIcon,
+                  accentColor: cmd.accentColor,
                 },
               });
               if (isHeuristic) result.heuristic = true;
@@ -1012,10 +1015,41 @@ export const ZenCommandPalette = {
         }
 
         getViewUpdate(result) {
+          const prettyIconIsSvg =
+            result.payload.prettyIcon &&
+            (result.payload.prettyIcon.endsWith(".svg") ||
+              result.payload.prettyIcon.endsWith(".png"));
           return {
-            icon: { attributes: { src: result.payload.icon } },
-            titleStrong: { textContent: result.payload.title },
+            icon: {
+              attributes: {
+                src: result.payload.icon || "chrome://browser/skin/zen-icons/bolt.svg",
+              },
+            },
+            titleStrong: {
+              textContent: result.payload.title,
+              attributes: { dir: "ltr" },
+            },
             shortcutContent: { textContent: result.payload.shortcutContent || "" },
+            prettyName: {
+              attributes: {
+                hidden: !result.payload.prettyName,
+                style: `--zen-primary-color: ${result.payload.accentColor || "currentColor"}`,
+              },
+            },
+            prettyNameTitle: {
+              textContent: result.payload.prettyName
+                ? prettyIconIsSvg || !result.payload.prettyIcon
+                  ? result.payload.prettyName
+                  : `${result.payload.prettyIcon}  ${result.payload.prettyName}`
+                : "",
+              attributes: { dir: "ltr" },
+            },
+            prettyNameIcon: {
+              attributes: {
+                src: result.payload.prettyIcon || "",
+                hidden: !prettyIconIsSvg || !result.payload.prettyIcon,
+              },
+            },
           };
         }
 
@@ -1029,6 +1063,23 @@ export const ZenCommandPalette = {
                 tag: "span",
                 classList: ["urlbarView-title"],
                 children: [{ name: "titleStrong", tag: "strong" }],
+              },
+              {
+                tag: "span",
+                classList: ["urlbarView-prettyName"],
+                hidden: true,
+                name: "prettyName",
+                children: [
+                  {
+                    tag: "img",
+                    name: "prettyNameIcon",
+                    attributes: { hidden: true },
+                  },
+                  {
+                    name: "prettyNameTitle",
+                    tag: "span",
+                  },
+                ],
               },
               { name: "shortcutContent", tag: "span", classList: ["urlbarView-shortcutContent"] },
             ],
