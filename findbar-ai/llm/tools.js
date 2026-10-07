@@ -1603,6 +1603,12 @@ const getToolSystemPrompt = async (groups, includeExamples = true) => {
       if (miscExample) toolExamples.push(miscExample);
     }
 
+    if (activeGroups.has("tabs") && activeGroups.has("bookmarks")) {
+      availableTools.push(
+        `Tab folders and bookmark folders are unrelated systems with unrelated ids. When the user says "folder" without saying "bookmark", they always mean a tab folder: use createTabFolder, deleteTabFolder, addTabsToFolder, removeTabsFromFolder. Only use the bookmark tools when the user says "bookmark".`
+      );
+    }
+
     let systemPrompt = `
 ## Available Tools:
 ${availableTools.join("\n")}
