@@ -350,6 +350,18 @@ function toolArgsPreview(args) {
   }
 }
 
+function snapshotToolResult(result, limit = 1500) {
+  if (result === null || result === undefined) return "";
+  let text = "";
+  try {
+    text = typeof result === "string" ? result : JSON.stringify(result);
+  } catch {
+    return "";
+  }
+  if (text.length > limit) return `${text.slice(0, limit)}… [truncated ${text.length - limit} chars]`;
+  return text;
+}
+
 function broadcastRunEnd(except) {
   for (const fn of [...libraryRunEndListeners]) {
     if (fn === except) continue;
@@ -1412,7 +1424,7 @@ function mountPanel(host) {
       shownGen = toolGen;
       segmentText = "";
     };
-    const updateToolCallUI = (toolName, status, error = null, args = null) => {
+    const updateToolCallUI = (toolName, status, error = null, args = null, result = null) => {
       toolGen++;
       const b = ensureBurst();
       let row;
@@ -1456,7 +1468,7 @@ function mountPanel(host) {
         row.querySelector(".bb-tool-row-time").textContent = secs;
         resultText = error
           ? `Error: ${typeof error === "string" ? error : error?.message || "failed"}`
-          : "";
+          : snapshotToolResult(result);
         if (resultText) {
           row._detail.innerHTML = highlightResult(toolName, row._argsText, resultText);
         }

@@ -136,7 +136,7 @@ You have access to browser functions. The user knows you have these abilities.
 
     const afterToolCall = (toolName, result, args) => {
       if (onToolStatus)
-        onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
+        onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args, result);
     };
 
     const tools = getTools(agentGroups, { shouldToolBeCalled, afterToolCall });
@@ -187,7 +187,7 @@ You have access to browser functions. The user knows you have these abilities.
 
     const afterToolCall = (toolName, result, args) => {
       if (onToolStatus)
-        onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args);
+        onToolStatus(toolName, result?.error ? "error" : "success", result?.error, args, result);
     };
 
     const tools = getTools(["build"], { shouldToolBeCalled, afterToolCall });
