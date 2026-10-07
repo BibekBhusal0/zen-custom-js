@@ -889,12 +889,6 @@ function mountPanel(host) {
     messagesEl.appendChild(built.box);
   }
 
-  function appendMergedRunBox(runs) {
-    const tools = runs.flatMap((r) => (Array.isArray(r.tools) ? r.tools : []));
-    if (tools.length === 0) return;
-    appendToolRunBox({ tools });
-  }
-
   let shownSessionId = null;
 
   function renderHistory() {
@@ -911,21 +905,78 @@ function mountPanel(host) {
       shownSessionId = session.id;
       return;
     }
-    const visible = visibleSessionMessages(history);
     const anchorOf = (r) => (r.afterUser !== undefined ? r.afterUser : r.after);
     const runs = (getActiveSession().toolRuns || [])
       .slice()
       .sort((a, b) => anchorOf(a) - anchorOf(b) || (a.burst || 0) - (b.burst || 0));
+    const visibleIndices = [];
+    (history || []).forEach((msg, hi) => {
+      if (
+        !msg.pageContext &&
+        !(msg.role === "user" && String(msg.content).startsWith("Referenced tabs")) &&
+        (msg.role === "user" || msg.role === "assistant") &&
+        !(msg.role === "assistant" && !String(msg.content).trim())
+      ) {
+        visibleIndices.push(hi);
+      }
+    });
+    const visible = visibleIndices.map((hi) => history[hi]);
+    const groups = new Map();
+    const orphanRuns = [];
+    for (const r of runs) {
+      const a = anchorOf(r);
+      if (a === undefined || a < 0 || a >= visible.length) {
+        orphanRuns.push(r);
+        continue;
+      }
+      if (!groups.has(a)) groups.set(a, []);
+      groups.get(a).push(r);
+    }
+    const afterPos = new Map();
+    const queueAt = (pos, run) => {
+      if (!afterPos.has(pos)) afterPos.set(pos, []);
+      afterPos.get(pos).push(run);
+    };
+    for (const [anchor, group] of groups) {
+      const anchorHi = visibleIndices[anchor];
+      let nextUserHi = history.length;
+      for (let i = anchor + 1; i < visible.length; i++) {
+        if (visible[i]?.role === "user") {
+          nextUserHi = visibleIndices[i];
+          break;
+        }
+      }
+      const candidates = [];
+      for (let hi = anchorHi + 1; hi < nextUserHi; hi++) {
+        const m = history[hi];
+        if (m?.role === "assistant" && Array.isArray(m.tool_calls) && m.tool_calls.length > 0) {
+          candidates.push(hi);
+        }
+      }
+      group.forEach((run, j) => {
+        const targetHi = candidates[j] ?? null;
+        if (targetHi === null) {
+          let fallback = anchor;
+          for (let i = anchor + 1; i < visible.length; i++) {
+            if (visible[i]?.role === "user") break;
+            fallback = i;
+          }
+          queueAt(fallback, run);
+          return;
+        }
+        let pos = anchor;
+        for (let i = anchor; i < visible.length; i++) {
+          if (visibleIndices[i] <= targetHi) pos = i;
+          else break;
+        }
+        queueAt(pos, run);
+      });
+    }
     visible.forEach((msg, i) => {
       addMessage(msg.role, String(msg.content));
-      const group = runs.filter((r) => anchorOf(r) === i);
-      if (group.length > 0) appendMergedRunBox(group);
+      for (const run of afterPos.get(i) || []) appendToolRunBox(run);
     });
-    const leftovers = runs.filter((r) => {
-      const a = anchorOf(r);
-      return a === undefined || a < 0 || a >= visible.length;
-    });
-    if (leftovers.length > 0) appendMergedRunBox(leftovers);
+    for (const run of orphanRuns) appendToolRunBox(run);
     shownSessionId = session.id;
   }
 
