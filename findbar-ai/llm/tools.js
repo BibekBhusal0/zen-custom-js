@@ -459,6 +459,58 @@ async function createTabFolder(args) {
   }
 }
 
+async function deleteTabFolder(args) {
+  const { folderId, folderIds } = args || {};
+  const targets =
+    Array.isArray(folderIds) && folderIds.length ? folderIds : folderId ? [folderId] : [];
+  if (!targets.length)
+    return { error: "deleteTabFolder requires a folderId, or a folderIds array." };
+  const deleted = [];
+  const failed = [];
+  for (const id of targets) {
+    try {
+      const folder = document.getElementById(id);
+      if (!folder || !folder.isZenFolder) {
+        failed.push(id);
+        continue;
+      }
+      const name = folder.label || String(id);
+      const memberTabs = gZenWorkspaces.allStoredTabs.filter(
+        (tab) => tab.group === folder && !isPlaceholderTab(tab)
+      );
+      for (const tab of memberTabs) {
+        try {
+          gBrowser.ungroupTab(tab);
+        } catch {}
+      }
+      if (typeof gZenFolders?.removeFolder === "function") {
+        await gZenFolders.removeFolder(folder);
+      } else if (typeof folder.delete === "function") {
+        await folder.delete();
+      } else {
+        folder.remove();
+      }
+      deleted.push({ id: String(id), name, ungrouped: memberTabs.length });
+    } catch (e) {
+      PREFS.debugError(`Failed to delete tab folder "${id}":`, e);
+      failed.push(id);
+    }
+  }
+  if (targets.length === 1) {
+    if (!deleted.length)
+      return {
+        error: `No folder found with id "${targets[0]}". Copy the exact "id" from getAllTabs output; never invent it or use the folder name.`,
+      };
+    const d = deleted[0];
+    return { result: `Deleted folder "${d.name}". ${d.ungrouped} tab(s) kept open.` };
+  }
+  return {
+    result: `Deleted ${deleted.length}/${targets.length} folders. Contained tabs were kept open.`,
+    deleted: deleted.map((d) => d.id),
+    failed,
+  };
+}
+
 /**
  * Reorders a tab to a new index.
  * @param {object} args - The arguments object.
@@ -988,6 +1040,7 @@ const toolVerbs = {
   addTabsToFolder: ["Adding tabs to a folder", "Added tabs to folder"],
   removeTabsFromFolder: ["Removing tabs from a folder", "Removed tabs from folder"],
   createTabFolder: ["Creating a tab folder", "Created tab folder"],
+  deleteTabFolder: ["Deleting a tab folder", "Deleted folder"],
   addTabsToEssentials: ["Adding tabs to Essentials", "Added to Essentials"],
   removeTabsFromEssentials: ["Removing tabs from Essentials", "Removed from Essentials"],
   getPageTextContent: ["Reading page content", "Read page"],
@@ -1121,12 +1174,13 @@ Note: Only second search is open in split (vertial by default), this will make i
 The tool getAllTabs is super super useful, tool you can use it in multiple case for tab/workspace management. Don't ask conformative questions to user like when user's input is clear. Like when user asks you to close tabs don't ask them "Do you really want to close those tabs ... ".
 More importantly, please don't use IDs of folder/tabs/workspace while talking to user, refere them by name not id. User might not know the ids of tabs.
 **Never** mention tabId or groupId with the user. Don't ask for Id if you need Id to filfill user's request you have to read it yourself.
-Tab IDs are short numeric strings valid for this session only: always call getAllTabs or searchTabs first and copy the "id" values exactly. Never invent IDs, add prefixes like "tab-", use indexes, or pass URLs/names where an ID is expected. Folder operations need the folder "id" from createTabFolder's result, not the folder name.
-Batch independent work into single calls: close/move/group many tabs with one call's tabIds array, create several folders with one createTabFolder names array.
+Tab IDs are short numeric strings valid for this session only: always call getAllTabs or searchTabs first and copy the "id" values exactly. Never invent IDs, add prefixes like "tab-", use indexes, or pass URLs/names where an ID is expected. Folder operations need the folder "id" from getAllTabs (folders list) or createTabFolder's result, never the folder name.
+Tabs placed in a folder are automatically pinned; that is expected, not something to undo.
+Batch independent work into single calls: close/move/group many tabs with one call's tabIds array, create several folders with one createTabFolder names array, delete several folders with one deleteTabFolder folderIds array.
 `,
     tools: {
       getAllTabs: createTool(
-        "Retrieves all open tabs. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId. Zen's own blank placeholder tabs are excluded.",
+        "Retrieves all open tabs plus all tab folders (id, name, tabCount), including empty folders. Also provides more information about tabs like id, title, url, isCurrent, inCurrentWorkspace, workspace, workspaceName, workspaceIcon, pinned, isGroup, isEssential, parentFolderId, parentFolderName, isSplitView, splitViewId. Zen's own blank placeholder tabs are excluded.",
         {},
         getAllTabs
       ),
@@ -1175,6 +1229,17 @@ Batch independent work into single calls: close/move/group many tabs with one ca
           ),
         },
         createTabFolder
+      ),
+      deleteTabFolder: createTool(
+        "Deletes one or more tab folders by id. Tabs inside are kept open (ungrouped), never closed.",
+        {
+          folderId: createStringParameter("The ID of the folder to delete.", true),
+          folderIds: createStringArrayParameter(
+            "Multiple folder IDs to delete in one call. Either this or folderId is required.",
+            true
+          ),
+        },
+        deleteTabFolder
       ),
       addTabsToEssentials: createTool(
         "Adds one or more tabs to the essentials.",
