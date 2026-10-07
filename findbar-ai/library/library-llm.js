@@ -61,7 +61,7 @@ Be concise, accurate, and helpful.`;
 
 ## AGENTIC MODE ENABLED - TOOL USAGE:
 You have access to browser functions. The user knows you have these abilities.
-- **CRITICAL**: When you decide to call a tool, give short summary of what tool are you calling and why?
+- Call tools silently without narrating each call. Make all the tool calls you need first, then summarize what you did and found afterwards.
 - Use tools when the user explicitly asks, or when it is the only logical way to fulfill their request (e.g., "search for...").
 - When asked about your own abilities, describe the functions you can perform based on the tools listed below.
 - Current page: "${title}" (${url})
