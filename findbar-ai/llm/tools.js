@@ -269,11 +269,33 @@ async function newSplit(args) {
  */
 async function getAllTabs() {
   try {
-    const allTabs = gZenWorkspaces.allStoredTabs
-      .filter((tab) => !isPlaceholderTab(tab))
-      .map(mapTabToObject)
-      .filter(Boolean);
-    return { tabs: allTabs };
+    const tabs = [];
+    const folders = new Map();
+    for (const tab of gZenWorkspaces.allStoredTabs) {
+      if (isPlaceholderTab(tab)) {
+        const group = tab.group;
+        if (group?.isZenFolder && !group.hasAttribute("split-view-group")) {
+          if (!folders.has(group.id)) {
+            folders.set(group.id, { id: group.id, name: group.label || "Unnamed", tabCount: 0 });
+          }
+        }
+        continue;
+      }
+      const mapped = mapTabToObject(tab);
+      if (!mapped) continue;
+      tabs.push(mapped);
+      if (mapped.parentFolderId) {
+        if (!folders.has(mapped.parentFolderId)) {
+          folders.set(mapped.parentFolderId, {
+            id: mapped.parentFolderId,
+            name: mapped.parentFolderName || "Unnamed",
+            tabCount: 0,
+          });
+        }
+        folders.get(mapped.parentFolderId).tabCount++;
+      }
+    }
+    return { tabs, folders: [...folders.values()] };
   } catch (e) {
     PREFS.debugError("Failed to get all tabs:", e);
     return { error: "Failed to retrieve tabs." };
