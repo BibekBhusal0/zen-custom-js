@@ -8,14 +8,12 @@ browser {
 
 @keyframes initial-animation {
   from {
-    top: 0;
     opacity: 0;
     filter: blur(5px);
     transform: translateY(-10px);
   }
 
   to {
-    top: 20px;
     opacity: 1;
     filter: blur(0);
     transform: translateY(0);
@@ -24,18 +22,15 @@ browser {
 
 @keyframes glass-disappear {
   0% {
-    backdrop-filter: blur(10px);
-    opacity: 1;
+    backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
   }
 
   99% {
-    backdrop-filter: blur(10px);
-    opacity: 0.1;
+    backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
   }
 
   100% {
     backdrop-filter: none;
-    opacity: 0;
   }
 }
 
@@ -107,16 +102,33 @@ browser {
     opacity: 1;
     background: var(--browse-bot-dialog-bg) !important;
     backdrop-filter: var(--browse-bot-dialog-backdrop-filter);
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      filter 0.2s ease,
+      visibility 0.2s ease !important;
+    animation: initial-animation 0.2s ease;
+    filter: blur(0);
 
-    &:is([hidden="true"]) {
-      visibility: inherit !important;
+    &[hidden] {
+      display: flex !important;
+      visibility: hidden !important;
       pointer-events: none !important;
       opacity: 0 !important;
-      top: 0 !important;
-      animation: glass-disappear 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-      animation-fill-mode: forwards !important;
       filter: blur(5px);
       transform: translateY(-10px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease,
+        filter 0.2s ease,
+        visibility 0s ease 0.2s !important;
+      animation: glass-disappear 0.2s linear !important;
+      animation-fill-mode: forwards !important;
+    }
+
+    &[noanim] {
+      transition: none !important;
+      animation: none !important;
     }
 
     .findbar-resize-handle {
@@ -715,7 +727,7 @@ browser {
       position: relative;
       text-align: center;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: background-color 0.15s var(--zenux-ease) !important;
       border-radius: 4px;
       font-weight: 600;
       border: none !important;
