@@ -269,6 +269,7 @@ Currently available tool calls are (full set in Library agent mode):
 - **[aminomancer/uc.css.js](https://github.com/aminomancer/uc.css.js)**: The `_overrideFindbarMatchesDisplay` function in `findbar-ai.uc.js` is adapted from `JS/findbarMods.uc.js` under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).
 - **[12th-devs/library-tweaks](https://github.com/12th-devs/library-tweaks)**: The BrowseBot Library section follows the native Library section contract (section classes, `zenLibrarySections` registration, `gZenLibrary.openTab`) demonstrated by this mod.
 - **[12th-devs](https://github.com/12th-devs/)** for helping me in each step of developement, styling, and design.
+- **[realSilasYang](https://github.com/realSilasYang)** Finding out lots of issues and fixing them as well.
 
 ## 📜 License
 
