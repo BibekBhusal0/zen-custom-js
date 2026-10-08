@@ -4,7 +4,7 @@ import { parseMD } from "./markdown.js";
 function renderStreamText(contentDiv, fullText) {
   try {
     contentDiv.innerHTML = parseMD(fullText, false);
-  } catch (e) {
+  } catch {
     contentDiv.textContent = fullText + "\n\n[Error rendering markdown]";
   }
 }

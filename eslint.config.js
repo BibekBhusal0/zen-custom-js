@@ -52,6 +52,8 @@ export default [
       "no-unused-vars": "warn",
       "no-undef": "warn",
       "no-empty": "off",
+      "no-useless-assignment": "off",
+      "preserve-caught-error": "off",
     },
   },
   {
@@ -59,6 +61,7 @@ export default [
     languageOptions: {
       globals: {
         ...globals.node,
+        Bun: "readonly",
       },
     },
   },

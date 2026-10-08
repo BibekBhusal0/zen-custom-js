@@ -47,12 +47,15 @@ export function addPrefListener(name, callback) {
     callback({ value: getPref(name) });
   };
   Services.prefs.addObserver(name, modified_callback);
-  return { name, callback };
+  return { name, observer: modified_callback, callback };
 }
 
 export function removePrefListener(listener) {
-  if (listener && listener.name && listener.callback) {
-    Services.prefs.removeObserver(listener.name, listener.callback);
+  if (listener && listener.name) {
+    const observer = listener.observer || listener.callback;
+    if (observer) {
+      Services.prefs.removeObserver(listener.name, observer);
+    }
   }
 }
 
