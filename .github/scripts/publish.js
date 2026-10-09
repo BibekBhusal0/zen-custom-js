@@ -390,6 +390,13 @@ async function processMod(modData) {
     await run(`git checkout -b ${branch}`, repoDir);
   }
 
+  let baseSha = null;
+  try {
+    baseSha = await run(`git rev-parse HEAD`, repoDir);
+  } catch {
+    baseSha = null;
+  }
+
   // Copy files to repoDir
   const repoFiles = await $`ls ${repoDir}`.quiet().text();
   for (const file of repoFiles.trim().split("\n").filter(Boolean)) {
@@ -407,6 +414,19 @@ async function processMod(modData) {
   } catch {
     console.log("No changes to commit.");
   }
+
+  let headSha = null;
+  try {
+    headSha = await run(`git rev-parse HEAD`, repoDir);
+  } catch {
+    headSha = null;
+  }
+
+  const repoUrl = `https://github.com/${ORG_NAME}/${repoName}`;
+  const diffUrl =
+    baseSha && headSha && baseSha !== headSha
+      ? `${repoUrl}/compare/${baseSha}...${headSha}`
+      : `${repoUrl}/commits/${branch}`;
 
   // Release
   const releaseNotesPath = path.join(MODS_DIR, folder, "release-notes.md");
@@ -449,7 +469,7 @@ async function processMod(modData) {
     }
   }
 
-  return { branch, releaseCreated };
+  return { branch, releaseCreated, repoName, diffUrl };
 }
 
 // Main
@@ -484,16 +504,24 @@ async function runPublish() {
       results.push({
         name: mod.theme.name,
         version: mod.theme.version,
+        prevVersion: mod.prevVersion,
         branch: outcome.branch,
+        repoName: outcome.repoName,
+        diffUrl: outcome.diffUrl,
         release: outcome.releaseCreated ? "Created" : "Skipped",
         status: "Published",
       });
     } catch (e) {
       console.error(`Failed to process ${mod.folder}`, e);
+      const branch = mod.theme.version.endsWith("b") ? "beta" : "main";
+      const repoName = getRepoName(mod.theme);
       results.push({
         name: mod.theme.name,
         version: mod.theme.version,
-        branch: mod.theme.version.endsWith("b") ? "beta" : "main",
+        prevVersion: mod.prevVersion,
+        branch,
+        repoName,
+        diffUrl: `https://github.com/${ORG_NAME}/${repoName}/commits/${branch}`,
         release: "N/A",
         status: "Failed",
       });
@@ -511,7 +539,14 @@ async function runPublish() {
   summary += "| Mod | Version | Branch | Release | Status |\n";
   summary += "| --- | --- | --- | --- | --- |\n";
   for (const r of results) {
-    summary += `| ${r.name} | v${r.version} | ${r.branch} | ${r.release} | ${r.status} |\n`;
+    const repoUrl = `https://github.com/${ORG_NAME}/${r.repoName}`;
+    const safeName = r.name.replace(/\|/g, "\\|");
+    const modCell = `[${safeName}](${repoUrl})`;
+    const versionCell = r.prevVersion ? `v${r.prevVersion} -> v${r.version}` : `v${r.version} (new)`;
+    const branchCell = `[${r.branch}](${r.diffUrl})`;
+    const releaseCell =
+      r.release === "Created" ? `[Created](${repoUrl}/releases/tag/v${r.version})` : r.release;
+    summary += `| ${modCell} | ${versionCell} | ${branchCell} | ${releaseCell} | ${r.status} |\n`;
   }
   await appendStepSummary(summary);
 }
