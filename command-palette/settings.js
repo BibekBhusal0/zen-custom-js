@@ -1064,7 +1064,7 @@ const SettingsModal = {
         description: "Read the full guide on GitHub.",
       },
       {
-        url: "https://github.com/Vertex-Mods/Zen-Command-Palette/tree/main/command-palette",
+        url: "https://github.com/Vertex-Mods/Zen-Command-Palette/blob/main/README.md#quick-split",
         icon: "chrome://browser/skin/zen-icons/split.svg",
         title: "Quick Split Guide",
         description: "Split views and glance from the palette.",
