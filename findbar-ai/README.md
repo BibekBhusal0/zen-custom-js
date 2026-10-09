@@ -89,7 +89,7 @@ For advanced users or those not using Sine or who are willing to contribute:
 1.  **Configure Provider**: After installation, press `Ctrl+Shift+F`. No setup is needed to start: BrowseBot defaults to **Pollinations AI**, which is free and requires no API key. To use a different provider, select it and paste its API key instead. For **Ollama**, set the local Base URL in the settings.
 
 > [!NOTE]
-> The default Pollinations tier is anonymous and rate limited (about one request per 15 seconds) and serves smaller models on sponsor funded infrastructure, so heavy or agentic use can feel slow. Switch to a keyed provider, or register for a free Pollinations key for higher limits, when you need more.
+> The default Pollinations tier is anonymous and rate limited (about one request per 15 seconds) and serves smaller models on sponsor funded infrastructure, so heavy or agentic use can feel slow. This is just for preview which works without key but is not recommended for heavy usage.
 
 2.  **Save the Key**: Paste the key into the input field and click "Save". The chat interface will now appear.
 3.  **Start Chatting**:
@@ -110,7 +110,7 @@ For advanced users or those not using Sine or who are willing to contribute:
 ### Library AI
 
 > [!NOTE]
-> The Library section needs a Zen build with the Library feature. On builds without it, the section stays hidden and the findbar/URL bar keep working as before.
+> The Library section needs a Zen build with the Library feature (v1.23b or higher).
 
 1.  Press `Alt+Shift+A` (customizable) to toggle the Library AI, or run **Toggle BrowseBot Library** from the command palette. The section appears in the Library sidebar as **AI**.
 2.  Pick a mode with the header buttons or a slash command:
