@@ -19,7 +19,6 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 - 🎨 **Highly Customizable**: Offers customizable keyboard shortcuts, widgets, icons, dynamic commands, and more.
 - ⌨️ **Custom Commands**: Make your own commands with custom JS or chaining other commands.
 
-
 ## ⚙️ Installation Guide
 
 1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).
@@ -143,7 +142,6 @@ The following commands are now native:
   - Toggle Collapse Pinned Tabs
 
 ### Quick Split
-
 
 Type the syntax directly in the palette or URL bar:
 

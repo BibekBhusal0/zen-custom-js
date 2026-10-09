@@ -19,6 +19,7 @@
 - YouTube answers link to moments in the video. Click a citation to seek there.
 
 # Demo
+
 Here is quick demo video I made for library AI.
 
 https://github.com/user-attachments/assets/52da21a9-d8ab-45eb-ab0b-6074b3226c6f
