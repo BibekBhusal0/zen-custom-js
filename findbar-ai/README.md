@@ -26,10 +26,7 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ### Library AI (Chat, Agent, Build)
 
-
 https://github.com/user-attachments/assets/52da21a9-d8ab-45eb-ab0b-6074b3226c6f
-
-
 
 ### URL Bar AI
 
