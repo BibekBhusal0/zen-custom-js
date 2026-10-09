@@ -1058,7 +1058,7 @@ const SettingsModal = {
 
     const helpItems = [
       {
-        url: "https://github.com/Vertex-Mods/Zen-Command-Palette/tree/main/command-palette",
+        url: "https://github.com/Vertex-Mods/Zen-Command-Palette",
         icon: svgToUrl(icons["book"]),
         title: "View Documentation",
         description: "Read the full guide on GitHub.",
