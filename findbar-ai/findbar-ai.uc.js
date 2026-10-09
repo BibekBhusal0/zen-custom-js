@@ -1696,6 +1696,10 @@ export const browseBotFindbar = {
       PREFS.debugLog("Findbar is being opened");
       setTimeout(() => (this.findbar._findField.placeholder = "Press Alt + Enter to ask AI"), 100);
       setTimeout(() => this._updateFindbarDimensions(), 1);
+      setTimeout(() => {
+        if (this.expanded) this.focusPrompt();
+        else this.focusInput();
+      }, 2);
     }
   },
 
