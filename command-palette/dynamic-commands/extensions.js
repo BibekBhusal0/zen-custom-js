@@ -43,11 +43,11 @@ export async function generateExtensionUninstallCommands() {
   for (const addon of addons) {
     if (addon.isSystem) continue;
 
-      commands.push({
-        key: `addon:uninstall:${addon.id}`,
-        label: "Uninstall Extension",
-        prettyName: addon.name,
-        command: () => {
+    commands.push({
+      key: `addon:uninstall:${addon.id}`,
+      label: "Uninstall Extension",
+      prettyName: addon.name,
+      command: () => {
         if (confirm(`Are you sure you want to uninstall "${addon.name}"?`)) {
           addon.uninstall();
         }

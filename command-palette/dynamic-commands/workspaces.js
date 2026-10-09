@@ -19,7 +19,6 @@ function workspacePretty(workspace) {
   };
 }
 
-
 /**
  * Generates commands for switching between Zen Workspaces.
  * @returns {Promise<Array<object>>} A promise that resolves to an array of workspace commands.

@@ -358,7 +358,8 @@ function snapshotToolResult(result, limit = 1500) {
   } catch {
     return "";
   }
-  if (text.length > limit) return `${text.slice(0, limit)}… [truncated ${text.length - limit} chars]`;
+  if (text.length > limit)
+    return `${text.slice(0, limit)}… [truncated ${text.length - limit} chars]`;
   return text;
 }
 

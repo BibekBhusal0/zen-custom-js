@@ -101,7 +101,10 @@ async function frameScript() {
       try {
         button.click();
       } catch {}
-    } else if (!doc.querySelector("ytd-transcript-renderer") && !doc.querySelector(segmentSelector)) {
+    } else if (
+      !doc.querySelector("ytd-transcript-renderer") &&
+      !doc.querySelector(segmentSelector)
+    ) {
       throw new Error('"Show transcript" button not found. Transcript may not be available.');
     }
 
@@ -403,12 +406,14 @@ export const messageManagerAPI = {
   },
 
   async getPageTextContent(trimWhiteSpace = true, ...rest) {
-    return this.send("GetPageTextContent", { trimWhiteSpace }, pickOpts(trimWhiteSpace, ...rest)).catch(
-      (error) => {
-        PREFS.debugError("Failed to get page text content:", error);
-        return this.getUrlAndTitle();
-      }
-    );
+    return this.send(
+      "GetPageTextContent",
+      { trimWhiteSpace },
+      pickOpts(trimWhiteSpace, ...rest)
+    ).catch((error) => {
+      PREFS.debugError("Failed to get page text content:", error);
+      return this.getUrlAndTitle();
+    });
   },
 
   async clickElement(selector, ...rest) {
@@ -445,7 +450,8 @@ export const messageManagerAPI = {
   async getYoutubeTranscript(...rest) {
     if (!this.currentUrlIsYouTubeVideo()) {
       return {
-        error: "Current page is not a YouTube video. Only use this tool on youtube.com/watch pages.",
+        error:
+          "Current page is not a YouTube video. Only use this tool on youtube.com/watch pages.",
       };
     }
     return this.send("GetYoutubeTranscript", {}, { timeout: 25000, ...pickOpts(...rest) }).catch(

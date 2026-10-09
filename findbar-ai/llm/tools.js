@@ -313,8 +313,7 @@ async function closeTabs(args) {
   if (!tabIds || tabIds.length === 0) return { error: "closeTabs requires an array of tabIds." };
   try {
     const tabsToClose = getTabsByIds(tabIds);
-    if (tabsToClose.length === 0)
-      return { error: unknownTabsError(missingTabIds(tabIds)) };
+    if (tabsToClose.length === 0) return { error: unknownTabsError(missingTabIds(tabIds)) };
 
     gBrowser.removeTabs(tabsToClose);
     return { result: `Successfully closed ${tabsToClose.length} tab(s).` };
@@ -339,8 +338,7 @@ async function splitExistingTabs(args) {
 
   try {
     const tabs = getTabsByIds(tabIds);
-    if (tabs.length < 2)
-      return { error: unknownTabsError(missingTabIds(tabIds)) };
+    if (tabs.length < 2) return { error: unknownTabsError(missingTabIds(tabIds)) };
 
     let gridType;
     const lowerType = type.toLowerCase();
