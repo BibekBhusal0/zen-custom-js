@@ -21,11 +21,8 @@ If you are just here to open issue, not to contribute in code, you can stop righ
 
 ### Prerequisites
 
-> [!NOTE]
-> If you are willing to contribute to BrowseBot it will require more setup.
-
-- **Bun**: Install [Bun](https://bun.sh/) (only for BrowseBot).
 - **Setup `Sine`**: Follow the setup instructions at [Cosmocreeper/Sine](https://github.com/cosmocreeper/sine) if you haven't already.
+- **Bun** (optional): Install [Bun](https://bun.sh/) only if you want to build release bundles or run the linter locally. It is not needed to use, test, or contribute to any mod, including BrowseBot.
 
 > [!NOTE]
 > If you are not using Sine you can also use `Fx-autoconfig`, I personally use sine.
@@ -73,19 +70,13 @@ This step is required because while installation sine will not include `.git` di
    cd zen-custom-js
    ```
 
-4. Install dependencies (only required if you are contributing to BrowseBot):
+4. **Import the Script**: In your JS directory, create a new file `import.uc.mjs` and import the scripts you need. See [import.uc.mjs](./import.uc.mjs) for an example importing each script.
 
-   ```bash
-   bun install
-   ```
+5. **Import the Styles**: In your `userChrome.css` file, import the styles of the related script. See [userChrome.css](./userChrome.css) for an example importing all styles.
 
-5. **Import the Script**: In your JS directory, create a new file `import.uc.mjs` and import the scripts you need. See [import.uc.mjs](./import.uc.mjs) for an example importing each script.
+6. **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
 
-6. **Import the Styles**: In your `userChrome.css` file, import the styles of the related script. See [userChrome.css](./userChrome.css) for an example importing all styles.
-
-7. **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
-
-8. Create a new branch for your changes:
+7. Create a new branch for your changes:
    ```bash
    git checkout -b feat/your-feature-name
    ```
@@ -163,7 +154,7 @@ I hate having to write the same code multiple times (unless it's done to get LSP
 
 #### Modular Code
 
-I like code to be modular and split into multiple files. Each file should be no more than 1,500 lines. For ease in installation bun is used for bundling files into single JS file.
+I like code to be modular and split into multiple files. Each file should be no more than 1,500 lines. The single-file releases shipped to the child repos are bundled by CI at publish time, so you never need to build locally.
 
 ### Formatting
 
@@ -177,7 +168,7 @@ If you are using Prettier, this repo also contains a [.prettierrc.json](./.prett
 
 This project uses ESLint to maintain code quality and catch common errors. A GitHub Actions workflow will automatically check for linting errors on every pull request.
 
-It's a good practice to run the linter locally before submitting your changes:
+Running the linter locally is optional (it requires the optional Bun install). If you have Bun, you can check before submitting:
 
 ```bash
 bun run lint
@@ -188,9 +179,9 @@ This will help you find and fix issues before they are caught by the CI.
 > [!Note]
 > These are best practices I like to follow which are not strictly required but are highly recommended.
 
-### Build Scripts
+### Build Scripts (release tooling only, optional)
 
-Available bun scripts for development:
+Bundling is only needed to produce the single-file releases shipped to the child repos, and CI handles that automatically at publish time. You don't need to build anything to use or test mods locally, including BrowseBot. These scripts exist for release work and require the optional Bun install:
 
 ```bash
 # Build all mods

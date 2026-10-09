@@ -65,27 +65,22 @@ For advanced users or those not using Sine or who are willing to contribute:
     git clone https://github.com/BibekBhusal0/zen-custom-js.git custom
     ```
 
-3.  **Bundle the Script**: This script uses bun a modern JavaScript bundler to bundle all code. Navigate into the new directory and run the build command (bun needs to be installed for this):
-
-    ```bash
-    cd custom
-    bun install
-    bun run build
-    ```
-
-4.  **Import the Script**: In your JS directory, create a new file `import.uc.mjs` (or add to an existing one), and add the following line:
+3.  **Import the Script**: In your JS directory, create a new file `import.uc.mjs` (or add to an existing one), and add the following line:
 
     ```javascript
-    import "./custom/dist/browse-bot.uc.mjs";
+    import "./custom/findbar-ai/index.js";
     ```
 
-5.  **Import the Styles**: In your `userChrome.css` file, add the following line:
+4.  **Import the Styles**: In your `userChrome.css` file, add the following line:
 
     ```css
     @import "js/custom/findbar-ai/style.css";
     ```
 
-6.  **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
+5.  **Restart Zen Browser**: Restart the browser for all changes to take effect. You might need to clear the startup cache from `about:support`.
+
+> [!NOTE]
+> No build step is needed. BrowseBot runs straight from source and has zero npm dependencies. Installing Bun is optional and only matters if you want to build the single-file release bundle yourself.
 
 ## 🚀 Usage
 
@@ -128,7 +123,7 @@ For advanced users or those not using Sine or who are willing to contribute:
 
 ### Command Palette Integration
 
-BrowseBot integrates with Zen Command Palette to provide quick access to common actions:
+BrowseBot integrates with [Zen Command Palette](https://github.com/Vertex-Mods/Zen-Command-Palette) to provide quick access to common actions:
 
 1.  Press `Ctrl+L` to open the palette.
 2.  Available BrowseBot commands:

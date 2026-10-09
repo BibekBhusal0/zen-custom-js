@@ -1,14 +1,16 @@
 # Code Assistant Context
 
-Collection of user scripts and CSS for Zen Browser (Firefox-based). Each feature is a self-contained directory. Bundled into `.uc.js` files via Bun.
+Collection of user scripts and CSS for Zen Browser (Firefox-based). Each feature is a self-contained directory. Source runs directly in the browser with no build step; single-file `.uc.js`/`.uc.mjs` bundles are produced via Bun for releases only.
 
-**Key technologies**: JavaScript (ESM), CSS, Bun.
+**Key technologies**: JavaScript (ESM), CSS, Bun (release tooling only, optional).
 
 ## Hands-off policy
 
-Do NOT run `bun build`, `bun format`, `bun lint`, or any CI-related command unless explicitly asked. Build, formatting, and linting are all automated on push (`update-and-build.yml`). You only need to write correct source code.
+Do NOT run `bun build`, `bun format`, `bun lint`, or any CI-related command unless explicitly asked. Build, formatting, and linting are all automated on push (`update-and-build.yml`). You only need to write correct source code. Building is for releasing only: every mod (including BrowseBot) runs straight from source, so never build to test. Never format manually either; formatting is automated.
 
 ## Build & dev
+
+Release tooling only (requires the optional Bun install). Never needed for local use or testing, mods run from source.
 
 ```bash
 bun run build              # all mods
@@ -44,7 +46,7 @@ bun run lint               # eslint .
 Loaded via `import.uc.mjs`:
 
 - `command-palette/`, `floating-sidebar/`, `reopen-closed-tabs/`, `search-engine-select/`, `search-engine-icon/index.js`
-- `dist/browse-bot.uc.mjs` (built from `findbar-ai/`)
+- `findbar-ai/index.js`
 - `others/tab-explode.js`, `others/invert-pdf.js`
 
 Styles loaded via `userChrome.css`:
@@ -124,5 +126,5 @@ mod-name/           # each mod is a directory
 utils/              # shared utilities (pref.js, parse.js, zen-design.css, settings-modal.js/css, etc.)
 css/                # shared CSS (userChrome.css, userContent.css)
 others/             # non-bundled scripts, loaded directly
-dist/               # build output (gitignored, rebuilt by CI/publish)
+dist/               # release bundles (gitignored, built by CI at publish time; never needed locally)
 ```
