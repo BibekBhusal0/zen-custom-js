@@ -12,14 +12,14 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 ## 🌟 Features
 
 - 🎨 **Floating Chat UI**: A sleek, draggable, and resizable findbar that transforms into an AI chat panel.
-- 📚 **Library AI**: A persistent BrowseBot section inside the Zen Library with **chat**, **agent**, and **build** modes, slash commands (`/chat`, `/agent`, `/build`, `/new`, `/delete`, `/close`, `/continue`), and `@` tab mentions that hand the AI the full page content. Unlike the findbar and URL bar, it never closes when you switch tabs or workspaces.
+- 📚 **Library AI**: A persistent BrowseBot section inside the Zen Library with **chat**, **agent**, and **build** modes.
 - 🚀 **URL Bar AI Commands**: Activate an AI command mode directly in your URL bar for quick searches and navigation.
 - 🤖 **Multi-Provider Support**: Works out of the box with Pollinations AI (free, no API key needed). Also integrates with Google Gemini, Mistral AI, OpenAI, Anthropic Claude, xAI Grok, Perplexity AI, Cerebras, DeepSeek, OpenRouter, any OpenAI-compatible endpoint, and local models via Ollama.
 - 🧠 **Page Content Awareness**: Lets the AI read the current page's text, HTML, and even YouTube transcripts to provide context-aware answers.
 - 👑 **Powerful AI Tool-belt**: In Library agent mode, the AI controls the browser: manages tabs, workspaces, bookmarks, performs searches, and interacts with page elements.
 - 🖱️ **Context Menu Integration**: Right-click to quickly ask the AI about selected text or summarize the current page.
 - 📚 **Citation Support**: Get direct quotes from the page text that support the AI's answer.
-- 🔧 **Highly Customizable**: Fine-tune every aspect through an sine settings or `about:config`.
+- 🔧 **Highly Customizable**: Fine-tune every aspect through settings or `about:config`.
 - ⌨️ **Custom Shortcuts**: Configure keyboard shortcuts to open the AI chat and URL bar commands.
 
 ## Demo Videos
@@ -76,7 +76,7 @@ For advanced users or those not using Sine or who are willing to contribute:
 4.  **Import the Script**: In your JS directory, create a new file `import.uc.mjs` (or add to an existing one), and add the following line:
 
     ```javascript
-    import "./custom/dist/browse-bot.uc.js";
+    import "./custom/dist/browse-bot.uc.mjs";
     ```
 
 5.  **Import the Styles**: In your `userChrome.css` file, add the following line:
@@ -117,7 +117,7 @@ For advanced users or those not using Sine or who are willing to contribute:
 > [!NOTE]
 > The Library section needs a Zen build with the Library feature. On builds without it, the section stays hidden and the findbar/URL bar keep working as before.
 
-1.  Press `Alt+Shift+A` (customizable) to toggle the Library AI, or run **Open BrowseBot Library** from the command palette. The section appears in the Library sidebar as **AI**.
+1.  Press `Alt+Shift+A` (customizable) to toggle the Library AI, or run **Toggle BrowseBot Library** from the command palette. The section appears in the Library sidebar as **AI**.
 2.  Pick a mode with the header buttons or a slash command:
     - **Chat** (`/chat`): plain Q&A. No tools, no automatic page context.
     - **Agent** (`/agent`): the full browser tool-belt. It reads and organizes tabs, searches the web, manages bookmarks and workspaces, clicks and fills page elements, and reads YouTube transcripts.
@@ -137,6 +137,7 @@ BrowseBot integrates with Zen Command Palette to provide quick access to common 
     - **Open BrowseBot Settings: General/Surfaces/Models/Prompts**: Opens the settings modal directly on that tab.
     - **Toggle URL bar AI mode**: Activates AI mode in the URL bar.
     - **Expand findbar AI**: Opens the findbar directly in AI chat mode.
+    - **Toggle BrowseBot Library**: Opens the BrowseBot section in the Zen Library.
 
 ## 🔧 Customization
 
@@ -159,7 +160,8 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.findbar-ai.position`                            | String  | `"top-right"`                                               | Sets the corner where the findbar snaps. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`.                                                                   |
 | `extension.browse-bot.findbar-ai.background-style`                    | String  | `"solid"`                                                   | The background style of the findbar. Options: `solid`, `acrylic`, `pseudo`.                                                                                                 |
 | `extension.browse-bot.llm-provider`                                   | String  | `"pollinations"`                                            | Which AI provider to use. Options: `pollinations`, `gemini`, `mistral`, `openai`, `claude`, `grok`, `perplexity`, `cerebras`, `deepseek`, `openrouter`, `ollama`, `custom`. |
-| `extension.browse-bot.pollinations-model`                             | String  | `"openai"`                                                  | The Pollinations model ID to use. Pick from the live-fetched list in settings.                                                                                              |
+| `extension.browse-bot.pollinations-model`                               | String  | `"openai"`                                                  | The Pollinations model ID to use. Pick from the live-fetched list in settings.                                                                                              |
+| `extension.browse-bot.pollinations-api-key`                           | String  | _(empty)_                                                   | Optional personal key from enter.pollinations.ai. Unlocks more models and tool use; without it the free anonymous tier applies.                                             |
 | `extension.browse-bot.deepseek-api-key`                               | String  | _(empty)_                                                   | Your API key for DeepSeek.                                                                                                                                                  |
 | `extension.browse-bot.deepseek-model`                                 | String  | `"deepseek-flash"`                                          | The specific DeepSeek model to use.                                                                                                                                         |
 | `extension.browse-bot.openrouter-api-key`                             | String  | _(empty)_                                                   | Your API key for OpenRouter.                                                                                                                                                |
@@ -180,6 +182,9 @@ You can customize the BrowseBot through the settings modal (found in the chat he
 | `extension.browse-bot.perplexity-model`                               | String  | `"sonar"`                                                   | The specific Perplexity model to use.                                                                                                                                       |
 | `extension.browse-bot.ollama-base-url`                                | String  | `http://localhost:11434/api`                                | The base URL for your local Ollama API.                                                                                                                                     |
 | `extension.browse-bot.ollama-model`                                   | String  | `"qwen3:8b"`                                                | The specific Ollama model to use.                                                                                                                                           |
+| `extension.browse-bot.custom-api-key`                                 | String  | _(empty)_                                                   | Your API key for any OpenAI-compatible custom provider.                                                                                                                     |
+| `extension.browse-bot.custom-model`                                   | String  | _(empty)_                                                   | The model name to use on the custom provider.                                                                                                                               |
+| `extension.browse-bot.custom-base-url`                                | String  | _(empty)_                                                   | The base URL for your OpenAI-compatible API (e.g. `https://api.your-provider.com/v1`).                                                                                      |
 | `extension.browse-bot.findbar-ai.context-menu-enabled`                | Boolean | `true`                                                      | Toggles the "Ask AI" item in the right-click context menu.                                                                                                                  |
 | `extension.browse-bot.findbar-ai.context-menu-autosend`               | Boolean | `true`                                                      | If true, clicking the context menu item sends the request to the AI immediately.                                                                                            |
 | `extension.browse-bot.findbar-ai.context-menu-command-no-selection`   | String  | `"Summarize current page"`                                  | The command to send when no text is selected.                                                                                                                               |
@@ -217,6 +222,7 @@ Default keyboard shortcuts:
 | -------------- | ----------------------------------------------------------------------------------------------------------- |
 | `Ctrl+Shift+F` | Opens the findbar directly into the expanded AI mode.                                                       |
 | `Ctrl+Space`   | Toggles the URL bar into AI command mode.                                                                   |
+| `Alt+Shift+A`  | Toggles the BrowseBot Library section (needs a Zen build with the Library feature).                         |
 | `Escape`       | If the AI interface is expanded, it collapses to the standard findbar. If not expanded, closes the findbar. |
 | `Alt + Enter`  | Sends the text from the standard findbar to the AI, expanding the view.                                     |
 
@@ -245,19 +251,17 @@ Currently available tool calls are (full set in Library agent mode):
 
 - [ ] Pin/unpin the findbar
 - [x] Context Menu integration
-- [x] Different themes (glass, light, dark, etc.)
+- [x] Different background styles (solid, acrylic, pseudo)
 - [ ] Smooth animations for all interactions
 - [x] Custom system prompts
 - [x] Add Settings.
-- [ ] Copy Button
-- [ ] Markdown Formatting toggle
+- [x] Copy and regenerate buttons on chat messages
 - [x] Slash Command and variables (library chat: `/chat`, `/agent`, `/build`)
 - [x] Adding more tools (tab groups, workspaces, background search)
 - [x] Giving AI YouTube transcript
 - [x] Tagging multiple tabs (`@` tab mentions in library chat)
 - [x] Advanced LLM parameters (temperature, top-k, etc.)
 - [x] Keyboard shortcut customization
-- [x] Add more models (GPT-5, Gemini 2.5, DeepSeek R1, etc.)
 - [x] Build mode (styles the browser and builds Sine mods)
 
 ## 🙏 Credits and Acknowledgements
