@@ -18,6 +18,11 @@
   - New model from `xAI`: `Grok 4.7`.
 - YouTube answers link to moments in the video. Click a citation to seek there.
 
+# Demo
+Here is quick demo video I made for library AI.
+
+https://github.com/user-attachments/assets/52da21a9-d8ab-45eb-ab0b-6074b3226c6f
+
 # Changes
 
 - The findbar answers questions about the page. The URL bar handles search and navigation. All browser tools live in the Library Agent mode.

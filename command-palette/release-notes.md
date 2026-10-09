@@ -20,6 +20,11 @@
   - Each part can be a keyword, a link, or a plain search term. Keywords open their fixed site, links open as typed, and anything else searches through your Quick Split search engine.
   - Pick the search engine and manage keywords in the palette settings, in the Quick Split section. `-` and `_` need spaces around them.
 
+# Demo
+Quick split idea might be complicated to understand so for it I prepared short video demonstrate, hope it helps understand how it woks.
+
+https://github.com/user-attachments/assets/9b45ee05-3cd0-4ec5-a737-4c88de4e666c
+
 # Fixes
 
 - Fallback command icons now use the native Zen bolt icon.
