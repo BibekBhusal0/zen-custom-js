@@ -19,6 +19,18 @@ https://github.com/user-attachments/assets/999167fa-aa3e-417c-94b5-e40c12e1897e
 - 🎨 **Highly Customizable**: Offers customizable keyboard shortcuts, widgets, icons, dynamic commands, and more.
 - ⌨️ **Custom Commands**: Make your own commands with custom JS or chaining other commands.
 
+
+## Demo Videos
+
+### Quick split
+
+
+https://github.com/user-attachments/assets/9b45ee05-3cd0-4ec5-a737-4c88de4e666c
+
+
+
+
+
 ## ⚙️ Installation Guide
 
 1. Install latest version of [Sine](https://github.com/CosmoCreeper/Sine) (if you haven't already).
