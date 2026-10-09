@@ -15,6 +15,7 @@ body:
         - label: I have checked all the boxes without reading.
         - label: I have made sure that I'm on latest version of mod and also tested beta version for fix.
   - type: dropdown
+    id: mod
     attributes:
       label: Mod
       description: Specify which mod has this bug?

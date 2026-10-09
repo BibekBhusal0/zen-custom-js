@@ -1076,7 +1076,7 @@ const SettingsModal = {
         description: "Enjoying the mod? Leave a star!",
       },
       {
-        url: "https://github.com/BibekBhusal0/zen-custom-js/issues/new",
+        url: "https://github.com/BibekBhusal0/zen-custom-js/issues/new?template=bug_report.yml&mod=Command+Palette",
         icon: svgToUrl(icons["bug"]),
         title: "Report a Bug",
         description: "Found an issue? Let us know.",
