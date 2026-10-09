@@ -24,13 +24,16 @@ https://github.com/user-attachments/assets/40dae6f6-065c-4852-be07-f29d00ec99ae
 
 ## Demo Videos
 
+### Library AI (Chat, Agent, Build)
+
+
+https://github.com/user-attachments/assets/52da21a9-d8ab-45eb-ab0b-6074b3226c6f
+
+
+
 ### URL Bar AI
 
 https://github.com/user-attachments/assets/78e37797-0e6a-4176-8eb2-e5e03f868db3
-
-### Agent mode (with tool calls)
-
-https://github.com/user-attachments/assets/a8f3113e-97e6-42a6-8300-f99f0268274b
 
 ## 🚨 Caution
 
