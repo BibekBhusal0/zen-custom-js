@@ -542,7 +542,9 @@ async function runPublish() {
     const repoUrl = `https://github.com/${ORG_NAME}/${r.repoName}`;
     const safeName = r.name.replace(/\|/g, "\\|");
     const modCell = `[${safeName}](${repoUrl})`;
-    const versionCell = r.prevVersion ? `v${r.prevVersion} -> v${r.version}` : `v${r.version} (new)`;
+    const versionCell = r.prevVersion
+      ? `v${r.prevVersion} -> v${r.version}`
+      : `v${r.version} (new)`;
     const branchCell = `[${r.branch}](${r.diffUrl})`;
     const releaseCell =
       r.release === "Created" ? `[Created](${repoUrl}/releases/tag/v${r.version})` : r.release;
