@@ -9,7 +9,7 @@ const TabManager = {
     PREFS.debugLog("Fetching recently closed tabs.");
     try {
       if (typeof SessionStore !== "undefined" && SessionStore.getClosedTabData) {
-        const closedTabsData = SessionStore.getClosedTabData(window);
+        const closedTabsData = SessionStore.getClosedTabData({ sourceWindow: window });
         const closedTabs = [];
         closedTabsData.forEach((tab, index) => {
           const url = tab.state.entries[0]?.url;
@@ -20,6 +20,7 @@ const TabManager = {
             isClosed: true,
             sessionData: tab,
             sessionIndex: index,
+            closedId: tab.closedId,
             faviconUrl: tab.image,
             closedAt: tab.closedAt,
           });
@@ -82,12 +83,20 @@ const TabManager = {
 
   /**
    * Removes a closed tab from the session store.
-   * @param {object} tabData - The data of the closed tab to remove, specifically containing sessionIndex.
+   * @param {object} tabData - The data of the closed tab to remove, specifically containing closedId or sessionIndex.
    */
   removeClosedTab(tabData) {
     PREFS.debugLog("Removing closed tab from session store:", tabData);
     try {
-      if (typeof SessionStore !== "undefined" && SessionStore.forgetClosedTab) {
+      if (typeof SessionStore === "undefined") {
+        PREFS.debugError("SessionStore not available.");
+        return;
+      }
+
+      if (tabData.closedId != null && SessionStore.forgetClosedTabById) {
+        SessionStore.forgetClosedTabById(tabData.closedId);
+        PREFS.debugLog("Closed tab removed successfully.");
+      } else if (SessionStore.forgetClosedTab) {
         SessionStore.forgetClosedTab(window, tabData.sessionIndex);
         PREFS.debugLog("Closed tab removed successfully.");
       } else {
