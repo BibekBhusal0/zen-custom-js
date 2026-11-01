@@ -1,7 +1,3 @@
-# New Features
-
 # Fixes
 
-# Others
-
-# Contributes
+- Recently closed tabs showing up again on Firefox 159.
