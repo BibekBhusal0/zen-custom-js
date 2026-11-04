@@ -489,12 +489,6 @@ export const commands = [
     icon: "chrome://browser/skin/zen-icons/library.svg",
     tags: ["bookmarks", "show", "all", "library", "folders"],
   },
-  {
-    key: "Browser:ShowAllHistory",
-    label: "Show All History (Library)",
-    icon: "chrome://browser/skin/history.svg",
-    tags: ["history", "show", "all", "library", "folders"],
-  },
 
   // ----------- Find & Search -----------
   {
@@ -618,13 +612,6 @@ export const commands = [
     tags: ["picture", "pip", "video", "floating"],
   },
 
-  // ----------- Files & Downloads -----------
-  {
-    key: "Tools:Downloads",
-    label: "View Downloads",
-    icon: "chrome://browser/skin/downloads/downloads.svg",
-    tags: ["downloads", "files", "download", "library"],
-  },
   {
     key: "Browser:SavePage",
     label: "Save Page As...",
@@ -805,50 +792,79 @@ export const commands = [
   {
     key: "toggle-zen-library",
     label: "Toggle Zen Library",
-    tags: ["Download", "Media", "History", "spaces", "boosts"],
-    command: () => window.gZenLibrary.toggle(),
-    condition: () => !!window.gZenLibrary,
-    icon: svgToUrl(icons.library),
+    tags: ["Download", "Media", "History", "spaces", "boosts", "routing"],
+    command: () => {
+      const ZenLibrary = customElements.get("zen-library");
+      if (ZenLibrary) ZenLibrary.toggle();
+    },
+    condition: () => !!customElements.get("zen-library"),
+    icon: "chrome://browser/skin/zen-icons/library.svg",
   },
   {
     key: "open-zen-library-download",
-    label: "Open Zen library: Downloads",
-    tags: ["Download", "Library"],
-    command: () => window.gZenLibrary.openTab("downloads"),
-    condition: () => !!window.gZenLibrary,
+    label: "Downloads: Zen Library",
+    tags: ["download", "downloads", "library"],
+    command: () => {
+      const ZenLibrary = customElements.get("zen-library");
+      if (ZenLibrary) ZenLibrary.toggle("downloads");
+    },
+    condition: () => !!customElements.get("zen-library"),
     icon: "chrome://browser/skin/downloads/downloads.svg",
   },
   {
     key: "open-zen-library-history",
-    label: "Open Zen library: History",
-    tags: ["History", "Library"],
-    command: () => window.gZenLibrary.openTab("history"),
-    condition: () => !!window.gZenLibrary,
+    label: "History: Zen Library",
+    tags: ["history", "library"],
+    command: () => {
+      const ZenLibrary = customElements.get("zen-library");
+      if (ZenLibrary) ZenLibrary.toggle("history");
+    },
+    condition: () => !!customElements.get("zen-library"),
     icon: "chrome://browser/skin/zen-icons/history.svg",
   },
   {
     key: "open-zen-library-media",
-    label: "Open Zen library: Media",
+    label: "Media: Zen Library",
     tags: ["media", "Library"],
-    command: () => window.gZenLibrary.openTab("media"),
-    condition: () => !!window.gZenLibrary,
+    command: () => {
+      const ZenLibrary = customElements.get("zen-library");
+      if (ZenLibrary) ZenLibrary.toggle("media");
+    },
+    condition: () => !!customElements.get("zen-library"),
     icon: "chrome://browser/skin/zen-icons/selectable/image.svg",
   },
   {
     key: "open-zen-library-spaces",
-    label: "Open Zen library: Spaces",
+    label: "Spaces: Zen Library",
     tags: ["spaces", "Library"],
-    command: () => window.gZenLibrary.openTab("spaces"),
-    condition: () => !!window.gZenLibrary,
-    icon: "chrome://browser/skin/zen-icons/spaces.svg",
+    command: () => {
+      const ZenLibrary = customElements.get("zen-library");
+      if (ZenLibrary) ZenLibrary.toggle("spaces");
+    },
+    condition: () => !!customElements.get("zen-library"),
+    icon: "chrome://browser/skin/zen-icons/sidebar.svg",
   },
   {
     key: "open-zen-library-boosts",
-    label: "Open Zen library: Boosts",
+    label: "Boosts: Zen Library",
     tags: ["boosts", "Library"],
-    command: () => window.gZenLibrary.openTab("boosts"),
-    condition: () => !!window.gZenLibrary,
+    command: () => {
+      const ZenLibrary = customElements.get("zen-library");
+      if (ZenLibrary) ZenLibrary.toggle("boosts");
+    },
+    condition: () => !!customElements.get("zen-library"),
     icon: "chrome://browser/skin/zen-icons/boost.svg",
+  },
+  {
+    key: "open-zen-library-space-routing",
+    label: "Routing: Zen Library",
+    tags: ["routing", "space", "library"],
+    command: () => {
+      const ZenLibrary = customElements.get("zen-library");
+      if (ZenLibrary) ZenLibrary.toggle("space-routing");
+    },
+    condition: () => !!customElements.get("zen-library"),
+    icon: "chrome://browser/skin/zen-icons/selectable/airplane.svg",
   },
 
   // ----------- Live Folders ------------

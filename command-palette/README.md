@@ -262,11 +262,12 @@ Each part can be a keyword, a link, or a plain search term. Keywords open their 
 ### Zen Library
 
 - Toggle Zen Library
-- Open Zen library: Downloads
-- Open Zen library: History
-- Open Zen library: Media
-- Open Zen library: Spaces
-- Open Zen library: Boosts
+- Downloads: Zen Library
+- History: Zen Library
+- Media: Zen Library
+- Spaces: Zen Library
+- Boosts: Zen Library
+- Routing: Zen Library
 
 ### Live Folders
 

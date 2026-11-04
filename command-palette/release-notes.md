@@ -1,7 +1,7 @@
 # New Features
 
-# Fixes
+- Added quick access commands for all Zen Library sections (Downloads, History, Media, Spaces, Boosts, and Routing).
 
-# Others
+# Improvements
 
-# Contributes
+- Removed duplicate legacy history and downloads commands.
