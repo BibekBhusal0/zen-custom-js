@@ -1,33 +1,35 @@
 @import "../utils/zen-design.css";
 
-.zen-library-download-list-download .download-rename-action {
-  display: none;
-  margin: auto 4px auto 0;
+.zen-library-download-list-download {
+  .download-rename-action {
+    display: none;
+    margin: auto 4px auto 0;
 
-  :root:not([zen-sidebar-expanded="true"]) & {
-    display: none !important;
+    :root:not([zen-sidebar-expanded="true"]) & {
+      display: none !important;
+    }
+  }
+
+  &[show-in-folder]:hover .download-rename-action {
+    display: flex;
+    list-style-image: url("chrome://global/skin/icons/edit.svg");
+    -moz-context-properties: fill;
+    fill: currentColor;
+  }
+
+  :root[zen-renaming-tab] &[show-in-folder] .download-rename-action {
+    display: flex !important;
+  }
+
+  :root[zen-renaming-tab] & .zen-library-download-list-title-container {
+    display: flex !important;
   }
 }
 
-.zen-library-download-list-download[show-in-folder]:hover
-  .download-rename-action {
-  display: flex;
-  list-style-image: url("chrome://global/skin/icons/edit.svg");
-  -moz-context-properties: fill;
-  fill: currentColor;
-}
-
-:root[zen-renaming-tab] .zen-library-download-list-download[show-in-folder]
-  .download-rename-action {
-  display: flex !important;
-}
-:root[zen-renaming-tab] .zen-library-download-list-download
-  .zen-library-download-list-title-container {
-  display: flex !important;
-}
-
-.zen-library-row-actions > .download-rename-row-action {
-  order: -1;
+.zen-library-row-actions {
+  > .download-rename-row-action {
+    order: -1;
+  }
 }
 
 .download-rename-input {
@@ -50,7 +52,9 @@
   }
 }
 
-.download-renaming > .zen-library-download-list-title,
-.download-renaming > .zen-library-row-title {
-  display: none !important;
+.download-renaming {
+  > .zen-library-download-list-title,
+  > .zen-library-row-title {
+    display: none !important;
+  }
 }
