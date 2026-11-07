@@ -2,5 +2,6 @@
 @import "search-engine-select/style.css";
 @import "findbar-ai/style.css";
 @import "command-palette/style.css";
+@import "download-rename/style.css";
 @import "reopen-closed-tabs/style.css";
 @import "css/userChrome.css";

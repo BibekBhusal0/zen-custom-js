@@ -1,0 +1,53 @@
+@import "../utils/zen-design.css";
+
+/* Stack entry rename button. Mirrors Zen's own stack action button, which
+ * is only revealed on hover of a finished download. */
+.zen-library-download-list-download .download-rename-action {
+  display: none;
+  margin: auto 4px auto 0;
+
+  :root:not([zen-sidebar-expanded="true"]) & {
+    display: none !important;
+  }
+}
+
+.zen-library-download-list-download[show-in-folder]:hover
+  .download-rename-action {
+  display: flex;
+  list-style-image: url("chrome://global/skin/icons/edit.svg");
+  -moz-context-properties: fill;
+  fill: currentColor;
+}
+
+/* Library row rename button. Zen's row action CSS already reveals it on
+ * hover and sizes its icon; only the position needs moving. */
+.zen-library-row-actions > .download-rename-row-action {
+  order: -1;
+}
+
+.download-rename-input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 2px 6px;
+  border: 1px solid var(--zenux-border);
+  border-radius: var(--zenux-radius-s);
+  background: var(--zenux-input-bg);
+  color: var(--zenux-text);
+  font-family: var(--zenux-font);
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+
+  &:focus {
+    border-color: var(--zenux-accent);
+  }
+}
+
+/* The native title keeps being updated in the background; hide it while the
+ * input stands in for it. */
+.download-renaming > .zen-library-download-list-title,
+.download-renaming > .zen-library-row-title {
+  display: none !important;
+}

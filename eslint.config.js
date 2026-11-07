@@ -32,6 +32,7 @@ export default [
         Cc: "readonly",
         Ci: "readonly",
         IOUtils: "readonly",
+        PathUtils: "readonly",
         AddonManager: "readonly",
         Services: "readonly",
         nsKeyShortcutModifiers: "readonly",

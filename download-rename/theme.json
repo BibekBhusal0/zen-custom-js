@@ -1,0 +1,19 @@
+{
+  "id": "download-rename",
+  "name": "Download Rename",
+  "description": "Rename a downloaded file right where Zen shows it: from the sidebar download stack or the library's downloads section.",
+  "style": {
+    "chrome": "style.css"
+  },
+  "scripts": {
+    "download-rename.uc.js": {
+      "include": ["chrome://browser/content/browser.xhtml"]
+    }
+  },
+  "author": "Bibek Bhusal",
+  "version": "1.0.0",
+  "tags": ["downloads", "rename", "library", "sidebar", "zen browser"],
+  "createdAt": "2026-11-07",
+  "updatedAt": "2026-11-07",
+  "fork": ["zen"]
+}

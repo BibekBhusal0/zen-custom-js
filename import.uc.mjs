@@ -6,6 +6,7 @@
 
 // My mods
 import "./command-palette/index.js";
+import "./download-rename/index.js";
 import "./findbar-ai/index.js";
 import "./floating-sidebar/index.js";
 import "./reopen-closed-tabs/index.js";
