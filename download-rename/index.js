@@ -2,11 +2,6 @@ import { parseElement } from "../utils/parse.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { showToast } from "../utils/toast.js";
 
-// Adds a rename affordance to the two places Zen shows downloads: the stack
-// above the sidebar footer and the library's downloads section. The file is
-// moved on disk and the download record is pointed at its new path, so Zen
-// keeps showing the real name after a restart.
-
 const STACK_ENTRY =
   "#zen-library-download-list > .zen-library-download-list-download";
 const STACK_ACTION = ".download-rename-action";
@@ -38,7 +33,6 @@ function sanitizeFileName(name) {
   return cleaned === "." || cleaned === ".." ? "" : cleaned;
 }
 
-/** Adds a " (n)" suffix instead of overwriting an existing file. */
 async function availablePath(dir, fileName, oldPath) {
   const dot = fileName.lastIndexOf(".");
   const base = dot > 0 ? fileName.slice(0, dot) : fileName;
@@ -54,9 +48,6 @@ async function availablePath(dir, fileName, oldPath) {
 
 async function persistTarget(download, newPath) {
   download.target.path = newPath;
-
-  // refresh() re-reads the file but does not tell the views a finished
-  // download changed, so the stack and library would keep the old title.
   try {
     await download.refresh();
   } catch (error) {
@@ -68,7 +59,6 @@ async function persistTarget(download, newPath) {
   if (!url || download.source?.isPrivate) {
     return;
   }
-
   try {
     const { DownloadHistory } = await loadModules();
     const targetUri = PathUtils.toFileURI(newPath);
@@ -92,7 +82,6 @@ async function renameDownload(download, requestedName) {
   if (!oldPath) {
     return;
   }
-
   const fileName = sanitizeFileName(requestedName);
   if (!fileName) {
     throw new Error("That is not a valid file name.");
@@ -100,7 +89,6 @@ async function renameDownload(download, requestedName) {
   if (fileName === PathUtils.filename(oldPath)) {
     return;
   }
-
   const newPath = await availablePath(
     PathUtils.parent(oldPath),
     fileName,
@@ -123,6 +111,15 @@ function beginRename(host, download) {
 
   host.classList.add(EDITING);
   host.insertBefore(input, host.firstElementChild);
+  document.documentElement.setAttribute("zen-renaming-tab", "true");
+
+  const stopMouseLeave = (event) => {
+    if (event.target.closest("#zen-sidebar-foot-buttons")) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+  };
+  document.addEventListener("mouseleave", stopMouseLeave, true);
 
   let done = false;
   const finish = (value) => {
@@ -132,6 +129,8 @@ function beginRename(host, download) {
     done = true;
     input.remove();
     host.classList.remove(EDITING);
+    document.documentElement.removeAttribute("zen-renaming-tab");
+    document.removeEventListener("mouseleave", stopMouseLeave, true);
 
     if (value === null || value.trim() === currentName) {
       return;
@@ -174,8 +173,6 @@ function injectStackButtons() {
     if (!nativeAction) {
       continue;
     }
-
-    // Cloning keeps the button's XUL namespace and Zen's sizing rules.
     const button = nativeAction.cloneNode(false);
     button.className = "toolbarbutton-1 no-squircles download-rename-action";
     button.removeAttribute("data-l10n-id");
@@ -250,8 +247,6 @@ function injectRowButtons(section) {
       continue;
     }
 
-    // Appending rather than inserting keeps this node outside lit's parts;
-    // CSS moves it to the front of the row's action group.
     const button = showButton.cloneNode(true);
     button.className = "toolbarbutton-1 download-rename-row-action";
     button.removeAttribute("data-l10n-id");
@@ -292,7 +287,6 @@ function injectMenu() {
   });
   item.addEventListener("command", () => {
     const row = document.querySelector(".zen-library-row[menu-open]");
-    // The section drops menu-open once the popup closes.
     window.setTimeout(() => row && startRowRename(row), 0);
   });
 }
