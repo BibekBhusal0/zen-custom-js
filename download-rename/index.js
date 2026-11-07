@@ -2,8 +2,7 @@ import { parseElement } from "../utils/parse.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { showToast } from "../utils/toast.js";
 
-const STACK_ENTRY =
-  "#zen-library-download-list > .zen-library-download-list-download";
+const STACK_ENTRY = "#zen-library-download-list > .zen-library-download-list-download";
 const STACK_ACTION = ".download-rename-action";
 const ROW_ACTION = ".download-rename-row-action";
 const ROW_SHOW_BUTTON = '[data-l10n-id="library-downloads-show-button"]';
@@ -89,11 +88,7 @@ async function renameDownload(download, requestedName) {
   if (fileName === PathUtils.filename(oldPath)) {
     return;
   }
-  const newPath = await availablePath(
-    PathUtils.parent(oldPath),
-    fileName,
-    oldPath
-  );
+  const newPath = await availablePath(PathUtils.parent(oldPath), fileName, oldPath);
   await IOUtils.move(oldPath, newPath, { noOverwrite: true });
   await persistTarget(download, newPath);
 }
@@ -270,10 +265,7 @@ function injectMenu() {
     return;
   }
 
-  const item = parseElement(
-    `<menuitem data-action="${MENU_ACTION}" label="Rename…"/>`,
-    "xul"
-  );
+  const item = parseElement(`<menuitem data-action="${MENU_ACTION}" label="Rename…"/>`, "xul");
   const show = menu.querySelector('[data-action="show"]');
   if (show) {
     show.after(item);
@@ -309,9 +301,7 @@ function isRelevant(record) {
   const target = record.target;
   if (target.nodeType === 1) {
     if (
-      target.closest(
-        `#zen-sidebar-foot-buttons, #zen-library-panel, #mainPopupSet, ${ROW_SECTION}`
-      )
+      target.closest(`#zen-sidebar-foot-buttons, #zen-library-panel, #mainPopupSet, ${ROW_SECTION}`)
     ) {
       return true;
     }
