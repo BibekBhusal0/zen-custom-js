@@ -97,6 +97,15 @@ function setupShortcuts() {
 }
 
 async function init() {
+  // Sine can import every userscript again in open windows (CosmoCreeper/Sine#790).
+  // Two copies share the same UI and fight over it, so only the first one runs.
+  // The public handle catches copies loaded before this flag existed.
+  if (window.__browseBotInitialized || window.browseBotFindbar) {
+    PREFS.debugLog("BrowseBot already initialized in this window, skipping duplicate copy.");
+    return;
+  }
+  window.__browseBotInitialized = true;
+
   // Decrypt cached API keys and migrate any legacy plaintext keys to
   // OSKeyStore encryption before the UI reads them.
   try {
