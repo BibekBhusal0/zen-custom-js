@@ -38,7 +38,7 @@ export async function generateSearchEngineCommands() {
           gURLBar.focus();
         }
       },
-      icon: "chrome://browser/skin/search-glass.svg",
+      icon: "chrome://browser/skin/zen-icons/search-glass.svg",
       tags: isDefault
         ? ["search", "engine", "default", engineName.toLowerCase()]
         : ["search", "engine", engineName.toLowerCase()],

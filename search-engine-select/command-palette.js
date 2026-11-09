@@ -31,7 +31,7 @@ export function setupCommandPaletteIntegration(getCurrentSearchInfo) {
         const info = getCurrentSearchInfo();
         return !!info?.term && info.engine?.name !== engine.name;
       },
-      icon: "chrome://browser/skin/search-glass.svg",
+      icon: "chrome://browser/skin/zen-icons/search-glass.svg",
       tags: ["search", "engine", "search-engine-select", engine.name.toLowerCase()],
       openUrl: true,
     }));

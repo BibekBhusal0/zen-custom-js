@@ -706,7 +706,7 @@ export const SettingsModal = {
       "",
       "",
       null,
-      "chrome://global/skin/icons/search-glass.svg"
+      "chrome://browser/skin/zen-icons/search-glass.svg"
     );
 
     const devSettings = [{ label: "Debug Mode (logs in console)", pref: PREFS.DEBUG_MODE }];
