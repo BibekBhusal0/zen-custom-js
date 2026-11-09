@@ -301,6 +301,7 @@ Adding your own commands from other scripts is straightforward. The `ZenCommandP
 - [AI Tab Groups](https://github.com/Darsh-A/Ai-TabGroups-ZenBrowser/)
 - [Quick Tabs](https://github.com/Darsh-A/Quick-Tabs/)
 - [Reopen Closed Tabs Menu](https://github.com/Vertex-Mods/Reopen-Closed-Tabs-Menu)
+- [Search Engine Select](https://github.com/Vertex-Mods/Search-Engine-Select)
 - [Browse Bot](https://github.com/Vertex-Mods/Browse-Bot)
 - [Zen Library](https://github.com/JustAdumbPrsn/Zen-Library)
 
