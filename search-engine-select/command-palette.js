@@ -15,31 +15,26 @@ export function setupCommandPaletteIntegration(getCurrentSearchInfo) {
   async function generateSearchEngineSelectCommands() {
     const engines = await getVisibleEngines();
 
-    return engines.map((engine) => {
-      const icon = getSearchEngineFavicon(engine);
-      return {
-        key: `search-engine-select:search-in:${engine.name}`,
-        label: "Search current search term in",
-        prettyName: engine.name,
-        // The palette only renders prettyIcon as an image for .svg/.png URLs;
-        // anything else would leak into the chip as raw text.
-        prettyIcon: /\.(?:svg|png)$/.test(icon) ? icon : undefined,
-        command: () => {
-          const info = getCurrentSearchInfo();
-          if (!info?.term) return;
-          const url = engine.getSubmission(info.term)?.uri?.spec;
-          if (url) openLink(url, "current tab");
-        },
-        condition: () => {
-          if (!PREFS.enabled) return false;
-          const info = getCurrentSearchInfo();
-          return !!info?.term && info.engine?.name !== engine.name;
-        },
-        icon,
-        tags: ["search", "engine", "search-engine-select", engine.name.toLowerCase()],
-        openUrl: true,
-      };
-    });
+    return engines.map((engine) => ({
+      key: `search-engine-select:search-in:${engine.name}`,
+      label: "Search current search term in",
+      prettyName: engine.name,
+      prettyIcon: getSearchEngineFavicon(engine),
+      command: () => {
+        const info = getCurrentSearchInfo();
+        if (!info?.term) return;
+        const url = engine.getSubmission(info.term)?.uri?.spec;
+        if (url) openLink(url, "current tab");
+      },
+      condition: () => {
+        if (!PREFS.enabled) return false;
+        const info = getCurrentSearchInfo();
+        return !!info?.term && info.engine?.name !== engine.name;
+      },
+      icon: "chrome://browser/skin/search-glass.svg",
+      tags: ["search", "engine", "search-engine-select", engine.name.toLowerCase()],
+      openUrl: true,
+    }));
   }
 
   addDynamicCommandsProvider(generateSearchEngineSelectCommands, PREFS.PALETTE_COMMANDS);

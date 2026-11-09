@@ -5,3 +5,4 @@
 # Improvements
 
 - Removed duplicate legacy history and downloads commands.
+- Search engine commands now show the engine name and its icon as a pretty chip.
