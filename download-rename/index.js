@@ -1,6 +1,8 @@
 import { parseElement } from "../utils/parse.js";
 import { startupFinish } from "../utils/startup-finish.js";
 import { showToast } from "../utils/toast.js";
+import { initShortcutRegistry, registerShortcut } from "../utils/keyboard.js";
+import { addCommands } from "../utils/command-palete.js";
 
 const STACK_ENTRY = "#zen-library-download-list > .zen-library-download-list-download";
 const STACK_ACTION = ".download-rename-action";
@@ -11,6 +13,10 @@ const MENU = "menupopup.zen-library-downloads-menu";
 const MENU_ACTION = "download-rename";
 const RENAME_INPUT = ".download-rename-input";
 const EDITING = "download-renaming";
+const HOTKEY = "Ctrl+;";
+const HOTKEY_ID = "download-rename-hotkey";
+const ROW_WAIT_ATTEMPTS = 30;
+const ROW_WAIT_INTERVAL = 100;
 
 let modules;
 let downloadsList;
@@ -225,6 +231,84 @@ async function startRowRename(row) {
   beginRename(row.querySelector(".zen-library-row-text"), download);
 }
 
+function latestFinishedRow() {
+  for (const row of document.querySelectorAll(`${ROW_SECTION} .zen-library-row`)) {
+    if (row.querySelector(ROW_SHOW_BUTTON)) {
+      return row;
+    }
+  }
+  return null;
+}
+
+function latestFinishedStackEntry() {
+  const entries = [...document.querySelectorAll(STACK_ENTRY)].filter(
+    (entry) => entry.hasAttribute("show-in-folder") && entry.download?.target?.path
+  );
+  return entries.at(-1) ?? null;
+}
+
+function isStackOpen() {
+  return !!document
+    .getElementById("zen-sidebar-foot-buttons")
+    ?.hasAttribute("zen-library-stack-open");
+}
+
+function openDownloadsLibrary() {
+  const ZenLibrary = customElements.get("zen-library");
+  const library = ZenLibrary?.getInstance?.();
+  if (!library) {
+    return false;
+  }
+  library.activeTab = "downloads";
+  library.requestUpdate?.();
+  if (library.openProgress !== 1) {
+    ZenLibrary.animateProgress(1);
+  }
+  return true;
+}
+
+function renameLatestDownload() {
+  if (isStackOpen()) {
+    const entry = latestFinishedStackEntry();
+    if (entry) {
+      beginRename(
+        entry.querySelector(".zen-library-download-list-title-container"),
+        entry.download
+      );
+      return;
+    }
+  }
+
+  const library = customElements.get("zen-library")?.getInstance?.();
+  if (library?.openProgress === 1 && library.activeTab === "downloads") {
+    const row = latestFinishedRow();
+    if (row) {
+      startRowRename(row);
+      return;
+    }
+  }
+
+  if (!openDownloadsLibrary()) {
+    showToast({ title: "Nothing to rename", description: "No finished downloads found." });
+    return;
+  }
+
+  let attempts = ROW_WAIT_ATTEMPTS;
+  const waitForRow = () => {
+    const nextRow = latestFinishedRow();
+    if (nextRow) {
+      startRowRename(nextRow);
+      return;
+    }
+    if (--attempts > 0) {
+      window.setTimeout(waitForRow, ROW_WAIT_INTERVAL);
+      return;
+    }
+    showToast({ title: "Nothing to rename", description: "No finished downloads found." });
+  };
+  waitForRow();
+}
+
 function injectRowButtons(section) {
   for (const row of section.querySelectorAll(".zen-library-row")) {
     const actions = row.querySelector(".zen-library-row-actions");
@@ -315,8 +399,27 @@ function isRelevant(record) {
   );
 }
 
+function setupCommandPaletteIntegration() {
+  addCommands([
+    {
+      key: "download-rename:latest",
+      label: "Rename Latest Download",
+      command: () => renameLatestDownload(),
+      icon: "chrome://global/skin/icons/edit.svg",
+      tags: ["rename", "download", "downloads", "file", "latest"],
+    },
+  ]);
+}
+
+function registerHotkey() {
+  registerShortcut(HOTKEY, HOTKEY_ID, renameLatestDownload);
+  initShortcutRegistry();
+}
+
 startupFinish(() => {
   scan();
+  setupCommandPaletteIntegration();
+  registerHotkey();
   new MutationObserver((records) => {
     if (records.some(isRelevant)) {
       scheduleScan();

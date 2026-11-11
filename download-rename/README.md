@@ -12,6 +12,7 @@ Download Rename is a lightweight user script for **Zen Browser** that lets you r
 - ✏️ **Inline Rename**: The file name becomes an editable field in place, no dialog and no separate window.
 - 📚 **Two Surfaces**: Works from the sidebar download stack and from the Zen Library's Downloads section.
 - 🖱️ **Context Menu**: The same action is available as **Rename…** in a row's right-click menu.
+- ⌨️ **Quick Access**: Rename the latest download from the Command Palette or with `Ctrl + ;`.
 - 🛡️ **Safe by Default**: Never overwrites an existing file, a ` (2)` suffix is added instead.
 - 💾 **Persistent**: The file is moved on disk and the download record is updated, so the new name survives a restart.
 - ⚙️ **No Configuration**: Works out of the box, nothing to set up.
@@ -34,6 +35,7 @@ Download Rename is a lightweight user script for **Zen Browser** that lets you r
    - The base name is pre-selected, so typing replaces it and keeps the extension.
    - Press `Escape` to cancel without changing anything.
 5. You can also right-click a row and choose **Rename…** from the menu.
+6. Press `Ctrl + ;` (or run **Rename Latest Download** from the Command Palette) to rename the most recent finished download without hunting for it.
 
 ## 🙏 Credits and Acknowledgements
 
