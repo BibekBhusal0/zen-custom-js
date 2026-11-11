@@ -5,12 +5,14 @@ class ReopenClosedTabsPREFS extends BasePREFS {
   static DEBUG_MODE = "extensions.reopen-closed-tabs.debug-mode";
   static SHORTCUT_KEY = "extensions.reopen-closed-tabs.shortcut-key";
   static SHOW_OPEN_TABS = "extensions.reopen-closed-tabs.show-open-tabs";
+  static OPEN_TABS_FIRST = "extensions.reopen-closed-tabs.open-tabs-first";
   static SHOW_SYNC_TABS = "extensions.reopen-closed-tabs.show-sync-tabs";
 
   static defaultValues = {
     [ReopenClosedTabsPREFS.DEBUG_MODE]: false,
     [ReopenClosedTabsPREFS.SHORTCUT_KEY]: "Alt+A",
     [ReopenClosedTabsPREFS.SHOW_OPEN_TABS]: false,
+    [ReopenClosedTabsPREFS.OPEN_TABS_FIRST]: false,
     [ReopenClosedTabsPREFS.SHOW_SYNC_TABS]: true,
   };
 
@@ -28,6 +30,14 @@ class ReopenClosedTabsPREFS extends BasePREFS {
 
   static set showOpenTabs(value) {
     this.setPref(this.SHOW_OPEN_TABS, value);
+  }
+
+  static get openTabsFirst() {
+    return this.getPref(this.OPEN_TABS_FIRST);
+  }
+
+  static set openTabsFirst(value) {
+    this.setPref(this.OPEN_TABS_FIRST, value);
   }
 
   static get showSyncTabs() {

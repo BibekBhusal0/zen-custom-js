@@ -31,12 +31,13 @@ https://github.com/user-attachments/assets/be2880c6-21e5-42ce-b8ed-ed45dc1942ad
 
 The Reopen Closed Tabs Menu can be configured from `about:config`.
 
-| Preference Key                                 | Type    | Default | Description                                |
-| ---------------------------------------------- | ------- | ------- | ------------------------------------------ |
-| `extensions.reopen-closed-tabs.shortcut-key`   | String  | `Alt+A` | The keyboard shortcut to open the menu.    |
-| `extensions.reopen-closed-tabs.show-open-tabs` | Boolean | `false` | Also show currently open tabs in the list. |
-| `extensions.reopen-closed-tabs.show-sync-tabs` | Boolean | `true`  | Also show synced tabs from other devices.  |
-| `extensions.reopen-closed-tabs.debug-mode`     | Boolean | `false` | Enable debug logging for troubleshooting.  |
+| Preference Key                                  | Type    | Default | Description                                |
+| ----------------------------------------------- | ------- | ------- | ------------------------------------------ |
+| `extensions.reopen-closed-tabs.shortcut-key`    | String  | `Alt+A` | The keyboard shortcut to open the menu.    |
+| `extensions.reopen-closed-tabs.show-open-tabs`  | Boolean | `false` | Also show currently open tabs in the list. |
+| `extensions.reopen-closed-tabs.open-tabs-first` | Boolean | `false` | Show open tabs above recently closed tabs. |
+| `extensions.reopen-closed-tabs.show-sync-tabs`  | Boolean | `true`  | Also show synced tabs from other devices.  |
+| `extensions.reopen-closed-tabs.debug-mode`      | Boolean | `false` | Enable debug logging for troubleshooting.  |
 
 ## 🙏 Credits and Acknowledgements
 

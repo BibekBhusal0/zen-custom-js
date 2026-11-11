@@ -164,13 +164,7 @@ const ReopenClosedTabs = {
       openTabs = await TabManager.getOpenTabs();
     }
 
-    if (closedTabs.length > 0) {
-      this._renderGroup(allItemsContainer, "Recently Closed", closedTabs);
-    }
-
-    if (openTabs.length > 0) {
-      this._renderGroup(allItemsContainer, "Open Tabs", openTabs);
-    }
+    this._renderTabGroups(allItemsContainer, closedTabs, openTabs);
 
     if (closedTabs.length === 0 && openTabs.length === 0) {
       const noTabsItem = parseElement(
@@ -231,6 +225,21 @@ const ReopenClosedTabs = {
       const firstItem = container.querySelector(".reopen-closed-tab-item");
       if (firstItem) {
         firstItem.setAttribute("selected", "true");
+      }
+    }
+  },
+
+  _renderTabGroups(container, closedTabs, openTabs) {
+    const groups = [
+      { title: "Recently Closed", tabs: closedTabs },
+      { title: "Open Tabs", tabs: openTabs },
+    ];
+    if (PREFS.openTabsFirst) {
+      groups.reverse();
+    }
+    for (const { title, tabs } of groups) {
+      if (tabs.length > 0) {
+        this._renderGroup(container, title, tabs);
       }
     }
   },
@@ -346,12 +355,7 @@ const ReopenClosedTabs = {
         const openTabs = filteredTabs.filter((t) => !t.isClosed && !t.isSynced);
         const syncedTabs = filteredTabs.filter((t) => t.isSynced);
 
-        if (closedTabs.length > 0) {
-          this._renderGroup(tabItemsContainer, "Recently Closed", closedTabs);
-        }
-        if (openTabs.length > 0) {
-          this._renderGroup(tabItemsContainer, "Open Tabs", openTabs);
-        }
+        this._renderTabGroups(tabItemsContainer, closedTabs, openTabs);
         if (syncedTabs.length > 0) {
           this._renderGroup(tabItemsContainer, "Synced Tabs", syncedTabs);
         }
