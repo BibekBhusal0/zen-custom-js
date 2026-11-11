@@ -108,6 +108,7 @@ const mistral = Object.assign(Object.create(providerPrototype), {
   faviconUrl: googleFaviconAPI("mistral.ai"),
   apiKeyUrl: "https://console.mistral.ai/api-keys/",
   AVAILABLE_MODELS: [
+    "mistral-large-4",
     "mistral-large-latest",
     "mistral-medium-latest",
     "mistral-medium-3.5",
@@ -128,6 +129,8 @@ const gemini = Object.assign(Object.create(providerPrototype), {
   apiKeyUrl: "https://aistudio.google.com/app/apikey",
   kind: "gemini",
   AVAILABLE_MODELS: [
+    "gemini-4-carbon",
+    "gemini-4-argon",
     "gemini-3.8-flash",
     "gemini-3.7-flash",
     "gemini-3.6-flash",
@@ -150,6 +153,7 @@ const openai = Object.assign(Object.create(providerPrototype), {
   AVAILABLE_MODELS: [
     "gpt-6-astra",
     "gpt-6.1-sol",
+    "gpt-6.1-terra",
     "gpt-6-sol",
     "gpt-6-luna",
     "gpt-5.6",
@@ -181,9 +185,11 @@ const claude = Object.assign(Object.create(providerPrototype), {
   apiKeyUrl: "https://console.anthropic.com/dashboard",
   kind: "anthropic",
   AVAILABLE_MODELS: [
+    "claude-fable-5-2",
     "claude-fable-5-1",
     "claude-opus-5-5",
     "claude-sonnet-5-5",
+    "claude-haiku-5-5",
     "claude-opus-5",
     "claude-sonnet-5",
     "claude-haiku-4-5",

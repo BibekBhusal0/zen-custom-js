@@ -165,6 +165,10 @@
     "description": "Select the Claude model to use.",
     "options": [
       {
+        "value": "claude-fable-5-2",
+        "label": "Claude Fable 5.2"
+      },
+      {
         "value": "claude-fable-5-1",
         "label": "Claude Fable 5.1"
       },
@@ -175,6 +179,10 @@
       {
         "value": "claude-sonnet-5-5",
         "label": "Claude Sonnet 5.5"
+      },
+      {
+        "value": "claude-haiku-5-5",
+        "label": "Claude Haiku 5.5"
       },
       {
         "value": "claude-opus-5",
@@ -249,6 +257,14 @@
     "defaultValue": "gemini-3.8-flash",
     "description": "Select the Gemini model to use for chat responses.",
     "options": [
+      {
+        "value": "gemini-4-carbon",
+        "label": "Gemini 4 Carbon"
+      },
+      {
+        "value": "gemini-4-argon",
+        "label": "Gemini 4 Argon"
+      },
       {
         "value": "gemini-3.8-flash",
         "label": "Gemini 3.8 Flash"
@@ -376,6 +392,10 @@
     "description": "Select the Mistral model to use.",
     "options": [
       {
+        "value": "mistral-large-4",
+        "label": "Mistral Large 4"
+      },
+      {
         "value": "mistral-large-latest",
         "label": "Mistral Large (Latest)"
       },
@@ -475,6 +495,10 @@
       {
         "value": "gpt-6.1-sol",
         "label": "GPT 6.1 Sol"
+      },
+      {
+        "value": "gpt-6.1-terra",
+        "label": "GPT 6.1 Terra"
       },
       {
         "value": "gpt-6-sol",
