@@ -1775,6 +1775,9 @@ class BrowseBotLibrarySection {
 }
 BrowseBotLibrarySection.id = "browsebot";
 BrowseBotLibrarySection.label = "library-browsebot-section-title";
+// Duplicate copies define their own class, so sections are recognised by this
+// marker instead of class identity to avoid two copies replacing each other forever.
+BrowseBotLibrarySection.marker = "browsebot";
 window.ZenLibraryBrowseBotSection = BrowseBotLibrarySection;
 
 const observedHosts = new WeakSet();
@@ -1845,13 +1848,17 @@ function ensureTabPatched(host, attempts = 40) {
   }
 }
 
+function isBrowseBotSection(section) {
+  return section?.marker === BrowseBotLibrarySection.marker;
+}
+
 function ensureSection(host) {
   if (!host?.isConnected) return false;
   observeHost(host);
   const sections = host.zenLibrarySections;
   if (!sections || typeof sections !== "object") return false;
   if (!PREFS.libraryEnabled) {
-    if (sections["browsebot"] === BrowseBotLibrarySection) {
+    if (isBrowseBotSection(sections["browsebot"])) {
       delete sections["browsebot"];
       if (host.activeTab === "browsebot") host.activeTab = "history";
       try {
@@ -1862,7 +1869,7 @@ function ensureSection(host) {
     return false;
   }
   let changed = false;
-  if (sections["browsebot"] !== BrowseBotLibrarySection) {
+  if (!isBrowseBotSection(sections["browsebot"])) {
     sections["browsebot"] = BrowseBotLibrarySection;
     changed = true;
   }
