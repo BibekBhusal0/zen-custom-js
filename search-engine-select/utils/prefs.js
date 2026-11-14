@@ -4,6 +4,7 @@ class SearchEngineSelectPREFS extends BasePREFS {
   static MOD_NAME = "SearchEngineSelect";
   static DEBUG_MODE = "extension.search-engine-select.debug-mode";
   static ENABLED = "extension.search-engine-select.enabled";
+  static PALETTE_COMMANDS = "extension.search-engine-select.palette-commands";
   static REMEMBER_POSITION = "extension.search-engine-select.remember-position";
   static AUTOHIDE = "extension.search-engine-select.autohide";
   static Y_COOR = "extension.search-engine-select.y-coor";
@@ -11,6 +12,7 @@ class SearchEngineSelectPREFS extends BasePREFS {
   static defaultValues = {
     [SearchEngineSelectPREFS.DEBUG_MODE]: false,
     [SearchEngineSelectPREFS.ENABLED]: true,
+    [SearchEngineSelectPREFS.PALETTE_COMMANDS]: true,
     [SearchEngineSelectPREFS.REMEMBER_POSITION]: true,
     [SearchEngineSelectPREFS.AUTOHIDE]: "off",
     [SearchEngineSelectPREFS.Y_COOR]: "60%",

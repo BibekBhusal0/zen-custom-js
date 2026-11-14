@@ -5,6 +5,7 @@ import { PREFS } from "./utils/prefs.js";
 import { addPrefListener } from "../utils/pref.js";
 import { getVisibleEngines, getEngineByName, getDefaultEngine } from "../utils/search-service.js";
 import { openLink } from "../utils/open-link.js";
+import { setupCommandPaletteIntegration } from "./command-palette.js";
 
 const SearchEngineSwitcher = {
   _container: null,
@@ -506,6 +507,7 @@ function init() {
   PREFS.setInitialPrefs();
 
   if (PREFS.enabled) SearchEngineSwitcher.init();
+  setupCommandPaletteIntegration(() => SearchEngineSwitcher._currentSearchInfo);
 
   addPrefListener(PREFS.ENABLED, handleEnabledChange);
 }

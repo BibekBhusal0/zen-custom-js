@@ -1022,10 +1022,11 @@ export const ZenCommandPalette = {
         }
 
         getViewUpdate(result) {
-          const prettyIconIsSvg =
-            result.payload.prettyIcon &&
-            (result.payload.prettyIcon.endsWith(".svg") ||
-              result.payload.prettyIcon.endsWith(".png"));
+          const prettyIcon = result.payload.prettyIcon;
+          const prettyIconIsImage =
+            !!prettyIcon &&
+            (/^[a-z][a-z0-9+.-]*:/i.test(prettyIcon) ||
+              /\.(?:svg|png|ico|jpe?g|gif|webp|avif)$/i.test(prettyIcon));
           return {
             icon: {
               attributes: {
@@ -1045,16 +1046,16 @@ export const ZenCommandPalette = {
             },
             prettyNameTitle: {
               textContent: result.payload.prettyName
-                ? prettyIconIsSvg || !result.payload.prettyIcon
+                ? prettyIconIsImage || !prettyIcon
                   ? result.payload.prettyName
-                  : `${result.payload.prettyIcon}  ${result.payload.prettyName}`
+                  : `${prettyIcon}  ${result.payload.prettyName}`
                 : "",
               attributes: { dir: "ltr" },
             },
             prettyNameIcon: {
               attributes: {
-                src: result.payload.prettyIcon || "",
-                hidden: !prettyIconIsSvg || !result.payload.prettyIcon,
+                src: prettyIcon || "",
+                hidden: !prettyIconIsImage || !prettyIcon,
               },
             },
           };

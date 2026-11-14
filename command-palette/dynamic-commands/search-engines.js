@@ -22,7 +22,9 @@ export async function generateSearchEngineCommands() {
     const isDefault = defaultEngineName !== null && engineName === defaultEngineName;
     return {
       key: `search:${engineName}`,
-      label: isDefault ? `Search with: ${engineName} (Default)` : `Search with: ${engineName}`,
+      label: "Search with:",
+      prettyName: isDefault ? `${engineName} (Default)` : engineName,
+      prettyIcon: getSearchEngineFavicon(engine),
       command: () => {
         const browserWindow = Services.wm.getMostRecentWindow("navigator:browser");
         const gURLBar = browserWindow.gURLBar;
@@ -36,7 +38,7 @@ export async function generateSearchEngineCommands() {
           gURLBar.focus();
         }
       },
-      icon: getSearchEngineFavicon(engine),
+      icon: "chrome://browser/skin/zen-icons/search-glass.svg",
       tags: isDefault
         ? ["search", "engine", "default", engineName.toLowerCase()]
         : ["search", "engine", engineName.toLowerCase()],
