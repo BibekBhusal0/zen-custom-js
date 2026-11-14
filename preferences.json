@@ -1861,6 +1861,22 @@
     "description": "Globally enables or disables the floating search engine switcher UI."
   },
   {
+    "property": "extension.search-engine-select.palette-commands",
+    "label": "Command Palette Commands",
+    "type": "checkbox",
+    "placeholder": false,
+    "defaultValue": true,
+    "description": "Adds \"Search current search term in <engine>\" commands to Zen Command Palette.",
+    "conditions": [
+      {
+        "if": {
+          "property": "extension.search-engine-select.enabled",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
     "property": "extension.search-engine-select.remember-position",
     "label": "Remember UI Position",
     "type": "checkbox",
