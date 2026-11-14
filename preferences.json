@@ -1844,6 +1844,20 @@
   },
   {
     "type": "checkbox",
+    "property": "extensions.reopen-closed-tabs.open-tabs-first",
+    "label": "Show Open Tabs Above Recently Closed",
+    "defaultValue": false,
+    "conditions": [
+      {
+        "if": {
+          "property": "extensions.reopen-closed-tabs.show-open-tabs",
+          "value": true
+        }
+      }
+    ]
+  },
+  {
+    "type": "checkbox",
     "property": "extensions.reopen-closed-tabs.show-sync-tabs",
     "label": "Show Synced Tabs in Menu",
     "defaultValue": true
