@@ -28,7 +28,7 @@
     "cmd_zenCloseUnpinnedTabs": "Alt+C",
     "cmd_zenCompactModeShowSidebar": "Alt+S",
     "cmd_zenCompactModeShowToolbar": "Alt+T",
-    "cmd_zenCompactModeToggle": "Alt+Z",
+    "cmd_toggleCompactModeIgnoreHover": "Alt+Z",
     "cmd_zenCopyCurrentURL": "Ctrl+Shift+C",
     "cmd_zenCopyCurrentURLMarkdown": "Ctrl+Alt+C",
     "cmd_zenNewEmptySplit": "Ctrl+/",
